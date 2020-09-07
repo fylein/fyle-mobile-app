@@ -1,0 +1,18 @@
+.sign-in {
+  &--header {
+    min-height: 180px;
+  }
+
+  &--header-container {
+    min-height: 180px;
+    background: #220033;
+  }
+
+  &--header-logo-container {
+    text-align: center;
+  }
+
+  &--header-logo {
+    max-width: 100px;
+  }
+}

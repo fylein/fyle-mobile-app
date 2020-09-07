@@ -4,12 +4,16 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'folder/Inbox',
+    redirectTo: 'auth/sign-in',
     pathMatch: 'full'
   },
   {
-    path: 'folder/:id',
-    loadChildren: () => import('./folder/folder.module').then( m => m.FolderPageModule)
+    path: 'auth',
+    loadChildren: () => import('./auth/auth-routing.module').then( m => m.AuthRoutingModule)
+  },
+  {
+    path: 'enterprise',
+    loadChildren: () => import('./fyle/fyle-routing.module').then( m => m.FyleRoutingModule)
   }
 ];
 
