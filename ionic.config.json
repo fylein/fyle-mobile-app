@@ -1,0 +1,7 @@
+{
+  "name": "fyle-mobile-app2",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
