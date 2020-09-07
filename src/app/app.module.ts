@@ -11,7 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
-
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [AppComponent],
@@ -20,7 +20,8 @@ import { GooglePlus } from '@ionic-native/google-plus/ngx';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    HttpClientModule
   ],
   providers: [
     StatusBar,

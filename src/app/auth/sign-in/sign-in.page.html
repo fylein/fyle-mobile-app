@@ -6,21 +6,51 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <div class="ion-padding">
-    <h1>
+  <div class="sign-in--form">
+    <div class="sign-in--form-header">
       Sign In
-    </h1>
-    <h2>
+    </div>
+    <div class="sign-in--form-subheader">
       Enter your details below
-    </h2>
-    <form>
-      <mat-form-field appearance="outline">
-        <input type="email" matInput placeholder="Work Email">
+    </div>
+    <form [formGroup]="fg">
+      <mat-form-field class="sign-in--form-field" appearance="outline" *ngIf="!emailExists || emailEdit">
+        <input formControlName="email" type="email" matInput placeholder="Work Email">
       </mat-form-field>
-      <mat-form-field appearance="outline">
-        <input type="password" matInput placeholder="Password">
+      <div *ngIf="emailExists && !emailEdit">
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              {{fg.controls.email.value}}
+            </ion-col>
+            <ion-col class="sign-in--edit-email">
+              <a (click)="emailEdit = true">
+                Change
+              </a>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+      <mat-form-field class="sign-in--form-field" appearance="outline" *ngIf="emailExists">
+        <input formControlName="password" [type]="hide ? 'text': 'password'" matInput placeholder="Password">
+        <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
+          {{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
       </mat-form-field>
+      <div class="sign-in--primary-cta">
+        <button *ngIf="!emailExists" mat-flat-button color="primary" (click)="checkIfEmailExists()">
+          CONTINUE
+        </button>
+      </div>
+      <div class="sign-in--primary-cta">
+        <button *ngIf="emailExists" mat-flat-button color="primary" (click)="signInUser()">SIGN IN</button>
+      </div>
+      <div class="sign-in--secondary-cta">
+        <button mat-flat-button color="accent">SIGN IN WITH GOOGLE</button>
+      </div>
     </form>
-    <button mat-button color="accent" (click)="googleSignIn()" style="height: 50px;width: 200px;">Sign in with Google</button>
+    <div class="sign-in--redirect">
+      Don't have an account?
+      <a [routerLink]="['/', 'auth', 'sign-up']">Sign Up</a>
+    </div>
   </div>
 </ion-content>
