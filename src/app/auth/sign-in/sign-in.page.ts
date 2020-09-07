@@ -48,6 +48,7 @@ export class SignInPage implements OnInit {
       webClientId: clientId,
       offline: false
     }).then(res => {
+      this.googlePlus.logout();
       console.log(res);
     }).catch(err => {
       console.error(err)
