@@ -45,7 +45,7 @@
         <button *ngIf="emailExists" mat-flat-button color="primary" (click)="signInUser()">SIGN IN</button>
       </div>
       <div class="sign-in--secondary-cta">
-        <button mat-flat-button color="accent">SIGN IN WITH GOOGLE</button>
+        <button mat-flat-button color="accent" (click)="googleSignIn()">SIGN IN WITH GOOGLE</button>
       </div>
     </form>
     <div class="sign-in--redirect">
