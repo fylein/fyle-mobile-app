@@ -1,0 +1,42 @@
+import { CustomField } from './custom_field.model';
+
+export interface OrgUser {
+  id: string;
+  created_at: Date;
+  org_id: string;
+  user_id: string;
+  employee_id?: any;
+  location: string;
+  level?: any;
+  level_id?: any;
+  band?: any;
+  rank?: any;
+  business_unit?: any;
+  department_id?: any;
+  department?: any;
+  sub_department?: any;
+  roles: string[];
+  approver1_id: string;
+  approver2_id?: any;
+  approver3_id?: any;
+  delegatee_id?: any;
+  delegation_start_at?: any;
+  delegation_end_at?: any;
+  title?: any;
+  status: string;
+  branch_ifsc?: any;
+  branch_account?: any;
+  mobile: string;
+  mobile_verified: boolean;
+  mobile_verified_at: Date;
+  is_primary: boolean;
+  owner?: any;
+  joining_dt?: any;
+  special_email: string;
+  custom_field_values: CustomField[];
+  org_name: string;
+  settings_id: string;
+  default_cost_center_id: number;
+  default_cost_center_name: string;
+  default_cost_center_code: string;
+}
