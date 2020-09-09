@@ -7,7 +7,7 @@
     </ion-row>
   </ion-grid>
   <div class="sign-in--form">
-    <div class="sign-in--form-header">
+    <div id="sign-in--header" class="sign-in--form-header">
       Sign In
     </div>
     <div class="sign-in--form-subheader">
@@ -15,16 +15,18 @@
     </div>
     <form [formGroup]="fg">
       <mat-form-field class="sign-in--form-field" appearance="outline" *ngIf="!emailSet">
-        <input formControlName="email" type="email" matInput placeholder="Work Email">
+        <input id="sign-in--email" formControlName="email" type="email" matInput placeholder="Work Email">
       </mat-form-field>
       <div *ngIf="emailSet">
         <ion-grid>
           <ion-row>
             <ion-col>
-              {{fg.controls.email.value}}
+              <span id="sign-in--email-label">
+                {{fg.controls.email.value}}
+              </span>
             </ion-col>
             <ion-col class="sign-in--edit-email">
-              <a (click)="emailSet = false">
+              <a id="sign-in--change" (click)="emailSet = false">
                 Change
               </a>
             </ion-col>
@@ -32,22 +34,25 @@
         </ion-grid>
       </div>
       <mat-form-field class="sign-in--form-field" appearance="outline" *ngIf="emailSet">
-        <input formControlName="password" [type]="hide ? 'text': 'password'" matInput placeholder="Password">
+        <input id="sign-in--password" formControlName="password" [type]="hide ? 'text': 'password'" matInput
+          placeholder="Password">
         <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
           {{hide ? 'visibility_off' : 'visibility'}}
         </mat-icon>
       </mat-form-field>
     </form>
     <div class="sign-in--primary-cta">
-      <button [disabled]="!fg.controls.email.valid" *ngIf="!emailSet" mat-flat-button color="primary"
-        (click)="checkIfEmailExists()">
+      <button id="sign-in--continue" [disabled]="!fg.controls.email.valid" *ngIf="!emailSet" mat-flat-button
+        color="primary" (click)="checkIfEmailExists()">
         CONTINUE
       </button>
     </div>
 
     <div class="sign-in--primary-cta">
-      <button [disabled]="!fg.valid" *ngIf="emailSet" mat-flat-button color="primary" (click)="signInUser()">SIGN
-        IN</button>
+      <button id="sign-in--btn-sign-in" [disabled]="!fg.valid" *ngIf="emailSet" mat-flat-button color="primary"
+        (click)="signInUser()">
+        SIGN IN
+      </button>
     </div>
     <div *ngIf="emailSet" class="sign-in--redirect">
       <a [routerLink]="['/']">Forgot Password</a>
