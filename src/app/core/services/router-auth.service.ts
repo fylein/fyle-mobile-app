@@ -76,6 +76,8 @@ export class RouterAuthService {
   googleSignin(accessToken): Observable<AuthResponse> {
     return this.routerApiService.post('/auth/google/signin', {
       access_token: accessToken
-    });
+    }).pipe(
+      tap(async res => await this.handleSignInResponse(res))
+    );
   }
 }
