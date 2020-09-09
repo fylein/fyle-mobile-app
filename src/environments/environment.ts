@@ -4,6 +4,8 @@
 
 export const environment = {
   production: false,
+  NAME: '',
+  CLUSTER_DOMAIN: '',
   ROOT_URL: '',
   ROUTER_API_ENDPOINT: ''
 };

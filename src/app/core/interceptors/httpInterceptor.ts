@@ -11,17 +11,16 @@ import {
 import { Observable, throwError, from } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
-import { Plugins } from '@capacitor/core';
 import { JwtHelperService } from '../services/jwt-helper.service';
 
-const { Storage } = Plugins;
-const TOKEN_KEY = 'auth-token';
 import * as moment from 'moment';
+import { TokenService } from '../services/token.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
   constructor(
-    private jwtHelperService: JwtHelperService
+    private jwtHelperService: JwtHelperService,
+    private tokenService: TokenService
   ) { }
 
   secureUrl(url) {
@@ -60,19 +59,16 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     // YOU CAN ALSO DO THIS
     // const token = this.authenticationService.getToke()
 
-    return from(Storage.get({ key: TOKEN_KEY }))
+    return from(this.tokenService.getAccessToken())
       .pipe(
-        switchMap(value => {
-          // TODO: Incomplete implementation
-          // let token = value.value;
+        switchMap(token => {
+          if (!token || this.expiringSoon(token)) {
+            this.getNewAccessToken();
+          }
 
-          // if (!token || this.expiringSoon(token)) {
-          //   this.getNewAccessToken();
-          // }
-
-          // if (token && this.secureUrl(request.url)) {
-          //   request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
-          // }
+          if (token && this.secureUrl(request.url)) {
+            request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
+          }
 
 
 

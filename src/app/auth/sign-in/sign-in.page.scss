@@ -71,6 +71,10 @@ $secondary-cta-border: #e0e0e0;
   &--redirect {
     margin: 16px;
     text-align: center;
+    font-size: 16px;
+    a {
+      text-decoration: none;
+    }
   }
 
   &--edit-email {

@@ -8,11 +8,15 @@ import { map } from 'rxjs/operators';
 })
 export class RouterApiService {
 
+  private ROUTER_API_ENDPOINT: string;
+
   constructor(
     private httpClient: HttpClient
-  ) { }
+  ) {
+    this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
+  }
 
   post(url: string, data: any) {
-    return this.httpClient.post<any>(environment.ROUTER_API_ENDPOINT + '/routerapi' + url, data);
+    return this.httpClient.post<any>(this.ROUTER_API_ENDPOINT + '/routerapi' + url, data);
   }
 }

@@ -30,4 +30,7 @@ export class StorageService {
     }
   }
 
+  async delete(key: string) {
+    return await Storage.remove({ key });
+  }
 }
