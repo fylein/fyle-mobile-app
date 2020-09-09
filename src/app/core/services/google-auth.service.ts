@@ -1,0 +1,29 @@
+import { Injectable } from '@angular/core';
+import { GooglePlus } from '@ionic-native/google-plus/ngx';
+import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GoogleAuthService {
+
+  constructor(
+  	private googlePlus: GooglePlus,
+  ) { }
+
+  async login(): Promise<any>{
+    // Need to put ios case here later
+    var clientId = environment.ANDROID_CLIENT_ID;
+    return this.googlePlus.login({
+      webClientId: clientId,
+      offline: false
+    }).then(res => {
+      this.googlePlus.logout();
+      return res;
+    }).catch(err => {
+      return err;
+    });
+
+  }
+}

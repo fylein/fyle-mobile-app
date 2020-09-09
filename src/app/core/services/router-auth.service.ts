@@ -72,4 +72,10 @@ export class RouterAuthService {
       tap(async res => await this.handleSignInResponse(res))
     );
   }
+
+  googleSignin(accessToken): Observable<AuthResponse> {
+    return this.routerApiService.post('/auth/google/signin', {
+      access_token: accessToken
+    });
+  }
 }

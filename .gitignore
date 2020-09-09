@@ -32,3 +32,4 @@ npm-debug.log*
 android
 .gradle
 setup.sh
+src/environments/environment.staging.ts

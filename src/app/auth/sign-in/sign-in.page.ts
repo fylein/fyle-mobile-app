@@ -8,9 +8,7 @@ import { shareReplay, catchError, filter, finalize, tap, switchMap } from 'rxjs/
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
-import { GooglePlus } from '@ionic-native/google-plus/ngx';
-import { Platform } from '@ionic/angular';
-import { environment } from 'src/environments/environment';
+import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -28,8 +26,7 @@ export class SignInPage implements OnInit {
     private loaderService: LoaderService,
     private authService: AuthService,
     private router: Router,
-    private googlePlus: GooglePlus,
-    public platform: Platform
+    public googleAuthService :GoogleAuthService
   ) { }
 
   async checkIfEmailExists() {
@@ -115,16 +112,20 @@ export class SignInPage implements OnInit {
   }
 
   googleSignIn() {
-    var clientId = 'your-android-client-id';
-    this.googlePlus.login({
-      webClientId: clientId,
-      offline: false
-    }).then(res => {
-      this.googlePlus.logout();
-      console.log(res);
-    }).catch(err => {
-      console.error(err)
-    });
+    this.googleAuthService.login().then(data => {
+      const googleSignIn$ = this.routerAuthService.googleSignin(data.accessToken).pipe(
+        catchError(err => {
+          return throwError(err);
+        }),
+        switchMap((res) => {
+          return this.authService.newRefreshToken(res.refresh_token);
+        })
+      );
+
+      googleSignIn$.subscribe(() => {
+        this.router.navigate(['/', 'auth', 'switch-org']);
+      })
+    })
   };
 
   async ngOnInit() {
