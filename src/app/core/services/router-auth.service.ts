@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
 import { tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
