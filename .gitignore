@@ -34,4 +34,4 @@ src/environments/environment.staging.ts
 
 .gradle
 android
-setup.sh
+ios
