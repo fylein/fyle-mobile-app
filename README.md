@@ -23,6 +23,13 @@ Note: Do not make any changes to environment.ts file - it is to be a template fo
  - [Install Android Studio](https://developer.android.com/studio)
  - npx cap add android
  - npx cap sync
+ - npx cap copy
  - npx cap open android
  - under build of top navigation - select build variant (debug or release)
  - build apk from the same as above
+ ** IF npx cap give some trouble, please replace it with `ionic capacitor`
+
+## For running app directly in android device for staging
+- ionic capacitor run android -l --external --configuration=staging
+  This will open android studio, let it build index file and gradle build for sometime
+  Then check that studio recgnized the right device in top bar. Press run button. After every change you make in `src` directory it will automatically build the app in device.
