@@ -32,3 +32,6 @@ npm-debug.log*
 
 src/environments/environment.prod.ts
 src/environments/environment.staging.ts
+
+.gradle
+android
