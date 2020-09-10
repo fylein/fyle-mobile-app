@@ -27,7 +27,7 @@ Note: Do not make any changes to environment.ts file - it is to be a template fo
  - npx cap open android
  - under build of top navigation - select build variant (debug or release)
  - build apk from the same as above
- ** IF npx cap give some trouble, please replace it with `ionic capacitor`
+ ** IF npx cap give some trouble, please replace it with `ionic cap`
 
 ## For running app directly in android device for staging
 - ionic capacitor run android -l --external --configuration=staging
