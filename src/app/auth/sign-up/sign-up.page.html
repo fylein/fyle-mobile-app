@@ -1,0 +1,36 @@
+<ion-content>
+  <ion-grid class="sign-up--header-container">
+    <ion-row class="sign-up--header ion-align-items-center">
+      <ion-col class="sign-up--header-sub-container">
+        <div class="sign-up--header-element">
+          Spend. Fyle it.
+        </div>
+        <div class="sign-up--header-element">
+          Get Paid, Faster<ion-icon class="sign-up--flash" name="flash"></ion-icon>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <div class="sign-up--form">
+    <div class="sign-up--form-header">
+      Get Started
+    </div>
+    <div class="sign-up--form-subheader">
+      We just need your work email address
+    </div>
+    <form>
+      <mat-form-field class="sign-up--form-field" appearance="outline" *ngIf="!emailSet">
+        <input type="email" matInput placeholder="Work Email">
+      </mat-form-field>
+    </form>
+    <div class="sign-up--primary-cta">
+      <button mat-flat-button color="primary" (click)="signUpUser()">
+        SIGN UP
+      </button>
+    </div>
+    <div class="sign-up--redirect">
+      Already on Fyle?
+      <a id="sign-up--redirect-sign-in" [routerLink]="['/', 'auth', 'sign-in']">Sign In</a>
+    </div>
+  </div>
+</ion-content>
