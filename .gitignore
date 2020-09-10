@@ -29,7 +29,9 @@ npm-debug.log*
 /platforms
 /plugins
 /www
-android
-.gradle
-setup.sh
+src/environments/environment.prod.ts
 src/environments/environment.staging.ts
+
+.gradle
+android
+setup.sh

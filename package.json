@@ -24,6 +24,7 @@
     "@angular/router": "~10.0.0",
     "@capacitor/android": "^2.4.0",
     "@auth0/angular-jwt": "^5.0.1",
+    "@capacitor/android": "^2.4.0",
     "@capacitor/core": "2.4.0",
     "@ionic-native/core": "^5.0.0",
     "@ionic-native/google-plus": "^5.28.0",

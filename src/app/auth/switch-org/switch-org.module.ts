@@ -8,13 +8,18 @@ import { SwitchOrgPageRoutingModule } from './switch-org-routing.module';
 
 import { SwitchOrgPage } from './switch-org.page';
 
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    SwitchOrgPageRoutingModule
+    SwitchOrgPageRoutingModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   declarations: [SwitchOrgPage]
 })
-export class SwitchOrgPageModule {}
+export class SwitchOrgPageModule { }

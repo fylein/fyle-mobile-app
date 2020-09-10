@@ -8,6 +8,7 @@ import { shareReplay, catchError, filter, finalize, tap, switchMap } from 'rxjs/
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
 
 @Component({
@@ -62,7 +63,7 @@ export class SignInPage implements OnInit {
     });
   }
 
-  async handleError(err) {
+  async handleError(err: HttpErrorResponse) {
     let header = 'Incorrect Email or Password';
 
     if (err.status === 400) {
@@ -70,7 +71,7 @@ export class SignInPage implements OnInit {
     } else if (err.status === 401) {
       header = 'Unauthorized';
 
-      if (err.data && err.data.message) {
+      if (err.error && err.error.message) {
         header = 'Account doesn\'t exist';
       }
     } else if (err.status === 500) {
@@ -130,7 +131,7 @@ export class SignInPage implements OnInit {
 
   async ngOnInit() {
     this.fg = this.formBuilder.group({
-      email: ['', Validators.compose([Validators.required, Validators.pattern('[A-Za-z0-9._%-]+@[A-Za-z0-9._%-]+\\.[a-z]{2,3}')])],
+      email: ['', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
       password: ['', Validators.required]
     });
 
