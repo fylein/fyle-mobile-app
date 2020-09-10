@@ -39,13 +39,13 @@ Note: Do not make any changes to environment.ts file - it is to be a template fo
 
 To make google login work in your physical device you need to do some extra activity
 
-```Android```
+**Android**
   - Get you SHA-1 key by running this command
     `keytool -exportcert -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore`, password: android
   - Ping @tarun to add this sha1 key to firebase console and get `google-services.json` file from him.
   - Open your code editor, not android studio and add thsi file inside `android/app` directory.
 
-```iOS```
+**iOS**
   - Get `GoogleService-Info.plist` from @tarun
   - Open xcode via terminal($ionic cap open ios)
   - Drag and drop googleService-Info.plist file inside App/App directory.
