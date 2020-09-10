@@ -35,3 +35,4 @@ src/environments/environment.staging.ts
 .gradle
 android
 ios
+ios/App/App/GoogleService-Info.plist
