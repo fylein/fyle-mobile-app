@@ -1,6 +1,6 @@
 {
-  "appId": "io.ionic.starter",
-  "appName": "fyle-mobile-app2",
+  "appId": "com.fylehq.production",
+  "appName": "Fyle v2 Alpha",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

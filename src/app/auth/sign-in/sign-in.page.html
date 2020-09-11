@@ -58,12 +58,11 @@
       <a [routerLink]="['/']">Forgot Password</a>
     </div>
     <div *ngIf="!emailSet" class="sign-in--secondary-cta">
-      <button mat-flat-button color="accent">SIGN IN WITH GOOGLE</button>
+      <button mat-flat-button color="accent" (click)="googleSignIn()">SIGN IN WITH GOOGLE</button>
     </div>
     <div class="sign-in--redirect">
       Don't have an account?
       <a [routerLink]="['/', 'auth', 'sign-up']">Sign Up</a>
     </div>
-
   </div>
 </ion-content>

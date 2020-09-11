@@ -29,9 +29,10 @@ npm-debug.log*
 /platforms
 /plugins
 /www
-
 src/environments/environment.prod.ts
 src/environments/environment.staging.ts
 
 .gradle
 android
+ios
+ios/App/App/GoogleService-Info.plist
