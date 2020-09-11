@@ -27,7 +27,7 @@ export class SignInPage implements OnInit {
     private loaderService: LoaderService,
     private authService: AuthService,
     private router: Router,
-    public googleAuthService :GoogleAuthService
+    public googleAuthService: GoogleAuthService
   ) { }
 
   async checkIfEmailExists() {
