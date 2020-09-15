@@ -7,7 +7,8 @@ export const environment = {
   NAME: '',
   CLUSTER_DOMAIN: '',
   ROOT_URL: '',
-  ROUTER_API_ENDPOINT: ''
+  ROUTER_API_ENDPOINT: '',
+  ANDROID_CLIENT_ID: ''
 };
 
 /*

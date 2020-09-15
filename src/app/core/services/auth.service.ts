@@ -4,8 +4,9 @@ import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { tap, switchMap, map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
-import { concat, noop, forkJoin, Observable } from 'rxjs';
-import { ExtendedOrgUser } from '../models/extended_org_user.model';
+import { forkJoin, Observable, from } from 'rxjs';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { JwtHelperService } from './jwt-helper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class AuthService {
     private storageService: StorageService,
     private tokenService: TokenService,
     private apiService: ApiService,
-    private dataTransformService: DataTransformService
+    private dataTransformService: DataTransformService,
+    private jwtHelperService: JwtHelperService
   ) { }
 
   getEou(): Promise<ExtendedOrgUser> {
@@ -56,6 +58,22 @@ export class AuthService {
           })
         );
       })
+    );
+  }
+
+  getRoles() {
+    return from(this.tokenService.getAccessToken()).pipe(
+      map(
+        accessToken => {
+          if (accessToken) {
+            const tokenPayload = this.jwtHelperService.decodeToken(accessToken);
+            const roles = tokenPayload.roles;
+            return roles;
+          } else {
+            return [];
+          }
+        }
+      )
     );
   }
 }
