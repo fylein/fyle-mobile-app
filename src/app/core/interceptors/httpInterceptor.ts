@@ -9,18 +9,21 @@ import {
 } from '@angular/common/http';
 
 import { Observable, throwError, from } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { map, catchError, switchMap, mergeMap, concatMap } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
 
 import * as moment from 'moment';
 import { TokenService } from '../services/token.service';
+import { AuthService } from '../services/auth.service';
+import { RouterAuthService } from '../services/router-auth.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
   constructor(
     private jwtHelperService: JwtHelperService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private routerAuthService: RouterAuthService
   ) { }
 
   secureUrl(url) {
@@ -50,40 +53,35 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   }
 
 
-  getNewAccessToken() {
-    throwError('not implemented yet');
+  refreshAccessToken() {
+    return from(this.tokenService.getRefreshToken()).pipe(
+      concatMap(
+        refreshToken => this.routerAuthService.fetchAccessToken(refreshToken)
+      ),
+      concatMap(
+        authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
+      ),
+      concatMap(() => from(this.tokenService.getAccessToken()))
+    );
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-
-    // YOU CAN ALSO DO THIS
-    // const token = this.authenticationService.getToke()
-
     return from(this.tokenService.getAccessToken())
       .pipe(
-        switchMap(token => {
-          if (!token || this.expiringSoon(token)) {
-            this.getNewAccessToken();
-          }
-
+        concatMap(token => {
           if (token && this.secureUrl(request.url)) {
             request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
           }
-
-
-
-          // if (!request.headers.has('Content-Type')) {
-          //   request = request.clone({ headers: request.headers.set('Content-Type', 'application/json') });
-          // }
           return next.handle(request).pipe(
-            map((event: HttpEvent<any>) => {
-              if (event instanceof HttpResponse) {
-                // do nothing for now
+            catchError((error) => {
+              if (error instanceof HttpErrorResponse) {
+                return from(this.refreshAccessToken()).pipe(
+                  mergeMap((newToken) => {
+                    request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + newToken) });
+                    return next.handle(request);
+                  })
+                );
               }
-              return event;
-            }),
-            catchError((error: HttpErrorResponse) => {
-
               return throwError(error);
             })
           );
