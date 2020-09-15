@@ -10,6 +10,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @Component({
   selector: 'app-sign-in',
@@ -27,8 +28,54 @@ export class SignInPage implements OnInit {
     private loaderService: LoaderService,
     private authService: AuthService,
     private router: Router,
-    public googleAuthService: GoogleAuthService
+    public googleAuthService: GoogleAuthService,
+    private inAppBrowser: InAppBrowser
   ) { }
+
+  checkSAMLResponse = function (data) {
+    console.log(data);
+    if (data.error) {
+      var err = {
+        status: parseInt(data.response_status_code)
+      };
+
+      this.handleError(err);
+    } else {
+      // Login Success
+      this.routerAuthService.handleSignInResponse(data);
+      const samlNewRefreshToken$ = this.authService.newRefreshToken(data.refresh_token);
+
+      samlNewRefreshToken$.subscribe(() => {
+        this.router.navigate(['/', 'auth', 'switch-org']);
+      });
+    }
+  };
+
+  handleSamlSignIn (res) {
+    var url = res.idp_url + '&RelayState=MOBILE';
+    const browser = this.inAppBrowser.create(url, '_blank', 'location=yes');
+    browser.on('loadstop').subscribe(event => {
+      var getResponse = setInterval(() =>{
+        browser.executeScript({
+          code: 'try{document.getElementById("fyle-login-response").innerHTML;}catch(err){}'
+        }).then((responseData) => {
+          var response = responseData && responseData[0];
+          var data = '';
+
+          try {
+            data = JSON.parse(response);
+          } catch (err) {
+          }
+          if (data) {
+            clearInterval(getResponse);
+            browser.close();
+            console.log(data);
+            this.checkSAMLResponse(data);
+          }
+        });
+      }, 1000);
+    });
+  }
 
   async checkIfEmailExists() {
     await this.loaderService.showLoader();
@@ -58,8 +105,8 @@ export class SignInPage implements OnInit {
       this.emailSet = true;
     });
 
-    saml$.subscribe(() => {
-      console.log('Not handled');
+    saml$.subscribe((res) => {
+      this.handleSamlSignIn(res);
     });
   }
 
