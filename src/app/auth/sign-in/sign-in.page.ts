@@ -32,8 +32,7 @@ export class SignInPage implements OnInit {
     private inAppBrowser: InAppBrowser
   ) { }
 
-  checkSAMLResponse = function (data) {
-    console.log(data);
+  checkSAMLResponseAndSignInUser = function (data) {
     if (data.error) {
       var err = {
         status: parseInt(data.response_status_code)
@@ -55,7 +54,7 @@ export class SignInPage implements OnInit {
     var url = res.idp_url + '&RelayState=MOBILE';
     const browser = this.inAppBrowser.create(url, '_blank', 'location=yes');
     browser.on('loadstop').subscribe(event => {
-      var getResponse = setInterval(() =>{
+      var getResponse = setInterval(() => {
         browser.executeScript({
           code: 'try{document.getElementById("fyle-login-response").innerHTML;}catch(err){}'
         }).then((responseData) => {
@@ -69,8 +68,7 @@ export class SignInPage implements OnInit {
           if (data) {
             clearInterval(getResponse);
             browser.close();
-            console.log(data);
-            this.checkSAMLResponse(data);
+            this.checkSAMLResponseAndSignInUser(data);
           }
         });
       }, 1000);
@@ -163,6 +161,7 @@ export class SignInPage implements OnInit {
     this.googleAuthService.login().then(data => {
       const googleSignIn$ = this.routerAuthService.googleSignin(data.accessToken).pipe(
         catchError(err => {
+          this.handleError(err);
           return throwError(err);
         }),
         switchMap((res) => {
