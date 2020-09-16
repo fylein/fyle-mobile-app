@@ -1,0 +1,35 @@
+<div class="dashboard-card--details dashboard-card--{{ this.item.class }}" ng-class="{ 'expanded': this.item.isCollapsed && !vm.showAll }" ng-click="vm.expandCard(this.item)">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="1">
+        <!-- Use svg-sprite here later -->
+        <ion-icon class="dashboard-card--icon-card" src="../../../assets/svg/{{this.item.icon}}.svg"></ion-icon> 
+      </ion-col>
+      <ion-col size="8">
+        <div class="dashboard-card--container">
+          <p class="dashboard-card--title m-0 text-capitalize" [textContent]="this.item.title"></p>
+          <p class="dashboard-card--card-count">
+            <small *ngIf="this.item.title !== 'trips'"> 1 {{ 1 > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
+            <small *ngIf="this.item.title === 'trips'"> {{ 1 || 0 }} {{ 1 > 1 ? this.subTitle + 's' : this.item.subTitle }}</small>
+          </p>
+        </div>
+      </ion-col>
+      <ion-col size="3">
+        <div class="dashboard-card--card-amount" *ngIf="this.item.title !== 'trips'">100</div>
+      </ion-col>
+    </ion-row>
+  <div class="card-needs-attention need-attention-block" ng-if="vm.needsAttentionStats.count && vm.needsAttentionStats.count > 0">
+    <div class="need-attention-curve-container">
+      <!-- <svg-sprite icon="curve" class="icon-card"></svg-sprite> -->
+      <div class="need-attention-text text-right">
+        <div class="warning-icon">
+          <!-- <svg-sprite icon="warning" class="icon-card"></svg-sprite> -->
+        </div>
+        <!-- <div class="text-ellipsis">
+          {{ vm.needsAttentionStats.count || 0 }} {{ vm.needsAttentionStats.count > 1 ? item.subTitle + 's' : item.subTitle }} {{vm.needsAttentionStats.count > 1 ? 'need' : 'needs'}} your attention
+        </div> -->
+      </div>
+    </div>  
+  </div>
+  </ion-grid>
+</div>

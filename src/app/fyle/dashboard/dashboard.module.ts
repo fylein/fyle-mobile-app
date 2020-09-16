@@ -8,6 +8,7 @@ import { DashboardPageRoutingModule } from './dashboard-routing.module';
 
 import { DashboardPage } from './dashboard.page';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/enterprise-dashboard-card.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
     DashboardPageRoutingModule,
     MatExpansionModule
   ],
-  declarations: [DashboardPage]
+  declarations: [DashboardPage, EnterpriseDashboardCardComponent]
 })
 export class DashboardPageModule {}

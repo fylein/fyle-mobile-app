@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/enterprise-dashboard-card.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,6 +34,7 @@ export class DashboardPage implements OnInit {
     },
     {
       title: 'corporate cards',
+      isVisible: true,
       //isVisible: !!(vm.settings.corporate_credit_card_settings.enabled),
       isCollapsed: false,
       class: 'corporate-cards',
@@ -42,6 +44,7 @@ export class DashboardPage implements OnInit {
     },
     {
       title: 'advances',
+      isVisible: true,
       //isVisible: !!(vm.settings.advances.enabled || vm.settings.advance_requests.enabled),
       isCollapsed: false,
       class: 'advances',
@@ -52,6 +55,7 @@ export class DashboardPage implements OnInit {
     },
     {
       title: 'trips',
+      isVisible: true,
       //isVisible: !!(vm.settings.trip_requests.enabled && (!vm.settings.trip_requests.enable_for_certain_employee || (vm.settings.trip_requests.enable_for_certain_employee && vm.orgUserSettings.trip_request_org_user_settings.enabled))),
       isCollapsed: false,
       class: 'trips',

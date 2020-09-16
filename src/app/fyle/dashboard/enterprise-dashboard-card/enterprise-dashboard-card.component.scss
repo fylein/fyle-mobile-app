@@ -1,0 +1,71 @@
+$dashboard-expenses-card: #ffb13c;
+$dashboard-advances-card: #f66767;
+$dashboard-trips-card: #66bb6a;
+$dashboard-report-card: #2196f3;
+$dashboard-ccc-card: #7e57c2;
+
+.dashboard-card {
+  &--details {
+    margin: 16px;
+    padding: 12px 0 0 16px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px 0 #e8e8e8 !important;
+    background-color: #fff;
+    position: relative;
+    z-index: 1;
+    min-height: 90px;
+    border-left: 6px solid;
+  }
+
+  &--container {
+    margin: 0 4px 0 8px;
+  }
+
+  &--title {
+    font-size: 16px;
+    color: #4a4a4a;
+    font-weight: 500;
+    margin: 0 !important;
+  }
+
+  &--card-count {
+    margin: 0 0 10px;
+    color: #959eac;
+    white-space: nowrap;
+  }
+
+  &--card-amount {
+    font-weight: 500;
+    font-size: 16px;
+    margin: 4px 8px 4px;
+    color: #4a4a4a;
+    float: right;
+  }
+
+  &--icon-card {
+    margin-top: 4px;
+    width: 24px;
+    height: 24px;
+    fill: #a0a0a0;
+  }
+
+  &--trips {
+    border-color: $dashboard-trips-card;
+  }
+
+  &--expenses {
+    border-color: $dashboard-expenses-card;
+  }
+
+  &--advances {
+    border-color: $dashboard-advances-card;
+  }
+
+  &--reports {
+    border-color: $dashboard-report-card;
+  }
+
+  &--corporate-cards {
+    border-color: $dashboard-ccc-card;
+  }
+}
