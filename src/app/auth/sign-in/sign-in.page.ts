@@ -108,7 +108,7 @@ export class SignInPage implements OnInit {
     );
 
     basicSignIn$.subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch-org']);
+      this.router.navigate(['/', 'auth', 'switch-org', {choose: true}]);
     });
   }
 
@@ -124,7 +124,7 @@ export class SignInPage implements OnInit {
       );
 
       googleSignIn$.subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch-org']);
+        this.router.navigate(['/', 'auth', 'switch-org', {choose: true}]);
       })
     })
   };
@@ -138,7 +138,7 @@ export class SignInPage implements OnInit {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
 
     if (isLoggedIn) {
-      this.router.navigate(['/', 'auth', 'switch-org']);
+      this.router.navigate(['/', 'auth', 'switch-org', { choose: false }]);
     }
   }
 }
