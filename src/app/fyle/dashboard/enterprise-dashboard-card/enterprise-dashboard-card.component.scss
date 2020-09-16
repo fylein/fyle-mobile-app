@@ -3,6 +3,7 @@ $dashboard-advances-card: #f66767;
 $dashboard-trips-card: #66bb6a;
 $dashboard-report-card: #2196f3;
 $dashboard-ccc-card: #7e57c2;
+$shadow: #e8e8e8;
 
 .dashboard-card {
   &--details {
@@ -68,4 +69,22 @@ $dashboard-ccc-card: #7e57c2;
   &--corporate-cards {
     border-color: $dashboard-ccc-card;
   }
+
+  &--expanded-view {
+    position: absolute;
+    height: inherit;
+    top: 60px;
+    box-shadow: 0 -4px 8px 0 #e8e8e8 !important;
+    padding: 8px 16px;
+
+    .state-row {
+      padding: 0 0 0 16px;
+      border-bottom: 1px solid $shadow;
+
+      &:first-child {
+        padding-top: 62px;
+      }
+    }
+  }
+
 }

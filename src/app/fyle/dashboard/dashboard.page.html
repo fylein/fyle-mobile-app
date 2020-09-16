@@ -14,8 +14,7 @@
 	<div class="dashboard--container">
     <!-- a-{{this.dashboardList}} -->
     <div class="dashboard--card" *ngFor="let item of this.dashboardList; index as $index;">
-      <div ng-if="item.isVisible && !item.isCollapsed">
-        <!-- <enterprise-dashboard-card dashboard-list="vm.dashboardList" index=($index)></enterprise-dashboard-card> -->
+      <div *ngIf="this.item.isVisible && !this.item.isCollapsed">
         <app-enterprise-dashboard-card [dashboardList]="this.dashboardList" [index]="$index"></app-enterprise-dashboard-card>
       </div>
     </div>

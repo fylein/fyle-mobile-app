@@ -1,4 +1,4 @@
-<div class="dashboard-card--details dashboard-card--{{ this.item.class }}" ng-class="{ 'expanded': this.item.isCollapsed && !vm.showAll }" ng-click="vm.expandCard(this.item)">
+<div class="dashboard-card--details dashboard-card--{{ this.item.class }}" (click)="this.expandCard(this.item)">
   <ion-grid>
     <ion-row>
       <ion-col size="1">
@@ -32,4 +32,45 @@
     </div>  
   </div>
   </ion-grid>
+</div>
+
+<div class="dashboard-card--expanded-view full-width" *ngIf="this.expandedCard === this.item.title">
+  <div class="state-row" *ngFor="let stat of this.detailedStats; index as $index;" (click)="this.filterToState(this.item.title, this.stat.state)">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="8">
+          <div class="warning-inverted-block">
+            <div>
+              <p class="card-title m-0"> {{ this.stat.title }} </p>
+            </div>
+            <!-- <div ng-if="this.item.title === 'trips'">
+              <svg-sprite icon="warning-inverted" class="icon-card" ng-if="stat.warning && stat.count && stat.count > 0"></svg-sprite>
+            </div> -->
+            <!-- <div ng-if="item.title !== 'trips'">
+              <svg-sprite icon="warning-inverted" class="icon-card" ng-if="stat.warning && stat.total_count && stat.total_count > 0"></svg-sprite>
+            </div> -->
+          </div>
+          <p class="dashboard-card--card-count">
+            <small *ngIf="this.item.title !== 'trips'"> {{ this.stat.total_count || 0 }} {{ this.stat.total_count > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
+            <small *ngIf="this.item.title === 'trips'"> {{ this.stat.count || 0 }} {{ this.stat.count > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
+          </p>
+        </ion-col>
+
+        <ion-col size="4">
+          {{2 | humanizeCurrency: 10}}
+          <div *ngIf="this.item.title !== 'trips'" [textContent]="this.stat.total_amount || 0 "></div>
+            <!-- <div class="icon-arrow-left">
+              <svg-sprite icon="chevron-right" class="card-expanded-view-icon"></svg-sprite> 
+            </div> -->
+          }
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <div flex="60" class="card-desc">
+      
+    </div>
+    <div flex="40" class="card-amount"> 
+      
+    </div>
+  </div>
 </div>
