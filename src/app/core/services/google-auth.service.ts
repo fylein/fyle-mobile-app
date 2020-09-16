@@ -8,12 +8,12 @@ import { environment } from 'src/environments/environment';
 export class GoogleAuthService {
 
   constructor(
-  	private googlePlus: GooglePlus,
+    private googlePlus: GooglePlus
   ) { }
 
-  async login(): Promise<any>{
+  async login(): Promise<any> {
     // Need to put ios case here later
-    var clientId = environment.ANDROID_CLIENT_ID;
+    const clientId = environment.ANDROID_CLIENT_ID;
     return this.googlePlus.login({
       webClientId: clientId,
       offline: false

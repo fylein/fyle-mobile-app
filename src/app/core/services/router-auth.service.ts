@@ -4,7 +4,7 @@ import { tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
-import { AuthResponse } from '../models/auth_response.model';
+import { AuthResponse } from '../models/auth-response.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
