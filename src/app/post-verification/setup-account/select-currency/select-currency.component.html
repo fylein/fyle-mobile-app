@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-searchbar placeholder="Search" mode="md"></ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="onDoneClick()">
+        Done
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="select-currency-modal--header">
+    All Currencies
+  </div> 
+  <div matRipple class="select-currency-modal--currency-element" *ngFor="let currency of $currencies | async as list" (click)="onCurrencySelect(currency)">
+    {{currency.shortCode}} - {{currency.longName}}
+  </div>
+</ion-content>

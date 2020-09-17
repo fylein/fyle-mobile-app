@@ -1,0 +1,94 @@
+<ion-content>
+  <div class="setup-account" *ngIf="(isConnected$|async)">
+    <div class="setup-account--full-name">
+      {{fullname$|async}}
+    </div>
+    <div class="setup-account--form-header-container">
+      <div class="setup-account--form-header">
+        Setup your account?
+      </div>
+      <div class="setup-account--form-sub-header">
+        Set a password and give your account a name
+      </div>
+    </div>
+    <div>
+      <form [formGroup]="fg">
+        <div class="setup-account--form-label">
+          Company Name
+        </div>
+        <mat-form-field class="mat-form-field-no-padding setup-account--form-field" appearance="outline">
+          <input formControlName="companyName" type="text" matInput placeholder="{{(fullname$|async)}}'s Account">
+        </mat-form-field>
+        <div class="setup-account--form-label">
+          Home Currency
+        </div>
+        <mat-form-field class="mat-form-field-no-padding setup-account--form-field" appearance="outline"
+          (click)="openCurrenySelectionModal()">
+          <input formControlName="homeCurrency" matInput>
+        </mat-form-field>
+        <div class="setup-account--form-label">
+          Password
+        </div>
+        <mat-form-field class="mat-form-field-no-padding setup-account--form-field" appearance="outline">
+          <input formControlName="password" type="password" matInput [type]="hide ? 'text': 'password'"
+            placeholder="minimum 12 chars">
+          <div class="setup-account--password-visibility" matSuffix (click)="hide = !hide">
+            {{hide ? 'Hide' : 'Show'}}
+          </div>
+        </mat-form-field>
+      </form>
+    </div>
+    <div>
+      <div>
+        <span>
+          <ion-icon *ngIf="lengthValidationDisplay$|async" name="checkmark-outline"></ion-icon>
+          <ion-icon *ngIf="!(lengthValidationDisplay$|async)" name="close-outline"></ion-icon>
+        </span> 
+        <span>
+          is between 12 to 32 characters
+        </span>
+      </div>
+      <div>
+        <span>
+          <ion-icon *ngIf="uppercaseValidationDisplay$|async" name="checkmark-outline"></ion-icon>
+          <ion-icon *ngIf="!(uppercaseValidationDisplay$|async)" name="close-outline"></ion-icon>
+        </span>
+        <span>
+          Contains atleast 1 uppercase character
+        </span>
+      </div>
+      <div>
+        <span>
+          <ion-icon *ngIf="numberValidationDisplay$|async" name="checkmark-outline"></ion-icon>
+          <ion-icon *ngIf="!(numberValidationDisplay$|async)" name="close-outline"></ion-icon>
+        </span>
+        <span>
+          Contains atleast 1 number
+        </span>
+      </div>
+      <div>
+        <span>
+          <ion-icon *ngIf="specialCharValidationDisplay$|async" name="checkmark-outline"></ion-icon>
+          <ion-icon *ngIf="!(specialCharValidationDisplay$|async)" name="close-outline"></ion-icon>
+        </span>
+        <span>
+          Contains atleast 1 special character
+        </span>
+      </div>
+    </div>
+    <div>
+      <button (click)="saveData()" mat-flat-button color="primary">Primary</button>
+    </div>
+  </div>
+  <div class="setup-account-offline ion-text-center" *ngIf="!(isConnected$|async)">
+    <img class="setup-account-offline--image" alt="offline-zer-state"
+      src="../../../assets/images/zero-states/offline.svg">
+    <div class="setup-account-offline--title">
+      Looks like you are offline
+    </div>
+    <div class="setup-account-offline--sub-title">
+      You need to be connected to Internet to be able to login to the app. Please check if your Internet
+      connection is working.
+    </div>
+  </div>
+</ion-content>

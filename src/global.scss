@@ -52,3 +52,9 @@ $header-input-interior: #eeeeee;
 .switch-org--form-field .mat-form-field-wrapper {
   background-color: $header-input-interior;
 }
+
+.mat-form-field-no-padding {
+  .mat-form-field-wrapper {
+    padding: 0;
+  }
+}
