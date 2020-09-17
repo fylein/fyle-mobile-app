@@ -16,6 +16,7 @@ import { CurrencyService } from './currency.service';
 import { switchMap, tap, map, catchError, finalize } from 'rxjs/operators';
 import { from, forkJoin } from 'rxjs';
 import { PermissionsService } from './permissions.service';
+import { Org } from '../models/org.model';
 
 @Injectable({
   providedIn: 'root'
@@ -315,7 +316,11 @@ export class OfflineService {
               })
             );
           } else {
-            return from(this.storageService.get('cachedOrgs'));
+            return from(this.storageService.get('cachedOrgs')).pipe(
+              map(
+                data => data as Org[]
+              )
+            )
           }
         }
       )
