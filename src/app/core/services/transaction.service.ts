@@ -17,7 +17,7 @@ export class TransactionService {
     private apiService: ApiService
   ) { }
 
-  getUserTransactionParams(state) {
+  getUserTransactionParams(state: string) {
     var stateMap = {
       draft: {
         state: ['DRAFT']
@@ -48,23 +48,15 @@ export class TransactionService {
   }
 
   getPaginatedETxncStats(params) {
-    var data = {
-      params: params
-    };
-
-    return this.apiService.get('/etxns/stats', data);
+    return this.apiService.get('/etxns/stats', {params});
   };
 
   getPaginatedETxncCount = function (params) {
-    var data = {
-      params: params
-    };
-
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
           if (isOnline) {
-            return this.apiService.get('/etxns/count', data).pipe(
+            return this.apiService.get('/etxns/count', {params}).pipe(
               tap((res) => {
                 this.storageService.set('etxncCount' + JSON.stringify(params), res);
               })
