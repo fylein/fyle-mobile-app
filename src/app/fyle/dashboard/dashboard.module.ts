@@ -9,6 +9,7 @@ import { DashboardPageRoutingModule } from './dashboard-routing.module';
 import { DashboardPage } from './dashboard.page';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/enterprise-dashboard-card.component';
+import { EnterpriseDashboardFooterComponent } from './enterprise-dashboard-footer/enterprise-dashboard-footer.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 
@@ -21,7 +22,7 @@ import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
     MatExpansionModule,
     SharedModule
   ],
-  declarations: [DashboardPage, EnterpriseDashboardCardComponent],
+  declarations: [DashboardPage, EnterpriseDashboardCardComponent, EnterpriseDashboardFooterComponent],
   providers: [
   	DashboardService
   ]

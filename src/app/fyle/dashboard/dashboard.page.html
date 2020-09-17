@@ -1,7 +1,6 @@
 <ion-header>
   <div class="dashboard--header">
     <ion-toolbar>
-
       <ion-buttons *ngIf="!this.isDashboardCardExpanded" slot="start">
         <ion-menu-button class="dashboard--menubutton" auto-hide="false" ></ion-menu-button>
       </ion-buttons>
@@ -25,6 +24,12 @@
     </div>
     
   </div>
-
-  
 </ion-content>
+
+<ion-footer class="ion-no-border">
+  <div class="dashboard--footer">
+  <ion-toolbar>
+    <app-enterprise-dashboard-footer [dashboardList]="this.dashboardList"></app-enterprise-dashboard-footer>
+  </ion-toolbar>
+</div>
+</ion-footer>

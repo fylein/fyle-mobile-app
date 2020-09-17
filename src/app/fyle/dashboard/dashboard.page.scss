@@ -21,8 +21,12 @@
     text-align: left;
   } 
   
-
   &--container {
 	 top: 82px;
+  }
+
+  &--footer {
+    height: 80px;
+    background-color: #fff;
   }
 }

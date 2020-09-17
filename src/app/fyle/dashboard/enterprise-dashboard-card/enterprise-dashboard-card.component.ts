@@ -91,10 +91,10 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     var title = title.replace(' ', '_');
     var expandedCardDetailsMap = {
       expenses: this.getExpensesExpandedDetails,
-      // reports: getReportsExpandedDetails,
-      // trips: getTripsExpandedDetails,
-      // advances: getAdvancesExpandedDetails,
-      // corporate_cards: getCCCEExpandedDetails
+      reports: this.getExpensesExpandedDetails, //change this later
+      trips: this.getExpensesExpandedDetails,
+      advances: this.getExpensesExpandedDetails,
+      corporate_cards: this.getExpensesExpandedDetails
     };
     return expandedCardDetailsMap[title].apply(this);
   }
@@ -127,6 +127,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       expandedDetails$.subscribe((res) => {
         this.detailedStats = res;
         this.mobileEventService.dashboardCardExpanded();
+        this.dashboardService.setDashBoardState(this.item.title);
       })
     }
   }

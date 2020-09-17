@@ -1,0 +1,20 @@
+.dashboard-footer {
+  &--block {
+    border: 1px solid #d8d8d8;
+    width: calc(100% - 5px);
+    margin-left: 2px;
+    padding: 8px 2px 2px;
+    border-radius: 4px;
+    margin: 0 8px;
+  }
+
+  &--icon-card {
+    width: 24px;
+    height: 24px;
+    fill: #e40566d9;
+  }
+
+  &--icon-text{
+    font-size: 10px;
+  }
+}

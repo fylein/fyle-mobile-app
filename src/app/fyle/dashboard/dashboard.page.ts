@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/enterprise-dashboard-card.component';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
+import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,7 +16,8 @@ export class DashboardPage implements OnInit {
 
   constructor(
     private transactionService: TransactionService,
-    private mobileEventService: MobileEventService
+    private mobileEventService: MobileEventService,
+    private dashboardService: DashboardService
   ) { 
     this.mobileEventService.onDashboardCardExpanded().subscribe(() => 
       this.dashboardCardExpanded()
@@ -35,6 +37,10 @@ export class DashboardPage implements OnInit {
   };
 
   backButtonClick() {
+    this.dashboardList = this.dashboardList.map(function (item) {
+      item.isCollapsed = true;
+    });
+    this.dashboardService.setDashBoardState('default');
     this.ngOnInit();
   }
 
