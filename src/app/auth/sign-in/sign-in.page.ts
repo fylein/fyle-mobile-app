@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { throwError } from 'rxjs';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, MenuController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, catchError, filter, finalize, tap, switchMap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -27,7 +27,8 @@ export class SignInPage implements OnInit {
     private loaderService: LoaderService,
     private authService: AuthService,
     private router: Router,
-    public googleAuthService: GoogleAuthService
+    public googleAuthService: GoogleAuthService,
+    private menu: MenuController
   ) { }
 
   async checkIfEmailExists() {
@@ -125,11 +126,12 @@ export class SignInPage implements OnInit {
 
       googleSignIn$.subscribe(() => {
         this.router.navigate(['/', 'auth', 'switch-org', {choose: true}]);
-      })
-    })
-  };
+      });
+    });
+  }
 
   async ngOnInit() {
+    await this.menu.enable(false);
     this.fg = this.formBuilder.group({
       email: ['', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
       password: ['', Validators.required]

@@ -11,6 +11,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { MenuController } from '@ionic/angular';
 
 @Component({
   selector: 'app-swicth-org',
@@ -35,10 +36,12 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     private router: Router,
     private networkService: NetworkService,
     private orgService: OrgService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private menuController: MenuController
   ) { }
 
   ngOnInit() {
+    from(this.menuController.enable(false)).subscribe(noop);
     this.isLoading = true;
     this.orgs$ = this.offlineService.getOrgs().pipe(
       finalize(() => {

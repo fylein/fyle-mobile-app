@@ -1,9 +1,64 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>my_expenses</ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      My Expenses
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear">
+        Select
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar class="ion-text-center">
+    <mat-button-toggle-group #expenseStateNavigation class="my-expenses--navigation"
+      (change)="onTabNavigationChange($event)" [(ngModel)]="pageState">
+      <mat-button-toggle value="all">
+        All Expenses
+      </mat-button-toggle>
+      <mat-button-toggle value="draft">
+        Draft Expenses
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-grid class="my-expenses__no-y-padding">
+      <ion-row>
+        <ion-col class="my-expenses__no-y-padding" size="8">
+          <mat-form-field class="my-expenses--search" appearance="outline">
+            <span class="material-icons my-expenses--search-icon" #simpleSearchInput matPrefix>
+              search
+            </span>
+            <input type="text" matInput placeholder="search">
+          </mat-form-field>
+        </ion-col>
+        <ion-col class="my-expenses__no-y-padding" size="2">
+          <button mat-stroked-button>
+            <ion-icon slot="icon-only" name="funnel"></ion-icon>
+          </button>
+        </ion-col>
+        <ion-col class="my-expenses__no-y-padding" size="2">
+          <button mat-stroked-button>
+            <ion-icon slot="icon-only" name="settings"></ion-icon>
+          </button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-toolbar>
 </ion-header>
-
 <ion-content>
-
+  <div class="ion-padding"> 
+    <mat-card class="my-expenses--card" *ngFor="let expense of expenses$ | async">
+      <mat-card-content>
+        <div>
+          {{expense.tx_amount}}
+        </div>
+        <div>
+          {{expense.tx_fyle_category}}
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </ion-content>

@@ -1,0 +1,37 @@
+$active: #0077ee;
+
+.my-expenses{
+    &--navigation {
+        max-height: 38px;
+        width: 96%;
+        border: 1px solid $active;
+        .mat-button-toggle {
+            width: 100%;
+            color: $active;
+        }
+
+        .mat-button-toggle-checked {
+            background-color: $active;
+            color: white;
+        }
+    }
+
+    &--search {
+        font-size: 10px;
+        padding: 0;
+        width: 100%;
+    }
+
+    &--search-icon {
+        font-size: 14px;
+    }
+
+    &--card {
+        margin-bottom: 4px;
+    }
+
+    &__no-y-padding {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}

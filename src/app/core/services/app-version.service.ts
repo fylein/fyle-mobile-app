@@ -113,7 +113,7 @@ export class AppVersionService {
     return this.apiService.post('/version/app', data);
   }
 
-  codePushUpdates (data) {
+  codePushUpdates(data) {
     return this.apiService.post('/mobileapp/code_push_updates', data);
   }
 }

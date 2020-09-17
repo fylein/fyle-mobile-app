@@ -52,3 +52,15 @@ $header-input-interior: #eeeeee;
 .switch-org--form-field .mat-form-field-wrapper {
   background-color: $header-input-interior;
 }
+
+.my-expenses--navigation {
+  .mat-button-toggle-label-content {
+    line-height: 32px;
+  }
+}
+.my-expenses--search {
+  .mat-form-field-wrapper {
+    margin-top: 0 !important;
+    padding: 0;
+  }
+}

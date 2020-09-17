@@ -8,13 +8,24 @@ import { MyExpensesPageRoutingModule } from './my-expenses-routing.module';
 
 import { MyExpensesPage } from './my-expenses.page';
 
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+
+import { MatInputModule } from '@angular/material/input';
+
+import {MatButtonModule} from '@angular/material/button';
+
+import { MatCardModule } from '@angular/material/card';
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    MyExpensesPageRoutingModule
+    MyExpensesPageRoutingModule,
+    MatButtonToggleModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule
   ],
   declarations: [MyExpensesPage]
 })
-export class MyExpensesPageModule {}
+export class MyExpensesPageModule { }
