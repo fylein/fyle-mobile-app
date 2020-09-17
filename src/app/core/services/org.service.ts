@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { tap, map, switchMap } from 'rxjs/operators';
+import { tap, map, switchMap, catchError, concatMap } from 'rxjs/operators';
 import { Org } from '../models/org.model';
 import { AuthService } from './auth.service';
+import { forkJoin } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -20,10 +21,47 @@ export class OrgService {
         is_current: true
       }
     }).pipe(
-      map(orgs => orgs[0])
+      map(orgs => orgs[0] as Org)
     );
   }
 
+  suggestOrgCurrency() {
+    return this.apiService.get('/currency/ip').pipe(
+      tap(console.log),
+      map((data) => {
+        data.currency = data.currency || 'USD';
+        return data.currency as string;
+      }),
+      tap(console.log),
+      catchError(() => {
+        return 'USD';
+      })
+    );
+  }
+
+  updateOrg(org) {
+    // TODO: Clear all cache
+    return this.apiService.post('/orgs', org);
+  }
+
+  setCurrencyBasedOnIp() {
+    const currency$ = this.suggestOrgCurrency();
+    const currentOrg$ = this.getCurrentOrg();
+
+    return forkJoin([
+      currency$,
+      currentOrg$
+    ]).pipe(
+      tap(console.log),
+      switchMap(
+        (aggregatedResults) => {
+          const [currency, org] = aggregatedResults;
+          org.currency = currency;
+          return this.updateOrg(org);
+        }
+      ),
+      tap(console.log));
+  }
 
   getOrgs() {
     return this.apiService.get('/orgs').pipe(

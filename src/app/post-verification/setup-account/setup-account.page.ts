@@ -3,10 +3,12 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { Observable, concat, noop, from } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
+import { OrgService } from 'src/app/core/services/org.service';
+import { Org } from 'src/app/core/models/org.model';
 
 @Component({
   selector: 'app-setup-account',
@@ -19,6 +21,7 @@ export class SetupAccountPage implements OnInit {
   eou$: Observable<ExtendedOrgUser>;
   fullname$: Observable<string>;
   fg: FormGroup;
+  org$: Observable<Org>;
 
   lengthValidationDisplay$: Observable<boolean>;
   uppercaseValidationDisplay$: Observable<boolean>;
@@ -29,7 +32,9 @@ export class SetupAccountPage implements OnInit {
     private networkService: NetworkService,
     private authService: AuthService,
     private fb: FormBuilder,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private orgService: OrgService,
+    private toastController: ToastController
   ) { }
 
 
@@ -53,10 +58,19 @@ export class SetupAccountPage implements OnInit {
     }
   }
 
-  saveData() {
-    console.log(this.fg.errors);
-    console.log(this.fg.value);
-    console.log(this.fg.controls.password.errors)
+  async saveData() {
+    this.fg.markAllAsTouched();
+    if (this.fg.valid) {
+      // do valid shit
+    } else {
+      const toast = await this.toastController.create({
+        message: 'Please fill all required fields to proceed',
+        color: 'danger',
+        duration: 1200
+      });
+
+      await toast.present();
+    }
   }
 
   ngOnInit() {
@@ -82,6 +96,16 @@ export class SetupAccountPage implements OnInit {
             Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
         )
       ]
+    });
+
+    this.org$ = this.orgService.setCurrencyBasedOnIp().pipe(
+      switchMap(() => {
+        return this.orgService.getCurrentOrg();
+      })
+    );
+
+    this.org$.subscribe((org) => {
+      this.fg.controls.homeCurrency.setValue(org.currency);
     });
 
     this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
