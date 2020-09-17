@@ -47,6 +47,16 @@
   text-transform: capitalize !important;
 }
 
+.text-right {
+  text-align: right !important;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .full-width {
   width: 100% !important;
 }

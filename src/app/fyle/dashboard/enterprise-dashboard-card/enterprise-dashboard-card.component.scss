@@ -4,6 +4,7 @@ $dashboard-trips-card: #66bb6a;
 $dashboard-report-card: #2196f3;
 $dashboard-ccc-card: #7e57c2;
 $shadow: #e8e8e8;
+$text-dark: #4a4a4a;
 
 .dashboard-card {
   &--details {
@@ -24,7 +25,7 @@ $shadow: #e8e8e8;
 
   &--title {
     font-size: 16px;
-    color: #4a4a4a;
+    color: $text-dark;
     font-weight: 500;
     margin: 0 !important;
   }
@@ -39,11 +40,44 @@ $shadow: #e8e8e8;
     font-weight: 500;
     font-size: 16px;
     margin: 4px 8px 4px;
-    color: #4a4a4a;
+    color: $text-dark;
     float: right;
   }
 
-  &--icon-card {
+  &--needs-attention {
+    width: 100%;
+  }
+
+  &--need-attention-block {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    margin-top: 8px;
+  }
+
+  &--icon-curve {
+    height: 20px;
+    margin-right: -2px;
+    fill: #f7b74a;
+  }
+
+  &--need-attention-curve-container {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: row;
+    margin-top: 8px;
+  }
+
+  &--need-attention-text {
+    font-size: 12px;
+    padding: 0 8px;
+    background-color: #f7b74a;
+    display: flex;
+    justify-content: center;
+    height: 20px;
+  }
+
+  &--icon-dashboard {
     margin-top: 4px;
     width: 24px;
     height: 24px;
@@ -87,4 +121,32 @@ $shadow: #e8e8e8;
     }
   }
 
+  &--warning-inverted-block {
+    display: flex;
+  }
+
+  &--expanded-card-title {
+    font-size: 14px;
+    color: $text-dark;
+    margin-bottom: 0px;
+  }
+
+  &--icon-card {
+    height: 10px;
+    margin-left: 6px;
+  }
+
+  &--expanded-amount-icon {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-dark;
+    display: flex;
+    float: right;
+  }
+
+  &--expanded-icon {
+    height: 12px;
+    fill: #757575;
+    margin-left: 4px;
+  }
 }

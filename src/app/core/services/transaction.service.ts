@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
+import { NetworkService } from './network.service';
+import { StorageService } from './storage.service';
+import { switchMap, tap } from 'rxjs/operators';
+import { from } from 'rxjs';
 
 
 @Injectable({
@@ -8,10 +12,12 @@ import { ApiService } from './api.service';
 export class TransactionService {
 
   constructor(
+    private networkService: NetworkService,
+    private storageService: StorageService,
     private apiService: ApiService
   ) { }
 
-  getUserTransactionParams = function (state) {
+  getUserTransactionParams(state) {
     var stateMap = {
       draft: {
         state: ['DRAFT']
@@ -39,13 +45,36 @@ export class TransactionService {
     };
 
     return stateMap[state];
-  };
+  }
 
-  getPaginatedETxncStats = function (params) {
+  getPaginatedETxncStats(params) {
     var data = {
       params: params
     };
 
     return this.apiService.get('/etxns/stats', data);
   };
+
+  getPaginatedETxncCount = function (params) {
+    var data = {
+      params: params
+    };
+
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.apiService.get('/etxns/count', data).pipe(
+              tap((res) => {
+                this.storageService.set('etxncCount' + JSON.stringify(params), res);
+              })
+            );
+          } else {
+            return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
+          }
+        }
+      )
+    );
+  };
+
 }

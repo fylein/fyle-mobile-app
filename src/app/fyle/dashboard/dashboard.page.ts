@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/enterprise-dashboard-card.component';
+import { TransactionService } from 'src/app/core/services/transaction.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,10 +10,18 @@ import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/en
 export class DashboardPage implements OnInit {
   dashboardList: any[];
 
-  constructor() { }
+  constructor(
+    private transactionService: TransactionService
+  ) { }
+
+  getExpenseStats() {
+    debugger;
+    return this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
+  };
+
+
 
   ngOnInit() {
-  	console.log("------");
   	this.dashboardList = [{
       title: 'expenses',
       isVisible: true,
@@ -20,7 +29,7 @@ export class DashboardPage implements OnInit {
       class: 'expenses',
       icon: 'fy-receipts',
       subTitle: 'Expense',
-      // statsActionFn: vm.getExpenseStats
+      statsActionFn: this.getExpenseStats
     },
     {
       title: 'reports',
@@ -29,6 +38,7 @@ export class DashboardPage implements OnInit {
       class: 'reports',
       icon: 'fy-reports',
       subTitle: 'Report',
+      statsActionFn: this.getExpenseStats
       // statsActionFn: vm.getReportStats,
       // needsAttentionFn: vm.getReportNeedAttentionStats
     },
@@ -40,6 +50,7 @@ export class DashboardPage implements OnInit {
       class: 'corporate-cards',
       icon: 'fy-card',
       subTitle: 'Unmatched Expense',
+      statsActionFn: this.getExpenseStats
      // statsActionFn: vm.getCorporateCardStats
     },
     {
@@ -50,6 +61,7 @@ export class DashboardPage implements OnInit {
       class: 'advances',
       icon: 'fy-wallet',
       subTitle: 'Advance Request',
+      statsActionFn: this.getExpenseStats
       // statsActionFn: vm.getAdvanceStats,
       // needsAttentionFn: vm.getAdvanceNeedAttentionStats
     },
@@ -61,6 +73,7 @@ export class DashboardPage implements OnInit {
       class: 'trips',
       icon: 'fy-trips',
       subTitle: 'Trip Request',
+      statsActionFn: this.getExpenseStats
       // statsActionFn: vm.getTripStats,
       // needsAttentionFn: vm.getTripNeedAttentionStats
     }];
