@@ -5,19 +5,15 @@ import { Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class MobileEventService {
-	cardExpandedSubject = new Subject();
+  cardExpandedSubject = new Subject();
 
   constructor() { }
 
   onDashboardCardExpanded() {
-    console.log("-------on onDashboardCardExpanded------");
-  	return this.cardExpandedSubject.asObservable();
+    return this.cardExpandedSubject.asObservable();
   }
 
   dashboardCardExpanded() {
-    console.log("-------dashboardCardExpanded------")
-  	return this.cardExpandedSubject.next();
+    return this.cardExpandedSubject.next();
   }
-
-
 }

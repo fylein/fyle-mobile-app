@@ -15,7 +15,6 @@ import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
-
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],

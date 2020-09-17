@@ -7,7 +7,7 @@
       </ion-buttons>
 
       <ion-buttons class="dashboard--menubutton" *ngIf="this.isDashboardCardExpanded" (click)="this.backButtonClick()">
-        Back
+        Back <!-- will put icon here later -->
       </ion-buttons>
 
 
@@ -18,7 +18,6 @@
 
 <ion-content>
 	<div class="dashboard--container">
-    <!-- a-{{this.dashboardList}} -->
     <div class="dashboard--card" *ngFor="let item of this.dashboardList; index as $index;">
       <div *ngIf="this.item.isVisible && !this.item.isCollapsed">
         <app-enterprise-dashboard-card [dashboardList]="this.dashboardList" [index]="$index"></app-enterprise-dashboard-card>

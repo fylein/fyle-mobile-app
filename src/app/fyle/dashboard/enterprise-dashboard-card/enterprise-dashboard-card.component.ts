@@ -5,10 +5,6 @@ import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { pipe, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-// import { humanizeCurrency } from 'src/app/shared/pipe/humanize-currency.pipe';
-
-
-
 
 @Component({
   selector: 'app-enterprise-dashboard-card',
@@ -57,7 +53,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     });
     return expensesExpandedDetails$.pipe(
       map(res => {
-        //console.log(res);
         res.readyToReportStats$ = this.isBlank(res.readyToReportStats$);
         res.needReviewStats$ = this.isBlank(res.needReviewStats$);
         res.cannotReportStats$ = this.isBlank(res.cannotReportStats$);
@@ -115,7 +110,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   }
 
   filterToState(a,b) {
-    //console.log("coming soon");
     this.presentAlert();
   }
 
@@ -132,24 +126,20 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       const expandedDetails$ = this.getExpandedDetails(this.item.title);
       expandedDetails$.subscribe((res) => {
         this.detailedStats = res;
-        console.log(this.detailedStats);
         this.mobileEventService.dashboardCardExpanded();
       })
     }
   }
 
   getHomeCurrency() {
-    // CurrencyService.getHomeCurrency().then(function (currency) {
-    //   vm.currency = currency;
-    // });
+    // get home currency from homeCurrency srvice later
     this.homeCurrency = "INR";
   };
 
   getNeedAttentionCount(stats) {
     if (this.dashboardList && this.dashboardList[this.index]) {
       if (this.dashboardList[this.index].title === 'corporate cards') {
-        // vm.needsAttentionStats.count = stats.total_count;
-        //later
+        // later for CCC
       } else if (this.dashboardList[this.index].title === 'expenses') {
 
 
@@ -168,16 +158,10 @@ export class EnterpriseDashboardCardComponent implements OnInit {
             needsReceiptCount$
           });
           expensesCount$.subscribe((res) => {
-            console.log(res);
             this.needsAttentionStats['count'] = (res.policyFlaggedCount$['count'] || 0) + (res.manualFlaggedCount$['count'] || 0) + (res.needReviewCount$['count'] || 0) + (res.cannotReportCount$['count'] || 0);
           })
-        // $q.all(promises).then(function (res) {
-        //   vm.needsAttentionStats.count = (res.policyFlaggedStats.count || 0) + (res.manualFlaggedStats.count || 0) + (res.needReviewStats.count || 0) + (res.cannotReportStats.count || 0);
-        // });
       } else {
-        // this.dashboardList[this.index].needsAttentionFn().then(function (res) {
-        //   this.needsAttentionStats = res;
-        // });
+        // need to implement later for others
       }
     }
   };
@@ -185,9 +169,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   getStats() {
     if (this.dashboardList && this.dashboardList[this.index]) {
       this.dashboardList[this.index].isLoading = true;
-      console.log(this.dashboardList[this.index]);
-
-      //console.log(this.dashboardList[this.index].title);
       var title = this.dashboardList[this.index].title.replace(' ', '_');
 
       var statsMap = {
@@ -201,18 +182,9 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       var stats$ = statsMap[title]
 
       stats$.subscribe((res) => {
-        console.log(res);
-        // if(!res.total_amount) { // remove this later
-        //   res['total_amount'] = 0;
-        // }
         this.stats = res;
         this.getNeedAttentionCount(this.stats);
-
-        
       })
-
-
-
     }
   }
 

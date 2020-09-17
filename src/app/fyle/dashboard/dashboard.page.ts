@@ -27,7 +27,6 @@ export class DashboardPage implements OnInit {
     var expandedCard = this.dashboardList.filter(function (item) {
       return (!item.isCollapsed);
     });
-    console.log(expandedCard);
     this.pageTitle = (expandedCard && expandedCard.length > 0) ? expandedCard[0].title + ' Overview' : this.pageTitle;
   }
 
@@ -36,9 +35,7 @@ export class DashboardPage implements OnInit {
   };
 
   backButtonClick() {
-    console.log("coming");
     this.ngOnInit();
-
   }
 
   ngOnInit() {
