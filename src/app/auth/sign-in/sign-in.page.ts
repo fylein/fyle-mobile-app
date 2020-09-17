@@ -34,7 +34,7 @@ export class SignInPage implements OnInit {
 
   checkSAMLResponseAndSignInUser = function (data) {
     if (data.error) {
-      var err = {
+      let err = {
         status: parseInt(data.response_status_code)
       };
 
@@ -51,15 +51,15 @@ export class SignInPage implements OnInit {
   };
 
   handleSamlSignIn (res) {
-    var url = res.idp_url + '&RelayState=MOBILE';
+    let url = res.idp_url + '&RelayState=MOBILE';
     const browser = this.inAppBrowser.create(url, '_blank', 'location=yes');
     browser.on('loadstop').subscribe(event => {
-      var getResponse = setInterval(() => {
+      let getResponse = setInterval(() => {
         browser.executeScript({
           code: 'try{document.getElementById("fyle-login-response").innerHTML;}catch(err){}'
         }).then((responseData) => {
-          var response = responseData && responseData[0];
-          var data = '';
+          let response = responseData && responseData[0];
+          let data = '';
 
           try {
             data = JSON.parse(response);
