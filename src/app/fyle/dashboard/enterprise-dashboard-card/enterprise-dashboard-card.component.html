@@ -9,7 +9,7 @@
         <div class="dashboard-card--container">
           <p class="dashboard-card--title m-0 text-capitalize" [textContent]="this.item.title"></p>
           <p class="dashboard-card--card-count">
-            <small *ngIf="this.item.title !== 'trips'"> 1 {{ 1 > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
+            <small *ngIf="this.item.title !== 'trips'"> {{this.stats && this.stats.total_count || 0}} {{ 1 > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
             <small *ngIf="this.item.title === 'trips'"> {{ 1 || 0 }} {{ 1 > 1 ? this.subTitle + 's' : this.item.subTitle }}</small>
           </p>
         </div>
@@ -42,20 +42,18 @@
         <ion-col size="8">
           <div class="dashboard-card--warning-inverted-block">
             <div>
-              <p class="dashboard-card--expanded-card-title m-0"> {{ this.stat.title }} </p>
+              <p class="dashboard-card--expanded-card-title m-0"> {{ stat.title }} </p>
             </div>
             <div *ngIf="this.item.title === 'trips'">
               <ion-icon class="dashboard-card--icon-curve" class="dashboard-card--icon-card" src="../../../assets/svg/warning-inverted.svg" ></ion-icon>
-              <!-- <svg-sprite icon="warning-inverted" class="icon-card" ng-if="stat.warning && stat.count && stat.count > 0"></svg-sprite> -->
             </div>
             <div *ngIf="this.item.title !== 'trips'">
               <ion-icon class="dashboard-card--icon-curve" *ngIf="stat && stat.warning && stat.total_count && stat.total_count > 0"class="dashboard-card--icon-card" src="../../../assets/svg/warning-inverted.svg"></ion-icon>
-              <!-- <svg-sprite icon="warning-inverted" class="icon-card" ng-if="stat.warning && stat.total_count && stat.total_count > 0"></svg-sprite> -->
             </div>
           </div>
           <p class="dashboard-card--card-count">
-            <small *ngIf="this.item.title !== 'trips'"> {{ this.stat.total_count || 0 }} {{ this.stat.total_count > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
-            <small *ngIf="this.item.title === 'trips'"> {{ this.stat.count || 0 }} {{ this.stat.count > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
+            <small *ngIf="this.item.title !== 'trips'"> {{ stat.total_count || 0 }} {{ stat.total_count > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
+            <small *ngIf="this.item.title === 'trips'"> {{ stat.count || 0 }} {{ stat.count > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
           </p>
         </ion-col>
 
@@ -69,11 +67,5 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-    <div flex="60" class="card-desc">
-      
-    </div>
-    <div flex="40" class="card-amount"> 
-      
-    </div>
   </div>
 </div>

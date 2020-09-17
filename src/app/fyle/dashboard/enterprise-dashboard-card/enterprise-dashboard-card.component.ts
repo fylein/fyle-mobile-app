@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { AlertController } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
+import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { pipe, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 // import { humanizeCurrency } from 'src/app/shared/pipe/humanize-currency.pipe';
@@ -27,7 +29,9 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   };
   constructor(
     private transactionService: TransactionService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private mobileEventService: MobileEventService,
+    private alertController: AlertController
   ) { }
 
   isBlank = function (item) {
@@ -100,8 +104,19 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     return expandedCardDetailsMap[title].apply(this);
   }
 
+  async presentAlert() {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Coming soon',
+      buttons: ['Close']
+    });
+
+    await alert.present();
+  }
+
   filterToState(a,b) {
-    console.log("coming soon");
+    //console.log("coming soon");
+    this.presentAlert();
   }
 
 
@@ -118,6 +133,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       expandedDetails$.subscribe((res) => {
         this.detailedStats = res;
         console.log(this.detailedStats);
+        this.mobileEventService.dashboardCardExpanded();
       })
     }
   }
@@ -183,8 +199,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       }
 
       var stats$ = statsMap[title]
-
-      // var statsActionFn$ = this.dashboardList[this.index].statsActionFn().apply(this);
 
       stats$.subscribe((res) => {
         console.log(res);

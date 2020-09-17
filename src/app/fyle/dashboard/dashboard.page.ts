@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/enterprise-dashboard-card.component';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,19 +10,40 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 })
 export class DashboardPage implements OnInit {
   dashboardList: any[];
+  isDashboardCardExpanded: boolean;
+  pageTitle: string;
 
   constructor(
-    private transactionService: TransactionService
-  ) { }
+    private transactionService: TransactionService,
+    private mobileEventService: MobileEventService
+  ) { 
+    this.mobileEventService.onDashboardCardExpanded().subscribe(() => 
+      this.dashboardCardExpanded()
+    );
+  }
+
+  dashboardCardExpanded() {
+    this.isDashboardCardExpanded = true;
+    var expandedCard = this.dashboardList.filter(function (item) {
+      return (!item.isCollapsed);
+    });
+    console.log(expandedCard);
+    this.pageTitle = (expandedCard && expandedCard.length > 0) ? expandedCard[0].title + ' Overview' : this.pageTitle;
+  }
 
   getExpenseStats() {
-    debugger;
     return this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
   };
 
+  backButtonClick() {
+    console.log("coming");
+    this.ngOnInit();
 
+  }
 
   ngOnInit() {
+    this.isDashboardCardExpanded = false;
+    this.pageTitle = 'dashboard';
   	this.dashboardList = [{
       title: 'expenses',
       isVisible: true,
@@ -29,7 +51,6 @@ export class DashboardPage implements OnInit {
       class: 'expenses',
       icon: 'fy-receipts',
       subTitle: 'Expense',
-      statsActionFn: this.getExpenseStats
     },
     {
       title: 'reports',
@@ -38,9 +59,6 @@ export class DashboardPage implements OnInit {
       class: 'reports',
       icon: 'fy-reports',
       subTitle: 'Report',
-      statsActionFn: this.getExpenseStats
-      // statsActionFn: vm.getReportStats,
-      // needsAttentionFn: vm.getReportNeedAttentionStats
     },
     {
       title: 'corporate cards',
@@ -51,7 +69,6 @@ export class DashboardPage implements OnInit {
       icon: 'fy-card',
       subTitle: 'Unmatched Expense',
       statsActionFn: this.getExpenseStats
-     // statsActionFn: vm.getCorporateCardStats
     },
     {
       title: 'advances',
@@ -62,8 +79,6 @@ export class DashboardPage implements OnInit {
       icon: 'fy-wallet',
       subTitle: 'Advance Request',
       statsActionFn: this.getExpenseStats
-      // statsActionFn: vm.getAdvanceStats,
-      // needsAttentionFn: vm.getAdvanceNeedAttentionStats
     },
     {
       title: 'trips',
@@ -74,8 +89,6 @@ export class DashboardPage implements OnInit {
       icon: 'fy-trips',
       subTitle: 'Trip Request',
       statsActionFn: this.getExpenseStats
-      // statsActionFn: vm.getTripStats,
-      // needsAttentionFn: vm.getTripNeedAttentionStats
     }];
   }
 

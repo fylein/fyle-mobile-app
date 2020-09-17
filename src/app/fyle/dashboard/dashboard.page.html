@@ -1,11 +1,17 @@
 <ion-header>
   <div class="dashboard--header">
     <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-menu-button class="dashboard--menubutton" auto-hide="false"></ion-menu-button>
+
+      <ion-buttons *ngIf="!this.isDashboardCardExpanded" slot="start">
+        <ion-menu-button class="dashboard--menubutton" auto-hide="false" ></ion-menu-button>
       </ion-buttons>
 
-      <ion-title class="dashboard--title">Dashboard</ion-title>
+      <ion-buttons class="dashboard--menubutton" *ngIf="this.isDashboardCardExpanded" (click)="this.backButtonClick()">
+        Back
+      </ion-buttons>
+
+
+      <ion-title class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
     </ion-toolbar>
   </div>
 </ion-header>
