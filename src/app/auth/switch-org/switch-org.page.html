@@ -1,20 +1,61 @@
 <ion-header>
   <ion-toolbar>
     <mat-form-field class="switch-org--form-field" appearance="outline">
-        <span class="material-icons switch-org--search-icon" matPrefix>
-            search
-        </span>
-      <input id="switch-org--search-input" matInput placeholder="Placeholder">
-    </mat-form-field> 
+      <span class="material-icons switch-org--search-icon" matPrefix>
+        search
+      </span>
+      <input #searchOrgsInput id="switch-org--search-input" matInput placeholder="Placeholder">
+    </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="ion-padding">
-    <h1>La</h1>
-    <h2>La</h2>
-    <h3>La</h3>
-    <h4>La</h4>
-    <h5>La</h5>
+  <div>
+    <div class="switch-org--header">
+      Choose Organization
+    </div>
+    <div *ngIf="!isLoading">
+      <div matRipple (click)="switchToOrg(org)" class="switch-org--org-element" *ngFor="let org of filteredOrgs$ | async as list">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <div class="switch-org--org-thumb">
+                {{org.name | slice:0:2 | uppercase}}
+              </div>
+            </ion-col>
+            <ion-col size="10">
+              <div class="switch-org--org-element-name">
+                {{org.name}}
+              </div>
+              <div class="switch-org--org-element-domain">
+                {{org.domain}}
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </div>
+    <div *ngIf="isLoading">
+      <div class="switch-org--org-element" *ngFor="let dummy of [1,2,3,4,5,6]">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <div class="switch-org--org-thumb switch-org--org-thumb__no-border">
+                <ion-skeleton-text animated></ion-skeleton-text>
+              </div>
+            </ion-col>
+            <ion-col size="10">
+              <div class="switch-org--org-element-name">
+                <ion-skeleton-text animated></ion-skeleton-text>
+              </div>
+              <div class="switch-org--org-element-domain">
+                <ion-skeleton-text animated></ion-skeleton-text>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </div>
   </div>
+
 </ion-content>

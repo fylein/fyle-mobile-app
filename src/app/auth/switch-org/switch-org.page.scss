@@ -1,11 +1,57 @@
+$header-background: #f5f5f5;
+$header-border: #ddd;
+$header-input: #f8f8f8;
+$org-thumb: #f8f8f8;
+$org-thumb-header: #333;
+$org-thumb-text: #666;
+
 .switch-org {
   &--form-field {
     font-size: 11px;
     width: 100%;
     padding: 4px;
+    background-color: $header-input;
   }
 
   &--search-icon {
-   font-size: 14px;
+    font-size: 14px;
+  }
+
+  &--header {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 0;
+    background-color: $header-background;
+    border: 1px solid $header-border;
+  }
+
+  &--org-thumb {
+    background: $org-thumb;
+    border: 1px solid $header-border;
+    border-radius: 50%;
+    height: 44px;
+    width: 44px;
+    line-height: 44px;
+    text-align: center;
+    color: $org-thumb-text;
+    font-size: 16px;
+    &__no-border {
+      border: none;
+    }
+  }
+
+  &--org-element {
+    padding: 4px;
+    border-bottom: 1px solid $header-border;
+    &-name {
+      font-size: 16px;
+      color: $org-thumb-header;
+    }
+
+    &-domain {
+      font-size: 12px;
+      color: $org-thumb-text;
+    }
   }
 }

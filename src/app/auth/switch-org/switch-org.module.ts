@@ -11,6 +11,10 @@ import { SwitchOrgPage } from './switch-org.page';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
+import { MatListModule } from '@angular/material/list';
+
+import { MatRippleModule } from '@angular/material/core';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -18,7 +22,9 @@ import { MatInputModule } from '@angular/material/input';
     IonicModule,
     SwitchOrgPageRoutingModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatListModule,
+    MatRippleModule
   ],
   declarations: [SwitchOrgPage]
 })

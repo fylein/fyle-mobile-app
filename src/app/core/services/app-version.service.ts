@@ -93,7 +93,7 @@ export class AppVersionService {
           }
         }
       )
-    ).subscribe(noop);
+    ).subscribe(noop); // because this needs to happen in the background
   }
 
   isSupported(data) {
