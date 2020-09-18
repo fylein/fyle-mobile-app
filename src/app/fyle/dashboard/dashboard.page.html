@@ -1,16 +1,16 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <div class="dashboard--header">
-    <ion-toolbar>
+    <ion-toolbar class="dashboard--header-toolbar">
       <ion-buttons *ngIf="!this.isDashboardCardExpanded" slot="start">
         <ion-menu-button class="dashboard--menubutton" auto-hide="false" ></ion-menu-button>
       </ion-buttons>
 
-      <ion-buttons class="dashboard--menubutton" *ngIf="this.isDashboardCardExpanded" (click)="this.backButtonClick()">
+      <ion-buttons class="dashboard--menubutton" slot="start" *ngIf="this.isDashboardCardExpanded" (click)="this.backButtonClick()">
         Back <!-- will put icon here later -->
       </ion-buttons>
 
 
-      <ion-title class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
+      <ion-title slot="primary" mode="ios" class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
     </ion-toolbar>
   </div>
 </ion-header>
@@ -28,8 +28,8 @@
 
 <ion-footer class="ion-no-border">
   <div class="dashboard--footer">
-  <ion-toolbar>
-    <app-enterprise-dashboard-footer [dashboardList]="this.dashboardList"></app-enterprise-dashboard-footer>
-  </ion-toolbar>
-</div>
+    <ion-toolbar class="dashboard--footer-toolbar">
+      <app-enterprise-dashboard-footer [dashboardList]="this.dashboardList"></app-enterprise-dashboard-footer>
+    </ion-toolbar>
+  </div>
 </ion-footer>

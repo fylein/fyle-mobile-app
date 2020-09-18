@@ -4,6 +4,10 @@
     background-color: #fff;
     height: 80px !important;
     border-bottom: 1px solid #e0e0e0;
+
+    &-toolbar {
+      border-bottom: 1px solid #e0e0e0;
+    }
   }
 
   &--menubutton {
@@ -22,11 +26,15 @@
   } 
   
   &--container {
-	 top: 82px;
+	 margin-top: 0; /*this is for android and web, fix this later for iphone xr*/
   }
 
   &--footer {
     height: 80px;
     background-color: #fff;
+
+    &-toolbar {
+      border-top: 1px solid #e0e0e0;
+    }
   }
 }

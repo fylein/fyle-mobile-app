@@ -32,10 +32,6 @@ export class DashboardPage implements OnInit {
     this.pageTitle = (expandedCard && expandedCard.length > 0) ? expandedCard[0].title + ' Overview' : this.pageTitle;
   }
 
-  getExpenseStats() {
-    return this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
-  };
-
   backButtonClick() {
     this.dashboardList = this.dashboardList.map(function (item) {
       item.isCollapsed = true;
@@ -71,7 +67,7 @@ export class DashboardPage implements OnInit {
       class: 'corporate-cards',
       icon: 'fy-card',
       subTitle: 'Unmatched Expense',
-      statsActionFn: this.getExpenseStats
+      // statsActionFn: this.getExpenseStats
     },
     {
       title: 'advances',
@@ -81,7 +77,7 @@ export class DashboardPage implements OnInit {
       class: 'advances',
       icon: 'fy-wallet',
       subTitle: 'Advance Request',
-      statsActionFn: this.getExpenseStats
+      // statsActionFn: this.getExpenseStats
     },
     {
       title: 'trips',
@@ -91,7 +87,7 @@ export class DashboardPage implements OnInit {
       class: 'trips',
       icon: 'fy-trips',
       subTitle: 'Trip Request',
-      statsActionFn: this.getExpenseStats
+      // statsActionFn: this.getExpenseStats
     }];
   }
 

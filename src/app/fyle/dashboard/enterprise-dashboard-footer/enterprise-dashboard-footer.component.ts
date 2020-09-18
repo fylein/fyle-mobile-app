@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { pipe, forkJoin } from 'rxjs';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-enterprise-dashboard-footer',
@@ -19,7 +20,8 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
 
   constructor(
     private offlineService: OfflineService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private alertController: AlertController
   ) { }
 
 
@@ -46,26 +48,23 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         addPerDiem: {
           name: 'Add Per Diem',
           icon: 'add-per-diem',
-          expenseType: 'PER_DIEM',
-          //actionFn: vm.createExpense
+          type: 'per_diem'
         },
         addExpense: {
           name: 'Add Expense',
           icon: 'add-expense',
-          expenseType: 'EXPENSE',
-          //actionFn: vm.createExpense
+          type: 'expense'
         },
         instafyle: {
           name: 'Instafyle',
           icon: 'instafyle',
           expenseType: 'AUTO_FYLE',
-          //actionFn: vm.createExpense
+          type: 'auto_fyle'
         },
         addMileage: {
           name: 'Add Mileage',
           icon: 'add-mileage',
-          expenseType: 'MILEAGE',
-          //actionFn: vm.createExpense
+          type: 'mileage'
         }
       };
 
@@ -99,17 +98,17 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         reports: {
           name: 'Create new report',
           icon: 'add-report',
-          //actionFn: vm.goToCreateReport
+          type: 'report'
         },
         trips: {
           name: 'Request new trip',
           icon: 'add-trip',
-          //actionFn: vm.goToCreateTrip
+          type: 'trip'
         },
         advances: {
           name: 'Request new advance',
           icon: 'add-advance',
-          //actionFn: vm.goToCreateAdvance
+          type: 'advance'
         }
       };
       this.ctaList = this.dashboardList.filter(function (element) {
@@ -119,6 +118,22 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
       });
     }
     this.gridSize = Math.floor(12 / this.ctaList.length);
+  }
+
+  async presentAlert(msg) {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Coming soon',
+      message: "Redirecting to -> " + msg,
+      buttons: ['Close']
+    });
+
+    await alert.present();
+  }
+
+  actionFn(item) {
+    // Redirect to proper page based on params.
+    this.presentAlert(item.type);
   }
 
   reset (state: string) {

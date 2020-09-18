@@ -16,7 +16,7 @@
   <ion-row>
     <ion-col *ngFor="let item of this.ctaList; index as $index;" size="{{this.gridSize}}">
       <div class="dashboard-footer--block">
-        <div> <!-- //for click -->
+        <div (click)="this.actionFn(item)"> <!-- //for click -->
           <div class="text-center">
             <ion-icon class="text-center dashboard-footer--icon-card" src="../../../assets/svg/{{item.icon}}.svg"></ion-icon>
           </div>

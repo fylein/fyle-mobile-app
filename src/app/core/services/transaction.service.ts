@@ -18,7 +18,7 @@ export class TransactionService {
   ) { }
 
   getUserTransactionParams(state: string) {
-    var stateMap = {
+    const stateMap = {
       draft: {
         state: ['DRAFT']
       },
