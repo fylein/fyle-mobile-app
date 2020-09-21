@@ -1,4 +1,5 @@
 $header-border: #ddd;
+$header-input: #f8f8f8;
 
 .select-currency-modal {
   color: black;
@@ -15,5 +16,17 @@ $header-border: #ddd;
     padding: 10px 15px;
     font-size: 14px;
     border-bottom: 1px solid $header-border;
+  }
+
+  &--form-field {
+    font-size: 11px;
+    width: 100%;
+    padding: 4px;
+  }
+  &--search-icon {
+    font-size: 14px;
+
+  }
+  &--search-input {
   }
 }

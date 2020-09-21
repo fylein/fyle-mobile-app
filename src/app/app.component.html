@@ -6,7 +6,7 @@
         <ion-note>hi@ionicframework.com</ion-note> -->
 
         <ion-menu-toggle auto-hide="false">
-          <ion-item [routerLink]="['/routePath']" routerLinkActive="router-link-active" >
+          <ion-item [routerLink]="['/', 'auth', 'switch-org', {choose:true}]" routerLinkActive="router-link-active">
             <ion-icon slot="start" name="star"></ion-icon>
             <ion-label>Estar</ion-label>
           </ion-item>

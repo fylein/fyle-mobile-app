@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { Observable, noop, from } from 'rxjs';
-import { tap, map, finalize, concatMap } from 'rxjs/operators';
+import { Observable, noop, from, fromEvent } from 'rxjs';
+import { tap, map, finalize, concatMap, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
@@ -10,9 +10,11 @@ import { LoaderService } from 'src/app/core/services/loader.service';
   templateUrl: './select-currency.component.html',
   styleUrls: ['./select-currency.component.scss'],
 })
-export class SelectCurrencyComponent implements OnInit {
+export class SelectCurrencyComponent implements OnInit, AfterViewInit {
+  @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  $currencies: Observable<any>;
+  currencies$: Observable<{ shortCode: string, longName: string }[]>;
+  filteredCurrencies$: Observable<{ shortCode: string, longName: string }[]>;
 
   constructor(
     private currencyService: CurrencyService,
@@ -21,17 +23,37 @@ export class SelectCurrencyComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.$currencies = from(this.loaderService.showLoader()).pipe(
+    this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => {
         return this.currencyService.getAll();
       }),
       map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
-      })
+      }),
+      shareReplay()
     );
 
-    this.$currencies.subscribe(noop);
+    this.currencies$.subscribe(noop);
+  }
+
+  ngAfterViewInit(): void {
+    this.filteredCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText) => {
+        return this.currencies$.pipe(
+          map(
+            currencies => currencies
+              .filter(
+                currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
+                  || currency.longName.toLowerCase().includes(searchText.toLowerCase())
+              )
+          )
+        );
+      })
+    );
   }
 
   onDoneClick() {

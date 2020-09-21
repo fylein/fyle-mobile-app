@@ -14,8 +14,8 @@
     <div class="switch-org--header">
       Choose Organization
     </div>
-    <div *ngIf="!isLoading">
-      <div matRipple (click)="switchToOrg(org)" class="switch-org--org-element" *ngFor="let org of filteredOrgs$ | async as list">
+    <div id="switch-org-list" *ngIf="!isLoading">
+      <div matRipple (click)="switchToOrg(org)" class="switch-org--org-element" [attr.id]="'org-' + org.id" *ngFor="let org of filteredOrgs$ | async as list">
         <ion-grid>
           <ion-row>
             <ion-col size="2">

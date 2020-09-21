@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fromEvent, Observable, forkJoin, concat, from, noop } from 'rxjs';
-import { distinctUntilChanged, finalize, map, startWith, switchMap, concatMap } from 'rxjs/operators';
+import { distinctUntilChanged, finalize, map, startWith, switchMap, concatMap, shareReplay } from 'rxjs/operators';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -41,6 +41,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   ngOnInit() {
     this.isLoading = true;
     this.orgs$ = this.offlineService.getOrgs().pipe(
+      shareReplay(),
       finalize(() => {
         this.isLoading = false;
       })
@@ -120,25 +121,27 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
         }
       }
 
-      if (pendingDetails) {
-        if (roles.indexOf('OWNER') > -1) {
-          this.router.navigate(['/', 'post_verification', 'setup_account']);
-        } else {
-          this.router.navigate(['/', 'post_verification', 'invited_user']);
-        }
-      } else if (eou.ou.status === 'ACTIVE') {
-        if (oneClickAction === 'insta_fyle') {
-          this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
-        } else {
-          if (!isOnline) {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      from(this.storageService.get('oneClickAction')).subscribe(oneClickActionInternal => {
+        if (pendingDetails) {
+          if (roles.indexOf('OWNER') > -1) {
+            this.router.navigate(['/', 'post_verification', 'setup_account']);
           } else {
-            this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+            this.router.navigate(['/', 'post_verification', 'invited_user']);
           }
+        } else if (eou.ou.status === 'ACTIVE') {
+          if (oneClickActionInternal === 'insta_fyle') {
+            this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
+          } else {
+            if (!isOnline) {
+              this.router.navigate(['/', 'enterprise', 'my_expenses']);
+            } else {
+              this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+            }
+          }
+        } else if (eou.ou.status === 'DISABLED') {
+          this.router.navigate(['/', 'auth', 'disabled']);
         }
-      } else if (eou.ou.status === 'DISABLED') {
-        this.router.navigate(['/', 'auth', 'disabled']);
-      }
+      });
     });
   }
 
@@ -163,7 +166,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       return Object.values(org)
         .map(value => value && value.toString().toLowerCase())
         .filter(value => !!value)
-        .some(value => value.includes(searchText));
+        .some(value => value.toLowerCase().includes(searchText.toLowerCase()));
     });
   }
 

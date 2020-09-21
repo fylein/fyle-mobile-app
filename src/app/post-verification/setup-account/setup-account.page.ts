@@ -1,14 +1,19 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { Observable, concat, noop, from } from 'rxjs';
+import { Observable, concat, noop, from, forkJoin } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, finalize } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { OrgService } from 'src/app/core/services/org.service';
 import { Org } from 'src/app/core/models/org.model';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-setup-account',
@@ -34,7 +39,12 @@ export class SetupAccountPage implements OnInit {
     private fb: FormBuilder,
     private modalController: ModalController,
     private orgService: OrgService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private loaderService: LoaderService,
+    private orgUserService: OrgUserService,
+    private offlineService: OfflineService,
+    private orgSettingsService: OrgSettingsService,
+    private router: Router
   ) { }
 
 
@@ -58,10 +68,74 @@ export class SetupAccountPage implements OnInit {
     }
   }
 
+  postUser() {
+    return this.eou$.pipe(
+      switchMap(eou => {
+        const us = eou.us;
+        us.password = this.fg.controls.password.value;
+        return this.orgUserService.postUser(us);
+      })
+    );
+  }
+
+  postOrg() {
+    return this.org$.pipe(
+      switchMap(org => {
+        org.name = this.fg.controls.companyName.value;
+        org.currency = this.fg.controls.homeCurrency.value;
+        return this.orgService.updateOrg(org);
+      })
+    );
+  }
+
+  saveGuessedMileage() {
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      org: this.org$
+    }).pipe(
+      switchMap(({ orgSettings, org }) => {
+        orgSettings.mileage.enabled = true;
+        if (org.currency === 'USD') {
+          // Googled these rates for the US
+          orgSettings.mileage.unit = 'MILES';
+          orgSettings.mileage.four_wheeler = 0.580;
+          orgSettings.mileage.two_wheeler = 0.580;
+        } else {
+          orgSettings.mileage.unit = 'KM';
+          orgSettings.mileage.four_wheeler = 8.0;
+          orgSettings.mileage.two_wheeler = 6.0;
+        }
+        return this.orgSettingsService.post(orgSettings);
+      })
+    );
+  }
+
   async saveData() {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       // do valid shit
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return forkJoin([
+            this.postUser(),
+            this.postOrg(),
+            this.saveGuessedMileage()
+          ]);
+        }),
+        finalize(async () => await this.loaderService.hideLoader()),
+        switchMap(() => {
+          return this.authService.refreshEou();
+        })
+      ).subscribe(() => {
+        // TODO: Add in Tracking service
+        // TrackingService.setupHalf({ Asset: 'Mobile' });
+        // // setting up company details in clevertap profile
+        // TrackingService.updateSegmentProfile({
+        //   'Company Name': vm.org.name
+        // });
+        // $state.go('post_verification.setup_account_preferences');
+        this.router.navigate(['/', 'post_verification', 'setup_account_preferences']);
+      });
     } else {
       const toast = await this.toastController.create({
         message: 'Please fill all required fields to proceed',
