@@ -27,12 +27,10 @@ export class OrgService {
 
   suggestOrgCurrency() {
     return this.apiService.get('/currency/ip').pipe(
-      tap(console.log),
       map((data) => {
         data.currency = data.currency || 'USD';
         return data.currency as string;
       }),
-      tap(console.log),
       catchError(() => {
         return 'USD';
       })
@@ -52,15 +50,14 @@ export class OrgService {
       currency$,
       currentOrg$
     ]).pipe(
-      tap(console.log),
       switchMap(
         (aggregatedResults) => {
           const [currency, org] = aggregatedResults;
           org.currency = currency;
           return this.updateOrg(org);
         }
-      ),
-      tap(console.log));
+      )
+    );
   }
 
   getOrgs() {

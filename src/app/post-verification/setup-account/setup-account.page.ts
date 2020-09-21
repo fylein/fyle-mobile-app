@@ -3,7 +3,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { Observable, concat, noop, from, forkJoin } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { map, switchMap, finalize } from 'rxjs/operators';
+import { map, concatMap, finalize, tap, shareReplay } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
@@ -70,7 +70,7 @@ export class SetupAccountPage implements OnInit {
 
   postUser() {
     return this.eou$.pipe(
-      switchMap(eou => {
+      concatMap(eou => {
         const us = eou.us;
         us.password = this.fg.controls.password.value;
         return this.orgUserService.postUser(us);
@@ -80,7 +80,7 @@ export class SetupAccountPage implements OnInit {
 
   postOrg() {
     return this.org$.pipe(
-      switchMap(org => {
+      concatMap(org => {
         org.name = this.fg.controls.companyName.value;
         org.currency = this.fg.controls.homeCurrency.value;
         return this.orgService.updateOrg(org);
@@ -93,7 +93,7 @@ export class SetupAccountPage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       org: this.org$
     }).pipe(
-      switchMap(({ orgSettings, org }) => {
+      concatMap(({ orgSettings, org }) => {
         orgSettings.mileage.enabled = true;
         if (org.currency === 'USD') {
           // Googled these rates for the US
@@ -115,7 +115,7 @@ export class SetupAccountPage implements OnInit {
     if (this.fg.valid) {
       // do valid shit
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
+        concatMap(() => {
           return forkJoin([
             this.postUser(),
             this.postOrg(),
@@ -123,7 +123,7 @@ export class SetupAccountPage implements OnInit {
           ]);
         }),
         finalize(async () => await this.loaderService.hideLoader()),
-        switchMap(() => {
+        concatMap(() => {
           return this.authService.refreshEou();
         })
       ).subscribe(() => {
@@ -173,9 +173,10 @@ export class SetupAccountPage implements OnInit {
     });
 
     this.org$ = this.orgService.setCurrencyBasedOnIp().pipe(
-      switchMap(() => {
+      concatMap(() => {
         return this.orgService.getCurrentOrg();
-      })
+      }),
+      shareReplay()
     );
 
     this.org$.subscribe((org) => {
