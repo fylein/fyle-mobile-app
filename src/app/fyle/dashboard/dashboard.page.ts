@@ -42,7 +42,7 @@ export class DashboardPage implements OnInit {
       item.isCollapsed = true;
     });
     this.dashboardService.setDashBoardState('default');
-    this.ngOnInit();
+    this.reset();
   }
 
   reset() {

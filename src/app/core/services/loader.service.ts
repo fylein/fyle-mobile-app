@@ -9,9 +9,10 @@ export class LoaderService {
 
   constructor(private loadingController: LoadingController) { }
 
-  async showLoader() {
+  async showLoader(msg?: string) {
+    const message = msg || 'Please wait...';
     const loading = await this.loadingController.create({
-      message: 'Please wait...'
+      message: message
     });
     return await loading.present();
   }

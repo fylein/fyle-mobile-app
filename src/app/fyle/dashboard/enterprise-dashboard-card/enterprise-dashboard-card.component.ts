@@ -8,7 +8,8 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { pipe, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, finalize } from 'rxjs/operators';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-enterprise-dashboard-card',
@@ -35,6 +36,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private dashboardService: DashboardService,
     private mobileEventService: MobileEventService,
+    private loaderService: LoaderService,
     private alertController: AlertController
   ) { }
 
@@ -246,7 +248,8 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   }
 
 
-  expandCard(item) {
+  async expandCard(item) {
+    await this.loaderService.showLoader();
     this.expandedCard = this.item && this.item.title ? this.item.title : '';
     this.dashboardList = this.dashboardList.map(function (item) {
       item.isCollapsed = true;
@@ -255,7 +258,11 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     
     this.item.isCollapsed = false;
     if (this.item && this.item.title) {
-      const expandedDetails$ = this.getExpandedDetails(this.item.title);
+      const expandedDetails$ = this.getExpandedDetails(this.item.title).pipe(
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
       expandedDetails$.subscribe((res) => {
         this.detailedStats = res;
         this.mobileEventService.dashboardCardExpanded();
@@ -302,7 +309,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   getNeedAttentionCount(stats) {
     if (this.dashboardList && this.dashboardList[this.index]) {
       if (this.dashboardList[this.index].title === 'corporate cards') {
-        this.needsAttentionStats.count = stats.total_count;
+        this.needsAttentionStats.count = stats && stats.total_count;
       } else {
         let countMap = {
           expenses: this.getExpenseNeedAttentionStats(),
@@ -324,8 +331,10 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     }
   };
 
-  getStats() {
+  async getStats() {
     if (this.dashboardList && this.dashboardList[this.index]) {
+      console.log("start->", this.dashboardList[this.index]['title'])
+     // await this.loaderService.showLoader();
       this.dashboardList[this.index].isLoading = true;
       var title = this.dashboardList[this.index].title.replace(' ', '_');
 
@@ -337,7 +346,12 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({state: 'INITIALIZED'}) 
       }
 
-      var stats$ = statsMap[title]
+      var stats$ = statsMap[title].pipe(
+        finalize(async () => {
+          console.log("end->", this.dashboardList[this.index]['title']);
+          //await this.loaderService.hideLoader();
+        })
+      )
 
       stats$.subscribe((res) => {
         this.stats = res;
