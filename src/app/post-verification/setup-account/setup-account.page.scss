@@ -1,12 +1,13 @@
 $offline-title: #4a4a4a;
 $offline-sub-title: #ababab;
 $name: #aaa;
+$header-text: #aaa;
 
 .setup-account {
   padding: 36px;
   &--full-name {
     font-size: 14px;
-    color: #aaa;
+    color: $header-text;
     line-height: 1.5;
     margin: 0 0 24px 20px;
   }
@@ -21,7 +22,7 @@ $name: #aaa;
     position: relative;
     &::before {
       color: #f90;
-      content: "∙";
+      content: '∙';
       position: absolute;
       font-size: 90px;
       left: -24px;
@@ -30,7 +31,7 @@ $name: #aaa;
   }
 
   &--form-sub-header {
-    color: #aaa;
+    color: $header-text;
     margin: 0 0 10px;
   }
 
@@ -41,7 +42,7 @@ $name: #aaa;
     margin-bottom: 8px;
     font-size: 14px;
     width: 100%;
-    color: #aaa;
+    color: $header-text;
     &::after {
       content: "*";
       position: relative;
@@ -57,7 +58,7 @@ $name: #aaa;
   }
 
   &--password-visibility {
-    color: #aaa;
+    color: $header-text;
     position: relative;
     top: -7px;
   }
