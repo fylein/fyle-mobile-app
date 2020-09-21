@@ -18,7 +18,7 @@
 <ion-content>
 	<div class="dashboard--container">
     <div class="dashboard--card" *ngFor="let item of this.dashboardList; index as $index;">
-      <div *ngIf="this.item.isVisible && !this.item.isCollapsed">
+      <div *ngIf="this.item && this.item.isVisible && !this.item.isCollapsed">
         <app-enterprise-dashboard-card [dashboardList]="this.dashboardList" [index]="$index"></app-enterprise-dashboard-card>
       </div>
     </div>
@@ -26,7 +26,7 @@
   </div>
 </ion-content>
 
-<ion-footer class="ion-no-border">
+<ion-footer class="ion-no-border" *ngIf="this.dashboardList">
   <div class="dashboard--footer">
     <ion-toolbar class="dashboard--footer-toolbar">
       <app-enterprise-dashboard-footer [dashboardList]="this.dashboardList"></app-enterprise-dashboard-footer>

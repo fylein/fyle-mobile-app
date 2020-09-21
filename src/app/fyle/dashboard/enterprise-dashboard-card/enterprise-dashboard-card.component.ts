@@ -4,6 +4,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { TripRequestService } from 'src/app/core/services/trip-request.service';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { pipe, forkJoin } from 'rxjs';
@@ -31,6 +32,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private reportService: ReportService,
     private advanceRequestService: AdvanceRequestService,
     private tripRequestsService: TripRequestService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private dashboardService: DashboardService,
     private mobileEventService: MobileEventService,
     private alertController: AlertController
@@ -199,6 +201,23 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     ) 
   }
 
+  getCCCEExpandedDetails(){
+
+    const CCCEExpandedDetails$ = this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({state: 'INITIALIZED'});
+
+    return CCCEExpandedDetails$.pipe(
+      map(res=> {
+        console.log(res);
+        res = this.isBlank(res);
+        res['title'] = 'Unmatched Expenses';
+        res['warning'] = true;
+
+        var stats = [res];
+        return stats;
+      })
+    )
+  }
+
 
   getExpandedDetails (title) {
     var title = title.replace(' ', '_');
@@ -207,7 +226,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       reports: this.getReportsExpandedDetails, //change this later
       advances: this.getAdvancesExpandedDetails,
       trips: this.getTripsExpandedDetails,
-      corporate_cards: this.getExpensesExpandedDetails
+      corporate_cards: this.getCCCEExpandedDetails
     };
     return expandedCardDetailsMap[title].apply(this);
   }
@@ -276,7 +295,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   getTripNeedAttentionStats() {
     return this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('inquiry'));
-    // return this.reportService.getPaginatedERptcCount({state: 'APPROVER_INQUIRY'});
   };
 
 
@@ -284,7 +302,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   getNeedAttentionCount(stats) {
     if (this.dashboardList && this.dashboardList[this.index]) {
       if (this.dashboardList[this.index].title === 'corporate cards') {
-        // later for CCC
+        this.needsAttentionStats.count = stats.total_count;
       } else {
         let countMap = {
           expenses: this.getExpenseNeedAttentionStats(),
@@ -316,7 +334,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         reports: this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('pending')),
         advances: this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('pending')),
         trips: this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('submitted')),
-        corporate_cards: this.dashboardService.getreadyToReportStats() 
+        corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({state: 'INITIALIZED'}) 
       }
 
       var stats$ = statsMap[title]
