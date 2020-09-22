@@ -7,7 +7,7 @@ import { ErrorComponent } from './error/error.component';
 import { shareReplay, catchError, filter, finalize, tap, switchMap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
@@ -28,6 +28,7 @@ export class SignInPage implements OnInit {
     private loaderService: LoaderService,
     private authService: AuthService,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     public googleAuthService: GoogleAuthService,
     private inAppBrowser: InAppBrowser
   ) { }
@@ -50,7 +51,7 @@ export class SignInPage implements OnInit {
     }
   };
 
-  handleSamlSignIn (res) {
+  handleSamlSignIn(res) {
     let url = res.idp_url + '&RelayState=MOBILE';
     const browser = this.inAppBrowser.create(url, '_blank', 'location=yes');
     browser.on('loadstop').subscribe(event => {
@@ -153,7 +154,7 @@ export class SignInPage implements OnInit {
     );
 
     basicSignIn$.subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch-org', {choose: true}]);
+      this.router.navigate(['/', 'auth', 'switch-org', { choose: true }]);
     });
   }
 
@@ -170,14 +171,15 @@ export class SignInPage implements OnInit {
       );
 
       googleSignIn$.subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch-org', {choose: true}]);
-      })
-    })
-  };
+        this.router.navigate(['/', 'auth', 'switch-org', { choose: true }]);
+      });
+    });
+  }
 
   async ngOnInit() {
+    const presentEmail = this.activatedRoute.snapshot.params.email;
     this.fg = this.formBuilder.group({
-      email: ['', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
+      email: [presentEmail || '', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
       password: ['', Validators.required]
     });
 

@@ -27,6 +27,24 @@
 
 $header-input-interior: #eeeeee;
 
+:root {
+  --ion-color-fyle-primary: #ff3366;
+  --ion-color-fyle-primary-rgb: 255,51,102;
+  --ion-color-fyle-primary-contrast: #ffffff;
+  --ion-color-fyle-primary-contrast-rgb: 255,255,255;
+  --ion-color-fyle-primary-shade: #e02d5a;
+  --ion-color-fyle-primary-tint: #ff4775;
+}
+
+.ion-color-fyle-primary {
+  --ion-color-base: var(--ion-color-fyle-primary);
+  --ion-color-base-rgb: var(--ion-color-fyle-primary-rgb);
+  --ion-color-contrast: var(--ion-color-fyle-primary-contrast);
+  --ion-color-contrast-rgb: var(--ion-color-fyle-primary-contrast-rgb);
+  --ion-color-shade: var(--ion-color-fyle-primary-shade);
+  --ion-color-tint: var(--ion-color-fyle-primary-tint);
+}
+
 .error-popover {
   .popover-wrapper {
     .popover-content {
@@ -51,4 +69,10 @@ $header-input-interior: #eeeeee;
 
 .switch-org--form-field .mat-form-field-wrapper {
   background-color: $header-input-interior;
+}
+
+.mat-form-field-no-padding {
+  .mat-form-field-wrapper {
+    padding: 0;
+  }
 }
