@@ -19,6 +19,10 @@ const routes: Routes = [
   {
     path: 'request_invitation',
     loadChildren: () => import('./request-invitation/request-invitation.module').then( m => m.RequestInvitationPageModule)
+  },
+  {
+    path: 'app_version',
+    loadChildren: () => import('./app-version/app-version.module').then( m => m.AppVersionPageModule)
   }
 ];
 

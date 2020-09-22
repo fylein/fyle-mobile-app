@@ -3,6 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { DeviceService } from './core/services/device.service';
+import { switchMap, filter, tap } from 'rxjs/operators';
+import { AppVersionService } from './core/services/app-version.service';
+import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -10,45 +15,14 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
-  public selectedIndex = 0;
-  public appPages = [
-    {
-      title: 'Inbox',
-      url: '/folder/Inbox',
-      icon: 'mail'
-    },
-    {
-      title: 'Outbox',
-      url: '/folder/Outbox',
-      icon: 'paper-plane'
-    },
-    {
-      title: 'Favorites',
-      url: '/folder/Favorites',
-      icon: 'heart'
-    },
-    {
-      title: 'Archived',
-      url: '/folder/Archived',
-      icon: 'archive'
-    },
-    {
-      title: 'Trash',
-      url: '/folder/Trash',
-      icon: 'trash'
-    },
-    {
-      title: 'Spam',
-      url: '/folder/Spam',
-      icon: 'warning'
-    }
-  ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
 
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
-    private statusBar: StatusBar
+    private statusBar: StatusBar,
+    private deviceService: DeviceService,
+    private appVersionService: AppVersionService,
+    private router: Router
   ) {
     this.initializeApp();
   }
@@ -61,9 +35,23 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    const path = window.location.pathname.split('folder/')[1];
-    if (path !== undefined) {
-      this.selectedIndex = this.appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
-    }
+    this.checkAppSupportedVersion();
+  }
+
+  checkAppSupportedVersion() {
+    this.deviceService.getDeviceInfo().pipe(
+      switchMap((deviceInfo) => {
+        const data = {
+          app_version: deviceInfo.appVersion,
+          device_os: deviceInfo.platform
+        };
+
+        return this.appVersionService.isSupported(data);
+      })
+    ).subscribe((res: { message: string, supported: boolean }) => {
+      if (!res.supported && environment.production) {
+        this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
+      }
+    });
   }
 }
