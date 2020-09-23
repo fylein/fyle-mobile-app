@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
+import { UserEventService } from './user-event.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,13 +8,14 @@ import { StorageService } from './storage.service';
 export class TokenService {
 
   constructor(
-    private storageService: StorageService
+    private storageService: StorageService,
+    private userEventService: UserEventService
   ) {
-    // UserEventService.onLogout(function () {
-    //   self.resetRefreshToken();
-    //   self.resetAccessToken();
-    //   self.resetClusterDomain();
-    // });
+    this.userEventService.onLogout(() => {
+      this.resetRefreshToken();
+      this.resetAccessToken();
+      this.resetClusterDomain();
+    });
   }
 
   getAccessToken() {
