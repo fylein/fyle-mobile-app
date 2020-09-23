@@ -11,6 +11,7 @@ import { SignUpPage } from './sign-up.page';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { SignUpErrorComponent } from './error/error.component';
 
 @NgModule({
   imports: [
@@ -23,6 +24,9 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     ReactiveFormsModule
   ],
-  declarations: [SignUpPage]
+  declarations: [
+    SignUpPage,
+    SignUpErrorComponent
+  ]
 })
 export class SignUpPageModule {}

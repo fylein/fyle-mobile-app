@@ -4,8 +4,10 @@ import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
-import { map, tap } from 'rxjs/operators';
+import { switchMap, map, tap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { User } from '../models/user.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +19,20 @@ export class OrgUserService {
     private tokenService: TokenService,
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
+    private authService: AuthService
   ) { }
+
+  postUser(user: User) {
+    return this.apiService.post('/users', user);
+  }
+
+  markActive() {
+    return this.apiService.post('/orgusers/current/mark_active').pipe(
+      switchMap(() => {
+        return this.authService.refreshEou();
+      })
+    );
+  };
 
   findDelegatedAccounts () {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
