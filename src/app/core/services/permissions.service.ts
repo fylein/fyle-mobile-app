@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { filter, map, switchMap } from 'rxjs/operators';
+import { tap, filter, map, switchMap } from 'rxjs/operators';
 import { throwError, of } from 'rxjs';
 
 @Injectable({
@@ -2208,7 +2208,8 @@ export class PermissionsService {
     return filteredRoles$.pipe(
       map(
         filteredRoles => {
-          if (this.allowedAccess(resource, orgSettings)) {
+          try{
+            if (this.allowedAccess(resource, orgSettings)) {
             for (const currentRole of filteredRoles) {
               const role = currentRole.toLowerCase();
               for (const action of actions) {
@@ -2222,8 +2223,14 @@ export class PermissionsService {
             }
           }
           return allowedActions;
+         } catch (err){
+           console.log(err)
+         }
+          
+          
         }
       ),
+      tap(console.log),
       switchMap(
         currentAllowedActions => {
           if (currentAllowedActions.allowedRouteAccess) {

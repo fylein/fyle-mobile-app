@@ -1,6 +1,6 @@
-ion-menu ion-content {
+/*ion-menu ion-content {
   --background: var(--ion-item-background, var(--ion-background-color, #fff));
-}
+}*/
 
 ion-menu.md ion-content {
   --padding-start: 8px;
@@ -69,9 +69,9 @@ ion-menu.ios ion-content {
   --padding-bottom: 20px;
 }
 
-ion-menu.ios ion-list {
+/*ion-menu.ios ion-list {
   padding: 20px 0 0 0;
-}
+}*/
 
 ion-menu.ios ion-note {
   line-height: 24px;
@@ -117,3 +117,111 @@ ion-note {
 ion-item.selected {
   --color: var(--ion-color-primary);
 }
+
+.sidemenu {
+  &--header {
+    height: 80px !important;
+    position: relative;
+    background-size: 100% 0px !important;
+/*    background-color: #111023;
+    border-color: #111023;*/  
+  }
+
+  &--header-info-wrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    --background: #111023;
+    border-color: #111023;
+  }
+
+  &--header-wrapper{
+    width: 100%;
+    margin: 10px 0;
+    padding: 0 16px;
+    padding-left: 0;
+  }
+
+  &--header-logo {
+    display: block;
+    width: 40px;
+  }
+  &--info-wrapper {
+    margin-left: 10px;
+    width: calc(100% - 60px);
+    color: #fff;
+  }
+  &--user-name {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  &--org-name {
+    margin: 0;
+    margin-top: 5px;
+    color: #a9acbc;
+    font-size: 12px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  &--content {
+    /*top: 80px !important;*/
+    --background: #161528;
+    padding: 0;
+  }
+
+  &--items {
+    --background: #161528;
+    --inner-border-width: 0;
+    --padding-start: 0 !important;
+  }
+
+  &--item {
+    width: 100%;
+    border: 0;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    background: transparent;
+    color: #a9acbc;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  &--icon {
+    width: 20px;
+    height: 20px;
+    fill: #a9acbc;
+    padding-left: 5px;
+  }
+
+  &--label {
+    padding-left: 15px;
+  }
+
+  &--list-bottom {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    background: none !important;
+  }
+
+}
+
+
+
+/*
+ion-menu {
+  --ion-background-color: red;
+  --ion-text-color: var(--ion-color-primary-contrast);
+
+  ion-toolbar {
+    --background: green;
+  }
+
+  ion-list {/* optional, but it needs when you use gradient as a background color.*/
+/*    background: transparent;
+  }
+}*/

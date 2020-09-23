@@ -329,12 +329,14 @@ export class OfflineService {
 
   private getReportPermissions(orgSettings) {
     return this.permissionsService.allowedActions('reports', ['approve', 'create', 'delete'], orgSettings).pipe(
+      tap(console.log),
       catchError(err => [])
     );
   }
 
   getReportActions(orgSettings) {
     return this.networkService.isOnline().pipe(
+      tap(console.log),
       switchMap(
         isOnline => {
           if (isOnline) {
@@ -347,7 +349,8 @@ export class OfflineService {
             return from(this.storageService.get('cachedReportActions'));
           }
         }
-      )
+      ),
+      tap(console.log),
     );
   }
 
