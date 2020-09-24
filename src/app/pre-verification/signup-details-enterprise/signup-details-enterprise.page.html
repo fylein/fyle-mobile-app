@@ -1,37 +1,52 @@
 <ion-content>
   <div class="sign-up-details-enterprise" *ngIf="(isConnected$|async)">
+    <div class="sign-up-details-enterprise--email">
+      {{currentUserEmail}}
+    </div>
     <div class="sign-up-details-enterprise--form-header-container">
       <div class="sign-up-details-enterprise--form-header">
-        Setup your account?
+        What do you want to use Fyle for?
       </div>
       <div class="sign-up-details-enterprise--form-sub-header">
-        Set a password and give your account a name
+        Help us choose the correct plan for you
+      </div>
+    </div>
+    <div class="sign-up-details-enterprise--header">
+      <div>
+        Automate and stream line expense management at my company
+      </div>
+      <div>
+        <mat-icon class="sign-up-details-enterprise--close" aria-hidden="false" aria-label="close"
+          [routerLink]="['/','auth','sign-up']" routerLinkActive="router-link-active">close</mat-icon>
       </div>
     </div>
     <div>
-      <!-- <form [formGroup]="fg">
+      <form [formGroup]="fg">
         <div
-          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!fg.controls.companyName.valid && fg.controls.companyName.touched) }"
+          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!fg.controls.role.valid && fg.controls.role.touched) }"
           class="sign-up-details-enterprise--form-label">
-          Company Name
-        </div>
-        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline">
-          <input formControlName="companyName" type="text" matInput placeholder="{{(fullname$|async)}}'s Account">
-        </mat-form-field>
-        <div
-          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!fg.controls.homeCurrency.valid && fg.controls.homeCurrency.touched) }"
-          class="sign-up-details-enterprise--form-label">
-          Home Currency
+          What is your role in your company?
         </div>
         <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline"
-          (click)="openCurrenySelectionModal()">
-          <input formControlName="homeCurrency" placeholder="Set default currency for all expenses" matInput>
+          (click)="openRoleDialog()">
+          <input formControlName="role" type="text" matInput placeholder="Choose your role">
         </mat-form-field>
-      </form> -->
+        <div
+          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!fg.controls.count.valid && fg.controls.count.touched) }"
+          class="sign-up-details-enterprise--form-label">
+          How many Employees does your company have?
+        </div>
+        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline"
+          (click)="openEmployeeCountDialog()">
+          <input formControlName="count" placeholder="Choose employee count" matInput>
+        </mat-form-field>
+      </form>
     </div>
     <div>
-      <button [ngClass]="{'sign-up-details-enterprise--save__disabled': !fg.valid}" class="sign-up-details-enterprise--save" (click)="saveData()"
-        mat-flat-button color="primary">Continue</button>
+      <button [ngClass]="{'sign-up-details-enterprise--save__disabled': !fg.valid}"
+        class="sign-up-details-enterprise--save" (click)="continue()" mat-flat-button color="primary">
+        Continue
+      </button>
     </div>
   </div>
   <div class="sign-up-details-enterprise-offline ion-text-center" *ngIf="!(isConnected$|async)">

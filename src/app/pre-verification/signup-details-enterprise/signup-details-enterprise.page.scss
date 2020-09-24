@@ -5,7 +5,7 @@ $header-text: #aaa;
 
 .sign-up-details-enterprise {
   padding: 36px;
-  &--full-name {
+  &--email {
     font-size: 14px;
     color: $header-text;
     line-height: 1.5;
@@ -67,7 +67,18 @@ $header-text: #aaa;
     padding: 14px 0;
   }
 
+  &--header {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+  }
+
+  &--close {
+    color: $header-text;
+  }
+
   &--save {
+    margin-top: 24px;
     width: 100%;
     &__disabled {
       opacity: 0.2;
@@ -85,7 +96,7 @@ $header-text: #aaa;
   }
 }
 
-.setup-account-offline {
+.sign-up-details-enterprise-offline {
   margin-top: 75px;
   padding: 15px;
   &--image {
