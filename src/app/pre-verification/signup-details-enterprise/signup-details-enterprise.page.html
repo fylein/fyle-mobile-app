@@ -1,0 +1,48 @@
+<ion-content>
+  <div class="sign-up-details-enterprise" *ngIf="(isConnected$|async)">
+    <div class="sign-up-details-enterprise--form-header-container">
+      <div class="sign-up-details-enterprise--form-header">
+        Setup your account?
+      </div>
+      <div class="sign-up-details-enterprise--form-sub-header">
+        Set a password and give your account a name
+      </div>
+    </div>
+    <div>
+      <!-- <form [formGroup]="fg">
+        <div
+          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!fg.controls.companyName.valid && fg.controls.companyName.touched) }"
+          class="sign-up-details-enterprise--form-label">
+          Company Name
+        </div>
+        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline">
+          <input formControlName="companyName" type="text" matInput placeholder="{{(fullname$|async)}}'s Account">
+        </mat-form-field>
+        <div
+          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!fg.controls.homeCurrency.valid && fg.controls.homeCurrency.touched) }"
+          class="sign-up-details-enterprise--form-label">
+          Home Currency
+        </div>
+        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline"
+          (click)="openCurrenySelectionModal()">
+          <input formControlName="homeCurrency" placeholder="Set default currency for all expenses" matInput>
+        </mat-form-field>
+      </form> -->
+    </div>
+    <div>
+      <button [ngClass]="{'sign-up-details-enterprise--save__disabled': !fg.valid}" class="sign-up-details-enterprise--save" (click)="saveData()"
+        mat-flat-button color="primary">Continue</button>
+    </div>
+  </div>
+  <div class="sign-up-details-enterprise-offline ion-text-center" *ngIf="!(isConnected$|async)">
+    <img class="sign-up-details-enterprise-offline--image" alt="offline-zer-state"
+      src="../../../assets/images/zero-states/offline.svg">
+    <div class="sign-up-details-enterprise-offline--title">
+      Looks like you are offline
+    </div>
+    <div class="sign-up-details-enterprise-offline--sub-title">
+      You need to be connected to Internet to be able to login to the app. Please check if your Internet
+      connection is working.
+    </div>
+  </div>
+</ion-content>
