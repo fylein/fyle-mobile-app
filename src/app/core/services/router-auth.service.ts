@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
-import { tap, switchMap } from 'rxjs/operators';
+import { tap, switchMap, map } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -115,5 +115,26 @@ export class RouterAuthService {
     }).pipe(
       switchMap(data => this.handleSignInResponse(data))
     );
+  }
+
+  getRegions() {
+    return this.routerApiService.get('/regions').pipe(
+      map((data) => {
+        return data.regions;
+      })
+    );
+  }
+
+  basicSignup(email, fullName, title, mobile, signupParams, persona, password, region) {
+    return this.routerApiService.post('/auth/basic/signup', {
+      email,
+      password,
+      full_name: fullName,
+      title,
+      mobile,
+      signup_params: signupParams,
+      persona,
+      region
+    });
   }
 }

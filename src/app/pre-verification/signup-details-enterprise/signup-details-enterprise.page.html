@@ -4,14 +4,18 @@
       {{currentUserEmail}}
     </div>
     <div class="sign-up-details-enterprise--form-header-container">
-      <div class="sign-up-details-enterprise--form-header">
+      <div class="sign-up-details-enterprise--form-header"
+        [ngClass]="{'sign-up-details-enterprise--form-header__completed': currentState === PageStates.secondForm}">
         What do you want to use Fyle for?
+      </div>
+      <div class="sign-up-details-enterprise--form-header" *ngIf="currentState === PageStates.secondForm">
+        Add your details
       </div>
       <div class="sign-up-details-enterprise--form-sub-header">
         Help us choose the correct plan for you
       </div>
     </div>
-    <div class="sign-up-details-enterprise--header">
+    <div *ngIf="currentState === PageStates.firstForm" class="sign-up-details-enterprise--header">
       <div>
         Automate and stream line expense management at my company
       </div>
@@ -20,7 +24,7 @@
           [routerLink]="['/','auth','sign-up']" routerLinkActive="router-link-active">close</mat-icon>
       </div>
     </div>
-    <div>
+    <div *ngIf="currentState === PageStates.firstForm">
       <form [formGroup]="fg">
         <div
           [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!fg.controls.role.valid && fg.controls.role.touched) }"
@@ -42,12 +46,127 @@
         </mat-form-field>
       </form>
     </div>
-    <div>
+    <div *ngIf="currentState === PageStates.secondForm">
+      <form [formGroup]="sfg">
+        <div
+          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!sfg.controls.name.valid && sfg.controls.name.touched) }"
+          class="sign-up-details-enterprise--form-label">
+          Full Name?
+        </div>
+        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline">
+          <input formControlName="name" type="text" matInput placeholder="John Doe">
+        </mat-form-field>
+        <div
+          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!sfg.controls.country.valid && sfg.controls.country.touched) }"
+          class="sign-up-details-enterprise--form-label">
+          Country
+        </div>
+        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline"
+          (click)="openCountryDialog()">
+          <input formControlName="country" matInput>
+        </mat-form-field>
+        <div
+          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!sfg.controls.region.valid && sfg.controls.region.touched) }"
+          class="sign-up-details-enterprise--form-label">
+          Region
+        </div>
+        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline"
+          (click)="openRegionDialog()">
+          <input formControlName="region" matInput placeholder="Select a region">
+        </mat-form-field>
+
+        <div
+          [ngClass]="{'sign-up-details-enterprise--form-label__invalid': (!sfg.controls.password.valid && sfg.controls.password.touched) }"
+          class="sign-up-details-enterprise--form-label">
+          Password
+        </div>
+        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline">
+          <input formControlName="password" type="password" matInput [type]="hide ? 'password': 'text'"
+            placeholder="minimum 12 chars">
+          <mat-icon class="sign-up-details-enterprise--password-visibility-icon" color="accent" matSuffix
+            (click)="hide = !hide">
+            {{hide ? 'visibility_off' : 'visibility'}}
+          </mat-icon>
+        </mat-form-field>
+        <div class="sign-up-details-enterprise--password-rules">
+          <div>
+            <span>
+              <ion-icon *ngIf="lengthValidationDisplay$|async" class="sign-up-details-enterprise--validation__correct"
+                name="checkmark-outline"></ion-icon>
+              <ion-icon *ngIf="!(lengthValidationDisplay$|async)"
+                class="sign-up-details-enterprise--validation__incorrect" name="close-outline"></ion-icon>
+            </span>
+            <span>
+              Is between 12 to 32 characters
+            </span>
+          </div>
+          <div>
+            <span>
+              <ion-icon *ngIf="uppercaseValidationDisplay$|async"
+                class="sign-up-details-enterprise--validation__correct" name="checkmark-outline"></ion-icon>
+              <ion-icon *ngIf="!(uppercaseValidationDisplay$|async)"
+                class="sign-up-details-enterprise--validation__incorrect" name="close-outline"></ion-icon>
+            </span>
+            <span>
+              Contains atleast 1 uppercase character
+            </span>
+          </div>
+          <div>
+            <span>
+              <ion-icon *ngIf="numberValidationDisplay$|async" class="sign-up-details-enterprise--validation__correct"
+                name="checkmark-outline"></ion-icon>
+              <ion-icon *ngIf="!(numberValidationDisplay$|async)"
+                class="sign-up-details-enterprise--validation__incorrect" name="close-outline"></ion-icon>
+            </span>
+            <span>
+              Contains atleast 1 number
+            </span>
+          </div>
+          <div>
+            <span>
+              <ion-icon *ngIf="specialCharValidationDisplay$|async"
+                class="sign-up-details-enterprise--validation__correct" name="checkmark-outline"></ion-icon>
+              <ion-icon *ngIf="!(specialCharValidationDisplay$|async)"
+                class="sign-up-details-enterprise--validation__incorrect" name="close-outline"></ion-icon>
+            </span>
+            <span>
+              Contains atleast 1 special character
+            </span>
+          </div>
+        </div>
+
+        <div class="sign-up-details-enterprise--form-label sign-up-details-enterprise--form-label__not_required">
+          Phone (Optional)
+        </div>
+        <mat-form-field class="mat-form-field-no-padding sign-up-details-enterprise--form-field" appearance="outline">
+          <input formControlName="phone" type="number" matInput placeholder="In case we need to contact you">
+        </mat-form-field>
+        <div class="sign-up-details-enterprise--form-field sign-up-details-enterprise--checkbox">
+          <ion-checkbox class="sign-up-details-enterprise--checkbox-internal" formControlName="tos" color="fyle-primary"
+            mode="ios"></ion-checkbox>
+          <div>
+            I agree to the <a (click)="openLinkInApp('https://pages.fylehq.com/privacy/terms-and-conditions')">terms of
+              service</a>
+            and <a (click)="openLinkInApp('https://pages.fylehq.com/privacy/privacy-policy')">privacy
+              policy</a> </div>
+        </div>
+      </form>
+
+    </div>
+    <div *ngIf="currentState === PageStates.firstForm">
       <button [ngClass]="{'sign-up-details-enterprise--save__disabled': !fg.valid}"
         class="sign-up-details-enterprise--save" (click)="continue()" mat-flat-button color="primary">
         Continue
       </button>
     </div>
+
+    <div *ngIf="currentState === PageStates.secondForm">
+      <button [ngClass]="{'sign-up-details-enterprise--save__disabled': !sfg.valid}"
+        class="sign-up-details-enterprise--save" (click)="signUp()" mat-flat-button color="primary">
+        Finish
+      </button>
+    </div>
+
   </div>
   <div class="sign-up-details-enterprise-offline ion-text-center" *ngIf="!(isConnected$|async)">
     <img class="sign-up-details-enterprise-offline--image" alt="offline-zer-state"

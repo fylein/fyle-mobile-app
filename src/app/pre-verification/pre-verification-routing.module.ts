@@ -6,6 +6,10 @@ const routes: Routes = [
     path: 'signup_details_enterprise',
     loadChildren: () => import('./signup-details-enterprise/signup-details-enterprise.module')
       .then(m => m.SignupDetailsEnterprisePageModule)
+  },
+  {
+    path: 'verify_email',
+    loadChildren: () => import('./verify-email/verify-email.module').then( m => m.VerifyEmailPageModule)
   }
 ];
 
