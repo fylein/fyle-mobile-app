@@ -10,6 +10,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { PermissionsService } from 'src/app/core/services/permissions.service';
 
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -20,17 +21,10 @@ import { Org } from 'src/app/core/models/org.model';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
-  eou: ExtendedOrgUser;
-  orgs: Org[]; 
+  eou: ExtendedOrgUser; 
   activeOrg: any; 
-  orgSettings: any;
-  orgUserSettings: any;
-  allowedReportsActions: any;
-  allowedAdvancesActions: any;
-  allowedTripsActions: any;
   isSwitchedToDelegator: boolean;
   sideMenuList: any[];
-  isDelegatee: boolean;
 
   constructor(
     private platform: Platform,
@@ -42,6 +36,7 @@ export class AppComponent implements OnInit {
     private orgUserService: OrgUserService,
     private orgUserSettingsService: OrgUserSettingsService,
     private userEventService: UserEventService,
+    private permissionsService: PermissionsService,
     private menuController: MenuController
   ) {
     this.initializeApp();
@@ -70,28 +65,50 @@ export class AppComponent implements OnInit {
     const currentOrg$ = this.offlineService.getCurrentOrg();
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.orgUserSettingsService.get();
-    const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts().pipe(
+    const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts();
+
+    let allowedReportsActions: any;
+    let allowedAdvancesActions: any;
+    let allowedTripsActions: any;
+
+
+    // orgSettings$.pipe(
+    //   switchMAp(orgSettings => {
+    //     if (orgSettings.access_delegation.enabled) {
+    //       debugger;
+    //       const a$ = this.orgUserService.isSwitchedToDelegator();
+    //       return forkJoin({
+    //         a : a$
+    //       })
+    //     }
+    //   })
+    // ).subscribe(res=> {
+    //   debugger;
+    // })
+
+
+    delegatedAccounts$.pipe(
       map(res => {
         return this.orgUserService.excludeByStatus(res, 'ACTIVE');
       })
     );
 
     orgSettings$.pipe(
-      tap(() => console.log("/")),
       switchMap(orgSettings => {
-        // Left with Team view bevuse of some issue in permission service
-        console.log(orgSettings);
-        const a$ = this.offlineService.getReportActions(orgSettings).pipe(tap(() => console.log("|||||||||")));
-        // const b$ = this.offlineService.getReportActions(orgSettings);
-        const c$ = this.offlineService.getOrgs();
+      const allowedReportsActions$ = this.offlineService.getReportActions(orgSettings);
+      const allowedAdvancesActions$ = this.permissionsService.allowedActions('advances', ['approve', 'create', 'delete'], orgSettings);
+      const allowedTripsActions$ = this.permissionsService.allowedActions('trips', ['approve', 'create', 'edit', 'cancel'], orgSettings);
 
         return forkJoin({
-          c: c$
+          allowedReportsActions: allowedReportsActions$,
+          allowedAdvancesActions: allowedAdvancesActions$,
+          allowedTripsActions: allowedTripsActions$,
         })
       })
     ).subscribe(res=> {
-      console.log("not coming here");
-      console.log(res);
+      allowedReportsActions = res.allowedReportsActions;
+      allowedAdvancesActions = res.allowedAdvancesActions;
+      allowedTripsActions = res.allowedTripsActions;
     })
 
 
@@ -117,16 +134,19 @@ export class AppComponent implements OnInit {
     });
 
     primaryData$.subscribe((res) => { 
-
-      console.log(res);
       this.eou = res.eou;
-      this.orgs = res.orgs;
+      let orgs = res.orgs;
       this.activeOrg = res.currentOrg;
-      this.orgSettings = res.orgSettings;
-      this.orgUserSettings = res.orgUserSettings;
+      let orgSettings = res.orgSettings;
+      let orgUserSettings = res.orgUserSettings;
       let isDelegatee = res.delegatedAccounts.length > 0;
       // Left with delegator
       //this.orgUserService.isSwitchedToDelegator();
+
+      // if (orgSettings.access_delegation.enabled) {
+      //   debugger;
+      //    let isSwitchedToDelegator = this.orgUserService.isSwitchedToDelegator();
+      //   }
 
       this.sideMenuList = [
         {
@@ -149,13 +169,13 @@ export class AppComponent implements OnInit {
         },
         {
           title: 'Advances',
-          isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
+          isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
           icon: '../../../assets/svg/fy-advances-new.svg',
           route: ['/', 'enterprise', 'my_dashboard']
         },
         {
           title: 'Trips',
-          isVisible: this.orgSettings.trip_requests.enabled && (!this.orgSettings.trip_requests.enable_for_certain_employee || (this.orgSettings.trip_requests.enable_for_certain_employee && this.orgUserSettings.trip_request_org_user_settings.enabled)),
+          isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
           icon: '../../../assets/svg/fy-trips-new.svg',
           route: ['/', 'enterprise', 'my_dashboard']
         },
@@ -167,13 +187,13 @@ export class AppComponent implements OnInit {
         },
         {
           title: 'Corporate Cards',
-          isVisible: this.orgSettings.corporate_credit_card_settings.enabled,
+          isVisible: orgSettings.corporate_credit_card_settings.enabled,
           icon: '../../../assets/svg/fy-cards-new.svg',
           route: ['/', 'enterprise', 'my_dashboard']
         },
         {
           title: 'Receipts',
-          isVisible: this.orgSettings.receipt_settings.enabled,
+          isVisible: orgSettings.receipt_settings.enabled,
           icon: '../../../assets/svg/fy-receipts-new.svg',
           route: ['/', 'enterprise', 'my_dashboard']
         },
@@ -191,19 +211,19 @@ export class AppComponent implements OnInit {
         },
         {
           title: 'Team Reports',
-          isVisible: true, // need to fix later with permission service
+          isVisible: allowedReportsActions && allowedReportsActions.approve,
           icon: '../../../assets/svg/fy-team-reports-new.svg',
           route: ['/', 'enterprise', 'my_dashboard']
         },
         {
           title: 'Team Trips',
-          isVisible: true, // need to fix later with permission service
+          isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
           icon: '../../../assets/svg/fy-team-trips-new.svg',
           route: ['/', 'enterprise', 'my_dashboard']
         },
         {
           title: 'Team Advances',
-          isVisible: true, // need to fix later with permission service
+          isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
           icon: '../../../assets/svg/fy-team-advances-new.svg',
           route: ['/', 'enterprise', 'my_dashboard']
         },
@@ -215,7 +235,7 @@ export class AppComponent implements OnInit {
         },
         {
           title: 'Switch Accounts',
-          isVisible: (this.orgs.length > 1),
+          isVisible: (orgs.length > 1),
           icon: '../../../assets/svg/fy-switch-new.svg',
           route: ['/', 'auth', 'switch-org']
         },

@@ -4,7 +4,7 @@ import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { switchMap, map, tap, concatMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { User } from '../models/user.model';
 import { AuthService } from './auth.service';
@@ -56,25 +56,23 @@ export class OrgUserService {
 
   }
 
-  isSwitchedToDelegator() {
-    // var accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
-    // return !!accessToken.proxy_org_user_id;
-    console.log("??????????????????")
+  // async isSwitchedToDelegator() {
+  //   debugger;
+  //   let accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
+  //   return !!accessToken.proxy_org_user_id;
+  // }
 
-    return from(this.tokenService.getAccessToken()).pipe(
-      tap(console.log),
-      map(accessToken => {
-        console.log(accessToken);
-          // if (accessToken) {
-          //   debugger;
-          //   const tokenPayload = this.jwtHelperService.decodeToken(accessToken);
-          //   const roles = tokenPayload.roles;
-          //   return roles;
-          // } else {
-          //   return [];
-          // }
-        }
-      )
-    );
-  }
+  // isSwitchedToDelegator1() {
+  //   // var accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
+  //   // return !!accessToken.proxy_org_user_id;
+  //   console.log("??????????????????");
+  //   return from(this.tokenService.getAccessToken())
+  //     .pipe(
+  //       concatMap(token => {
+  //         debugger;
+  //         console.log(token);
+  //       })
+  //     );
+
+  // }
 }
