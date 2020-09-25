@@ -56,23 +56,9 @@ export class OrgUserService {
 
   }
 
-  // async isSwitchedToDelegator() {
-  //   debugger;
-  //   let accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
-  //   return !!accessToken.proxy_org_user_id;
-  // }
+  async isSwitchedToDelegator() {
+    const accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
+    return !!accessToken.proxy_org_user_id;
+  }
 
-  // isSwitchedToDelegator1() {
-  //   // var accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
-  //   // return !!accessToken.proxy_org_user_id;
-  //   console.log("??????????????????");
-  //   return from(this.tokenService.getAccessToken())
-  //     .pipe(
-  //       concatMap(token => {
-  //         debugger;
-  //         console.log(token);
-  //       })
-  //     );
-
-  // }
 }
