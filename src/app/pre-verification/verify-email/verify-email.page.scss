@@ -1,5 +1,6 @@
 $logo: #25ae88;
-
+$subheader: #4a4a4a;
+$footer-header: #f90;
 .verify-email {
   display: flex;
   flex-direction: column;
@@ -25,7 +26,7 @@ $logo: #25ae88;
   &--subheader {
     font-size: 18px;
     line-height: 1.5;
-    color: #4a4a4a;
+    color: $subheader;
     margin-top: 15px;
   }
 
@@ -34,13 +35,13 @@ $logo: #25ae88;
   }
 
   &--footer-header {
-    color: #f90;
+    color: $footer-header;
     font-size: 14px;
     margin: 0 0 10px;
   }
 
   &--footer-body {
-    color: #4a4a4a;
+    color: $subheader;
     line-height: 1.5;
     font-size: 14px;
   }
