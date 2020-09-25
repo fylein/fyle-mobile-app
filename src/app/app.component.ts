@@ -11,6 +11,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { PermissionsService } from 'src/app/core/services/permissions.service';
+import { DeviceService } from 'src/app/core/services/device.service';
 
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -25,6 +26,7 @@ export class AppComponent implements OnInit {
   activeOrg: any; 
   isSwitchedToDelegator: boolean;
   sideMenuList: any[];
+  appVersion: string;
 
   constructor(
     private platform: Platform,
@@ -37,7 +39,8 @@ export class AppComponent implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private userEventService: UserEventService,
     private permissionsService: PermissionsService,
-    private menuController: MenuController
+    private menuController: MenuController,
+    private deviceService: DeviceService
   ) {
     this.initializeApp();
   }
@@ -66,6 +69,7 @@ export class AppComponent implements OnInit {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.orgUserSettingsService.get();
     const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts();
+    const deviceInfo$ = this.deviceService.getDeviceInfo();
 
     let allowedReportsActions: any;
     let allowedAdvancesActions: any;
@@ -95,17 +99,17 @@ export class AppComponent implements OnInit {
 
     orgSettings$.pipe(
       switchMap(orgSettings => {
-      const allowedReportsActions$ = this.offlineService.getReportActions(orgSettings);
-      const allowedAdvancesActions$ = this.permissionsService.allowedActions('advances', ['approve', 'create', 'delete'], orgSettings);
-      const allowedTripsActions$ = this.permissionsService.allowedActions('trips', ['approve', 'create', 'edit', 'cancel'], orgSettings);
+        const allowedReportsActions$ = this.offlineService.getReportActions(orgSettings);
+        const allowedAdvancesActions$ = this.permissionsService.allowedActions('advances', ['approve', 'create', 'delete'], orgSettings);
+        const allowedTripsActions$ = this.permissionsService.allowedActions('trips', ['approve', 'create', 'edit', 'cancel'], orgSettings);
 
         return forkJoin({
           allowedReportsActions: allowedReportsActions$,
           allowedAdvancesActions: allowedAdvancesActions$,
           allowedTripsActions: allowedTripsActions$,
-        })
+        });
       })
-    ).subscribe(res=> {
+    ).subscribe(res => {
       allowedReportsActions = res.allowedReportsActions;
       allowedAdvancesActions = res.allowedAdvancesActions;
       allowedTripsActions = res.allowedTripsActions;
@@ -130,16 +134,18 @@ export class AppComponent implements OnInit {
       currentOrg: currentOrg$,
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
-      delegatedAccounts: delegatedAccounts$
+      delegatedAccounts: delegatedAccounts$,
+      deviceInfo: deviceInfo$
     });
 
-    primaryData$.subscribe((res) => { 
+    primaryData$.subscribe((res) => {
       this.eou = res.eou;
-      let orgs = res.orgs;
+      const orgs = res.orgs;
       this.activeOrg = res.currentOrg;
-      let orgSettings = res.orgSettings;
-      let orgUserSettings = res.orgUserSettings;
-      let isDelegatee = res.delegatedAccounts.length > 0;
+      const orgSettings = res.orgSettings;
+      const orgUserSettings = res.orgUserSettings;
+      const isDelegatee = res.delegatedAccounts.length > 0;
+      this.appVersion = (res.deviceInfo && res.deviceInfo.appVersion) || '1.2.3';
       // Left with delegator
       //this.orgUserService.isSwitchedToDelegator();
 
@@ -175,6 +181,7 @@ export class AppComponent implements OnInit {
         },
         {
           title: 'Trips',
+          // tslint:disable-next-line: max-line-length
           isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
           icon: '../../../assets/svg/fy-trips-new.svg',
           route: ['/', 'enterprise', 'my_dashboard']
@@ -239,8 +246,8 @@ export class AppComponent implements OnInit {
           icon: '../../../assets/svg/fy-switch-new.svg',
           route: ['/', 'auth', 'switch-org']
         },
-      ]
-    })
+      ];
+    });
 
 
 
