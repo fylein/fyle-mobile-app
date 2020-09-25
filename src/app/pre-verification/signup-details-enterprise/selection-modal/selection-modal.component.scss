@@ -9,7 +9,7 @@ $list-element-color: #333;
     padding: 14px;
     border-bottom: 1px solid $header-border;
     font-size: 16px;
-    color: #333;
+    color: $list-element-color;
   }
 
   &--title {
