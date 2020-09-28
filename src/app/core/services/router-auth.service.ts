@@ -51,6 +51,11 @@ export class RouterAuthService {
     }).toPromise();
   }
 
+  sendResetPassword(email: string) {
+    return this.routerApiService.post('/auth/send_reset_password', {
+      email
+    });
+  }
 
   canSignup(email: string) {
     return this.routerApiService.post('/auth/basic/can_signup', {
