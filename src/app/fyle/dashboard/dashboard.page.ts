@@ -12,7 +12,7 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./dashboard.page.scss'],
 })
 export class DashboardPage implements OnInit {
-  dashboardList: any[];
+  dashboardList: {title: string, isVisible: boolean, isCollapsed: boolean, class: string, icon: string, subTitle: string}[];
   isDashboardCardExpanded: boolean;
   pageTitle: string;
   orgUserSettings: any;
@@ -24,22 +24,21 @@ export class DashboardPage implements OnInit {
     private dashboardService: DashboardService,
     private offlineService: OfflineService,
   ) { 
-    this.mobileEventService.onDashboardCardExpanded().subscribe(() => 
-      this.dashboardCardExpanded()
-    );
+    
   }
 
   dashboardCardExpanded() {
     this.isDashboardCardExpanded = true;
-    var expandedCard = this.dashboardList.filter(function (item) {
+    const expandedCard = this.dashboardList.filter((item) => {
       return (!item.isCollapsed);
     });
     this.pageTitle = (expandedCard && expandedCard.length > 0) ? expandedCard[0].title + ' Overview' : this.pageTitle;
   }
 
   backButtonClick() {
-    this.dashboardList = this.dashboardList.map(function (item) {
+    this.dashboardList = this.dashboardList.map((item) => {
       item.isCollapsed = true;
+      return item;
     });
     this.dashboardService.setDashBoardState('default');
     this.reset();
@@ -103,7 +102,11 @@ export class DashboardPage implements OnInit {
       this.orgUserSettings = res.orgUserSettings$;
       this.orgSettings = res.orgSettings$;
       this.reset();
-    })  	
+    });
+
+    this.mobileEventService.onDashboardCardExpanded().subscribe(() => {
+      this.dashboardCardExpanded();
+    });
   }
 
 }

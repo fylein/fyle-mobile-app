@@ -17,7 +17,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
   styleUrls: ['./enterprise-dashboard-card.component.scss'],
 })
 export class EnterpriseDashboardCardComponent implements OnInit {
-	item: any
+	item: any;
 
   @Input() dashboardList: any[];
   @Input() index: number;
@@ -40,7 +40,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private alertController: AlertController
   ) { }
 
-  isBlank = function (item) {
+  isBlank (item) {
     return ((item === '') || (item === null)) ? {} : item;
   };
 
@@ -53,44 +53,44 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     const needsReceiptStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('needsReceipt'));
 
     const expensesExpandedDetails$ = forkJoin({
-      readyToReportStats$,
-      policyFlaggedStats$,
-      manualFlaggedStats$,
-      needReviewStats$,
-      cannotReportStats$,
-      needsReceiptStats$,
+      readyToReportStats: readyToReportStats$,
+      policyFlaggedStats: policyFlaggedStats$,
+      manualFlaggedStats: manualFlaggedStats$,
+      needReviewStats: needReviewStats$,
+      cannotReportStats: cannotReportStats$,
+      needsReceiptStats: needsReceiptStats$,
     });
     return expensesExpandedDetails$.pipe(
       map(res => {
-        res.readyToReportStats$ = this.isBlank(res.readyToReportStats$);
-        res.needReviewStats$ = this.isBlank(res.needReviewStats$);
-        res.cannotReportStats$ = this.isBlank(res.cannotReportStats$);
-        res.needsReceiptStats$ = this.isBlank(res.needsReceiptStats$);
+        res.readyToReportStats = this.isBlank(res.readyToReportStats);
+        res.needReviewStats = this.isBlank(res.needReviewStats);
+        res.cannotReportStats = this.isBlank(res.cannotReportStats);
+        res.needsReceiptStats = this.isBlank(res.needsReceiptStats);
 
-        res.needReviewStats$['title'] = 'Needs Review';
-        res.needReviewStats$['state'] = 'needsReview';
-        res.needReviewStats$['warning'] = true;
+        res.needReviewStats.title = 'Needs Review';
+        res.needReviewStats.state = 'needsReview';
+        res.needReviewStats.warning = true;
 
-        res.cannotReportStats$['title'] = 'Cannot Report';
-        res.cannotReportStats$['state'] = 'cannotReport';
-        res.cannotReportStats$['warning'] = true;
+        res.cannotReportStats.title = 'Cannot Report';
+        res.cannotReportStats.state = 'cannotReport';
+        res.cannotReportStats.warning = true;
 
-        res.readyToReportStats$['title'] = 'Ready to Report';
-        res.readyToReportStats$['state'] = 'readyToReport';
+        res.readyToReportStats.title = 'Ready to Report';
+        res.readyToReportStats.state = 'readyToReport';
 
-        res.needsReceiptStats$['title'] = 'Needs Receipt';
-        res.needsReceiptStats$['state'] = 'needsReceipt';
-        res.needsReceiptStats$['warning'] = true;
+        res.needsReceiptStats.title = 'Needs Receipt';
+        res.needsReceiptStats.state = 'needsReceipt';
+        res.needsReceiptStats.warning = true;
 
 
-        res['flaggedStats$'] = {};
-        res['flaggedStats$']['title'] = 'Flagged';
-        res['flaggedStats$']['state'] = 'policyViolated';
-        res['flaggedStats$']['warning'] = true;
-        res['flaggedStats$']['total_count'] = res.policyFlaggedStats$['total_count'] + res.manualFlaggedStats$['total_count'];
-        res['flaggedStats$']['total_amount'] = res.policyFlaggedStats$['total_amount'] + res.manualFlaggedStats$['total_amount'];
+        res['flaggedStats'] = {};
+        res['flaggedStats']['title'] = 'Flagged';
+        res['flaggedStats']['state'] = 'policyViolated';
+        res['flaggedStats']['warning'] = true;
+        res['flaggedStats']['total_count'] = res.policyFlaggedStats['total_count'] + res.manualFlaggedStats['total_count'];
+        res['flaggedStats']['total_amount'] = res.policyFlaggedStats['total_amount'] + res.manualFlaggedStats['total_amount'];
 
-        var stats = [res.needReviewStats$, res.needsReceiptStats$, res['flaggedStats$'], res.cannotReportStats$, res.readyToReportStats$];
+        let stats = [res.needReviewStats, res.needsReceiptStats, res['flaggedStats'], res.cannotReportStats, res.readyToReportStats];
         return stats;
       })
     );
@@ -103,34 +103,33 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     const approvedStats$ = this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('approved'));
 
     const reportsExpandedDetails$ = forkJoin({
-      draftStats$,
-      reportedStats$,
-      inquiryStats$,
-      approvedStats$
+      draftStats: draftStats$,
+      reportedStats: reportedStats$,
+      inquiryStats: inquiryStats$,
+      approvedStats: approvedStats$
     });
 
     return reportsExpandedDetails$.pipe(
       map(res => {
-        res.draftStats$ = this.isBlank(res.draftStats$);
-        res.reportedStats$ = this.isBlank(res.reportedStats$);
-        res.inquiryStats$ = this.isBlank(res.inquiryStats$);
-        res.approvedStats$ = this.isBlank(res.approvedStats$);
+        res.draftStats = this.isBlank(res.draftStats);
+        res.reportedStats = this.isBlank(res.reportedStats);
+        res.inquiryStats = this.isBlank(res.inquiryStats);
+        res.approvedStats = this.isBlank(res.approvedStats);
 
-        res.draftStats$['title'] = 'Draft';
-        res.draftStats$['state'] = 'DRAFT';
+        res.draftStats.title = 'Draft';
+        res.draftStats.state = 'DRAFT';
 
-        res.reportedStats$['title'] = 'Reported';
-        res.reportedStats$['state'] = 'APPROVER_PENDING';
+        res.reportedStats.title = 'Reported';
+        res.reportedStats.state = 'APPROVER_PENDING';
 
-        res.inquiryStats$['title'] = 'Inquiry';
-        res.inquiryStats$['state'] = 'APPROVER_INQUIRY';
-        res.inquiryStats$['warning'] = true;
+        res.inquiryStats.title = 'Inquiry';
+        res.inquiryStats.state = 'APPROVER_INQUIRY';
+        res.inquiryStats.warning = true;
 
-        res.approvedStats$['title'] = 'Approved';
-        res.approvedStats$['state'] = 'APPROVED';
+        res.approvedStats.title = 'Approved';
+        res.approvedStats.state = 'APPROVED';
 
-        var stats = [res.draftStats$, res.inquiryStats$, res.reportedStats$, res.approvedStats$];
-
+        let stats = [res.draftStats, res.inquiryStats, res.reportedStats, res.approvedStats];
         return stats;
       })
     );
@@ -142,26 +141,25 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     const pendingStats$ = this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('pending'));
 
     const advancesExpandedDetails$ = forkJoin({
-      draftStats$,
-      inquiryStats$,
-      pendingStats$
+      draftStats: draftStats$,
+      inquiryStats: inquiryStats$,
+      pendingStats: pendingStats$
     });
 
     return advancesExpandedDetails$.pipe(
-      map(res=> {
-        res.draftStats$ = this.isBlank(res.draftStats$);
-        res.inquiryStats$ = this.isBlank(res.inquiryStats$);
-        res.pendingStats$ = this.isBlank(res.pendingStats$);
+      map(res => {
+        res.draftStats = this.isBlank(res.draftStats);
+        res.inquiryStats = this.isBlank(res.inquiryStats);
+        res.pendingStats = this.isBlank(res.pendingStats);
 
-        res.draftStats$['title'] = 'Draft';
+        res.draftStats.title = 'Draft';
 
-        res.inquiryStats$['title'] = 'Inquiry';
-        res.inquiryStats$['warning'] = true;
+        res.inquiryStats.title = 'Inquiry';
+        res.inquiryStats.warning = true;
 
-        res.pendingStats$['title'] = 'Pending';
+        res.pendingStats.title = 'Pending';
 
-        var stats = [res.draftStats$, res.inquiryStats$, res.pendingStats$];
-
+        const stats = [res.draftStats, res.inquiryStats, res.pendingStats];
         return stats;
       })
     )
@@ -174,30 +172,29 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     const submitted$ = this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('submitted'));
 
     const tripsExpandedDetails$ = forkJoin({
-      draftStats$,
-      inquiryStats$,
-      toCloseStats$,
-      submitted$
+      draftStats: draftStats$,
+      inquiryStats: inquiryStats$,
+      toCloseStats: toCloseStats$,
+      submitted: submitted$
     });
 
     return tripsExpandedDetails$.pipe(
-      map(res=> {
-        res.draftStats$ = this.isBlank(res.draftStats$);
-        res.inquiryStats$ = this.isBlank(res.inquiryStats$);
-        res.toCloseStats$ = this.isBlank(res.toCloseStats$);
-        res.submitted$ = this.isBlank(res.submitted$);
+      map(res => {
+        res.draftStats = this.isBlank(res.draftStats);
+        res.inquiryStats = this.isBlank(res.inquiryStats);
+        res.toCloseStats = this.isBlank(res.toCloseStats);
+        res.submitted = this.isBlank(res.submitted);
 
-        res.draftStats$['title'] = 'Draft';
+        res.draftStats.title = 'Draft';
 
-        res.inquiryStats$['title'] = 'Inquiry';
-        res.inquiryStats$['warning'] = true;
+        res.inquiryStats.title = 'Inquiry';
+        res.inquiryStats.warning = true;
 
-        res.submitted$['title'] = 'Submitted';
+        res.submitted.title = 'Submitted';
 
-        res.toCloseStats$['title'] = 'To Close';
+        res.toCloseStats.title = 'To Close';
 
-        var stats = [res.draftStats$, res.inquiryStats$, res.submitted$, res.toCloseStats$];
-
+        const stats = [res.draftStats, res.inquiryStats, res.submitted, res.toCloseStats];
         return stats;
       })
     ) 
@@ -208,7 +205,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     const CCCEExpandedDetails$ = this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({state: 'INITIALIZED'});
 
     return CCCEExpandedDetails$.pipe(
-      map(res=> {
+      map(res => {
         console.log(res);
         res = this.isBlank(res);
         res['title'] = 'Unmatched Expenses';
@@ -222,8 +219,8 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
 
   getExpandedDetails (title) {
-    var title = title.replace(' ', '_');
-    var expandedCardDetailsMap = {
+    title = title.replace(' ', '_');
+    let expandedCardDetailsMap = {
       expenses: this.getExpensesExpandedDetails,
       reports: this.getReportsExpandedDetails, //change this later
       advances: this.getAdvancesExpandedDetails,
@@ -243,7 +240,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     await alert.present();
   }
 
-  filterToState(a,b) {
+  filterToState(a, b) {
     this.presentAlert();
   }
 
@@ -251,18 +248,18 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   async expandCard(item) {
     await this.loaderService.showLoader();
     this.expandedCard = this.item && this.item.title ? this.item.title : '';
-    this.dashboardList = this.dashboardList.map(function (item) {
+    this.dashboardList = this.dashboardList.map((item) => {
       item.isCollapsed = true;
       return item;
     });
-    
+
     this.item.isCollapsed = false;
     if (this.item && this.item.title) {
       const expandedDetails$ = this.getExpandedDetails(this.item.title).pipe(
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
-      )
+      );
       expandedDetails$.subscribe((res) => {
         this.detailedStats = res;
         this.mobileEventService.dashboardCardExpanded();
@@ -272,8 +269,8 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   }
 
   getHomeCurrency() {
-    // get home currency from homeCurrency srvice later
-    this.homeCurrency = "INR";
+    // get home currency from homeCurrency service later
+    this.homeCurrency = 'INR';
   };
 
   getExpenseNeedAttentionStats() {
