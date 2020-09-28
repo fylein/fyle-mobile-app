@@ -5,14 +5,19 @@ $dashboard-report-card: #2196f3;
 $dashboard-ccc-card: #7e57c2;
 $shadow: #e8e8e8;
 $text-dark: #4a4a4a;
+$background-color: #fff;
+$dashboard-count-text-color: #959eac;
+$curve-fill: #f7b74a;
+$icon-color: #a0a0a0;
+$chevron-fill: #757575;
 
 .dashboard-card {
   &--details {
     margin: 16px;
     padding: 12px 0 0 16px;
     border-radius: 4px;
-    box-shadow: 0 4px 8px 0 #e8e8e8 !important;
-    background-color: #fff;
+    box-shadow: 0 4px 8px 0 $shadow !important;
+    background-color: $background-color;
     position: relative;
     z-index: 1;
     min-height: 90px;
@@ -36,7 +41,7 @@ $text-dark: #4a4a4a;
 
   &--card-count {
     margin: 0 0 10px;
-    color: #959eac;
+    color: $dashboard-count-text-color;
     white-space: nowrap;
   }
 
@@ -62,7 +67,7 @@ $text-dark: #4a4a4a;
   &--icon-curve {
     height: 20px;
     margin-right: -2px;
-    fill: #f7b74a;
+    fill: $curve-fill;
   }
 
   &--need-attention-curve-container {
@@ -75,7 +80,7 @@ $text-dark: #4a4a4a;
   &--need-attention-text {
     font-size: 12px;
     padding: 0 8px;
-    background-color: #f7b74a;
+    background-color: $curve-fill;
     display: flex;
     justify-content: center;
     height: 20px;
@@ -85,7 +90,7 @@ $text-dark: #4a4a4a;
     margin-top: 4px;
     width: 24px;
     height: 24px;
-    fill: #a0a0a0;
+    fill: $icon-color;
   }
 
   &--trips {
@@ -112,7 +117,7 @@ $text-dark: #4a4a4a;
     position: absolute;
     height: inherit;
     top: 60px;
-    box-shadow: 0 -4px 8px 0 #e8e8e8 !important;
+    box-shadow: 0 -4px 8px 0 $shadow !important;
     padding: 8px 16px;
 
     .state-row {
@@ -150,7 +155,7 @@ $text-dark: #4a4a4a;
 
   &--expanded-icon {
     height: 12px;
-    fill: #757575;
+    fill: $chevron-fill;
     margin-left: 4px;
   }
 }
