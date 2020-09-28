@@ -75,7 +75,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           }
           return next.handle(request).pipe(
             catchError((error) => {
-              if (error instanceof HttpErrorResponse) {
+              if (error instanceof HttpErrorResponse && this.expiringSoon(token)) {
                 return from(this.refreshAccessToken()).pipe(
                   mergeMap((newToken) => {
                     request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + newToken) });

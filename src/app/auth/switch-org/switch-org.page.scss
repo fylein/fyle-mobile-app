@@ -54,4 +54,42 @@ $org-thumb-text: #666;
       color: $org-thumb-text;
     }
   }
+
+  &--header {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 0;
+    background-color: $header-background;
+    border: 1px solid $header-border;
+  }
+
+  &--org-thumb {
+    background: $org-thumb;
+    border: 1px solid $header-border;
+    border-radius: 50%;
+    height: 44px;
+    width: 44px;
+    line-height: 44px;
+    text-align: center;
+    color: $org-thumb-text;
+    font-size: 16px;
+    &__no-border {
+      border: none;
+    }
+  }
+
+  &--org-element {
+    padding: 4px;
+    border-bottom: 1px solid $header-border;
+    &-name {
+      font-size: 16px;
+      color: #333;
+    }
+
+    &-domain {
+      font-size: 12px;
+      color: #666;
+    }
+  }
 }

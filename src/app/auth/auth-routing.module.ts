@@ -15,6 +15,10 @@ const routes: Routes = [
     path: 'switch-org',
     loadChildren: () => import('./switch-org/switch-org.module').then(m => m.SwitchOrgPageModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'request_invitation',
+    loadChildren: () => import('./request-invitation/request-invitation.module').then( m => m.RequestInvitationPageModule)
   }
 ];
 

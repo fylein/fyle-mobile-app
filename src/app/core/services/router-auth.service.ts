@@ -51,6 +51,13 @@ export class RouterAuthService {
     }).toPromise();
   }
 
+
+  canSignup(email: string) {
+    return this.routerApiService.post('/auth/basic/can_signup', {
+      email
+    });
+  }
+
   async handleSignInResponse(data) {
     // if (environment.NAME === 'dev') {
     //   data.cluster_domain = environment.CLUSTER_DOMAIN;
@@ -78,5 +85,11 @@ export class RouterAuthService {
     }).pipe(
       tap(async res => await this.handleSignInResponse(res))
     );
+  }
+
+  checkIfFreeDomain(email: string) {
+    const domainList = ['hotmail.com', 'rediffmail.com', 'yahoo.com', 'outlook.com'];
+    const domain = email.split('@')[1];
+    return domainList.indexOf(domain.toLowerCase()) > -1;
   }
 }

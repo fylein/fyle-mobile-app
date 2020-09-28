@@ -11,26 +11,37 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <div class="sign-up--form">
+  <div class="sign-up--form" *ngIf="isConnected$|async">
     <div class="sign-up--form-header">
       Get Started
     </div>
     <div class="sign-up--form-subheader">
       We just need your work email address
     </div>
-    <form>
-      <mat-form-field class="sign-up--form-field" appearance="outline" *ngIf="!emailSet">
-        <input type="email" matInput placeholder="Work Email">
-      </mat-form-field>
-    </form>
+    <mat-form-field class="sign-up--form-field mat-form-field-no-padding" appearance="outline" *ngIf="!emailSet">
+      <input [(ngModel)]="userEmail" (keyup)="onEmailChange($event)" type="email" matInput placeholder="Work Email">
+    </mat-form-field>
+    <div class="ion-text-center sign-up--business-email" *ngIf="isFreeDomainEmail">
+      Please use your business email to signup
+    </div>
     <div class="sign-up--primary-cta">
-      <button mat-flat-button color="primary" (click)="signUpUser()">
+      <button [disabled]="isFreeDomainEmail||!isValidEmail" mat-flat-button color="primary" (click)="signUpUser()">
         SIGN UP
       </button>
     </div>
     <div class="sign-up--redirect">
       Already on Fyle?
       <a id="sign-up--redirect-sign-in" [routerLink]="['/', 'auth', 'sign-in']">Sign In</a>
+    </div>
+  </div>
+  <div class="sign-up-offline" *ngIf="!(isConnected$|async)">
+    <img class="sign-up-offline--image" alt="offline-zer-state" src="../../../assets/images/zero-states/offline.svg">
+    <div class="sign-up-offline--title">
+      Looks like you are offline
+    </div>
+    <div class="sign-up-offline--sub-title">
+      You need to be connected to Internet to be able to login to the app. Please check if your Internet
+      connection is working.
     </div>
   </div>
 </ion-content>

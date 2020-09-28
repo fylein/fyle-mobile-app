@@ -5,4 +5,5 @@ export interface User {
     email: string;
     email_verified_at: Date;
     onboarded: boolean;
+    password?: string;
 }
