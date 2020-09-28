@@ -13,6 +13,10 @@ const routes: Routes = [
   {
     path: 'camera_overlay',
     loadChildren: () => import('./camera-overlay/camera-overlay.module').then( m => m.CameraOverlayPageModule)
+  },
+  {
+    path: 'my_profile',
+    loadChildren: () => import('./my-profile/my-profile.module').then( m => m.MyProfilePageModule)
   }
 ];
 

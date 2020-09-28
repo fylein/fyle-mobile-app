@@ -1,0 +1,102 @@
+<ion-header class="ion-no-border">
+  <div class="my-profile--header">
+    <ion-toolbar class="my-profile--header-toolbar">
+      <ion-buttons slot="start">
+        <ion-menu-button class="my-profile--menubutton" auto-hide="false" ></ion-menu-button>
+      </ion-buttons>
+
+      <ion-title slot="primary" mode="ios" class="my-profile--title text-capitalize">Profile</ion-title>
+    </ion-toolbar>
+  </div>
+</ion-header>
+
+<ion-content>
+
+  <div class="my-profile--blocks">
+    <span class="my-profile--blocks-header">About You</span>
+    <ion-card class="my-profile--cards">
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row class="my-profile--cards-content-withBorder">
+            <ion-col size="5">Name</ion-col>
+            <ion-col size="7">
+              <span>{{this.eou && this.eou.us.full_name}}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row class="my-profile--cards-content-withBorder">
+            <ion-col size="5">Email</ion-col>
+            <ion-col size="7">
+              <span>{{this.eou && this.eou.us.email}}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="5">Mobile</ion-col>
+            <ion-col size="7">
+              <!-- Todo: Convert it to input filed later -->
+              <span>{{this.eou && this.eou.ou.mobile}}</span> 
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div class="my-profile--blocks">
+    <span class="my-profile--blocks-header">Preferences</span>
+    <ion-card class="my-profile--cards" *ngIf="this.orgUserSettings && this.orgUserSettings.insta_fyle_settings && this.orgUserSettings.insta_fyle_settings.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">Instafyle</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Scan paper receipts to automatically create expenses. </span>
+            </ion-col>
+            <ion-col size="4">
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.insta_fyle_settings.enabled"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="my-profile--cards" *ngIf="this.orgUserSettings && this.orgUserSettings.bulk_fyle_settings && this.orgUserSettings.bulk_fyle_settings.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">Bulkfyle</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Submit multiple paper receipts in one go. </span>
+            </ion-col>
+            <ion-col size="4">
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.bulk_fyle_settings.enabled"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div>
+    <ion-card class="my-profile--cards">
+      <ion-card-content class="my-profile--cards-content" (click)="logOut()">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <ion-icon name="log-out-outline"></ion-icon>
+            </ion-col>
+            <ion-col size="10">
+              Logout
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>
