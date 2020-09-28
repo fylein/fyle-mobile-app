@@ -1,0 +1,161 @@
+$dashboard-expenses-card: #ffb13c;
+$dashboard-advances-card: #f66767;
+$dashboard-trips-card: #66bb6a;
+$dashboard-report-card: #2196f3;
+$dashboard-ccc-card: #7e57c2;
+$shadow: #e8e8e8;
+$text-dark: #4a4a4a;
+$background-color: #fff;
+$dashboard-count-text-color: #959eac;
+$curve-fill: #f7b74a;
+$icon-color: #a0a0a0;
+$chevron-fill: #757575;
+
+.dashboard-card {
+  &--details {
+    margin: 16px;
+    padding: 12px 0 0 16px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px 0 $shadow !important;
+    background-color: $background-color;
+    position: relative;
+    z-index: 1;
+    min-height: 90px;
+    border-left: 6px solid;
+  }
+
+  &--grid{
+    padding-bottom: 0;
+  }
+
+  &--container {
+    margin: 0 4px 0 8px;
+  }
+
+  &--title {
+    font-size: 16px;
+    color: $text-dark;
+    font-weight: 500;
+    margin: 0 !important;
+  }
+
+  &--card-count {
+    margin: 0 0 10px;
+    color: $dashboard-count-text-color;
+    white-space: nowrap;
+  }
+
+  &--card-amount {
+    font-weight: 500;
+    font-size: 16px;
+    margin: 4px 8px 4px;
+    color: $text-dark;
+    float: right;
+  }
+
+  &--needs-attention {
+    width: 100%;
+  }
+
+  &--need-attention-block {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    margin-top: 8px;
+  }
+
+  &--icon-curve {
+    height: 20px;
+    margin-right: -2px;
+    fill: $curve-fill;
+  }
+
+  &--need-attention-curve-container {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: row;
+    margin-top: 8px;
+  }
+
+  &--need-attention-text {
+    font-size: 12px;
+    padding: 0 8px;
+    background-color: $curve-fill;
+    display: flex;
+    justify-content: center;
+    height: 20px;
+  }
+
+  &--icon-dashboard {
+    margin-top: 4px;
+    width: 24px;
+    height: 24px;
+    fill: $icon-color;
+  }
+
+  &--trips {
+    border-color: $dashboard-trips-card;
+  }
+
+  &--expenses {
+    border-color: $dashboard-expenses-card;
+  }
+
+  &--advances {
+    border-color: $dashboard-advances-card;
+  }
+
+  &--reports {
+    border-color: $dashboard-report-card;
+  }
+
+  &--corporate-cards {
+    border-color: $dashboard-ccc-card;
+  }
+
+  &--expanded-view {
+    position: absolute;
+    height: inherit;
+    top: 60px;
+    box-shadow: 0 -4px 8px 0 $shadow !important;
+    padding: 8px 16px;
+
+    .state-row {
+      padding: 0 0 0 16px;
+      border-bottom: 1px solid $shadow;
+
+      &:first-child {
+        padding-top: 62px;
+      }
+    }
+  }
+
+  &--warning-inverted-block {
+    display: flex;
+  }
+
+  &--expanded-card-title {
+    font-size: 14px;
+    color: $text-dark;
+    margin-bottom: 0px;
+  }
+
+  &--icon-card {
+    height: 10px;
+    margin-left: 6px;
+  }
+
+  &--expanded-amount-icon {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-dark;
+    display: flex;
+    float: right;
+  }
+
+  &--expanded-icon {
+    height: 12px;
+    fill: $chevron-fill;
+    margin-left: 4px;
+  }
+}
