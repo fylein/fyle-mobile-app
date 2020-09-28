@@ -23,10 +23,13 @@ const routes: Routes = [
   {
     path: 'app_version',
     loadChildren: () => import('./app-version/app-version.module').then( m => m.AppVersionPageModule)
+<<<<<<< HEAD
   },
   {
     path: 'reset_password',
     loadChildren: () => import('./reset-password/reset-password.module').then( m => m.ResetPasswordPageModule)
+=======
+>>>>>>> master
   }
 ];
 
