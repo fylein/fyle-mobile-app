@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
-import { tap } from 'rxjs/operators';
+import { tap, switchMap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { AuthResponse } from '../models/auth-response.model';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +72,7 @@ export class RouterAuthService {
     this.setClusterDomain(data.cluster_domain);
     const resp = await this.fetchAccessToken(data.refresh_token);
     this.newAccessToken(resp.access_token);
-    return resp;
+    return data;
   }
 
   basicSignin(email, password): Observable<AuthResponse> {
@@ -96,5 +96,15 @@ export class RouterAuthService {
     const domainList = ['hotmail.com', 'rediffmail.com', 'yahoo.com', 'outlook.com'];
     const domain = email.split('@')[1];
     return domainList.indexOf(domain.toLowerCase()) > -1;
+  }
+
+  emailVerify(verificationCode: string) {
+    return this.routerApiService.post('/auth/email_verify', {
+      verification_code: verificationCode
+    }).pipe(
+      switchMap((data) => {
+        return from(this.handleSignInResponse(data));
+      })
+    );
   }
 }
