@@ -17,7 +17,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
   styleUrls: ['./enterprise-dashboard-card.component.scss'],
 })
 export class EnterpriseDashboardCardComponent implements OnInit {
-	item: any;
+  item: any;
 
   @Input() dashboardList: any[];
   @Input() index: number;
@@ -40,14 +40,14 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private alertController: AlertController
   ) { }
 
-  isBlank (item) {
+  isBlank(item) {
     return ((item === '') || (item === null)) ? {} : item;
   };
 
   getExpensesExpandedDetails() {
     const readyToReportStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
     const policyFlaggedStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('flagged'));
-    const manualFlaggedStats$ = this.transactionService.getPaginatedETxncStats({policy_flag: false, manual_flag: true, policy_amount: ['is:null', 'gt:0.0001']});
+    const manualFlaggedStats$ = this.transactionService.getPaginatedETxncStats({ policy_flag: false, manual_flag: true, policy_amount: ['is:null', 'gt:0.0001'] });
     const needReviewStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('draft'));
     const cannotReportStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('critical'));
     const needsReceiptStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('needsReceipt'));
@@ -61,7 +61,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       needsReceiptStats: needsReceiptStats$,
     });
     return expensesExpandedDetails$.pipe(
-      map(res => {
+      map((res: any) => {
         res.readyToReportStats = this.isBlank(res.readyToReportStats);
         res.needReviewStats = this.isBlank(res.needReviewStats);
         res.cannotReportStats = this.isBlank(res.cannotReportStats);
@@ -83,14 +83,14 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         res.needsReceiptStats.warning = true;
 
 
-        res['flaggedStats'] = {};
-        res['flaggedStats']['title'] = 'Flagged';
-        res['flaggedStats']['state'] = 'policyViolated';
-        res['flaggedStats']['warning'] = true;
-        res['flaggedStats']['total_count'] = res.policyFlaggedStats['total_count'] + res.manualFlaggedStats['total_count'];
-        res['flaggedStats']['total_amount'] = res.policyFlaggedStats['total_amount'] + res.manualFlaggedStats['total_amount'];
+        res.flaggedStats = {};
+        res.flaggedStats.title = 'Flagged';
+        res.flaggedStats.state = 'policyViolated';
+        res.flaggedStats.warning = true;
+        res.flaggedStats.total_count = res.policyFlaggedStats.total_count + res.manualFlaggedStats.total_count;
+        res.flaggedStats.total_amount = res.policyFlaggedStats.total_amount + res.manualFlaggedStats.total_amount;
 
-        let stats = [res.needReviewStats, res.needsReceiptStats, res['flaggedStats'], res.cannotReportStats, res.readyToReportStats];
+        const stats = [res.needReviewStats, res.needsReceiptStats, res.flaggedStats, res.cannotReportStats, res.readyToReportStats];
         return stats;
       })
     );
@@ -197,28 +197,27 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res.draftStats, res.inquiryStats, res.submitted, res.toCloseStats];
         return stats;
       })
-    ) 
+    )
   }
 
-  getCCCEExpandedDetails(){
+  getCCCEExpandedDetails() {
 
-    const CCCEExpandedDetails$ = this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({state: 'INITIALIZED'});
+    const CCCEExpandedDetails$ = this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' });
 
     return CCCEExpandedDetails$.pipe(
-      map(res => {
-        console.log(res);
+      map((res: any) => {
         res = this.isBlank(res);
-        res['title'] = 'Unmatched Expenses';
-        res['warning'] = true;
+        res.title = 'Unmatched Expenses';
+        res.warning = true;
 
-        var stats = [res];
+        const stats = [res];
         return stats;
       })
     )
   }
 
 
-  getExpandedDetails (title) {
+  getExpandedDetails(title) {
     title = title.replace(' ', '_');
     let expandedCardDetailsMap = {
       expenses: this.getExpensesExpandedDetails,
@@ -275,11 +274,11 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   getExpenseNeedAttentionStats() {
     const policyFlaggedCount$ = this.transactionService.getPaginatedETxncCount(this.transactionService.getUserTransactionParams('flagged'));
-    const manualFlaggedCount$ = this.transactionService.getPaginatedETxncCount({policy_flag: false, manual_flag: true, policy_amount: ['is:null', 'gt:0.0001']});
+    const manualFlaggedCount$ = this.transactionService.getPaginatedETxncCount({ policy_flag: false, manual_flag: true, policy_amount: ['is:null', 'gt:0.0001'] });
     const needReviewCount$ = this.transactionService.getPaginatedETxncCount(this.transactionService.getUserTransactionParams('draft'));
     const cannotReportCount$ = this.transactionService.getPaginatedETxncCount(this.transactionService.getUserTransactionParams('critical'));
     const needsReceiptCount$ = this.transactionService.getPaginatedETxncCount(this.transactionService.getUserTransactionParams('needsReceipt'));
-  
+
     return forkJoin({
       policyFlaggedCount$,
       manualFlaggedCount$,
@@ -290,7 +289,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   }
 
   getReportNeedAttentionStats() {
-    return this.reportService.getPaginatedERptcCount({state: 'APPROVER_INQUIRY'});
+    return this.reportService.getPaginatedERptcCount({ state: 'APPROVER_INQUIRY' });
   };
 
   getAdvanceNeedAttentionStats() {
@@ -319,9 +318,9 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
         count$.subscribe((res) => {
           if (this.dashboardList[this.index].title === 'expenses') {
-            this.needsAttentionStats['count'] = (res.policyFlaggedCount$['count'] || 0) + (res.manualFlaggedCount$['count'] || 0) + (res.needReviewCount$['count'] || 0) + (res.cannotReportCount$['count'] || 0);
+            this.needsAttentionStats.count = (res.policyFlaggedCount$.count || 0) + (res.manualFlaggedCount$.count || 0) + (res.needReviewCount$.count || 0) + (res.cannotReportCount$.count || 0);
           } else {
-            this.needsAttentionStats['count'] = res['count'];
+            this.needsAttentionStats.count = res.count;
           }
         })
       }
@@ -330,8 +329,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   async getStats() {
     if (this.dashboardList && this.dashboardList[this.index]) {
-      console.log("start->", this.dashboardList[this.index]['title'])
-     // await this.loaderService.showLoader();
+      // await this.loaderService.showLoader();
       this.dashboardList[this.index].isLoading = true;
       var title = this.dashboardList[this.index].title.replace(' ', '_');
 
@@ -340,12 +338,11 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         reports: this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('pending')),
         advances: this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('pending')),
         trips: this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('submitted')),
-        corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({state: 'INITIALIZED'}) 
+        corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' })
       }
 
       var stats$ = statsMap[title].pipe(
         finalize(async () => {
-          console.log("end->", this.dashboardList[this.index]['title']);
           //await this.loaderService.hideLoader();
         })
       )
