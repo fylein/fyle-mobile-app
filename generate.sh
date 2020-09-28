@@ -1,5 +1,4 @@
 #!/bin/sh
-# Author : Madhav Mansuriya | Fyle
 
 RED='\033[01;31m'
 GREEN='\033[01;32m'
