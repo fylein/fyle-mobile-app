@@ -26,8 +26,6 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
 
 
   setIconList() {
-    //console.log(this.orgUserSettings);
-    //console.log(this.orgSettings);
     const isInstaFyleEnabled = this.orgUserSettings ? this.orgUserSettings.insta_fyle_settings.enabled : false;
     const isBulkFyleEnabled = this.orgUserSettings ? this.orgUserSettings.bulk_fyle_settings.enabled : false;
     this.ctaList = [];
@@ -93,7 +91,6 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         }
       }
     } else {
-      console.log("----coming here----");
       var cannotFyleExpenseCTA = {
         reports: {
           name: 'Create new report',
@@ -149,7 +146,6 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
   }
 
   ngOnInit() {
-  	console.log("in footer");
     this.canCreateExpense = true;
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const orgSettings$ = this.offlineService.getOrgSettings();
