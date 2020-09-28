@@ -1,0 +1,30 @@
+<!-- <div flex="100" class="fy-cta-footer" ng-class="{'expense-cta-padding': this.ctaList.length !== 1, 'cta-4' : this.ctaList.length === 4}">
+  <div class="flex-row cta-row" ng-class="{'cta-single-btn': this.ctaList.length === 1}">
+    <div flex *ngFor="let item of this.ctaList; index as $index;" class="icon-cta-block" ng-class="{'full-width' : this.ctaList.length === 1}">
+      <div ng-click="item.actionFn($event, item.expenseType)" ng-class="{'single-cta full-width' : this.ctaList.length === 1}">
+        <div class="text-center">
+        </div>
+        <div class="text-center text-small cta-btn-text">
+          <p class="m-0" [textContent]="item.name"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<ion-grid *ngIf="this.gridSize && this.gridSize > 0">
+  <ion-row>
+    <ion-col *ngFor="let item of this.ctaList; index as $index;" size="{{this.gridSize}}">
+      <div class="dashboard-footer--block">
+        <div (click)="this.actionFn(item)"> <!-- //for click -->
+          <div class="text-center">
+            <ion-icon class="text-center dashboard-footer--icon-card" src="../../../assets/svg/{{item.icon}}.svg"></ion-icon>
+          </div>
+          <div class="dashboard-footer--icon-text text-center">{{item.name}}</div>
+        </div>
+      </div>
+        
+    </ion-col>
+
+  </ion-row>
+</ion-grid>
