@@ -1,14 +1,20 @@
+$header-bg: #111023;
+$sidenav-bg: #161528;
+
 .list-md { // This is needed for android, need to overwrite internal css
   padding: 0;
+  background: $sidenav-bg;
 }
+
+.list-ios {
+  background: $sidenav-bg;
+} 
 
 .sidemenu {
   &--header {
     height: 80px !important;
     position: relative;
-    background-size: 100% 0px !important;
-/*    background-color: #111023;
-    border-color: #111023;*/  
+    background-size: 100% 0px !important; 
   }
 
   &--header-info-wrapper {
@@ -16,7 +22,7 @@
     height: 100%;
     width: 100%;
     --background: #111023;
-    border-color: #111023;
+    border-color: $header-bg;
   }
 
   &--header-wrapper{
