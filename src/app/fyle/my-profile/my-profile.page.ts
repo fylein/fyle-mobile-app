@@ -25,7 +25,7 @@ export class MyProfilePage implements OnInit {
   expenses: any;
   toggleUsageDetailsTab: boolean;
   oneClickActionOptions: any[];
-  oneClickActionSelectedModule: any;
+  oneClickActionSelectedModuleId: string;
   orgSettings: any;
   currencies: any;
   preferredCurrency: any;
@@ -59,7 +59,6 @@ export class MyProfilePage implements OnInit {
     };
   }
 
-
   toggleCurrencySettings() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
     .pipe(
@@ -70,8 +69,12 @@ export class MyProfilePage implements OnInit {
     .subscribe();
   }
 
+  onSelectCurrency(currency) {
+    this.orgUserSettings.currency_settings.preferred_currency = currency.shortCode || null;
+    this.toggleCurrencySettings();
+  }
+
   async openCurrenySelectionModal(event) {
-    console.log("?????????????")
     const modal = await this.modalController.create({
       component: SelectCurrencyComponent
     });
@@ -80,30 +83,81 @@ export class MyProfilePage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      console.log(data);
-      // this.fg.controls.homeCurrency.setValue(data.currency.shortCode);
+      this.currencies.some((currency) => {
+        if (data.currency.shortCode === currency.id) {
+          this.preferredCurrency = currency;
+          console.log(this.preferredCurrency);
+          return true;
+        }
+      });
+      this.onSelectCurrency(data.currency);
     }
   }
-  
+
   toggleAutoExtraction() {
-    // console.log(this.orgUserSettings.insta_fyle_settings);
     return this.orgUserSettingsService.post(this.orgUserSettings)
     .pipe(
       map((res) => {
         console.log(res);
+        // Todo: Tracking service and disable toogle button
       })
     )
     .subscribe();
+  }
 
+  toggleBulkMode() {
+    return this.orgUserSettingsService.post(this.orgUserSettings)
+    .pipe(
+      map((res) => {
+        console.log(res);
+        // Todo: Tracking service and disable toogle button
+      })
+    )
+    .subscribe();
+  }
+
+  toggleWhatsappSettings() {
+    return this.orgUserSettingsService.post(this.orgUserSettings)
+    .pipe(
+      map((res) => {
+        console.log(res);
+        // Todo: Tracking service and disable toogle button
+      })
+    )
+    .subscribe();
+  }
+
+  toggleOneClickActionMode() {
+    this.orgUserSettings.one_click_action_settings.module = null;
+    this.oneClickActionSelectedModuleId = '';
+    return this.orgUserSettingsService.post(this.orgUserSettings)
+    .pipe(
+      map((res) => {
+        console.log(res);
+        // Todo: Tracking service and disable toogle button
+      })
+    )
+    .subscribe();
   }
 
   getOneClickActionSelectedModule(id: string) {
-    this.oneClickActionSelectedModule = this.oneClickActionService.filterByOneClickActionById(id);
-    console.log(this.oneClickActionSelectedModule)
+    const oneClickActionSelectedModule = this.oneClickActionService.filterByOneClickActionById(id);
+    this.oneClickActionSelectedModuleId = oneClickActionSelectedModule.id;
   }
 
   oneClickActionModuleChanged() {
     // One click action module value changed
+    console.log(this.oneClickActionSelectedModuleId);
+    this.orgUserSettings.one_click_action_settings.module = this.oneClickActionSelectedModuleId;
+    return this.orgUserSettingsService.post(this.orgUserSettings)
+    .pipe(
+      map((res) => {
+        console.log(res);
+        // Todo: Tracking service and disable toogle button
+      })
+    )
+    .subscribe();
+
   }
 
   getAllCurrencyAndMatchPreferredCurrency() {

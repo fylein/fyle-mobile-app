@@ -138,7 +138,7 @@
               <span> Submit multiple paper receipts in one go. </span>
             </ion-col>
             <ion-col size="4" class="text-right">
-              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.bulk_fyle_settings.enabled"></ion-toggle>
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.bulk_fyle_settings.enabled" (ionChange)="this.toggleBulkMode()"></ion-toggle>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -157,13 +157,13 @@
               <span> Create expense from camera in one go. </span>
             </ion-col>
             <ion-col size="4" class="text-right">
-              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.one_click_action_settings.enabled"></ion-toggle>
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.one_click_action_settings.enabled" (ionChange)="this.toggleOneClickActionMode()"></ion-toggle>
             </ion-col>
           </ion-row>
         </ion-grid>
         <ion-item>
           <ion-label>Module</ion-label>
-          <ion-select value="{{this.oneClickActionSelectedModule && this.oneClickActionSelectedModule.id}}" interface="action-sheet" (ionChange)="this.oneClickActionModuleChanged()">
+          <ion-select [(ngModel)]="this.oneClickActionSelectedModuleId" interface="action-sheet" (ionChange)="this.oneClickActionModuleChanged()">
             <ion-select-option *ngFor="let oneClickActionValue of this.oneClickActionOptions" value="{{oneClickActionValue.id}}">{{oneClickActionValue.name}}</ion-select-option>
           </ion-select>
         </ion-item>
@@ -182,7 +182,7 @@
               <span> Use the daily messaging app to track your expenses on the go. </span>
             </ion-col>
             <ion-col size="4" class="text-right">
-              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.whatsapp_fyle_settings.enabled"></ion-toggle>
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.whatsapp_fyle_settings.enabled" (ionChange)="this.toggleWhatsappSettings()"></ion-toggle>
             </ion-col>
           </ion-row>
           <ion-row>
