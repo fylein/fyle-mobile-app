@@ -42,6 +42,70 @@
   </div>
 
   <div class="my-profile--blocks">
+    <span class="my-profile--blocks-header">Usage</span>
+    <ion-card class="my-profile--cards">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">Using Fyle Since {{this.eou && this.eou.ou.created_at | date: 'dd MMM, yyyy'}}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <div *ngIf="this.toggleUsageDetailsTab">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <img src="assets/images/profile/gmail.svg" alt="Gmail">
+            </ion-col>
+            <ion-col size="10">
+              <span class="mb-0 stat-info">{{this.expenses && this.expenses.extension || 0}} expenses tracked using email extension.</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <img src="assets/images/profile/outlook.svg" alt="Outlook">
+            </ion-col>
+            <ion-col size="10">
+              <span class="mb-0 stat-info">{{this.expenses && this.expenses.outlook || 0}} expenses tracked using outlook extension.</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <img src="assets/images/profile/smartphone.svg" alt="Mobile">
+            </ion-col>
+            <ion-col size="10">
+              <span class="mb-0 stat-info">{{this.expenses && this.expenses.mobile || 0}} expenses tracked using mobile app.</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <img src="assets/images/profile/web.svg" alt="Web">
+            </ion-col>
+            <ion-col size="10">
+              <span class="mb-0 stat-info">{{this.expenses && this.expenses.web || 0}} expenses tracked using web app.</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+
+        <a (click)="this.toggleUsageDetails()">
+          <span *ngIf="!this.toggleUsageDetailsTab">See More</span>
+          <span *ngIf="this.toggleUsageDetailsTab">Hide</span>
+        </a>
+
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Preferences</span>
     <ion-card class="my-profile--cards" *ngIf="this.orgUserSettings && this.orgUserSettings.insta_fyle_settings && this.orgUserSettings.insta_fyle_settings.allowed">
       <ion-card-header class="my-profile--cards-header">
@@ -54,8 +118,8 @@
             <ion-col size="8">
               <span> Scan paper receipts to automatically create expenses. </span>
             </ion-col>
-            <ion-col size="4">
-              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.insta_fyle_settings.enabled"></ion-toggle>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.insta_fyle_settings.enabled" (ionChange)="this.toggleAutoExtraction()"></ion-toggle>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -73,13 +137,109 @@
             <ion-col size="8">
               <span> Submit multiple paper receipts in one go. </span>
             </ion-col>
-            <ion-col size="4">
+            <ion-col size="4" class="text-right">
               <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.bulk_fyle_settings.enabled"></ion-toggle>
             </ion-col>
           </ion-row>
         </ion-grid>
       </ion-card-content>
     </ion-card>
+
+    <ion-card class="my-profile--cards" *ngIf="(this.eou && this.eou.ou.is_primary) && (this.orgUserSettings && this.orgUserSettings.one_click_action_settings.allowed)">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">One Click Action</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Create expense from camera in one go. </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.one_click_action_settings.enabled"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <ion-item>
+          <ion-label>Module</ion-label>
+          <ion-select value="{{this.oneClickActionSelectedModule && this.oneClickActionSelectedModule.id}}" interface="action-sheet" (ionChange)="this.oneClickActionModuleChanged()">
+            <ion-select-option *ngFor="let oneClickActionValue of this.oneClickActionOptions" value="{{oneClickActionValue.id}}">{{oneClickActionValue.name}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="my-profile--cards" *ngIf="this.orgUserSettings && this.orgUserSettings.whatsapp_fyle_settings &&this.orgUserSettings.whatsapp_fyle_settings.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">WhatsApp</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Use the daily messaging app to track your expenses on the go. </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.whatsapp_fyle_settings.enabled"></ion-toggle>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <a href> Read More</a>  
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="my-profile--cards" *ngIf="this.orgSettings && this.orgSettings.org_currency_settings.enabled">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">Currency Preference</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Currency Info </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="this.orgUserSettings.currency_settings.enabled" (ionChange)="this.toggleCurrencySettings()"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        
+        <!-- <ion-item>
+          <ion-label>Currency</ion-label>
+          <ion-input value="{{this.preferredCurrency && this.preferredCurrency.value}}" readonly (click)="this.openCurrenySelectionModal($event)"></ion-input>
+          <mat-form-field appearance="outline" (click)="openCurrenySelectionModal()">
+            <input  readonly="readonly" placeholder="Set default currency for all expenses" matInput>
+          </mat-form-field>
+          <ion-select value="{{this.preferredCurrency && this.preferredCurrency.id}}" interface="action-sheet" (ionChange)="this.preferredCurrencyChanged()">
+            <ion-select-option *ngFor="let currency of this.currencies" value="{{currency.id}}">{{currency.value}}</ion-select-option>
+          </ion-select>
+        </ion-item> -->
+        
+          <ion-row>
+            <ion-col size="4">
+              <ion-item>
+                <ion-label>
+                  Item
+                </ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col size="8">
+              <ion-item button (click)="this.openCurrenySelectionModal()" detail>
+                <ion-label *ngIf="this.preferredCurrency">
+                  {{this.preferredCurrency.id}} - {{this.preferredCurrency.value}}
+                </ion-label>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+    
+
   </div>
 
   <div>
