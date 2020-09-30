@@ -2209,8 +2209,7 @@ export class PermissionsService {
     return filteredRoles$.pipe(
       map(
         filteredRoles => {
-          try{
-            if (this.allowedAccess(resource, orgSettings)) {
+          if (this.allowedAccess(resource, orgSettings)) {
             for (const currentRole of filteredRoles) {
               const role = currentRole.toLowerCase();
               for (const action of actions) {
@@ -2224,14 +2223,9 @@ export class PermissionsService {
             }
           }
           return allowedActions;
-         } catch (err){
-           console.log(err)
-         }
-          
-          
+         } 
         }
       ),
-      tap(console.log),
       switchMap(
         currentAllowedActions => {
           if (currentAllowedActions.allowedRouteAccess) {
