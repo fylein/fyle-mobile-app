@@ -1,0 +1,76 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end" style="display: block">
+      <ion-button color="dark" (click)="closeDialog()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="contact-support">
+  <!-- contact support dialog -->
+  <div *ngIf="dialogType === 'contact_support'">
+    <!-- contact support title -->
+    <div class="contact-support--header">
+      <div class="contact-support--header--title">Contact Support</div>
+    </div>
+    
+    <!-- contact support content -->
+    <div class="contact-support--content">
+      <p class="contact-support--content--heading">Having trouble with the process?</p>
+      <p>contact your admin</p>
+      
+      <div class="contact-support--content--admin-list">
+        <div *ngFor="let admin of adminList let i=index" class="contact-support--content--admin-list--admin-contact-card">
+          <div>{{ admin.us.full_name }}</div>
+          <a href="mailto:{{ admin.us.email }}">{{ admin.us.email }}</a>
+        </div>
+      </div>
+      <div class="contact-support--content--page-divider"></div>
+      <div>
+        <p class="contact-support--content--heading">Having trouble understanding fyle</p>
+        <p>We have everything to clear up in our help center</p>
+        <div>
+          <button (click)="openHelpLink()" mat-flat-button class="contact-support--content--helpLinkBtn">Visit Help Center</button>
+        </div>
+        <p>Still facing issues that you need help with?</p>
+        <p>We are happy to help</p>
+        <p>Please send your queries along with screen shot(if necessary) to</p>
+        <p>
+          <a href="mailto:support@fyle.in"> support@fyle.in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="dialogType === 'log_mileage'">
+    <div class="contact-support--header">
+      <div class="contact-support--header--title">Log Mileage Using Fyle</div>
+    </div>
+    <div class="contact-support--content">
+      <img class="contact-support--content--image-container" src="../../../../assets/images/contact-support/mileage-settings.png" alt="Mileage Setting Images">
+      <div class="contact-support--content--content-container">
+        On mobile or web, choose to create a new expense and select 'Log Mileage'. Add your travel end points and we'll automatically calculate mileage and log it.
+      </div>
+      <div class="contact-support--content--note-container">
+        Please login to the web application at <a href="https://app.fyle.in">https://app.fyle.in</a> to change mileage settings.      
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="dialogType === 'goibibo_support'">
+    <div class="contact-support--header">
+      <div class="contact-support--header--title">Manage GoIbibo Bookings with Fyle</div>
+    </div>
+    <div class="contact-support--content">
+      <img class="contact-support--content--image-container" src="../../../../assets/images/contact-support/ibibo-demo.gif" alt="Mileage Setting Images">
+      <div class="contact-support--content--content-container">
+        GoIbibo users can connect their GoBiz accounts with Fyle to automatically record travel and hotel bookings.
+      </div>
+      <div>
+        <button (click)="openIbiboLink()" mat-flat-button class="contact-support--content--helpLinkBtn">Learn More</button>
+      </div>
+    </div>
+  </div>
+</ion-content>

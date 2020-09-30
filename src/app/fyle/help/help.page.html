@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar class="header-container">
+    <ion-title>Help</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="help-content">
+  <div class="help-content--helper-buttons">
+    <div>
+      <button (click)="openContactSupportDialog()" mat-flat-button
+        class="help-content--helper-buttons--btn-help">Contact Support</button>
+    </div>
+    <div>
+      <button (click)="openHelpLink()" mat-flat-button class="help-content--helper-buttons--btn-help">Explore Knowledge
+        Base</button>
+    </div>
+  </div>
+  <div class="help-content--divider-title">
+    <span class="help-content--divider-title--sub">Tips</span>
+    <div class="help-content--divider-title--divider"></div>
+  </div>
+
+  <div class="help-content--help-cards-container">
+    <div class="help-content--help-cards-container--help-card" (click)="openLogMileageDialog()">
+      <span class="help-content--help-cards-container--help-card--title">
+        Log Mileage Using Fyle.
+      </span>
+      <div class="help-content--help-cards-container--help-card--sub-title">
+        On mobile or web, choose to create a new expense and select 'Log Mileage'.
+        Add your travel end points and we'll automatically calculate mileage and log it.
+      </div>
+    </div>
+    <div class="help-content--help-cards-container--help-card" (click)="openCaptureEmailReceiptsDialog()">
+      <span class="help-content--help-cards-container--help-card--title">
+        Capture Email Receipts in One-Click
+      </span>
+      <div class="help-content--help-cards-container--help-card--sub-title">
+        Just open your email receipt on Outlook or Gmail, and click
+        on the Fyle Button. It's practically Magic.
+      </div>
+    </div>
+    <div class="help-content--help-cards-container--help-card" (click)="openManageGoIbiboBookingsDialog()">
+      <span class="help-content--help-cards-container--help-card--title">
+        Manage GoIbibo Bookings with Fyle
+      </span>
+      <div class="help-content--help-cards-container--help-card--sub-title">
+        GoIbibo users can connect their GoBiz accounts with Fyle 
+        to automatically record travel and hotel bookings.
+      </div>
+    </div>
+  </div>
+</ion-content>

@@ -11,7 +11,7 @@ export class OrgUserService {
 
   constructor(
     private apiService: ApiService,
-    private authService: AuthService
+    private authService: AuthService,
   ) { }
 
   postUser(user: User) {
@@ -24,5 +24,5 @@ export class OrgUserService {
         return this.authService.refreshEou();
       })
     );
-  };
+  }
 }
