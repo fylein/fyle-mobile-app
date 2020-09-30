@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Platform, MenuController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { pipe, forkJoin } from 'rxjs';
+import { pipe, forkJoin, from } from 'rxjs';
 import { tap, map, switchMap, shareReplay } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -68,18 +68,13 @@ export class AppComponent implements OnInit {
       shareReplay()
     );
     const orgUserSettings$ = this.orgUserSettingsService.get();
-    const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts();
-    const deviceInfo$ = this.deviceService.getDeviceInfo();
-
-    let allowedReportsActions: any;
-    let allowedAdvancesActions: any;
-    let allowedTripsActions: any;
-
-    delegatedAccounts$.pipe(
+    const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts().pipe(
       map(res => {
         return this.orgUserService.excludeByStatus(res, 'ACTIVE');
       })
-    );
+    );;
+    const deviceInfo$ = this.deviceService.getDeviceInfo();
+    const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
 
     const allowedActions$ = orgSettings$.pipe(
       switchMap(orgSettings => {
@@ -99,7 +94,7 @@ export class AppComponent implements OnInit {
         //   vm.isSwitchedToDelegator = OrgUserService.isSwitchedToDelegator();
         // }
 
-    const primaryData$ = forkJoin({
+    forkJoin({
       eou: eou$,
       orgs: orgs$,
       currentOrg: currentOrg$,
@@ -107,10 +102,9 @@ export class AppComponent implements OnInit {
       orgUserSettings: orgUserSettings$,
       delegatedAccounts: delegatedAccounts$,
       allowedActions: allowedActions$,
-      deviceInfo: deviceInfo$
-    });
-
-    primaryData$.subscribe((res) => {
+      deviceInfo: deviceInfo$,
+      isSwitchedToDelegator: isSwitchedToDelegator$
+    }).subscribe((res) => {
       this.eou = res.eou;
       const orgs = res.orgs;
       this.activeOrg = res.currentOrg;
@@ -118,14 +112,10 @@ export class AppComponent implements OnInit {
       const orgUserSettings = res.orgUserSettings;
       const isDelegatee = res.delegatedAccounts.length > 0;
       this.appVersion = (res.deviceInfo && res.deviceInfo.appVersion) || '1.2.3';
-      allowedReportsActions = res.allowedActions && res.allowedActions.allowedReportsActions;
-      allowedAdvancesActions = res.allowedActions && res.allowedActions.allowedAdvancesActions;
-      allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
-      let isSwitchedToDelegator = false;
-
-      this.orgUserService.isSwitchedToDelegator().then((res) => {
-        isSwitchedToDelegator = res;
-      });
+      const allowedReportsActions = res.allowedActions && res.allowedActions.allowedReportsActions;
+      const allowedAdvancesActions = res.allowedActions && res.allowedActions.allowedAdvancesActions;
+      const allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
+      const isSwitchedToDelegator = res.isSwitchedToDelegator;
 
       this.sideMenuList = [
         {
