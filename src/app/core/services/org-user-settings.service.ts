@@ -8,7 +8,6 @@ import { forkJoin } from 'rxjs';
   providedIn: 'root'
 })
 export class OrgUserSettingsService {
-
   constructor(
     private apiService: ApiService,
     private costCentersService: CostCentersService
@@ -53,6 +52,6 @@ export class OrgUserSettingsService {
       finalize(async () => {
         // Todo: Remove cache
       })
-    )
+    );
   }
 }

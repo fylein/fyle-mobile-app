@@ -1,6 +1,10 @@
+// TODO list: 
+// Lite account
+// Contact no verfication
+// Notification popup
 
 import { Component, OnInit } from '@angular/core';
-import { forkJoin, from } from 'rxjs';
+import { forkJoin, from, noop } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 
@@ -13,6 +17,9 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import {ExtendedOrgUser} from '/Users/tarun/git/fyle-mobile-app2/src/app/core/models/extended-org-user.model';
 
 import { SelectCurrencyComponent } from 'src/app/post-verification/setup-account/select-currency/select-currency.component';
+import { UserEventService } from 'src/app/core/services/user-event.service';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { DeviceService } from 'src/app/core/services/device.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -37,11 +44,24 @@ export class MyProfilePage implements OnInit {
     private oneClickActionService: OneClickActionService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private userEventService: UserEventService,
+    private storageService: StorageService,
+    private deviceService: DeviceService
   ) { }
 
   logOut() {
-    console.log('will logout user later');
+    this.userEventService.logout();
+    this.deviceService.getDeviceInfo().pipe(
+      switchMap((device) => {
+        return this.authService.logout({
+          device_id: device.uuid,
+          user_id: this.eou.us.id
+        });
+      })
+    ).subscribe(noop);
+    this.storageService.clearAll();
+    // Todo: Clear all cache
   }
 
   toggleUsageDetails() {

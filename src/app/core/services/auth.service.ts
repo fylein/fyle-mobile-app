@@ -76,4 +76,29 @@ export class AuthService {
       )
     );
   }
+
+  logout(logoutPayload: any) {
+    // Todo: Clear all cache
+    this.storageService.delete('recentlyUsedProjects');
+    this.storageService.delete('recentlyUsedCategories');
+    this.storageService.delete('recentlyUsedMileageCategories');
+    this.storageService.delete('recentlyUsedPerDiemCategories');
+    this.storageService.delete('recentlyUsedCostCenters');
+    this.storageService.delete('user');
+    this.storageService.delete('role');
+    this.storageService.delete('currentView');
+    this.storageService.delete('ui-grid-pagination-page-size');
+    this.storageService.delete('ui-grid-pagination-page-number');
+    this.storageService.delete('customExportFields');
+    this.storageService.delete('lastLoggedInDelegatee');
+    this.storageService.delete('lastLoggedInOrgQueue');
+    this.storageService.delete('isSidenavCollapsed');
+
+    if (logoutPayload) {
+      return this.apiService.post('/auth/logout', logoutPayload);
+    } else {
+      return this.apiService.post('/auth/logout');
+    }
+
+  }
 }
