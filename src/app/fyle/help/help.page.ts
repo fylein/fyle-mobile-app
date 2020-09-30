@@ -24,10 +24,12 @@ export class HelpPage implements OnInit {
     this.presentLoading();
     // getting admins list, required for contact support modal
     let orgAdmins = [];
-    this.extendedOrgUserService.getAllCompanyEouc().subscribe(admin => {
-      orgAdmins = admin.filter(a => a.ou.roles.indexOf('ADMIN') > -1 && a.ou.status === 'ACTIVE');
-      // only need to display 5 admins, so spliced 5
+    this.extendedOrgUserService.getAllCompanyEouc().subscribe(user => {
+      orgAdmins = user.filter(user =>
+        user.ou.roles.indexOf('ADMIN') > -1 && user.ou.status === 'ACTIVE'
+      );
       this.loadingController.dismiss();
+      // only need to display 5 admins, so spliced 5
       this.presentSupportModal('contact_support', orgAdmins.splice(0, 5));
     });
   }
