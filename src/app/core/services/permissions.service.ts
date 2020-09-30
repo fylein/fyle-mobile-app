@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { tap, filter, map, switchMap } from 'rxjs/operators';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { throwError, of } from 'rxjs';
 
 @Injectable({
@@ -2223,7 +2223,6 @@ export class PermissionsService {
             }
           }
           return allowedActions;
-         } 
         }
       ),
       switchMap(
