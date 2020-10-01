@@ -5,7 +5,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -20,6 +20,7 @@ import { SelectCurrencyComponent } from 'src/app/post-verification/setup-account
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DeviceService } from 'src/app/core/services/device.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -47,7 +48,8 @@ export class MyProfilePage implements OnInit {
     private modalController: ModalController,
     private userEventService: UserEventService,
     private storageService: StorageService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private loaderService: LoaderService
   ) { }
 
   logOut() {
@@ -197,8 +199,11 @@ export class MyProfilePage implements OnInit {
   }
 
   ngOnInit() {
+    this.loaderService.showLoader();
     const eou$ = this.authService.getEou();
-    const orgUserSettings$ =  this.offlineService.getOrgUserSettings();
+    const orgUserSettings$ =  this.offlineService.getOrgUserSettings().pipe(
+      shareReplay()
+    );
     const myETxnc$ = this.transactionService.getMyETxncInternal();
     const orgSettings$ = this.offlineService.getOrgSettings();
 
@@ -211,14 +216,13 @@ export class MyProfilePage implements OnInit {
       })
     ).subscribe();
 
-    const primaryData = forkJoin({
+    forkJoin({
       eou: eou$,
       orgUserSettings: orgUserSettings$,
       myETxnc: myETxnc$,
       orgSettings: orgSettings$
-    });
-
-    primaryData.subscribe((res) => {
+    }).subscribe((res) => {
+      this.loaderService.hideLoader();
       this.eou = res.eou;
       this.orgUserSettings = res.orgUserSettings;
       const myETxnc = res.myETxnc;

@@ -119,6 +119,7 @@ export class TransactionService {
       }
     };
 
+    // TODO: This logic seems wrong to me
     if (offset + limit < end) {
       return this.getMyETxncInternalOffSetLimit(offset + limit, limit, end).then((restEtxns) => {
         return this.apiService.get('/etxns', data).toPromise().then((etxns) => {

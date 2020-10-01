@@ -201,7 +201,7 @@ export class AppComponent implements OnInit {
           title: 'Profile',
           isVisible: true,
           icon: '../../../assets/svg/fy-profile-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard9']
+          route: ['/', 'enterprise', 'my_profile']
         },
         {
           title: 'Team Reports',
@@ -232,7 +232,7 @@ export class AppComponent implements OnInit {
           title: 'Switch Accounts',
           isVisible: (orgs.length > 1),
           icon: '../../../assets/svg/fy-switch-new.svg',
-          route: ['/', 'auth', 'switch-org']
+          route: ['/', 'auth', 'switch-org', { choose: true }]
         },
       ];
     });
@@ -242,6 +242,13 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.checkAppSupportedVersion();
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
+
+    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      if (loggedInStatus) {
+        this.showSideMenu();
+      }
+    });
+
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
         this.showSideMenu();
