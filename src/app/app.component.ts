@@ -25,8 +25,8 @@ import { RouterAuthService } from './core/services/router-auth.service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
-  eou: ExtendedOrgUser; 
-  activeOrg: any; 
+  eou: ExtendedOrgUser;
+  activeOrg: any;
   sideMenuList: any[];
   appVersion: string;
 
@@ -111,7 +111,8 @@ export class AppComponent implements OnInit {
 
         return forkJoin({
           allowedReportsActions: allowedReportsActions$,
-          allowedAdvancesActions: iif(() => (orgSettings.advance_requests.enabled || orgSettings.advances.enabled), allowedAdvancesActions$, of(null)),
+          allowedAdvancesActions: iif(() => (orgSettings.advance_requests.enabled
+            || orgSettings.advances.enabled), allowedAdvancesActions$, of(null)),
           allowedTripsActions: iif(() => orgSettings.trip_requests.enabled, allowedTripsActions$, of(null))
         });
       })
@@ -232,7 +233,7 @@ export class AppComponent implements OnInit {
           title: 'Switch Accounts',
           isVisible: (orgs.length > 1),
           icon: '../../../assets/svg/fy-switch-new.svg',
-          route: ['/', 'auth', 'switch-org']
+          route: ['/', 'auth', 'switch-org', { choose: true }]
         },
       ];
     });
@@ -242,6 +243,12 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.checkAppSupportedVersion();
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
+    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      if (loggedInStatus) {
+        this.showSideMenu();
+      }
+    });
+
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
         this.showSideMenu();
@@ -249,6 +256,5 @@ export class AppComponent implements OnInit {
     });
 
     // Left with isonline/is offline method
-
   }
 }

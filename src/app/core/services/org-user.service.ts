@@ -34,7 +34,7 @@ export class OrgUserService {
     );
   };
 
-  findDelegatedAccounts () {
+  findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map(delegatedAccounts => {
         delegatedAccounts = delegatedAccounts.map((delegatedAccount) => {
@@ -43,13 +43,11 @@ export class OrgUserService {
 
         return delegatedAccounts;
       })
-    )
-  };
+    );
+  }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string) {
-    console.log(eous);
-    console.log(status);
-    let eousFiltered = eous.filter(function (eou) {
+    const eousFiltered = eous.filter((eou) => {
       return status.indexOf(eou.ou.status) === -1;
     });
     return eousFiltered;

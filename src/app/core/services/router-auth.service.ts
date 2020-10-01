@@ -107,4 +107,13 @@ export class RouterAuthService {
       })
     );
   }
+
+  resetPassword(refreshToken: string, newPassword: string) {
+    return this.routerApiService.post('/auth/reset_password', {
+      refresh_token: refreshToken,
+      password: newPassword
+    }).pipe(
+      switchMap(data => this.handleSignInResponse(data))
+    );
+  }
 }
