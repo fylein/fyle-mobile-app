@@ -11,7 +11,6 @@
 </ion-header>
 
 <ion-content>
-
   <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">About You</span>
     <ion-card class="my-profile--cards">
@@ -95,11 +94,10 @@
         </ion-grid>
       </div>
 
-
-        <a (click)="toggleUsageDetails()">
-          <span *ngIf="!toggleUsageDetailsTab">See More</span>
-          <span *ngIf="toggleUsageDetailsTab">Hide</span>
-        </a>
+      <a (click)="toggleUsageDetails()">
+        <span *ngIf="!toggleUsageDetailsTab">See More</span>
+        <span *ngIf="toggleUsageDetailsTab">Hide</span>
+      </a>
 
       </ion-card-content>
     </ion-card>
@@ -107,6 +105,7 @@
 
   <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Preferences</span>
+    <!-- Instafyle card start -->
     <ion-card class="my-profile--cards" *ngIf="orgUserSettings?.insta_fyle_settings?.allowed">
       <ion-card-header class="my-profile--cards-header">
         <ion-card-subtitle class="my-profile--cards-title">Instafyle</ion-card-subtitle>
@@ -126,6 +125,7 @@
       </ion-card-content>
     </ion-card>
 
+    <!-- BulkFyle card start -->
     <ion-card class="my-profile--cards" *ngIf="orgUserSettings?.bulk_fyle_settings?.allowed">
       <ion-card-header class="my-profile--cards-header">
         <ion-card-subtitle class="my-profile--cards-title">Bulkfyle</ion-card-subtitle>
@@ -145,6 +145,7 @@
       </ion-card-content>
     </ion-card>
 
+    <!-- One click Action card start -->
     <ion-card class="my-profile--cards" *ngIf="eou?.ou?.is_primary && orgUserSettings?.one_click_action_settings?.allowed">
       <ion-card-header class="my-profile--cards-header">
         <ion-card-subtitle class="my-profile--cards-title">One Click Action</ion-card-subtitle>
@@ -170,6 +171,7 @@
       </ion-card-content>
     </ion-card>
 
+    <!-- Whatsapp card start -->
     <ion-card class="my-profile--cards" *ngIf="orgUserSettings?.whatsapp_fyle_settings?.allowed">
       <ion-card-header class="my-profile--cards-header">
         <ion-card-subtitle class="my-profile--cards-title">WhatsApp</ion-card-subtitle>
@@ -192,6 +194,7 @@
       </ion-card-content>
     </ion-card>
 
+    <!-- Currency preference card start -->
     <ion-card class="my-profile--cards" *ngIf="orgSettings?.org_currency_settings?.enabled">
       <ion-card-header class="my-profile--cards-header">
         <ion-card-subtitle class="my-profile--cards-title">Currency Preference</ion-card-subtitle>
@@ -207,18 +210,7 @@
               <ion-toggle color="success" [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
             </ion-col>
           </ion-row>
-        
-        <!-- <ion-item>
-          <ion-label>Currency</ion-label>
-          <ion-input value="{{this.preferredCurrency && this.preferredCurrency.value}}" readonly (click)="this.openCurrenySelectionModal($event)"></ion-input>
-          <mat-form-field appearance="outline" (click)="openCurrenySelectionModal()">
-            <input  readonly="readonly" placeholder="Set default currency for all expenses" matInput>
-          </mat-form-field>
-          <ion-select value="{{this.preferredCurrency && this.preferredCurrency.id}}" interface="action-sheet" (ionChange)="this.preferredCurrencyChanged()">
-            <ion-select-option *ngFor="let currency of this.currencies" value="{{currency.id}}">{{currency.value}}</ion-select-option>
-          </ion-select>
-        </ion-item> -->
-        
+       
           <ion-row>
             <ion-col size="4">
               <ion-item>
@@ -238,8 +230,27 @@
         </ion-grid>
       </ion-card-content>
     </ion-card>
-    
 
+    <!-- SMS card start -->
+    <ion-card class="my-profile--cards" *ngIf="orgUserSettings?.sms_fyle_settings?.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">SMS</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> One SMS to track and turn receipts into expenses </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled" (ionChange)="toggleSmsSettings()"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+    
   </div>
 
   <div>

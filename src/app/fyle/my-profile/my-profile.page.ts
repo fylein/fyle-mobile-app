@@ -5,7 +5,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -149,6 +149,17 @@ export class MyProfilePage implements OnInit {
     .subscribe();
   }
 
+  toggleSmsSettings() {
+    return this.orgUserSettingsService.post(this.orgUserSettings)
+    .pipe(
+      map((res) => {
+        console.log(res);
+        // Todo: Tracking service and disable toogle button
+      })
+    )
+    .subscribe();
+  }
+
   toggleOneClickActionMode() {
     this.orgUserSettings.one_click_action_settings.module = null;
     this.oneClickActionSelectedModuleId = '';
@@ -198,8 +209,7 @@ export class MyProfilePage implements OnInit {
     ).subscribe();
   }
 
-  ngOnInit() {
-    this.loaderService.showLoader();
+  ionViewWillEnter() {
     const eou$ = this.authService.getEou();
     const orgUserSettings$ =  this.offlineService.getOrgUserSettings().pipe(
       shareReplay()
@@ -216,13 +226,17 @@ export class MyProfilePage implements OnInit {
       })
     ).subscribe();
 
-    forkJoin({
-      eou: eou$,
-      orgUserSettings: orgUserSettings$,
-      myETxnc: myETxnc$,
-      orgSettings: orgSettings$
-    }).subscribe((res) => {
-      this.loaderService.hideLoader();
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return forkJoin({
+          eou: eou$,
+          orgUserSettings: orgUserSettings$,
+          myETxnc: myETxnc$,
+          orgSettings: orgSettings$
+        });
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(async (res) => {
       this.eou = res.eou;
       this.orgUserSettings = res.orgUserSettings;
       const myETxnc = res.myETxnc;
@@ -233,7 +247,10 @@ export class MyProfilePage implements OnInit {
         this.getAllCurrencyAndMatchPreferredCurrency();
       }
     });
+  }
 
+  ngOnInit() {
+    
   }
 
 }
