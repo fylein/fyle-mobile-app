@@ -35,6 +35,10 @@ const routes: Routes = [
   {
     path: 'new_password',
     loadChildren: () => import('./new-password/new-password.module').then( m => m.NewPasswordPageModule)
+  },
+  {
+    path: 'disabled',
+    loadChildren: () => import('./disabled/disabled.module').then( m => m.DisabledPageModule)
   }
 ];
 

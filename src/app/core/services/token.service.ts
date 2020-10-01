@@ -11,11 +11,11 @@ export class TokenService {
     private storageService: StorageService,
     private userEventService: UserEventService
   ) {
-    // UserEventService.onLogout(function () {
-    //   self.resetRefreshToken();
-    //   self.resetAccessToken();
-    //   self.resetClusterDomain();
-    // });
+    this.userEventService.onLogout(() => {
+      this.resetRefreshToken();
+      this.resetAccessToken();
+      this.resetClusterDomain();
+    });
   }
 
   getAccessToken() {
