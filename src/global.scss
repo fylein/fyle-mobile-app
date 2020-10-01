@@ -71,6 +71,28 @@ $header-input-interior: #eeeeee;
   background-color: $header-input-interior;
 }
 
+.text-capitalize {
+  text-transform: capitalize !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.full-width {
+  width: 100% !important;
+}
+
 .mat-form-field-no-padding {
   .mat-form-field-wrapper {
     padding: 0;

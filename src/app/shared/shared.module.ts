@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EllipsisPipe } from './pipes/ellipses.pipe';
+import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 
 
 
@@ -12,7 +13,8 @@ import { EllipsisPipe } from './pipes/ellipses.pipe';
     CommonModule
   ],
   exports: [
-    EllipsisPipe
+    EllipsisPipe,
+  	HumanizeCurrencyPipe
   ]
 })
 export class SharedModule { }
