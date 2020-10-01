@@ -28,7 +28,7 @@ export class MyTripsPage implements OnInit {
     private router: Router
   ) { }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.myTripRequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
@@ -74,12 +74,12 @@ export class MyTripsPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
+  ngOnInit() { }
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
     this.loadData$.next(this.currentPageNumber);
     event.target.complete();
-
   }
 
   doRefresh(event) {

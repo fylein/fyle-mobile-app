@@ -16,10 +16,11 @@ import { TrpTravellerDetail } from 'src/app/core/models/trip_traveller_detail.mo
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, PopoverController } from '@ionic/angular';
 import { TransportationRequestsComponent } from './transportation-requests/transportation-requests.component';
 import { HotelRequestsComponent } from './hotel-requests/hotel-requests.component';
 import { AdvanceRequestsComponent } from './advance-requests/advance-requests.component';
+import { PullBackTripComponent } from './pull-back-trip/pull-back-trip.component';
 
 @Component({
   selector: 'app-my-view-trips',
@@ -66,7 +67,8 @@ export class MyViewTripsPage implements OnInit {
     private transactionService: TransactionService,
     public alertController: AlertController,
     private router: Router,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private popoverController: PopoverController
   ) { }
 
 
@@ -212,7 +214,69 @@ export class MyViewTripsPage implements OnInit {
     );
   }
 
-  ngOnInit() {
+  async pullBack() {
+    const pullBackPopover = await this.popoverController.create({
+      component: PullBackTripComponent,
+      cssClass: 'dialog-popover'
+    });
+
+    await pullBackPopover.present();
+
+    const { data } = await pullBackPopover.onWillDismiss();
+
+    if (data) {
+      const status = {
+        comment: data.comment
+      };
+
+      const addStatusPayload = {
+        status,
+        notify: false
+      };
+
+      const id = this.activatedRoute.snapshot.params.id;
+
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.tripRequestsService.pullBackTrip(id, addStatusPayload);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      });
+    }
+  }
+
+  async closeTrip() {
+    const id = this.activatedRoute.snapshot.params.id;
+    const alert = await this.alertController.create({
+      header: 'Close Trip!',
+      message: 'Are you sure you want to close this trip?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: noop
+        }, {
+          text: 'Okay',
+          handler: () => {
+            from(this.loaderService.showLoader()).pipe(
+              switchMap(() => {
+                return this.tripRequestsService.closeTrip(id);
+              }),
+              finalize(() => from(this.loaderService.hideLoader()))
+            ).subscribe(noop);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  ionViewWillEnter() {
+
     const id = this.activatedRoute.snapshot.params.id;
     const eou$ = from(this.authService.getEou());
     this.tripRequest$ = from(
@@ -356,4 +420,6 @@ export class MyViewTripsPage implements OnInit {
       })
     );
   }
+
+  ngOnInit() { }
 }

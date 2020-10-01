@@ -8,6 +8,8 @@ import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 import { TripDatesService } from './trip-dates.service';
 import { Approval } from '../models/approval.model';
+import { NetworkService } from './network.service';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +21,9 @@ export class TripRequestsService {
     private apiService: ApiService,
     private authService: AuthService,
     private dataTransformService: DataTransformService,
-    private tripDatesService: TripDatesService
+    private tripDatesService: TripDatesService,
+    private networkService: NetworkService,
+    private storageService: StorageService
   ) { }
 
   getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
@@ -33,7 +37,7 @@ export class TripRequestsService {
           params: {
             offset: config.offset,
             limit: config.limit,
-            // trp_org_user_id: 'eq.' + eou.ou.id,
+            trp_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams
           }
         });
@@ -203,5 +207,63 @@ export class TripRequestsService {
         name: 'Rejected'
       };
     }
+  }
+
+  getUserTripRequestStateParams(state: string) {
+    let stateMap = {
+      draft: {
+        state: ['DRAFT'],
+        is_sent_back: false
+      },
+      inquiry: {
+        state: ['DRAFT'],
+        is_sent_back: true
+      },
+      submitted: {
+        state: ['APPROVAL_PENDING']
+      },
+      approved: {
+        state: ['APPROVED']
+      },
+      booked: {
+        state: ['APPROVED'],
+        is_booked: true
+      },
+      to_close: {
+        state: ['APPROVED'],
+        is_to_close: true
+      },
+      all: {
+        state: ['DRAFT', 'APPROVAL_PENDING', 'APPROVED', 'REJECTED', 'CLOSED']
+      }
+    };
+
+    return stateMap[state];
+  }
+
+  getPaginatedMyETripRequestsCount(params) {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.apiService.get('/etrip_requests/count', { params }).pipe(
+              tap((res) => {
+                this.storageService.set('etripRequestsCount' + JSON.stringify(params), res);
+              })
+            );
+          } else {
+            return from(this.storageService.get('etripRequestsCount' + JSON.stringify(params)));
+          }
+        }
+      )
+    );
+  }
+
+  pullBackTrip(tripRequestId: string, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/pull_back', addStatusPayload);
+  }
+
+  closeTrip(tripRequestId: string) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
   }
 }

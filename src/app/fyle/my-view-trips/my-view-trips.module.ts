@@ -13,6 +13,10 @@ import { MatRippleModule } from '@angular/material/core';
 import { TransportationRequestsComponent } from './transportation-requests/transportation-requests.component';
 import { HotelRequestsComponent } from './hotel-requests/hotel-requests.component';
 import { AdvanceRequestsComponent } from './advance-requests/advance-requests.component';
+import { PullBackTripComponent } from './pull-back-trip/pull-back-trip.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -21,13 +25,17 @@ import { AdvanceRequestsComponent } from './advance-requests/advance-requests.co
     IonicModule,
     MyViewTripsPageRoutingModule,
     MatIconModule,
-    MatRippleModule
+    MatRippleModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
   ],
   declarations: [
     MyViewTripsPage,
     TransportationRequestsComponent,
     HotelRequestsComponent,
-    AdvanceRequestsComponent
+    AdvanceRequestsComponent,
+    PullBackTripComponent
   ]
 })
 export class MyViewTripsPageModule { }
