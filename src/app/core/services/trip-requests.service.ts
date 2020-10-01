@@ -33,7 +33,7 @@ export class TripRequestsService {
           params: {
             offset: config.offset,
             limit: config.limit,
-            trp_org_user_id: 'eq.' + eou.ou.id,
+            // trp_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams
           }
         });

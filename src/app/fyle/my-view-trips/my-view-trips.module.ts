@@ -9,6 +9,10 @@ import { MyViewTripsPageRoutingModule } from './my-view-trips-routing.module';
 import { MyViewTripsPage } from './my-view-trips.page';
 
 import { MatIconModule } from '@angular/material/icon';
+import { MatRippleModule } from '@angular/material/core';
+import { TransportationRequestsComponent } from './transportation-requests/transportation-requests.component';
+import { HotelRequestsComponent } from './hotel-requests/hotel-requests.component';
+import { AdvanceRequestsComponent } from './advance-requests/advance-requests.component';
 
 @NgModule({
   imports: [
@@ -16,8 +20,14 @@ import { MatIconModule } from '@angular/material/icon';
     FormsModule,
     IonicModule,
     MyViewTripsPageRoutingModule,
-    MatIconModule
+    MatIconModule,
+    MatRippleModule
   ],
-  declarations: [MyViewTripsPage]
+  declarations: [
+    MyViewTripsPage,
+    TransportationRequestsComponent,
+    HotelRequestsComponent,
+    AdvanceRequestsComponent
+  ]
 })
 export class MyViewTripsPageModule { }

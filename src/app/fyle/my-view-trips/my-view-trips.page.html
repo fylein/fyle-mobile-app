@@ -1,6 +1,9 @@
 <ion-header>
   <ion-toolbar class="view-trip--toolbar">
     <ion-buttons slot="end">
+      <ion-button *ngIf="canEdit$|async">
+        Edit
+      </ion-button>
       <ion-button [routerLink]="['/','enterprise','my_trips']" routerLinkActive="router-link-active">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
@@ -145,8 +148,9 @@
         </div>
       </div>
 
-      <div class="view-trip--card" *ngIf="transportationRequests$|async as transportationRequests">
-        <div class="view-trip--element" (click)="openTransportationRequests(transportationRequests)">
+      <div class="view-trip--card" matRipple *ngIf="transportationRequests$|async as transportationRequests">
+        <div class="view-trip--element view-trip--element__single"
+          (click)="openTransportationRequests(transportationRequests)">
           <div class="view-trip--element-label">
             Transportation
           </div>
@@ -156,8 +160,8 @@
         </div>
       </div>
 
-      <div class="view-trip--card" *ngIf="hotelRequests$|async as hotelRequests">
-        <div class="view-trip--element" (click)="openHotelRequests(hotelRequests)">
+      <div class="view-trip--card" matRipple *ngIf="hotelRequests$|async as hotelRequests">
+        <div class="view-trip--element view-trip--element__single" (click)="openHotelRequests(hotelRequests)">
           <div class="view-trip--element-label">
             Hotel
           </div>
@@ -167,9 +171,9 @@
         </div>
       </div>
 
-      <div class="view-trip--card">
-        <div class="view-trip--element" *ngIf="transformedAdvanceRequests$|async as advanceRequests"
-          (click)="openAdvanceRequests(advanceRequests)">
+      <div class="view-trip--card" matRipple>
+        <div class="view-trip--element view-trip--element__single"
+          *ngIf="transformedAdvanceRequests$|async as advanceRequests" (click)="openAdvanceRequests(advanceRequests)">
           <div class="view-trip--element-label">
             Advance
           </div>
@@ -207,7 +211,7 @@
 </ion-content>
 
 
-<ion-footer>
+<ion-footer *ngIf="(canCloseTrip$|async)||(canPullBack$|async)">
   <ion-toolbar>
     <ion-button class="view-trip--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
       *ngIf="canPullBack$|async">

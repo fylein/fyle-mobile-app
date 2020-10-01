@@ -16,7 +16,10 @@ import { TrpTravellerDetail } from 'src/app/core/models/trip_traveller_detail.mo
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
+import { TransportationRequestsComponent } from './transportation-requests/transportation-requests.component';
+import { HotelRequestsComponent } from './hotel-requests/hotel-requests.component';
+import { AdvanceRequestsComponent } from './advance-requests/advance-requests.component';
 
 @Component({
   selector: 'app-my-view-trips',
@@ -47,6 +50,7 @@ export class MyViewTripsPage implements OnInit {
   canPullBack$: Observable<boolean>;
   canCloseTrip$: Observable<boolean>;
   canDelete$: Observable<boolean>;
+  canEdit$: Observable<boolean>;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -61,7 +65,8 @@ export class MyViewTripsPage implements OnInit {
     private transportationRequestsService: TransportationRequestsService,
     private transactionService: TransactionService,
     public alertController: AlertController,
-    private router: Router
+    private router: Router,
+    private modalController: ModalController
   ) { }
 
 
@@ -121,6 +126,58 @@ export class MyViewTripsPage implements OnInit {
 
       return details;
     }).join(', ');
+  }
+
+  async openTransportationRequests() {
+    const transportationRequests = await this.transportationRequests$.toPromise();
+    if (transportationRequests.length > 0) {
+      await this.loaderService.showLoader();
+      const transportReqModal = await this.modalController.create({
+        component: TransportationRequestsComponent,
+        componentProps: {
+          transportationRequests
+        }
+      });
+
+      await this.loaderService.hideLoader();
+
+      await transportReqModal.present();
+    }
+  }
+
+  async openHotelRequests() {
+    const hotelRequests = await this.hotelRequests$.toPromise();
+    if (hotelRequests.length > 0) {
+      await this.loaderService.showLoader();
+      const hotelReqModal = await this.modalController.create({
+        component: HotelRequestsComponent,
+        componentProps: {
+          hotelRequests
+        }
+      });
+
+      await this.loaderService.hideLoader();
+
+      await hotelReqModal.present();
+    }
+  }
+
+  async openAdvanceRequests() {
+    const advanceRequests = await this.transformedAdvanceRequests$.toPromise();
+    if (advanceRequests.length > 0) {
+      await this.loaderService.showLoader();
+      const advanceReqModal = await this.modalController.create({
+        component: AdvanceRequestsComponent,
+        componentProps: {
+          advanceRequests
+        }
+      });
+
+      await this.loaderService.hideLoader();
+
+      await advanceReqModal.present();
+    }
+
   }
 
   setRequiredTripDetails(eTransportationRequest) {
@@ -228,8 +285,9 @@ export class MyViewTripsPage implements OnInit {
       map(actions => actions.can_delete)
     );
 
-    this.canPullBack$.subscribe(console.log);
-    this.canCloseTrip$.subscribe(console.log);
+    this.canEdit$ = this.actions$.pipe(
+      map(actions => actions.can_edit)
+    );
 
     this.transportationRequests$ = forkJoin([
       this.tripRequestsService.getTransportationRequests(id),
@@ -250,15 +308,12 @@ export class MyViewTripsPage implements OnInit {
           });
         }
       ),
-      tap(console.log),
       switchMap(transportationReqs => {
         return from(transportationReqs);
       }),
-      tap(console.log),
       concatMap(transportationReq => {
         return this.setRequiredTripDetails(transportationReq);
       }),
-      tap(console.log),
       reduce((acc, curr) => acc.concat(curr), []),
       shareReplay()
     );
@@ -273,6 +328,7 @@ export class MyViewTripsPage implements OnInit {
           const [hotelRequests, allCustomFields, tripRequest] = aggregatedRes;
           return hotelRequests.map(hotelRequest => {
             const transformedHotelRequest = this.dataTransformSerivce.unflatten(hotelRequest);
+            console.log(transformedHotelRequest);
             return this
               .getTripRequestCustomFields(
                 allCustomFields,
@@ -282,6 +338,7 @@ export class MyViewTripsPage implements OnInit {
           });
         }
       ),
+      tap(console.log),
       shareReplay()
     );
 
@@ -299,5 +356,4 @@ export class MyViewTripsPage implements OnInit {
       })
     );
   }
-
 }
