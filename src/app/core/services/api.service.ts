@@ -23,6 +23,10 @@ export class ApiService {
     return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data);
   }
 
+  delete(url: string, data = {}) {
+    return this.httpClient.delete<any>(this.ROOT_ENDPOINT + '/api' + url, data);
+  }
+
   get(url: string, config = {}) {
     return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/api' + url, config);
   }

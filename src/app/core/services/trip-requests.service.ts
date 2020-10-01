@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators';
 import { ExtendedTripRequest } from '../models/extended_trip_request.model';
+import { ApiService } from './api.service';
+import { DataTransformService } from './data-transform.service';
+import { TripDatesService } from './trip-dates.service';
+import { Approval } from '../models/approval.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +16,10 @@ export class TripRequestsService {
 
   constructor(
     private apiv2Service: ApiV2Service,
-    private authService: AuthService
+    private apiService: ApiService,
+    private authService: AuthService,
+    private dataTransformService: DataTransformService,
+    private tripDatesService: TripDatesService
   ) { }
 
   getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
@@ -42,6 +49,62 @@ export class TripRequestsService {
         ...res,
         data: res.data.map(this.fixDates)
       }))
+    );
+  }
+
+  getTrip(id: string): Observable<ExtendedTripRequest> {
+    return this.apiv2Service.get('/trip_requests', {
+      params: {
+        trp_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as ExtendedTripRequest
+      )
+    );
+  }
+
+  getActions(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
+  }
+
+  getAdvanceRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/advance_requests');
+  }
+
+  getHotelRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
+      map((reqs) => {
+        return reqs.map(req => {
+          const hotelRequest = this.dataTransformService.unflatten(req);
+          this.tripDatesService.fixDates(hotelRequest.hr);
+          this.tripDatesService.fixDates(hotelRequest.hb);
+          this.tripDatesService.fixDates(hotelRequest.hc);
+          return hotelRequest;
+        });
+      })
+    );
+  }
+
+  delete(tripRequestId: string) {
+    return this.apiService.delete('/trip_requests/' + tripRequestId);
+  }
+
+  getTransportationRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
+      map((reqs) => reqs.map(req => {
+        const transportationRequest = this.dataTransformService.unflatten(req);
+        this.tripDatesService.fixDates(transportationRequest.tr);
+        this.tripDatesService.fixDates(transportationRequest.tb);
+        this.tripDatesService.fixDates(transportationRequest.tc);
+        return transportationRequest;
+      }))
+    );
+  }
+
+  getApproversByTripRequestId(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/approvals').pipe(
+      map(res => res as Approval[])
     );
   }
 

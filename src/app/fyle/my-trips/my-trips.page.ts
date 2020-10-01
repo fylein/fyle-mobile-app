@@ -99,7 +99,7 @@ export class MyTripsPage implements OnInit {
     });
   }
 
-  goToViewTrip() {
-    // TODO: Add when view trip page is done
+  onTripClick(clickedTrip: ExtendedTripRequest) {
+    this.router.navigate(['/', 'enterprise', 'my_view_trips', { id: clickedTrip.trp_id }]);
   }
 }

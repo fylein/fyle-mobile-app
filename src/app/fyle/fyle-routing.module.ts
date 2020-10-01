@@ -17,6 +17,10 @@ const routes: Routes = [
   {
     path: 'my_trips',
     loadChildren: () => import('./my-trips/my-trips.module').then( m => m.MyTripsPageModule)
+  },
+  {
+    path: 'my_view_trips',
+    loadChildren: () => import('./my-view-trips/my-view-trips.module').then( m => m.MyViewTripsPageModule)
   }
 ];
 
