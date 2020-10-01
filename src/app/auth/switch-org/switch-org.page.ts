@@ -47,37 +47,37 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       })
     );
 
-    this.orgs$.subscribe((orgs) => {
-      if (orgs.length === 1) {
-        from(this.proceed()).subscribe(noop);
-      }
-    });
-
     const choose = this.activatedRoute.snapshot.params.choose && JSON.parse(this.activatedRoute.snapshot.params.choose);
     if (!choose) {
       from(this.proceed()).subscribe(noop);
+    } else {
+      this.orgs$.subscribe((orgs) => {
+        if (orgs.length === 1) {
+          from(this.proceed()).subscribe(noop);
+        }
+      });
     }
   }
 
   async proceed() {
-    await this.loaderService.showLoader();
     const offlineData$ = this.offlineService.load();
     const pendingDetails$ = this.userService.isPendingDetails();
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles());
     const isOnline$ = this.networkService.isOnline();
-    forkJoin(
-      [
-        offlineData$,
-        pendingDetails$,
-        eou$,
-        roles$,
-        isOnline$
-      ]
-    ).pipe(
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return forkJoin(
+          [
+            offlineData$,
+            pendingDetails$,
+            eou$,
+            roles$,
+            isOnline$
+          ]
+        );
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(aggregatedResults => {
       const [
         [
@@ -146,15 +146,14 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   async switchToOrg(org: Org) {
-    await this.loaderService.showLoader();
-    this.orgService.switchOrg(org.id).pipe(
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return this.orgService.switchOrg(org.id);
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(() => {
       from(this.proceed()).subscribe(noop);
     }, async (err) => {
-      await this.loaderService.hideLoader();
       await this.storageService.clearAll();
       this.userEventService.logout();
       // TODO: Clear all caches also

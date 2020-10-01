@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Platform, MenuController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { pipe, forkJoin, from } from 'rxjs';
-import { tap, map, switchMap, shareReplay } from 'rxjs/operators';
+import { pipe, forkJoin, from, iif, of } from 'rxjs';
+import { map, switchMap, shareReplay } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -12,9 +12,12 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { PermissionsService } from 'src/app/core/services/permissions.service';
 import { DeviceService } from 'src/app/core/services/device.service';
+import { AppVersionService } from './core/services/app-version.service';
 
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
+import { environment } from 'src/environments/environment';
+import { RouterAuthService } from './core/services/router-auth.service';
 
 @Component({
   selector: 'app-root',
@@ -39,7 +42,10 @@ export class AppComponent implements OnInit {
     private userEventService: UserEventService,
     private permissionsService: PermissionsService,
     private menuController: MenuController,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private appVersionService: AppVersionService,
+    private routerAuthService: RouterAuthService
+
   ) {
     this.initializeApp();
   }
@@ -60,8 +66,29 @@ export class AppComponent implements OnInit {
     this.router.navigate(route);
   }
 
-  ngOnInit() {
-    const eou$ = this.authService.getEou();
+  checkAppSupportedVersion() {
+    this.deviceService.getDeviceInfo().pipe(
+      switchMap((deviceInfo) => {
+        const data = {
+          app_version: deviceInfo.appVersion,
+          device_os: deviceInfo.platform
+        };
+
+        return this.appVersionService.isSupported(data);
+      })
+    ).subscribe((res: { message: string, supported: boolean }) => {
+      if (!res.supported && environment.production) {
+        this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
+      }
+    });
+  }
+
+  async showSideMenu() {
+    const isLoggedIn = await this.routerAuthService.isLoggedIn();
+    if (!isLoggedIn) {
+      return 0;
+    }
+    const eou$ = from(this.authService.getEou());
     const orgs$ = this.offlineService.getOrgs();
     const currentOrg$ = this.offlineService.getCurrentOrg();
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
@@ -72,7 +99,7 @@ export class AppComponent implements OnInit {
       map(res => {
         return this.orgUserService.excludeByStatus(res, 'ACTIVE');
       })
-    );;
+    );
     const deviceInfo$ = this.deviceService.getDeviceInfo();
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
 
@@ -84,15 +111,11 @@ export class AppComponent implements OnInit {
 
         return forkJoin({
           allowedReportsActions: allowedReportsActions$,
-          allowedAdvancesActions: allowedAdvancesActions$,
-          allowedTripsActions: allowedTripsActions$,
+          allowedAdvancesActions: iif(() => (orgSettings.advance_requests.enabled || orgSettings.advances.enabled), allowedAdvancesActions$, of(null)),
+          allowedTripsActions: iif(() => orgSettings.trip_requests.enabled, allowedTripsActions$, of(null))
         });
       })
     );
-
-        // if (vm.settings.access_delegation.enabled) {
-        //   vm.isSwitchedToDelegator = OrgUserService.isSwitchedToDelegator();
-        // }
 
     forkJoin({
       eou: eou$,
@@ -116,6 +139,7 @@ export class AppComponent implements OnInit {
       const allowedAdvancesActions = res.allowedActions && res.allowedActions.allowedAdvancesActions;
       const allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
       const isSwitchedToDelegator = res.isSwitchedToDelegator;
+
 
       this.sideMenuList = [
         {
@@ -213,11 +237,18 @@ export class AppComponent implements OnInit {
       ];
     });
 
+  }
 
-
+  ngOnInit() {
+    this.checkAppSupportedVersion();
+    // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
+    this.userEventService.onSetToken(() => {
+      setTimeout(() => {
+        this.showSideMenu();
+      }, 500);
+    });
 
     // Left with isonline/is offline method
-
 
   }
 }
