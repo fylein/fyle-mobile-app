@@ -172,7 +172,7 @@ export class AppComponent implements OnInit {
           // tslint:disable-next-line: max-line-length
           isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
           icon: '../../../assets/svg/fy-trips-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard4']
+          route: ['/', 'enterprise', 'my_trips']
         },
         {
           title: 'Delegated Accounts',
