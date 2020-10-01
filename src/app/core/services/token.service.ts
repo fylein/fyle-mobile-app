@@ -27,6 +27,7 @@ export class TokenService {
   }
 
   setAccessToken(accessToken) {
+    this.userEventService.setToken();
     return this.storageService.set('X-AUTH-TOKEN', accessToken);
   }
 
