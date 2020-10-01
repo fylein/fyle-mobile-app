@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
+import { UserEventService } from './user-event.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +8,8 @@ import { StorageService } from './storage.service';
 export class TokenService {
 
   constructor(
-    private storageService: StorageService
+    private storageService: StorageService,
+    private userEventService: UserEventService
   ) {
     // UserEventService.onLogout(function () {
     //   self.resetRefreshToken();
@@ -25,6 +27,7 @@ export class TokenService {
   }
 
   setAccessToken(accessToken) {
+    this.userEventService.setToken();
     return this.storageService.set('X-AUTH-TOKEN', accessToken);
   }
 

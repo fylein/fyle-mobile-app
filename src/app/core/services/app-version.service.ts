@@ -84,7 +84,7 @@ export class AppVersionService {
             platform_version: platformVersion
           };
 
-          const isLower = this.isVersionLower(storedVersion.app_version, currentVersion);
+          const isLower = this.isVersionLower(storedVersion && storedVersion.app_version, currentVersion);
 
           if (isLower) {
             return this.post(data);
