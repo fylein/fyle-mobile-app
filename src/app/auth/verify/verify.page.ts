@@ -33,7 +33,6 @@ export class VerifyPage implements OnInit {
   ngOnInit() {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code;
     this.routerAuthService.emailVerify(verificationCode).pipe(
-      tap(console.log),
       switchMap((resp) => {
         return this.authService.newRefreshToken(resp.refresh_token);
       }),

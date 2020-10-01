@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { from } from 'rxjs';
+import { JwtHelperService } from './jwt-helper.service';
+import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { User } from '../models/user.model';
 import { switchMap, expand, reduce, tap, concatMap, map } from 'rxjs/operators';
@@ -13,6 +16,8 @@ import { DataTransformService } from './data-transform.service';
 export class OrgUserService {
 
   constructor(
+    private jwtHelperService: JwtHelperService,
+    private tokenService: TokenService,
     private apiService: ApiService,
     private authService: AuthService,
     private dataTransformService: DataTransformService
@@ -67,4 +72,31 @@ export class OrgUserService {
       return userIds.indexOf(eou.ou.id) === -1;
     });
   }
+
+
+  findDelegatedAccounts() {
+    return this.apiService.get('/eous/current/delegated_eous').pipe(
+      map(delegatedAccounts => {
+        delegatedAccounts = delegatedAccounts.map((delegatedAccount) => {
+          return this.dataTransformService.unflatten(delegatedAccount)
+        });
+
+        return delegatedAccounts;
+      })
+    );
+  }
+
+  excludeByStatus(eous: ExtendedOrgUser[], status: string) {
+    const eousFiltered = eous.filter((eou) => {
+      return status.indexOf(eou.ou.status) === -1;
+    });
+    return eousFiltered;
+
+  }
+
+  async isSwitchedToDelegator() {
+    const accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
+    return !!accessToken.proxy_org_user_id;
+  }
+
 }

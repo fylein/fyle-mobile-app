@@ -10,6 +10,7 @@ export class UserEventService {
   internalSubject = new Subject();
   outdatedClientSubject = new Subject();
   clearCacheSubject = new Subject();
+  tokenSubject = new Subject();
 
   constructor() { }
 
@@ -19,6 +20,14 @@ export class UserEventService {
 
   logout() {
     return this.logoutSubject.next();
+  }
+
+  onSetToken(callback) {
+    return this.tokenSubject.subscribe(callback);
+  }
+
+  setToken() {
+    return this.tokenSubject.next();
   }
 
   onInternalError(callback) {

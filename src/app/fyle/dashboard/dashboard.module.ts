@@ -8,6 +8,10 @@ import { DashboardPageRoutingModule } from './dashboard-routing.module';
 
 import { DashboardPage } from './dashboard.page';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/enterprise-dashboard-card.component';
+import { EnterpriseDashboardFooterComponent } from './enterprise-dashboard-footer/enterprise-dashboard-footer.component';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 
 @NgModule({
   imports: [
@@ -15,8 +19,12 @@ import { MatExpansionModule } from '@angular/material/expansion';
     FormsModule,
     IonicModule,
     DashboardPageRoutingModule,
-    MatExpansionModule
+    MatExpansionModule,
+    SharedModule
   ],
-  declarations: [DashboardPage]
+  declarations: [DashboardPage, EnterpriseDashboardCardComponent, EnterpriseDashboardFooterComponent],
+  providers: [
+  	DashboardService
+  ]
 })
 export class DashboardPageModule {}
