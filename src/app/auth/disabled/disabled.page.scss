@@ -1,0 +1,93 @@
+$disabled-header: #220033;
+$body-header: #000;
+$body-subheader: #4a4a4a;
+$password-icon: #b9beba;
+$secondary-cta-border: #e0e0e0;
+
+.disabled {
+  &--header {
+    min-height: 140px;
+  }
+
+  &--header-container {
+    min-height: 140px;
+    background-color: $disabled-header;
+  }
+
+  &--header-logo-container {
+    text-align: center;
+  }
+
+  &--header-logo {
+    max-width: 100px;
+  }
+
+  &--body {
+    padding: 24px;
+    text-align: center;
+  }
+
+  &--body-field {
+    width: 100%;
+  }
+
+  &--body-header {
+    font-size: 24px;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    color: $body-header;
+    font-weight: 700;
+  }
+
+  &--image {
+    max-width: 125px;
+    padding: 12px;
+  }
+
+  &--subtext {
+    font-size: 16px;
+    color: $body-subheader;
+    margin-top: 8px;
+    margin-bottom: 24px;
+  }
+
+  &--primary-cta {
+    .mat-button-base {
+      width: 100%;
+      font-weight: 700;
+      min-height: 47px;
+    }
+  }
+
+  &--password-visibility-icon {
+    color: $password-icon;
+  }
+
+  &--secondary-cta {
+    .mat-button-base {
+      width: 100%;
+      font-weight: 700;
+      min-height: 47px;
+      letter-spacing: 1.6px;
+      border: 1px solid $secondary-cta-border;
+    }
+    margin-top: 24px;
+  }
+
+  &--redirect {
+    margin: 16px;
+    text-align: center;
+    font-size: 16px;
+    a {
+      text-decoration: none;
+    }
+  }
+
+  &--edit-email {
+    text-align: end;
+  }
+
+  &--greyed {
+    color: grey;
+  }
+}

@@ -31,6 +31,14 @@ const routes: Routes = [
   {
     path: 'verify',
     loadChildren: () => import('./verify/verify.module').then( m => m.VerifyPageModule)
+  },
+  {
+    path: 'new_password',
+    loadChildren: () => import('./new-password/new-password.module').then( m => m.NewPasswordPageModule)
+  },
+  {
+    path: 'disabled',
+    loadChildren: () => import('./disabled/disabled.module').then( m => m.DisabledPageModule)
   }
 ];
 

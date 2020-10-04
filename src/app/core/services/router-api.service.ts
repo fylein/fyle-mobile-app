@@ -19,4 +19,8 @@ export class RouterApiService {
   post(url: string, data: any) {
     return this.httpClient.post<any>(this.ROUTER_API_ENDPOINT + '/routerapi' + url, data);
   }
+
+  get(url: string, config = {}) {
+    return this.httpClient.get<any>(this.ROUTER_API_ENDPOINT + '/routerapi' + url, config);
+  }
 }

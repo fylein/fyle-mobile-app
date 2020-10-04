@@ -3,8 +3,9 @@
     {{header}}
   </div>
   <div class="error-internal--details">
-    This email address will be temporarily locked after 5 unsuccessful login attempts. Try <a class="error-internal--redirect" [routerLink]="['/', 'auth', 'sign-up']">signing up</a> or
-    <a class="error-internal--redirect" href="">resetting</a> your password?
+    This email address will be temporarily locked after 5 unsuccessful login attempts. Try
+    <a class="error-internal--redirect" (click)="routeTo(['/', 'auth', 'sign-up'])">signing up</a> or
+    <a class="error-internal--redirect" (click)="routeTo(['/','auth','reset_password'])">resetting</a> your password?
   </div>
   <div class="error-internal--primary-cta">
     <button mat-flat-button color="primary" (click)="tryAgainClicked()">

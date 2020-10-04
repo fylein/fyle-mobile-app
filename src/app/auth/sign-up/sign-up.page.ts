@@ -89,7 +89,7 @@ export class SignUpPage implements OnInit {
         return throwError(err);
       })
     ).subscribe(() => {
-      this.router.navigate(['/', 'pre_verification', 'signup_details_enterprise']);
+      this.router.navigate(['/', 'pre_verification', 'signup_details_enterprise', { email: this.userEmail }]);
     });
   }
 }
