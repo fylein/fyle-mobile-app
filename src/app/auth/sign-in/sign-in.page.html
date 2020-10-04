@@ -55,7 +55,7 @@
       </button>
     </div>
     <div *ngIf="emailSet" class="sign-in--redirect">
-      <a [routerLink]="['/']">Forgot Password</a>
+      <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password</a>
     </div>
     <div *ngIf="!emailSet" class="sign-in--secondary-cta">
       <button mat-flat-button color="accent" (click)="googleSignIn()">SIGN IN WITH GOOGLE</button>

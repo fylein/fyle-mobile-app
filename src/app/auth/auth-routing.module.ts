@@ -19,6 +19,18 @@ const routes: Routes = [
   {
     path: 'request_invitation',
     loadChildren: () => import('./request-invitation/request-invitation.module').then( m => m.RequestInvitationPageModule)
+  },
+  {
+    path: 'app_version',
+    loadChildren: () => import('./app-version/app-version.module').then( m => m.AppVersionPageModule)
+  },
+  {
+    path: 'reset_password',
+    loadChildren: () => import('./reset-password/reset-password.module').then( m => m.ResetPasswordPageModule)
+  },
+  {
+    path: 'verify',
+    loadChildren: () => import('./verify/verify.module').then( m => m.VerifyPageModule)
   }
 ];
 

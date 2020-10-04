@@ -1,6 +1,6 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-buttons slot="end" style="display: block">
+    <ion-buttons slot="end">
       <ion-button color="dark" (click)="closeDialog()">
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
@@ -8,31 +8,28 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="contact-support">
-  <!-- contact support dialog -->
+<ion-content class="support">
   <div *ngIf="dialogType === 'contact_support'">
-    <!-- contact support title -->
-    <div class="contact-support--header">
-      <div class="contact-support--header--title">Contact Support</div>
+    <div class="support--header">
+      <div class="support_title">Contact Support</div>
     </div>
-    
-    <!-- contact support content -->
-    <div class="contact-support--content">
-      <p class="contact-support--content--heading">Having trouble with the process?</p>
+
+    <div class="support--content">
+      <p class="support--heading">Having trouble with the process?</p>
       <p>contact your admin</p>
       
-      <div class="contact-support--content--admin-list">
-        <div *ngFor="let admin of adminList let i=index" class="contact-support--content--admin-list--admin-contact-card">
+      <div class="support--admin-list">
+        <div *ngFor="let admin of adminList let i=index" class="support--admin-list-contact-card">
           <div>{{ admin.us.full_name }}</div>
           <a href="mailto:{{ admin.us.email }}">{{ admin.us.email }}</a>
         </div>
       </div>
-      <div class="contact-support--content--page-divider"></div>
+      <div class="support--page-divider"></div>
       <div>
-        <p class="contact-support--content--heading">Having trouble understanding fyle</p>
+        <p class="support--heading">Having trouble understanding fyle</p>
         <p>We have everything to clear up in our help center</p>
         <div>
-          <button (click)="openHelpLink()" mat-flat-button class="contact-support--content--helpLinkBtn">Visit Help Center</button>
+          <button (click)="openHelpLink()" mat-flat-button class="support--helpLinkBtn">Visit Help Center</button>
         </div>
         <p>Still facing issues that you need help with?</p>
         <p>We are happy to help</p>
@@ -45,34 +42,34 @@
   </div>
 
   <div *ngIf="dialogType === 'log_mileage'">
-    <div class="contact-support--header">
-      <div class="contact-support--header--title">Log Mileage Using Fyle</div>
+    <div class="support--header">
+      <div class="support_title">Log Mileage Using Fyle</div>
     </div>
-    <div class="contact-support--content">
-      <img class="contact-support--content--image-container" src="../../../../assets/images/contact-support/mileage-settings.png" alt="Mileage Setting Images">
-      <div class="contact-support--content--content-container">
+    <div class="support--content">
+      <img class="support--image-container" src="../../../../assets/images/contact-support/mileage-settings.png" alt="Mileage Setting Images">
+      <div class="support--content-container">
         On mobile or web, choose to create a new expense and select 'Log Mileage'. Add your travel end points and we'll automatically calculate mileage and log it.
       </div>
-      <div class="contact-support--content--note-container">
+      <div class="support--note-container">
         Please login to the web application at <a href="https://app.fyle.in">https://app.fyle.in</a> to change mileage settings.      
       </div>
     </div>
   </div>
 
   <div *ngIf="dialogType === 'capture_email'">
-      <div class="contact-support--header">
-        <div class="contact-support--header--title">Capture Email Receipts in One-Click</div>
+      <div class="support--header">
+        <div class="support_title">Capture Email Receipts in One-Click</div>
       </div>
-      <div class="contact-support--content">
-        <img class="contact-support--content--image-container" src="../../../../assets/images/contact-support/fy-extension.gif" alt="Mileage Setting Images">
-        <div class="contact-support--content--content-container">
+      <div class="support--content">
+        <img class="support--image-container" src="../../../../assets/images/contact-support/fy-extension.gif" alt="Mileage Setting Images">
+        <div class="support--content-container">
           Just open your email receipt on Gmail or Outlook, and click on the Fyle button to see the magic.
         </div>
         <div>
           <ion-grid fixed>
             <ion-row>
-              <ion-col size="6"><button (click)="openChromeExtLink()" mat-flat-button class="contact-support--content--helpLinkBtn">For Gmail</button></ion-col>
-              <ion-col size="6"><button (click)="openOutlookExtLink()" mat-flat-button class="contact-support--content--helpLinkBtn">For Outlook</button></ion-col>
+              <ion-col size="6"><button (click)="openChromeExtLink()" mat-flat-button class="support--helpLinkBtn">For Gmail</button></ion-col>
+              <ion-col size="6"><button (click)="openOutlookExtLink()" mat-flat-button class="support--helpLinkBtn">For Outlook</button></ion-col>
             </ion-row>
           </ion-grid>
         </div>
@@ -80,16 +77,16 @@
     </div>
 
   <div *ngIf="dialogType === 'goibibo_support'">
-    <div class="contact-support--header">
-      <div class="contact-support--header--title">Manage GoIbibo Bookings with Fyle</div>
+    <div class="support--header">
+      <div class="support_title">Manage GoIbibo Bookings with Fyle</div>
     </div>
-    <div class="contact-support--content">
-      <img class="contact-support--content--image-container" src="../../../../assets/images/contact-support/ibibo-demo.gif" alt="Mileage Setting Images">
-      <div class="contact-support--content--content-container">
+    <div class="support--content">
+      <img class="support--image-container" src="../../../../assets/images/contact-support/ibibo-demo.gif" alt="Mileage Setting Images">
+      <div class="support--content-container">
         GoIbibo users can connect their GoBiz accounts with Fyle to automatically record travel and hotel bookings.
       </div>
       <div>
-        <button (click)="openIbiboLink()" mat-flat-button class="contact-support--content--helpLinkBtn">Learn More</button>
+        <button (click)="openIbiboLink()" mat-flat-button class="support--helpLinkBtn">Learn More</button>
       </div>
     </div>
   </div>
