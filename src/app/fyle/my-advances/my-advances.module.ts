@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { MyAdvancesPageRoutingModule } from './my-advances-routing.module';
 
 import { MyAdvancesPage } from './my-advances.page';
+import { MyAdvancesCardComponent } from './my-advances-card/my-advances-card.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,9 @@ import { MyAdvancesPage } from './my-advances.page';
     IonicModule,
     MyAdvancesPageRoutingModule
   ],
-  declarations: [MyAdvancesPage]
+  declarations: [
+    MyAdvancesPage,
+    MyAdvancesCardComponent
+  ]
 })
 export class MyAdvancesPageModule {}
