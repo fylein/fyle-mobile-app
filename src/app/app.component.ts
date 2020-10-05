@@ -164,7 +164,7 @@ export class AppComponent implements OnInit {
           title: 'Advances',
           isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
           icon: '../../../assets/svg/fy-advances-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard3']
+          route: ['/', 'enterprise', 'my_advances']
         },
         {
           title: 'Trips',
@@ -242,6 +242,12 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.checkAppSupportedVersion();
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
+    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      if (loggedInStatus) {
+        this.showSideMenu();
+      }
+    });
+
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
         this.showSideMenu();
@@ -249,6 +255,5 @@ export class AppComponent implements OnInit {
     });
 
     // Left with isonline/is offline method
-
   }
 }
