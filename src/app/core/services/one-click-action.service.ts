@@ -22,16 +22,8 @@ export class OneClickActionService {
     return this.oneClickActionOptions;
   }
 
-  filterByOneClickActionById (id) {
-    let matchingOneClickAction;
+  filterByOneClickActionById(id) {
+    return this.oneClickActionOptions.find(element => element.id === id);
 
-    this.oneClickActionOptions.some((oneClickActionOption) => {
-      if (oneClickActionOption.id === id) {
-        matchingOneClickAction = oneClickActionOption;
-        return true;
-      }
-    });
-
-    return matchingOneClickAction;
   }
 }
