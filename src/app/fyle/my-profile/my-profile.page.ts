@@ -201,7 +201,7 @@ export class MyProfilePage implements OnInit {
     const orgUserSettings$ =  this.offlineService.getOrgUserSettings().pipe(
       shareReplay()
     );
-    const myETxnc$ = this.transactionService.getMyETxncInternal();
+    const myETxnc$ = this.transactionService.getAllMyETxnc();
     const orgSettings$ = this.offlineService.getOrgSettings();
 
     orgUserSettings$.pipe(

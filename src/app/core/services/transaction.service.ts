@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { switchMap, tap } from 'rxjs/operators';
-import { from, Observable } from 'rxjs';
+import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
+import { from, Observable, range } from 'rxjs';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 
@@ -107,61 +107,37 @@ export class TransactionService {
     );
   };
 
-  getMyETxncCount(): any {
-    return this.apiService.get('/etxns/count');
+  getMyETxncCount(): Observable<{count: number}> {
+    return this.apiService.get('/etxns/count').pipe(
+      map(
+        res => res as { count: number}
+      )
+    )
   }
 
-  getMyETxncInternalOffSetLimit(offset: number, limit: number, end: number) {
-    const data = {
-      params: {
-        offset,
-        limit
-      }
-    };
-
-    // TODO: This logic seems wrong to me
-    if (offset + limit < end) {
-      return this.getMyETxncInternalOffSetLimit(offset + limit, limit, end).then((restEtxns) => {
-        return this.apiService.get('/etxns', data).toPromise().then((etxns) => {
-          etxns = etxns.concat(restEtxns);
-          return etxns;
-        });
-      });
-    } else {
-      return this.apiService.get('/etxns', data);
-    }
-  }
-
-  getMyETxncInternalChunked(): Observable<any> {
-    return this.getMyETxncCount().toPromise().then((res) => {
-      const count = res.count;
-      const limit = 500;
-
-      return this.getMyETxncInternalOffSetLimit(0, limit, count).toPromise().then((etxns) => {
-        // return ETxnCollection.parseRaw(etxns);
-        return this.parseRaw(etxns);
-      });
-    });
-  }
-
-  getMyETxncInternal() {
-    return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            // this.getMyETxncInternalChunked().
-            return from(this.getMyETxncInternalChunked()).pipe(
-              tap((res) => {
-                this.storageService.set('my-etxnc', res);
-              })
-            );
-          } else {
-            return from(this.storageService.get('etxncCount'));
-          }
-        }
+  getMyETxnc(params: { offset: number, limit: number }) {
+    return this.apiService.get('/etxns', {
+      params
+    }).pipe(
+      map(
+        eous => eous.map(eou => this.dataTransformService.unflatten(eou))
       )
     );
-  };
+  }
+
+  getAllMyETxnc() {
+    return this.getMyETxncCount().pipe(
+      switchMap(res => {
+        return range(0, res.count / 50);
+      }),
+      concatMap(page => {
+        return this.getMyETxnc({ offset: 50 * page, limit: 50 });
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      })
+    )
+  }
 
 
 }
