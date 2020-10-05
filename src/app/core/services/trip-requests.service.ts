@@ -45,6 +45,39 @@ export class TripRequestsService {
     );
   }
 
+  getTeamTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {
+      or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
+      trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)'],
+    }
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+        return this.apiv2Service.get('/trip_requests', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            approvers: 'cs.{' + eou.ou.id + '}',
+            ...config.queryParams
+          }
+        });
+      }),
+      map(res => res as {
+        count: number,
+        data: ExtendedTripRequest[],
+        limit: number,
+        offset: number,
+        url: string
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.fixDates)
+      }))
+    );
+  }
+
   fixDates(datum: ExtendedTripRequest) {
     datum.trp_created_at = new Date(datum.trp_created_at);
     datum.trp_updated_at = new Date(datum.trp_updated_at);

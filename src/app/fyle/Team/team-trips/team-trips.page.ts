@@ -34,7 +34,7 @@ export class TeamTripsPage implements OnInit {
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
-            return this.tripRequestsService.getMyTrips({
+            return this.tripRequestsService.getTeamTrips({
               offset: (pageNumber - 1) * 10,
               limit: 10
             });
@@ -77,6 +77,12 @@ export class TeamTripsPage implements OnInit {
 
   doRefresh(event) {
     this.currentPageNumber = 1;
+    this.loadData$.next(this.currentPageNumber);
+    event.target.complete();
+  }
+
+  loadData(event) {
+    this.currentPageNumber = this.currentPageNumber + 1;
     this.loadData$.next(this.currentPageNumber);
     event.target.complete();
   }

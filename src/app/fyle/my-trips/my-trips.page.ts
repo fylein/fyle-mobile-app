@@ -79,7 +79,6 @@ export class MyTripsPage implements OnInit {
     this.currentPageNumber = this.currentPageNumber + 1;
     this.loadData$.next(this.currentPageNumber);
     event.target.complete();
-
   }
 
   doRefresh(event) {
