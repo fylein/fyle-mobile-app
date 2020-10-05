@@ -1,13 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HumanizeCurrencyPipe } from './pipe/humanize-currency.pipe';
+import { EllipsisPipe } from './pipes/ellipses.pipe';
+import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
+
+
 
 @NgModule({
-  declarations: [HumanizeCurrencyPipe],
+  declarations: [
+    EllipsisPipe
+  ],
   imports: [
     CommonModule
   ],
   exports: [
+    EllipsisPipe,
   	HumanizeCurrencyPipe
   ]
 })

@@ -12,7 +12,7 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./dashboard.page.scss'],
 })
 export class DashboardPage implements OnInit {
-  dashboardList: {title: string, isVisible: boolean, isCollapsed: boolean, class: string, icon: string, subTitle: string}[];
+  dashboardList: { title: string, isVisible: boolean, isCollapsed: boolean, class: string, icon: string, subTitle: string }[];
   isDashboardCardExpanded: boolean;
   pageTitle: string;
   orgUserSettings: any;
@@ -23,8 +23,8 @@ export class DashboardPage implements OnInit {
     private mobileEventService: MobileEventService,
     private dashboardService: DashboardService,
     private offlineService: OfflineService,
-  ) { 
-    
+  ) {
+
   }
 
   dashboardCardExpanded() {
@@ -81,7 +81,9 @@ export class DashboardPage implements OnInit {
     },
     {
       title: 'trips',
-      isVisible: !!(this.orgSettings.trip_requests.enabled && (!this.orgSettings.trip_requests.enable_for_certain_employee || (this.orgSettings.trip_requests.enable_for_certain_employee && this.orgUserSettings.trip_request_org_user_settings.enabled))),
+      isVisible: !!(this.orgSettings.trip_requests.enabled
+        && (!this.orgSettings.trip_requests.enable_for_certain_employee
+          || (this.orgSettings.trip_requests.enable_for_certain_employee && this.orgUserSettings.trip_request_org_user_settings.enabled))),
       isCollapsed: false,
       class: 'trips',
       icon: 'fy-trips',
@@ -108,5 +110,4 @@ export class DashboardPage implements OnInit {
       this.dashboardCardExpanded();
     });
   }
-
 }

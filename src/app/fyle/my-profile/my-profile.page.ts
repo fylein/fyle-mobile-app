@@ -105,13 +105,7 @@ export class MyProfilePage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      this.currencies.some((currency) => {
-        if (data.currency.shortCode === currency.id) {
-          this.preferredCurrency = currency;
-          console.log(this.preferredCurrency);
-          return true;
-        }
-      });
+      this.preferredCurrency = this.currencies.find(currency => currency.id === data.currency.shortCode);
       this.onSelectCurrency(data.currency);
     }
   }
@@ -124,7 +118,7 @@ export class MyProfilePage implements OnInit {
         // Todo: Tracking service and disable toogle button
       })
     )
-    .subscribe();
+    .subscribe(noop);
   }
 
   toggleBulkMode() {
@@ -135,7 +129,7 @@ export class MyProfilePage implements OnInit {
         // Todo: Tracking service and disable toogle button
       })
     )
-    .subscribe();
+    .subscribe(noop);
   }
 
   toggleWhatsappSettings() {
@@ -146,7 +140,7 @@ export class MyProfilePage implements OnInit {
         // Todo: Tracking service and disable toogle button
       })
     )
-    .subscribe();
+    .subscribe(noop);
   }
 
   toggleSmsSettings() {
@@ -157,7 +151,7 @@ export class MyProfilePage implements OnInit {
         // Todo: Tracking service and disable toogle button
       })
     )
-    .subscribe();
+    .subscribe(noop);
   }
 
   toggleOneClickActionMode() {
@@ -170,7 +164,7 @@ export class MyProfilePage implements OnInit {
         // Todo: Tracking service and disable toogle button
       })
     )
-    .subscribe();
+    .subscribe(noop);
   }
 
   getOneClickActionSelectedModule(id: string) {
@@ -189,24 +183,17 @@ export class MyProfilePage implements OnInit {
         // Todo: Tracking service and disable toogle button
       })
     )
-    .subscribe();
+    .subscribe(noop);
 
   }
 
   getAllCurrencyAndMatchPreferredCurrency() {
     this.currencyService.getAllCurrenciesInList().pipe(
       map((res) => {
-        console.log(res);
         this.currencies = res;
-        this.currencies.some((currency) => {
-          if (this.orgUserSettings.currency_settings.preferred_currency === currency.id) {
-            this.preferredCurrency = currency;
-            console.log(this.preferredCurrency);
-            return true;
-          }
-        });
+        this.preferredCurrency = this.currencies.find(currency => currency.id === this.orgUserSettings.currency_settings.preferred_currency);
       })
-    ).subscribe();
+    ).subscribe(noop);
   }
 
   ionViewWillEnter() {
@@ -250,7 +237,6 @@ export class MyProfilePage implements OnInit {
   }
 
   ngOnInit() {
-    
   }
 
 }

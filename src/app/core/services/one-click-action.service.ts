@@ -24,6 +24,5 @@ export class OneClickActionService {
 
   filterByOneClickActionById(id) {
     return this.oneClickActionOptions.find(element => element.id === id);
-
   }
 }

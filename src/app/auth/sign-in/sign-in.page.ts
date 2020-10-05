@@ -52,14 +52,14 @@ export class SignInPage implements OnInit {
   };
 
   handleSamlSignIn(res) {
-    let url = res.idp_url + '&RelayState=MOBILE';
+    const url = res.idp_url + '&RelayState=MOBILE';
     const browser = this.inAppBrowser.create(url, '_blank', 'location=yes');
     browser.on('loadstop').subscribe(event => {
-      let getResponse = setInterval(() => {
+      const getResponse = setInterval(() => {
         browser.executeScript({
           code: 'try{document.getElementById("fyle-login-response").innerHTML;}catch(err){}'
         }).then((responseData) => {
-          let response = responseData && responseData[0];
+          const response = responseData && responseData[0];
           let data = '';
 
           try {
