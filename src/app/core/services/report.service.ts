@@ -4,6 +4,7 @@ import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { from } from 'rxjs';
+import { Cacheable } from 'ngx-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -51,6 +52,7 @@ export class ReportService {
     return this.apiService.get('/erpts/stats', {params});
   };
 
+  @Cacheable()
   getPaginatedERptcCount (params) {
     return this.networkService.isOnline().pipe(
       switchMap(

@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { from } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators';
 import { ExtendedTripRequest } from '../models/extended_trip_request.model';
+import { Cacheable } from 'ngx-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,8 @@ export class TripRequestsService {
     private authService: AuthService
   ) { }
 
+
+  @Cacheable()
   getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
