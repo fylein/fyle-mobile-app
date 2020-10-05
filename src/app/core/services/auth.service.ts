@@ -61,6 +61,10 @@ export class AuthService {
     );
   }
 
+  resendVerification(email: string) {
+    return this.apiService.post('/auth/resend_email_verification', { email });
+  }
+
   getRoles() {
     return from(this.tokenService.getAccessToken()).pipe(
       map(
@@ -75,5 +79,29 @@ export class AuthService {
         }
       )
     );
+  }
+
+  async logout(logoutPayload?) {
+    // CacheService.clearAll();
+    await this.storageService.delete('recentlyUsedProjects');
+    await this.storageService.delete('recentlyUsedCategories');
+    await this.storageService.delete('recentlyUsedMileageCategories');
+    await this.storageService.delete('recentlyUsedPerDiemCategories');
+    await this.storageService.delete('recentlyUsedCostCenters');
+    await this.storageService.delete('user');
+    await this.storageService.delete('role');
+    await this.storageService.delete('currentView');
+    await this.storageService.delete('ui-grid-pagination-page-size');
+    await this.storageService.delete('ui-grid-pagination-page-number');
+    await this.storageService.delete('customExportFields');
+    await this.storageService.delete('lastLoggedInDelegatee');
+    await this.storageService.delete('lastLoggedInOrgQueue');
+    await this.storageService.delete('isSidenavCollapsed');
+
+    if (logoutPayload) {
+      return await this.apiService.post('/auth/logout', logoutPayload);
+    } else {
+      return await this.apiService.post('/auth/logout');
+    }
   }
 }
