@@ -1,0 +1,23 @@
+.search-filter {
+  &--head {
+    margin: 12px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &--body {
+    margin: 12px;
+    padding: 12px;
+  }
+
+  &--radio-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &--radio-btn {
+    padding: 12px 0;
+  }
+}

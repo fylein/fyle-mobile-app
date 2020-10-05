@@ -10,6 +10,7 @@ export class LoaderService {
   constructor(private loadingController: LoadingController) { }
 
   async showLoader(message = 'Please wait...') {
+    console.log('Loader shown');
     const loading = await this.loadingController.create({
       message
     });
@@ -17,6 +18,6 @@ export class LoaderService {
   }
 
   hideLoader() {
-    return this.loadingController.dismiss().catch(noop);
+    return this.loadingController.dismiss();
   }
 }

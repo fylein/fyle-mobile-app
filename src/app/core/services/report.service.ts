@@ -2,8 +2,12 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { switchMap, tap } from 'rxjs/operators';
-import { from } from 'rxjs';
+import { switchMap, tap, map, concatMap, reduce } from 'rxjs/operators';
+import { from, range } from 'rxjs';
+import { AuthService } from './auth.service';
+import { ApiV2Service } from './api-v2.service';
+import { DateService } from './date.service';
+import { ExtendedReport } from '../models/report.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +17,14 @@ export class ReportService {
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private authService: AuthService,
+    private apiv2Service: ApiV2Service,
+    private dateService: DateService
   ) { }
 
   getUserReportParams(state: string) {
-  	const stateMap = {
+    const stateMap = {
       draft: {
         state: ['DRAFT', 'DRAFT_INQUIRY']
       },
@@ -48,15 +55,15 @@ export class ReportService {
   }
 
   getPaginatedERptcStats(params) {
-    return this.apiService.get('/erpts/stats', {params});
-  };
+    return this.apiService.get('/erpts/stats', { params });
+  }
 
-  getPaginatedERptcCount (params) {
+  getPaginatedERptcCount(params) {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
           if (isOnline) {
-            return this.apiService.get('/erpts/count', {params}).pipe(
+            return this.apiService.get('/erpts/count', { params }).pipe(
               tap((res) => {
                 this.storageService.set('erpts-count' + JSON.stringify(params), res);
               })
@@ -67,6 +74,62 @@ export class ReportService {
         }
       )
     );
-  };
+  }
+
+  getMyReportsCount(queryParams = {}) {
+    return this.getMyReports({
+      offset: 0,
+      limit: 1,
+      queryParams
+    }).pipe(
+      map(res => res.count)
+    );
+  }
+
+  getMyReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+        return this.apiv2Service.get('/reports', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
+            rp_org_user_id: 'eq.' + eou.ou.id,
+            ...config.queryParams
+          }
+        });
+      }),
+      map(res => res as {
+        count: number,
+        data: ExtendedReport[],
+        limit: number,
+        offset: number,
+        url: string
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.dateService.fixDates)
+      }))
+    );
+  }
+
+  getAllExtendedReports(config: Partial<{ order: string, queryParams: any }>) {
+    return this.getMyReportsCount().pipe(
+      switchMap(count => {
+        return range(0, count / 50);
+      }),
+      concatMap(page => {
+        return this.getMyReports({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
+      }),
+      map(res => res.data),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [] as ExtendedReport[])
+    );
+  }
 
 }

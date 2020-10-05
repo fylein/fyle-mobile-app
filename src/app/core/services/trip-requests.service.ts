@@ -210,7 +210,7 @@ export class TripRequestsService {
   }
 
   getUserTripRequestStateParams(state: string) {
-    let stateMap = {
+    const stateMap = {
       draft: {
         state: ['DRAFT'],
         is_sent_back: false

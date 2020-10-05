@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      My Reports
+    </ion-title>
+  </ion-toolbar>
+  <ion-toolbar class="my-reports--toolbar">
+    <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
+      <input #simpleSearchInput matInput placeholder="search">
+    </mat-form-field>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilters()">
+        <ion-icon slot="icon-only" name="funnel-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="openSort()">
+        <ion-icon slot="icon-only" name="medical-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
+    <img class="my-reports--zero-state-img" src="../../../assets/images/zero-states/reports.svg"
+      alt="Create First Reports">
+    <div class="my-reports--zero-state-header">
+      This is the home to all your Reports
+    </div>
+    <div class="my-reports--zero-state-subheader">
+      Create your first report to see how it looks
+    </div>
+    <div class="my-reports--zero-state-action-button-container">
+      <div class="my-reports--zero-state-action-button">Create Report</div>
+    </div>
+  </div>
+  <div *ngFor="let erpt of myReports$ | async">
+    <app-my-reports-card [erpt]="erpt" (reportClick)="onReportClick($event)"></app-my-reports-card>
+    <!-- <app-my-reports-card [tripRequest]="tripRequest" (tripClick)="onTripClick($event)"></app-my-reports-card> -->
+  </div>
+
+  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button class="my-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+      CREATE REPORT
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

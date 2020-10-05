@@ -1,0 +1,42 @@
+<div class="search-filter">
+  <div class="search-filter--head">
+    <div>
+      Select a filter
+    </div>
+    <div>
+      Clear All
+    </div>
+  </div>
+  <div class="search-filter--body">
+    <form [formGroup]="fg">
+      <div class="search-filter--header">
+        Filter by State
+      </div>
+      <div class="search-filter--filter">
+        <mat-radio-group class="search-filter--radio-group" formControlName="state">
+          <mat-radio-button class="search-filter--radio-btn" value="DRAFT">Draft</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="REPORTED">REPORTED</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="INQUIRY">Inquiry</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="APPROVED">Approved</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="PAYMENT">Payment Queue</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="PAID">Paid</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="ALL">All</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div class="search-filter--header">
+        Filter by Date
+      </div>
+      <div class="search-filter--filter">
+        <mat-radio-group class="search-filter--radio-group" formControlName="date">
+          <mat-radio-button class="search-filter--radio-btn" value="ALL">All</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="THISMONTH">This Month</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="LASTMONTH">Last Month</mat-radio-button>
+          <mat-radio-button class="search-filter--radio-btn" value="CUSTOMDATE">Last Month</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </form>
+  </div>
+  <div class="search-filter--footer">
+    <button>Cancel</button><button>Save</button>
+  </div>
+</div>

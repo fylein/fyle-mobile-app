@@ -1,0 +1,11 @@
+.my-reports {
+  &--toolbar {
+    display: flex;
+    align-items: center;
+  }
+
+  &--simple-search {
+    width: 94%;
+    margin: 8px;
+  }
+}
