@@ -17,6 +17,10 @@ const routes: Routes = [
   {
     path: 'my_advances',
     loadChildren: () => import('./my-advances/my-advances.module').then( m => m.MyAdvancesPageModule)
+  },
+  {
+    path: 'my_trips',
+    loadChildren: () => import('./my-trips/my-trips.module').then( m => m.MyTripsPageModule)
   }
 ];
 
