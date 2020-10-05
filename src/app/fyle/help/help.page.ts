@@ -3,8 +3,9 @@ import { ModalController } from '@ionic/angular';
 import { SupportDialogPage } from 'src/app/fyle/help/support-dialog/support-dialog.page';
 import { Plugins } from '@capacitor/core';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { filter, tap, map } from 'rxjs/operators';
+import { filter, tap, map, switchMap, finalize, take } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { from, of } from 'rxjs';
 
 const { Browser } =  Plugins;
 
@@ -25,16 +26,18 @@ export class HelpPage implements OnInit {
     ) { }
 
   openContactSupportDialog() {
-    this.loaderService.showLoader('Please wait');
-    // getting admins list, required for contact support modal
-    this.orgUserService.getAllCompanyEouc().pipe(
+    from(this.loaderService.showLoader('Please wait')).pipe(
+      switchMap(() => {
+        return this.orgUserService.getAllCompanyEouc();
+      }),
       map(user =>
         {
-          this.orgAdmins = user.filter(user => user.ou.roles.indexOf('ADMIN') > -1 && user.ou.status === 'ACTIVE');
+          return user.filter(user => user.ou.roles.indexOf('ADMIN') > -1 && user.ou.status === 'ACTIVE');
         }
-      )
-    ).subscribe(() => {
-      this.loaderService.hideLoader();
+      ),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe((orgAdmins) => {
+      this.orgAdmins = orgAdmins;
       this.presentSupportModal('contact_support');
     });
   }
