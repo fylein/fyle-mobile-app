@@ -7,14 +7,15 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 
 @NgModule({
   declarations: [
-    EllipsisPipe
+    EllipsisPipe,
+    HumanizeCurrencyPipe
   ],
   imports: [
     CommonModule
   ],
   exports: [
     EllipsisPipe,
-  	HumanizeCurrencyPipe
+    HumanizeCurrencyPipe
   ]
 })
 export class SharedModule { }

@@ -29,7 +29,7 @@
     </div>
   </div>
   <div *ngFor="let tripRequest of myTripRequests$ | async">
-    <app-team-trip-card [tripRequest]="tripRequest"></app-team-trip-card>
+    <app-team-trip-card [tripRequest]="tripRequest" [routerLink]="'view-team-trip'" routerLinkActive="router-link-active" ></app-team-trip-card>
   </div>
 
   <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">

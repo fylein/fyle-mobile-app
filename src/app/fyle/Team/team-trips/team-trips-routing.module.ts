@@ -6,7 +6,11 @@ import { TeamTripsPage } from './team-trips.page';
 const routes: Routes = [
   {
     path: '',
-    component: TeamTripsPage
+    component: TeamTripsPage,
+  },
+  {
+    path: 'view-team-trip/:id',
+    loadChildren: () => import('./view-team-trip/view-team-trip.module').then( m => m.ViewTeamTripPageModule)
   }
 ];
 
