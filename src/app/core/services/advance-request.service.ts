@@ -67,17 +67,6 @@ export class AdvanceRequestService {
     );
   }
 
-  getPaginatedMyEAdvanceRequests(params: {offset: number, limit: number, params?: any}) {
-    debugger;
-    return this.apiv2Service.get('/advances', {params})
-    // .pipe(
-    //   map(res => {
-    //     debugger;
-    //   })
-    // )
-
-  }
-
   getMyadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -119,7 +108,12 @@ export class AdvanceRequestService {
   }
 
   fixDates(data: ExtendedAdvanceRequest) {
-    
+    data.areq_created_at = new Date(data.areq_created_at);
+    data.areq_updated_at = new Date(data.areq_updated_at);
+    if (data.areq_approved_at) {
+      data.areq_approved_at = new Date(data.areq_approved_at);
+    }
+
     return data;
   }
 
