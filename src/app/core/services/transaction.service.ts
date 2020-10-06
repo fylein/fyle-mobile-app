@@ -4,6 +4,7 @@ import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { from } from 'rxjs';
+import { Cacheable } from 'ngx-cacheable';
 
 
 @Injectable({
@@ -47,11 +48,17 @@ export class TransactionService {
     return stateMap[state];
   }
 
+  @Cacheable({
+    maxCacheCount: 100
+  })
   getPaginatedETxncStats(params) {
     return this.apiService.get('/etxns/stats', {params});
   };
 
-  getPaginatedETxncCount = function (params) {
+  @Cacheable({
+    maxCacheCount: 100
+  })
+  getPaginatedETxncCount(params) {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {

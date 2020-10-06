@@ -10,7 +10,6 @@ import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { pipe, forkJoin } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { Cacheable } from 'ngx-cacheable';
 
 @Component({
   selector: 'app-enterprise-dashboard-card',
@@ -45,7 +44,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     return ((item === '') || (item === null)) ? {} : item;
   };
 
-  @Cacheable()
   getExpensesExpandedDetails() {
     const readyToReportStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
     const policyFlaggedStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('flagged'));
@@ -98,7 +96,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     );
   }
 
-  @Cacheable()
   getReportsExpandedDetails() {
     const draftStats$ = this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('draft'));
     const reportedStats$ = this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('pending'));
@@ -138,7 +135,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     );
   }
 
-  @Cacheable()
   getAdvancesExpandedDetails() {
     const draftStats$ = this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('draft'));
     const inquiryStats$ = this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('inquiry'));
@@ -169,7 +165,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     )
   }
 
-  @Cacheable()
   getTripsExpandedDetails() {
     const draftStats$ = this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('draft'));
     const inquiryStats$ = this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('inquiry'));
