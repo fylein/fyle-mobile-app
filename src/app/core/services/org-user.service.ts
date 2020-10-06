@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { from } from 'rxjs';
 import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -44,7 +43,6 @@ export class OrgUserService {
       )
     );
   }
-
   getAllCompanyEouc() {
     return this.getCompanyEouCount().pipe(
       switchMap(res => {
@@ -58,7 +56,6 @@ export class OrgUserService {
       }, [] as ExtendedOrgUser[])
     );
   }
-
   getCompanyEouCount(): Observable<{ count: number }> {
     return this.apiService.get('/eous/company/count').pipe(
       map(

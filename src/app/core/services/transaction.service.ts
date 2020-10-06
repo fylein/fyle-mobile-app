@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { from } from 'rxjs';
+import { from, Observable, range } from 'rxjs';
+import { ApiV2Service } from './api-v2.service';
+import { DataTransformService } from './data-transform.service';
+import { AuthService } from './auth.service';
 
 
 
@@ -17,7 +20,10 @@ export class TransactionService {
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
-    private dateService: DateService
+    private apiV2Service: ApiV2Service,
+    private dataTransformService: DataTransformService,
+    private dateService: DateService,
+    private authService: AuthService
   ) { }
 
   get(txnId) {
@@ -26,6 +32,39 @@ export class TransactionService {
         return this.dateService.fixDates(transaction);
       })
     );
+  }
+
+  parseRaw(etxnsRaw) {
+    let etxns = [];
+
+    etxnsRaw.forEach(element => {
+      const etxn = this.dataTransformService.unflatten(element);
+
+      this.dateService.fixDates(etxn.tx);
+      this.dateService.fixDates(etxn.rp);
+
+      let categoryDisplayName = etxn.tx.org_category;
+      if (etxn.tx.sub_category && etxn.tx.sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
+        categoryDisplayName += ' / ' + etxn.tx.sub_category;
+      }
+      etxn.tx.categoryDisplayName = categoryDisplayName;
+      etxns.push(etxn);
+    });
+
+    return etxns;
+  }
+
+  getCountBySource(etxns, source) {
+    const lowerCaseSource = source.toLowerCase();
+    let count = 0;
+
+    etxns.forEach((etxn) => {
+      if (etxn.tx_source && etxn.tx_source.toLowerCase().indexOf(lowerCaseSource) > -1) {
+        count++;
+      }
+    });
+
+    return count;
   }
 
   getUserTransactionParams(state: string) {
@@ -80,4 +119,41 @@ export class TransactionService {
     );
   }
 
+  getMyETxncCount(tx_org_user_id: string): Observable<{ count: number }> {
+    return this.apiV2Service.get('/expenses', { params: { offset: 0, limit: 1, tx_org_user_id } }).pipe(
+      map(
+        res => res as { count: number }
+      )
+    );
+  }
+
+  getMyETxnc(params: { offset: number, limit: number, tx_org_user_id: string }) {
+    return this.apiV2Service.get('/expenses', {
+      params
+    }).pipe(
+      map(
+        (etxns) => {
+          return etxns.data;
+        }
+      )
+    );
+  }
+
+  getAllMyETxnc() {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+        return this.getMyETxncCount('eq.' + eou.ou.id).pipe(
+          switchMap(res => {
+            return range(0, res.count / 50);
+          }),
+          concatMap(page => {
+            return this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id });
+          }),
+          reduce((acc, curr) => {
+            return acc.concat(curr);
+          })
+        );
+      })
+    );
+  }
 }

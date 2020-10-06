@@ -18,6 +18,6 @@ export class LoaderService {
   }
 
   hideLoader() {
-    return this.loadingController.dismiss();
+    return this.loadingController.dismiss().catch(noop);
   }
 }
