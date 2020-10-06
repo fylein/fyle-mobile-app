@@ -25,29 +25,6 @@ export class MyAdvancesPage implements OnInit {
     private loaderService: LoaderService
   ) { }
 
-
-  // getMyAdvances() {
-  //   this.offlineService.getOrgSettings().pipe(
-  //     map(orgSettings => {
-  //       debugger;
-
-  //       const a$ =  this.advanceRequestService.getPaginatedMyEAdvanceRequestsCount(this.advanceRequestService.getUserAdvanceRequestParams('all')).pipe(
-  //         map (res => {
-  //           debugger;
-  //           return from(this.advanceRequestService.getPaginatedMyEAdvanceRequests({offset: 0, limit: 100}));
-  //         })
-  //       )
-
-  //       forkJoin({
-  //         myAdvanceRequests: a$
-  //       }).subscribe((res) => {
-  //         debugger;
-  //       })
-
-  //     })
-  //   ).subscribe(noop);
-  // }
-
   ngOnInit() {
     this.myAdvancerequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
@@ -64,12 +41,7 @@ export class MyAdvancesPage implements OnInit {
           })
         );
       }),
-      map(res => {
-        return res.data.map(data => {
-          data.type = 'request';
-          return data;
-        })
-      }),
+      map(res => res.data),
       scan((acc, curr) => {
         if (this.currentPageNumber === 1) {
           return curr;
@@ -91,13 +63,11 @@ export class MyAdvancesPage implements OnInit {
       })
     );
 
-
     this.loadData$.subscribe(noop);
     this.myAdvancerequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next(this.currentPageNumber);
-
   }
 
   loadData(event) {
