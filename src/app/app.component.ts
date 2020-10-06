@@ -227,7 +227,7 @@ export class AppComponent implements OnInit {
           title: 'Help',
           isVisible: true,
           icon: '../../../assets/svg/fy-help-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard13']
+          route: ['/', 'enterprise', 'help']
         },
         {
           title: 'Switch Accounts',
@@ -242,6 +242,11 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.checkAppSupportedVersion();
+    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      if (loggedInStatus) {
+        this.showSideMenu();
+      }
+    });
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { from } from 'rxjs';
+import { from, Observable, range } from 'rxjs';
 import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
-import { switchMap, map, tap, concatMap } from 'rxjs/operators';
+import { switchMap, map, tap, concatMap, reduce } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { User } from '../models/user.model';
 import { AuthService } from './auth.service';
@@ -32,7 +32,37 @@ export class OrgUserService {
         return this.authService.refreshEou();
       })
     );
-  };
+  }
+
+  getCompanyEouc(params: { offset: number, limit: number }) {
+    return this.apiService.get('/eous/company', {
+      params
+    }).pipe(
+      map(
+        eous => eous.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser)
+      )
+    );
+  }
+  getAllCompanyEouc() {
+    return this.getCompanyEouCount().pipe(
+      switchMap(res => {
+        return range(0, res.count / 50);
+      }),
+      concatMap(page => {
+        return this.getCompanyEouc({ offset: 50 * page, limit: 50 });
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [] as ExtendedOrgUser[])
+    );
+  }
+  getCompanyEouCount(): Observable<{ count: number }> {
+    return this.apiService.get('/eous/company/count').pipe(
+      map(
+        res => res as { count: number }
+      )
+    );
+  }
 
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(

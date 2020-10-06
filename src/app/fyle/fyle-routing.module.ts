@@ -21,6 +21,10 @@ const routes: Routes = [
   {
     path: 'my_trips',
     loadChildren: () => import('./my-trips/my-trips.module').then( m => m.MyTripsPageModule)
+  },
+  {
+    path: 'help',
+    loadChildren: () => import('./help/help.module').then( m => m.HelpPageModule)
   }
 ];
 
