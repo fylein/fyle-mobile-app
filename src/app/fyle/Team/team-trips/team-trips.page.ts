@@ -1,19 +1,20 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
-import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
+import { Subject, Observable, from, noop, concat } from 'rxjs';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import { Observable, Subject, noop, from, concat } from 'rxjs';
-import { map, shareReplay, concatMap, switchMap, scan, finalize } from 'rxjs/operators';
+import { concatMap, switchMap, finalize, map, scan, shareReplay } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-my-trips',
-  templateUrl: './my-trips.page.html',
-  styleUrls: ['./my-trips.page.scss'],
+  selector: 'app-team-trips',
+  templateUrl: './team-trips.page.html',
+  styleUrls: ['./team-trips.page.scss'],
 })
-export class MyTripsPage implements OnInit {
+export class TeamTripsPage implements OnInit {
 
+  pageTitle = 'Team Trips';
   isConnected$: Observable<boolean>;
   myTripRequests$: Observable<ExtendedTripRequest[]>;
   count$: Observable<number>;
@@ -22,8 +23,8 @@ export class MyTripsPage implements OnInit {
   currentPageNumber = 1;
 
   constructor(
-    private tripRequestsService: TripRequestsService,
     private loaderService: LoaderService,
+    private tripRequestsService: TripRequestsService,
     private networkService: NetworkService,
     private router: Router
   ) { }
@@ -33,9 +34,13 @@ export class MyTripsPage implements OnInit {
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
-            return this.tripRequestsService.getMyTrips({
+            return this.tripRequestsService.getTeamTrips({
               offset: (pageNumber - 1) * 10,
-              limit: 10
+              limit: 10,
+              queryParams: {
+                or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
+                trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)'],
+              }
             });
           }),
           finalize(() => {
@@ -74,15 +79,14 @@ export class MyTripsPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-
-  loadData(event) {
-    this.currentPageNumber = this.currentPageNumber + 1;
+  doRefresh(event) {
+    this.currentPageNumber = 1;
     this.loadData$.next(this.currentPageNumber);
     event.target.complete();
   }
 
-  doRefresh(event) {
-    this.currentPageNumber = 1;
+  loadData(event) {
+    this.currentPageNumber = this.currentPageNumber + 1;
     this.loadData$.next(this.currentPageNumber);
     event.target.complete();
   }
@@ -98,7 +102,4 @@ export class MyTripsPage implements OnInit {
     });
   }
 
-  goToViewTrip() {
-    // TODO: Add when view trip page is done
-  }
 }
