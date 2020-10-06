@@ -14,7 +14,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { OneClickActionService } from 'src/app/core/services/one-click-action.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import {ExtendedOrgUser} from '/Users/tarun/git/fyle-mobile-app2/src/app/core/models/extended-org-user.model';
 
 import { SelectCurrencyComponent } from 'src/app/post-verification/setup-account/select-currency/select-currency.component';
 import { UserEventService } from 'src/app/core/services/user-event.service';
