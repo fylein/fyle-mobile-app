@@ -1,0 +1,273 @@
+<ion-header class="ion-no-border">
+  <div class="my-profile--header">
+    <ion-toolbar class="my-profile--header-toolbar">
+      <ion-buttons slot="start">
+        <ion-menu-button class="my-profile--menubutton" auto-hide="false" ></ion-menu-button>
+      </ion-buttons>
+
+      <ion-title slot="primary" mode="ios" class="my-profile--title text-capitalize">Profile</ion-title>
+    </ion-toolbar>
+  </div>
+</ion-header>
+
+<ion-content>
+  <div class="my-profile--blocks">
+    <span class="my-profile--blocks-header">About You</span>
+    <ion-card class="my-profile--cards">
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row class="my-profile--cards-content-withBorder">
+            <ion-col size="5">Name</ion-col>
+            <ion-col size="7">
+              <span>{{eou?.us?.full_name}}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row class="my-profile--cards-content-withBorder">
+            <ion-col size="5">Email</ion-col>
+            <ion-col size="7">
+              <span>{{eou?.us?.email}}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="5">Mobile</ion-col>
+            <ion-col size="7">
+              <!-- Todo: Convert it to input filed later -->
+              <span>{{eou?.ou?.mobile}}</span> 
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div class="my-profile--blocks">
+    <span class="my-profile--blocks-header">Usage</span>
+    <ion-card class="my-profile--cards">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">Using Fyle Since {{eou?.ou?.created_at | date: 'dd MMM, yyyy'}}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <div *ngIf="toggleUsageDetailsTab">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <img src="assets/images/profile/gmail.svg" alt="Gmail">
+            </ion-col>
+            <ion-col size="10">
+              <span class="mb-0 stat-info">{{expenses?.extension || 0}} expenses tracked using email extension.</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <img src="assets/images/profile/outlook.svg" alt="Outlook">
+            </ion-col>
+            <ion-col size="10">
+              <span class="mb-0 stat-info">{{expenses?.outlook || 0}} expenses tracked using outlook extension.</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <img src="assets/images/profile/smartphone.svg" alt="Mobile">
+            </ion-col>
+            <ion-col size="10">
+              <span class="mb-0 stat-info">{{expenses?.mobile || 0}} expenses tracked using mobile app.</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <img src="assets/images/profile/web.svg" alt="Web">
+            </ion-col>
+            <ion-col size="10">
+              <span class="mb-0 stat-info">{{expenses?.web || 0}} expenses tracked using web app.</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+      <a (click)="toggleUsageDetails()">
+        <span *ngIf="!toggleUsageDetailsTab">See More</span>
+        <span *ngIf="toggleUsageDetailsTab">Hide</span>
+      </a>
+
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div class="my-profile--blocks">
+    <span class="my-profile--blocks-header">Preferences</span>
+    <!-- Instafyle card start -->
+    <ion-card class="my-profile--cards" *ngIf="orgUserSettings?.insta_fyle_settings?.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">Instafyle</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Scan paper receipts to automatically create expenses. </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="orgUserSettings.insta_fyle_settings.enabled" (ionChange)="toggleAutoExtraction()"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- BulkFyle card start -->
+    <ion-card class="my-profile--cards" *ngIf="orgUserSettings?.bulk_fyle_settings?.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">Bulkfyle</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Submit multiple paper receipts in one go. </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled" (ionChange)="toggleBulkMode()"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- One click Action card start -->
+    <ion-card class="my-profile--cards" *ngIf="eou?.ou?.is_primary && orgUserSettings?.one_click_action_settings?.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">One Click Action</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Create expense from camera in one go. </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="orgUserSettings.one_click_action_settings.enabled" (ionChange)="toggleOneClickActionMode()"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <ion-item>
+          <ion-label>Module</ion-label>
+          <ion-select [(ngModel)]="oneClickActionSelectedModuleId" interface="action-sheet" (ionChange)="oneClickActionModuleChanged()">
+            <ion-select-option *ngFor="let oneClickActionValue of oneClickActionOptions" value="{{oneClickActionValue.id}}">{{oneClickActionValue.name}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Whatsapp card start -->
+    <ion-card class="my-profile--cards" *ngIf="orgUserSettings?.whatsapp_fyle_settings?.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">WhatsApp</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Use the daily messaging app to track your expenses on the go. </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="orgUserSettings.whatsapp_fyle_settings.enabled" (ionChange)="toggleWhatsappSettings()"></ion-toggle>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <a href> Read More</a>  
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Currency preference card start -->
+    <ion-card class="my-profile--cards" *ngIf="orgSettings?.org_currency_settings?.enabled">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">Currency Preference</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> Currency Info </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
+            </ion-col>
+          </ion-row>
+       
+          <ion-row>
+            <ion-col size="4">
+              <ion-item>
+                <ion-label>
+                  Item
+                </ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col size="8">
+              <ion-item button (click)="openCurrenySelectionModal()" detail>
+                <ion-label *ngIf="preferredCurrency">
+                  {{preferredCurrency.id}} - {{preferredCurrency.value}}
+                </ion-label>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- SMS card start -->
+    <ion-card class="my-profile--cards" *ngIf="orgUserSettings?.sms_fyle_settings?.allowed">
+      <ion-card-header class="my-profile--cards-header">
+        <ion-card-subtitle class="my-profile--cards-title">SMS</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="my-profile--cards-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <span> One SMS to track and turn receipts into expenses </span>
+            </ion-col>
+            <ion-col size="4" class="text-right">
+              <ion-toggle color="success" [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled" (ionChange)="toggleSmsSettings()"></ion-toggle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+    
+  </div>
+
+  <div>
+    <ion-card class="my-profile--cards">
+      <ion-card-content class="my-profile--cards-content" (click)="logOut()">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <ion-icon name="log-out-outline"></ion-icon>
+            </ion-col>
+            <ion-col size="10">
+              Logout
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>

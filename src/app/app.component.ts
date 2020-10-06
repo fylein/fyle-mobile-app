@@ -202,7 +202,7 @@ export class AppComponent implements OnInit {
           title: 'Profile',
           isVisible: true,
           icon: '../../../assets/svg/fy-profile-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard9']
+          route: ['/', 'enterprise', 'my_profile']
         },
         {
           title: 'Team Reports',
@@ -255,6 +255,11 @@ export class AppComponent implements OnInit {
       }, 500);
     });
 
+    this.userEventService.onLogout(() => {
+      this.router.navigate(['/', 'auth', 'sign-in']);
+    });
+
     // Left with isonline/is offline method
   }
+
 }

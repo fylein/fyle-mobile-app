@@ -25,6 +25,8 @@ export class CurrencyService {
       );
   }
 
+ 
+
   getAll() {
     return from(this.authService.getEou())
       .pipe(
@@ -39,4 +41,29 @@ export class CurrencyService {
         )
       );
   }
+
+  getCurrenyList(currencies) {
+    const currencyList = [];
+    for (const currency in currencies) {
+      if (Object.prototype.hasOwnProperty.call(currencies, currency)) {
+        const obj = {
+          id: currency,
+          value: currencies[currency]
+        };
+        currencyList.push(obj);
+      }
+    }
+    return currencyList;
+  }
+
+  // Todo: Remove this method and change getAll() method to return currency in list format not in object format.
+  getAllCurrenciesInList() {
+    return from(this.getAll()).pipe(
+      map((res) => {
+        return this.getCurrenyList(res);
+      })
+    )
+  }
 }
+
+
