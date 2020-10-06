@@ -14,7 +14,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { MatRadioModule } from '@angular/material/radio';
-
+import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
 @NgModule({
   imports: [
     CommonModule,
@@ -26,7 +28,11 @@ import { MatRadioModule } from '@angular/material/radio';
     MatButtonModule,
     MatRadioModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatRippleModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatIconModule
   ],
   declarations: [
     MyReportsPage,

@@ -23,4 +23,8 @@ export class MyReportsCardComponent implements OnInit {
   goToReport() {
 
   }
+
+  viewComments() {
+    
+  }
 }

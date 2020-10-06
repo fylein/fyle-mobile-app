@@ -1,50 +1,49 @@
 <div class="reports-card" (click)="goToReport(erpt)" *ngIf="!actionOpened">
-  <div>
+  <div class="reports-card--main-info">
     <div>
-      <p>
-        <span>
+      <div>
+        <span class="reports-card--currency">
           {{erpt.rp_currency}}
         </span>
-        <span>
+        <span class="reports-card--amount">
           {{erpt.rp_amount}}
         </span>
-      </p>
-      <p>
+      </div>
+      <div class="reports-card--purpose">
         {{erpt.rp_purpose}}
-      </p>
+      </div>
     </div>
     <div (click)="actionOpened = true">
-      more icon here
+      <mat-icon>
+        more_horiz
+      </mat-icon>
     </div>
   </div>
-  <div>
-    <p>Contains <span>{{erpt.rp_num_transactions}}</span> expenses</p>
-    <p *ngIf="erpt.rp_approved_at && (['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1)">Approved
-      on <span>{{erpt.rp_approved_at | date: 'dd MMMM yyyy'}}</span></p>
-    <p>
-      {{erpt.rp_state}}
-    </p>
+  <div class="reports-card--secondary-info">
+    <div class="reports-card--no-transactions">Contains <span>{{erpt.rp_num_transactions}}</span> expenses</div>
+    <div class="reports-card--approved-on"
+      *ngIf="erpt.rp_approved_at && (['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1)">
+      Approved on <span>{{erpt.rp_approved_at | date: 'dd MMMM yyyy'}}</span>
+    </div>
+  </div>
+  <div class="reports-card--pill" [class]="'reports-card--pill__'+erpt?.rp_state?.toLowerCase()">
+    {{erpt.rp_state}}
   </div>
 </div>
 
-<div *ngIf="actionOpened">
+
+<div class="reports-card" *ngIf="actionOpened">
   <div (click)="actionOpened = false">
     <span>
       Close
     </span>
   </div>
   <div>
-
-    <!-- Add when audit trails support is done
-      
-      <div (click)="viewComments($event, erpt)">
+    <div (click)="viewComments($event, erpt)">
       <button class="button-text button-link p-0">
-        <enterprise-fy-comments class="element-block m-0 no-border comments-block" object-type="reports"
-          object-id="{{ erpt.rp.id }}"
-          mode="{{(['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp.state) === -1) ? 'view' : 'edit'}}"
-          hide-icon="true" dont-load-comments="true" text="View Comments"></enterprise-fy-comments>
+        View Comments
       </button>
-    </div> -->
+    </div>
 
     <div class="button-row" (click)="deleteReport($event, erpt)">
       <button>Delete</button>

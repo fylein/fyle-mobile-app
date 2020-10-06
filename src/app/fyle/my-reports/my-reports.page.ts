@@ -7,9 +7,10 @@ import { concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilCh
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
+import { DateService } from 'src/app/core/services/date.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -33,7 +34,14 @@ export class MyReportsPage implements OnInit, AfterViewInit {
   });
   currentPageNumber = 1;
   acc = [];
-  filters = [];
+  filters: Partial<{
+    state: string;
+    date: string;
+    customDateStart: Date;
+    customDateEnd: Date;
+    sortParam: string;
+    sortDir: string;
+  }>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -41,7 +49,8 @@ export class MyReportsPage implements OnInit, AfterViewInit {
     private networkService: NetworkService,
     private loaderService: LoaderService,
     private reportService: ReportService,
-    private popoverController: PopoverController,
+    private modalController: ModalController,
+    private dateService: DateService,
     private router: Router
   ) { }
 
@@ -54,7 +63,7 @@ export class MyReportsPage implements OnInit, AfterViewInit {
       .pipe(
         map((event: any) => event.srcElement.value as string),
         distinctUntilChanged(),
-        debounceTime(200)
+        debounceTime(400)
       ).subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
         currentParams.searchString = searchString;
@@ -66,7 +75,7 @@ export class MyReportsPage implements OnInit, AfterViewInit {
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam},${params.sortDir}` : null;
+        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return from(this.loaderService.showLoader()).pipe(switchMap(() => {
           return this.reportService.getMyReports({
             offset: (params.pageNumber - 1) * 10,
@@ -118,12 +127,15 @@ export class MyReportsPage implements OnInit, AfterViewInit {
       shareReplay()
     );
 
-    this.count$ = this.reportService.getMyReportsCount().pipe(
+    this.count$ = this.loadData$.pipe(
+      switchMap(params => {
+        return this.reportService.getMyReportsCount(params.queryParams);
+      }),
       shareReplay()
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
-      concatMap(erpts => {
+      switchMap(erpts => {
         return this.count$.pipe(
           map(count => {
             return count > erpts.length;
@@ -156,44 +168,112 @@ export class MyReportsPage implements OnInit, AfterViewInit {
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
-    this.loadData$.next({ pageNumber: this.currentPageNumber });
+    const params = this.loadData$.getValue();
+    params.pageNumber = this.currentPageNumber;
+    this.loadData$.next(params);
     event.target.complete();
   }
 
   doRefresh(event) {
     this.currentPageNumber = 1;
-    this.loadData$.next({ pageNumber: this.currentPageNumber });
+    const params = this.loadData$.getValue();
+    params.pageNumber = this.currentPageNumber;
+    this.loadData$.next(params);
     event.target.complete();
   }
 
-  simpleSearchHandler(event) {
-    console.log(event);
+  addNewFiltersToParams() {
+    const currentParams = this.loadData$.getValue();
+    currentParams.pageNumber = 1;
+
+    if (!currentParams.queryParams) {
+      currentParams.queryParams = {};
+    }
+
+    if (this.filters.state) {
+      if (this.filters.state === 'ALL') {
+        currentParams.queryParams.rp_state =
+          'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
+      } else {
+        currentParams.queryParams.rp_state =
+          `in.(${this.filters.state})`;
+
+      }
+    } else {
+      currentParams.queryParams.rp_state = 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
+    }
+
+    if (this.filters.date) {
+      if (this.filters.date === 'THISMONTH') {
+        currentParams.queryParams.and =
+          `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
+      } else if (this.filters.date === 'LASTMONTH') {
+        currentParams.queryParams.and =
+          `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
+      } else if (this.filters.date === 'CUSTOMDATE') {
+        currentParams.queryParams.and =
+          `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
+      } else {
+        delete currentParams.queryParams.and;
+      }
+    } else {
+      delete currentParams.queryParams.and;
+    }
+
+    if (this.filters.sortParam && this.filters.sortDir) {
+      currentParams.sortParam = this.filters.sortParam;
+      currentParams.sortDir = this.filters.sortDir;
+    } else {
+      currentParams.sortParam = 'rp_created_at';
+      currentParams.sortDir = 'desc';
+    }
+
+    return currentParams;
   }
 
   async openFilters() {
-    const filterPopover = await this.popoverController.create({
+    const filterModal = await this.modalController.create({
       component: MyReportsSearchFilterComponent,
       componentProps: {
         filters: this.filters
-      },
-      cssClass: 'search-sort-popover'
+      }
     });
 
-    await filterPopover.present();
+    await filterModal.present();
+
+    const { data } = await filterModal.onWillDismiss();
+    if (data) {
+      this.filters = Object.assign({}, this.filters, data.filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    }
   }
 
 
   async openSort() {
-    const sortPopover = await this.popoverController.create({
+    const sortModal = await this.modalController.create({
       component: MyReportsSortFilterComponent,
       componentProps: {
-        sortDir: this.loadData$.value.sortDir,
-        sortParam: this.loadData$.value.sortParam
-      },
-      cssClass: 'search-sort-popover'
+        filters: this.filters
+      }
     });
 
-    await sortPopover.present();
+    await sortModal.present();
+    const { data } = await sortModal.onWillDismiss();
+    if (data) {
+      this.filters = Object.assign({}, this.filters, data.sortOptions);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    }
+  }
+
+  clearFilters() {
+    this.filters = {};
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
   }
 
   onReportClick(event) {
