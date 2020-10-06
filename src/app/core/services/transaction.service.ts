@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { NetworkService } from './network.service';
+import { DateService } from './date.service';
 import { StorageService } from './storage.service';
+import { NetworkService } from './network.service';
 import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { from, Observable, range } from 'rxjs';
 import { DataTransformService } from './data-transform.service';
-import { DateService } from './date.service';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
+
 
 
 @Injectable({
@@ -25,8 +26,15 @@ export class TransactionService {
     private authService: AuthService
   ) { }
 
+  get(txnId) {
+    return this.apiService.get('/transactions/' + txnId).pipe(
+      map((transaction) => {
+        return this.dateService.fixDates(transaction);
+      })
+    );
+  }
+
   parseRaw(etxnsRaw) {
-    console.log(etxnsRaw);
     let etxns = [];
 
     etxnsRaw.forEach(element => {
@@ -90,15 +98,15 @@ export class TransactionService {
   }
 
   getPaginatedETxncStats(params) {
-    return this.apiService.get('/etxns/stats', {params});
-  };
+    return this.apiService.get('/etxns/stats', { params });
+  }
 
-  getPaginatedETxncCount = function (params) {
+  getPaginatedETxncCount(params) {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
           if (isOnline) {
-            return this.apiService.get('/etxns/count', {params}).pipe(
+            return this.apiService.get('/etxns/count', { params }).pipe(
               tap((res) => {
                 this.storageService.set('etxncCount' + JSON.stringify(params), res);
               })
@@ -109,14 +117,14 @@ export class TransactionService {
         }
       )
     );
-  };
+  }
 
-  getMyETxncCount(tx_org_user_id: string): Observable<{count: number}> {
-    return this.apiV2Service.get('/expenses',{params: { offset: 0, limit: 1, tx_org_user_id}}).pipe(
+  getMyETxncCount(tx_org_user_id: string): Observable<{ count: number }> {
+    return this.apiV2Service.get('/expenses', { params: { offset: 0, limit: 1, tx_org_user_id } }).pipe(
       map(
-        res => res as {count: number}
+        res => res as { count: number }
       )
-    )
+    );
   }
 
   getMyETxnc(params: { offset: number, limit: number, tx_org_user_id: string }) {
@@ -144,10 +152,8 @@ export class TransactionService {
           reduce((acc, curr) => {
             return acc.concat(curr);
           })
-        )
+        );
       })
-    )
+    );
   }
-
-
 }

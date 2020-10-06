@@ -27,6 +27,10 @@ const routes: Routes = [
     loadChildren: () => import('./my-trips/my-trips.module').then( m => m.MyTripsPageModule)
   },
   {
+    path: 'my_view_trips',
+    loadChildren: () => import('./my-view-trips/my-view-trips.module').then( m => m.MyViewTripsPageModule)
+  },
+  {
     path: 'help',
     loadChildren: () => import('./help/help.module').then( m => m.HelpPageModule)
   }

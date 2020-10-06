@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, range } from 'rxjs';
 import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
-import { DataTransformService } from './data-transform.service';
-import { switchMap, map, tap, concatMap, reduce } from 'rxjs/operators';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { User } from '../models/user.model';
+import { switchMap, expand, reduce, tap, concatMap, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { range, of, Observable } from 'rxjs';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { DataTransformService } from './data-transform.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +18,8 @@ export class OrgUserService {
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
     private apiService: ApiService,
-    private dataTransformService: DataTransformService,
-    private authService: AuthService
+    private authService: AuthService,
+    private dataTransformService: DataTransformService
   ) { }
 
   postUser(user: User) {
@@ -63,6 +63,13 @@ export class OrgUserService {
       )
     );
   }
+
+  exclude(eous: ExtendedOrgUser[], userIds: string[]) {
+    return eous.filter((eou) => {
+      return userIds.indexOf(eou.ou.id) === -1;
+    });
+  }
+
 
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(

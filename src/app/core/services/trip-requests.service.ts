@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators';
 import { ExtendedTripRequest } from '../models/extended_trip_request.model';
+import { ApiService } from './api.service';
+import { DataTransformService } from './data-transform.service';
+import { TripDatesService } from './trip-dates.service';
+import { Approval } from '../models/approval.model';
+import { NetworkService } from './network.service';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +18,12 @@ export class TripRequestsService {
 
   constructor(
     private apiv2Service: ApiV2Service,
-    private authService: AuthService
+    private apiService: ApiService,
+    private authService: AuthService,
+    private dataTransformService: DataTransformService,
+    private tripDatesService: TripDatesService,
+    private networkService: NetworkService,
+    private storageService: StorageService
   ) { }
 
   getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
@@ -45,6 +56,57 @@ export class TripRequestsService {
     );
   }
 
+  getTrip(id: string): Observable<ExtendedTripRequest> {
+    return this.apiv2Service.get('/trip_requests', {
+      params: {
+        trp_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as ExtendedTripRequest
+      )
+    );
+  }
+
+  getActions(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
+  }
+
+  getAdvanceRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/advance_requests');
+  }
+
+  getHotelRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
+      map((reqs) => {
+        return reqs.map(req => {
+          const hotelRequest = this.dataTransformService.unflatten(req);
+          this.tripDatesService.fixDates(hotelRequest.hr);
+          this.tripDatesService.fixDates(hotelRequest.hb);
+          this.tripDatesService.fixDates(hotelRequest.hc);
+          return hotelRequest;
+        });
+      })
+    );
+  }
+
+  delete(tripRequestId: string) {
+    return this.apiService.delete('/trip_requests/' + tripRequestId);
+  }
+
+  getTransportationRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
+      map((reqs) => reqs.map(req => {
+        const transportationRequest = this.dataTransformService.unflatten(req);
+        this.tripDatesService.fixDates(transportationRequest.tr);
+        this.tripDatesService.fixDates(transportationRequest.tb);
+        this.tripDatesService.fixDates(transportationRequest.tc);
+        return transportationRequest;
+      })
+      )
+    );
+  }
+
   getTeamTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -72,6 +134,12 @@ export class TripRequestsService {
         ...res,
         data: res.data.map(this.fixDates)
       }))
+    );
+  }
+
+  getApproversByTripRequestId(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/approvals').pipe(
+      map(res => res as Approval[])
     );
   }
 
@@ -170,5 +238,63 @@ export class TripRequestsService {
         name: 'Rejected'
       };
     }
+  }
+
+  getUserTripRequestStateParams(state: string) {
+    let stateMap = {
+      draft: {
+        state: ['DRAFT'],
+        is_sent_back: false
+      },
+      inquiry: {
+        state: ['DRAFT'],
+        is_sent_back: true
+      },
+      submitted: {
+        state: ['APPROVAL_PENDING']
+      },
+      approved: {
+        state: ['APPROVED']
+      },
+      booked: {
+        state: ['APPROVED'],
+        is_booked: true
+      },
+      to_close: {
+        state: ['APPROVED'],
+        is_to_close: true
+      },
+      all: {
+        state: ['DRAFT', 'APPROVAL_PENDING', 'APPROVED', 'REJECTED', 'CLOSED']
+      }
+    };
+
+    return stateMap[state];
+  }
+
+  getPaginatedMyETripRequestsCount(params) {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.apiService.get('/etrip_requests/count', { params }).pipe(
+              tap((res) => {
+                this.storageService.set('etripRequestsCount' + JSON.stringify(params), res);
+              })
+            );
+          } else {
+            return from(this.storageService.get('etripRequestsCount' + JSON.stringify(params)));
+          }
+        }
+      )
+    );
+  }
+
+  pullBackTrip(tripRequestId: string, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/pull_back', addStatusPayload);
+  }
+
+  closeTrip(tripRequestId: string) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
   }
 }

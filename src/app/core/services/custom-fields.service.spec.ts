@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TripRequestService } from './trip-request.service';
+import { CustomFieldsService } from './custom-fields.service';
 
-describe('TripRequestService', () => {
-  let service: TripRequestService;
+describe('CustomFieldsService', () => {
+  let service: CustomFieldsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(TripRequestService);
+    service = TestBed.inject(CustomFieldsService);
   });
 
   it('should be created', () => {

@@ -3,7 +3,7 @@ import { AlertController } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { TripRequestService } from 'src/app/core/services/trip-request.service';
+import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
@@ -32,7 +32,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private transactionService: TransactionService,
     private reportService: ReportService,
     private advanceRequestService: AdvanceRequestService,
-    private tripRequestsService: TripRequestService,
+    private tripRequestsService: TripRequestsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private dashboardService: DashboardService,
     private mobileEventService: MobileEventService,
