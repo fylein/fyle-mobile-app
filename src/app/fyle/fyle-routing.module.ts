@@ -19,8 +19,16 @@ const routes: Routes = [
     loadChildren: () => import('./Team/team-trips/team-trips.module').then( m => m.TeamTripsPageModule)
   },
   {
+    path: 'my_profile',
+    loadChildren: () => import('./my-profile/my-profile.module').then( m => m.MyProfilePageModule)
+  },
+  {
     path: 'my_trips',
     loadChildren: () => import('./my-trips/my-trips.module').then( m => m.MyTripsPageModule)
+  },
+  {
+    path: 'help',
+    loadChildren: () => import('./help/help.module').then( m => m.HelpPageModule)
   }
 ];
 
