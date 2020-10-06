@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
 import { concatMap, finalize, map, scan, shareReplay, switchMap } from 'rxjs/operators';
+import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -54,7 +55,8 @@ export class MyAdvancesPage implements OnInit {
           switchMap(() => {
             return this.advanceRequestService.getMyadvanceRequests({
               offset: (pageNumber - 1) * 10,
-              limit: 10
+              limit: 10,
+              queryParams: {areq_trip_request_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc'}
             });
           }),
           finalize(() => {
@@ -62,13 +64,18 @@ export class MyAdvancesPage implements OnInit {
           })
         );
       }),
-      map(res => res.data),
+      map(res => {
+        return res.data.map(data => {
+          data.type = 'request';
+          return data;
+        })
+      }),
       scan((acc, curr) => {
         if (this.currentPageNumber === 1) {
           return curr;
         }
         return acc.concat(curr);
-      }, []),
+      }, [] as ExtendedAdvanceRequest[]),
       shareReplay()
     );
 

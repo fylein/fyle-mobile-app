@@ -6,7 +6,7 @@ import { map, switchMap, tap } from 'rxjs/operators';
 import { from } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { ExtendedTripRequest } from '../models/extended_trip_request.model';
+import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 
 @Injectable({
   providedIn: 'root'
@@ -96,7 +96,7 @@ export class AdvanceRequestService {
       }),
       map(res => res as {
         count: number,
-        data: ExtendedTripRequest[],
+        data: ExtendedAdvanceRequest[],
         limit: number,
         offset: number,
         url: string
@@ -118,9 +118,55 @@ export class AdvanceRequestService {
     );
   }
 
-  fixDates(data: ExtendedTripRequest) {
+  fixDates(data: ExtendedAdvanceRequest) {
     
     return data;
+  }
+
+  getInternalStateAndDisplayName (advanceRequest: ExtendedAdvanceRequest): { state: string, name: string } {
+    if (advanceRequest.areq_state === 'DRAFT') {
+      if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
+        return {
+          state: 'draft',
+          name: 'Draft'
+        };
+      } else if (advanceRequest.areq_is_pulled_back) {
+        return {
+          state: 'pulledBack',
+          name: 'Pulled Back'
+        };
+      } else if (advanceRequest.areq_is_sent_back) {
+        return {
+          state: 'inquiry',
+          name: 'Inquiry'
+        };
+      }
+    } else if (advanceRequest.areq_state === 'INQUIRY') {
+      return {
+        state: 'inquiry',
+        name: 'Inquiry'
+      };
+    } else if (advanceRequest.areq_state === 'SUBMITTED' || advanceRequest.areq_state === 'APPROVAL_PENDING') {
+      return {
+        state: 'pendingApproval',
+        name: 'Pending Approval'
+      };
+    } else if (advanceRequest.areq_state === 'APPROVED') {
+      return {
+        state: 'approved',
+        name: 'Approved'
+      };
+    } else if (advanceRequest.areq_state === 'PAID') {
+      return {
+        state: 'paid',
+        name: 'Paid'
+      };
+    } else if (advanceRequest.areq_state === 'REJECTED') {
+      return {
+        state: 'rejected',
+        name: 'Rejected'
+      };
+    }
   }
 
 

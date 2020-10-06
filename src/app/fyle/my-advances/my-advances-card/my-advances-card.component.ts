@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
 @Component({
   selector: 'app-my-advances-card',
@@ -9,9 +10,14 @@ import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_req
 export class MyAdvancesCardComponent implements OnInit {
 
   @Input() advanceRequest: ExtendedAdvanceRequest;
+  internalState: { name: string, state: string };
 
-  constructor() { }
+  constructor(
+    private advanceRequestService: AdvanceRequestService
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest);
+  }
 
 }

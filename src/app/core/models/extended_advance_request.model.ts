@@ -1,6 +1,7 @@
 import { Approval } from './approval.model';
 
 export interface ExtendedAdvanceRequest {
+  type: string;
   advance_request_approvals: { [id: string]: Approval};
   areq_advance_id: string;
   areq_advance_request_number: string;
