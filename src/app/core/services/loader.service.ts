@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LoadingController } from '@ionic/angular';
-import { from } from 'rxjs';
+import { from, noop } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,6 @@ export class LoaderService {
   }
 
   hideLoader() {
-    return this.loadingController.dismiss();
+    return this.loadingController.dismiss().catch(noop);
   }
 }

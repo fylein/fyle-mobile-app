@@ -215,7 +215,7 @@ export class AppComponent implements OnInit {
           title: 'Team Trips',
           isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
           icon: '../../../assets/svg/fy-team-trips-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard11']
+          route: ['/', 'enterprise', 'team_trips']
         },
         {
           title: 'Team Advances',
@@ -227,7 +227,7 @@ export class AppComponent implements OnInit {
           title: 'Help',
           isVisible: true,
           icon: '../../../assets/svg/fy-help-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard13']
+          route: ['/', 'enterprise', 'help']
         },
         {
           title: 'Switch Accounts',
@@ -242,13 +242,17 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.checkAppSupportedVersion();
+    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      if (loggedInStatus) {
+        this.showSideMenu();
+      }
+    });
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
         this.showSideMenu();
       }
     });
-
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
         this.showSideMenu();

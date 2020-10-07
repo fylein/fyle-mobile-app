@@ -3,7 +3,7 @@
     <span class="day">{{tripRequest.trp_created_at | date: 'EEEE'}}</span>,
     <span class="month-year">{{tripRequest.trp_created_at | date: 'dd MMMM yyyy'}}</span>
   </div>
-  <div class="trip-card--body">
+  <div class="trip-card--body" matRipple (click)="onTripClick()">
     <div class="trip-card--cities">
       <div class="trip-card--cities-container" *ngIf="tripRequest.trp_trip_type !== 'MULTI_CITY'">
         <div class="trip-card--cities-container-city">

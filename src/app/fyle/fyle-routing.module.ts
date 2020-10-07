@@ -19,12 +19,24 @@ const routes: Routes = [
     loadChildren: () => import('./my-advances/my-advances.module').then( m => m.MyAdvancesPageModule)
   },
   {
+    path: 'team_trips',
+    loadChildren: () => import('./Team/team-trips/team-trips.module').then( m => m.TeamTripsPageModule)
+  },
+  {
     path: 'my_profile',
     loadChildren: () => import('./my-profile/my-profile.module').then( m => m.MyProfilePageModule)
   },
   {
     path: 'my_trips',
     loadChildren: () => import('./my-trips/my-trips.module').then( m => m.MyTripsPageModule)
+  },
+  {
+    path: 'my_view_trips',
+    loadChildren: () => import('./my-view-trips/my-view-trips.module').then( m => m.MyViewTripsPageModule)
+  },
+  {
+    path: 'help',
+    loadChildren: () => import('./help/help.module').then( m => m.HelpPageModule)
   }
 ];
 
