@@ -103,7 +103,7 @@ export class AdvanceRequestService {
       limit: 1,
       queryParams
     }).pipe(
-      map(trip => trip.count)
+      map(advanceRequest => advanceRequest.count)
     );
   }
 

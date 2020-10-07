@@ -17,7 +17,6 @@
     </ion-refresher>
 
     <div *ngFor="let myAdvancerequest of myAdvancerequests$ | async">
-      <!-- <app-my-trips-card [tripRequest]="tripRequest"></app-my-trips-card> -->
       <app-my-advances-card [advanceRequest]=myAdvancerequest></app-my-advances-card>
     </div>
 
