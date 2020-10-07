@@ -16,7 +16,7 @@ const routes: Routes = [
   },
   {
     path: 'my_advances',
-    loadChildren: () => import('./my-advances/my-advances.module').then( m => m.MyAdvancesPageModule)
+    loadChildren: () => import('./my-advances/my-advances.module').then(m => m.MyAdvancesPageModule)
   },
   {
     path: 'team_trips',
@@ -37,6 +37,10 @@ const routes: Routes = [
   {
     path: 'my_reports',
     loadChildren: () => import('./my-reports/my-reports.module').then(m => m.MyReportsPageModule)
+  },
+  {
+    path: 'my_view_report',
+    loadChildren: () => import('./my-view-report/my-view-report.module').then(m => m.MyViewReportPageModule)
   },
   {
     path: 'help',

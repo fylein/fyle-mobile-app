@@ -139,6 +139,40 @@ export class TransactionService {
     );
   }
 
+  getETxnc(params: { offset: number, limit: number, params: any }) {
+    return this.apiV2Service.get('/expenses', {
+      ...params
+    }).pipe(
+      map(
+        (etxns) => {
+          return etxns.data;
+        }
+      )
+    );
+  }
+
+  getETxnCount(params: any) {
+    return this.apiV2Service.get('/expenses', { params }).pipe(
+      map(
+        res => res as { count: number }
+      )
+    );
+  }
+
+  getAllETxnc(params) {
+    return this.getETxnCount(params).pipe(
+      switchMap(res => {
+        return range(0, res.count / 50);
+      }),
+      concatMap(page => {
+        return this.getETxnc({ offset: 50 * page, limit: 50, params });
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      })
+    );
+  }
+
   getAllMyETxnc() {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {

@@ -117,9 +117,41 @@ export class ReportService {
     );
   }
 
+  getReport(id: string) {
+    return this.getMyReports({
+      offset: 0,
+      limit: 1,
+      queryParams: {
+        rp_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => res.data[0]
+      ),
+      tap(console.log)
+    );
+  }
+
+  actions(rptId: string) {
+    return this.apiService.get('/reports/' + rptId + '/actions');
+  }
+
+  getExports(rptId: string) {
+    return this.apiService.get('/reports/' + rptId + '/exports');
+  }
+
+  getApproversByReportId(rptId: string) {
+    return this.apiService.get('/reports/' + rptId + '/approvers');
+  }
+
   delete(rptId) {
     return this.apiService.delete('/reports/' + rptId);
   }
+
+  downloadSummaryPdfUrl(data: { report_ids: string[], email: string }) {
+    return this.apiService.post('/reports/summary/download', data);
+  }
+
 
   getAllExtendedReports(config: Partial<{ order: string, queryParams: any }>) {
     return this.getMyReportsCount().pipe(
