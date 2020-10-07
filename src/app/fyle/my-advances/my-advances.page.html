@@ -1,0 +1,37 @@
+<ion-header class="ion-no-border">
+  <div class="my-advances--header">
+    <ion-toolbar class="my-advances--header-toolbar">
+      <ion-buttons slot="start">
+        <ion-menu-button class="my-advances--menubutton" auto-hide="false" ></ion-menu-button>
+      </ion-buttons>
+
+      <ion-title slot="primary" mode="ios" class="my-advances--title text-capitalize">My Advances</ion-title>
+    </ion-toolbar>
+  </div>
+</ion-header>
+
+<ion-content>
+  <div class="my-advances--container">
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
+    <div *ngFor="let myAdvancerequest of myAdvancerequests$ | async">
+      <app-my-advances-card [advanceRequest]=myAdvancerequest></app-my-advances-card>
+    </div>
+
+    <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+      <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button class="my-advances--primary-cta" fill="solid" color="fyle-primary" expand="block">
+      REQUEST NEW ADVANCE
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
