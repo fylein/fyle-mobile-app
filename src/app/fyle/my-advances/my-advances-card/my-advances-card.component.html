@@ -6,8 +6,8 @@
   <div class="advance-card--body">
     <div class="advance-card--info">
       <div>
-        <span class="currency" *ngIf="advanceRequest.areq_currency && advanceRequest.areq_amount">{{advanceRequest.areq_currency}}</span>
-        <span class="amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency">{{advanceRequest.areq_amount}}</span>
+        <span class="advance-card--currency" *ngIf="advanceRequest.areq_currency && advanceRequest.areq_amount">{{advanceRequest.areq_currency}}</span>
+        <span class="advance-card--amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency">{{advanceRequest.areq_amount}}</span>
       </div>
       <p>{{advanceRequest.areq_purpose}}</p>
     </div>

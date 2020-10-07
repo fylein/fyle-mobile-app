@@ -79,10 +79,10 @@ $advance_rejected_color: #d50000;
 
   }
 
-  .currency {
+  &--currency {
     color: #ababab;
   }
-  .amount {
+  &--amount {
     font-size: 18px;
     margin-left: 8px;
     font-weight: 700;
