@@ -165,7 +165,7 @@ export class AppComponent implements OnInit {
           title: 'Advances',
           isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
           icon: '../../../assets/svg/fy-advances-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard3']
+          route: ['/', 'enterprise', 'my_advances']
         },
         {
           title: 'Trips',
