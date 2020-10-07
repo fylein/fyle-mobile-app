@@ -29,9 +29,9 @@ $header-input-interior: #eeeeee;
 
 :root {
   --ion-color-fyle-primary: #ff3366;
-  --ion-color-fyle-primary-rgb: 255,51,102;
+  --ion-color-fyle-primary-rgb: 255, 51, 102;
   --ion-color-fyle-primary-contrast: #ffffff;
-  --ion-color-fyle-primary-contrast-rgb: 255,255,255;
+  --ion-color-fyle-primary-contrast-rgb: 255, 255, 255;
   --ion-color-fyle-primary-shade: #e02d5a;
   --ion-color-fyle-primary-tint: #ff4775;
 }
@@ -125,4 +125,12 @@ $header-input-interior: #eeeeee;
 
 .flat-button {
   --box-shadow: none;
+}
+
+.highlight-info {
+  background-color: rgba(255, 153, 0, 0.25);
+  color: #ff9900;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 4px;
 }

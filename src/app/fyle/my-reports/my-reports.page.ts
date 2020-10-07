@@ -7,7 +7,7 @@ import { concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilCh
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { PopoverController, ModalController, AlertController } from '@ionic/angular';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
 import { DateService } from 'src/app/core/services/date.service';
@@ -17,7 +17,7 @@ import { DateService } from 'src/app/core/services/date.service';
   templateUrl: './my-reports.page.html',
   styleUrls: ['./my-reports.page.scss'],
 })
-export class MyReportsPage implements OnInit, AfterViewInit {
+export class MyReportsPage implements OnInit {
 
   isConnected$: Observable<boolean>;
   myReports$: Observable<ExtendedReport[]>;
@@ -51,6 +51,7 @@ export class MyReportsPage implements OnInit, AfterViewInit {
     private reportService: ReportService,
     private modalController: ModalController,
     private dateService: DateService,
+    public alertController: AlertController,
     private router: Router
   ) { }
 
@@ -58,7 +59,7 @@ export class MyReportsPage implements OnInit, AfterViewInit {
     this.setupNetworkWatcher();
   }
 
-  ngAfterViewInit() {
+  ionViewWillEnter() {
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),
@@ -153,6 +154,7 @@ export class MyReportsPage implements OnInit, AfterViewInit {
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
+
   }
 
   setupNetworkWatcher() {
@@ -174,12 +176,14 @@ export class MyReportsPage implements OnInit, AfterViewInit {
     event.target.complete();
   }
 
-  doRefresh(event) {
+  doRefresh(event?) {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
-    event.target.complete();
+    if (event) {
+      event.target.complete();
+    }
   }
 
   addNewFiltersToParams() {
@@ -276,7 +280,68 @@ export class MyReportsPage implements OnInit, AfterViewInit {
     this.loadData$.next(params);
   }
 
-  onReportClick(event) {
+  onReportClick(erpt: ExtendedReport) {
+    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id }]);
+  }
 
+  async onDeleteReportClick(erpt: ExtendedReport) {
+    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
+      const alert = await this.alertController.create({
+        header: 'Cannot Delete Report',
+        message: 'Report cannot be deleted',
+        buttons: [
+          {
+            text: 'Close',
+            role: 'cancel',
+            handler: noop
+          }
+        ]
+      });
+
+      await alert.present();
+    } else {
+      const message = `
+        <p class="highlight-info">
+          On deleting this report, all the associated expenses will be moved to <strong>"My Expenses"</strong> list.
+        </p>
+        <p class="mb-0">
+          Are you sure, you want to delete this report?
+        </p>
+      `;
+
+      const alert = await this.alertController.create({
+        header: 'Delete Report?',
+        message,
+        buttons: [
+          {
+            text: 'Close',
+            role: 'cancel',
+            handler: noop
+          },
+          {
+            text: 'Delete',
+            handler: async () => {
+              from(this.loaderService.showLoader()).pipe(
+                switchMap(() => {
+                  return this.reportService.delete(erpt.rp_id);
+                }),
+                finalize(async () => {
+                  await this.loaderService.hideLoader();
+                  this.doRefresh();
+                })
+              ).subscribe(noop);
+
+            }
+          }
+        ]
+      });
+      await alert.present();
+    }
+
+  }
+
+  onViewCommentsClick(event) {
+    console.log(event);
+    // TODO: Add when view comments is done
   }
 }

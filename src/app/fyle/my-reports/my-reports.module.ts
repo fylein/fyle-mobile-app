@@ -17,6 +17,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
+import { SharedModule } from 'src/app/shared/shared.module';
 @NgModule({
   imports: [
     CommonModule,
@@ -32,7 +33,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatRippleModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatIconModule
+    MatIconModule,
+    SharedModule
   ],
   declarations: [
     MyReportsPage,

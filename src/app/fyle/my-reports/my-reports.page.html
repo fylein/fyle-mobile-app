@@ -39,19 +39,23 @@
   <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
     <img class="my-reports--zero-state-img" src="../../../assets/images/zero-states/reports.svg"
       alt="Create First Reports">
-    <div class="my-reports--zero-state-header">
+    <div *ngIf="!(filters?.state || filters?.date)" class="my-reports--zero-state-header">
       This is the home to all your Reports
     </div>
-    <div class="my-reports--zero-state-subheader">
+    <div *ngIf="!(filters?.state || filters?.date)" class="my-reports--zero-state-subheader">
       Create your first report to see how it looks
     </div>
-    <div class="my-reports--zero-state-action-button-container">
+    <div *ngIf="!(filters?.state || filters?.date)" class="my-reports--zero-state-action-button-container">
       <div class="my-reports--zero-state-action-button">Create Report</div>
     </div>
+
+    <div *ngIf="(filters?.state || filters?.date)" class="my-reports--zero-state-header">
+      You dont have any reports for the selected filter(s)
+    </div>
   </div>
-  <div *ngFor="let erpt of myReports$ | async">
-    <app-my-reports-card [erpt]="erpt" (reportClick)="onReportClick($event)"></app-my-reports-card>
-    <!-- <app-my-reports-card [tripRequest]="tripRequest" (tripClick)="onTripClick($event)"></app-my-reports-card> -->
+  <div *ngFor="let erpt of myReports$ | async as list; let i = index">
+    <app-my-reports-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
+      (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-my-reports-card>
   </div>
 
   <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">

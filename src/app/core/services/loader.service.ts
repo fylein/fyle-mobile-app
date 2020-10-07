@@ -12,7 +12,8 @@ export class LoaderService {
   async showLoader(message = 'Please wait...') {
     console.log('Loader shown');
     const loading = await this.loadingController.create({
-      message
+      message,
+      duration: 3000
     });
     return await loading.present();
   }

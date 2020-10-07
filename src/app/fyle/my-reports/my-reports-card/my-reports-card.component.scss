@@ -4,16 +4,37 @@
   min-height: 160px;
   margin: 12px;
   padding: 12px;
+
+  &__no-top-margin {
+    margin-top: 0;
+  }
+
+  &--date {
+    color: #ababab;
+    font-size: 16px;
+    margin: 0 12px;
+  }
+
   &--main-info {
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid lightgray;
-    padding: 12px;
+    padding: 12px 0;
     font-size: 16px;
   }
 
   &--secondary-info {
-    padding: 12px;
+    padding: 12px 0;
+  }
+
+  &--policy-violation {
+    margin: 0 12px;
+    background: #ababab;
+    color: #fff;
+    font-size: 16px;
+    padding: 6px 16px;
+    line-height: 1;
+    border-radius: 4px 4px 0 0;
   }
 
   &--currency {
@@ -74,6 +95,52 @@
 
     &__paid {
       background-color: #3d8b3d;
+    }
+  }
+}
+
+.reports-card-menu {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  border-radius: 4px;
+  min-height: 160px;
+  margin: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: stretch;
+  &--close {
+    width: 30%;
+    align-self: center;
+    text-align: center;
+  }
+
+  &--buttons {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-left: 1px solid #ececec;
+  }
+
+  &--cancel {
+    min-height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--action {
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    &__comments {
+      color: #0077ee;
+      border-bottom: 1px solid #ececec;
+    }
+    &__delete {
+      color: #f00;
     }
   }
 }

@@ -117,6 +117,10 @@ export class ReportService {
     );
   }
 
+  delete(rptId) {
+    return this.apiService.delete('/reports/' + rptId);
+  }
+
   getAllExtendedReports(config: Partial<{ order: string, queryParams: any }>) {
     return this.getMyReportsCount().pipe(
       switchMap(count => {
