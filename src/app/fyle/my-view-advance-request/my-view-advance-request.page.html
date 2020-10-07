@@ -1,0 +1,102 @@
+<ion-header>
+  <ion-toolbar class="view-advance-request--toolbar">
+    <ion-buttons slot="end">
+      <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>View Advance Request</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="advanceRequest$|async as advanceRequest">
+    <div class="view-advance-request--attachment-currency-container">
+
+            <div class="view-advance-request--attachment-card">
+              abc
+            </div>
+            <div class="view-advance-request--currency-card">
+              <div class="view-advance-request--currency">
+                {{advanceRequest.areq_currency}}
+              </div>
+              <div class="view-advance-request--amount">
+                 {{advanceRequest.areq_amount}}
+              </div>
+            </div>
+
+    </div>
+    
+    <div class="view-advance-request--card">
+      <div class="view-advance-request--element">
+        <div class="view-advance-request--element-label">
+          Created On
+        </div>
+        <div class="view-advance-request--element-value">
+          {{advanceRequest.areq_created_at | date: 'dd, MMM yyyy'}}
+        </div>
+      </div>
+
+      <div *ngIf="advanceRequest.areq_approved_at" class="view-advance-request--element">
+        <div class="view-advance-request--element-label">
+          Approved On
+        </div>
+        <div class="view-advance-request--element-value">
+          {{advanceRequest.areq_approved_at | date: 'dd, MMM yyyy'}}
+        </div>
+      </div>
+    
+      <div class="view-advance-request--element">
+        <div class="view-advance-request--element-label">
+          Request ID
+        </div>
+        <div class="view-advance-request--element-value">
+          {{advanceRequest.areq_advance_request_number}}
+        </div>
+      </div>
+
+      <div class="view-advance-request--element">
+        <div class="view-advance-request--element-label">
+          Purpose
+        </div>
+        <div class="view-advance-request--element-value">
+          {{advanceRequest.areq_purpose}}
+        </div>
+      </div>
+
+      <div *ngIf="advanceRequest.project_name" class="view-advance-request--element">
+        <div class="view-advance-request--element-label">
+          Project
+        </div>
+        <div class="view-advance-request--element-value">
+          {{advanceRequest.project_name}}
+        </div>
+      </div>
+
+      <div class="view-advance-request--element">
+        <div class="view-advance-request--element-label">
+          Additional Notes
+        </div>
+        <div class="view-advance-request--element-value">
+          {{advanceRequest.areq_notes}}
+        </div>
+      </div>
+
+      <div class="view-advance-request--element" >
+        <div class="view-advance-request--element-label">
+          Approvers
+        </div>
+        <div class="view-advance-request--element-value">
+          <div *ngFor="let activeApproval of activeApprovals$ | async as list">
+            <span>{{activeApproval.approver_name}}</span>
+            <p>({{activeApproval.state}})</p>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+
+</ion-content>

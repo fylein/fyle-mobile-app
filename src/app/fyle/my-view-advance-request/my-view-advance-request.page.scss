@@ -1,0 +1,91 @@
+.view-advance-request {
+
+  &--card {
+    padding: 12px;
+    margin: 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+  }
+
+  &--attachment-currency-container{
+    margin: 12px;
+    display: flex;
+  }
+
+  &--attachment-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    width: 72px;
+    margin-right: 16px;
+  }
+
+  &--currency-card {
+    width: calc(100% - 88px);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    padding: 20px 0;
+    height: 88px;
+    display: flex;
+  }
+
+  &--currency {
+    font-size: 16px;
+    font-weight: 500;
+    color: #4a4a4a;
+    width: 40%;
+    padding: 12px 16px;
+    line-height: 1;
+    height: auto;
+    text-align: center;
+    letter-spacing: 1px;
+    border-right: 1px solid #e0e0e0;
+  }
+
+  &--amount {
+    width: 100%;
+    padding: 8px 16px;
+    line-height: 1;
+    height: auto;
+    font-size: 24px;
+    font-weight: 500;
+    border: 0;
+  }
+
+
+
+  &--element {
+    display: flex;
+    margin: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 0;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+  }
+
+  &--element-label {
+    min-width: 120px;
+    max-width: 30%;
+    margin: 0 8px 0 0;
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  &--element-value {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+
+
+}

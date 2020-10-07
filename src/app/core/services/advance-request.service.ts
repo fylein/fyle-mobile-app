@@ -3,10 +3,11 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
+import { Approval } from '../models/approval.model';
 
 @Injectable({
   providedIn: 'root'
@@ -95,6 +96,41 @@ export class AdvanceRequestService {
         data: res.data.map(this.fixDates)
       }))
     );
+  }
+
+  getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
+    return this.apiv2Service.get('/advance_requests', {
+      params: {
+        areq_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as ExtendedAdvanceRequest
+      )
+    );
+  }
+
+  getActions(advanceRequestId: string) {
+    return this.apiService.get('/advance_requests/' + advanceRequestId + '/actions');
+  }
+
+  getApproversByAdvanceRequestId(advanceRequestId: string) {
+    return this.apiService.get('/eadvance_requests/' + advanceRequestId + '/approvals').pipe(
+      map(res => res as Approval[])
+    );
+  }
+
+  getActiveApproversByAdvanceRequestId(advanceRequestId: string) {
+    return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
+      map(approvers => {
+        let filteredApprovers = approvers.filter((approver) => {
+          if (approver.state!== 'APPROVAL_DISABLED') {
+            return approver;
+          }
+        })
+        return filteredApprovers;
+      })
+    )
   }
 
   getMyAdvanceRequestsCount(queryParams = {}) {
