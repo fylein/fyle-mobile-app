@@ -1,9 +1,9 @@
-<div class="advance-card" (click)="goToAdvances(advanceRequest)">
+<div class="advance-card">
   <div class="advance-card--header">
     <span class="day">{{advanceRequest.areq_created_at | date: 'EEEE'}}</span>,
     <span class="month-year">{{advanceRequest.areq_created_at | date: 'dd MMMM yyyy'}}</span>
   </div>
-  <div class="advance-card--body">
+  <div class="advance-card--body" (click)="onAdvanceClick()">
     <div class="advance-card--info">
       <div>
         <span class="advance-card--currency" *ngIf="advanceRequest.areq_currency && advanceRequest.areq_amount">{{advanceRequest.areq_currency}}</span>
