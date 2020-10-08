@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { MyViewAdvanceRequestPageRoutingModule } from './my-view-advance-request-routing.module';
 
 import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    MyViewAdvanceRequestPageRoutingModule
+    MyViewAdvanceRequestPageRoutingModule,
+    MatIconModule,
   ],
   declarations: [MyViewAdvanceRequestPage]
 })
