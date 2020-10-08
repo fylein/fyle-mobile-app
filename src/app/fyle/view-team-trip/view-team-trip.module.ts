@@ -5,9 +5,10 @@ import { IonicModule } from '@ionic/angular';
 import { ViewTeamTripPageRoutingModule } from './view-team-trip-routing.module';
 import { ViewTeamTripPage } from './view-team-trip.page';
 import { MatIconModule } from '@angular/material/icon';
-import { TransportationRequestComponent } from '../transportation-request/transportation-request.component';
-import { AdvanceRequestComponent } from '../advance-request/advance-request.component';
-import { HotelRequestComponent } from '../hotel-request/hotel-request.component';
+import { MatButtonModule } from '@angular/material/button';
+import { TransportationRequestComponent } from '../view-team-trip/transportation-request/transportation-request.component';
+import { AdvanceRequestComponent } from '../view-team-trip/advance-request/advance-request.component';
+import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-request.component';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import { HotelRequestComponent } from '../hotel-request/hotel-request.component'
     FormsModule,
     IonicModule,
     ViewTeamTripPageRoutingModule,
-    MatIconModule
+    MatIconModule,
+    MatButtonModule
   ],
   declarations: [
     ViewTeamTripPage,

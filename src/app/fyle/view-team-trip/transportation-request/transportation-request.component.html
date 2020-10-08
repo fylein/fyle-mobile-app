@@ -1,10 +1,12 @@
 <ion-header class="ion-no-border">
   <div class="transportation-requests--header">
     <ion-toolbar>
-      <ion-buttons slot="end" class="transportation-requests--header_close-button">
-        <span class="material-icons" (click)="closeModal()">close</span>
+      <ion-buttons slot="end" mode="md" >
+        <ion-button mode="md" class="transportation-requests--header_close-button" (click)="closeModal()">
+          <mat-icon>close</mat-icon>
+        </ion-button>
       </ion-buttons>
-      <ion-title class="transportation-requests--header-title text-capitalize">Transportation Request</ion-title>
+      <ion-title mode="md" class="transportation-requests--header-title text-capitalize">Transportation Requests</ion-title>
     </ion-toolbar>
   </div>
 </ion-header>

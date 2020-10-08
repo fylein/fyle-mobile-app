@@ -17,9 +17,9 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AlertController, ModalController, PopoverController } from '@ionic/angular';
-import { TransportationRequestComponent } from '../transportation-request/transportation-request.component';
-import { HotelRequestComponent } from '../hotel-request/hotel-request.component';
-import { AdvanceRequestComponent } from '../advance-request/advance-request.component';
+import { TransportationRequestComponent } from '../view-team-trip/transportation-request/transportation-request.component';
+import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-request.component';
+import { AdvanceRequestComponent } from '../view-team-trip/advance-request/advance-request.component';
 
 @Component({
   selector: 'app-view-team-trip',

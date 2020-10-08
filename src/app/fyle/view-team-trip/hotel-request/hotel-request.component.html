@@ -1,10 +1,12 @@
 <ion-header class="ion-no-border">
   <div class="hotel-requests--header">
     <ion-toolbar>
-      <ion-buttons slot="end" class="hotel-requests--header_close-button">
-        <span class="material-icons" (click)="closeModal()">close</span>
+      <ion-buttons slot="end" mode="md" >
+        <ion-button mode="md" class="hotel-requests--header_close-button" (click)="closeModal()">
+          <mat-icon>close</mat-icon>
+        </ion-button>
       </ion-buttons>
-      <ion-title class="hotel-requests--header-title text-capitalize">Hotel Requests</ion-title>
+      <ion-title mode="md" class="hotel-requests--header-title text-capitalize">Hotel Requests</ion-title>
     </ion-toolbar>
   </div>
 </ion-header>

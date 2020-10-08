@@ -20,7 +20,7 @@ const routes: Routes = [
   },
   {
     path: 'view_team_trips',
-    loadChildren: () => import('./team-trips/view-team-trip/view-team-trip.module').then( m => m.ViewTeamTripPageModule)
+    loadChildren: () => import('./view-team-trip/view-team-trip.module').then( m => m.ViewTeamTripPageModule)
   },
   {
     path: 'my_profile',

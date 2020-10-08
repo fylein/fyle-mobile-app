@@ -3,14 +3,14 @@ $background-color: #fff;
 $menu-botton-color: #000;
 $toolbar-border: #ababab6b;
 
-.advance-requests {
+.hotel-requests {
   &--header {
     background-color: $background-color;
     height: 80px !important;
     border-bottom: 1px solid $item-border-color;
 
     &_close-button {
-      padding: 16px 16px;
+      background-color: transparent;
     }
 
     &-title {
