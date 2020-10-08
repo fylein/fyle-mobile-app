@@ -1,15 +1,13 @@
-<ion-header>
-  <ion-toolbar class="advance-requests--toolbar">
-    <ion-title>
-      Advance Requests
-    </ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="closeModal()">
-        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-header class="ion-no-border">
+    <div class="advance-requests--header">
+      <ion-toolbar>
+        <ion-buttons slot="end" class="advance-requests--header_close-button">
+          <span class="material-icons" (click)="closeModal()">close</span>
+        </ion-buttons>
+        <ion-title class="advance-requests--header-title text-capitalize">Advance Requests</ion-title>
+      </ion-toolbar>
+    </div>
+  </ion-header>
 
 <ion-content>
   <div *ngFor="let advanceRequest of advanceRequests">
@@ -38,7 +36,6 @@
           </div>
         </div>
 
-        <!-- TODO -->
         <div class="advance-requests--element" *ngFor="let customField of advanceRequest.custom_field_values">
           <div class="advance-requests--element-label">
             {{customField.name}}

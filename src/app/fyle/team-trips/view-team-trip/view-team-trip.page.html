@@ -1,12 +1,10 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <div class="trip-request--header">
     <ion-toolbar>
-      <ion-buttons slot="end">
-        <ion-button [routerLink]="['/','enterprise','team_trips']" routerLinkActive="router-link-active">
-          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-        </ion-button>
+      <ion-buttons slot="end" class="trip-request--header_close-button" [routerLink]="['/','enterprise','team_trips']" routerLinkActive="router-link-active">
+        <span class="material-icons">close</span>
       </ion-buttons>
-      <ion-title class="trip-request--title text-capitalize">View Trip Request</ion-title>
+      <ion-title class="trip-request--header-title text-capitalize">View Trip Request</ion-title>
     </ion-toolbar>
   </div>
 </ion-header>
