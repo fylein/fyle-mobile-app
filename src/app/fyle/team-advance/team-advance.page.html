@@ -1,0 +1,28 @@
+<ion-header class="ion-no-border">
+  <div class="advance-request--header">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button class="advance-request--menubutton" auto-hide="false" ></ion-menu-button>
+      </ion-buttons>
+      <ion-title slot="primary" mode="ios" class="advance-request--title text-capitalize">{{pageTitle}}</ion-title>
+    </ion-toolbar>
+  </div>
+</ion-header>
+
+<ion-content>
+    <div>
+      <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
+  
+      <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async">
+        <app-team-adv-card [advanceRequest]=teamAdvancerequest></app-team-adv-card>
+      </div>
+  
+      <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+  
+    </div>
+  </ion-content>
