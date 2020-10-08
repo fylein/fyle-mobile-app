@@ -8,14 +8,14 @@ $toolbar-border: #ababab6b;
     background-color: $background-color;
     height: 80px !important;
     border-bottom: 1px solid $item-border-color;
-    padding: 20px 16px;
 
     &_close-button {
-      background-color: $background-color;
+      background-color: transparent;
       display: inline-block;
     }
 
     &-title {
+      padding: 24px 16px;
       font-size: 24px;
       height: 100%;
       line-height: 1.3;
