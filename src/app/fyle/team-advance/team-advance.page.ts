@@ -14,7 +14,7 @@ import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_req
 export class TeamAdvancePage implements OnInit {
 
   pageTitle = 'Team Advances';
-  myAdvancerequests$: Observable<any[]>;
+  teamAdvancerequests$: Observable<any[]>;
   loadData$: Subject<number> = new Subject();
   count$: Observable<number>;
   currentPageNumber = 1;
@@ -27,7 +27,7 @@ export class TeamAdvancePage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.myAdvancerequests$ = this.loadData$.pipe(
+    this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
@@ -59,16 +59,16 @@ export class TeamAdvancePage implements OnInit {
       shareReplay()
     );
 
-    this.isInfiniteScrollRequired$ = this.myAdvancerequests$.pipe(
-      concatMap(myAdvancerequests => {
+    this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
+      concatMap(teamAdvancerequests => {
         return this.count$.pipe(map(count => {
-          return count > myAdvancerequests.length;
+          return count > teamAdvancerequests.length;
         }));
       })
     );
 
     this.loadData$.subscribe(noop);
-    this.myAdvancerequests$.subscribe(noop);
+    this.teamAdvancerequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next(this.currentPageNumber);

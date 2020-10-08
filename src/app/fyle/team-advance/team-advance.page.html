@@ -10,13 +10,13 @@
 </ion-header>
 
 <ion-content>
-    <div class="my-advances--container">
+    <div>
       <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
   
-      <div *ngFor="let myAdvancerequest of myAdvancerequests$ | async">
-        <app-team-adv-card [advanceRequest]=myAdvancerequest></app-team-adv-card>
+      <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async">
+        <app-team-adv-card [advanceRequest]=teamAdvancerequest></app-team-adv-card>
       </div>
   
       <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
