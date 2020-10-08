@@ -100,7 +100,7 @@ export class MyReportsPage implements OnInit {
     const simpleSearchAllDataPipe = this.loadData$.pipe(
       switchMap(params => {
         const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam},${params.sortDir}` : null;
+        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {

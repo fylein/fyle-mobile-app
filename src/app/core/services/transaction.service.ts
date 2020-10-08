@@ -23,7 +23,7 @@ export class TransactionService {
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
-    private authService: AuthService
+    private authService: AuthService,
   ) { }
 
   get(txnId) {
@@ -190,4 +190,61 @@ export class TransactionService {
       })
     );
   }
+
+  getMyExpensesCount(queryParams = {}) {
+    return this.getMyExpenses({
+      offset: 0,
+      limit: 1,
+      queryParams
+    }).pipe(
+      map(res => res.count)
+    );
+  }
+
+  getMyExpenses(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+        return this.apiV2Service.get('/expenses', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            order: `${config.order || 'tx_txn_dt.desc'},tx_id.desc`,
+            tx_org_user_id: 'eq.' + eou.ou.id,
+            ...config.queryParams
+          }
+        });
+      }),
+      map(res => res as {
+        count: number,
+        data: any[],
+        limit: number,
+        offset: number,
+        url: string
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.dateService.fixDates)
+      }))
+    );
+  }
+
+  getAllExpenses(config: Partial<{ order: string, queryParams: any }>) {
+    return this.getMyExpensesCount(config.queryParams).pipe(
+      switchMap(count => {
+        return range(0, count / 50);
+      }),
+      concatMap(page => {
+        return this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
+      }),
+      map(res => res.data),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [] as any[])
+    );
+  }
+
 }

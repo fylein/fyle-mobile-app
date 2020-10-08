@@ -1,9 +1,76 @@
 <ion-header>
+  <ion-toolbar class="my-expenses--toolbar-header">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      My Expenses
+    </ion-title>
+  </ion-toolbar>
   <ion-toolbar>
-    <ion-title>my_expenses</ion-title>
+    <div class="my-expenses--toolbar">
+      <mat-form-field class="mat-form-field-no-padding my-expenses--simple-search" appearance="outline">
+        <mat-icon matPrefix>search</mat-icon>
+        <input #simpleSearchInput matInput placeholder="Search">
+      </mat-form-field>
+      <ion-buttons slot="end">
+        <ion-button class="my-expenses--filter-button" (click)="openFilters()">
+          <ion-icon slot="icon-only" name="funnel-outline"></ion-icon>
+        </ion-button>
+        <ion-button class="my-expenses--filter-button" (click)="openSort()">
+          <ion-icon slot="icon-only" name="medical-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </div>
+    <div class="my-expenses--filters" *ngIf="filters?.state || filters?.date">
+      <div>Filters are applied</div>
+      <mat-icon (click)="clearFilters()">
+        cancel
+      </mat-icon>
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
+  <div *ngIf="(count$ | async) === 0" class="my-expenses--zero-state">
+    <img class="my-expenses--zero-state-img" src="../../../assets/images/zero-states/expenses.svg"
+      alt="Create First Expenses">
+    <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
+      This is the home to all your Expenses
+    </div>
+    <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-subheader">
+      Create your first expense to see how it looks
+    </div>
+    <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-action-button-container">
+      <div class="my-expenses--zero-state-action-button">Create Expense</div>
+    </div>
+
+    <div *ngIf="(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
+      You dont have any expenses for the selected filter(s)
+    </div>
+  </div>
+  <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
+    <!-- <app-my-expenses-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
+      (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-my-expenses-card> -->
+    <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'">
+    </app-my-expenses-card>
+    <!-- {{expense|json}} -->
+  </div>
+
+  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+      CREATE EXPENSE
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

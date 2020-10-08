@@ -1,0 +1,128 @@
+<div>
+  <div class="my-expenses-card--date" *ngIf="showDt">
+    <div *ngIf="expense.tx_txn_dt">
+      {{expense.tx_txn_dt | date: 'EEEE'}}
+    </div>
+    <div *ngIf="expense.tx_txn_dt">
+      {{expense.tx_txn_dt | date: 'dd MMMM yyyy'}}
+    </div>
+    <div *ngIf="!expense.tx_txn_dt">
+      {{expense.tx_created_at | date: 'EEEE'}}
+    </div>
+    <div *ngIf="!expense.tx_txn_dt">
+      {{expense.tx_created_at | date: 'dd MMMM yyyy'}}
+    </div>
+  </div>
+  <div class="my-expenses-card">
+    <div class="my-expenses-card--decorator" *ngIf="expense.isDraft">
+      Draft
+    </div>
+    <div class="my-expenses-card--decorator" *ngIf="expense.tx_user_review_needed && !expense.isDraft">
+      Needs Review
+    </div>
+    <div class="my-expenses-card--decorator"
+      *ngIf="expense.tx_id && expense.isPolicyViolated && !expense.isCriticalPolicyViolated">
+      Policy Violation
+    </div>
+    <div class="my-expenses-card--decorator" *ngIf="expense.tx_id && expense.isCriticalPolicyViolated">
+      Critical Policy Violation
+    </div>
+
+    <div class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!expense.actionOpened && !isSelectMode"
+      (click)="goToTransaction()">
+      <div class="my-expenses-card--body-internal">
+        <div class="my-expenses-card--icon">
+          <mat-icon>
+            fastfood
+          </mat-icon>
+        </div>
+        <div class="my-expenses-card--details">
+          <div class="my-expenses-card--amount-details">
+            <div class="my-expenses-card--currency">
+              {{expense.tx_currency || expense?.tx_extracted_data?.currency}}
+            </div>
+            <div class="my-expenses-card--amount">
+              <div *ngIf="amountIsNumber || extractedAmountIsNumber">
+                {{(expense.tx_amount || expense?.tx_extracted_data?.amount) | number:'1.2'}}
+              </div>
+              <div *ngIf="!amountIsNumber && !extractedAmountIsNumber">
+                --
+              </div>
+              <div *ngIf="!expense.tx_amount && expense?.tx_extracted_data?.amount">
+                <!-- <i class="icon ion-flash icon-flash" (click)="toggleFlashMode()"></i> -->
+                <mat-icon>
+                  flash
+                </mat-icon>
+              </div>
+              <div class="my-expenses-card--conversion" *ngIf="expense.tx_orig_currency && expense.tx_orig_amount">
+                <!-- ({{ expense.tx_orig_amount | isoCurrency:expense.tx_orig_currency:2 }} at -->
+                <!-- {{ (expense.tx_amount / expense.tx_orig_amount) | isoCurrency:expense.tx_currency:2 }})</div> -->
+                ({{ expense.tx_orig_amount }} at {{ (expense.tx_amount / expense.tx_orig_amount) | number: '1.2'}})
+              </div>
+            </div>
+          </div>
+          <div class="my-expenses-card--vendor">
+            {{vendorDetails}}
+          </div>
+          <div class="my-expenses-card--category">
+            {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
+          </div>
+        </div>
+      </div>
+
+      <div (click)="expense.actionOpened = true">
+        <mat-icon>
+          more_horiz
+        </mat-icon>
+        <!-- <ion-spinner icon="spiral" *ngIf="vm.isDataExtractionInProgress(expense.tx_id)">
+        </ion-spinner> -->
+      </div>
+    </div>
+
+    <div class="my-expenses-card--body my-expenses-card--body__open" *ngIf="expense.actionOpened">
+      <div (click)="expense.actionOpened = false">
+        <mat-icon>
+          close
+        </mat-icon>
+      </div>
+      <div>
+        <div>
+          <button type="button" (click)="addTransactionToReport()" *ngIf="openReportsPresent"
+            [disabled]="(expense.isDraft || expense.isCriticalPolicyViolated)">Add to Report</button>
+          <button type="button" (click)="addTransactionToNewReport()" *ngIf="openReportsPresent"
+            [disabled]="(expense.isDraft || expense.isCriticalPolicyViolated)">Add to New Report</button>
+        </div>
+        <div>
+          <button type="submit" [disabled]="!expense.tx_user_can_delete" (click)="deleteTransaction()">Delete</button>
+        </div>
+      </div>
+    </div><!-- Show this if clicked on more action -->
+
+    <div class="my-expenses-card--body my-expenses-card--body__selection" *ngIf="isSelectMode">
+      <ion-checkbox mode="md" ng-model="expense.selected" (click)="selectTransaction()" [disabled]="disabledSelection">
+        <!-- [disabled]="(expense.isDraft && activeTab === 'all') || expense.isCriticalPolicyViolated"> -->
+      </ion-checkbox>
+      <div>
+        <div>
+          <div>
+            {{expense.tx_currency}}
+          </div>
+          <div>
+            <div *ngIf="amountIsNumber">
+              {{expense.tx_amount}}
+            </div>
+            <div *ngIf="!amountIsNumber">
+              --
+            </div>
+          </div>
+        </div>
+        <div>
+          {{expense.vendorDetails}}
+        </div>
+        <div>
+          {{expense.tx_org_category}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -154,7 +154,7 @@ export class ReportService {
 
 
   getAllExtendedReports(config: Partial<{ order: string, queryParams: any }>) {
-    return this.getMyReportsCount().pipe(
+    return this.getMyReportsCount(config.queryParams).pipe(
       switchMap(count => {
         return range(0, count / 50);
       }),

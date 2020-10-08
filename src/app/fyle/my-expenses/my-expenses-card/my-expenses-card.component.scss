@@ -1,0 +1,55 @@
+.my-expenses-card {
+  &--body {
+    display: flex;
+    justify-content: space-between;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    border-radius: 4px;
+    min-height: 120px;
+    margin: 12px;
+    padding: 12px;
+  }
+
+  &--body-internal {
+    display: flex;
+    align-items: center;
+  }
+
+  &--date {
+    display: flex;
+    margin: 0 12px;
+    color: #ababab;
+    font-size: 16px;
+  }
+
+  &--icon {
+    padding: 8px;
+    color: #ababab;
+    border: 1px solid #ababab75;
+    border-radius: 50%;
+    margin: 12px;
+  }
+
+  &--amount-details {
+    display: flex;
+  }
+
+  &--currency {
+    color: #ababab;
+    font-size: 16px;
+  }
+
+  &--amount {
+    font-size: 18px;
+    margin-left: 8px;
+    font-weight: 700;
+  }
+
+  &--conversion {
+    font-size: 16px;
+    color: #ababab;
+  }
+
+  &--category {
+    color: #ababab;
+  }
+}
