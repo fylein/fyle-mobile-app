@@ -134,3 +134,9 @@ $header-input-interior: #eeeeee;
   padding: 8px;
   border-radius: 4px;
 }
+
+.ios .trip-card--cities-container-city::before {
+  left: -19px !important;
+  top: -2px !important;
+  font-size: 28px !important;
+}

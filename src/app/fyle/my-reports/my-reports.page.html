@@ -1,25 +1,29 @@
-<ion-header>
-  <ion-toolbar class="my-reports--toolbar-header">
-    <ion-buttons slot="start">
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="my-reports--toolbar-header">
+    <ion-buttons mode="md" slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>
+    <ion-title mode="md">
       My Reports
     </ion-title>
   </ion-toolbar>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <div class="my-reports--toolbar">
       <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
         <mat-icon matPrefix>search</mat-icon>
         <input #simpleSearchInput matInput placeholder="Search">
       </mat-form-field>
-      <ion-buttons slot="end">
-        <ion-button class="my-reports--filter-button" (click)="openFilters()">
-          <ion-icon slot="icon-only" name="funnel-outline"></ion-icon>
-        </ion-button>
-        <ion-button class="my-reports--filter-button" (click)="openSort()">
-          <ion-icon slot="icon-only" name="medical-outline"></ion-icon>
-        </ion-button>
+      <ion-buttons mode="md" slot="end">
+        <button mat-icon-button class="my-reports--filter-button" (click)="openFilters()">
+          <mat-icon>
+            filter_list
+          </mat-icon>
+        </button>
+        <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
+          <mat-icon>
+            sort
+          </mat-icon>
+        </button>
       </ion-buttons>
     </div>
     <div class="my-reports--filters" *ngIf="filters?.state || filters?.date">

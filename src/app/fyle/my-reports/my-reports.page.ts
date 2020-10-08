@@ -11,6 +11,7 @@ import { PopoverController, ModalController, AlertController } from '@ionic/angu
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
 import { DateService } from 'src/app/core/services/date.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -42,6 +43,7 @@ export class MyReportsPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
+  homeCurrency$: Observable<string>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -52,7 +54,8 @@ export class MyReportsPage implements OnInit {
     private modalController: ModalController,
     private dateService: DateService,
     public alertController: AlertController,
-    private router: Router
+    private router: Router,
+    private currencyService: CurrencyService
   ) { }
 
   ngOnInit() {
@@ -60,11 +63,14 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
+
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),
         distinctUntilChanged(),
-        debounceTime(400)
+        debounceTime(1000)
       ).subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
         currentParams.searchString = searchString;
