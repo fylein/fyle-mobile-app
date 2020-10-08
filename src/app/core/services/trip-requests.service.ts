@@ -63,7 +63,15 @@ export class TripRequestsService {
       }
     }).pipe(
       map(
-        res => this.fixDates(res.data[0]) as ExtendedTripRequest
+        res => {
+          const modifiedTrip = this.fixDates(res.data[0]) as ExtendedTripRequest;
+          // try catch is failsafe against bad data
+          try {
+            modifiedTrip.trp_custom_field_values = JSON.parse(modifiedTrip.trp_custom_field_values);
+          } catch (error) {
+          }
+          return modifiedTrip;
+        }
       )
     );
   }
@@ -241,7 +249,7 @@ export class TripRequestsService {
   }
 
   getUserTripRequestStateParams(state: string) {
-    let stateMap = {
+    const stateMap = {
       draft: {
         state: ['DRAFT'],
         is_sent_back: false

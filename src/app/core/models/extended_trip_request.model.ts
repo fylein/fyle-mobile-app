@@ -34,7 +34,7 @@ export interface ExtendedTripRequest {
   trp_approved_at?: any;
   trp_created_at: Date;
   trp_currency?: any;
-  trp_custom_field_values: string;
+  trp_custom_field_values: any;
   trp_end_date: Date;
   trp_id: string;
   trp_is_booked?: any;

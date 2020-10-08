@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar class="view-trip--toolbar">
-    <ion-buttons slot="end">
+    <ion-buttons mode="md" slot="end">
       <ion-button color="fyle-primary" fill="clear" *ngIf="canEdit$|async" [routerLink]="['/','enterprise','my_add_edit_trips']">
         Edit
       </ion-button>
@@ -8,12 +8,12 @@
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>View Trip Request</ion-title>
+    <ion-title mode="md">View Trip Request</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div *ngIf="transformedTripRequests$|async as tripRequest">
+  <div *ngIf="tripRequest$|async as tripRequest">
     <div *ngIf="tripExtraInfo$| async as tripExtraInfo">
       <div class="view-trip--header">
         Trip Information
@@ -131,7 +131,7 @@
         Additional Information
       </div>
       <div class="view-trip--card">
-        <div *ngFor="let customField of tripRequest.custom_field_values" class="view-trip--element">
+        <div *ngFor="let customField of tripRequest.trp_custom_field_values" class="view-trip--element">
           <div class="view-trip--element-label">
             {{customField.name}}
           </div>
