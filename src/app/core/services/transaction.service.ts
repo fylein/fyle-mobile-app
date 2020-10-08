@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
+import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { from, Observable, range } from 'rxjs';
-import { DataTransformService } from './data-transform.service';
 import { ApiV2Service } from './api-v2.service';
+import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
 
 
@@ -136,6 +136,40 @@ export class TransactionService {
           return etxns.data;
         }
       )
+    );
+  }
+
+  getETxnc(params: { offset: number, limit: number, params: any }) {
+    return this.apiV2Service.get('/expenses', {
+      ...params
+    }).pipe(
+      map(
+        (etxns) => {
+          return etxns.data;
+        }
+      )
+    );
+  }
+
+  getETxnCount(params: any) {
+    return this.apiV2Service.get('/expenses', { params }).pipe(
+      map(
+        res => res as { count: number }
+      )
+    );
+  }
+
+  getAllETxnc(params) {
+    return this.getETxnCount(params).pipe(
+      switchMap(res => {
+        return range(0, res.count / 50);
+      }),
+      concatMap(page => {
+        return this.getETxnc({ offset: 50 * page, limit: 50, params });
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      })
     );
   }
 
