@@ -1,28 +1,29 @@
-<ion-header class="ion-no-border">
-  <div class="dashboard--header">
-    <ion-toolbar class="dashboard--header-toolbar">
-      <ion-buttons *ngIf="!this.isDashboardCardExpanded" slot="start">
-        <ion-menu-button class="dashboard--menubutton" auto-hide="false" ></ion-menu-button>
-      </ion-buttons>
+<ion-header>
+  <ion-toolbar class="dashboard--header-toolbar">
+    <ion-buttons *ngIf="!this.isDashboardCardExpanded" slot="start">
+      <ion-menu-button class="dashboard--menubutton" auto-hide="false"></ion-menu-button>
+    </ion-buttons>
 
-      <ion-buttons class="dashboard--menubutton" slot="start" *ngIf="this.isDashboardCardExpanded" (click)="this.backButtonClick()">
-        Back <!-- will put icon here later -->
-      </ion-buttons>
+    <ion-buttons class="dashboard--menubutton" slot="start" *ngIf="this.isDashboardCardExpanded"
+      (click)="this.backButtonClick()">
+      Back
+      <!-- will put icon here later -->
+    </ion-buttons>
 
 
-      <ion-title slot="primary" mode="ios" class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
-    </ion-toolbar>
-  </div>
+    <ion-title mode="md" class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-	<div class="dashboard--container">
+  <div class="dashboard--container">
     <div class="dashboard--card" *ngFor="let item of this.dashboardList; index as $index;">
       <div *ngIf="this.item && this.item.isVisible && !this.item.isCollapsed">
-        <app-enterprise-dashboard-card [dashboardList]="this.dashboardList" [index]="$index"></app-enterprise-dashboard-card>
+        <app-enterprise-dashboard-card [dashboardList]="this.dashboardList" [index]="$index">
+        </app-enterprise-dashboard-card>
       </div>
     </div>
-    
+
   </div>
 </ion-content>
 

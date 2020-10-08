@@ -115,6 +115,16 @@ export class TripRequestsService {
     );
   }
 
+  getTeamTripsCount(queryParams = {}) {
+    return this.getTeamTrips({
+      offset: 0,
+      limit: 1,
+      queryParams
+    }).pipe(
+      map(trip => trip.count)
+    );
+  }
+
   getTeamTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
