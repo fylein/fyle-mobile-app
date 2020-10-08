@@ -1,27 +1,16 @@
 <ion-header>
   <ion-toolbar class="view-reports--toolbar">
-<<<<<<< HEAD
-    <ion-buttons slot="start">
-=======
     <ion-buttons mode="md" slot="start">
->>>>>>> master
       <button mat-icon-button [routerLink]="['/','enterprise','my_reports']">
         <mat-icon>
           keyboard_backspace
         </mat-icon>
       </button>
     </ion-buttons>
-<<<<<<< HEAD
-    <ion-title>
-      View Report
-    </ion-title>
-    <ion-buttons slot="end">
-=======
     <ion-title mode="md">
       View Report
     </ion-title>
     <ion-buttons mode="md" slot="end">
->>>>>>> master
       <button mat-button color="primary" (click)="goToEditReport()" *ngIf="canEdit$|async">Edit</button>
     </ion-buttons>
   </ion-toolbar>

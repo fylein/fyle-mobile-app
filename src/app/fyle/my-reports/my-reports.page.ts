@@ -30,9 +30,7 @@ export class MyReportsPage implements OnInit {
     sortParam: string,
     sortDir: string,
     searchString: string
-  }>> = new BehaviorSubject({
-    pageNumber: 1
-  });
+  }>>;
   currentPageNumber = 1;
   acc = [];
   filters: Partial<{
@@ -63,7 +61,10 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-
+    this.acc = [];
+    this.loadData$ = new BehaviorSubject({
+      pageNumber: 1
+    });
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
@@ -159,8 +160,8 @@ export class MyReportsPage implements OnInit {
     this.loadData$.subscribe(noop);
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
+    this.clearFilters();
     this.isInfiniteScrollRequired$.subscribe(noop);
-
   }
 
   setupNetworkWatcher() {
