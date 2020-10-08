@@ -15,7 +15,7 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
   ],
   exports: [
     EllipsisPipe,
-  	HumanizeCurrencyPipe
+    HumanizeCurrencyPipe
   ]
 })
 export class SharedModule { }
