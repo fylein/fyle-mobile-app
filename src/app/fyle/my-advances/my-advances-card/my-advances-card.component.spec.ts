@@ -1,0 +1,24 @@
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { IonicModule } from '@ionic/angular';
+
+import { MyAdvancesCardComponent } from './my-advances-card.component';
+
+describe('MyAdvancesCardComponent', () => {
+  let component: MyAdvancesCardComponent;
+  let fixture: ComponentFixture<MyAdvancesCardComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ MyAdvancesCardComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(MyAdvancesCardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
