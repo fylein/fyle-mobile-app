@@ -51,8 +51,12 @@ const routes: Routes = [
     loadChildren: () => import('./help/help.module').then( m => m.HelpPageModule)
   },
   {
-    path: 'team-advance',
+    path: 'team_advance',
     loadChildren: () => import('./team-advance/team-advance.module').then( m => m.TeamAdvancePageModule)
+  },
+  {
+    path: 'team_reports',
+    loadChildren: () => import('./team-reports/team-reports.module').then( m => m.TeamReportsPageModule)
   }
 ];
 
