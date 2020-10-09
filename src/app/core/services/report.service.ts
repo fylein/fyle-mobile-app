@@ -117,6 +117,48 @@ export class ReportService {
     );
   }
 
+  getTeamReportsCount(queryParams = {}) {
+    return this.getTeamReports({
+      offset: 0,
+      limit: 1,
+      queryParams
+    }).pipe(
+      map(res => res.count)
+    );
+  }
+
+  getTeamReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+        return this.apiv2Service.get('/reports', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            approved_by: 'cs.{' + eou.ou.id + '}',
+            order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
+            rp_org_user_id: 'eq.' + eou.ou.id,
+            ...config.queryParams
+          }
+        });
+      }),
+      map(res => res as {
+        count: number,
+        data: ExtendedReport[],
+        limit: number,
+        offset: number,
+        url: string
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.dateService.fixDates)
+      }))
+    );
+  }
+
   getReport(id: string) {
     return this.getMyReports({
       offset: 0,
