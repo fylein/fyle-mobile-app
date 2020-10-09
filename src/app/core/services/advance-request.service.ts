@@ -38,7 +38,7 @@ export class AdvanceRequestService {
         is_sent_back: true
       },
       all: {
-        state: ['APPROVAL_PENDING','DRAFT','APPROVED','REJECTED']
+        state: ['APPROVAL_PENDING', 'DRAFT', 'APPROVED', 'REJECTED']
       }
     };
 
@@ -138,13 +138,11 @@ export class AdvanceRequestService {
     );
   }
 
-  getTeamAdvanceRequestsCount(config: Partial<{ queryParams: any }> = {
-    queryParams: {}
-  }) {
+  getTeamAdvanceRequestsCount(queryParams: {}) {
     return this.getTeamadvanceRequests({
       offset: 0,
       limit: 1,
-      queryParams: config.queryParams
+      queryParams
     }).pipe(
       map(advanceRequest => advanceRequest.count)
     );

@@ -58,11 +58,9 @@ export class TeamAdvancePage implements OnInit {
 
     this.count$ = this.advanceRequestService.getTeamAdvanceRequestsCount(
       {
-        queryParams: {
-          areq_state: ['eq.APPROVAL_PENDING'],
-          areq_trip_request_id: ['is.null'],
-          or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-        }
+        areq_state: ['eq.APPROVAL_PENDING'],
+        areq_trip_request_id: ['is.null'],
+        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
       }
     ).pipe(
       shareReplay()
