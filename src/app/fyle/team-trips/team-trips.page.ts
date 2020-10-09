@@ -38,8 +38,8 @@ export class TeamTripsPage implements OnInit {
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
-                or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
-                trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)'],
+                trp_approval_state: ['in.(APPROVAL_PENDING)'],
+                trp_state: 'eq.APPROVAL_PENDING'
               }
             });
           }),
