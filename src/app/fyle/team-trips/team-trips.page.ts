@@ -16,7 +16,7 @@ export class TeamTripsPage implements OnInit {
 
   pageTitle = 'Team Trips';
   isConnected$: Observable<boolean>;
-  myTripRequests$: Observable<ExtendedTripRequest[]>;
+  teamTripRequests$: Observable<ExtendedTripRequest[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
   loadData$: Subject<number> = new Subject();
@@ -30,7 +30,7 @@ export class TeamTripsPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.myTripRequests$ = this.loadData$.pipe(
+    this.teamTripRequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
@@ -58,20 +58,20 @@ export class TeamTripsPage implements OnInit {
       shareReplay()
     );
 
-    this.count$ = this.tripRequestsService.getMyTripsCount().pipe(
+    this.count$ = this.tripRequestsService.getTeamTripsCount().pipe(
       shareReplay()
     );
 
-    this.isInfiniteScrollRequired$ = this.myTripRequests$.pipe(
-      concatMap(myTrips => {
+    this.isInfiniteScrollRequired$ = this.teamTripRequests$.pipe(
+      concatMap(teamTrips => {
         return this.count$.pipe(map(count => {
-          return count > myTrips.length;
+          return count > teamTrips.length;
         }));
       })
     );
 
     this.loadData$.subscribe(noop);
-    this.myTripRequests$.subscribe(noop);
+    this.teamTripRequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next(this.currentPageNumber);

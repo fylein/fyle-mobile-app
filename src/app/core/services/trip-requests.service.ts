@@ -178,6 +178,16 @@ export class TripRequestsService {
     );
   }
 
+  getTeamTripsCount(queryParams = {}) {
+    return this.getTeamTrips({
+      offset: 0,
+      limit: 1,
+      queryParams
+    }).pipe(
+      map(trip => trip.count)
+    );
+  }
+
   getInternalStateAndDisplayName(tripRequest: ExtendedTripRequest): { state: string, name: string } {
     if (tripRequest.trp_state === 'DRAFT') {
       if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
