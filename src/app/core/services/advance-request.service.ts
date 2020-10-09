@@ -108,6 +108,7 @@ export class AdvanceRequestService {
           params: {
             offset: config.offset,
             limit: config.limit,
+            order: 'areq_created_at.desc',
             areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
             ...config.queryParams
           }
@@ -137,11 +138,13 @@ export class AdvanceRequestService {
     );
   }
 
-  getTeamAdvanceRequestsCount(queryParams = {}) {
+  getTeamAdvanceRequestsCount(config: Partial<{ queryParams: any }> = {
+    queryParams: {}
+  }) {
     return this.getTeamadvanceRequests({
       offset: 0,
       limit: 1,
-      queryParams
+      queryParams: config.queryParams
     }).pipe(
       map(advanceRequest => advanceRequest.count)
     );

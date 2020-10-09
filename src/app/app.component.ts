@@ -221,7 +221,7 @@ export class AppComponent implements OnInit {
           title: 'Team Advances',
           isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
           icon: '../../../assets/svg/fy-team-advances-new.svg',
-          route: ['/', 'enterprise', 'team-advance']
+          route: ['/', 'enterprise', 'team_advance']
         },
         {
           title: 'Help',
