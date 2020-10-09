@@ -126,6 +126,7 @@ export class TripRequestsService {
           params: {
             offset: config.offset,
             limit: config.limit,
+            order: 'trp_created_at.desc',
             approvers: 'cs.{' + eou.ou.id + '}',
             ...config.queryParams
           }
@@ -178,11 +179,13 @@ export class TripRequestsService {
     );
   }
 
-  getTeamTripsCount(queryParams = {}) {
+  getTeamTripsCount(config: Partial<{ queryParams: any }> = {
+    queryParams: {}
+  })  {
     return this.getTeamTrips({
       offset: 0,
       limit: 1,
-      queryParams
+      queryParams: config.queryParams
     }).pipe(
       map(trip => trip.count)
     );
