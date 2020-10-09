@@ -102,4 +102,8 @@ export class TeamTripsPage implements OnInit {
     });
   }
 
+  onTripClick(clickedTrip: ExtendedTripRequest) {
+    this.router.navigate(['/', 'enterprise', 'view_team_trips', { id: clickedTrip.trp_id }]);
+  }
+
 }

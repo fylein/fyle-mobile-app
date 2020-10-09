@@ -193,4 +193,35 @@ export class DateService {
 
     return new Date(fromDate.getTime() + (numOfDays * 24 * 60 * 60 * 1000));
   }
+
+  getThisMonthRange() {
+    const firstDay = this.firstOfThisMonth();
+    const lastDay = this.lastOfThisMonth();
+    const range = {
+      from: firstDay,
+      to: lastDay
+    };
+
+    return range;
+  }
+
+  firstOfLastMonth() {
+    return new Date(this.year, this.month - 1, 1);
+  }
+
+  lastOfLastMonth() {
+    return new Date(this.year, this.month, 0, 23, 59);
+  }
+
+
+  getLastMonthRange() {
+    const firstDay = this.firstOfLastMonth();
+    const lastDay = this.lastOfLastMonth();
+    const range = {
+      from: firstDay,
+      to: lastDay
+    };
+
+    return range;
+  };
 }

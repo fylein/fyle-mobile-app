@@ -147,6 +147,32 @@
     line-height: 1.5;
   }
 
+  &--common-action-block {
+    display: flex;
+    padding: 4px 0;
+    
+    p {
+      display: inline-block;
+      vertical-align: middle;
+      font-size: 16px;
+      margin: 0 0 0 16px;
+      color: #0077ee;
+    }
 
+    mat-icon {
+      font-size: 24px;
+      color: #ababab;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
+  &--view-advance {
+    margin-left: 12px;
+  }
+
+  &--primary-cta {
+    margin: 12px;
+  }
 
 }

@@ -285,7 +285,8 @@ export class MyViewTripsPage implements OnInit {
       switchMap(() => {
         return this.tripRequestsService.getTrip(id);
       }),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay()
     );
 
     this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe(shareReplay());
@@ -315,14 +316,16 @@ export class MyViewTripsPage implements OnInit {
       })
     ));
 
-    this.transformedTripRequests$ = forkJoin({
-      tripRequest: this.tripRequest$,
-      allTripRequestCustomFields: this.allTripRequestCustomFields$
-    }).pipe(
-      map(({ tripRequest, allTripRequestCustomFields }) => {
-        return this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest);
-      })
-    );
+    // this.transformedTripRequests$ = forkJoin({
+    //   tripRequest: this.tripRequest$,
+    //   allTripRequestCustomFields: this.allTripRequestCustomFields$
+    // }).pipe(
+    //   tap(console.log),
+    //   map(({ tripRequest, allTripRequestCustomFields }) => {
+    //     return this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest);
+    //   }),
+    //   tap(console.log)
+    // );
 
     this.approvers$ = this.actions$.pipe(
       filter(actions => actions.can_add_approver),
@@ -392,7 +395,6 @@ export class MyViewTripsPage implements OnInit {
           const [hotelRequests, allCustomFields, tripRequest] = aggregatedRes;
           return hotelRequests.map(hotelRequest => {
             const transformedHotelRequest = this.dataTransformSerivce.unflatten(hotelRequest);
-            console.log(transformedHotelRequest);
             return this
               .getTripRequestCustomFields(
                 allCustomFields,
@@ -402,7 +404,6 @@ export class MyViewTripsPage implements OnInit {
           });
         }
       ),
-      tap(console.log),
       shareReplay()
     );
 

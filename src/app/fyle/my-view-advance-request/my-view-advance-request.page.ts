@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { forkJoin, from, Observable } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AlertController, PopoverController } from '@ionic/angular';
+import { forkJoin, from, noop, Observable } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { Approval } from 'src/app/core/models/approval.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -9,6 +10,7 @@ import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -26,7 +28,10 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private advanceRequestService: AdvanceRequestService,
-    private fileService: FileService
+    private fileService: FileService,
+    private alertController: AlertController,
+    private router: Router,
+    private popoverController: PopoverController
   ) { }
 
   ionViewWillEnter() {
@@ -39,7 +44,9 @@ export class MyViewAdvanceRequestPage implements OnInit {
       shareReplay()
     );
 
-    this.actions$ = this.advanceRequestService.getActions(id);
+    this.actions$ = this.advanceRequestService.getActions(id).pipe(
+      shareReplay()
+    );
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap(res => {
@@ -60,11 +67,72 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     this.advanceRequestCustomFileds$ = this.advanceRequest$.pipe(
       map(res => {
-         return JSON.parse(res.areq_custom_field_values);
+         return this.advanceRequestService.modifyAdvanceRequestCustomFileds(JSON.parse(res.areq_custom_field_values));
       })
-    )
+    );
   }
-  
+
+  async pullBack() {
+    const pullBackPopover = await this.popoverController.create({
+      component: PullBackAdvanceRequestComponent,
+      cssClass: 'dialog-popover'
+    });
+
+    await pullBackPopover.present();
+
+    const { data } = await pullBackPopover.onWillDismiss();
+
+    if (data) {
+      const status = {
+        comment: data.comment
+      };
+
+      const addStatusPayload = {
+        status,
+        notify: false
+      };
+
+      const id = this.activatedRoute.snapshot.params.id;
+
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_advances']);
+      });
+    }
+  }
+
+  // Todo: Redirect to edit advance page
+  edit() {
+  }
+
+  async delete() {
+    const id = this.activatedRoute.snapshot.params.id;
+
+    const alert = await this.alertController.create({
+      header: 'Confirm!',
+      message: 'Are you sure you want to delete this Advance Request',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: noop
+        }, {
+          text: 'Okay',
+          handler: () => {
+            this.advanceRequestService.delete(id).subscribe(() => {
+              this.router.navigate(['/', 'enterprise', 'my_advances']);
+            });
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
 
   ngOnInit() {
   }

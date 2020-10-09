@@ -8,6 +8,11 @@ import { MyViewAdvanceRequestPageRoutingModule } from './my-view-advance-request
 
 import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
 import { MatIconModule } from '@angular/material/icon';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -16,7 +21,14 @@ import { MatIconModule } from '@angular/material/icon';
     IonicModule,
     MyViewAdvanceRequestPageRoutingModule,
     MatIconModule,
+    SharedModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
   ],
-  declarations: [MyViewAdvanceRequestPage]
+  declarations: [
+    MyViewAdvanceRequestPage,
+    PullBackAdvanceRequestComponent 
+  ]
 })
 export class MyViewAdvanceRequestPageModule {}

@@ -13,6 +13,7 @@ import { Approval } from '../models/approval.model';
   providedIn: 'root'
 })
 export class AdvanceRequestService {
+  
 
   constructor(
     private networkService: NetworkService,
@@ -120,11 +121,41 @@ export class AdvanceRequestService {
     );
   }
 
+  getTeamadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+        return this.apiv2Service.get('/advance_requests', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
+            ...config.queryParams
+          }
+        });
+      }),
+      map(res => res as {
+        count: number,
+        data: ExtendedAdvanceRequest[],
+        limit: number,
+        offset: number,
+        url: string
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.fixDates)
+      }))
+    );
+  }
+
   getActiveApproversByAdvanceRequestId(advanceRequestId: string) {
     return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
       map(approvers => {
-        let filteredApprovers = approvers.filter((approver) => {
-          if (approver.state!== 'APPROVAL_DISABLED') {
+        const filteredApprovers = approvers.filter((approver) => {
+          if (approver.state !== 'APPROVAL_DISABLED') {
             return approver;
           }
         })
@@ -132,6 +163,7 @@ export class AdvanceRequestService {
       })
     )
   }
+  
 
   getMyAdvanceRequestsCount(queryParams = {}) {
     return this.getMyadvanceRequests({
@@ -141,6 +173,26 @@ export class AdvanceRequestService {
     }).pipe(
       map(advanceRequest => advanceRequest.count)
     );
+  }
+
+  getTeamAdvanceRequestsCount(queryParams = {}) {
+    return this.getTeamadvanceRequests({
+      offset: 0,
+      limit: 1,
+      queryParams
+    }).pipe(
+      map(advanceRequest => advanceRequest.count)
+    );
+  }
+
+  modifyAdvanceRequestCustomFileds(customFileds) {
+    customFileds = customFileds.map(customFiled => {
+      if (customFiled.type === 'DATE') {
+        customFiled.value = new Date(customFiled.value);
+      }
+      return customFiled;
+    });
+    return customFileds;
   }
 
   fixDates(data: ExtendedAdvanceRequest) {
@@ -197,6 +249,14 @@ export class AdvanceRequestService {
         name: 'Rejected'
       };
     }
+  }
+
+  delete(advanceRequestId: string) {
+    return this.apiService.delete('/advance_requests/' + advanceRequestId);
+  }
+
+  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
   }
 
 

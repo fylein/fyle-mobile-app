@@ -159,7 +159,7 @@ export class AppComponent implements OnInit {
           title: 'Reports',
           isVisible: true,
           icon: '../../../assets/svg/fy-reports-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard2']
+          route: ['/', 'enterprise', 'my_reports']
         },
         {
           title: 'Advances',
@@ -221,7 +221,7 @@ export class AppComponent implements OnInit {
           title: 'Team Advances',
           isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
           icon: '../../../assets/svg/fy-team-advances-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard12']
+          route: ['/', 'enterprise', 'team-advance']
         },
         {
           title: 'Help',
