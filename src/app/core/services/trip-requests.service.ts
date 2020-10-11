@@ -179,13 +179,11 @@ export class TripRequestsService {
     );
   }
 
-  getTeamTripsCount(config: Partial<{ queryParams: any }> = {
-    queryParams: {}
-  })  {
+  getTeamTripsCount(queryParams = {})  {
     return this.getTeamTrips({
       offset: 0,
       limit: 1,
-      queryParams: config.queryParams
+      queryParams
     }).pipe(
       map(trip => trip.count)
     );

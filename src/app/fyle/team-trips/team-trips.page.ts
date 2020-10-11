@@ -58,12 +58,12 @@ export class TeamTripsPage implements OnInit {
       shareReplay()
     );
 
-    this.count$ = this.tripRequestsService.getTeamTripsCount({
-      queryParams: {
+    this.count$ = this.tripRequestsService.getTeamTripsCount(
+      {
         trp_approval_state: ['in.(APPROVAL_PENDING)'],
         trp_state: 'eq.APPROVAL_PENDING'
       }
-    }).pipe(
+    ).pipe(
       shareReplay()
     );
 
