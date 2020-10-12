@@ -17,6 +17,7 @@
 
 <ion-content>
 	<div class="dashboard--container">
+    <button (click)="bustCache()">Bust Cache</button>
     <div class="dashboard--card" *ngFor="let item of this.dashboardList; index as $index;">
       <div *ngIf="this.item && this.item.isVisible && !this.item.isCollapsed">
         <app-enterprise-dashboard-card [dashboardList]="this.dashboardList" [index]="$index"></app-enterprise-dashboard-card>

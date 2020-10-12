@@ -1,0 +1,39 @@
+<ion-header class="ion-no-border">
+  <div class="trip--header">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button class="trip--menubutton" auto-hide="false" ></ion-menu-button>
+      </ion-buttons>
+      <ion-title slot="primary" mode="ios" class="trip--title text-capitalize">{{this.pageTitle}}</ion-title>
+    </ion-toolbar>
+  </div>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="(count$ | async) === 0" class="my-trips--zero-state">
+    <img class="my-trips--zero-state-img" src="../../../assets/images/zero-states/reports.svg"
+      alt="Create First Advance Request">
+    <div class="my-trips--zero-state-header">
+      This is the home to all your trip requests
+    </div>
+    <div class="my-trips--zero-state-subheader">
+      Your trip request logs will show up here. Request your first trip to see how it
+      looks.
+    </div>
+    <div class="my-trips--zero-state-action-button-container">
+      <div class="my-trips--zero-state-action-button">Request first trip</div>
+    </div>
+  </div>
+  <div *ngFor="let tripRequest of myTripRequests$ | async">
+    <app-team-trip-card [tripRequest]="tripRequest" (tripClick)="onTripClick($event)"></app-team-trip-card>
+  </div>
+
+  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

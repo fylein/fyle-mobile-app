@@ -48,18 +48,20 @@ $text-light: #ababab;
         content: '∙';
         font-size: 48px;
         position: absolute;
-        left: -12px;
+        left: -20px;
         color: red;
       }
 
       &:last-child {
         position: relative;
-        top: 8px;      
+        top: 8px;
+        left: 8px;
       }
   
       &:first-child {
         position: relative;
         top: -8px;
+        left: 8px;
       }
     }
   }

@@ -159,13 +159,13 @@ export class AppComponent implements OnInit {
           title: 'Reports',
           isVisible: true,
           icon: '../../../assets/svg/fy-reports-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard2']
+          route: ['/', 'enterprise', 'my_reports']
         },
         {
           title: 'Advances',
           isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
           icon: '../../../assets/svg/fy-advances-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard3']
+          route: ['/', 'enterprise', 'my_advances']
         },
         {
           title: 'Trips',
@@ -202,7 +202,7 @@ export class AppComponent implements OnInit {
           title: 'Profile',
           isVisible: true,
           icon: '../../../assets/svg/fy-profile-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard9']
+          route: ['/', 'enterprise', 'my_profile']
         },
         {
           title: 'Team Reports',
@@ -215,19 +215,19 @@ export class AppComponent implements OnInit {
           title: 'Team Trips',
           isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
           icon: '../../../assets/svg/fy-team-trips-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard11']
+          route: ['/', 'enterprise', 'team_trips']
         },
         {
           title: 'Team Advances',
           isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
           icon: '../../../assets/svg/fy-team-advances-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard12']
+          route: ['/', 'enterprise', 'team-advance']
         },
         {
           title: 'Help',
           isVisible: true,
           icon: '../../../assets/svg/fy-help-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard13']
+          route: ['/', 'enterprise', 'help']
         },
         {
           title: 'Switch Accounts',
@@ -242,19 +242,28 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.checkAppSupportedVersion();
+    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      if (loggedInStatus) {
+        this.showSideMenu();
+      }
+    });
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
         this.showSideMenu();
       }
     });
-
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
         this.showSideMenu();
       }, 500);
     });
 
+    this.userEventService.onLogout(() => {
+      this.router.navigate(['/', 'auth', 'sign-in']);
+    });
+
     // Left with isonline/is offline method
   }
+
 }

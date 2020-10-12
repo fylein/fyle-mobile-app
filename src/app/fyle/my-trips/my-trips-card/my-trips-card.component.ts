@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 
@@ -10,6 +10,9 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 export class MyTripsCardComponent implements OnInit {
 
   @Input() tripRequest: ExtendedTripRequest;
+
+  @Output() tripClick: EventEmitter<ExtendedTripRequest> = new EventEmitter();
+
   internalState: { name: string, state: string };
   tripTypesMap = {
     ONE_WAY: 'One Way',
@@ -25,5 +28,8 @@ export class MyTripsCardComponent implements OnInit {
     this.internalState = this.tripRequestService.getInternalStateAndDisplayName(this.tripRequest);
   }
 
+  onTripClick() {
+    this.tripClick.emit(this.tripRequest);
+  }
 
 }

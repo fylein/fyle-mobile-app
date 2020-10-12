@@ -11,7 +11,10 @@ import { MyTripsPage } from './my-trips.page';
 import { MatCardModule } from '@angular/material/card';
 
 import { MyTripsCardComponent } from './my-trips-card/my-trips-card.component';
+
 import { SharedModule } from 'src/app/shared/shared.module';
+
+import { MatRippleModule } from '@angular/material/core';
 
 @NgModule({
   imports: [
@@ -20,7 +23,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     IonicModule,
     MyTripsPageRoutingModule,
     MatCardModule,
-    SharedModule
+    SharedModule,
+    MatRippleModule
   ],
   declarations: [
     MyTripsPage,

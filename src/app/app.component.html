@@ -22,7 +22,7 @@
     <ion-content class="sidemenu--content">
       <div class="sidemenu--items-wrapper">
         <ion-list>
-          <div *ngFor="let sideMenuItem of this.sideMenuList; index as i">
+          <div *ngFor="let sideMenuItem of sideMenuList; index as i">
             <ion-item detail="false" [routerLink]="sideMenuItem.route" routerLinkActive="item-active" class="sidemenu--items" [ngClass]="sideMenuItem.cssClass" *ngIf="sideMenuItem.isVisible" (click)="redirect(sideMenuItem.route)">
               <a class="sidemenu--item">
                 <ion-grid>
@@ -42,7 +42,7 @@
           </div>
         </ion-list>
       </div>
-      <div class="sidemenu--appversion" *ngIf="this.appVersion">v{{this.appVersion}}</div>
+      <div class="sidemenu--appversion" *ngIf="appVersion">v{{appVersion}}</div>
       
     </ion-content>
   </ion-menu>
