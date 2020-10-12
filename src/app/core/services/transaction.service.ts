@@ -11,11 +11,11 @@ import { AuthService } from './auth.service';
 import { Cacheable, CacheBuster } from 'ngx-cacheable';
 
 
+const transactionCacheBuster$ = new Subject<void>();
+
 @Injectable({
   providedIn: 'root'
 })
-
-const transactionCacheBuster$ = new Subject<void>();
 
 export class TransactionService {
 
@@ -131,6 +131,9 @@ export class TransactionService {
     );
   }
 
+  // @CacheBuster({
+  //   cacheBusterNotifier: transactionCacheBuster$
+  // })
   bustTransactionCache() {
     console.log('busting cache now... chik chik boom');
     transactionCacheBuster$.next();
