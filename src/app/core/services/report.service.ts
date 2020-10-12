@@ -168,4 +168,11 @@ export class ReportService {
     );
   }
 
+  getAllOpenReportsCount() {
+    return this.getMyReportsCount({
+      queryParams: {
+        rp_state: 'in.(DRAFT,APPROVER_PENDING)'
+      }
+    });
+  }
 }

@@ -8,6 +8,55 @@
     align-items: center;
   }
 
+  &--state {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  &--stats {
+    margin: 12px;
+    position: relative;
+    top: 8px;
+  }
+
+  &--amount {
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  &--homeCurrency {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  &--count {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ababab;
+    margin-bottom: 16px;
+  }
+
+  &--state-pill {
+    width: 45%;
+    border: 1px solid #0077ee;
+    padding: 8px;
+    text-align: center;
+    color: #0077ee;
+    &__left {
+      border-radius: 4px 0 0 4px;
+    }
+
+    &__right {
+      border-radius: 0 4px 4px 0;
+    }
+
+    &__selected {
+      background-color: #0077ee;
+      color: #e6e6e6;
+    }
+  }
+
   &--simple-search {
     min-width: 65%;
     max-width: 80%;

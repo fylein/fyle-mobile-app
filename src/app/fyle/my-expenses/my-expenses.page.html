@@ -8,6 +8,24 @@
     </ion-title>
   </ion-toolbar>
   <ion-toolbar>
+    <div class="my-expenses--state">
+      <div matRipple class="my-expenses--state-pill my-expenses--state-pill__left"
+        [ngClass]="{'my-expenses--state-pill__selected': this.baseState === 'all'}" (click)="setState('all')">
+        All Expenses
+        <span *ngIf="allExpensesCount$|async as allExpensesCount">
+          ({{allExpensesCount}})
+        </span>
+      </div>
+      <div matRipple class="my-expenses--state-pill my-expenses--state-pill__right"
+        [ngClass]="{'my-expenses--state-pill__selected': this.baseState === 'draft'}" (click)="setState('draft')">
+        Draft Expenses
+        <span *ngIf="draftExpensesCount$|async as draftExpensesCount">
+          ({{draftExpensesCount}})
+        </span>
+      </div>
+    </div>
+  </ion-toolbar>
+  <ion-toolbar>
     <div class="my-expenses--toolbar">
       <mat-form-field class="mat-form-field-no-padding my-expenses--simple-search" appearance="outline">
         <mat-icon matPrefix>search</mat-icon>
@@ -68,9 +86,19 @@
 </ion-content>
 
 <ion-footer>
+  <ion-toolbar *ngIf="this.baseState === 'all'">
+    <div class="my-expenses--stats">
+      <div class="my-expenses--amount" *ngIf="expensesAmountStats$|async as expensesAmountStats">
+        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span> {{expensesAmountStats}}
+      </div>
+      <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
+        across {{allExpensesCount}} unreported expenses
+      </div>
+    </div>
+  </ion-toolbar>
   <ion-toolbar>
     <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
-      CREATE EXPENSE
+      Add New Expense
     </ion-button>
   </ion-toolbar>
 </ion-footer>

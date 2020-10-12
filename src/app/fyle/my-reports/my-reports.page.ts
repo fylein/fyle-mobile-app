@@ -196,39 +196,30 @@ export class MyReportsPage implements OnInit {
   addNewFiltersToParams() {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-
-    if (!currentParams.queryParams) {
-      currentParams.queryParams = {};
-    }
+    const newQueryParams: any = {};
 
     if (this.filters.state) {
       if (this.filters.state === 'ALL') {
-        currentParams.queryParams.rp_state =
+        newQueryParams.rp_state =
           'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
       } else {
-        currentParams.queryParams.rp_state =
+        newQueryParams.rp_state =
           `in.(${this.filters.state})`;
 
       }
-    } else {
-      currentParams.queryParams.rp_state = 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
     }
 
     if (this.filters.date) {
       if (this.filters.date === 'THISMONTH') {
-        currentParams.queryParams.and =
+        newQueryParams.and =
           `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
       } else if (this.filters.date === 'LASTMONTH') {
-        currentParams.queryParams.and =
+        newQueryParams.and =
           `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
       } else if (this.filters.date === 'CUSTOMDATE') {
-        currentParams.queryParams.and =
+        newQueryParams.and =
           `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
-      } else {
-        delete currentParams.queryParams.and;
       }
-    } else {
-      delete currentParams.queryParams.and;
     }
 
     if (this.filters.sortParam && this.filters.sortDir) {
@@ -238,6 +229,8 @@ export class MyReportsPage implements OnInit {
       currentParams.sortParam = 'rp_created_at';
       currentParams.sortDir = 'desc';
     }
+
+    currentParams.queryParams = newQueryParams;
 
     return currentParams;
   }

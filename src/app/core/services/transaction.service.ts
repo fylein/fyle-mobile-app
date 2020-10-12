@@ -35,7 +35,7 @@ export class TransactionService {
   }
 
   parseRaw(etxnsRaw) {
-    let etxns = [];
+    const etxns = [];
 
     etxnsRaw.forEach(element => {
       const etxn = this.dataTransformService.unflatten(element);
@@ -247,4 +247,18 @@ export class TransactionService {
     );
   }
 
+  getTransactionStats(aggregates: string, queryParams = {}) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+        return this.apiV2Service.get('/expenses/stats', {
+          params: {
+            aggregates,
+            tx_org_user_id: 'eq.' + eou.ou.id,
+            ...queryParams
+          }
+        });
+      }),
+      map(res => res.data)
+    );
+  }
 }

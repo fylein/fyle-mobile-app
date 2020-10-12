@@ -16,6 +16,8 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
+import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 
 @NgModule({
   imports: [
@@ -37,7 +39,9 @@ import { SharedModule } from 'src/app/shared/shared.module';
   ],
   declarations: [
     MyExpensesPage,
-    MyExpensesCardComponent
+    MyExpensesCardComponent,
+    MyExpensesSearchFilterComponent,
+    MyExpensesSortFilterComponent
   ]
 })
 export class MyExpensesPageModule {}

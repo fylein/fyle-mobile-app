@@ -1,4 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-my-expenses-card',
@@ -7,16 +8,28 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class MyExpensesCardComponent implements OnInit {
 
-  @Input() expense: any;
+  @Input() expense: Expense;
   @Input() isSelectMode = false;
   @Input() disabledSelection = false;
   @Input() openReportsPresent = false;
   @Input() prevExpense;
   @Input() dateComparatorProp;
+  @Input() canDelete = false;
+
+  @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+  @Output() toggleFlashMode: EventEmitter<Expense> = new EventEmitter();
+  @Output() addTransactionToReport: EventEmitter<Expense> = new EventEmitter();
+  @Output() selectTransaction: EventEmitter<Expense> = new EventEmitter();
+  @Output() deleteTransaction: EventEmitter<Expense> = new EventEmitter();
+
   showDt = true;
   vendorDetails = '';
   amountIsNumber;
   extractedAmountIsNumber;
+  isPolicyViolated = false;
+  isCriticalPolicyViolated = false;
+  isDraft = false;
+  actionOpened = false;
 
   constructor() { }
 
@@ -38,36 +51,35 @@ export class MyExpensesCardComponent implements OnInit {
   ngOnInit() {
     this.amountIsNumber = typeof this.expense.tx_amount === 'number';
     this.extractedAmountIsNumber = typeof (this.expense && this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount) === 'number';
+    this.isDraft = this.expense.tx_state === 'DRAFT';
     this.vendorDetails = this.getVendorDetails(this.expense);
-
+    this.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
+    this.isCriticalPolicyViolated = (typeof this.expense.tx_policy_amount === 'number' && this.expense.tx_policy_amount < 0.0001);
     if (this.prevExpense && this.dateComparatorProp) {
       const currentDate = (this.expense && (new Date(this.expense[this.dateComparatorProp])).toDateString());
       const previousDate = (this.prevExpense && (new Date(this.prevExpense[this.dateComparatorProp])).toDateString());
       this.showDt = currentDate !== previousDate;
     }
-  }
-
-  goToTransaction() {
 
   }
 
-  toggleFlashMode() {
-
+  onGoToTransaction() {
+    this.goToTransaction.emit(this.expense);
   }
 
-  addTransactionToReport() {
-
+  onToggleFlashMode() {
+    this.toggleFlashMode.emit(this.expense);
   }
 
-  selectTransaction() {
-
+  onAddTransactionToReport() {
+    this.addTransactionToReport.emit(this.expense);
   }
 
-  deleteTransaction() {
-
+  onSelectTransaction() {
+    this.selectTransaction.emit(this.expense);
   }
 
-  addTransactionToNewReport() {
-
+  onDeleteTransaction() {
+    this.deleteTransaction.emit(this.expense);
   }
 }

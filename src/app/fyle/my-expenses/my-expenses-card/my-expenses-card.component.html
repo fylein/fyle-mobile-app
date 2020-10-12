@@ -14,22 +14,22 @@
     </div>
   </div>
   <div class="my-expenses-card">
-    <div class="my-expenses-card--decorator" *ngIf="expense.isDraft">
+    <div class="my-expenses-card--decorator" *ngIf="expense.tx_state === 'DRAFT'">
       Draft
     </div>
-    <div class="my-expenses-card--decorator" *ngIf="expense.tx_user_review_needed && !expense.isDraft">
+    <div class="my-expenses-card--decorator" *ngIf="expense.tx_user_review_needed && !isDraft">
       Needs Review
     </div>
-    <div class="my-expenses-card--decorator"
-      *ngIf="expense.tx_id && expense.isPolicyViolated && !expense.isCriticalPolicyViolated">
+    <div class="my-expenses-card--decorator my-expenses-card--decorator__policy-violation"
+      *ngIf="expense.tx_id && isPolicyViolated && !isCriticalPolicyViolated">
       Policy Violation
     </div>
-    <div class="my-expenses-card--decorator" *ngIf="expense.tx_id && expense.isCriticalPolicyViolated">
+    <div class="my-expenses-card--decorator" *ngIf="expense.tx_id && isCriticalPolicyViolated">
       Critical Policy Violation
     </div>
 
-    <div class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!expense.actionOpened && !isSelectMode"
-      (click)="goToTransaction()">
+    <div class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!actionOpened && !isSelectMode"
+      (click)="onGoToTransaction()">
       <div class="my-expenses-card--body-internal">
         <div class="my-expenses-card--icon">
           <mat-icon>
@@ -49,7 +49,7 @@
                 --
               </div>
               <div *ngIf="!expense.tx_amount && expense?.tx_extracted_data?.amount">
-                <!-- <i class="icon ion-flash icon-flash" (click)="toggleFlashMode()"></i> -->
+                <!-- <i class="icon ion-flash icon-flash" (click)="onToggleFlashMode()"></i> -->
                 <mat-icon>
                   flash
                 </mat-icon>
@@ -70,7 +70,7 @@
         </div>
       </div>
 
-      <div (click)="expense.actionOpened = true">
+      <div (click)="actionOpened = true">
         <mat-icon>
           more_horiz
         </mat-icon>
@@ -79,27 +79,28 @@
       </div>
     </div>
 
-    <div class="my-expenses-card--body my-expenses-card--body__open" *ngIf="expense.actionOpened">
-      <div (click)="expense.actionOpened = false">
-        <mat-icon>
-          close
-        </mat-icon>
-      </div>
-      <div>
-        <div>
-          <button type="button" (click)="addTransactionToReport()" *ngIf="openReportsPresent"
-            [disabled]="(expense.isDraft || expense.isCriticalPolicyViolated)">Add to Report</button>
-          <button type="button" (click)="addTransactionToNewReport()" *ngIf="openReportsPresent"
-            [disabled]="(expense.isDraft || expense.isCriticalPolicyViolated)">Add to New Report</button>
-        </div>
-        <div>
-          <button type="submit" [disabled]="!expense.tx_user_can_delete" (click)="deleteTransaction()">Delete</button>
+    <div class="my-expenses-card-menu" *ngIf="actionOpened">
+      <div class="my-expenses-card-menu--close">
+        <div matRipple (click)="actionOpened = false" class="my-expenses-card-menu--cancel">
+          <mat-icon>
+            close
+          </mat-icon>
         </div>
       </div>
-    </div><!-- Show this if clicked on more action -->
+
+      <div class="my-expenses-card-menu--buttons">
+        <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__comments" (click)="onAddTransactionToReport()" [ngClass]="{'my-expenses-card-menu--action__disabled': (isDraft || isCriticalPolicyViolated)}">
+          <span *ngIf="openReportsPresent">Add to Report</span>
+          <span *ngIf="!openReportsPresent">Add to New Report</span>
+        </div>
+        <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__delete" [class]="{'my-expenses-card-menu--action__disabled': !expense.tx_user_can_delete}" (click)="onDeleteTransaction()">
+          <span>Delete</span>
+        </div>
+      </div>
+    </div>
 
     <div class="my-expenses-card--body my-expenses-card--body__selection" *ngIf="isSelectMode">
-      <ion-checkbox mode="md" ng-model="expense.selected" (click)="selectTransaction()" [disabled]="disabledSelection">
+      <ion-checkbox mode="md" ng-model="expense.selected" (click)="onSelectTransaction()" [disabled]="disabledSelection">
         <!-- [disabled]="(expense.isDraft && activeTab === 'all') || expense.isCriticalPolicyViolated"> -->
       </ion-checkbox>
       <div>
@@ -117,7 +118,7 @@
           </div>
         </div>
         <div>
-          {{expense.vendorDetails}}
+          {{vendorDetails}}
         </div>
         <div>
           {{expense.tx_org_category}}

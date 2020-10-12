@@ -52,7 +52,7 @@ export class MyAdvancesPage implements OnInit {
     );
 
     this.count$ = this.advanceRequestService.getMyAdvanceRequestsCount(
-      { areq_trip_request_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
+      { areq_trip_request_id: 'is.null' }
     ).pipe(
       shareReplay()
     );
