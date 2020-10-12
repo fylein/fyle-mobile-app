@@ -11,7 +11,6 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay } from 'rxjs/operators';
 import { MyReportsSearchFilterComponent } from '../my-reports/my-reports-search-filter/my-reports-search-filter.component';
 import { MyReportsSortFilterComponent } from '../my-reports/my-reports-sort-filter/my-reports-sort-filter.component';
-import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -59,7 +58,6 @@ export class TeamReportsPage implements OnInit {
     public alertController: AlertController,
     private router: Router,
     private currencyService: CurrencyService,
-    private offlineService: OfflineService,
   ) { }
 
   ngOnInit() {
@@ -72,12 +70,10 @@ export class TeamReportsPage implements OnInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        // this.orgSettings$ = this.offlineService.getOrgSettings();
-
-        // this.orgSettings$.subscribe((res) => {
-        //   this.orgSettings = res;
-        // });
-        const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
+        const queryParams = params.queryParams || {
+          rp_approval_state: ['in.(APPROVAL_PENDING)'],
+          rp_state: ['in.(APPROVER_PENDING)'],
+        };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return from(this.loaderService.showLoader()).pipe(switchMap(() => {
           return this.reportService.getTeamReports({

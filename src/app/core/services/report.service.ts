@@ -3,11 +3,12 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { switchMap, tap, map, concatMap, reduce } from 'rxjs/operators';
-import { from, range } from 'rxjs';
+import { from, range, forkJoin } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
 import { ExtendedReport } from '../models/report.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class ReportService {
     private apiService: ApiService,
     private authService: AuthService,
     private apiv2Service: ApiV2Service,
-    private dateService: DateService
+    private dateService: DateService,
+    private offlineService: OfflineService,
   ) { }
 
   getUserReportParams(state: string) {
@@ -132,15 +134,23 @@ export class ReportService {
     limit: 10,
     queryParams: {}
   }) {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
+    const autService$ = this.authService.getEou();
+    const orgSettings$ = this.offlineService.getOrgSettings();
+
+    const primaryData$ = forkJoin({
+      autService$,
+      orgSettings$
+    });
+
+    return from(primaryData$).pipe(
+      switchMap(res => {
         return this.apiv2Service.get('/reports', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            approved_by: 'cs.{' + eou.ou.id + '}',
+            approved_by: 'cs.{' + res.autService$.ou.id + '}',
             order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
-            rp_org_user_id: 'eq.' + eou.ou.id,
+            sequential_approval_turn: res.orgSettings$.approval_settings.enable_sequential_approvers ? ['in.(true)'] : ['in.(true)'],
             ...config.queryParams
           }
         });
