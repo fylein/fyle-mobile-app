@@ -1,0 +1,37 @@
+<div class="etxn-card">
+  <div class="etxn-card--date" *ngIf="showDate">
+    <span>
+      {{etxn?.tx_txn_dt | date: 'EEEE'}}
+    </span>,
+    <span>
+      {{etxn?.tx_txn_dt | date: 'dd MMMM yyyy'}}
+    </span>
+  </div>
+  <div class="etxn-card--body" matRipple (click)="goToTransactionClicked()">
+    <div class="etxn-card--icon">
+      <!-- <svg-sprite icon="{{ etxn.tx_org_category | categoryIconMobile }}" class="thumbnail icon-category">
+        </svg-sprite> -->
+      <!-- category icon here -->
+      <mat-icon>fastfood</mat-icon>
+    </div>
+    <div class="etxn-card--details">
+      <div>
+        <span class="etxn-card--currency">
+          {{etxn.tx_currency}}
+        </span>
+        <span class="etxn-card--amount">
+          {{etxn.tx_amount | number:'1.2'}}
+        </span>
+      </div>
+      <div class="etxn-card--vendor">
+        {{etxn.vendor | ellipsis:12:false}}
+      </div>
+      <div class="etxn-card--category">
+        {{etxn.tx_org_category | ellipsis:12:false}}
+      </div>
+    </div>
+    <div class="etxn-card--violation" *ngIf="etxn.violation">
+      <mat-icon>warning</mat-icon>
+    </div>
+  </div>
+</div>

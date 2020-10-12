@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -11,6 +11,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay } from 'rxjs/operators';
 import { MyReportsSearchFilterComponent } from '../my-reports/my-reports-search-filter/my-reports-search-filter.component';
 import { MyReportsSortFilterComponent } from '../my-reports/my-reports-sort-filter/my-reports-sort-filter.component';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -21,7 +22,7 @@ export class TeamReportsPage implements OnInit {
 
   pageTitle = 'Team Reports';
   isConnected$: Observable<boolean>;
-  myReports$: Observable<ExtendedReport[]>;
+  teamReports$: Observable<ExtendedReport[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
   loadData$: BehaviorSubject<Partial<{
@@ -44,6 +45,8 @@ export class TeamReportsPage implements OnInit {
     sortDir: string;
   }>;
   homeCurrency$: Observable<string>;
+  orgSettings$: Observable<string>;
+  orgSettings: any;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -55,7 +58,8 @@ export class TeamReportsPage implements OnInit {
     private dateService: DateService,
     public alertController: AlertController,
     private router: Router,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private offlineService: OfflineService,
   ) { }
 
   ngOnInit() {
@@ -66,25 +70,17 @@ export class TeamReportsPage implements OnInit {
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
-    // fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
-    //   .pipe(
-    //     map((event: any) => event.srcElement.value as string),
-    //     distinctUntilChanged(),
-    //     debounceTime(1000)
-    //   ).subscribe((searchString) => {
-    //     const currentParams = this.loadData$.getValue();
-    //     currentParams.searchString = searchString;
-    //     this.currentPageNumber = 1;
-    //     currentParams.pageNumber = this.currentPageNumber;
-    //     this.loadData$.next(currentParams);
-    //   });
-
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
+        // this.orgSettings$ = this.offlineService.getOrgSettings();
+
+        // this.orgSettings$.subscribe((res) => {
+        //   this.orgSettings = res;
+        // });
         const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return from(this.loaderService.showLoader()).pipe(switchMap(() => {
-          return this.reportService.getMyReports({
+          return this.reportService.getTeamReports({
             offset: (params.pageNumber - 1) * 10,
             limit: 10,
             queryParams,
@@ -127,7 +123,7 @@ export class TeamReportsPage implements OnInit {
       })
     );
 
-    this.myReports$ = this.loadData$.pipe(
+    this.teamReports$ = this.loadData$.pipe(
       switchMap(params => {
         return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
       }),
@@ -136,12 +132,12 @@ export class TeamReportsPage implements OnInit {
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
-        return this.reportService.getMyReportsCount(params.queryParams);
+        return this.reportService.getTeamReportsCount(params.queryParams);
       }),
       shareReplay()
     );
 
-    const paginatedScroll$ = this.myReports$.pipe(
+    const paginatedScroll$ = this.teamReports$.pipe(
       switchMap(erpts => {
         return this.count$.pipe(
           map(count => {
@@ -157,7 +153,7 @@ export class TeamReportsPage implements OnInit {
     );
 
     this.loadData$.subscribe(noop);
-    this.myReports$.subscribe(noop);
+    this.teamReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
 
@@ -287,7 +283,7 @@ export class TeamReportsPage implements OnInit {
   }
 
   onReportClick(erpt: ExtendedReport) {
-    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id }]);
+    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: erpt.rp_id }]);
   }
 
   async onDeleteReportClick(erpt: ExtendedReport) {

@@ -1,0 +1,180 @@
+$reported-color: #4798ff;
+$approved-color: #67bc53;
+$paid-color: #64b5a6;
+$fyled-color: #f90;
+$inquiry-color: #4848ad;
+
+.view-reports {
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--body {
+    margin: 16px;
+  }
+
+  &--card {
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    margin: 20px 0;
+    padding: 16px;
+    border-radius: 4px;
+    &__block-action {
+      display: flex;
+      justify-content: start;
+      align-items: center;
+    }
+
+    &__zero-state {
+      text-align: center;
+    }
+  }
+
+  &--zero-state-header {
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: #4a4a4a;
+    line-height: 1.5;
+    font-weight: 500;
+    margin-top: 8px;;
+  }
+
+  &--zero-state-sub-header {
+    color: #ababab;
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    padding: 0 8px;
+  }
+
+  &--block-action {
+    margin-left: 4px;
+    &__comment {
+      color: #0077ee;
+    }
+
+    &__delete {
+      color: red;
+    }
+  }
+
+  &--card-header {
+    font-size: 16px;
+    color: #4a4a4a;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  &--card-body {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 300;
+    margin-bottom: 16px;
+    line-height: 1;
+    &__highlight {
+      color: #67bc53;
+    }
+  }
+
+  &--approval-state {
+    &__reported {
+      color: $reported-color;
+    }
+    &__fyled {
+      color: $fyled-color;
+    }
+    &__inquiry {
+      color: $inquiry-color;
+    }
+    &__approved {
+      color: $approved-color;
+    }
+    &__paid {
+      color: $paid-color;
+    }
+  }
+
+  &--report-state-pill {
+    color: white;
+    padding: 4px 8px;
+    display: inline-block;
+    border-radius: 4px;
+    &__fyled {
+      background-color: #f90;
+    }
+
+    &__draft {
+      background-color: #464d57;
+    }
+
+    &__reported {
+      background-color: #2196f3;
+    }
+
+    &__inquiry {
+      background-color: #7e57c2;
+    }
+
+    &__approved {
+      background-color: #66bb6a;
+    }
+
+    &__payment_pending {
+      background-color: #66bb6a;
+    }
+
+    &__payment_processing {
+      background-color: #47a447;
+    }
+
+    &__paid {
+      background-color: #3d8b3d;
+    }
+  }
+
+  &--currency {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 700;
+  }
+
+  &--amount {
+    font-size: 24px;
+    color: #000;
+    font-weight: 500;
+  }
+
+  &--count {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  &--view-hide-btn {
+    font-size: 16px;
+    color: #0077ee;
+    margin: 16px 0 0;
+  }
+
+  &--share {
+    font-size: 16px;
+    color: #ff3366;
+    font-weight: 500;
+    margin: 0 0 10px;
+  }
+
+  &--clickable {
+    color: #0077ee;
+  }
+
+  &--block-action-icon {
+    color: #ababab;
+  }
+
+  &--primary-cta {
+    margin: 12px;
+  }
+}
