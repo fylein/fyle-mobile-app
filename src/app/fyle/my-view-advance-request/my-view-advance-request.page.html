@@ -109,15 +109,15 @@
       </div>
 
       <!-- Custom Fields block -->
-      <div *ngIf="(advanceRequestCustomFileds$|async)?.length > 0">
-        <div class="view-advance-request--element" *ngFor="let advanceRequestCustomFiled of advanceRequestCustomFileds$ | async; index as i">
+      <div *ngIf="(advanceRequestCustomFields$|async)?.length > 0">
+        <div class="view-advance-request--element" *ngFor="let advanceRequestCustomField of advanceRequestCustomFields$ | async; index as i">
           <div class="view-advance-request--element-label">
-            {{advanceRequestCustomFiled.name}}
+            {{advanceRequestCustomField.name}}
           </div>
           <div class="view-advance-request--element-value">
-            <span *ngIf="advanceRequestCustomFiled.type === 'DATE'">{{advanceRequestCustomFiled.value | date: 'dd, MMM yyyy'}}</span>
-            <span *ngIf="advanceRequestCustomFiled.type === 'BOOLEAN'">{{advanceRequestCustomFiled.value ? 'Yes' : 'No'}}</span>
-            <span *ngIf="advanceRequestCustomFiled.type !== 'BOOLEAN' && advanceRequestCustomFiled.type !== 'DATE'">{{advanceRequestCustomFiled.value}}</span>
+            <span *ngIf="advanceRequestCustomField.type === 'DATE'">{{advanceRequestCustomField.value | date: 'dd, MMM yyyy'}}</span>
+            <span *ngIf="advanceRequestCustomField.type === 'BOOLEAN'">{{advanceRequestCustomField.value ? 'Yes' : 'No'}}</span>
+            <span *ngIf="advanceRequestCustomField.type !== 'BOOLEAN' && advanceRequestCustomField.type !== 'DATE'">{{advanceRequestCustomField.value}}</span>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@
     <!-- Todo: comment copmponnet -->
     <div class="view-advance-request--card">
       <div class="view-advance-request--common-action-block">
-        <mat-icon>edit</mat-icon>
+        <mat-icon>chat</mat-icon>
         <p>Comment</p>
       </div>
     </div>

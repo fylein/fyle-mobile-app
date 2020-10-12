@@ -185,14 +185,14 @@ export class AdvanceRequestService {
     );
   }
 
-  modifyAdvanceRequestCustomFileds(customFileds) {
-    customFileds = customFileds.map(customFiled => {
-      if (customFiled.type === 'DATE') {
-        customFiled.value = new Date(customFiled.value);
+  modifyAdvanceRequestCustomFields(customFields) {
+    customFields = customFields.map(customField => {
+      if (customField.type === 'DATE') {
+        customField.value = new Date(customField.value);
       }
-      return customFiled;
+      return customField;
     });
-    return customFileds;
+    return customFields;
   }
 
   fixDates(data: ExtendedAdvanceRequest) {

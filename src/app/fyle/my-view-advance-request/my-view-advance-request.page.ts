@@ -22,7 +22,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
   actions$: Observable<any>;
   activeApprovals$: Observable<Approval[]>;
   attachedFiles$: Observable<File[]>;
-  advanceRequestCustomFileds$: Observable<CustomField[]>;
+  advanceRequestCustomFields$: Observable<CustomField[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -65,9 +65,9 @@ export class MyViewAdvanceRequestPage implements OnInit {
       }, [] as File[])
     );
 
-    this.advanceRequestCustomFileds$ = this.advanceRequest$.pipe(
+    this.advanceRequestCustomFields$ = this.advanceRequest$.pipe(
       map(res => {
-         return this.advanceRequestService.modifyAdvanceRequestCustomFileds(JSON.parse(res.areq_custom_field_values));
+         return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.areq_custom_field_values));
       })
     );
   }
