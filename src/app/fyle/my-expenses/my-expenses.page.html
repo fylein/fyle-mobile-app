@@ -1,6 +1,6 @@
 <ion-header>
-  <ion-toolbar class="my-expenses--toolbar-header">
-    <ion-buttons slot="start">
+  <ion-toolbar mode="md" class="my-expenses--toolbar-header">
+    <ion-buttons mode="md" slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>
@@ -31,13 +31,17 @@
         <mat-icon matPrefix>search</mat-icon>
         <input #simpleSearchInput matInput placeholder="Search">
       </mat-form-field>
-      <ion-buttons slot="end">
-        <ion-button class="my-expenses--filter-button" (click)="openFilters()">
-          <ion-icon slot="icon-only" name="funnel-outline"></ion-icon>
-        </ion-button>
-        <ion-button class="my-expenses--filter-button" (click)="openSort()">
-          <ion-icon slot="icon-only" name="medical-outline"></ion-icon>
-        </ion-button>
+      <ion-buttons mode="md" slot="end">
+        <button mat-icon-button class="my-expenses--filter-button" (click)="openFilters()">
+          <mat-icon>
+            filter_list
+          </mat-icon>
+        </button>
+        <button mat-icon-button class="my-expenses--filter-button" (click)="openSort()">
+          <mat-icon>
+            sort
+          </mat-icon>
+        </button>
       </ion-buttons>
     </div>
     <div class="my-expenses--filters" *ngIf="filters?.state || filters?.date">
@@ -74,9 +78,9 @@
   <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
     <!-- <app-my-expenses-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
       (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-my-expenses-card> -->
-    <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'">
+    <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
+      (deleteTransaction)="onDeleteExpenseClick($event)" (addTransactionToNewReport)="onAddTransactionToNewReport($event)"  (addTransactionToReport)="onAddTransactionToReport($event)">
     </app-my-expenses-card>
-    <!-- {{expense|json}} -->
   </div>
 
   <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
@@ -96,9 +100,15 @@
       </div>
     </div>
   </ion-toolbar>
-  <ion-toolbar>
+  <ion-toolbar *ngIf="this.baseState === 'all'">
+    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+      (click)="addNewExpense()">
+      ADD NEW EXPENSE
+    </ion-button>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="this.baseState === 'draft'">
     <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
-      Add New Expense
+      START REVIEW
     </ion-button>
   </ion-toolbar>
 </ion-footer>

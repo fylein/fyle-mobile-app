@@ -1,11 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { IonicModule } from '@ionic/angular';
-
 import { MyExpensesPageRoutingModule } from './my-expenses-routing.module';
-
 import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesCardComponent } from './my-expenses-card/my-expenses-card.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
 import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
+import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
 
 @NgModule({
   imports: [
@@ -41,7 +39,8 @@ import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expe
     MyExpensesPage,
     MyExpensesCardComponent,
     MyExpensesSearchFilterComponent,
-    MyExpensesSortFilterComponent
+    MyExpensesSortFilterComponent,
+    AddExpensePopoverComponent
   ]
 })
-export class MyExpensesPageModule {}
+export class MyExpensesPageModule { }

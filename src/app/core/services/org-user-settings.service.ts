@@ -3,6 +3,7 @@ import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
 import { finalize, map } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
+import { OrgUserSettings } from '../models/org_user_settings.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,9 @@ export class OrgUserSettingsService {
   ) { }
 
   get() {
-    return this.apiService.get('/org_user_settings');
+    return this.apiService.get('/org_user_settings').pipe(
+      map(res => res as OrgUserSettings)
+    );
   }
 
 

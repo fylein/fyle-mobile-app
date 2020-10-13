@@ -1,5 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
+import { Observable } from 'rxjs';
+import { ReportService } from 'src/app/core/services/report.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-my-expenses-card',
@@ -11,7 +14,6 @@ export class MyExpensesCardComponent implements OnInit {
   @Input() expense: Expense;
   @Input() isSelectMode = false;
   @Input() disabledSelection = false;
-  @Input() openReportsPresent = false;
   @Input() prevExpense;
   @Input() dateComparatorProp;
   @Input() canDelete = false;
@@ -19,6 +21,7 @@ export class MyExpensesCardComponent implements OnInit {
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() toggleFlashMode: EventEmitter<Expense> = new EventEmitter();
   @Output() addTransactionToReport: EventEmitter<Expense> = new EventEmitter();
+  @Output() addTransactionToNewReport: EventEmitter<Expense> = new EventEmitter();
   @Output() selectTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() deleteTransaction: EventEmitter<Expense> = new EventEmitter();
 
@@ -30,8 +33,10 @@ export class MyExpensesCardComponent implements OnInit {
   isCriticalPolicyViolated = false;
   isDraft = false;
   actionOpened = false;
-
-  constructor() { }
+  addToReportPossible$: Observable<boolean>;
+  constructor(
+    private reportService: ReportService
+  ) { }
 
   getVendorDetails(expense) {
     const category = expense.tx_org_category && expense.tx_org_category.toLowerCase();
@@ -61,6 +66,12 @@ export class MyExpensesCardComponent implements OnInit {
       this.showDt = currentDate !== previousDate;
     }
 
+    this.addToReportPossible$ = this.reportService.getAllOpenReportsCount().pipe(
+      map(
+        count => count > 0
+      )
+    );
+
   }
 
   onGoToTransaction() {
@@ -72,7 +83,13 @@ export class MyExpensesCardComponent implements OnInit {
   }
 
   onAddTransactionToReport() {
-    this.addTransactionToReport.emit(this.expense);
+    this.addToReportPossible$.subscribe(possible => {
+      if (possible) {
+        this.addTransactionToReport.emit(this.expense);
+      } else {
+        this.addTransactionToNewReport.emit(this.expense);
+      }
+    });
   }
 
   onSelectTransaction() {

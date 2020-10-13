@@ -261,4 +261,8 @@ export class TransactionService {
       map(res => res.data)
     );
   }
+
+  delete(txnId: string) {
+    return this.apiService.delete('/transactions/' + txnId);
+  }
 }

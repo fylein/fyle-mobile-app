@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { switchMap, tap, map, concatMap, reduce } from 'rxjs/operators';
+import { switchMap, tap, map, concatMap, reduce, shareReplay } from 'rxjs/operators';
 import { from, range } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
@@ -170,9 +170,9 @@ export class ReportService {
 
   getAllOpenReportsCount() {
     return this.getMyReportsCount({
-      queryParams: {
-        rp_state: 'in.(DRAFT,APPROVER_PENDING)'
-      }
-    });
+      rp_state: 'in.(DRAFT,APPROVER_PENDING)'
+    }).pipe(
+      shareReplay()
+    );
   }
 }

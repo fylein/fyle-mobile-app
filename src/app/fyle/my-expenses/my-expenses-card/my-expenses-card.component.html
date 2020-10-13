@@ -28,7 +28,7 @@
       Critical Policy Violation
     </div>
 
-    <div class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!actionOpened && !isSelectMode"
+    <div matRipple class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!actionOpened && !isSelectMode"
       (click)="onGoToTransaction()">
       <div class="my-expenses-card--body-internal">
         <div class="my-expenses-card--icon">
@@ -89,18 +89,23 @@
       </div>
 
       <div class="my-expenses-card-menu--buttons">
-        <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__comments" (click)="onAddTransactionToReport()" [ngClass]="{'my-expenses-card-menu--action__disabled': (isDraft || isCriticalPolicyViolated)}">
-          <span *ngIf="openReportsPresent">Add to Report</span>
-          <span *ngIf="!openReportsPresent">Add to New Report</span>
+        <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__comments"
+          (click)="onAddTransactionToReport()"
+          [ngClass]="{'my-expenses-card-menu--action__disabled': (isDraft || isCriticalPolicyViolated)}">
+          <span *ngIf="addToReportPossible$|async">Add to Report</span>
+          <span *ngIf="!(addToReportPossible$|async)">Add to New Report</span>
         </div>
-        <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__delete" [class]="{'my-expenses-card-menu--action__disabled': !expense.tx_user_can_delete}" (click)="onDeleteTransaction()">
+        <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__delete"
+          [class]="{'my-expenses-card-menu--action__disabled': !expense.tx_user_can_delete}"
+          (click)="onDeleteTransaction()">
           <span>Delete</span>
         </div>
       </div>
     </div>
 
     <div class="my-expenses-card--body my-expenses-card--body__selection" *ngIf="isSelectMode">
-      <ion-checkbox mode="md" ng-model="expense.selected" (click)="onSelectTransaction()" [disabled]="disabledSelection">
+      <ion-checkbox mode="md" ng-model="expense.selected" (click)="onSelectTransaction()"
+        [disabled]="disabledSelection">
         <!-- [disabled]="(expense.isDraft && activeTab === 'all') || expense.isCriticalPolicyViolated"> -->
       </ion-checkbox>
       <div>

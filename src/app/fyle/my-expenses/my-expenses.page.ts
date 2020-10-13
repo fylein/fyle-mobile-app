@@ -3,15 +3,18 @@ import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, fo
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, AlertController } from '@ionic/angular';
+import { ModalController, AlertController, ActionSheetController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { Router } from '@angular/router';
-import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, withLatestFrom } from 'rxjs/operators';
+import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, withLatestFrom, scan } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
 import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -40,12 +43,14 @@ export class MyExpensesPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
-  openReportsCount$: Observable<number>;
   baseState: string;
   allExpensesCount$: Observable<number>;
   draftExpensesCount$: Observable<number>;
   expensesAmountStats$: Observable<number>;
   homeCurrency$: Observable<string>;
+  isInstaFyleEnabled$: Observable<boolean>;
+  isMileageEnabled$: Observable<boolean>;
+  isPerDiemEnabled$: Observable<boolean>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -58,11 +63,31 @@ export class MyExpensesPage implements OnInit {
     public alertController: AlertController,
     private transactionService: TransactionService,
     private currencyService: CurrencyService,
+    private popoverController: PopoverController,
+    private orgSettingsService: OrgSettingsService,
+    private orgUserSettingsService: OrgUserSettingsService,
     private router: Router
   ) { }
 
   ngOnInit() {
     this.setupNetworkWatcher();
+    this.isInstaFyleEnabled$ = this.orgUserSettingsService.get().pipe(
+      map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
+    );
+
+    this.isInstaFyleEnabled$.subscribe(console.log);
+
+    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(
+      map(orgSettings => orgSettings.mileage.enabled)
+    );
+    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(
+      map(orgSettings => orgSettings.per_diem.enabled)
+    );
+
+
+    from([1, 2, 3, 4, 5]).pipe(
+      scan((a, b) => a + b)
+    ).subscribe(console.log);
   }
 
   ionViewWillEnter() {
@@ -154,8 +179,6 @@ export class MyExpensesPage implements OnInit {
         );
       })
     );
-
-    this.openReportsCount$ = this.reportService.getAllOpenReportsCount();
 
     this.myExpenses$ = this.loadData$.pipe(
       switchMap(params => {
@@ -347,60 +370,67 @@ export class MyExpensesPage implements OnInit {
     this.clearFilters();
   }
 
-  async onDeleteReportClick(etxn: any) {
-    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx_state) === -1) {
-      const alert = await this.alertController.create({
-        header: 'Cannot Delete Report',
-        message: 'Report cannot be deleted',
-        buttons: [
-          {
-            text: 'Close',
-            role: 'cancel',
-            handler: noop
+  async addNewExpense() {
+    forkJoin({
+      isInstaFyleEnabled: this.isInstaFyleEnabled$,
+      isMileageEnabled: this.isMileageEnabled$,
+      isPerDiemEnabled: this.isPerDiemEnabled$
+    }).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled }) => {
+      if (!(isInstaFyleEnabled || isMileageEnabled || isPerDiemEnabled)) {
+        this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+      } else {
+
+        const addExpensePopover = await this.popoverController.create({
+          component: AddExpensePopoverComponent,
+          componentProps: {
+            isInstaFyleEnabled,
+            isMileageEnabled,
+            isPerDiemEnabled
+          },
+          cssClass: 'dialog-popover'
+        });
+
+        await addExpensePopover.present();
+      }
+    });
+  }
+
+  async onDeleteExpenseClick(etxn: Expense) {
+    const alert = await this.alertController.create({
+      header: 'Delete Expense?',
+      message: 'Are you sure you want to delete this expense?',
+      buttons: [
+        {
+          text: 'Close',
+          role: 'cancel',
+          handler: noop
+        },
+        {
+          text: 'Delete',
+          handler: async () => {
+            from(this.loaderService.showLoader()).pipe(
+              switchMap(() => {
+                return this.transactionService.delete(etxn.tx_id);
+              }),
+              finalize(async () => {
+                await this.loaderService.hideLoader();
+                this.doRefresh();
+              })
+            ).subscribe(noop);
+
           }
-        ]
-      });
+        }
+      ]
+    });
+    await alert.present();
+  }
 
-      await alert.present();
-    } else {
-      const message = `
-        <p class="highlight-info">
-          On deleting this expense, all the associated expenses will be moved to <strong>"My Expenses"</strong> list.
-        </p>
-        <p class="mb-0">
-          Are you sure, you want to delete this expense?
-        </p>
-      `;
+  onAddTransactionToNewReport() {
+    // TODO
+  }
 
-      // const alert = await this.alertController.create({
-      //   header: 'Delete Expense?',
-      //   message,
-      //   buttons: [
-      //     {
-      //       text: 'Close',
-      //       role: 'cancel',
-      //       handler: noop
-      //     },
-      //     {
-      //       text: 'Delete',
-      //       handler: async () => {
-      //         from(this.loaderService.showLoader()).pipe(
-      //           switchMap(() => {
-      //             return this.reportService.delete(erpt.rp_id);
-      //           }),
-      //           finalize(async () => {
-      //             await this.loaderService.hideLoader();
-      //             this.doRefresh();
-      //           })
-      //         ).subscribe(noop);
-
-      //       }
-      //     }
-      //   ]
-      // });
-      // await alert.present();
-    }
-
+  onAddTransactionToReport() {
+    // TODO
   }
 
   onViewCommentsClick(event) {
