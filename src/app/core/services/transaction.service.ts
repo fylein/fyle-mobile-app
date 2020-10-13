@@ -131,12 +131,11 @@ export class TransactionService {
     );
   }
 
-  // @CacheBuster({
-  //   cacheBusterNotifier: transactionCacheBuster$
-  // })
+  @CacheBuster({
+    cacheBusterNotifier: transactionCacheBuster$
+  })
   bustTransactionCache() {
-    console.log('busting cache now... chik chik boom');
-    transactionCacheBuster$.next();
+    return from([1]);
   }
 
   getMyETxncCount(tx_org_user_id: string): Observable<{ count: number }> {
