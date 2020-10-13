@@ -28,7 +28,7 @@ export class AddExpensePopoverComponent implements OnInit {
   async createExpense(event) {
     await this.popoverController.dismiss();
     this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
-  }
+  } 
 
   async createMileage(event) {
     await this.popoverController.dismiss();
