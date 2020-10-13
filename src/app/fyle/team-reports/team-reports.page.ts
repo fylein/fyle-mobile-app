@@ -68,6 +68,19 @@ export class TeamReportsPage implements OnInit {
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
+    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+      .pipe(
+        map((event: any) => event.srcElement.value as string),
+        debounceTime(1000),
+        distinctUntilChanged()
+      ).subscribe((searchString) => {
+        const currentParams = this.loadData$.getValue();
+        currentParams.searchString = searchString;
+        this.currentPageNumber = 1;
+        currentParams.pageNumber = this.currentPageNumber;
+        this.loadData$.next(currentParams);
+      });
+
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         const queryParams = params.queryParams || {
@@ -97,12 +110,12 @@ export class TeamReportsPage implements OnInit {
 
     const simpleSearchAllDataPipe = this.loadData$.pipe(
       switchMap(params => {
-        const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
+        const queryParams = params.queryParams || { queryParams: {rp_state: 'in.(APPROVER_PENDING)', rp_approval_state: 'in.(APPROVAL_PENDING)'} };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
-            return this.reportService.getAllExtendedReports({
+            return this.reportService.getAllTeamExtendedReports({
               queryParams,
               order: orderByParams
             }).pipe(

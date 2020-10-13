@@ -7,6 +7,9 @@ import { TeamReportsPage } from './team-reports.page';
 import { TeamReportCardComponent } from './team-report-card/team-report-card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -15,7 +18,10 @@ import { SharedModule } from 'src/app/shared/shared.module';
     IonicModule,
     TeamReportsPageRoutingModule,
     SharedModule,
-    MatIconModule
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
   ],
   declarations: [
     TeamReportsPage,

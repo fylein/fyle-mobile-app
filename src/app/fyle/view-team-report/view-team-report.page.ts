@@ -28,6 +28,7 @@ export class ViewTeamReportPage implements OnInit {
   canEdit$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   canResubmitReport$: Observable<boolean>;
+  isReportReported: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -67,11 +68,12 @@ export class ViewTeamReportPage implements OnInit {
 
   ionViewWillEnter() {
     this.erpt$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
+      switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id)),
+      tap(res => {
+        this.isReportReported = ['APPROVER_PENDING'].indexOf(res.rp_state) > -1;
+      }),
       finalize(() => from(this.loaderService.hideLoader()))
     );
-
-    this.reportService.getReport(this.activatedRoute.snapshot.params.id);
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map(pdfExports => {
@@ -101,7 +103,6 @@ export class ViewTeamReportPage implements OnInit {
     this.etxns$ = from(this.authService.getEou()).pipe(
       switchMap(eou => {
         return this.transactionService.getAllETxnc({
-          tx_org_user_id: 'eq.' + eou.ou.id,
           tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
           order: 'tx_txn_dt.desc,tx_id.desc'
         });

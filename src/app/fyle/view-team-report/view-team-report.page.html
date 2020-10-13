@@ -11,7 +11,7 @@
       View Report
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button color="primary" (click)="goToEditReport()" *ngIf="canEdit$|async">Edit</button>
+      <button mat-button color="primary" (click)="goToEditReport()" *ngIf="isReportReported">Send Back</button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -22,6 +22,7 @@
       <div class="view-reports--card">
         <div class="view-reports--card-header">{{erpt.rp_purpose}}</div>
         <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMMM dd, yyyy'}}</div>
+        <div class="view-reports--card-body">Owner: {{ erpt.us_full_name }}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
             Approver<span *ngIf="reportApprovals.length === 1"> is </span><span *ngIf="reportApprovals.length > 1">s
@@ -81,22 +82,12 @@
         </div>
       </div>
 
-      <div *ngIf="!(erpt.rp_num_transactions === 0)">
-        <div class="view-reports--card" *ngIf="sharedWith$ | async as sharedWith">
-          <div class="view-reports--share" (click)="shareReport($event)">
-            Share this report
-          </div>
-          <div class="view-reports--card-body">Send this report via email</div>
-          <div class="view-reports--card-body" *ngIf="sharedWith.length > 0">
-            Earlier sent to:
-            <span *ngFor="let email of  sharedWith | slice: 0:sharedWithLimit">
-              {{email}}
-            </span>
-            <div class="view-reports--clickable" *ngIf="sharedWithLimit < sharedWith.length"
-              (click)="sharedWithLimit = sharedWithLimit + 3">
-              View more
-            </div>
-          </div>
+      <div class="view-reports--card view-reports--card__block-action" matRipple>
+        <mat-icon class="view-reports--block-action-icon">
+          add_circle
+        </mat-icon>
+        <div class="view-reports--block-action view-reports--block-action__comment">
+          Modify Approvers
         </div>
       </div>
     </div>

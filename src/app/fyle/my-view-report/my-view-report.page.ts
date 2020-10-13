@@ -71,8 +71,6 @@ export class MyViewReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.reportService.getReport(this.activatedRoute.snapshot.params.id);
-
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map(pdfExports => {
         return pdfExports.results.sort((a, b) => {

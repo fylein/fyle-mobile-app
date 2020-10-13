@@ -184,6 +184,21 @@ export class ReportService {
     );
   }
 
+  getTeamReport(id: string) {
+    return this.getTeamReports({
+      offset: 0,
+      limit: 1,
+      queryParams: {
+        rp_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => res.data[0]
+      ),
+      tap(console.log)
+    );
+  }
+
   actions(rptId: string) {
     return this.apiService.get('/reports/' + rptId + '/actions');
   }
@@ -212,6 +227,24 @@ export class ReportService {
       }),
       concatMap(page => {
         return this.getMyReports({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
+      }),
+      map(res => res.data),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [] as ExtendedReport[])
+    );
+  }
+
+  getAllTeamExtendedReports(config: Partial<{ order: string, queryParams: any }> = {
+    order: '',
+    queryParams: {}
+  }) {
+    return this.getTeamReportsCount().pipe(
+      switchMap(count => {
+        return range(0, count / 50);
+      }),
+      concatMap(page => {
+        return this.getTeamReports({ offset: 50 * page, limit: 50, ...config.queryParams, order: config.order });
       }),
       map(res => res.data),
       reduce((acc, curr) => {
