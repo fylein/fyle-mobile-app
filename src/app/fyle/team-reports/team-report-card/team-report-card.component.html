@@ -18,6 +18,9 @@
       <div class="reports-card--purpose">
         {{erpt.rp_purpose | ellipsis: 30}}
       </div>
+      <div class="reports-card--purpose">
+        Owner: {{erpt.us_full_name}}
+      </div>
     </div>
     <div (click)="actionOpened = true; $event.stopPropagation()">
       <mat-icon>

@@ -9,8 +9,8 @@ import { DateService } from 'src/app/core/services/date.service';
 import { Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay } from 'rxjs/operators';
-import { MyReportsSearchFilterComponent } from '../my-reports/my-reports-search-filter/my-reports-search-filter.component';
-import { MyReportsSortFilterComponent } from '../my-reports/my-reports-sort-filter/my-reports-sort-filter.component';
+import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/team-reports-search-filter.component';
+import { TeamReportsSortFilterComponent } from './team-reports-sort-filter/team-reports-sort-filter.component';
 
 @Component({
   selector: 'app-team-reports',
@@ -84,8 +84,9 @@ export class TeamReportsPage implements OnInit {
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         const queryParams = params.queryParams || {
-          rp_approval_state: ['in.(APPROVAL_PENDING)'],
-          rp_state: ['in.(APPROVER_PENDING)'],
+          rp_approval_state: 'in.(APPROVAL_PENDING)',
+          rp_state: 'in.(APPROVER_PENDING)',
+          sequential_approval_turn: 'in.(true)'
         };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return from(this.loaderService.showLoader()).pipe(switchMap(() => {
@@ -110,7 +111,11 @@ export class TeamReportsPage implements OnInit {
 
     const simpleSearchAllDataPipe = this.loadData$.pipe(
       switchMap(params => {
-        const queryParams = params.queryParams || { queryParams: {rp_state: 'in.(APPROVER_PENDING)', rp_approval_state: 'in.(APPROVAL_PENDING)'} };
+        const queryParams = params.queryParams || {
+          rp_state: 'in.(APPROVER_PENDING)',
+          rp_approval_state: 'in.(APPROVAL_PENDING)',
+          sequential_approval_turn: 'in.(true)'
+        };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
         return from(this.loaderService.showLoader()).pipe(
@@ -141,7 +146,8 @@ export class TeamReportsPage implements OnInit {
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
-        return this.reportService.getTeamReportsCount(params.queryParams);
+        const queryParams = params.queryParams || { rp_state: 'in.(APPROVER_PENDING)', rp_approval_state: 'in.(APPROVAL_PENDING)', sequential_approval_turn: 'in.(true)' };
+        return this.reportService.getTeamReportsCount(queryParams);
       }),
       shareReplay()
     );
@@ -200,41 +206,32 @@ export class TeamReportsPage implements OnInit {
   addNewFiltersToParams() {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-
-    if (!currentParams.queryParams) {
-      currentParams.queryParams = {};
-    }
+    const newQueryParams: any = {};
 
     if (this.filters.state) {
       if (this.filters.state === 'ALL') {
-        currentParams.queryParams.rp_state =
-          'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
-      } else {
-        currentParams.queryParams.rp_state =
-          `in.(${this.filters.state})`;
-
+        newQueryParams.rp_state = 'in.(APPROVER_PENDING,APPROVER_INQUIRY,APPROVAL_DONE,COMPLETE,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
+        newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
+      } else if (this.filters.state === 'MYQUEUE') {
+        newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+        newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+        // TODO verify with Vaishnavi to check wether to send true in both condition
+        // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
+        newQueryParams.sequential_approval_turn = 'in.(true)';
       }
-    } else {
-      currentParams.queryParams.rp_state = 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
     }
-
     if (this.filters.date) {
       if (this.filters.date === 'THISMONTH') {
-        currentParams.queryParams.and =
+        newQueryParams.and =
           `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
       } else if (this.filters.date === 'LASTMONTH') {
-        currentParams.queryParams.and =
+        newQueryParams.and =
           `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
       } else if (this.filters.date === 'CUSTOMDATE') {
-        currentParams.queryParams.and =
+        newQueryParams.and =
           `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
-      } else {
-        delete currentParams.queryParams.and;
       }
-    } else {
-      delete currentParams.queryParams.and;
     }
-
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
@@ -242,13 +239,13 @@ export class TeamReportsPage implements OnInit {
       currentParams.sortParam = 'rp_created_at';
       currentParams.sortDir = 'desc';
     }
-
+    currentParams.queryParams = Object.keys(newQueryParams).length > 0 ? newQueryParams : null;
     return currentParams;
   }
 
   async openFilters() {
     const filterModal = await this.modalController.create({
-      component: MyReportsSearchFilterComponent,
+      component: TeamReportsSearchFilterComponent,
       componentProps: {
         filters: this.filters
       }
@@ -268,7 +265,7 @@ export class TeamReportsPage implements OnInit {
 
   async openSort() {
     const sortModal = await this.modalController.create({
-      component: MyReportsSortFilterComponent,
+      component: TeamReportsSortFilterComponent,
       componentProps: {
         filters: this.filters
       }

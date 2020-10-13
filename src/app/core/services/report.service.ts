@@ -150,7 +150,6 @@ export class ReportService {
             limit: config.limit,
             approved_by: 'cs.{' + res.autService$.ou.id + '}',
             order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
-            sequential_approval_turn: res.orgSettings$.approval_settings.enable_sequential_approvers ? ['in.(true)'] : ['in.(true)'],
             ...config.queryParams
           }
         });
