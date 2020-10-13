@@ -19,7 +19,6 @@ const transactionCacheBuster$ = new Subject<void>();
 
 export class TransactionService {
 
-
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,

@@ -27,7 +27,6 @@ export class TripRequestsService {
     private storageService: StorageService
   ) { }
 
-
   @Cacheable()
   getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
