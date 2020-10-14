@@ -2,13 +2,8 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-<<<<<<< HEAD
 import { switchMap, tap, map, concatMap, reduce, shareReplay } from 'rxjs/operators';
 import { from, range, forkJoin } from 'rxjs';
-=======
-import { switchMap, tap, map, concatMap, reduce } from 'rxjs/operators';
-import { from, range, forkJoin } from 'rxjs';
->>>>>>> master
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
@@ -139,21 +134,14 @@ export class ReportService {
     limit: 10,
     queryParams: {}
   }) {
-    const autService$ = this.authService.getEou();
-    const orgSettings$ = this.offlineService.getOrgSettings();
 
-    const primaryData$ = forkJoin({
-      autService: autService$,
-      orgSettings: orgSettings$
-    });
-
-    return from(primaryData$).pipe(
-      switchMap(res => {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
         return this.apiv2Service.get('/reports', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            approved_by: 'cs.{' + res.autService.ou.id + '}',
+            approved_by: 'cs.{' + eou.ou.id + '}',
             order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
             ...config.queryParams
           }
