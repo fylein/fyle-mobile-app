@@ -146,7 +146,11 @@ export class TeamReportsPage implements OnInit {
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
-        const queryParams = params.queryParams || { rp_state: 'in.(APPROVER_PENDING)', rp_approval_state: 'in.(APPROVAL_PENDING)', sequential_approval_turn: 'in.(true)' };
+        const queryParams = params.queryParams || {
+          rp_state: 'in.(APPROVER_PENDING)',
+          rp_approval_state: 'in.(APPROVAL_PENDING)',
+          sequential_approval_turn: 'in.(true)'
+        };
         return this.reportService.getTeamReportsCount(queryParams);
       }),
       shareReplay()
@@ -216,7 +220,7 @@ export class TeamReportsPage implements OnInit {
         newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
         newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
         // TODO verify with Vaishnavi to check wether to send true in both condition
-        // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
+        newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
         newQueryParams.sequential_approval_turn = 'in.(true)';
       }
     }
