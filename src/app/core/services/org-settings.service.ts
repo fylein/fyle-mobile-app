@@ -464,9 +464,9 @@ export class OrgSettingsService {
     };
   }
 
-  // @Cacheable({
-  //   cacheBusterObserver: orgSettingsCacheBuster$
-  // })
+  @Cacheable({
+    cacheBusterObserver: orgSettingsCacheBuster$
+  })
   get() {
     return this.apiService.get('/org/settings').pipe(
       map(
