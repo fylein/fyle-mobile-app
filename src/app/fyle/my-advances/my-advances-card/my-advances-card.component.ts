@@ -29,7 +29,6 @@ export class MyAdvancesCardComponent implements OnInit {
     }
 
     //Todo: Redirect to page later.
-    console.log(id, route);
-  };
+  }
 
 }

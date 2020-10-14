@@ -118,7 +118,7 @@ export class MyViewReportPage implements OnInit {
 
     this.canEdit$ = actions$.pipe(map(actions => actions.can_edit));
     this.canDelete$ = actions$.pipe(map(actions => actions.can_delete));
-    this.canResubmitReport$ = actions$.pipe(map(actions => actions.can_resubmit), tap(console.log));
+    this.canResubmitReport$ = actions$.pipe(map(actions => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
   }
