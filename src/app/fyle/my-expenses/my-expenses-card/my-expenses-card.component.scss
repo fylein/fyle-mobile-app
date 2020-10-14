@@ -1,0 +1,119 @@
+.my-expenses-card {
+  &--body {
+    display: flex;
+    justify-content: space-between;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    border-radius: 4px;
+    min-height: 120px;
+    margin: 12px;
+    padding: 12px;
+    margin-top: 0;
+  }
+
+  &--body-internal {
+    display: flex;
+    align-items: center;
+  }
+
+  &--date {
+    display: flex;
+    margin: 8px 12px;
+    color: #ababab;
+    font-size: 16px;
+  }
+
+  &--icon {
+    padding: 8px;
+    color: #ababab;
+    border: 1px solid #ababab75;
+    border-radius: 50%;
+    margin: 12px;
+  }
+
+  &--amount-details {
+    display: flex;
+  }
+
+  &--currency {
+    color: #ababab;
+    font-size: 16px;
+  }
+
+  &--amount {
+    font-size: 18px;
+    margin-left: 8px;
+    font-weight: 700;
+  }
+
+  &--conversion {
+    font-size: 16px;
+    color: #ababab;
+  }
+
+  &--category {
+    color: #ababab;
+  }
+
+  &--decorator {
+    margin: 0 12px;
+    background: #ababab;
+    color: #fff;
+    font-size: 16px;
+    padding: 6px 16px;
+    line-height: 1;
+    border-radius: 4px 4px 0 0;
+    &__policy-violation {
+      background-color: #ff9900;
+    }
+  }
+}
+
+.my-expenses-card-menu {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  border-radius: 4px;
+  min-height: 120px;
+  margin: 12px;
+  margin-top: 0;
+  display: flex;
+  align-items: stretch;
+  &--close {
+    width: 30%;
+    align-self: center;
+    text-align: center;
+  }
+
+  &--buttons {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-left: 1px solid #ececec;
+  }
+
+  &--cancel {
+    min-height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--action {
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    &__comments {
+      color: #0077ee;
+      border-bottom: 1px solid #ececec;
+    }
+    &__delete {
+      color: #f00;
+    }
+
+    &__disabled {
+      opacity: .2;
+    }
+  }
+}
