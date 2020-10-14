@@ -74,7 +74,7 @@ export class MyExpensesPage implements OnInit {
     this.isInstaFyleEnabled$ = this.orgUserSettingsService.get().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
     );
-
+    // TODO
     this.isInstaFyleEnabled$.subscribe(console.log);
 
     this.isMileageEnabled$ = this.orgSettingsService.get().pipe(
@@ -83,11 +83,6 @@ export class MyExpensesPage implements OnInit {
     this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(
       map(orgSettings => orgSettings.per_diem.enabled)
     );
-
-
-    from([1, 2, 3, 4, 5]).pipe(
-      scan((a, b) => a + b)
-    ).subscribe(console.log);
   }
 
   ionViewWillEnter() {
@@ -444,7 +439,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   onViewCommentsClick(event) {
-    console.log(event);
     // TODO: Add when view comments is done
   }
 }

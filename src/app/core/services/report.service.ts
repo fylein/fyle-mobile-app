@@ -189,8 +189,7 @@ export class ReportService {
     }).pipe(
       map(
         res => res.data[0]
-      ),
-      tap(console.log)
+      )
     );
   }
 

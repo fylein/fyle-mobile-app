@@ -366,7 +366,6 @@ export class TeamReportsPage implements OnInit {
   }
 
   onViewCommentsClick(event) {
-    console.log(event);
     // TODO: Add when view comments is done
   }
 
