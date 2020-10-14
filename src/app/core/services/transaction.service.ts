@@ -8,10 +8,6 @@ import { from, Observable, range, Subject } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
-import { Cacheable, CacheBuster } from 'ngx-cacheable';
-
-
-const transactionCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -100,18 +96,10 @@ export class TransactionService {
     return stateMap[state];
   }
 
-  @Cacheable({
-    maxCacheCount: 100,
-    cacheBusterObserver: transactionCacheBuster$
-  })
   getPaginatedETxncStats(params) {
     return this.apiService.get('/etxns/stats', { params });
   }
 
-  @Cacheable({
-    maxCacheCount: 100,
-    cacheBusterObserver: transactionCacheBuster$
-  })
   getPaginatedETxncCount(params) {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -128,13 +116,6 @@ export class TransactionService {
         }
       )
     );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: transactionCacheBuster$
-  })
-  bustTransactionCache() {
-    return from([1]);
   }
 
   getMyETxncCount(tx_org_user_id: string): Observable<{ count: number }> {

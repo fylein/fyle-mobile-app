@@ -55,7 +55,10 @@ export class AppComponent implements OnInit {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+
+      // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
+      GlobalCacheConfig.maxCacheCount = 100;
     });
   }
 

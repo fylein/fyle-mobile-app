@@ -98,10 +98,6 @@ export class DashboardPage implements OnInit {
     }];
   }
 
-  bustCache() {
-    this.transactionService.bustTransactionCache();
-  }
-
   ngOnInit() {
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const orgSettings$ = this.offlineService.getOrgSettings();

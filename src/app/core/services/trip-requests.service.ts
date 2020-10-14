@@ -4,7 +4,6 @@ import { AuthService } from './auth.service';
 import { from, Observable } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators';
 import { ExtendedTripRequest } from '../models/extended_trip_request.model';
-import { Cacheable } from 'ngx-cacheable';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 import { TripDatesService } from './trip-dates.service';
@@ -27,7 +26,6 @@ export class TripRequestsService {
     private storageService: StorageService
   ) { }
 
-  @Cacheable()
   getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
