@@ -28,10 +28,13 @@ export class TransactionService {
     private dataTransformService: DataTransformService,
     private dateService: DateService,
     private authService: AuthService,
+<<<<<<< HEAD
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService
+=======
+>>>>>>> master
   ) { }
 
   get(txnId) {
