@@ -83,11 +83,7 @@ export class TeamReportsPage implements OnInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {
-          rp_approval_state: 'in.(APPROVAL_PENDING)',
-          rp_state: 'in.(APPROVER_PENDING)',
-          sequential_approval_turn: 'in.(true)'
-        };
+        const queryParams = params.queryParams;
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return from(this.loaderService.showLoader()).pipe(switchMap(() => {
           return this.reportService.getTeamReports({
@@ -111,11 +107,7 @@ export class TeamReportsPage implements OnInit {
 
     const simpleSearchAllDataPipe = this.loadData$.pipe(
       switchMap(params => {
-        const queryParams = params.queryParams || {
-          rp_state: 'in.(APPROVER_PENDING)',
-          rp_approval_state: 'in.(APPROVAL_PENDING)',
-          sequential_approval_turn: 'in.(true)'
-        };
+        const queryParams = params.queryParams;
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
         return from(this.loaderService.showLoader()).pipe(
@@ -220,10 +212,17 @@ export class TeamReportsPage implements OnInit {
         newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
         newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
         // TODO verify with Vaishnavi to check wether to send true in both condition
-        newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
+        // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
         newQueryParams.sequential_approval_turn = 'in.(true)';
       }
+    } else {
+        newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+        newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+        // TODO verify with Vaishnavi to check wether to send true in both condition
+        // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
+        newQueryParams.sequential_approval_turn = 'in.(true)';
     }
+
     if (this.filters.date) {
       if (this.filters.date === 'THISMONTH') {
         newQueryParams.and =
@@ -236,6 +235,7 @@ export class TeamReportsPage implements OnInit {
           `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
       }
     }
+
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
@@ -243,7 +243,7 @@ export class TeamReportsPage implements OnInit {
       currentParams.sortParam = 'rp_created_at';
       currentParams.sortDir = 'desc';
     }
-    currentParams.queryParams = Object.keys(newQueryParams).length > 0 ? newQueryParams : null;
+    currentParams.queryParams = newQueryParams;
     return currentParams;
   }
 
