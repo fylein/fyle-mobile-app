@@ -1,38 +1,38 @@
-<ion-header class="ion-no-border">
-  <div class="reports--header">
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-menu-button class="reports--menubutton" auto-hide="false" ></ion-menu-button>
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="reports--toolbar-header">
+    <ion-buttons mode="md" slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title mode="md">
+      Team Reports
+    </ion-title>
+  </ion-toolbar>
+  <ion-toolbar mode="md">
+    <div class="reports--toolbar">
+      <mat-form-field class="mat-form-field-no-padding reports--simple-search" appearance="outline">
+        <mat-icon matPrefix>search</mat-icon>
+        <input #simpleSearchInput matInput placeholder="Search">
+      </mat-form-field>
+      <ion-buttons mode="md" slot="end">
+        <button mat-icon-button class="reports--filter-button" (click)="openFilters()">
+          <mat-icon>
+            filter_list
+          </mat-icon>
+        </button>
+        <button mat-icon-button class="reports--filter-button" (click)="openSort()">
+          <mat-icon>
+            sort
+          </mat-icon>
+        </button>
       </ion-buttons>
-      <ion-title slot="primary" mode="ios" class="reports--title text-capitalize">{{pageTitle}}</ion-title>
-    </ion-toolbar>
-    <ion-toolbar mode="md">
-      <div class="reports--toolbar">
-        <mat-form-field class="mat-form-field-no-padding reports--simple-search" appearance="outline">
-          <mat-icon matPrefix>search</mat-icon>
-          <input #simpleSearchInput matInput placeholder="Search">
-        </mat-form-field>
-        <ion-buttons mode="md" slot="end">
-          <button mat-icon-button class="reports--filter-button" (click)="openFilters()">
-            <mat-icon>
-              filter_list
-            </mat-icon>
-          </button>
-          <button mat-icon-button class="reports--filter-button" (click)="openSort()">
-            <mat-icon>
-              sort
-            </mat-icon>
-          </button>
-        </ion-buttons>
-      </div>
-      <div class="reports--filters" *ngIf="filters?.state || filters?.date">
-        <div>Filters are applied</div>
-        <mat-icon (click)="clearFilters()">
-          cancel
-        </mat-icon>
-      </div>
-    </ion-toolbar>
-  </div>
+    </div>
+    <div class="reports--filters" *ngIf="filters?.state || filters?.date">
+      <div>Filters are applied</div>
+      <mat-icon (click)="clearFilters()">
+        cancel
+      </mat-icon>
+    </div>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
