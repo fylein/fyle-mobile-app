@@ -53,6 +53,10 @@ const routes: Routes = [
   {
     path: 'team-advance',
     loadChildren: () => import('./team-advance/team-advance.module').then( m => m.TeamAdvancePageModule)
+  },
+  {
+    path: 'add-edit-expense',
+    loadChildren: () => import('./add-edit-expense/add-edit-expense.module').then( m => m.AddEditExpensePageModule)
   }
 ];
 

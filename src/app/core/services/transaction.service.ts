@@ -4,10 +4,14 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { from, Observable, range } from 'rxjs';
+import { from, Observable, range, concat } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { TimezoneService } from 'src/app/services/timezone.service';
+import { UtilityService } from 'src/app/services/utility.service';
+import { FileService } from 'src/app/services/file.service';
 
 
 
@@ -24,6 +28,10 @@ export class TransactionService {
     private dataTransformService: DataTransformService,
     private dateService: DateService,
     private authService: AuthService,
+    private orgUserSettingsService: OrgUserSettingsService,
+    private timezoneService: TimezoneService,
+    private utilityService: UtilityService,
+    private fileService: FileService
   ) { }
 
   get(txnId) {
@@ -264,5 +272,71 @@ export class TransactionService {
 
   delete(txnId: string) {
     return this.apiService.delete('/transactions/' + txnId);
+  }
+
+  upsert(transaction) {
+    /** Only these fields will be of type text & custom fields */
+    const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
+
+    // Frontend should only send amount
+    transaction.user_amount = null;
+    transaction.admin_amount = null;
+    transaction.policy_amount = null;
+
+    // FYLE-6148. Don't send custom_attributes.
+    transaction.custom_attributes = null;
+
+    return this.orgUserSettingsService.get().pipe(
+      switchMap((orgUserSettings) => {
+
+        const offset = orgUserSettings.locale.offset;
+
+        // setting txn_dt time to T10:00:00:000 in local time zone
+        if (transaction.txn_dt) {
+          transaction.txn_dt.setHours(12);
+          transaction.txn_dt.setMinutes(0);
+          transaction.txn_dt.setSeconds(0);
+          transaction.txn_dt.setMilliseconds(0);
+          transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+        }
+
+        if (transaction.from_dt) {
+          transaction.from_dt.setHours(12);
+          transaction.from_dt.setMinutes(0);
+          transaction.from_dt.setSeconds(0);
+          transaction.from_dt.setMilliseconds(0);
+          transaction.from_dt = this.timezoneService.convertToUtc(transaction.from_dt, offset);
+        }
+
+        if (transaction.to_dt) {
+          transaction.to_dt.setHours(12);
+          transaction.to_dt.setMinutes(0);
+          transaction.to_dt.setSeconds(0);
+          transaction.to_dt.setMilliseconds(0);
+          transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
+        }
+
+        const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
+
+        return this.apiService.post('/transactions', transactionCopy);
+      })
+    );
+  }
+
+  createTxnWithFiles(txn, fileUploads$) {
+    return fileUploads$.pipe(
+      switchMap((fileObjs: any[]) => {
+        return this.upsert(txn).pipe(
+          switchMap(transaction => {
+            return concat(fileObjs.map(fileObj => {
+              fileObj.transaction_id = transaction.id;
+              return this.fileService.post(fileObj);
+            })).pipe(
+              map(() => transaction)
+            );
+          })
+        );
+      })
+    );
   }
 }

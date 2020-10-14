@@ -1,0 +1,16 @@
+.add-edit-expense {
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--footer {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  &--primary-cta {
+    height: 48px;
+    width: 100%;
+    margin: 12px 8px;
+  }
+}
