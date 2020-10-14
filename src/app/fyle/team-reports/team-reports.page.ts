@@ -65,7 +65,7 @@ export class TeamReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-
+    this.addNewFiltersToParams();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
@@ -138,11 +138,7 @@ export class TeamReportsPage implements OnInit {
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
-        const queryParams = params.queryParams || {
-          rp_state: 'in.(APPROVER_PENDING)',
-          rp_approval_state: 'in.(APPROVAL_PENDING)',
-          sequential_approval_turn: 'in.(true)'
-        };
+        const queryParams = params.queryParams;
         return this.reportService.getTeamReportsCount(queryParams);
       }),
       shareReplay()
@@ -204,45 +200,54 @@ export class TeamReportsPage implements OnInit {
     currentParams.pageNumber = 1;
     const newQueryParams: any = {};
 
-    if (this.filters.state) {
-      if (this.filters.state === 'ALL') {
-        newQueryParams.rp_state = 'in.(APPROVER_PENDING,APPROVER_INQUIRY,APPROVAL_DONE,COMPLETE,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
-        newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
-      } else if (this.filters.state === 'MYQUEUE') {
+    if (this.filters) {
+      if (this.filters.state) {
+        if (this.filters.state === 'ALL') {
+          newQueryParams.rp_state = 'in.(APPROVER_PENDING,APPROVER_INQUIRY,APPROVAL_DONE,COMPLETE,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
+          newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
+        } else if (this.filters.state === 'MYQUEUE') {
+          newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+          newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+          // TODO verify with Vaishnavi to check wether to send true in both condition
+          // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
+          newQueryParams.sequential_approval_turn = 'in.(true)';
+        }
+      } else {
         newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
         newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
         // TODO verify with Vaishnavi to check wether to send true in both condition
         // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
         newQueryParams.sequential_approval_turn = 'in.(true)';
       }
-    } else {
-        newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
-        newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-        // TODO verify with Vaishnavi to check wether to send true in both condition
-        // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
-        newQueryParams.sequential_approval_turn = 'in.(true)';
-    }
 
-    if (this.filters.date) {
-      if (this.filters.date === 'THISMONTH') {
-        newQueryParams.and =
-          `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
-      } else if (this.filters.date === 'LASTMONTH') {
-        newQueryParams.and =
-          `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
-      } else if (this.filters.date === 'CUSTOMDATE') {
-        newQueryParams.and =
-          `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
+      if (this.filters.date) {
+        if (this.filters.date === 'THISMONTH') {
+          newQueryParams.and =
+            `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
+        } else if (this.filters.date === 'LASTMONTH') {
+          newQueryParams.and =
+            `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
+        } else if (this.filters.date === 'CUSTOMDATE') {
+          newQueryParams.and =
+            `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
+        }
       }
+
+      if (this.filters.sortParam && this.filters.sortDir) {
+        currentParams.sortParam = this.filters.sortParam;
+        currentParams.sortDir = this.filters.sortDir;
+      } else {
+        currentParams.sortParam = 'rp_created_at';
+        currentParams.sortDir = 'desc';
+      }
+    } else {
+      newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+      newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+      // TODO verify with Vaishnavi to check wether to send true in both condition
+      // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
+      newQueryParams.sequential_approval_turn = 'in.(true)';
     }
 
-    if (this.filters.sortParam && this.filters.sortDir) {
-      currentParams.sortParam = this.filters.sortParam;
-      currentParams.sortDir = this.filters.sortDir;
-    } else {
-      currentParams.sortParam = 'rp_created_at';
-      currentParams.sortDir = 'desc';
-    }
     currentParams.queryParams = newQueryParams;
     return currentParams;
   }
