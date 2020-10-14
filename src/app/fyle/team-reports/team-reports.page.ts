@@ -30,9 +30,7 @@ export class TeamReportsPage implements OnInit {
     sortParam: string,
     sortDir: string,
     searchString: string
-  }>> = new BehaviorSubject({
-    pageNumber: 1
-  });
+  }>>;
   currentPageNumber = 1;
   acc = [];
   filters: Partial<{
@@ -65,7 +63,17 @@ export class TeamReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.addNewFiltersToParams();
+    this.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+      queryParams: {
+        rp_approval_state: 'in.(APPROVAL_PENDING)',
+        rp_state: 'in.(APPROVER_PENDING)',
+        // TODO verify with Vaishnavi to check wether to send true in both condition
+        // sequential_approval_turn: res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
+        sequential_approval_turn: 'in.(true)',
+      }
+    });
+
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
