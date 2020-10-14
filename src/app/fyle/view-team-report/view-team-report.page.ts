@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop } from 'rxjs';
-import { ReportService } from 'src/app/core/services/report.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import { map, tap, switchMap, finalize, shareReplay } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AlertController } from '@ionic/angular';
+import { switchMap, finalize, map, shareReplay, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-my-view-report',
-  templateUrl: './my-view-report.page.html',
-  styleUrls: ['./my-view-report.page.scss'],
+  selector: 'app-view-team-report',
+  templateUrl: './view-team-report.page.html',
+  styleUrls: ['./view-team-report.page.scss'],
 })
-export class MyViewReportPage implements OnInit {
+export class ViewTeamReportPage implements OnInit {
 
   erpt$: Observable<ExtendedReport>;
   etxns$: Observable<any[]>;
@@ -28,6 +28,7 @@ export class MyViewReportPage implements OnInit {
   canEdit$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   canResubmitReport$: Observable<boolean>;
+  isReportReported: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -67,7 +68,10 @@ export class MyViewReportPage implements OnInit {
 
   ionViewWillEnter() {
     this.erpt$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
+      switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id)),
+      tap(res => {
+        this.isReportReported = ['APPROVER_PENDING'].indexOf(res.rp_state) > -1;
+      }),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
@@ -99,7 +103,6 @@ export class MyViewReportPage implements OnInit {
     this.etxns$ = from(this.authService.getEou()).pipe(
       switchMap(eou => {
         return this.transactionService.getAllETxnc({
-          tx_org_user_id: 'eq.' + eou.ou.id,
           tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
           order: 'tx_txn_dt.desc,tx_id.desc'
         });
