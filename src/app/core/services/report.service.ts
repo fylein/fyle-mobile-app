@@ -2,12 +2,18 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
+<<<<<<< HEAD
 import { switchMap, tap, map, concatMap, reduce, shareReplay } from 'rxjs/operators';
 import { from, range } from 'rxjs';
+=======
+import { switchMap, tap, map, concatMap, reduce } from 'rxjs/operators';
+import { from, range, forkJoin } from 'rxjs';
+>>>>>>> master
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
 import { ExtendedReport } from '../models/report.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +26,8 @@ export class ReportService {
     private apiService: ApiService,
     private authService: AuthService,
     private apiv2Service: ApiV2Service,
-    private dateService: DateService
+    private dateService: DateService,
+    private offlineService: OfflineService,
   ) { }
 
   getUserReportParams(state: string) {
@@ -117,8 +124,72 @@ export class ReportService {
     );
   }
 
+  getTeamReportsCount(queryParams = {}) {
+    return this.getTeamReports({
+      offset: 0,
+      limit: 1,
+      queryParams
+    }).pipe(
+      map(res => res.count)
+    );
+  }
+
+  getTeamReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    const autService$ = this.authService.getEou();
+    const orgSettings$ = this.offlineService.getOrgSettings();
+
+    const primaryData$ = forkJoin({
+      autService$,
+      orgSettings$
+    });
+
+    return from(primaryData$).pipe(
+      switchMap(res => {
+        return this.apiv2Service.get('/reports', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            approved_by: 'cs.{' + res.autService$.ou.id + '}',
+            order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
+            ...config.queryParams
+          }
+        });
+      }),
+      map(res => res as {
+        count: number,
+        data: ExtendedReport[],
+        limit: number,
+        offset: number,
+        url: string
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.dateService.fixDates)
+      }))
+    );
+  }
+
   getReport(id: string) {
     return this.getMyReports({
+      offset: 0,
+      limit: 1,
+      queryParams: {
+        rp_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => res.data[0]
+      ),
+      tap(console.log)
+    );
+  }
+
+  getTeamReport(id: string) {
+    return this.getTeamReports({
       offset: 0,
       limit: 1,
       queryParams: {
@@ -175,4 +246,23 @@ export class ReportService {
       shareReplay()
     );
   }
+
+  getAllTeamExtendedReports(config: Partial<{ order: string, queryParams: any }> = {
+    order: '',
+    queryParams: {}
+  }) {
+    return this.getTeamReportsCount().pipe(
+      switchMap(count => {
+        return range(0, count / 50);
+      }),
+      concatMap(page => {
+        return this.getTeamReports({ offset: 50 * page, limit: 50, ...config.queryParams, order: config.order });
+      }),
+      map(res => res.data),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [] as ExtendedReport[])
+    );
+  }
+
 }
