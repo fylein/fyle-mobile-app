@@ -115,7 +115,7 @@ export class TripRequestsService {
     );
   }
 
-  getTeamTripsCount(queryParams = {}) {
+  getTeamTripsCount(queryParams = {})  {
     return this.getTeamTrips({
       offset: 0,
       limit: 1,
@@ -181,16 +181,6 @@ export class TripRequestsService {
 
   getMyTripsCount(queryParams = {}) {
     return this.getMyTrips({
-      offset: 0,
-      limit: 1,
-      queryParams
-    }).pipe(
-      map(trip => trip.count)
-    );
-  }
-
-  getTeamTripsCount(queryParams = {})  {
-    return this.getTeamTrips({
       offset: 0,
       limit: 1,
       queryParams
