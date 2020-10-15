@@ -19,7 +19,6 @@ export class HotelRequestsComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.hotelRequests);
   }
 
 }

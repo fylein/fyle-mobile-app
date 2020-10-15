@@ -1,0 +1,35 @@
+$details-color: #ababab;
+
+.add-expense-popover-internal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  &--element {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex: 1;
+    border-bottom: 1px solid #e2e2e2;
+  }
+
+  &--icon {
+    max-height: 32px;
+    min-height: 32px;
+    max-width: 32px;
+    min-width: 32px;
+    margin: 12px;
+  }
+
+  &--head {
+    font-size: 18px;
+    color: #000;
+    line-height: 1.33;
+    font-weight: 500;
+  }
+
+  &--info {
+    font-size: 16px;
+    color: #ababab;
+    line-height: 1.5;
+  }
+}
