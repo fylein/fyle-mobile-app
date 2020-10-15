@@ -38,7 +38,7 @@ export class AdvanceRequestService {
         is_sent_back: true
       },
       all: {
-        state: ['APPROVAL_PENDING','DRAFT','APPROVED','REJECTED']
+        state: ['APPROVAL_PENDING', 'DRAFT', 'APPROVED', 'REJECTED']
       }
     };
 
@@ -104,11 +104,17 @@ export class AdvanceRequestService {
   }) {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
+
+        const defaultParams = {};
+        defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_PENDING'];
+
         return this.apiv2Service.get('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
+            order: 'areq_created_at.desc',
             areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
+            ...defaultParams,
             ...config.queryParams
           }
         });
@@ -137,7 +143,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getTeamAdvanceRequestsCount(queryParams = {}) {
+  getTeamAdvanceRequestsCount(queryParams: {}) {
     return this.getTeamadvanceRequests({
       offset: 0,
       limit: 1,
