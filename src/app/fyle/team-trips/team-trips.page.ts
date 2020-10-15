@@ -14,7 +14,6 @@ import { Router } from '@angular/router';
 })
 export class TeamTripsPage implements OnInit {
 
-  pageTitle = 'Team Trips';
   isConnected$: Observable<boolean>;
   myTripRequests$: Observable<ExtendedTripRequest[]>;
   count$: Observable<number>;
@@ -58,7 +57,10 @@ export class TeamTripsPage implements OnInit {
       shareReplay()
     );
 
-    this.count$ = this.tripRequestsService.getMyTripsCount().pipe(
+    this.count$ = this.tripRequestsService.getTeamTripsCount({
+      or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
+      trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)'],
+    }).pipe(
       shareReplay()
     );
 

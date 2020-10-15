@@ -4,9 +4,10 @@ import { CostCentersService } from './cost-centers.service';
 import { finalize, map } from 'rxjs/operators';
 import { forkJoin, Subject } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ngx-cacheable';
-
+import { OrgUserSettings } from '../models/org_user_settings.model';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
+
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,9 @@ export class OrgUserSettingsService {
     cacheBusterObserver: orgUserSettingsCacheBuster$
   })
   get() {
-    return this.apiService.get('/org_user_settings');
+    return this.apiService.get('/org_user_settings').pipe(
+      map(res => res as OrgUserSettings)
+    );
   }
 
 

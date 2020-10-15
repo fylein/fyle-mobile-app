@@ -33,7 +33,7 @@ export class MyAdvancesPage implements OnInit {
             return this.advanceRequestService.getMyadvanceRequests({
               offset: (pageNumber - 1) * 10,
               limit: 10,
-              queryParams: {areq_trip_request_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc'}
+              queryParams: { areq_trip_request_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
             });
           }),
           finalize(() => {
@@ -51,7 +51,9 @@ export class MyAdvancesPage implements OnInit {
       shareReplay()
     );
 
-    this.count$ = this.advanceRequestService.getMyAdvanceRequestsCount().pipe(
+    this.count$ = this.advanceRequestService.getMyAdvanceRequestsCount(
+      { areq_trip_request_id: 'is.null' }
+    ).pipe(
       shareReplay()
     );
 

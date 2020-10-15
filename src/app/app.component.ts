@@ -158,7 +158,7 @@ export class AppComponent implements OnInit {
           title: 'Expenses',
           isVisible: true,
           icon: '../../../assets/svg/fy-expenses-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard1']
+          route: ['/', 'enterprise', 'my_expenses']
         },
         {
           title: 'Reports',

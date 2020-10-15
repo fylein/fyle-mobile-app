@@ -19,7 +19,6 @@ export class AdvanceRequestComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.advanceRequests);
   }
 
 }
