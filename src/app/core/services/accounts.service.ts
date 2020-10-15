@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
+import { cloneDeep } from 'lodash';
 
 @Injectable({
   providedIn: 'root'
@@ -45,7 +46,6 @@ export class AccountsService {
     const accountsMap = {
       PERSONAL_ACCOUNT(account) {
         account.acc.displayName = 'Paid by Me';
-
         if (isNotOwner) {
           account.acc.displayName = 'Paid by Employee';
         }
@@ -72,6 +72,17 @@ export class AccountsService {
       }
     };
 
-    return accounts.map(account => accountsMap[account.acc.type](account));
+    const mappedAccouts =  accounts.map(account => accountsMap[account.acc.type](account));
+    const personalAccount = accounts.find(account => account.acc.type === 'PERSONAL_ACCOUNT');
+    if (personalAccount) {
+      const personalNonreimbursableAccount = cloneDeep(personalAccount);
+      personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
+      personalNonreimbursableAccount.acc.isReimbursable = false;
+      mappedAccouts.push(personalNonreimbursableAccount);
+    }
+
+    return mappedAccouts;
+
+
   }
 }

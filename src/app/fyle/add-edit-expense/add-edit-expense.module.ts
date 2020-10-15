@@ -13,6 +13,9 @@ import { FyCurrencyExchangeRateComponent } from './fy-currency/fy-currency-excha
 import { FyCurrencyComponent } from './fy-currency/fy-currency.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { FySelectComponent } from './fy-select/fy-select.component';
+import { FySelectModalComponent } from './fy-select/fy-select-modal/fy-select-modal.component';
+import { MatRippleModule } from '@angular/material/core';
 
 
 @NgModule({
@@ -25,13 +28,16 @@ import { MatInputModule } from '@angular/material/input';
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatRippleModule
   ],
   declarations: [
     AddEditExpensePage,
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
-    FyCurrencyExchangeRateComponent
+    FyCurrencyExchangeRateComponent,
+    FySelectComponent,
+    FySelectModalComponent
   ]
 })
 export class AddEditExpensePageModule { }

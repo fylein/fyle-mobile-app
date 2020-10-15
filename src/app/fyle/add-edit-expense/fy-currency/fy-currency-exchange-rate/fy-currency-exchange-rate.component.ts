@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { switchMap, finalize, distinctUntilChanged, debounceTime, throttle, throttleTime } from 'rxjs/operators';
+import { switchMap, finalize, distinctUntilChanged, debounceTime, throttle, throttleTime, pairwise, map } from 'rxjs/operators';
 import { from } from 'rxjs';
 
 @Component({
@@ -16,6 +16,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
   @Input() amount;
   @Input() currentCurrency;
   @Input() newCurrency;
+  @Input() txnDt;
 
   fg: FormGroup;
 
@@ -34,66 +35,71 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
   ngOnInit() {
 
     this.fg = this.formBuilder.group({
-      newCurrencyAmount: [, Validators.compose([Validators.pattern('^[0-9]*$'), Validators.required])],
-      exchangeRate: [, Validators.compose([Validators.pattern('^[0-9]*$'), Validators.required])],
-      homeCurrencyAmount: [, Validators.compose([Validators.pattern('^[0-9]*$'), Validators.required])]
+      newCurrencyAmount: [, Validators.compose([Validators.required])],
+      exchangeRate: [, Validators.compose([Validators.required])],
+      homeCurrencyAmount: [, Validators.compose([Validators.required])]
     });
 
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
-        // TODO: Pass transaction date here
-        return this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency);
+        return this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date());
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe((exchangeRate) => {
       this.fg.setValue({
         newCurrencyAmount: this.amount,
         exchangeRate,
-        homeCurrencyAmount: (exchangeRate * this.amount)
+        homeCurrencyAmount: this.toFixed((exchangeRate * this.amount), 2)
       });
     });
 
-
     this.fg.controls.newCurrencyAmount.valueChanges.pipe(
-      distinctUntilChanged(),
-      throttleTime(100)
+      distinctUntilChanged()
     ).subscribe(() => {
       const amount = +this.fg.controls.newCurrencyAmount.value * +this.fg.controls.exchangeRate.value;
       if (amount && amount !== Infinity) {
-        this.fg.controls.homeCurrencyAmount.setValue(this.toFixed(amount, 2));
+        this.fg.controls.homeCurrencyAmount.setValue(this.toFixed(amount, 2), {
+          emitEvent: false
+        });
       } else {
-        this.fg.controls.homeCurrencyAmount.setValue(0);
+        this.fg.controls.homeCurrencyAmount.setValue(0, {
+          emitEvent: false
+        });
       }
     });
 
 
     this.fg.controls.exchangeRate.valueChanges.pipe(
-      distinctUntilChanged(),
-      throttleTime(100)
+      distinctUntilChanged()
     ).subscribe(() => {
       const amount = +this.fg.controls.newCurrencyAmount.value * +this.fg.controls.exchangeRate.value;
       if (amount && amount !== Infinity) {
-        this.fg.controls.homeCurrencyAmount.setValue(this.toFixed(amount, 2));
+        this.fg.controls.homeCurrencyAmount.setValue(this.toFixed(amount, 2), {
+          emitEvent: false
+        });
       } else {
-        this.fg.controls.homeCurrencyAmount.setValue(0);
+        this.fg.controls.homeCurrencyAmount.setValue(0, {
+          emitEvent: false
+        });
       }
     });
 
     this.fg.controls.homeCurrencyAmount.valueChanges.pipe(
-      distinctUntilChanged(),
-      throttleTime(100)
+      distinctUntilChanged()
     ).subscribe((e) => {
       if (this.fg.controls.newCurrencyAmount.value && this.fg.controls.homeCurrencyAmount.value) {
         this.fg.controls.exchangeRate.setValue(
-          this.toFixed((+this.fg.controls.homeCurrencyAmount.value) / (+this.fg.controls.newCurrencyAmount.value), 7));
+          this.toFixed((+this.fg.controls.homeCurrencyAmount.value) / (+this.fg.controls.newCurrencyAmount.value), 7), {
+          emitEvent: false
+        });
       }
     });
   }
 
   save() {
     this.modalController.dismiss({
-      amount: this.fg.value.newCurrencyAmount,
-      homeCurrencyAmount: this.fg.value.homeCurrencyAmount
+      amount: +this.fg.value.newCurrencyAmount,
+      homeCurrencyAmount: +this.fg.value.homeCurrencyAmount
     });
   }
 

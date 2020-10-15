@@ -113,7 +113,8 @@
           <!-- Add currency support -->
           <span *ngIf="etxn$|async as etxn">
             <span *ngIf="homeCurrency$|async as homeCurrency">
-              <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency"></app-fy-currency>
+              <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
+              </app-fy-currency>
             </span>
           </span>
 
@@ -148,6 +149,9 @@
             readonly="readonly" required [disabled]="isCreatedFromCCC || !canEditCCCMatchedSplitExpense">
           </enterprise-expense-payment-mode>
         </div> -->
+        <span *ngIf="paymentModes$|async as paymentModes">
+          <app-fy-select formControlName="paymentMode" [options]="paymentModes"></app-fy-select>
+        </span>
 
         <!-- <enterprise-alert *ngIf="isBalanceAvailableInAnyAdvanceAccount && !isCreatedFromCCC" type="information"
           message="'You have outstanding balance in your advance account(s)'"></enterprise-alert> -->
@@ -191,6 +195,13 @@
             readonly="readonly" cache-name="recentCategoryList">
           </enterprise-fy-select>
         </div> -->
+        <span *ngIf="categories$|async as categories">
+          <app-fy-select formControlName="category" [options]="categories"></app-fy-select>
+        </span>
+
+
+
+
 
         <!-- <div *ngIf="txnFields.txn_dt.can_view">
           <div>*

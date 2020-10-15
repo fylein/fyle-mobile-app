@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, of, iif, forkJoin, from } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { concatMap, switchMap, map } from 'rxjs/operators';
+import { concatMap, switchMap, map, startWith } from 'rxjs/operators';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -26,6 +27,8 @@ export class AddEditExpensePage implements OnInit {
   activeIndex: number;
   reviewList: string[];
   fg: FormGroup;
+  projects$: Observable<any[]>;
+  categories$: Observable<any[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -33,7 +36,7 @@ export class AddEditExpensePage implements OnInit {
     private offlineService: OfflineService,
     private authService: AuthService,
     private formBuilder: FormBuilder,
-    private modalController: ModalController
+    private categoriesService: CategoriesService
   ) { }
 
   ngOnInit() {
@@ -73,6 +76,13 @@ export class AddEditExpensePage implements OnInit {
     this.title = 'Add Expense';
     this.title = this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
 
+    this.categories$ = this.categoriesService.getAll().pipe(
+      map(catogories => catogories.filter(category => category.enabled === true)),
+      map(catogories => this.categoriesService.filterRequired(catogories)),
+      map(catogories => catogories.map((category: any) => ({ label: category.displayName, value: category })))
+    );
+
+
     this.paymentModes$ = forkJoin({
       accounts: accounts$,
       orgSettings: orgSettings$
@@ -84,8 +94,10 @@ export class AddEditExpensePage implements OnInit {
           orgSettings.advance_account_settings.multiple_accounts;
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-      })
+      }),
+      map(paymentModes => paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode })))
     );
+
 
     this.pickRecentCurrency$ = orgUserSettings$.pipe(
       map(orgUserSettings => {
@@ -191,13 +203,6 @@ export class AddEditExpensePage implements OnInit {
     const editExpensePipe$ = of({});
 
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$);
-
-    // this.etxn$.pipe(
-    //   take(1)
-    // ).subscribe((etxn) => {
-    //   this.fg.
-    // });
-
   }
 
 }

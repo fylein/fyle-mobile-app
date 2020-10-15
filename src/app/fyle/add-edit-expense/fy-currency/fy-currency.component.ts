@@ -36,8 +36,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private modalController: ModalController,
-    private currencyService: CurrencyService
+    private modalController: ModalController
   ) { }
 
   ngOnInit() {
@@ -56,12 +55,12 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       };
       if (formValue.currency !== this.homeCurrency) {
         value.currency = this.homeCurrency;
-        value.amount = formValue.homeCurrencyAmount;
-        value.orig_amount = formValue.amount;
+        value.amount = +formValue.homeCurrencyAmount;
+        value.orig_amount = +formValue.amount;
         value.orig_currency = formValue.currency;
       } else {
         value.currency = this.homeCurrency;
-        value.amount = formValue.amount;
+        value.amount = +formValue.amount;
       }
 
       if (!this.checkIfSameValue(value, this.innerValue)) {
@@ -145,7 +144,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
           componentProps: {
             amount: this.fg.controls.amount.value,
             currentCurrency: this.homeCurrency,
-            newCurrency: shortCode
+            newCurrency: shortCode,
+            txnDt: this.txnDt
           }
         });
 

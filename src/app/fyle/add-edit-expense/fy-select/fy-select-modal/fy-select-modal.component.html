@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <mat-form-field class="select-modal--form-field mat-form-field-no-padding" appearance="outline">
+      <span class="material-icons select-modal--search-icon" matPrefix>
+        search
+      </span>
+      <input #searchBar id="select-modal--search-input" matInput placeholder="Search">
+    </mat-form-field>
+    <ion-buttons slot="end">
+      <ion-button (click)="onDoneClick()">
+        Done
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div matRipple class="select-modal--element" *ngFor="let option of filteredOptions$ | async as list"
+    (click)="onElementSelect(option)">
+    <div>
+      {{option.label}}
+    </div>
+    <mat-icon *ngIf="option.selected">
+      check
+    </mat-icon>
+  </div>
+</ion-content>
