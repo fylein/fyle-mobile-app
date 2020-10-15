@@ -18,6 +18,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
 import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
+import { GlobalCacheConfig } from 'ngx-cacheable';
 
 @Component({
   selector: 'app-root',
@@ -54,6 +55,10 @@ export class AppComponent implements OnInit {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+
+      // Global cache config
+      GlobalCacheConfig.maxAge = 10 * 60 * 1000;
+      GlobalCacheConfig.maxCacheCount = 100;
     });
   }
 
