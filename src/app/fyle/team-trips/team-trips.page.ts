@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class TeamTripsPage implements OnInit {
 
   isConnected$: Observable<boolean>;
-  myTripRequests$: Observable<ExtendedTripRequest[]>;
+  teamTripRequests$: Observable<ExtendedTripRequest[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
   loadData$: Subject<number> = new Subject();
@@ -29,7 +29,7 @@ export class TeamTripsPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.myTripRequests$ = this.loadData$.pipe(
+    this.teamTripRequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
@@ -37,8 +37,8 @@ export class TeamTripsPage implements OnInit {
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
-                or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
-                trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)'],
+                trp_approval_state: ['in.(APPROVAL_PENDING)'],
+                trp_state: 'eq.APPROVAL_PENDING'
               }
             });
           }),
@@ -57,23 +57,29 @@ export class TeamTripsPage implements OnInit {
       shareReplay()
     );
 
+    // this.count$ = this.tripRequestsService.getTeamTripsCount(
+    //   {
+    //     trp_approval_state: ['in.(APPROVAL_PENDING)'],
+    //     trp_state: 'eq.APPROVAL_PENDING'
+    //   }
+    // ).pipe(
     this.count$ = this.tripRequestsService.getTeamTripsCount({
-      or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
-      trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)'],
+      trp_approval_state: ['in.(APPROVAL_PENDING)'],
+      trp_state: 'eq.APPROVAL_PENDING'
     }).pipe(
       shareReplay()
     );
 
-    this.isInfiniteScrollRequired$ = this.myTripRequests$.pipe(
-      concatMap(myTrips => {
+    this.isInfiniteScrollRequired$ = this.teamTripRequests$.pipe(
+      concatMap(teamTrips => {
         return this.count$.pipe(map(count => {
-          return count > myTrips.length;
+          return count > teamTrips.length;
         }));
       })
     );
 
     this.loadData$.subscribe(noop);
-    this.myTripRequests$.subscribe(noop);
+    this.teamTripRequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next(this.currentPageNumber);
