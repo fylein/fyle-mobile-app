@@ -104,12 +104,15 @@ export class AdvanceRequestService {
   }) {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
+        const extraParams = {};
+        extraParams['advance_request_approvals->' + eou.ou.id + '->>state'] = ['eq.APPROVAL_PENDING'];
         return this.apiv2Service.get('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
             order: 'areq_created_at.desc',
             areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
+            ...extraParams,
             ...config.queryParams
           }
         });

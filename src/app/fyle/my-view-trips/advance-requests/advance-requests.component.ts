@@ -17,9 +17,8 @@ export class AdvanceRequestsComponent implements OnInit {
   closeModal() {
     this.modalController.dismiss();
   }
-  
+
   ngOnInit() {
-    console.log(this.advanceRequests);
   }
 
 }

@@ -4,6 +4,7 @@ import { tap, map, switchMap, catchError, concatMap } from 'rxjs/operators';
 import { Org } from '../models/org.model';
 import { AuthService } from './auth.service';
 import { forkJoin } from 'rxjs';
+import { globalCacheBusterNotifier } from 'ngx-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -67,6 +68,10 @@ export class OrgService {
   }
 
   switchOrg(orgId: string) {
+
+    // busting global cache
+    globalCacheBusterNotifier.next();
+
     return this.apiService.post(`/orgs/${orgId}/refresh_token`).pipe(
       switchMap(data => {
         return this.authService.newRefreshToken(data.refresh_token);

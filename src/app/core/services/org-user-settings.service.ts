@@ -2,7 +2,12 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
 import { finalize, map } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
+import { Cacheable, CacheBuster } from 'ngx-cacheable';
+import { OrgUserSettings } from '../models/org_user_settings.model';
+
+const orgUserSettingsCacheBuster$ = new Subject<void>();
+
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +18,13 @@ export class OrgUserSettingsService {
     private costCentersService: CostCentersService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: orgUserSettingsCacheBuster$
+  })
   get() {
-    return this.apiService.get('/org_user_settings');
+    return this.apiService.get('/org_user_settings').pipe(
+      map(res => res as OrgUserSettings)
+    );
   }
 
 
@@ -46,6 +56,9 @@ export class OrgUserSettingsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: orgUserSettingsCacheBuster$
+  })
   post(data) {
     // Todo: fix timezone issue later
     return this.apiService.post('/org_user_settings', data).pipe(

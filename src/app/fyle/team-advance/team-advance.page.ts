@@ -13,7 +13,6 @@ import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_req
 })
 export class TeamAdvancePage implements OnInit {
 
-  pageTitle = 'Team Advances';
   teamAdvancerequests$: Observable<any[]>;
   loadData$: Subject<number> = new Subject();
   count$: Observable<number>;
