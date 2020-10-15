@@ -61,6 +61,10 @@ const routes: Routes = [
   {
     path: 'view_team_report',
     loadChildren: () => import('./view-team-report/view-team-report.module').then( m => m.ViewTeamReportPageModule)
+  },
+  {
+    path: 'view_team_advance',
+    loadChildren: () => import('./view-team-advance/view-team-advance.module').then( m => m.ViewTeamAdvancePageModule)
   }
 ];
 
