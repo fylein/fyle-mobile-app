@@ -11,9 +11,9 @@ export class DashboardService {
     private transactionService: TransactionService
   ) { }
 
-  getreadyToReportStats = function () {
+  getreadyToReportStats() {
     return this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
-  };
+  }
 
   setDashBoardState(state: string) {
     this.dashBoardState$.next(state);

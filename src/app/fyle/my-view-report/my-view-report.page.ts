@@ -71,8 +71,6 @@ export class MyViewReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.reportService.getReport(this.activatedRoute.snapshot.params.id);
-
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map(pdfExports => {
         return pdfExports.results.sort((a, b) => {
@@ -120,7 +118,7 @@ export class MyViewReportPage implements OnInit {
 
     this.canEdit$ = actions$.pipe(map(actions => actions.can_edit));
     this.canDelete$ = actions$.pipe(map(actions => actions.can_delete));
-    this.canResubmitReport$ = actions$.pipe(map(actions => actions.can_resubmit), tap(console.log));
+    this.canResubmitReport$ = actions$.pipe(map(actions => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
   }

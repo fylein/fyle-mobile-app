@@ -191,15 +191,12 @@ export class MyViewTripsPage implements OnInit {
         = preferredTimings.filter(timing => timing.id === eTransportationRequest.tr.preferred_timing)[0].name;
     }
 
-    console.log(eTransportationRequest.tb.transaction_id, eTransportationRequest.tc.transaction_id);
-
     return forkJoin({
       bookingNumberExpense: iif(() => !!eTransportationRequest.tb.transaction_id,
         this.transactionService.get(eTransportationRequest.tb.transaction_id), of(null)),
       cancellationNumberExpense: iif(() => !!eTransportationRequest.tc.transaction_id,
         this.transactionService.get(eTransportationRequest.tc.transaction_id), of(null))
     }).pipe(
-      tap(console.log),
       map(({ bookingNumberExpense, cancellationNumberExpense }) => {
         if (bookingNumberExpense) {
           eTransportationRequest.tb.transaction_number = bookingNumberExpense.expense_number;
