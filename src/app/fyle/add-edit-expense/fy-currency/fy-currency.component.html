@@ -1,0 +1,11 @@
+<div>
+  <form [formGroup]="fg">
+    <mat-form-field class="mat-form-field-no-padding" appearance="outline">
+      <input (click)="openCurrencyModal()" formControlName="currency" matInput placeholder="Placeholder">
+    </mat-form-field>
+
+    <mat-form-field class="mat-form-field-no-padding" appearance="outline">
+      <input formControlName="amount" matInput placeholder="Placeholder">
+    </mat-form-field>
+  </form>
+</div>

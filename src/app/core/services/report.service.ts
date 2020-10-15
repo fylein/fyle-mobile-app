@@ -3,11 +3,7 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { switchMap, tap, map, concatMap, reduce, shareReplay } from 'rxjs/operators';
-<<<<<<< HEAD
-import { from, range } from 'rxjs';
-=======
 import { from, range, forkJoin } from 'rxjs';
->>>>>>> master
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';

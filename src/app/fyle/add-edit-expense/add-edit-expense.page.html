@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title *ngIf="mode$|async as mode">
+    <ion-title *ngIf="mode">
       <div *ngIf="mode === 'add'">
         Add Expense
       </div>
@@ -9,7 +9,7 @@
       </div>
     </ion-title>
   </ion-toolbar>
-  <ion-toolbar *ngIf="reviewList.length > 0">
+  <!-- <ion-toolbar *ngIf="reviewList.length > 0">
     <ion-title>
       <div>
         {{ activeIndex + 1 }} of {{ reviewList.length }} expense{{reviewList.length > 1 ? 's' : ''}}
@@ -20,8 +20,8 @@
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
-  </ion-toolbar>
-  <ion-toolbar *ngIf="reviewList.length > 1 && showNavigationPanel">
+  </ion-toolbar> -->
+  <!-- <ion-toolbar *ngIf="reviewList.length > 1 && showNavigationPanel">
     <div>
       <div>
         <button [disabled]="activeIndex === 0" (click)="goToPreviousExpense()">
@@ -39,12 +39,12 @@
         </button>
       </div>
     </div>
-  </ion-toolbar>
+  </ion-toolbar> -->
 </ion-header>
 
 <ion-content>
-  <form *ngIf="!showInstaFyleLoading">
-    <div (click)="showDuplicates()" *ngIf="duplicates && duplicates.length > 0 && scrollToDuplicates">
+  <form [formGroup]="fg">
+    <!-- <div (click)="showDuplicates()" *ngIf="duplicates && duplicates.length > 0 && scrollToDuplicates">
       <div>
         Possible Duplicates Detected !
       </div>
@@ -53,33 +53,33 @@
           chevron-down
         </mat-icon>
       </div>
-    </div>
+    </div> -->
 
     <div>
-      <div *ngIf="instaFyleCancelled">
+      <!-- <div *ngIf="instaFyleCancelled">
         Instafyle is taking longer than expected due to a bad network, please add the details manually
-      </div>
+      </div> -->
 
-      <div (click)="scrollTo('comments')" *ngIf="etxn.tx.policy_flag && comments">
-        <!-- TODO - add comments support -->
-        <!-- <enterprise-fy-policy-violation-info estatuses="comments"></enterprise-fy-policy-violation-info> -->
-      </div>
+      <!-- <div (click)="scrollTo('comments')" *ngIf="etxn.tx.policy_flag && comments">
+        TODO - add comments support
+        <enterprise-fy-policy-violation-info estatuses="comments"></enterprise-fy-policy-violation-info>
+      </div> -->
 
-      <div *ngIf="isAmountCapped">
+      <!-- <div *ngIf="isAmountCapped">
         <div *ngIf="isCriticalPolicyViolated">
           This expense has violated a critical policy. You cannot create a report with this expense.</div>
         <div *ngIf="!isCriticalPolicyViolated">Claimed amount <div>{{etxn.tx.user_amount}}</div> was capped to <div>
             {{etxn.tx.amount}}</div>
           due to policy <div *ngIf="isAmountDisabled">and cannot be edited.</div>
         </div>
-      </div>
+      </div> -->
 
       <div>
-        <div *ngIf="reviewList.length > 0 && showAttachmentPreview">
-          <!-- Preview Attachment Component -->
-          <!-- <preview-attachments txn-id="{{ etxn.tx.id }}"></preview-attachments> -->
-        </div>
-        <div *ngIf="!reviewList.length > 0 || !showAttachmentPreview">
+        <!-- <div *ngIf="reviewList.length > 0 && showAttachmentPreview">
+          Preview Attachment Component
+          <preview-attachments txn-id="{{ etxn.tx.id }}"></preview-attachments>
+        </div> -->
+        <!-- <div *ngIf="!reviewList.length > 0 || !showAttachmentPreview">
           <div *ngIf="attachmentUploadInProgress">
             <ion-spinner icon="circles"></ion-spinner>
             <div>
@@ -107,13 +107,17 @@
               add-attachment
             </mat-icon>
           </div>
-        </div>
+        </div> -->
 
         <div>
           <!-- Add currency support -->
-          <!-- <enterprise-fy-currency currency-obj="currencyObj" options="currencyOptions"
-            pick-recent-currency="{{ pickRecentCurrency }}" *ngIf="currencyObj"
-            is-from-card-reversals="isCreatedFromCardReversals"></enterprise-fy-currency> -->
+          <span *ngIf="etxn$|async as etxn">
+            <span *ngIf="homeCurrency$|async as homeCurrency">
+              <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency"></app-fy-currency>
+            </span>
+          </span>
+
+
           <!-- <i ></i> -->
           <mat-icon>
             review
@@ -121,7 +125,7 @@
         </div>
       </div>
 
-      <div *ngIf="isSplitExpenseAllowed && !(reviewList && reviewList.length > 1) && !isOffline">
+      <!-- <div *ngIf="isSplitExpenseAllowed && !(reviewList && reviewList.length > 1) && !isOffline">
         <div (click)="splitExpense($event)">
           <mat-icon>
             split-expense
@@ -130,25 +134,25 @@
             Split Expense
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div>
-        <div *ngIf="accounts.length > 1">
+        <!-- <div *ngIf="accounts.length > 1">
           <div>
             {{etxn.tx.source_account_id ? 'Payment Mode' : 'Select Payment Mode'}}
             <div>*</div>
           </div>
-          <!-- Add payment mode support -->
-          <!-- <enterprise-expense-payment-mode name="paymentMode" 
+          Add payment mode support
+          <enterprise-expense-payment-mode name="paymentMode" 
             list="accounts" on-selection="selectPaymentMode(item)" title="Choose Payment Mode" sub-title="Payment Mode"
             readonly="readonly" required [disabled]="isCreatedFromCCC || !canEditCCCMatchedSplitExpense">
-          </enterprise-expense-payment-mode> -->
-        </div>
+          </enterprise-expense-payment-mode>
+        </div> -->
 
         <!-- <enterprise-alert *ngIf="isBalanceAvailableInAnyAdvanceAccount && !isCreatedFromCCC" type="information"
           message="'You have outstanding balance in your advance account(s)'"></enterprise-alert> -->
 
-        <div *ngIf="isCCCAccountSelected && !isCreatedFromCCC">
+        <!-- <div *ngIf="isCCCAccountSelected && !isCreatedFromCCC">
           <div (click)="openMatchingTransactions()">
             <div>
               <mat-icon>card</mat-icon>
@@ -158,7 +162,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- <enterprise-alert
           *ngIf="isCCCAccountSelected && !selectedCCCTransaction && canChangeMatchingCCCTransaction && !isTransactionInReport"
@@ -166,40 +170,39 @@
           message="'Expense will be saved as a draft. Kindly ensure that it is matched with an appropriate card transaction later, although we will attempt to auto-match it for you.'">
         </enterprise-alert> -->
 
-        <div
-          *ngIf="isProjectsEnabled && !isOffline && ((isIndividualProjectsEnabled && allowedProjectIds.length > 0) || !isIndividualProjectsEnabled)">
+        <!-- <div *ngIf="isProjectsEnabled && !isOffline && ((isIndividualProjectsEnabled && allowedProjectIds.length > 0) || !isIndividualProjectsEnabled)">
           <div>{{etxn.tx.project_id ? 'Project' : 'Select Project'}} <div *ngIf="mandatoryExpenseFields.project">*</div>
           </div>
-          <!-- <input type="text" name="project" 
+          <input type="text" name="project" 
             ng-required="mandatoryExpenseFields.project" on-selection="selectProject" selected-item="project"
             org-id="orgId" allowed-projects="allowedProjectIds"
             is-individual-projects-enabled="isIndividualProjectsEnabled" enterprise-fy-projects-autocomplete
-            readonly="readonly"> -->
-        </div>
+            readonly="readonly">
+        </div> -->
 
-        <div *ngIf="categories.length && !(isProjectsEnabled && isOffline)">
+        <!-- <div *ngIf="categories.length && !(isProjectsEnabled && isOffline)">
           <div>
             {{etxn.tx.org_category_id ? 'Category' : 'Select Category'}}
             <div *ngIf="mandatoryExpenseFields.category">*</div>
           </div>
-          <!-- <enterprise-fy-select *ngIf="isCategoriesListPresent" name="category" selected-item="category"
+          <enterprise-fy-select *ngIf="isCategoriesListPresent" name="category" selected-item="category"
             display="displayName" list="categories" filter-items="categoryIds" on-selection="selectCategory(item)"
             ng-required="mandatoryExpenseFields.category" title="Choose Category" sub-title="Categories"
             readonly="readonly" cache-name="recentCategoryList">
-          </enterprise-fy-select> -->
-        </div>
+          </enterprise-fy-select>
+        </div> -->
 
-        <div *ngIf="txnFields.txn_dt.can_view">
+        <!-- <div *ngIf="txnFields.txn_dt.can_view">
           <div>*
           </div>
         </div>
         <input type="date" name="date" ng-focus="toggleNavigationPanel(false)" ng-blur="toggleNavigationPanel(true)"
           ng-change="onChangeTxnDate()" min="{{minDate}}" max="{{maxDate}}" [disabled]="!txnFields.txn_dt.can_edit"
           ng-required="txnFields.txn_dt.mandatory">
-        <i class="icon ion-ios-bolt icon-user-review" ng-if="vm.isUserReviewNeededForDate"></i>
+        <i class="icon ion-ios-bolt icon-user-review" ng-if="vm.isUserReviewNeededForDate"></i> -->
       </div>
 
-      <div *ngIf="txnFields.vendor_id.can_view">
+      <!-- <div *ngIf="txnFields.vendor_id.can_view">
         <div>
           {{ etxn.tx.vendor ? txnFields.vendor_id.title : 'Select ' + txnFields.vendor_id.title }}
           <div *ngIf="txnFields.vendor_id.mandatory">*</div>
@@ -207,49 +210,49 @@
         <input type="text" name="merchant" ng-model="etxn.tx.vendor" on-selection="onVendorSelection(item)"
           ng-required="txnFields.vendor_id.mandatory" enterprise-fy-vendor-autocomplete readonly="readonly"
           [disabled]="!txnFields.vendor_id.can_edit">
-        <!-- <enterprise-fy-select name="merchant" selected-item="etxn.tx.vendor" list="txnFields.vendor_id.values"
+        <enterprise-fy-select name="merchant" selected-item="etxn.tx.vendor" list="txnFields.vendor_id.values"
           title="Choose Merchant" on-selection="onVendorSelection(item)" simple="true"
           hide-none="{{txnFields.vendor_id.mandatory === true ? 'true' : 'false'}}"
           ng-required="txnFields.vendor_id.mandatory" [disabled]="!txnFields.vendor_id.can_edit" readonly="readonly">
-        </enterprise-fy-select> -->
-      </div>
+        </enterprise-fy-select>
+      </div> -->
 
-      <div *ngIf="invalidVendor">
+      <!-- <div *ngIf="invalidVendor">
         <div>{{ txnFields.vendor_id.title }} cannot be greater than 250 characters</div>
-      </div>
+      </div> -->
 
-      <div *ngIf="txnFields.purpose.can_view">
+      <!-- <div *ngIf="txnFields.purpose.can_view">
         <div>
           {{ etxn.tx.purpose ? txnFields.purpose.title : 'Enter ' + txnFields.purpose.title }}
           <div *ngIf="txnFields.purpose.mandatory">*</div>
         </div>
-        <!-- <input type="text" name="purpose" ng-model="etxn.tx.purpose" on-selection="onPurposeSelection(item)"
+        <input type="text" name="purpose" ng-model="etxn.tx.purpose" on-selection="onPurposeSelection(item)"
           ng-required="txnFields.purpose.mandatory" enterprise-fy-input cache-name="recentPurposeList"
           title="Enter {{txnFields.purpose.title}}" sub-title="Enter {{txnFields.purpose.title}}" readonly
-          [disabled]="!txnFields.purpose.can_edit"> -->
-        <!-- <enterprise-fy-select name="purpose" selected-item="etxn.tx.purpose" list="txnFields.purpose.values"
+          [disabled]="!txnFields.purpose.can_edit">
+        <enterprise-fy-select name="purpose" selected-item="etxn.tx.purpose" list="txnFields.purpose.values"
           on-selection="onPurposeSelection(item)" simple="true"
           hide-none="{{txnFields.purpose.mandatory === true ? 'true' : 'false'}}"
           ng-required="txnFields.purpose.mandatory" cache-name="recentPurposeList"
           title="Enter {{txnFields.purpose.title}}" sub-title="Enter {{txnFields.purpose.title}}"
-          [disabled]="!txnFields.purpose.can_edit" readonly="readonly"></enterprise-fy-select> -->
-      </div>
+          [disabled]="!txnFields.purpose.can_edit" readonly="readonly"></enterprise-fy-select>
+      </div> -->
 
       <!-- Hide is offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
-      <div (click)="openAddExpenseToReportModal($event)"
+      <!-- <div (click)="openAddExpenseToReportModal($event)"
         *ngIf="!isDraftExpense && !isOffline && canAddToReport && !isCriticalPolicyViolated && etxn.tx.state !== 'DRAFT'">
         <div>{{etxn.tx.report_id ? 'Report' : 'Add to Report'}}</div>
         <input *ngIf="report" type="text" name="report">
-      </div>
+      </div> -->
 
-      <div
+      <!-- <div
         *ngIf="!isDraftExpense && !isOffline && !canAddToReport && !isCriticalPolicyViolated && etxn.tx.state !== 'DRAFT' && !(reviewList && reviewList.length > 1)">
         <ion-checkbox name="addToNewReport">Add to
           new report</ion-checkbox>
-      </div>
+      </div> -->
     </div>
 
-    <div *ngIf="!showSelectedTransaction && selectedCCCTransaction">
+    <!-- <div *ngIf="!showSelectedTransaction && selectedCCCTransaction">
       <div>
         <div>
           <div>
@@ -260,9 +263,9 @@
           <div>Matched to a transaction from card ending with {{ cardEndingDigits }}</div>
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <div>
+    <!-- <div>
       <div>
         <div>
           <mat-icon>
@@ -271,15 +274,15 @@
           <div> Selected a transaction from card ending with {{ cardEndingDigits }}</div>
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <div *ngIf="mode === 'add' && taxSettings.enabled && taxSettings.groups.length > 0">
+    <!-- <div *ngIf="mode === 'add' && taxSettings.enabled && taxSettings.groups.length > 0">
       <div>
         <div>
           {{tax.name ? (taxSettings.name || 'Tax Group') : ('Select ' + (taxSettings.name || 'Tax Group'))}}
         </div>
-        <!-- <enterprise-fy-select name="tax" on-selection="selectTax(item)" compare-with="percentage"
-          title="Enter {{taxSettings.name}}" sub-title="{{taxSettings.name}}"></enterprise-fy-select> -->
+        <enterprise-fy-select name="tax" on-selection="selectTax(item)" compare-with="percentage"
+          title="Enter {{taxSettings.name}}" sub-title="{{taxSettings.name}}"></enterprise-fy-select>
       </div>
 
       <div>
@@ -287,9 +290,9 @@
         <input type="number" fy-decimal-keypad name="taxName" ng-focus="toggleNavigationPanel(false)"
           ng-blur="toggleNavigationPanel(true)">
       </div>
-    </div><!-- Container -->
+    </div> -->
 
-    <div>
+    <!-- <div>
       <div
         *ngIf="txnFields.location1.can_view && txnFields.location1.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
         <div>
@@ -338,27 +341,27 @@
           {{etxn.tx.flight_journey_travel_class ? txnFields.flight_journey_travel_class.title : 'Select ' + txnFields.flight_journey_travel_class.title}}
           <div>*</div>
         </div>
-        <!-- <enterprise-fy-select name="flightOnwardClass" selected-item="etxn.tx.flight_journey_travel_class"
+        <enterprise-fy-select name="flightOnwardClass" selected-item="etxn.tx.flight_journey_travel_class"
           list="txnFields.flight_journey_travel_class.values" hide-none="true" required
           title="Choose {{txnFields.flight_journey_travel_class.title}} Class" sub-title="Onward Travel Classes"
           [disabled]="!txnFields.flight_journey_travel_class.can_edit">
-        </enterprise-fy-select> -->
-      </div>
+        </enterprise-fy-select>
+      </div> -->
 
-      <div
+    <!-- <div
         *ngIf="txnFields.flight_return_travel_class.can_view && txnFields.flight_return_travel_class.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
         <div>
           {{etxn.tx.flight_return_travel_class ? txnFields.flight_return_travel_class.title : 'Select ' + txnFields.flight_return_travel_class.title}}
           <div>*</div>
         </div>
-        <!-- <enterprise-fy-select name="flightReturnClass" selected-item="etxn.tx.flight_return_travel_class"
+        <enterprise-fy-select name="flightReturnClass" selected-item="etxn.tx.flight_return_travel_class"
           list="txnFields.flight_return_travel_class.values" hide-none="true" required
           title="Choose {{txnFields.flight_return_travel_class.title}}" sub-title="Return Travel Classes"
           [disabled]="!txnFields.flight_return_travel_class.can_edit">
-        </enterprise-fy-select> -->
-      </div>
+        </enterprise-fy-select>
+      </div> -->
 
-      <div
+    <!-- <div
         *ngIf="txnFields.train_travel_class.can_view && txnFields.train_travel_class.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
         <div>
           {{etxn.tx.train_travel_class ? txnFields.train_travel_class.title : 'Enter ' + txnFields.train_travel_class.title}}
@@ -366,12 +369,12 @@
         </div>
         <input type="text" *ngIf="txnFields.train_travel_class.type === 'TEXT'" name="trainTravelClass"
           ng-model="etxn.tx.train_travel_class" required [disabled]="!txnFields.train_travel_class.can_edit">
-        <!-- <enterprise-fy-select *ngIf="txnFields.train_travel_class.type === 'SELECT'" name="trainTravelClass"
+        <enterprise-fy-select *ngIf="txnFields.train_travel_class.type === 'SELECT'" name="trainTravelClass"
           list="txnFields.train_travel_class.values" hide-none="true" required
-          [disabled]="!txnFields.train_travel_class.can_edit"></enterprise-fy-select> -->
-      </div>
+          [disabled]="!txnFields.train_travel_class.can_edit"></enterprise-fy-select>
+      </div> -->
 
-      <div
+    <!-- <div
         *ngIf="txnFields.bus_travel_class.can_view && txnFields.bus_travel_class.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
         <div>
           {{etxn.tx.bus_travel_class ? txnFields.bus_travel_class.title : 'Enter ' + txnFields.bus_travel_class.title}}
@@ -379,17 +382,17 @@
         </div>
         <input type="text" *ngIf="txnFields.bus_travel_class.type === 'TEXT'" name="busTravelClass"
           ng-model="etxn.tx.bus_travel_class" required [disabled]="!txnFields.bus_travel_class.can_edit">
-        <!-- <enterprise-fy-select *ngIf="txnFields.bus_travel_class.type === 'SELECT'" name="busTravelClass"
+        <enterprise-fy-select *ngIf="txnFields.bus_travel_class.type === 'SELECT'" name="busTravelClass"
           list="txnFields.bus_travel_class.values" hide-none="true" required
-          [disabled]="!txnFields.bus_travel_class.can_edit"></enterprise-fy-select> -->
-      </div>
+          [disabled]="!txnFields.bus_travel_class.can_edit"></enterprise-fy-select>
+      </div> -->
 
-      <div *ngIf="transaction.fyle_category === 'Hotel'">
+    <!-- <div *ngIf="transaction.fyle_category === 'Hotel'">
         <ion-checkbox name="isBreakFastProvided" ng-model="etxn.tx.hotel_is_breakfast_provided">Breakfast Provided
         </ion-checkbox>
-      </div>
+      </div> -->
 
-      <div *ngIf="txnFields.distance.can_view && txnFields.distance.mandatory && category.fyle_category === 'Taxi'">
+    <!-- <div *ngIf="txnFields.distance.can_view && txnFields.distance.mandatory && category.fyle_category === 'Taxi'">
         <div>
           <div>
             {{etxn.tx.distance ? txnFields.distance.title : 'Enter ' + txnFields.distance.title}}
@@ -405,15 +408,15 @@
             {{etxn.tx.distance_unit ? txnFields.distance_unit.title : 'Select ' + txnFields.distance_unit.title}}
             <div>*</div>
           </div>
-          <!-- <enterprise-fy-select name="taxiDistanceUnit" selected-item="etxn.tx.distance_unit"
+          <enterprise-fy-select name="taxiDistanceUnit" selected-item="etxn.tx.distance_unit"
             list="txnFields.distance_unit.values"
             hide-none="{{txnFields.distance_unit.mandatory === true ? 'true' : 'false'}}" required title="Choose Unit"
-            sub-title="Units"></enterprise-fy-select> -->
+            sub-title="Units"></enterprise-fy-select>
         </div>
-      </div><!-- Mandatory Distance -->
-    </div><!-- Container -->
+      </div>
+    </div> -->
 
-    <div>
+    <!-- <div>
       <div>
         <div>
           <div>{{prop.value ? (prop.name) : prop.name}}</div>
@@ -433,27 +436,27 @@
           ng-blur="toggleNavigationPanel(true)" ng-model="prop.value.display" ng-required="prop.mandatory"
           *ngIf="prop.type === 'LOCATION'" enterprise-fy-location-autocomplete readonly>
 
-        <!-- <enterprise-fy-select name="{{prop.name}}" list="prop.options"
+        <enterprise-fy-select name="{{prop.name}}" list="prop.options"
           on-selection="selectSimpleCustomField(item, prop)" *ngIf="prop.type === 'SELECT'" simple="true"
           ng-required="prop.mandatory" title="Choose {{prop.name}}" sub-title="{{prop.name}}">
-        </enterprise-fy-select> -->
+        </enterprise-fy-select>
 
-        <!-- <enterprise-fy-multiselect name="{{prop.name}}" list="prop.options"
+        <enterprise-fy-multiselect name="{{prop.name}}" list="prop.options"
           on-selection="selectMultipleCustomField(item, prop)"
           *ngIf="prop.type === 'MULTI_SELECT' && prop.options.length > 0" simple="true" ng-required="prop.mandatory"
-          title="Choose {{prop.name}}s" sub-title="{{prop.name}}"></enterprise-fy-multiselect> -->
+          title="Choose {{prop.name}}s" sub-title="{{prop.name}}"></enterprise-fy-multiselect>
 
         <input type="date" name="{{prop.name}}" ng-blur="toggleNavigationPanel(true)" ng-model="prop.value"
           *ngIf="prop.type === 'DATE'" ng-required="prop.mandatory">
 
-        <!-- <enterprise-fy-userlist name="{{prop.name}}" list="prop.options"
+        <enterprise-fy-userlist name="{{prop.name}}" list="prop.options"
           on-selection="selectMultipleCustomFieldUserList(item, prop)"
           *ngIf="prop.type === 'USER_LIST' && prop.options.length > 0" ng-required="prop.mandatory"
-          title="Choose {{prop.name}}s" sub-title="{{prop.name}}"></enterprise-fy-userlist> -->
+          title="Choose {{prop.name}}s" sub-title="{{prop.name}}"></enterprise-fy-userlist>
       </div>
-    </div><!-- Custom Fields -->
+    </div> -->
 
-    <div>
+    <!-- <div>
       <div>
         <ion-checkbox name="billable">Billable
         </ion-checkbox>
@@ -464,17 +467,17 @@
           {{ etxn.tx.cost_center_id ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title }}
           <div *ngIf="txnFields.cost_center_id.mandatory">*</div>
         </div>
-        <!-- <enterprise-fy-select name="costCenter" on-selection="selectCostCenter(item)"
+        <enterprise-fy-select name="costCenter" on-selection="selectCostCenter(item)"
           ng-required="txnFields.cost_center_id.mandatory" title="Select {{ txnFields.cost_center_id.title }}"
           cache-name="recentCostCenterList">
-        </enterprise-fy-select> -->
+        </enterprise-fy-select>
       </div>
-    </div>
+    </div> -->
     <!-- <enterprise-alert *ngIf="isNotReimbursable" type="information"
       message="'This expense will not be reimbursed as it has already been paid by your company.'">
     </enterprise-alert> -->
 
-    <div *ngIf="etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction">
+    <!-- <div *ngIf="etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction">
       <div>
         <div>
           <div>
@@ -483,9 +486,9 @@
           <div>Automatically created from your company's card feed</div>
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <div>
+    <!-- <div>
       <div>
         <div>
           <div>
@@ -494,27 +497,27 @@
           <div>Expense created due to reversal of card transaction.</div>
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <div id="duplicate-detection">
-      <!-- <enterprise-duplicate-detection reason="etxn.tx.user_reason_for_duplicate_expenses" duplicates="duplicates"
+    <!-- <div id="duplicate-detection">
+      <enterprise-duplicate-detection reason="etxn.tx.user_reason_for_duplicate_expenses" duplicates="duplicates"
         transaction-id="etxn.tx.id">
-      </enterprise-duplicate-detection> -->
-    </div>
+      </enterprise-duplicate-detection>
+    </div> -->
 
-    <div id="comments">
-      <!-- <enterprise-fy-comments object-id="{{ etxn.tx.id }}" mode="{{mode}}" text="Comments" show-comments-count="false"
-        dont-load-comments="true" estatuses="comments"></enterprise-fy-comments> -->
-    </div>
+    <!-- <div id="comments">
+      <enterprise-fy-comments object-id="{{ etxn.tx.id }}" mode="{{mode}}" text="Comments" show-comments-count="false"
+        dont-load-comments="true" estatuses="comments"></enterprise-fy-comments>
+    </div> -->
 
-    <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete">
+    <!-- <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete">
       <div>
         <mat-icon>
           food
         </mat-icon>
         <div>Delete Expense</div>
       </div>
-    </div>
+    </div> -->
 
     <!-- <enterprise-alert
       *ngIf="!isOffline && mandatoryExpenseFields.project && isProjectsEnabled && (isIndividualProjectsEnabled && allowedProjectIds.length === 0)"
@@ -522,7 +525,7 @@
       message="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
     </enterprise-alert> -->
 
-    <div>
+    <!-- <div>
       <div>Please fill all required fields to proceed.</div>
     </div>
     <div>
@@ -540,19 +543,19 @@
     <div>
       <div>Expense greater than balance in selected Payment Mode. Please choose a different
         Payment Mode.</div>
-    </div>
+    </div> -->
 
-    <div>
+    <!-- <div>
       <div>
         <button type="submit"
           critical-promise="criticalPromise">{{reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save'}}</button>
 
       </div>
-      <!-- disabling add and new when add to new report is selected -->
+      disabling add and new when add to new report is selected
       <div>
         <button type="submit" critical-promise="criticalPromise">Save & New</button>
       </div>
-    </div>
+    </div> -->
   </form>
 </ion-content>
 
