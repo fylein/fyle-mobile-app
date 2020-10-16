@@ -88,7 +88,7 @@ export class MyAdvancesPage implements OnInit {
 
   onAdvanceClick(clickedAdvance: any) {
     const id = clickedAdvance.advanceRequest?.areq_advance_id ? clickedAdvance.advanceRequest.areq_advance_id : clickedAdvance.advanceRequest.areq_id;
-    let route = clickedAdvance.advanceRequest.areq_advance_id? 'enterprise.view_advance' : 'my_view_advance_request';
+    let route = clickedAdvance.advanceRequest.areq_advance_id ? 'my_view_advance' : 'my_view_advance_request';
 
     if ((['draft', 'pulledBack', 'inquiry']).indexOf(clickedAdvance.internalState.state) > -1) {
       route = 'enterprise.add_edit_advance_request';
@@ -96,7 +96,7 @@ export class MyAdvancesPage implements OnInit {
 
     //Todo: Redirect to page later.
     console.log(id, route);
-    this.router.navigate(['/', 'enterprise', route, { id: id }]);
+    this.router.navigate(['/', 'enterprise', route, { id }]);
   }
 
   ngOnInit() { }
