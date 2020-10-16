@@ -7,6 +7,7 @@ import { ViewTeamAdvancePage } from './view-team-advance.page';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { MatRippleModule } from '@angular/material/core';
     ViewTeamAdvancePageRoutingModule,
     MatIconModule,
     MatButtonModule,
-    MatRippleModule
+    MatRippleModule,
+    SharedModule
   ],
   declarations: [ViewTeamAdvancePage]
 })
