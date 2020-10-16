@@ -4,6 +4,7 @@ import { EllipsisPipe } from './pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
+import { AdvanceState } from './pipes/advance-state.pipe';
 
 
 
@@ -12,7 +13,8 @@ import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
     EllipsisPipe,
     HumanizeCurrencyPipe,
     ReportState,
-    SnakeCaseToSpaceCase
+    SnakeCaseToSpaceCase,
+    AdvanceState
   ],
   imports: [
     CommonModule
@@ -21,6 +23,7 @@ import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
     EllipsisPipe,
     HumanizeCurrencyPipe,
     ReportState,
+    AdvanceState,
     SnakeCaseToSpaceCase
   ]
 })

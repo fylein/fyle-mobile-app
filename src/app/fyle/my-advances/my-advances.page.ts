@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
 import { concatMap, finalize, map, scan, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
@@ -22,10 +23,11 @@ export class MyAdvancesPage implements OnInit {
   constructor(
     private offlineService: OfflineService,
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private router: Router
   ) { }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.myAdvancerequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
@@ -83,5 +85,20 @@ export class MyAdvancesPage implements OnInit {
     this.loadData$.next(this.currentPageNumber);
     event.target.complete();
   }
+
+  onAdvanceClick(clickedAdvance: any) {
+    const id = clickedAdvance.advanceRequest?.areq_advance_id ? clickedAdvance.advanceRequest.areq_advance_id : clickedAdvance.advanceRequest.areq_id;
+    let route = clickedAdvance.advanceRequest.areq_advance_id? 'enterprise.view_advance' : 'my_view_advance_request';
+
+    if ((['draft', 'pulledBack', 'inquiry']).indexOf(clickedAdvance.internalState.state) > -1) {
+      route = 'enterprise.add_edit_advance_request';
+    }
+
+    //Todo: Redirect to page later.
+    console.log(id, route);
+    this.router.navigate(['/', 'enterprise', route, { id: id }]);
+  }
+
+  ngOnInit() { }
 
 }
