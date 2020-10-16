@@ -18,6 +18,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
 import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
+import { GlobalCacheConfig } from 'ngx-cacheable';
 
 @Component({
   selector: 'app-root',
@@ -54,6 +55,10 @@ export class AppComponent implements OnInit {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+
+      // Global cache config
+      GlobalCacheConfig.maxAge = 10 * 60 * 1000;
+      GlobalCacheConfig.maxCacheCount = 100;
     });
   }
 
@@ -153,7 +158,7 @@ export class AppComponent implements OnInit {
           title: 'Expenses',
           isVisible: true,
           icon: '../../../assets/svg/fy-expenses-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard1']
+          route: ['/', 'enterprise', 'my_expenses']
         },
         {
           title: 'Reports',
@@ -208,7 +213,7 @@ export class AppComponent implements OnInit {
           title: 'Team Reports',
           isVisible: allowedReportsActions && allowedReportsActions.approve,
           icon: '../../../assets/svg/fy-team-reports-new.svg',
-          route: ['/', 'enterprise', 'my_dashboard10'],
+          route: ['/', 'enterprise', 'team_reports'],
           cssClass: 'team-trips'
         },
         {
@@ -221,7 +226,7 @@ export class AppComponent implements OnInit {
           title: 'Team Advances',
           isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
           icon: '../../../assets/svg/fy-team-advances-new.svg',
-          route: ['/', 'enterprise', 'team-advance']
+          route: ['/', 'enterprise', 'team_advance']
         },
         {
           title: 'Help',

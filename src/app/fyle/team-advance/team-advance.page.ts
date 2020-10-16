@@ -13,7 +13,6 @@ import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_req
 })
 export class TeamAdvancePage implements OnInit {
 
-  pageTitle = 'Team Advances';
   teamAdvancerequests$: Observable<any[]>;
   loadData$: Subject<number> = new Subject();
   count$: Observable<number>;
@@ -35,8 +34,9 @@ export class TeamAdvancePage implements OnInit {
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
+                areq_state: ['eq.APPROVAL_PENDING'],
                 areq_trip_request_id: ['is.null'],
-                areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}']
+                or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
               }
             });
           }),
@@ -55,7 +55,13 @@ export class TeamAdvancePage implements OnInit {
       shareReplay()
     );
 
-    this.count$ = this.advanceRequestService.getTeamAdvanceRequestsCount().pipe(
+    this.count$ = this.advanceRequestService.getTeamAdvanceRequestsCount(
+      {
+        areq_state: ['eq.APPROVAL_PENDING'],
+        areq_trip_request_id: ['is.null'],
+        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+      }
+    ).pipe(
       shareReplay()
     );
 

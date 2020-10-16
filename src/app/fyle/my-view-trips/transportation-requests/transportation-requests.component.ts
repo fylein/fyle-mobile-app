@@ -19,6 +19,5 @@ export class TransportationRequestsComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.transportationRequests);
   }
 }
