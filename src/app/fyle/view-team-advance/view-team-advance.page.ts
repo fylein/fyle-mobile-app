@@ -73,39 +73,6 @@ export class ViewTeamAdvancePage implements OnInit {
     );
   }
 
-  // async pullBack() {
-  //   const pullBackPopover = await this.popoverController.create({
-  //     component: PullBackAdvanceRequestComponent,
-  //     cssClass: 'dialog-popover'
-  //   });
-
-  //   await pullBackPopover.present();
-
-  //   const { data } = await pullBackPopover.onWillDismiss();
-
-  //   if (data) {
-  //     const status = {
-  //       comment: data.comment
-  //     };
-
-  //     const addStatusPayload = {
-  //       status,
-  //       notify: false
-  //     };
-
-  //     const id = this.activatedRoute.snapshot.params.id;
-
-  //     from(this.loaderService.showLoader()).pipe(
-  //       switchMap(() => {
-  //         return this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload);
-  //       }),
-  //       finalize(() => from(this.loaderService.hideLoader()))
-  //     ).subscribe(() => {
-  //       this.router.navigate(['/', 'enterprise', 'my_advances']);
-  //     });
-  //   }
-  // }
-
   // Todo: Redirect to edit advance page
   edit() {
   }
