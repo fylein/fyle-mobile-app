@@ -26,6 +26,7 @@ export class OrgUserService {
     return this.apiService.post('/users', user);
   }
 
+  // TODO: move to v2
   markActive() {
     return this.apiService.post('/orgusers/current/mark_active').pipe(
       switchMap(() => {
@@ -34,6 +35,7 @@ export class OrgUserService {
     );
   }
 
+  // TODO: move to v2
   getCompanyEouc(params: { offset: number, limit: number }) {
     return this.apiService.get('/eous/company', {
       params
@@ -43,6 +45,7 @@ export class OrgUserService {
       )
     );
   }
+
   getAllCompanyEouc() {
     return this.getCompanyEouCount().pipe(
       switchMap(res => {
@@ -56,6 +59,8 @@ export class OrgUserService {
       }, [] as ExtendedOrgUser[])
     );
   }
+
+  // TODO: move to v2
   getCompanyEouCount(): Observable<{ count: number }> {
     return this.apiService.get('/eous/company/count').pipe(
       map(
@@ -71,6 +76,7 @@ export class OrgUserService {
   }
 
 
+  // TODO: move to v2
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map(delegatedAccounts => {
@@ -89,6 +95,22 @@ export class OrgUserService {
     });
     return eousFiltered;
 
+  }
+
+  switchToDelegator(orgUser) {
+    return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
+      switchMap(data => {
+        return this.authService.newRefreshToken(data.refresh_token);
+      })
+    );
+  }
+
+  switchToDelegatee() {
+    return this.apiService.post('/orgusers/delegatee_refresh_token').pipe(
+      switchMap(data => {
+        return this.authService.newRefreshToken(data.refresh_token);
+      })
+    );
   }
 
   async isSwitchedToDelegator() {

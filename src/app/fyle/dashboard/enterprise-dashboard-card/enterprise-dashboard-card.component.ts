@@ -359,5 +359,4 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     this.getHomeCurrency();
     this.getStats();
   }
-
 }

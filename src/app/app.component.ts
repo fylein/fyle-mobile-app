@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
   activeOrg: any;
   sideMenuList: any[];
   appVersion: string;
+  isSwitchedToDelegator;
 
   constructor(
     private platform: Platform,
@@ -144,7 +145,7 @@ export class AppComponent implements OnInit {
       const allowedReportsActions = res.allowedActions && res.allowedActions.allowedReportsActions;
       const allowedAdvancesActions = res.allowedActions && res.allowedActions.allowedAdvancesActions;
       const allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
-      const isSwitchedToDelegator = res.isSwitchedToDelegator;
+      this.isSwitchedToDelegator = res.isSwitchedToDelegator;
 
 
       this.sideMenuList = [
@@ -183,7 +184,7 @@ export class AppComponent implements OnInit {
           title: 'Delegated Accounts',
           isVisible: isDelegatee,
           icon: '../../../assets/svg/fy-delegate-switch.svg',
-          route: ['/', 'enterprise', 'my_dashboard5']
+          route: ['/', 'enterprise', 'delegated_accounts']
         },
         {
           title: 'Corporate Cards',
@@ -199,9 +200,9 @@ export class AppComponent implements OnInit {
         },
         {
           title: 'Switch to own account',
-          isVisible: isSwitchedToDelegator,
+          isVisible: this.isSwitchedToDelegator,
           icon: '../../../assets/svg/fy-switch.svg',
-          route: ['/', 'enterprise', 'my_dashboard8']
+          route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }]
         },
         {
           title: 'Profile',

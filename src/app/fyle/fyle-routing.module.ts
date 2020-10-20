@@ -65,6 +65,10 @@ const routes: Routes = [
   {
     path: 'view_team_report',
     loadChildren: () => import('./view-team-report/view-team-report.module').then( m => m.ViewTeamReportPageModule)
+  },
+  {
+    path: 'delegated_accounts',
+    loadChildren: () => import('./delegated-accounts/delegated-accounts.module').then( m => m.DelegatedAccountsPageModule)
   }
 ];
 

@@ -15,9 +15,12 @@ import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
+import { DelegatedAccMessageComponent } from './core/shared-components/delegated-acc-message/delegated-acc-message.component';
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    DelegatedAccMessageComponent
   ],
   entryComponents: [],
   imports: [
