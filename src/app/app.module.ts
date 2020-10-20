@@ -15,7 +15,8 @@ import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
-import { DelegatedAccMessageComponent } from './core/shared-components/delegated-acc-message/delegated-acc-message.component';
+import { DelegatedAccMessageComponent } from './shared/components/delegated-acc-message/delegated-acc-message.component';
+import  { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { DelegatedAccMessageComponent } from './core/shared-components/delegated
     IonicModule.forRoot(),
     AppRoutingModule,
     BrowserAnimationsModule,
-    HttpClientModule
+    HttpClientModule,
+    SharedModule
   ],
   providers: [
     StatusBar,
