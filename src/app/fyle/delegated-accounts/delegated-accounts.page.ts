@@ -39,7 +39,7 @@ export class DelegatedAccountsPage implements OnInit {
 
   ngOnInit() {
 
-    const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn && JSON.parse(this.activatedRoute.snapshot.params.switchToOwn);
+    const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn;
 
     if (switchToOwn) {
       from(this.loaderService.showLoader('Switching Account')).pipe(

@@ -14,14 +14,11 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
-
-import { DelegatedAccMessageComponent } from './shared/components/delegated-acc-message/delegated-acc-message.component';
-import  { SharedModule } from './shared/shared.module';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    DelegatedAccMessageComponent
+    AppComponent
   ],
   entryComponents: [],
   imports: [

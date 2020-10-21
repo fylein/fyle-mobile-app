@@ -6,6 +6,7 @@ import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
+import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 
 
 
@@ -16,7 +17,8 @@ import { InitialsPipe } from './pipes/initials.pipe';
     ReportState,
     SnakeCaseToSpaceCase,
     AdvanceState,
-    InitialsPipe
+    InitialsPipe,
+    DelegatedAccMessageComponent
   ],
   imports: [
     CommonModule
@@ -27,7 +29,8 @@ import { InitialsPipe } from './pipes/initials.pipe';
     ReportState,
     AdvanceState,
     SnakeCaseToSpaceCase,
-    InitialsPipe
+    InitialsPipe,
+    DelegatedAccMessageComponent
   ]
 })
 export class SharedModule { }

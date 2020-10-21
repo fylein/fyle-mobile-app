@@ -26,7 +26,6 @@ export class OrgUserService {
     return this.apiService.post('/users', user);
   }
 
-  // TODO: move to v2
   markActive() {
     return this.apiService.post('/orgusers/current/mark_active').pipe(
       switchMap(() => {
