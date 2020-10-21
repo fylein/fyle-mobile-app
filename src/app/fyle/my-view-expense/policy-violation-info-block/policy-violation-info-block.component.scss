@@ -1,0 +1,15 @@
+.policy-container {
+  border-radius: 6px;
+  background: #f2f2f2;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #4a4a4a;
+  line-height: 1.7;
+
+  &--warning-icon {
+    font-size: 18px;
+    padding-top: 2px;
+    vertical-align: middle !important;
+  }
+}
