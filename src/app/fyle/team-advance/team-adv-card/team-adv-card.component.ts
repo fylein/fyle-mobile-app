@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
@@ -10,7 +10,10 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 export class TeamAdvCardComponent implements OnInit {
 
   @Input() advanceRequest: ExtendedAdvanceRequest;
+  @Output() gotoAdvance: EventEmitter<ExtendedAdvanceRequest> = new EventEmitter();
+
   internalState: { name: string, state: string };
+  actionOpened = false;
 
   constructor(
     private advanceRequestService: AdvanceRequestService
@@ -20,16 +23,8 @@ export class TeamAdvCardComponent implements OnInit {
     this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest);
   }
 
-  goToAdvances() {
-    const id = this.advanceRequest.areq_advance_id ? this.advanceRequest.areq_advance_id : this.advanceRequest.areq_id;
-    let route = this.advanceRequest.areq_advance_id ? 'enterprise.view_advance' : 'enterprise.view_advance_request';
-
-    if ((['draft', 'pulledBack', 'inquiry']).indexOf(this.internalState.state) > -1) {
-      route = 'enterprise.add_edit_advance_request';
-    }
-
-    // Todo: Redirect to page later.
-    console.log(id, route);
+  onGoToAdvances() {
+    this.gotoAdvance.emit(this.advanceRequest);
   }
 
 }

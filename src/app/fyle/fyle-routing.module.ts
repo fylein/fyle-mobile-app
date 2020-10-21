@@ -55,7 +55,7 @@ const routes: Routes = [
     loadChildren: () => import('./my-view-advance-request/my-view-advance-request.module').then( m => m.MyViewAdvanceRequestPageModule)
   },
   {
-    path: 'team-advance',
+    path: 'team_advance',
     loadChildren: () => import('./team-advance/team-advance.module').then( m => m.TeamAdvancePageModule)
   },
   {
@@ -65,6 +65,10 @@ const routes: Routes = [
   {
     path: 'view_team_report',
     loadChildren: () => import('./view-team-report/view-team-report.module').then( m => m.ViewTeamReportPageModule)
+  },
+  {
+    path: 'view_team_advance',
+    loadChildren: () => import('./view-team-advance/view-team-advance.module').then( m => m.ViewTeamAdvancePageModule)
   }
 ];
 
