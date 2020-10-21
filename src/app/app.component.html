@@ -18,7 +18,6 @@
       </ion-toolbar>
     </ion-header>
 
-
     <ion-content class="sidemenu--content">
       <div class="sidemenu--items-wrapper">
         <ion-list>
@@ -46,5 +45,6 @@
       
     </ion-content>
   </ion-menu>
-  <ion-router-outlet id="main-content"></ion-router-outlet>
+  <app-delegated-acc-message *ngIf="isSwitchedToDelegator"></app-delegated-acc-message>
+  <ion-router-outlet id="main-content" [ngClass]="{'main-outlet': isSwitchedToDelegator}" ></ion-router-outlet>
 </ion-app>
