@@ -5,6 +5,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, switchMap, finalize, map, scan, shareReplay } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-team-advance',
@@ -22,7 +23,8 @@ export class TeamAdvancePage implements OnInit {
   constructor(
     private offlineService: OfflineService,
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -90,6 +92,10 @@ export class TeamAdvancePage implements OnInit {
     this.currentPageNumber = 1;
     this.loadData$.next(this.currentPageNumber);
     event.target.complete();
+  }
+
+  onAdvanceClick(areq: ExtendedAdvanceRequest) {
+    this.router.navigate(['/', 'enterprise', 'view_team_advance', { id: areq.areq_id }]);
   }
 
 }
