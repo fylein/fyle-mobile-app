@@ -16,7 +16,7 @@
     </ion-refresher>
 
     <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async">
-      <app-team-adv-card [advanceRequest]=teamAdvancerequest></app-team-adv-card>
+      <app-team-adv-card [advanceRequest]=teamAdvancerequest (gotoAdvance)="onAdvanceClick($event)"></app-team-adv-card>
     </div>
 
     <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">

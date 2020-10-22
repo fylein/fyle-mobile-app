@@ -98,7 +98,7 @@ export class DashboardPage implements OnInit {
     }];
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const orgSettings$ = this.offlineService.getOrgSettings();
 
@@ -116,5 +116,8 @@ export class DashboardPage implements OnInit {
     this.mobileEventService.onDashboardCardExpanded().subscribe(() => {
       this.dashboardCardExpanded();
     });
+  }
+
+  ngOnInit() {
   }
 }

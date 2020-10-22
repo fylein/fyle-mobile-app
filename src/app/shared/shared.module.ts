@@ -5,6 +5,8 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
 import { AdvanceState } from './pipes/advance-state.pipe';
+import { InitialsPipe } from './pipes/initials.pipe';
+import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 
 
 
@@ -14,7 +16,9 @@ import { AdvanceState } from './pipes/advance-state.pipe';
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
-    AdvanceState
+    AdvanceState,
+    InitialsPipe,
+    DelegatedAccMessageComponent
   ],
   imports: [
     CommonModule
@@ -24,7 +28,9 @@ import { AdvanceState } from './pipes/advance-state.pipe';
     HumanizeCurrencyPipe,
     ReportState,
     AdvanceState,
-    SnakeCaseToSpaceCase
+    SnakeCaseToSpaceCase,
+    InitialsPipe,
+    DelegatedAccMessageComponent
   ]
 })
 export class SharedModule { }
