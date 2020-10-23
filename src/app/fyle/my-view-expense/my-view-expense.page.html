@@ -30,7 +30,7 @@
         This expense has violated a critical policy. You cannot create a report with this expense.
       </span>
       <span class="info-text m-0" *ngIf="!(isCriticalPolicyViolated$|async)">
-        Claimed amount <span ng-bind="vm.etxn.tx.user_amount | isoCurrency:vm.etxn.tx.currency"></span> was capped to <span ng-bind="vm.etxn.tx.amount | isoCurrency:vm.etxn.tx.currency"></span> due to policy.
+        Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency }} was capped to {{ etxn.tx_amount | currency:etxn.tx_currency}} due to policy.
       </span>
     </div>
 
@@ -80,6 +80,7 @@
     </div>
 
     <div *ngIf="etxn.tx_fyle_category === 'Hotel'">
+      hotel
       <div class="view-expense--element-block">
         <div class="view-expense--element" *ngIf="etxn.tx_locations[0].display">
           <div class="view-expense--element-label">City</div>
@@ -97,7 +98,7 @@
     </div>
 
     <div *ngIf="etxn.tx_fyle_category === 'Flight'">
-      <div class="view-expense--element-block">
+      <div class="view-expense--element-block" *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class">
         <div class="view-expense--element" *ngIf="etxn.tx_from_dt">
           <div class="view-expense--element-label">Check-In</div>
           <div class="view-expense--element-value">{{ etxn.tx_from_dt }}</div>
@@ -118,7 +119,7 @@
     </div>
 
     <div *ngIf="etxn.tx_fyle_category === 'Train' && etxn.tx_train_travel_class">
-      <div class="view-expense--element-block">
+      <div class="view-expense--element-block" *ngIf="etxn.tx_train_travel_class">
         <div class="view-expense--element" *ngIf="etxn.tx_train_travel_class">
           <div class="view-expense--element-label">Travel Class</div>
           <div class="view-expense--element-value">{{ etxn.tx_train_travel_class }}</div>
@@ -127,7 +128,7 @@
     </div>
 
     <div *ngIf="etxn.tx_fyle_category === 'Taxi' && etxn.tx_distance">
-      <div class="view-expense--element-block">
+      <div class="view-expense--element-block" *ngIf="etxn.tx_distance">
         <div class="view-expense--element" *ngIf="etxn.tx_distance">
           <div class="view-expense--element-label">Distance</div>
           <div class="view-expense--element-value">{{ etxn.tx_distance }}</div>
@@ -136,7 +137,7 @@
     </div>
 
     <div *ngIf="etxn.tx_custom_properties">
-      <div class="view-expense--element-block" >
+      <div class="view-expense--element-block">
         <div class="view-expense--element" *ngFor="let custom_properties of etxn.tx_custom_properties">
           <div class="view-expense--element-label">{{custom_properties.name | ellipsis:11}}</div>
           <div class="view-expense--element-value">{{ getDisplayValue(custom_properties) }}</div>
@@ -144,6 +145,31 @@
       </div>
     </div>
     
+    <div class="view-expense--element-block">
+      <div class="view-expense--element" *ngIf="orgSettings?.projects?.enabled && etxn.tx_project_id">
+        <div class="view-expense--element-label">Project</div>
+        <div class="view-expense--element-value">{{ etxn.tx_project_name }}</div>
+      </div>
+      <div class="view-expense--element" *ngIf="orgSettings?.projects?.enabled && etxn.tx_project_id">
+        <div class="view-expense--element-label">Billable</div>
+        <div class="view-expense--element-value">{{ etxn.tx_billable ? 'Yes' : 'No' }}</div>
+      </div>
+      <div class="view-expense--element" *ngIf="orgSettings?.cost_centers?.enabled && etxn.tx_cost_center_id">
+        <div class="view-expense--element-label">Cost Center</div>
+        <div class="view-expense--element-value">{{ etxn.tx_cost_center_name }}</div>
+      </div>
+      <div class="view-expense--element">
+        <div class="view-expense--element-label">Reimbursable</div>
+        <div class="view-expense--element-value">{{ etxn.tx_skip_reimbursement ? 'No' : 'Yes' }}</div>
+      </div>
+    </div>
+
+    <div class="view-expense--card">
+      <div class="view-expense--card-action">
+        <mat-icon class="view-expense--card-action-icon">chat_bubble</mat-icon>
+        <div class="view-expense--card-action-text view-expense--card-action-text__comment">Comments</div>
+      </div>
+    </div>
 
   </div>
 </ion-content>

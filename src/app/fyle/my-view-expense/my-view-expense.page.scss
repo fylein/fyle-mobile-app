@@ -12,7 +12,7 @@
     border-radius: 6px;
     background: #f2f2f2;
     padding: 8px 16px;
-    margin-bottom: 8px;
+    margin: 8px 0;
     font-size: 14px;
     color: #4a4a4a;
   
@@ -27,6 +27,7 @@
   &--attachment-currency-block {
     margin: 24px 0;
     width: 100%;
+    display: flex;
   }
 
   &--no-attachment {
@@ -82,7 +83,7 @@
   }
 
   &--element-block {
-    margin: 16px 0;
+    margin-bottom: 16px;
     padding: 0 16px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
@@ -122,5 +123,31 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
+  }
+
+  &--card {
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+  }
+
+  &--card-action {
+    display: flex;
+    align-items: center;
+  }
+
+  &--card-action-icon {
+    color: #ababab;
+    margin-right: 12px;
+  }
+
+  &--card-action-text {
+    &__comment {
+      color: #0077ee;
+    }
+    &__delete {
+      color: #f00;
+    }
   }
 }
