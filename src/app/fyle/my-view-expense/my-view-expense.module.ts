@@ -5,7 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { MyViewExpensePageRoutingModule } from './my-view-expense-routing.module';
 import { MyViewExpensePage } from './my-view-expense.page';
 import { MatIconModule } from '@angular/material/icon';
-import { PolicyViolationInfoBlockComponent } from './policy-violation-info-block/policy-violation-info-block.component';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -13,11 +13,11 @@ import { PolicyViolationInfoBlockComponent } from './policy-violation-info-block
     FormsModule,
     IonicModule,
     MyViewExpensePageRoutingModule,
-    MatIconModule
+    MatIconModule,
+    SharedModule
   ],
   declarations: [
-    MyViewExpensePage,
-    PolicyViolationInfoBlockComponent
+    MyViewExpensePage
   ]
 })
 export class MyViewExpensePageModule {}

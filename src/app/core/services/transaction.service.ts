@@ -34,6 +34,21 @@ export class TransactionService {
     );
   }
 
+  getEtxn(txnId) {
+    return this.apiService.get('/etxns/' + txnId).pipe(
+      map((transaction) => {
+
+        let categoryDisplayName = transaction.tx_org_category;
+        if (transaction.tx_sub_category && transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
+          categoryDisplayName += ' / ' + transaction.tx_sub_category;
+        }
+        transaction.tx_categoryDisplayName = categoryDisplayName;
+
+        return this.dateService.fixDates(transaction);
+      })
+    );
+  }
+
   parseRaw(etxnsRaw) {
     const etxns = [];
 
