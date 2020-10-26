@@ -170,7 +170,17 @@ export class MyViewReportPage implements OnInit {
   }
 
   goToTransaction(etxn: any) {
-    this.router.navigate(['/', 'enterprise', 'my_view_expense', { id: etxn.tx_id }]);
+    const category = etxn.tx_org_category.toLowerCase();
+    let route;
+    
+    if (category === 'mileage') {
+      // Todo: CanEdit
+      route = ['/', 'enterprise', 'my_view_mileage', { id: etxn.tx_id }]
+    } else {
+      route = ['/', 'enterprise', 'my_view_expense', { id: etxn.tx_id }];
+    }
+
+    this.router.navigate(route);
   }
 
   async shareReport(event) {

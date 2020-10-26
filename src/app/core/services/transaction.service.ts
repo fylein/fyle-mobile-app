@@ -262,7 +262,33 @@ export class TransactionService {
     );
   }
 
+  getExpenseV2(id: string): Observable<any> {
+    return this.apiV2Service.get('/expenses', {
+      params: {
+        tx_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as any
+      )
+    );
+  }
+
+  fixDates(data) {
+    return data;
+  }
+
   delete(txnId: string) {
     return this.apiService.delete('/transactions/' + txnId);
+  }
+
+  modifyCustomFields(customFields) {
+    customFields = customFields.map(customField => {
+      if (customField.type === 'DATE') {
+        customField.value = new Date(customField.value);
+      }
+      return customField;
+    });
+    return customFields;
   }
 }
