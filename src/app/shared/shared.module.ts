@@ -7,8 +7,7 @@ import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
-
-
+import { IconModule } from './icon/icon.module';
 
 @NgModule({
   declarations: [
@@ -30,7 +29,8 @@ import { DelegatedAccMessageComponent } from './components/delegated-acc-message
     AdvanceState,
     SnakeCaseToSpaceCase,
     InitialsPipe,
-    DelegatedAccMessageComponent
+    DelegatedAccMessageComponent,
+    IconModule
   ]
 })
 export class SharedModule { }
