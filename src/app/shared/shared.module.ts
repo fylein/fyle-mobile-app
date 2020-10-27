@@ -13,6 +13,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
+import { IconModule } from './icon/icon.module';
 import { CurrencyComponent } from './components/currency/currency.component';
 
 
@@ -40,6 +41,7 @@ import { CurrencyComponent } from './components/currency/currency.component';
     SnakeCaseToSpaceCase,
     InitialsPipe,
     DelegatedAccMessageComponent,
+    IconModule,
     CurrencyComponent
   ],
   providers: [

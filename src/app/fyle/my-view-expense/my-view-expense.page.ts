@@ -46,7 +46,6 @@ export class MyViewExpensePage implements OnInit {
 
   ngOnInit() {
     const txId = this.activatedRoute.snapshot.params.id;
-    console.log('txId = ', txId);
     this.currencyOptions = {
       disabled: true
     };
@@ -59,7 +58,6 @@ export class MyViewExpensePage implements OnInit {
     );
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
-      tap(res => console.log(res)),
       concatMap(etxn => {
         return this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true);
       }),

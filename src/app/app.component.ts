@@ -19,6 +19,8 @@ import { Org } from 'src/app/core/models/org.model';
 import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { GlobalCacheConfig } from 'ngx-cacheable';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -46,10 +48,13 @@ export class AppComponent implements OnInit {
     private menuController: MenuController,
     private deviceService: DeviceService,
     private appVersionService: AppVersionService,
-    private routerAuthService: RouterAuthService
+    private routerAuthService: RouterAuthService,
+    private matIconRegistry: MatIconRegistry,
+    private domSanitizer: DomSanitizer,
 
   ) {
     this.initializeApp();
+    this.matIconRegistry.addSvgIcon('add-advance', this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/svg/add-advance'));
   }
 
   initializeApp() {
@@ -152,93 +157,93 @@ export class AppComponent implements OnInit {
         {
           title: 'Dashboard',
           isVisible: true,
-          icon: '../../../assets/svg/fy-dashboard-new.svg',
+          icon: 'fy-dashboard-new',
           route: ['/', 'enterprise', 'my_dashboard']
         },
         {
           title: 'Expenses',
           isVisible: true,
-          icon: '../../../assets/svg/fy-expenses-new.svg',
+          icon: 'fy-expenses-new',
           route: ['/', 'enterprise', 'my_expenses']
         },
         {
           title: 'Reports',
           isVisible: true,
-          icon: '../../../assets/svg/fy-reports-new.svg',
+          icon: 'fy-reports-new',
           route: ['/', 'enterprise', 'my_reports']
         },
         {
           title: 'Advances',
           isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
-          icon: '../../../assets/svg/fy-advances-new.svg',
+          icon: 'fy-advances-new',
           route: ['/', 'enterprise', 'my_advances']
         },
         {
           title: 'Trips',
           // tslint:disable-next-line: max-line-length
           isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
-          icon: '../../../assets/svg/fy-trips-new.svg',
+          icon: 'fy-trips-new',
           route: ['/', 'enterprise', 'my_trips']
         },
         {
           title: 'Delegated Accounts',
           isVisible: isDelegatee,
-          icon: '../../../assets/svg/fy-delegate-switch.svg',
+          icon: 'fy-delegate-switch',
           route: ['/', 'enterprise', 'delegated_accounts']
         },
         {
           title: 'Corporate Cards',
           isVisible: orgSettings.corporate_credit_card_settings.enabled,
-          icon: '../../../assets/svg/fy-cards-new.svg',
+          icon: 'fy-cards-new',
           route: ['/', 'enterprise', 'my_dashboard6']
         },
         {
           title: 'Receipts',
           isVisible: orgSettings.receipt_settings.enabled,
-          icon: '../../../assets/svg/fy-receipts-new.svg',
+          icon: 'fy-receipts-new',
           route: ['/', 'enterprise', 'my_dashboard7']
         },
         {
           title: 'Switch to own account',
           isVisible: this.isSwitchedToDelegator,
-          icon: '../../../assets/svg/fy-switch.svg',
+          icon: 'fy-switch',
           route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }]
         },
         {
           title: 'Profile',
           isVisible: true,
-          icon: '../../../assets/svg/fy-profile-new.svg',
+          icon: 'fy-profile-new',
           route: ['/', 'enterprise', 'my_profile']
         },
         {
           title: 'Team Reports',
           isVisible: allowedReportsActions && allowedReportsActions.approve,
-          icon: '../../../assets/svg/fy-team-reports-new.svg',
+          icon: 'fy-team-reports-new',
           route: ['/', 'enterprise', 'team_reports'],
           cssClass: 'team-trips'
         },
         {
           title: 'Team Trips',
           isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
-          icon: '../../../assets/svg/fy-team-trips-new.svg',
+          icon: 'fy-team-trips-new',
           route: ['/', 'enterprise', 'team_trips']
         },
         {
           title: 'Team Advances',
           isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
-          icon: '../../../assets/svg/fy-team-advances-new.svg',
+          icon: 'fy-team-advances-new',
           route: ['/', 'enterprise', 'team_advance']
         },
         {
           title: 'Help',
           isVisible: true,
-          icon: '../../../assets/svg/fy-help-new.svg',
+          icon: 'fy-help-new',
           route: ['/', 'enterprise', 'help']
         },
         {
           title: 'Switch Accounts',
           isVisible: (orgs.length > 1),
-          icon: '../../../assets/svg/fy-switch-new.svg',
+          icon: 'fy-switch-new',
           route: ['/', 'auth', 'switch-org', { choose: true }]
         },
       ];
