@@ -8,6 +8,7 @@ import { from, Observable, range } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
+import { Expense } from '../models/expense.model';
 
 
 
@@ -269,12 +270,17 @@ export class TransactionService {
       }
     }).pipe(
       map(
-        res => this.fixDates(res.data[0]) as any
+        res => this.fixDates(res.data[0]) as Expense
       )
     );
   }
 
-  fixDates(data) {
+  fixDates(data: Expense) {
+    data.tx_created_at = new Date(data.tx_created_at);
+    if(data.tx_txn_dt) {
+      data.tx_txn_dt = new Date(data.tx_txn_dt);
+    }
+    data.tx_updated_at = new Date(data.tx_updated_at);
     return data;
   }
 
@@ -282,13 +288,4 @@ export class TransactionService {
     return this.apiService.delete('/transactions/' + txnId);
   }
 
-  modifyCustomFields(customFields) {
-    customFields = customFields.map(customField => {
-      if (customField.type === 'DATE') {
-        customField.value = new Date(customField.value);
-      }
-      return customField;
-    });
-    return customFields;
-  }
 }
