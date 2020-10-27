@@ -26,6 +26,7 @@
       <div class="view-mileage--element" *ngIf="orgSettings$|async as orgSettings">
         <div class="view-mileage--element-label">Type</div>
         <div class="view-mileage--element-value">
+          <!-- Todo: Fix all vehicle icon later -->
           <ion-icon class="view-mileage--vehicle-icon" name="bicycle" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'}" *ngIf="orgSettings.mileage.two_wheeler || extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'"></ion-icon>    
           <ion-icon class="view-mileage--vehicle-icon" name="car" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'}" *ngIf="orgSettings.mileage.four_wheeler || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'"></ion-icon>
           <ion-icon class="view-mileage--vehicle-icon" name="car" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'}" *ngIf="orgSettings.mileage.four_wheeler1 || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'"></ion-icon>
@@ -67,8 +68,6 @@
         <div class="view-mileage--element-value">{{extendedMileage.tx_sub_category}}</div>
       </div>
 
-      <!-- Custome field -->
-
       <div class="view-mileage--element" *ngIf="extendedMileage.tx_project_id">
         <div class="view-mileage--element-label">Project</div>
         <div class="view-mileage--element-value">{{extendedMileage.tx_project_name}}</div>
@@ -84,6 +83,13 @@
         <div class="view-mileage--element-value">{{extendedMileage.tx_cost_center_name}}</div>
       </div>
 
+      <div *ngIf="(mileageCustomFields$|async)?.length > 0">
+        <div class="view-mileage--element" *ngFor="let mileageCustomField of mileageCustomFields$ | async; index as i">
+          <div class="view-mileage--element-label">{{mileageCustomField.name}}</div>
+          <div class="view-mileage--element-value">{{getDisplayValue(mileageCustomField)}}</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Todo: comment copmponnet -->
@@ -95,5 +101,4 @@
     </div>
 
   </div>
-
 </ion-content>

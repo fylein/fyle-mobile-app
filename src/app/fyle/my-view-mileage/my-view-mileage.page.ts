@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { from, Observable } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -22,8 +23,13 @@ export class MyViewMileagePage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private transactionService: TransactionService,
-    private offlineService : OfflineService
+    private offlineService : OfflineService,
+    private customInputsService: CustomInputsService
   ) { }
+
+  getDisplayValue(customProperties) {
+    return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+  }
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
@@ -41,16 +47,10 @@ export class MyViewMileagePage implements OnInit {
     );
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      map(res => {
-        debugger;
-         return this.transactionService.modifyCustomFields(res.tx_custom_properties);
+      switchMap(res => {
+        return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
       })
     );
-
-    this.mileageCustomFields$.subscribe((res) => {
-      debugger;
-    })
-
 
   }
 
