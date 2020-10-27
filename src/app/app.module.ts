@@ -15,7 +15,7 @@ import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { SharedModule } from './shared/shared.module';
-import { DatePipe, DecimalPipe } from '@angular/common';
+
 
 @NgModule({
   declarations: [
@@ -36,9 +36,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
     GooglePlus,
     InAppBrowser,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true },
-    DecimalPipe,
-    DatePipe
+    { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

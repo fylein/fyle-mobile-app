@@ -5,10 +5,9 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap, finalize, map, shareReplay, concatMap, tap } from 'rxjs/operators';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { Transaction } from 'src/app/core/models/transaction.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { noop } from '@angular/compiler/src/render3/view/util';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-my-view-expense',
@@ -17,7 +16,7 @@ import { noop } from '@angular/compiler/src/render3/view/util';
 })
 export class MyViewExpensePage implements OnInit {
 
-  etxn$: Observable<Transaction>;
+  etxn$: Observable<Expense>;
   policyViloations$: Observable<any>;
   isAmountCapped$: Observable<boolean>;
   isCriticalPolicyViolated$: Observable<boolean>;
@@ -27,7 +26,6 @@ export class MyViewExpensePage implements OnInit {
   orgSettings: any;
 
   currencyOptions;
-
 
   constructor(
     private loaderService: LoaderService,
@@ -47,12 +45,8 @@ export class MyViewExpensePage implements OnInit {
   }
 
   ngOnInit() {
-    // BIG TODO
-    // start Loader
-    // stop loader when all api calls are completed
-
     const txId = this.activatedRoute.snapshot.params.id;
-
+    console.log('txId = ', txId);
     this.currencyOptions = {
       disabled: true
     };
@@ -65,6 +59,7 @@ export class MyViewExpensePage implements OnInit {
     );
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
+      tap(res => console.log(res)),
       concatMap(etxn => {
         return this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true);
       }),
@@ -98,7 +93,5 @@ export class MyViewExpensePage implements OnInit {
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map(etxn => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001),
     );
-
-    console.log('etxn', this.etxn$.subscribe(res => console.log(res)));
   }
 }
