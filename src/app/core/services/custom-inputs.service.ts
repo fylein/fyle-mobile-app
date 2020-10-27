@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { shareReplay, map } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 
 @Injectable({
@@ -15,7 +15,9 @@ export class CustomInputsService {
   ) { }
 
   getAll(active: boolean) {
-    return this.apiService.get('/custom_inputs/custom_properties', { params: { active } });
+    return this.apiService.get('/custom_inputs/custom_properties', { params: { active } }).pipe(
+      shareReplay()
+    );
   }
 
   filterByCategory(customInputs, orgCategoryId) {
@@ -43,10 +45,6 @@ export class CustomInputsService {
       return 1;
     }
     return 0;
-  }
-
-  fillCustomProperties2(orgCategoryId, customProperties, active) {
-    return customProperties;
   }
 
   fillCustomProperties(orgCategoryId, customProperties, active) {

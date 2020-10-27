@@ -28,8 +28,25 @@ export class TransactionService {
   ) { }
 
   get(txnId) {
+    // TODO api v2
     return this.apiService.get('/transactions/' + txnId).pipe(
       map((transaction) => {
+        return this.dateService.fixDates(transaction);
+      })
+    );
+  }
+
+  getEtxn(txnId) {
+    // TODO api v2
+    return this.apiService.get('/etxns/' + txnId).pipe(
+      map((transaction) => {
+
+        let categoryDisplayName = transaction.tx_org_category;
+        if (transaction.tx_sub_category && transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
+          categoryDisplayName += ' / ' + transaction.tx_sub_category;
+        }
+        transaction.tx_categoryDisplayName = categoryDisplayName;
+
         return this.dateService.fixDates(transaction);
       })
     );

@@ -17,6 +17,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { SharedModule } from './shared/shared.module';
 import { DatePipe, DecimalPipe } from '@angular/common';
 
+
 @NgModule({
   declarations: [
     AppComponent
