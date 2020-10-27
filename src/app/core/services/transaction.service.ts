@@ -27,6 +27,7 @@ export class TransactionService {
   ) { }
 
   get(txnId) {
+    // TODO api v2
     return this.apiService.get('/transactions/' + txnId).pipe(
       map((transaction) => {
         return this.dateService.fixDates(transaction);
@@ -35,6 +36,7 @@ export class TransactionService {
   }
 
   getEtxn(txnId) {
+    // TODO api v2
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((transaction) => {
 
