@@ -174,4 +174,5 @@ export interface Expense {
   tx_verification_state?: any;
   us_email: string;
   us_full_name: string;
+  tx_categoryDisplayName: string;  // custom property added in the service
 }

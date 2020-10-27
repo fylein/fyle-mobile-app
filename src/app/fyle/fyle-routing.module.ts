@@ -67,6 +67,10 @@ const routes: Routes = [
     loadChildren: () => import('./view-team-report/view-team-report.module').then( m => m.ViewTeamReportPageModule)
   },
   {
+    path: 'my_view_expense',
+    loadChildren: () => import('./my-view-expense/my-view-expense.module').then( m => m.MyViewExpensePageModule)
+  },
+  {
     path: 'delegated_accounts',
     loadChildren: () => import('./delegated-accounts/delegated-accounts.module').then( m => m.DelegatedAccountsPageModule)
   },
