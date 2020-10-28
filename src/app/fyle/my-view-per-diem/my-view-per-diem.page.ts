@@ -35,6 +35,10 @@ export class MyViewPerDiemPage implements OnInit {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
   }
 
+  goBack() {
+    // Todo: All logic of redirect to previous page
+  }
+
   ionViewWillEnter() { 
     const id = this.activatedRoute.snapshot.params.id;
 
