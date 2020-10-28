@@ -8,6 +8,7 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 
 @Component({
@@ -21,6 +22,9 @@ export class MyViewPerDiemPage implements OnInit {
   orgSettings$: Observable<any>;
   perDiemCustomFields$: Observable<CustomField[]>;
   perDiemRate$: Observable<any>;
+  isCriticalPolicyViolated$: Observable<boolean>;
+  isAmountCapped$: Observable<boolean>;
+  policyViloations$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -28,8 +32,13 @@ export class MyViewPerDiemPage implements OnInit {
     private loaderService: LoaderService,
     private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
-    private perDiemService: PerDiemService
+    private perDiemService: PerDiemService,
+    private policyService: PolicyService
   ) { }
+
+  isNumber(val) {
+    return typeof val === 'number';
+  }
 
   getDisplayValue(customProperties) {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
@@ -66,6 +75,24 @@ export class MyViewPerDiemPage implements OnInit {
         return this.perDiemService.getRate(per_diem_rate_id);
       })
     );
+
+    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+
+    // this.policyViloations$.subscribe(res => {
+    //   debugger;
+    // })
+
+    this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
+      map(res => {
+        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001
+      })
+    )
+
+    this.isAmountCapped$ = this.extendedPerDiem$.pipe(
+      map(res => {
+        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount)
+      })
+    )
 
   }
   

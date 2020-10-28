@@ -7,6 +7,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 
 @Component({
@@ -19,15 +20,23 @@ export class MyViewMileagePage implements OnInit {
   extendedMileage$: Observable<Expense>;
   orgSettings$: Observable<any>;
   mileageCustomFields$: Observable<CustomField[]>;
+  isCriticalPolicyViolated$: Observable<boolean>;
+  isAmountCapped$: Observable<boolean>;
+  policyViloations$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private transactionService: TransactionService,
     private offlineService : OfflineService,
-    private customInputsService: CustomInputsService
+    private customInputsService: CustomInputsService,
+    private policyService: PolicyService
   ) { }
 
+  isNumber(val) {
+    return typeof val === 'number';
+  }
+  
   getDisplayValue(customProperties) {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
   }
@@ -55,7 +64,21 @@ export class MyViewMileagePage implements OnInit {
       switchMap(res => {
         return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
       })
-    );
+    )
+
+    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+
+    this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
+      map(res => {
+        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001
+      })
+    )
+
+    this.isAmountCapped$ = this.extendedMileage$.pipe(
+      map(res => {
+        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount)
+      })
+    )
 
   }
 

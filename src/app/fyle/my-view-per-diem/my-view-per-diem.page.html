@@ -11,6 +11,18 @@
 
 <ion-content>
   <div class="view-per-diem--container" *ngIf="extendedPerDiem$|async as extendedPerDiem">
+
+    <div class="view-per-diem--policy-info-container" *ngIf="extendedPerDiem.tx_policy_flag && policyViloations$|async as policyViloations">
+      <!-- TODO: on click scroll to comment section -->
+      <mat-icon class="view-per-diem--policy-warning-icon">warning</mat-icon>
+      <span>{{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this expense</span>
+    </div>
+
+    <div class="view-per-diem--policy-info-container" *ngIf="isAmountCapped$|async">
+      <p class="view-per-diem--policy-info-text" *ngIf="isCriticalPolicyViolated$|async">This expense has violated a critical policy. You cannot create a report with this expense.</p>
+      <p class="view-per-diem--policy-info-text" *ngIf="!(isCriticalPolicyViolated$|async)">Claimed amount {{extendedPerDiem.tx_user_amount | currency: extendedPerDiem.tx_currency}} was capped to {{extendedPerDiem.tx_amount | currency: extendedPerDiem.tx_currency}} due to policy.</p>
+    </div>
+
     <!-- Todo: Move this to currnecy directive later -->
     <div class="view-per-diem--amount-currency-block">
       <div class="view-per-diem--currency-block">
