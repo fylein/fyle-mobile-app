@@ -77,6 +77,10 @@ const routes: Routes = [
   {
     path: 'view_team_advance',
     loadChildren: () => import('./view-team-advance/view-team-advance.module').then( m => m.ViewTeamAdvancePageModule)
+  },
+  {
+    path: 'view_team_expense',
+    loadChildren: () => import('./view-team-expense/view-team-expense.module').then( m => m.ViewTeamExpensePageModule)
   }
 ];
 
