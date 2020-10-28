@@ -8,6 +8,7 @@ import { from, Observable, range } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
+import { Expense } from '../models/expense.model';
 
 
 
@@ -279,7 +280,29 @@ export class TransactionService {
     );
   }
 
+  getExpenseV2(id: string): Observable<any> {
+    return this.apiV2Service.get('/expenses', {
+      params: {
+        tx_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as Expense
+      )
+    );
+  }
+
+  fixDates(data: Expense) {
+    data.tx_created_at = new Date(data.tx_created_at);
+    if(data.tx_txn_dt) {
+      data.tx_txn_dt = new Date(data.tx_txn_dt);
+    }
+    data.tx_updated_at = new Date(data.tx_updated_at);
+    return data;
+  }
+
   delete(txnId: string) {
     return this.apiService.delete('/transactions/' + txnId);
   }
+
 }
