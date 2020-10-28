@@ -4,11 +4,11 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute } from '@angular/router';
-import { PolicyService } from 'src/app/core/services/policy.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ReportService } from 'src/app/core/services/report.service';
 
 @Component({
   selector: 'app-view-team-expense',
@@ -24,6 +24,8 @@ export class ViewTeamExpensePage implements OnInit {
   allExpenseCustomFields$: Observable<any>;
   customProperties$: Observable<any>;
   etxnWithoutCustomProperties$: Observable<any>;
+  canFlagOrUnflag$: Observable<boolean>;
+  canDelete$: Observable<boolean>;
   orgSettings: any;
 
   currencyOptions;
@@ -32,7 +34,7 @@ export class ViewTeamExpensePage implements OnInit {
     private loaderService: LoaderService,
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
-    private policyService: PolicyService,
+    private reportService: ReportService,
     private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private statusService: StatusService
@@ -92,6 +94,24 @@ export class ViewTeamExpensePage implements OnInit {
       }),
       map(comments => {
         return comments.filter(this.isPolicyComment);
+      })
+    );
+
+    this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
+      map(etxn => {
+        return ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1;
+      })
+    );
+
+    this.canDelete$ = this.etxnWithoutCustomProperties$.pipe(
+      concatMap(etxn => {
+        return this.reportService.getTeamReport(etxn.tx_report_id);
+      }),
+      map(report => {
+        if (report.rp_num_transactions === 1) {
+          return false;
+        }
+        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(report.tx_state) < 0;
       })
     );
 

@@ -165,6 +165,24 @@
         <div class="view-expense--card-action-text view-expense--card-action-text__comment">Comments</div>
       </div>
     </div>
+
+    <!-- TODO: check logic for flag un flag and apply -->
+    <div class="view-expense--card" *ngIf="canFlagOrUnflag$|async">
+      <div class="view-expense--card-action">
+        <mat-icon class="view-expense--card-action-icon">flag</mat-icon>
+        <div class="view-expense--card-action-text view-expense--card-action-text__comment">Flag</div>
+      </div>
+    </div>
+
+    <div class="view-expense--card" *ngIf="canDelete$|async">
+      <div class="view-expense--card-action">
+        <mat-icon class="view-expense--card-action-icon">delete</mat-icon>
+        <div class="view-expense--card-action-text__comment">
+          <div class="view-expense--card-action-text view-expense--card-action-text__delete">Remove</div>
+          <div class="view-expense--delete-warning view-expense--card-action-text__helper-comment">remove from report</div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </ion-content>
