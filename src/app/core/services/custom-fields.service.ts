@@ -77,5 +77,5 @@ export class CustomFieldsService {
     });
 
     return filledCustomPropertiesWithType.concat(filledCustomPropertiesWithInputType).sort(this.sortcustomFieldsByType);
-  };
+  }
 }

@@ -313,17 +313,6 @@ export class MyViewTripsPage implements OnInit {
       })
     ));
 
-    // this.transformedTripRequests$ = forkJoin({
-    //   tripRequest: this.tripRequest$,
-    //   allTripRequestCustomFields: this.allTripRequestCustomFields$
-    // }).pipe(
-    //   tap(console.log),
-    //   map(({ tripRequest, allTripRequestCustomFields }) => {
-    //     return this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest);
-    //   }),
-    //   tap(console.log)
-    // );
-
     this.approvers$ = this.actions$.pipe(
       filter(actions => actions.can_add_approver),
       switchMap(() => {

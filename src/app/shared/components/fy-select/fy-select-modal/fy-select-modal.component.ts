@@ -27,12 +27,12 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      map((searchText) => this.options
+      map((searchText) => [{ label: 'None', value: null }].concat(this.options
         .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
         .map(option => {
           option.selected = isEqual(option.value, this.currentSelection);
           return option;
-        })
+        }))
       )
     );
     this.cdr.detectChanges();

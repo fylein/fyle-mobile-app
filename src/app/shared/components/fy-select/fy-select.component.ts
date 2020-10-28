@@ -20,6 +20,9 @@ import { isEqual } from 'lodash';
 export class FySelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() options: { label: string, value: any }[] = [];
+  @Input() disabled = false;
+  @Input() label = '';
+  @Input() mandatory = false;
 
   private innerValue;
   displayValue;
@@ -43,7 +46,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
       if (this.options) {
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
         if (selectedOption) {
-          this.displayValue = selectedOption.label;
+          this.displayValue = selectedOption && selectedOption.label;
         }
       }
 
@@ -78,9 +81,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
       this.innerValue = value;
       if (this.options) {
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
-        if (selectedOption) {
-          this.displayValue = selectedOption.label;
-        }
+        this.displayValue = selectedOption && selectedOption.label;
       }
     }
   }

@@ -13,4 +13,12 @@ export class CustomInputsService {
   getAll(active: boolean) {
     return this.apiService.get('/custom_inputs/custom_properties', { params: { active } });
   }
+
+  filterByCategory(customInputs, orgCategoryId) {
+    return customInputs
+      .filter(
+        customInput => customInput.org_category_ids ?
+          customInput.org_category_ids && customInput.org_category_ids.some(id => id === orgCategoryId) : true
+      ).sort();
+  }
 }

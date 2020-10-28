@@ -1,13 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, of, iif, forkJoin, from } from 'rxjs';
+import { Observable, of, iif, forkJoin, from, combineLatest, zip, noop } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { concatMap, switchMap, map, startWith } from 'rxjs/operators';
+import { concatMap, switchMap, map, startWith, tap, shareReplay, take, distinctUntilChanged } from 'rxjs/operators';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { DateService } from 'src/app/core/services/date.service';
+import * as moment from 'moment';
+import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -27,8 +33,16 @@ export class AddEditExpensePage implements OnInit {
   activeIndex: number;
   reviewList: string[];
   fg: FormGroup;
-  projects$: Observable<any[]>;
-  categories$: Observable<any[]>;
+  filteredCategories$: Observable<any[]>;
+  minDate: string;
+  maxDate: string;
+  txnFields$: Observable<any>;
+  taxSettings$: Observable<any>;
+  reports$: Observable<any>;
+  isProjectsEnabled$: Observable<boolean>;
+  flightJourneyTravelClassOptions$: Observable<any>;
+  customInputs$: Observable<any>;
+  isOffline = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -36,19 +50,18 @@ export class AddEditExpensePage implements OnInit {
     private offlineService: OfflineService,
     private authService: AuthService,
     private formBuilder: FormBuilder,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private dateService: DateService,
+    private projectService: ProjectsService,
+    private reportService: ReportService,
+    private transactionFieldConfigurationService: TransactionFieldConfigurationsService,
+    private customInputsService: CustomInputsService,
+    private customFieldsService: CustomFieldsService
   ) { }
 
   ngOnInit() {
     this.fg = this.formBuilder.group({
-      currencyObj: [
-        {
-          amount: 11,
-          currency: 'INR',
-          orig_amount: 12,
-          orig_currency: 'AFN'
-        }
-      ],
+      currencyObj: [],
       paymentMode: [],
       project: [],
       category: [],
@@ -56,6 +69,26 @@ export class AddEditExpensePage implements OnInit {
       merchant: [],
       purpose: [],
       report: [],
+      tax: [],
+      taxValue: [],
+      location_1: [],
+      location_2: [],
+      from_dt: [],
+      to_dt: [],
+      flight_journey_travel_class: [],
+      flight_return_travel_class: [],
+      train_travel_class: [],
+      bus_travel_class: [],
+      custom_inputs: new FormArray([])
+    });
+
+    // tslint:disable-next-line: deprecation
+    combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax.valueChanges).subscribe(() => {
+      if (this.fg.controls.tax.value && this.fg.controls.tax.value.percentage && this.fg.controls.currencyObj.value) {
+        this.fg.controls.taxValue.setValue(
+          this.fg.controls.tax.value.percentage *
+          (this.fg.controls.currencyObj.value.orig_amount || this.fg.controls.currencyObj.value.amount));
+      }
     });
 
     this.fg.valueChanges.subscribe(console.log);
@@ -64,7 +97,7 @@ export class AddEditExpensePage implements OnInit {
   ionViewWillEnter() {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const categories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllCategories();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
@@ -75,13 +108,18 @@ export class AddEditExpensePage implements OnInit {
     this.reviewList = this.activatedRoute.snapshot.params.txnIds;
     this.title = 'Add Expense';
     this.title = this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
-
-    this.categories$ = this.categoriesService.getAll().pipe(
-      map(catogories => catogories.filter(category => category.enabled === true)),
-      map(catogories => this.categoriesService.filterRequired(catogories)),
-      map(catogories => catogories.map((category: any) => ({ label: category.displayName, value: category })))
+    this.isProjectsEnabled$ = orgSettings$.pipe(
+      map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
 
+    const today = new Date();
+    this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
+    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+
+    const activeCategories$ = allCategories$.pipe(
+      map(catogories => catogories.filter(category => category.enabled === true)),
+      map(catogories => this.categoriesService.filterRequired(catogories))
+    );
 
     this.paymentModes$ = forkJoin({
       accounts: accounts$,
@@ -132,7 +170,7 @@ export class AddEditExpensePage implements OnInit {
     const newExpensePipe$ = forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
-      categories: categories$,
+      categories: activeCategories$,
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$
@@ -203,6 +241,139 @@ export class AddEditExpensePage implements OnInit {
     const editExpensePipe$ = of({});
 
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$);
+
+    const formProjectValue$ = this.fg.controls.project.valueChanges.pipe(
+      startWith(this.fg.controls.project.value)
+    );
+
+    this.filteredCategories$ = formProjectValue$.pipe(
+      concatMap(project => {
+        return activeCategories$.pipe(
+          map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
+        );
+      }),
+      map(categories => categories.map(category => ({ label: category.name, value: category })))
+    );
+
+    this.filteredCategories$.subscribe(categories => {
+      if (this.fg.value.category
+        && this.fg.value.category.id
+        && !categories.some(category => this.fg.value.category && this.fg.value.category.id === category.value.id)) {
+        this.fg.controls.category.reset();
+      }
+    });
+
+    this.txnFields$ = this.fg.valueChanges.pipe(
+      startWith({}),
+      switchMap((formValue) => {
+        return this.offlineService.getTransactionFieldConfigurationsMap().pipe(
+          switchMap(tfcMap => {
+            return this.transactionFieldConfigurationService.filterByOrgCategoryIdProjectId(tfcMap, formValue.category, formValue.project);
+          })
+        );
+      }),
+      shareReplay()
+    );
+
+    this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
+      map(txnFields => {
+        return txnFields.flight_journey_travel_class && txnFields.flight_journey_travel_class.values.map(v => ({ label: v, value: v }));
+      })
+    );
+
+    this.taxSettings$ = orgSettings$.pipe(
+      map(orgSettings => orgSettings.tax_settings.groups),
+      map(taxs => taxs.map(tax => ({ label: tax.name, value: tax })))
+    );
+
+    this.reports$ = this.reportService.getFilteredPendingReports({ state: 'edit' }).pipe(
+      map(reports => reports.map(report => ({ label: report.rp.purpose, value: report })))
+    );
+
+    this.customInputs$ = this.fg.controls.category.valueChanges.pipe(
+      startWith({}),
+      concatMap(() => {
+        const formValue = this.fg.value;
+        return this.customInputsService.getAll(true).pipe(
+          map(customFields => {
+            // TODO: Convert custom properties to get generated from formValue
+            return this.customFieldsService.standardizeCustomFields([],
+              this.customInputsService.filterByCategory(customFields, formValue.category && formValue.category.id));
+          })
+        );
+      }),
+      tap(console.log),
+      map((customFields: any[]) => {
+        const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+        customFieldsFormArray.clear();
+        for (const customField of customFields) {
+          customFieldsFormArray.push(
+            this.formBuilder.group({
+              value: [, customField.mandatory && Validators.required]
+            })
+          );
+        }
+
+        return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+      })
+    );
+
+    const etxnProject$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return etxn.tx.tx_project_id ? this.projectService.getbyId(etxn.tx.tx_project_id) : of(null)
+      })
+    );
+
+    const etxnCategory$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return etxn.tx.tx_org_category_id ? allCategories$.pipe(
+          map(categories => categories.find(category => category.id === etxn.tx.tx_org_category_id))
+        ) : of(null);
+      })
+    );
+
+    const etxnReport$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return etxn.tx_report_id ? this.reportService.getReport(etxn.tx_report_id) : of(null)
+      })
+    );
+
+    forkJoin({
+      etxn: this.etxn$,
+      paymentModes: this.paymentModes$,
+      project: etxnProject$,
+      category: etxnCategory$,
+      report: etxnReport$
+    }).subscribe(({ etxn, paymentModes, project, category, report }) => {
+      console.log(etxn);
+      const paymentModeOption = paymentModes.find(paymentMode => paymentMode.value.acc.id === etxn.tx.source_account_id);
+      const paymentMode = paymentModeOption ? paymentModeOption.value : null;
+      this.fg.patchValue({
+        currencyObj: {
+          amount: etxn.tx.amount,
+          currency: etxn.tx.currency,
+          orig_amount: etxn.tx.orig_amount,
+          orig_currency: etxn.tx.orig_currency,
+        },
+        paymentMode,
+        project,
+        category,
+        dateOfSpend: moment(etxn.tx.txn_dt).format('y-MM-D'),
+        merchant: etxn.tx.vendor || null,
+        purpose: etxn.tx.purpose || null,
+        report,
+        tax: null, // Map the rest
+        taxValue: null,
+        location_1: null,
+        location_2: null,
+        from_dt: null,
+        to_dt: null,
+        flight_journey_travel_class: null,
+        flight_return_travel_class: null,
+        train_travel_class: null,
+        bus_travel_class: null
+      });
+    });
   }
 
 }

@@ -12,5 +12,80 @@
     height: 48px;
     width: 100%;
     margin: 12px 8px;
+    --border-radius: 4px;
+  }
+
+  &--receipt-currency {
+    display: flex;
+    align-items: center;
+  }
+
+  &--receipt {
+    align-items: center;
+    text-align: center;
+    margin: 12px 4px;
+    display: flex;
+    justify-content: center;
+    background-color: #d8d8d8;
+    padding: 20px 2px;
+    border-radius: 4px;
+    color: #ababab;
+    margin-left: 0;
+  }
+
+  &--currency {
+    margin: 12px;
+    margin-right: 0;
+  }
+
+  &--form {
+    padding: 0 16px;
+  }
+
+  &--date {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &--date-label {
+    margin: 0 8px 0 0;
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  &--date-input {
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    height: 24px;
+    text-align: right;
+  }
+
+  &--text {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &--text-label {
+    margin: 0 8px 0 0;
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    display: flex;
+    min-width: 120px;
+  }
+
+  &--text-input {
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    height: 24px;
   }
 }

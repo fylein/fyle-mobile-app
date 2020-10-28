@@ -1,11 +1,6 @@
-<div>
+<div class="fy-currency">
   <form [formGroup]="fg">
-    <mat-form-field class="mat-form-field-no-padding" appearance="outline">
-      <input (click)="openCurrencyModal()" formControlName="currency" matInput placeholder="Placeholder">
-    </mat-form-field>
-
-    <mat-form-field class="mat-form-field-no-padding" appearance="outline">
-      <input formControlName="amount" matInput placeholder="Placeholder">
-    </mat-form-field>
+    <input class="fy-currency--currency" (click)="openCurrencyModal()" formControlName="currency">
+    <input class="fy-currency--amount" formControlName="amount">
   </form>
 </div>

@@ -27,10 +27,19 @@ export class ProjectsService {
 
   parseRawEProjects(res) {
     const rawEprojects = (res && res.data) || [];
-
     return rawEprojects.map((rawEproject) => {
       return this.dataTransformService.unflatten(rawEproject);
     });
+  }
+
+  getbyId(projectId: string) {
+    return this.apiV2Service.get('/projects', {
+      params: {
+        project_id: `eq.${projectId}`
+      }
+    }).pipe(
+      map(res => res.data[0])
+    );
   }
 
   getByParamsUnformatted(projectParams:
@@ -72,7 +81,9 @@ export class ProjectsService {
 
     return this.apiV2Service.get('/projects', {
       params
-    });
+    }).pipe(
+      map(res => res.data)
+    );
   }
 
   getByParams(queryParams: Partial<{
@@ -87,5 +98,31 @@ export class ProjectsService {
       }).pipe(
         map(this.parseRawEProjects)
       );
+  }
+
+  filterById(projectId, projects) {
+    var matchingProject;
+
+    projects.some((project) => {
+      if (project.id === projectId) {
+        matchingProject = project;
+        return true;
+      }
+    });
+
+    return matchingProject;
+  };
+
+  getAllowedOrgCategoryIds(project, activeCategoryList) {
+    let categoryList = [];
+    if (project) {
+      categoryList = activeCategoryList.filter((category) => {
+        return project.project_org_category_ids.indexOf(category.id) > -1;
+      });
+    } else {
+      categoryList = activeCategoryList;
+    }
+
+    return categoryList;
   }
 }

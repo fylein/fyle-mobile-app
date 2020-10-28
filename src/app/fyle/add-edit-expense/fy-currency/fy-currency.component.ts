@@ -53,11 +53,17 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         orig_amount: null,
         orig_currency: null
       };
+
       if (formValue.currency !== this.homeCurrency) {
         value.currency = this.homeCurrency;
-        value.amount = +formValue.homeCurrencyAmount;
+
         value.orig_amount = +formValue.amount;
         value.orig_currency = formValue.currency;
+        if (value.orig_currency === this.value.orig_currency) {
+          value.amount = value.orig_amount * (this.value.amount / this.value.orig_amount);
+        } else {
+          value.amount = +formValue.homeCurrencyAmount;
+        }
       } else {
         value.currency = this.homeCurrency;
         value.amount = +formValue.amount;
@@ -70,23 +76,29 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   }
 
   checkIfSameValue(amount1, amount2) {
-    return amount1.amount === amount2.amount &&
+    return amount1 && amount2 && amount1.amount === amount2.amount &&
       amount1.currency === amount2.currency &&
       amount1.orig_amount === amount2.orig_amount &&
       amount1.orig_currency === amount2.orig_currency;
   }
 
   convertInnerValueToFormValue(innerVal) {
-    if (innerVal.orig_currency && innerVal.orig_currency !== this.homeCurrency) {
+    if (innerVal && innerVal.orig_currency && innerVal.orig_currency !== this.homeCurrency) {
       return {
         amount: innerVal.orig_amount,
         currency: innerVal.orig_currency,
         homeCurrencyAmount: innerVal.amount
       };
-    } else {
+    } else if (innerVal) {
       return {
         amount: innerVal.amount,
         currency: innerVal.currency,
+        homeCurrencyAmount: null
+      };
+    } else {
+      return {
+        amount: 0,
+        currency: this.homeCurrency,
         homeCurrencyAmount: null
       };
     }

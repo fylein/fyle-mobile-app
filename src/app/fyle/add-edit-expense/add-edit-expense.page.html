@@ -1,6 +1,6 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title *ngIf="mode">
+  <ion-toolbar class="add-edit-expense--toolbar">
+    <ion-title mode="md" *ngIf="mode">
       <div *ngIf="mode === 'add'">
         Add Expense
       </div>
@@ -43,7 +43,7 @@
 </ion-header>
 
 <ion-content>
-  <form [formGroup]="fg">
+  <form [formGroup]="fg" class="add-edit-expense--form">
     <!-- <div (click)="showDuplicates()" *ngIf="duplicates && duplicates.length > 0 && scrollToDuplicates">
       <div>
         Possible Duplicates Detected !
@@ -74,7 +74,7 @@
         </div>
       </div> -->
 
-      <div>
+      <div class="add-edit-expense--receipt-currency">
         <!-- <div *ngIf="reviewList.length > 0 && showAttachmentPreview">
           Preview Attachment Component
           <preview-attachments txn-id="{{ etxn.tx.id }}"></preview-attachments>
@@ -108,21 +108,15 @@
             </mat-icon>
           </div>
         </div> -->
+        <div class="add-edit-expense--receipt">
+          Add Receipt
+        </div>
 
-        <div>
-          <!-- Add currency support -->
-          <span *ngIf="etxn$|async as etxn">
-            <span *ngIf="homeCurrency$|async as homeCurrency">
-              <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
-              </app-fy-currency>
-            </span>
-          </span>
-
-
-          <!-- <i ></i> -->
-          <mat-icon>
-            review
-          </mat-icon>
+        <div class="add-edit-expense--currency" *ngIf="etxn$|async as etxn">
+          <div *ngIf="homeCurrency$|async as homeCurrency">
+            <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
+            </app-fy-currency>
+          </div>
         </div>
       </div>
 
@@ -145,13 +139,14 @@
           </div>
           Add payment mode support
           <enterprise-expense-payment-mode name="paymentMode" 
-            list="accounts" on-selection="selectPaymentMode(item)" title="Choose Payment Mode" sub-title="Payment Mode"
-            readonly="readonly" required [disabled]="isCreatedFromCCC || !canEditCCCMatchedSplitExpense">
+            [options]="accounts" on-selection="selectPaymentMode(item)" title="Choose Payment Mode" sub-title="Payment Mode"
+            readonly="readonly" [disabled]="isCreatedFromCCC || !canEditCCCMatchedSplitExpense">
           </enterprise-expense-payment-mode>
         </div> -->
-        <span *ngIf="paymentModes$|async as paymentModes">
-          <app-fy-select formControlName="paymentMode" [options]="paymentModes"></app-fy-select>
-        </span>
+        <div *ngIf="paymentModes$|async as paymentModes">
+          <app-fy-select [label]="'Select Payment Mode'" formControlName="paymentMode" [options]="paymentModes">
+          </app-fy-select>
+        </div>
 
         <!-- <enterprise-alert *ngIf="isBalanceAvailableInAnyAdvanceAccount && !isCreatedFromCCC" type="information"
           message="'You have outstanding balance in your advance account(s)'"></enterprise-alert> -->
@@ -178,76 +173,86 @@
           <div>{{etxn.tx.project_id ? 'Project' : 'Select Project'}} <div *ngIf="mandatoryExpenseFields.project">*</div>
           </div>
           <input type="text" name="project" 
-            ng-required="mandatoryExpenseFields.project" on-selection="selectProject" selected-item="project"
+            [required]="mandatoryExpenseFields.project" on-selection="selectProject" formControlName="project"
             org-id="orgId" allowed-projects="allowedProjectIds"
             is-individual-projects-enabled="isIndividualProjectsEnabled" enterprise-fy-projects-autocomplete
             readonly="readonly">
         </div> -->
+
+        <div>
+          <app-fy-select-project formControlName="project"></app-fy-select-project>
+        </div>
 
         <!-- <div *ngIf="categories.length && !(isProjectsEnabled && isOffline)">
           <div>
             {{etxn.tx.org_category_id ? 'Category' : 'Select Category'}}
             <div *ngIf="mandatoryExpenseFields.category">*</div>
           </div>
-          <enterprise-fy-select *ngIf="isCategoriesListPresent" name="category" selected-item="category"
-            display="displayName" list="categories" filter-items="categoryIds" on-selection="selectCategory(item)"
-            ng-required="mandatoryExpenseFields.category" title="Choose Category" sub-title="Categories"
+          <app-fy-select *ngIf="isCategoriesListPresent" name="category" formControlName="category"
+            display="displayName" [options]="categories" filter-items="categoryIds" on-selection="selectCategory(item)"
+            [required]="mandatoryExpenseFields.category" title="Choose Category" sub-title="Categories"
             readonly="readonly" cache-name="recentCategoryList">
-          </enterprise-fy-select>
+          </app-fy-select>
         </div> -->
-        <span *ngIf="categories$|async as categories">
-          <app-fy-select formControlName="category" [options]="categories"></app-fy-select>
-        </span>
-
-
-
-
-
-        <!-- <div *ngIf="txnFields.txn_dt.can_view">
-          <div>*
-          </div>
+        <div *ngIf="filteredCategories$|async as categories">
+          <app-fy-select [label]="'Select Category'" formControlName="category" [options]="categories"></app-fy-select>
         </div>
-        <input type="date" name="date" ng-focus="toggleNavigationPanel(false)" ng-blur="toggleNavigationPanel(true)"
-          ng-change="onChangeTxnDate()" min="{{minDate}}" max="{{maxDate}}" [disabled]="!txnFields.txn_dt.can_edit"
-          ng-required="txnFields.txn_dt.mandatory">
-        <i class="icon ion-ios-bolt icon-user-review" ng-if="vm.isUserReviewNeededForDate"></i> -->
+
+        <div class="add-edit-expense--date">
+          <div class="add-edit-expense--date-label">
+            Date of Spend
+          </div>
+          <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
+            (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+        </div>
+
       </div>
 
-      <!-- <div *ngIf="txnFields.vendor_id.can_view">
-        <div>
-          {{ etxn.tx.vendor ? txnFields.vendor_id.title : 'Select ' + txnFields.vendor_id.title }}
-          <div *ngIf="txnFields.vendor_id.mandatory">*</div>
-        </div>
-        <input type="text" name="merchant" ng-model="etxn.tx.vendor" on-selection="onVendorSelection(item)"
-          ng-required="txnFields.vendor_id.mandatory" enterprise-fy-vendor-autocomplete readonly="readonly"
-          [disabled]="!txnFields.vendor_id.can_edit">
-        <enterprise-fy-select name="merchant" selected-item="etxn.tx.vendor" list="txnFields.vendor_id.values"
-          title="Choose Merchant" on-selection="onVendorSelection(item)" simple="true"
-          hide-none="{{txnFields.vendor_id.mandatory === true ? 'true' : 'false'}}"
-          ng-required="txnFields.vendor_id.mandatory" [disabled]="!txnFields.vendor_id.can_edit" readonly="readonly">
-        </enterprise-fy-select>
+      <!-- <div *ngIf="vendors$|async as vendors">
+        <app-fy-select formControlName="merchant" [options]="vendors"></app-fy-select>
       </div> -->
+      <span *ngIf="txnFields$|async as txnFields">
+        <div *ngIf="txnFields.vendor_id?.canView">
+          <app-fy-select-vendor
+            [label]="(etxn$|async)?.tx?.vendor ? txnFields.vendor_id?.title : 'Select ' + txnFields.vendor_id?.title"
+            [mandatory]="txnFields.vendor_id?.mandatory" formControlName="merchant"
+            [required]="txnFields.vendor_id?.mandatory" [disabled]="!txnFields.vendor_id?.canEdit">
+          </app-fy-select-vendor>
+        </div>
+      </span>
+
+
 
       <!-- <div *ngIf="invalidVendor">
         <div>{{ txnFields.vendor_id.title }} cannot be greater than 250 characters</div>
       </div> -->
-
-      <!-- <div *ngIf="txnFields.purpose.can_view">
-        <div>
-          {{ etxn.tx.purpose ? txnFields.purpose.title : 'Enter ' + txnFields.purpose.title }}
-          <div *ngIf="txnFields.purpose.mandatory">*</div>
+      <span *ngIf="txnFields$|async as txnFields">
+        <div *ngIf="txnFields.purpose?.canView">
+          <div *ngIf="txnFields.purpose?.type === 'TEXT'" class="add-edit-expense--text">
+            <div class="add-edit-expense--text-label">
+              <div>
+                {{ ((etxn$|async)?.tx?.purpose ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title)| slice: 0:15 }}
+              </div>
+              <div *ngIf="txnFields.purpose?.mandatory">
+                *
+              </div>
+            </div>
+            <input class="add-edit-expense--text-input" name="purpose" formControlName="purpose"
+              [required]="txnFields.purpose?.mandatory" [title]="'Enter'+txnFields.purpose?.title"
+              [placeholder]="'Enter '+txnFields.purpose?.title | slice: 0:15" [disabled]="!txnFields.purpose?.canEdit">
+          </div>
+          <app-fy-select *ngIf="txnFields.purpose?.type === 'SELECT'" formControlName="purpose"
+            [options]="txnFields.purpose?.values" [required]="txnFields.purpose?.mandatory"
+            [label]="(etxn$|async)?.tx?.purpose ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
+            [disabled]="!txnFields.purpose?.canEdit">
+          </app-fy-select>
         </div>
-        <input type="text" name="purpose" ng-model="etxn.tx.purpose" on-selection="onPurposeSelection(item)"
-          ng-required="txnFields.purpose.mandatory" enterprise-fy-input cache-name="recentPurposeList"
-          title="Enter {{txnFields.purpose.title}}" sub-title="Enter {{txnFields.purpose.title}}" readonly
-          [disabled]="!txnFields.purpose.can_edit">
-        <enterprise-fy-select name="purpose" selected-item="etxn.tx.purpose" list="txnFields.purpose.values"
-          on-selection="onPurposeSelection(item)" simple="true"
-          hide-none="{{txnFields.purpose.mandatory === true ? 'true' : 'false'}}"
-          ng-required="txnFields.purpose.mandatory" cache-name="recentPurposeList"
-          title="Enter {{txnFields.purpose.title}}" sub-title="Enter {{txnFields.purpose.title}}"
-          [disabled]="!txnFields.purpose.can_edit" readonly="readonly"></enterprise-fy-select>
-      </div> -->
+      </span>
+
+      <span *ngIf="reports$|async as reports">
+        <app-fy-select [label]="'Add to Report'" formControlName="report" [options]="reports"></app-fy-select>
+      </span>
+
 
       <!-- Hide is offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
       <!-- <div (click)="openAddExpenseToReportModal($event)"
@@ -287,145 +292,185 @@
       </div>
     </div> -->
 
+    <div *ngIf="taxSettings$|async as taxSettings">
+      <app-fy-select [label]="'Tax Group'" [options]="taxSettings" formControlName="tax"></app-fy-select>
+    </div>
+    <div class="add-edit-expense--text" *ngIf="fg.value.tax">
+      <div class="add-edit-expense--text-label">Tax Value</div>
+      <input class="add-edit-expense--text-input" type="number" formControlName="taxValue" />
+    </div>
     <!-- <div *ngIf="mode === 'add' && taxSettings.enabled && taxSettings.groups.length > 0">
       <div>
         <div>
           {{tax.name ? (taxSettings.name || 'Tax Group') : ('Select ' + (taxSettings.name || 'Tax Group'))}}
         </div>
-        <enterprise-fy-select name="tax" on-selection="selectTax(item)" compare-with="percentage"
-          title="Enter {{taxSettings.name}}" sub-title="{{taxSettings.name}}"></enterprise-fy-select>
-      </div>
-
-      <div>
-        <div></div>
-        <input type="number" fy-decimal-keypad name="taxName" ng-focus="toggleNavigationPanel(false)"
-          ng-blur="toggleNavigationPanel(true)">
+        <app-fy-select name="tax" on-selection="selectTax(item)" compare-with="percentage"
+          title="Enter {{taxSettings.name}}" sub-title="{{taxSettings.name}}"></app-fy-select>
       </div>
     </div> -->
-
-    <!-- <div>
-      <div
-        *ngIf="txnFields.location1.can_view && txnFields.location1.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
-        <div>
-          {{etxn.tx.locations[0].display ? txnFields.location1.title : 'Select ' + txnFields.location1.title }}
+    <app-fy-location></app-fy-location>
+    <div *ngIf="txnFields$|async as txnFields">
+      <div *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
+        <div
+          *ngIf="txnFields.location1?.canView && txnFields.location1?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
           <div>
+            {{(etxn$|async)?.tx?.locations[0]?.display ? txnFields.location1?.title : 'Select ' + txnFields.location1?.title }}
+            <div>
+              *
+            </div>
+          </div>
+          <input type="text" name="location1" formControlName="location_1" [disabled]="!txnFields.location1?.canEdit">
+        </div>
+
+        <div
+          *ngIf="txnFields.location2?.canView && txnFields.location2?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
+          <div>
+            {{(etxn$|async)?.tx?.locations[1]?.display ? txnFields.location2?.title : 'Select ' + txnFields.location2?.title }}
+            <div>
+              *
+            </div>
+          </div>
+          <input type="text" name="location2" formControlName="location_2" [disabled]="!txnFields.location2?.canEdit">
+        </div>
+
+        <div
+          *ngIf="txnFields.from_dt?.canView && txnFields.from_dt?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
+          <div>
+            {{(etxn$|async)?.tx?.from_dt ? txnFields.from_dt?.title : 'Select ' + txnFields.from_dt?.title}}
+            <div>*</div>
+          </div>
+          <input type="date" name="fromDt" formControlName="from_dt" [disabled]="!txnFields.from_dt?.canEdit">
+        </div>
+
+        <div
+          *ngIf="txnFields.to_dt?.canView && txnFields.to_dt?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
+          <div>
+            {{(etxn$|async)?.tx?.to_dt ? txnFields.to_dt?.title : 'Select ' + txnFields.to_dt?.title}}
+            <div>*</div>
+          </div>
+          <input type="date" name="toDt" formControlName="to_dt" ng-change="onToDateChange()"
+            [disabled]="!txnFields.to_dt?.canEdit">
+        </div>
+
+        <div
+          *ngIf="txnFields.flight_journey_travel_class?.canView && txnFields.flight_journey_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
+          <div>
+            {{(etxn$|async)?.tx?.flight_journey_travel_class ? txnFields.flight_journey_travel_class?.title : 'Select ' + txnFields.flight_journey_travel_class?.title}}
+            <div>*</div>
+          </div>
+          <app-fy-select formControlName="flight_journey_travel_class"
+            *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
+            [options]="flightJourneyTravelClassOptions" hide-none="true"
+            title="Choose {{txnFields.flight_journey_travel_class?.title}} Class" sub-title="Onward Travel Classes"
+            [disabled]="!txnFields.flight_journey_travel_class?.canEdit">
+          </app-fy-select>
+        </div>
+
+        <div
+          *ngIf="txnFields.flight_return_travel_class?.canView && txnFields.flight_return_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
+          <div>
+            {{(etxn$|async)?.tx?.flight_return_travel_class ? txnFields.flight_return_travel_class?.title : 'Select ' + txnFields.flight_return_travel_class?.title}}
+            <div>*</div>
+          </div>
+          <app-fy-select name="flightReturnClass" formControlName="flight_return_travel_class"
+            [options]="txnFields.flight_return_travel_class?.values"
+            title="Choose {{txnFields.flight_return_travel_class?.title}}" sub-title="Return Travel Classes"
+            [disabled]="!txnFields.flight_return_travel_class?.canEdit">
+          </app-fy-select>
+        </div>
+
+        <div
+          *ngIf="txnFields.train_travel_class?.canView && txnFields.train_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
+          <div>
+            {{(etxn$|async)?.tx?.train_travel_class ? txnFields.train_travel_class?.title : 'Enter ' + txnFields.train_travel_class?.title}}
+            <div>*</div>
+          </div>
+          <input type="text" *ngIf="txnFields.train_travel_class?.type === 'TEXT'" name="trainTravelClass"
+            formControlName="train_travel_class" [disabled]="!txnFields.train_travel_class?.canEdit">
+          <app-fy-select *ngIf="txnFields.train_travel_class?.type === 'SELECT'" name="trainTravelClass"
+            formControlName="train_travel_class" [options]="txnFields.train_travel_class?.values" hide-none="true"
+            [disabled]="!txnFields.train_travel_class?.canEdit"></app-fy-select>
+        </div>
+
+        <div
+          *ngIf="txnFields.bus_travel_class?.canView && txnFields.bus_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
+          <div>
+            {{(etxn$|async)?.tx?.bus_travel_class ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title}}
+            <div>
+              *
+            </div>
+          </div>
+          <input type="text" *ngIf="txnFields.bus_travel_class?.type === 'TEXT'" name="busTravelClass"
+            formControlName="bus_travel_class" [disabled]="!txnFields.bus_travel_class?.canEdit">
+          <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" name="busTravelClass"
+            formControlName="bus_travel_class" [options]="txnFields.bus_travel_class?.values" hide-none="true"
+            [disabled]="!txnFields.bus_travel_class?.canEdit"></app-fy-select>
+        </div>
+
+        <div *ngIf="fg.value?.category?.fyle_category === 'Hotel'">
+          <ion-checkbox name="isBreakFastProvided" formControlName="hotel_is_breakfast_provided">Breakfast Provided
+          </ion-checkbox>
+        </div>
+
+        <div
+          *ngIf="txnFields.distance?.canView && txnFields.distance?.mandatory && fg.value?.category?.fyle_category === 'Taxi'">
+          <div>
+            <div>
+              {{(etxn$|async)?.tx?.distance ? txnFields.distance?.title : 'Enter ' + txnFields.distance?.title}}
+              <div>*</div>
+            </div>
+            <input type="number" formControlName="distance" [disabled]="!txnFields.distance?.canEdit">
+          </div>
+
+          <div>
+
+            <app-fy-select
+              [label]="(etxn$|async)?.tx?.distance_unit ? txnFields.distance_unit.title : 'Select ' + txnFields.distance_unit.title"
+              [mandatory]="txnFields.distance_unit.mandatory" name="taxiDistanceUnit" formControlName="distance_unit"
+              [options]="txnFields.distance_unit.values" title="Choose Unit" sub-title="Units"></app-fy-select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div>
+      <div *ngFor="let customInput of this.customInputs$ | async as customInputs">
+        <form [formGroup]="customInput.control">
+          <div *ngIf="customInput.type !== 'BOOLEAN'">
+            {{customInput.name}}
+          </div>
+          <div *ngIf="customInput.mandatory">
             *
           </div>
-        </div>
-        <input type="text" name="location1" location="etxn.tx.locations[0]" ng-model="etxn.tx.locations[0].display"
-          required [disabled]="!txnFields.location1.can_edit" enterprise-fy-location-autocomplete readonly>
+
+          <input type="text" formControlName="value" *ngIf="customInput.type === 'TEXT'">
+
+          <input type="number" formControlName="value" *ngIf="customInput.type === 'NUMBER'">
+
+          <input type="checkbox" [placeholder]="customInput.name" formControlName="value"
+            *ngIf="customInput.type === 'BOOLEAN'">
+
+          <input type="text" name="{{customInput.name}}" formControlName="value"
+            *ngIf="customInput.type === 'LOCATION'">
+
+          <app-fy-select [options]="customInput.options" *ngIf="customInput.type === 'SELECT'">
+          </app-fy-select>
+
+          <!-- <enterprise-fy-multiselect name="{{customInput.name}}" [options]="customInput.options"
+                on-selection="selectMultipleCustomField(item, customInput)"
+                *ngIf="customInput.type === 'MULTI_SELECT' && customInput.options.length > 0" simple="true"
+                title="Choose {{customInput.name}}s" sub-title="{{customInput.name}}"></enterprise-fy-multiselect> -->
+
+          <input type="date" name="{{customInput.name}}" formControlName="value" *ngIf="customInput.type === 'DATE'">
+
+          <!-- <enterprise-fy-userlist name="{{customInput.name}}" [options]="customInput.options"
+                on-selection="selectMultipleCustomFieldUserList(item, customInput)"
+                *ngIf="customInput.type === 'USER_LIST' && customInput.options.length > 0"
+                title="Choose {{customInput.name}}s" sub-title="{{customInput.name}}"></enterprise-fy-userlist> -->
+        </form>
       </div>
-
-      <div
-        *ngIf="txnFields.location2.can_view && txnFields.location2.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
-        <div>
-          {{etxn.tx.locations[1].display ? txnFields.location2.title : 'Select ' + txnFields.location2.title }}
-          <div>*</div>
-        </div>
-        <input type="text" name="location2" location="etxn.tx.locations[1]" ng-model="etxn.tx.locations[1].display"
-          required [disabled]="!txnFields.location2.can_edit" enterprise-fy-location-autocomplete readonly>
-      </div>
-
-      <div
-        *ngIf="txnFields.from_dt.can_view && txnFields.from_dt.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
-        <div>
-          {{etxn.tx.from_dt ? txnFields.from_dt.title : 'Select ' + txnFields.from_dt.title}}
-          <div>*</div>
-        </div>
-        <input type="date" name="fromDt" ng-blur="toggleNavigationPanel(true)" ng-model="etxn.tx.from_dt"
-          ng-change="onFromDateChange()" required [disabled]="!txnFields.from_dt.can_edit">
-      </div>
-
-      <div
-        *ngIf="txnFields.to_dt.can_view && txnFields.to_dt.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
-        <div>
-          {{etxn.tx.to_dt ? txnFields.to_dt.title : 'Select ' + txnFields.to_dt.title}}
-          <div>*</div>
-        </div>
-        <input type="date" name="toDt" ng-blur="toggleNavigationPanel(true)" ng-model="etxn.tx.to_dt"
-          ng-change="onToDateChange()" required [disabled]="!txnFields.to_dt.can_edit">
-      </div>
-
-      <div
-        *ngIf="txnFields.flight_journey_travel_class.can_view && txnFields.flight_journey_travel_class.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
-        <div>
-          {{etxn.tx.flight_journey_travel_class ? txnFields.flight_journey_travel_class.title : 'Select ' + txnFields.flight_journey_travel_class.title}}
-          <div>*</div>
-        </div>
-        <enterprise-fy-select name="flightOnwardClass" selected-item="etxn.tx.flight_journey_travel_class"
-          list="txnFields.flight_journey_travel_class.values" hide-none="true" required
-          title="Choose {{txnFields.flight_journey_travel_class.title}} Class" sub-title="Onward Travel Classes"
-          [disabled]="!txnFields.flight_journey_travel_class.can_edit">
-        </enterprise-fy-select>
-      </div> -->
-
-    <!-- <div
-        *ngIf="txnFields.flight_return_travel_class.can_view && txnFields.flight_return_travel_class.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
-        <div>
-          {{etxn.tx.flight_return_travel_class ? txnFields.flight_return_travel_class.title : 'Select ' + txnFields.flight_return_travel_class.title}}
-          <div>*</div>
-        </div>
-        <enterprise-fy-select name="flightReturnClass" selected-item="etxn.tx.flight_return_travel_class"
-          list="txnFields.flight_return_travel_class.values" hide-none="true" required
-          title="Choose {{txnFields.flight_return_travel_class.title}}" sub-title="Return Travel Classes"
-          [disabled]="!txnFields.flight_return_travel_class.can_edit">
-        </enterprise-fy-select>
-      </div> -->
-
-    <!-- <div
-        *ngIf="txnFields.train_travel_class.can_view && txnFields.train_travel_class.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
-        <div>
-          {{etxn.tx.train_travel_class ? txnFields.train_travel_class.title : 'Enter ' + txnFields.train_travel_class.title}}
-          <div>*</div>
-        </div>
-        <input type="text" *ngIf="txnFields.train_travel_class.type === 'TEXT'" name="trainTravelClass"
-          ng-model="etxn.tx.train_travel_class" required [disabled]="!txnFields.train_travel_class.can_edit">
-        <enterprise-fy-select *ngIf="txnFields.train_travel_class.type === 'SELECT'" name="trainTravelClass"
-          list="txnFields.train_travel_class.values" hide-none="true" required
-          [disabled]="!txnFields.train_travel_class.can_edit"></enterprise-fy-select>
-      </div> -->
-
-    <!-- <div
-        *ngIf="txnFields.bus_travel_class.can_view && txnFields.bus_travel_class.mandatory && canSeeAdditionalFields && !(isProjectsEnabled && isOffline)">
-        <div>
-          {{etxn.tx.bus_travel_class ? txnFields.bus_travel_class.title : 'Enter ' + txnFields.bus_travel_class.title}}
-          <div>*</div>
-        </div>
-        <input type="text" *ngIf="txnFields.bus_travel_class.type === 'TEXT'" name="busTravelClass"
-          ng-model="etxn.tx.bus_travel_class" required [disabled]="!txnFields.bus_travel_class.can_edit">
-        <enterprise-fy-select *ngIf="txnFields.bus_travel_class.type === 'SELECT'" name="busTravelClass"
-          list="txnFields.bus_travel_class.values" hide-none="true" required
-          [disabled]="!txnFields.bus_travel_class.can_edit"></enterprise-fy-select>
-      </div> -->
-
-    <!-- <div *ngIf="transaction.fyle_category === 'Hotel'">
-        <ion-checkbox name="isBreakFastProvided" ng-model="etxn.tx.hotel_is_breakfast_provided">Breakfast Provided
-        </ion-checkbox>
-      </div> -->
-
-    <!-- <div *ngIf="txnFields.distance.can_view && txnFields.distance.mandatory && category.fyle_category === 'Taxi'">
-        <div>
-          <div>
-            {{etxn.tx.distance ? txnFields.distance.title : 'Enter ' + txnFields.distance.title}}
-            <div>*</div>
-          </div>
-          <input type="number" fy-decimal-keypad ng-focus="toggleNavigationPanel(false)"
-            ng-blur="toggleNavigationPanel(true)" ng-model="etxn.tx.distance" required
-            [disabled]="!txnFields.distance.can_edit">
-        </div>
-
-        <div>
-          <div>
-            {{etxn.tx.distance_unit ? txnFields.distance_unit.title : 'Select ' + txnFields.distance_unit.title}}
-            <div>*</div>
-          </div>
-          <enterprise-fy-select name="taxiDistanceUnit" selected-item="etxn.tx.distance_unit"
-            list="txnFields.distance_unit.values"
-            hide-none="{{txnFields.distance_unit.mandatory === true ? 'true' : 'false'}}" required title="Choose Unit"
-            sub-title="Units"></enterprise-fy-select>
-        </div>
-      </div>
-    </div> -->
+    </div>
 
     <!-- <div>
       <div>
@@ -434,35 +479,35 @@
           <div *ngIf="prop.mandatory">*</div>
         </div>
 
-        <input type="text" name="{{prop.name}}" ng-blur="toggleNavigationPanel(true)" ng-model="prop.value"
-          *ngIf="prop.type === 'TEXT'" ng-required="prop.mandatory">
+        <input type="text" name="{{prop.name}}" ng-blur="toggleNavigationPanel(true)" formControlName="prop.value"
+          *ngIf="prop.type === 'TEXT'" [required]="prop.mandatory">
 
         <input type="number" fy-decimal-keypad name="{{prop.name}}" ng-focus="toggleNavigationPanel(false)"
-          ng-blur="toggleNavigationPanel(true)" ng-model="prop.value" *ngIf="prop.type === 'NUMBER'"
-          ng-required="prop.mandatory">
+          ng-blur="toggleNavigationPanel(true)" formControlName="prop.value" *ngIf="prop.type === 'NUMBER'"
+          [required]="prop.mandatory">
 
         <ion-checkbox name="{{prop.name}}" *ngIf="prop.type === 'BOOLEAN'">{{prop.name}}</ion-checkbox>
 
         <input type="text" name="{{prop.name}}" ng-focus="toggleNavigationPanel(false)"
-          ng-blur="toggleNavigationPanel(true)" ng-model="prop.value.display" ng-required="prop.mandatory"
+          ng-blur="toggleNavigationPanel(true)" formControlName="prop.value.display" [required]="prop.mandatory"
           *ngIf="prop.type === 'LOCATION'" enterprise-fy-location-autocomplete readonly>
 
-        <enterprise-fy-select name="{{prop.name}}" list="prop.options"
-          on-selection="selectSimpleCustomField(item, prop)" *ngIf="prop.type === 'SELECT'" simple="true"
-          ng-required="prop.mandatory" title="Choose {{prop.name}}" sub-title="{{prop.name}}">
-        </enterprise-fy-select>
+        <app-fy-select name="{{prop.name}}" [options]="prop.options" on-selection="selectSimpleCustomField(item, prop)"
+          *ngIf="prop.type === 'SELECT'" simple="true" [required]="prop.mandatory" title="Choose {{prop.name}}"
+          sub-title="{{prop.name}}">
+        </app-fy-select>
 
-        <enterprise-fy-multiselect name="{{prop.name}}" list="prop.options"
+        <enterprise-fy-multiselect name="{{prop.name}}" [options]="prop.options"
           on-selection="selectMultipleCustomField(item, prop)"
-          *ngIf="prop.type === 'MULTI_SELECT' && prop.options.length > 0" simple="true" ng-required="prop.mandatory"
+          *ngIf="prop.type === 'MULTI_SELECT' && prop.options.length > 0" simple="true" [required]="prop.mandatory"
           title="Choose {{prop.name}}s" sub-title="{{prop.name}}"></enterprise-fy-multiselect>
 
-        <input type="date" name="{{prop.name}}" ng-blur="toggleNavigationPanel(true)" ng-model="prop.value"
-          *ngIf="prop.type === 'DATE'" ng-required="prop.mandatory">
+        <input type="date" name="{{prop.name}}" ng-blur="toggleNavigationPanel(true)" formControlName="prop.value"
+          *ngIf="prop.type === 'DATE'" [required]="prop.mandatory">
 
-        <enterprise-fy-userlist name="{{prop.name}}" list="prop.options"
+        <enterprise-fy-userlist name="{{prop.name}}" [options]="prop.options"
           on-selection="selectMultipleCustomFieldUserList(item, prop)"
-          *ngIf="prop.type === 'USER_LIST' && prop.options.length > 0" ng-required="prop.mandatory"
+          *ngIf="prop.type === 'USER_LIST' && prop.options.length > 0" [required]="prop.mandatory"
           title="Choose {{prop.name}}s" sub-title="{{prop.name}}"></enterprise-fy-userlist>
       </div>
     </div> -->
@@ -473,15 +518,15 @@
         </ion-checkbox>
       </div>
 
-      <div *ngIf="costCenters.length > 0 && txnFields.cost_center_id.can_view">
+      <div *ngIf="costCenters.length > 0 && txnFields.cost_center_id.canView">
         <div>
           {{ etxn.tx.cost_center_id ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title }}
           <div *ngIf="txnFields.cost_center_id.mandatory">*</div>
         </div>
-        <enterprise-fy-select name="costCenter" on-selection="selectCostCenter(item)"
-          ng-required="txnFields.cost_center_id.mandatory" title="Select {{ txnFields.cost_center_id.title }}"
+        <app-fy-select name="costCenter" on-selection="selectCostCenter(item)"
+          [required]="txnFields.cost_center_id.mandatory" title="Select {{ txnFields.cost_center_id.title }}"
           cache-name="recentCostCenterList">
-        </enterprise-fy-select>
+        </app-fy-select>
       </div>
     </div> -->
     <!-- <enterprise-alert *ngIf="isNotReimbursable" type="information"
@@ -537,7 +582,7 @@
     </enterprise-alert> -->
 
     <!-- <div>
-      <div>Please fill all required fields to proceed.</div>
+      <div>Please fill all fields to proceed.</div>
     </div>
     <div>
       <div>Corporate card transaction cannot be unmatched since the report is already
@@ -573,10 +618,10 @@
 <ion-footer>
   <ion-toolbar>
     <ion-buttons>
-      <ion-button>
+      <ion-button class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
         Save
       </ion-button>
-      <ion-button>
+      <ion-button class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
         Save & New
       </ion-button>
     </ion-buttons>

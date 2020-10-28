@@ -74,9 +74,7 @@ export class MyExpensesPage implements OnInit {
     this.isInstaFyleEnabled$ = this.orgUserSettingsService.get().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
     );
-    // TODO
-    this.isInstaFyleEnabled$.subscribe(console.log);
-
+    
     this.isMileageEnabled$ = this.orgSettingsService.get().pipe(
       map(orgSettings => orgSettings.mileage.enabled)
     );

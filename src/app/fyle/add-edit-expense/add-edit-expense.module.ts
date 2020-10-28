@@ -13,9 +13,13 @@ import { FyCurrencyExchangeRateComponent } from './fy-currency/fy-currency-excha
 import { FyCurrencyComponent } from './fy-currency/fy-currency.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { FySelectComponent } from './fy-select/fy-select.component';
-import { FySelectModalComponent } from './fy-select/fy-select-modal/fy-select-modal.component';
-import { MatRippleModule } from '@angular/material/core';
+import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { FySelectProjectComponent } from './fy-select-project/fy-select-project.component';
+import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
+import { FySelectVendorComponent } from './fy-select-vendor/fy-select-vendor.component';
+import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 
 
 @NgModule({
@@ -29,15 +33,20 @@ import { MatRippleModule } from '@angular/material/core';
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatRippleModule
+    MatRippleModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    SharedModule
   ],
   declarations: [
     AddEditExpensePage,
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
-    FySelectComponent,
-    FySelectModalComponent
+    FySelectProjectComponent,
+    FySelectModalComponent,
+    FySelectVendorComponent,
+    FySelectVendorModalComponent
   ]
 })
 export class AddEditExpensePageModule { }

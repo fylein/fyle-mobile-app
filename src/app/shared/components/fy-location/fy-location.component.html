@@ -1,0 +1,14 @@
+<label class="fy-location--label">
+  <div class="fy-location--label-content">
+    <span>
+      {{label}}
+    </span>
+    <span *ngIf="mandatory">
+      *
+    </span>
+  </div>
+  <input class="fy-location" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+  <mat-icon>
+    chevron_right
+  </mat-icon>
+</label>

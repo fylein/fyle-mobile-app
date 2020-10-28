@@ -3,12 +3,14 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { switchMap, tap, map, concatMap, reduce, shareReplay } from 'rxjs/operators';
-import { from, range, forkJoin } from 'rxjs';
+import { from, range, forkJoin, of } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
 import { ExtendedReport } from '../models/report.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { isEqual } from 'lodash';
+import { DataTransformService } from './data-transform.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +25,7 @@ export class ReportService {
     private apiv2Service: ApiV2Service,
     private dateService: DateService,
     private offlineService: OfflineService,
+    private dataTransformService: DataTransformService
   ) { }
 
   getUserReportParams(state: string) {
@@ -251,4 +254,137 @@ export class ReportService {
     );
   }
 
+  addOrderByParams(params, sortOrder?) {
+    if (sortOrder) {
+      return Object.assign(params, { order_by: sortOrder });
+    } else {
+      return params;
+    }
+  }
+
+  searchParamsGenerator(search, sortOrder?) {
+    let params = {};
+
+    params = this.userReportsSearchParamsGenerator(params, search);
+    params = this.addOrderByParams(params, sortOrder);
+
+    return params;
+  };
+
+  userReportsSearchParamsGenerator(params, search) {
+
+    const searchParams = this.getUserReportParams(search.state);
+
+    let dateParams = null;
+    // Filter expenses by date range
+    // dateRange.from and dateRange.to needs to a valid date string (if present)
+    // Example: dateRange.from = 'Jan 1, 2015', dateRange.to = 'Dec 31, 2017'
+
+    if (search.dateRange && !isEqual(search.dateRange, {})) {
+      // TODO: Fix before 2020
+      let fromDate = new Date('Jan 1, 1970');
+      let toDate = new Date('Dec 31, 2020');
+
+      // Set fromDate to Jan 1, 1970 if none specified
+      if (search.dateRange.from) {
+        fromDate = new Date(search.dateRange.from);
+      }
+
+      // Set toDate to Dec 31, 2020 if none specified
+      if (search.dateRange.to) {
+        // Setting time to the end of the day
+        toDate = new Date(new Date(search.dateRange.to).setHours(23, 59, 59, 999))
+      }
+
+      dateParams = {
+        created_at: ['gte:' + (new Date(fromDate)).toISOString(), 'lte:' + (new Date(toDate)).toISOString()]
+      };
+    }
+
+    return Object.assign({}, params, searchParams, dateParams);
+  }
+
+  getPaginatedERptc(offset, limit, params) {
+    const data = {
+      params: {
+        offset,
+        limit
+      }
+    };
+
+    Object.keys(params).forEach((param) => {
+      data.params[param] = params[param];
+    });
+
+    return this.apiService.get('/erpts', data).pipe(
+      map((erptcs) => {
+        return erptcs.map(erptc => this.dataTransformService.unflatten(erptc));
+      })
+    );
+  }
+
+  getApproversInBulk(rptIds) {
+    if (!rptIds || rptIds.length === 0) {
+      return of([]);
+    }
+
+    return range(0, rptIds.length / 50).pipe(
+      map(page => {
+        return {
+          params: {
+            report_ids: rptIds.slice(50 * page, 50)
+          }
+        };
+      }),
+      concatMap(params => {
+        return this.apiService.get('/reports/approvers', params);
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [])
+    );
+  }
+
+  addApprovers(erpts, approvers) {
+    const reportApprovalsMap = {};
+
+    approvers.forEach((approver) => {
+      if (reportApprovalsMap[approver.report_id]) {
+        reportApprovalsMap[approver.report_id].push(approver);
+      } else {
+        reportApprovalsMap[approver.report_id] = [approver];
+      }
+    });
+
+    return erpts.map((erpt) => {
+      erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
+      return erpt;
+    });
+  }
+
+  getFilteredPendingReports(searchParams) {
+    const params = this.searchParamsGenerator(searchParams);
+
+    return this.getPaginatedERptcCount(params).pipe(
+      switchMap((results) => {
+        // getting all results -> offset = 0, limit = count
+        return this.getPaginatedERptc(0, results.count, params);
+      }),
+      switchMap((erpts) => {
+        const rptIds = erpts.map((erpt) => {
+          return erpt.rp.id;
+        });
+
+        return this.getApproversInBulk(rptIds).pipe(
+          map(approvals => {
+            return this.addApprovers(erpts, approvals).filter(erpt => {
+              return !erpt.rp.approvals || (erpt.rp.approvals && !erpt.rp.approvals.some((approval) => {
+                return approval.state === 'APPROVAL_DONE';
+              }));
+            });
+          })
+        );
+      }),
+    );
+  }
 }

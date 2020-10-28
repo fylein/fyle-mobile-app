@@ -1,0 +1,14 @@
+<label class="fy-select-project--label">
+  <div class="fy-select-project--label-content">
+    <span>
+      Project
+    </span>
+    <span *ngIf="mandatory">
+      *
+    </span>
+  </div>
+  <input class="fy-select-project" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+  <mat-icon>
+    chevron_right
+  </mat-icon>
+</label>
