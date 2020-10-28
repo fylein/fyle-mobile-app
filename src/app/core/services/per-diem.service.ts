@@ -6,7 +6,6 @@ import { ApiService } from './api.service';
 })
 export class PerDiemService {
 
-
   constructor(
     private apiService: ApiService
   ) { }
