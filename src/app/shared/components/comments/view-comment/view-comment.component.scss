@@ -1,0 +1,43 @@
+.view-comment{
+  &--toolbar {
+    text-align: center;
+  }
+
+  &--card {
+    margin: 10px;
+    margin-right: 25px;
+    border-radius: 5px;
+    background-color: #E7F2F5;
+    color: #666;
+  }
+
+  // &--card-body {
+  //   background-color: #E7F2F5;
+  //   border: 0;
+  // }
+
+  &--bot-comment {
+    background-color: #ffedf1;
+  }
+
+  &--self-comment {
+    background-color: #93A8AC;
+    margin-left: 25px;
+    margin-right: 10px;
+    color: #fff;
+  }
+
+  &--profile {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 1px solid #aaa;
+    padding: 8px;
+    font-size: 20px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+
+}
