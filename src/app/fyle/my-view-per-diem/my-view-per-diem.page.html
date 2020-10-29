@@ -84,7 +84,7 @@
       <div *ngIf="(perDiemCustomFields$|async)?.length > 0">
         <div class="view-per-diem--element" *ngFor="let perDiemCustomField of perDiemCustomFields$ | async; index as i">
           <div class="view-per-diem--element-label">{{perDiemCustomField.name}}</div>
-          <div class="view-per-diem--element-value">{{getDisplayValue(perDiemCustomField)}}</div>
+          <div class="view-per-diem--element-value">{{perDiemCustomField.displayValue}}</div>
         </div>
       </div>
     </div>

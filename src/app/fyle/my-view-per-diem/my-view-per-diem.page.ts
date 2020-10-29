@@ -40,10 +40,6 @@ export class MyViewPerDiemPage implements OnInit {
     return typeof val === 'number';
   }
 
-  getDisplayValue(customProperties) {
-    return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-  }
-
   goBack() {
     // Todo: All logic of redirect to previous page
   }
@@ -66,6 +62,12 @@ export class MyViewPerDiemPage implements OnInit {
     this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(
       switchMap(res => {
         return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
+      }),
+      map(res => {
+        res.map(customProperties => {
+          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+        })
+        return res;
       })
     );
 
