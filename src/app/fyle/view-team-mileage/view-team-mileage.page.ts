@@ -41,10 +41,6 @@ export class ViewTeamMileagePage implements OnInit {
     return typeof val === 'number';
   }
 
-  goBack() {
-    // Todo: All logic of redirect to previous page
-  }
-
   scrollToComments() {
     document.getElementById('commentsSection').scrollIntoView();
   }
