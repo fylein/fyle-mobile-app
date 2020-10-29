@@ -126,11 +126,6 @@ export class ViewTeamReportPage implements OnInit {
     this.etxns$.subscribe(noop);
   }
 
-  goToEditReport() {
-    // TODO
-    // this.router.navigate(['/', 'enterprise', 'edit_report', { id: this.activatedRoute.snapshot.params.id }]);
-  }
-
   async deleteReport() {
     const message = `
     <p class="highlight-info">
@@ -173,7 +168,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   goToTransaction(etxn: any) {
-    this.router.navigate(['/', 'enterprise', 'my_view_expense', { id: etxn.tx_id }]);
+    this.router.navigate(['/', 'enterprise', 'view_team_expense', { id: etxn.tx_id }]);
   }
 
   async shareReport(event) {
