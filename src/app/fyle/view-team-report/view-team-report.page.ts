@@ -168,7 +168,30 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   goToTransaction(etxn: any) {
-    this.router.navigate(['/', 'enterprise', 'view_team_expense', { id: etxn.tx_id }]);
+    let category;
+
+    if (etxn.tx_org_category) {
+      category = etxn.tx_org_category.toLowerCase();
+    }
+
+    if (category === 'activity') {
+      // showCannotEditActivityDialog();
+      alert('can not edit Activity -> TODO show can not edit activity Dialog');
+      return;
+    }
+
+    let route;
+
+    if (category === 'mileage') {
+      route = '/enterprise/view_team_mileage';
+    } else if (category === 'per diem') {
+      route = '/enterprise/view_team_per_diem';
+    } else {
+      route = '/enterprise/view_team_expense';
+    }
+
+    // TODO: also need to send scroll position
+    this.router.navigate([route, { id: etxn.tx_id }]);
   }
 
   async shareReport(event) {
