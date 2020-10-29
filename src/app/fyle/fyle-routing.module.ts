@@ -85,6 +85,10 @@ const routes: Routes = [
   {
     path: 'my_view_mileage',
     loadChildren: () => import('./my-view-mileage/my-view-mileage.module').then( m => m.MyViewMileagePageModule)
+  },
+  {
+    path: 'my_view_per_diem',
+    loadChildren: () => import('./my-view-per-diem/my-view-per-diem.module').then( m => m.MyViewPerDiemPageModule)
   }
 ];
 
