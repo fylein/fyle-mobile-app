@@ -168,8 +168,6 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   goToTransaction(etxn: any) {
-    this.router.navigate(['/', 'enterprise', 'view_team_expense', { id: etxn.tx_id }]);
-
     let category;
 
     if (etxn.tx_org_category) {
