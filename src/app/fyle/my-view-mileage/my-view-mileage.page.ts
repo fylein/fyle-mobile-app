@@ -24,7 +24,6 @@ export class MyViewMileagePage implements OnInit {
   isCriticalPolicyViolated$: Observable<boolean>;
   isAmountCapped$: Observable<boolean>;
   policyViloations$: Observable<any>;
-  @ViewChild(IonContent) myContent: IonContent;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -41,8 +40,6 @@ export class MyViewMileagePage implements OnInit {
 
   goBack() {
     // Todo: All logic of redirect to previous page
-    //debugger;
-    this.myContent.scrollToBottom();
   }
 
   ionViewWillEnter() {

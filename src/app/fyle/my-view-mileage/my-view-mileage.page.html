@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content #myContent>
+<ion-content>
   <div class="view-mileage--container" *ngIf="extendedMileage$|async as extendedMileage">
     <div class="view-mileage--policy-info-container" *ngIf="extendedMileage.tx_policy_flag && policyViloations$|async as policyViloations">
       <!-- TODO: on click scroll to comment section -->
