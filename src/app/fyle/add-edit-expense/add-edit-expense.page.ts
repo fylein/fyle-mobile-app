@@ -302,7 +302,16 @@ export class AddEditExpensePage implements OnInit {
           })
         );
       }),
-      tap(console.log),
+      map(customFields => {
+        console.log(customFields);
+        return customFields.map(customField => {
+          if (customField.options) {
+            customField.options = customField.options.map(option => ({ label: option, value: option }));
+          }
+
+          return customField;
+        });
+      }),
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
         customFieldsFormArray.clear();

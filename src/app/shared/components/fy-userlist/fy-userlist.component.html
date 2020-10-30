@@ -1,3 +1,14 @@
-<p>
-  fy-userlist works!
-</p>
+<label class="fy-select--label" *ngIf="eouc$|async">
+  <div class="fy-select--label-content">
+    <span>
+      {{label}}
+    </span>
+    <span *ngIf="mandatory">
+      *
+    </span>
+  </div>
+  <input class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+  <mat-icon>
+    chevron_right
+  </mat-icon>
+</label>

@@ -135,7 +135,7 @@
         <!-- <div *ngIf="accounts.length > 1">
           <div>
             {{etxn.tx.source_account_id ? 'Payment Mode' : 'Select Payment Mode'}}
-            <div>*</div>
+            <span>*</span>
           </div>
           Add payment mode support
           <enterprise-expense-payment-mode name="paymentMode" 
@@ -143,7 +143,7 @@
             readonly="readonly" [disabled]="isCreatedFromCCC || !canEditCCCMatchedSplitExpense">
           </enterprise-expense-payment-mode>
         </div> -->
-        <div *ngIf="paymentModes$|async as paymentModes">
+        <div class="add-edit-expense--payment-modes" *ngIf="paymentModes$|async as paymentModes">
           <app-fy-select [label]="'Select Payment Mode'" formControlName="paymentMode" [options]="paymentModes">
           </app-fy-select>
         </div>
@@ -308,88 +308,80 @@
           title="Enter {{taxSettings.name}}" sub-title="{{taxSettings.name}}"></app-fy-select>
       </div>
     </div> -->
-    <app-fy-location></app-fy-location>
+    <div *ngIf="filteredCategories$|async as categories">
+      <app-fy-userlist [label]="'Userlist'" [options]="categories"></app-fy-userlist>
+    </div>
+
     <div *ngIf="txnFields$|async as txnFields">
       <div *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
         <div
           *ngIf="txnFields.location1?.canView && txnFields.location1?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
-          <div>
-            {{(etxn$|async)?.tx?.locations[0]?.display ? txnFields.location1?.title : 'Select ' + txnFields.location1?.title }}
-            <div>
-              *
-            </div>
-          </div>
-          <input type="text" name="location1" formControlName="location_1" [disabled]="!txnFields.location1?.canEdit">
+          <app-fy-location [mandatory]="txnFields.location1?.mandatory"
+            [label]="(etxn$|async)?.tx?.locations[0]?.display ? txnFields.location1?.title : 'Select ' + txnFields.location1?.title"
+            formControlName="location_1"></app-fy-location>
         </div>
 
         <div
           *ngIf="txnFields.location2?.canView && txnFields.location2?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
-          <div>
-            {{(etxn$|async)?.tx?.locations[1]?.display ? txnFields.location2?.title : 'Select ' + txnFields.location2?.title }}
-            <div>
-              *
-            </div>
-          </div>
-          <input type="text" name="location2" formControlName="location_2" [disabled]="!txnFields.location2?.canEdit">
+          <app-fy-location [mandatory]="txnFields.location2?.mandatory"
+            [label]="(etxn$|async)?.tx?.locations[0]?.display ? txnFields.location2?.title : 'Select ' + txnFields.location2?.title"
+            formControlName="location_2"></app-fy-location>
         </div>
 
-        <div
+        <div class="add-edit-expense--date"
           *ngIf="txnFields.from_dt?.canView && txnFields.from_dt?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
-          <div>
+          <div class="add-edit-expense--date-label">
             {{(etxn$|async)?.tx?.from_dt ? txnFields.from_dt?.title : 'Select ' + txnFields.from_dt?.title}}
-            <div>*</div>
+            <span>*</span>
           </div>
-          <input type="date" name="fromDt" formControlName="from_dt" [disabled]="!txnFields.from_dt?.canEdit">
+          <input class="add-edit-expense--date-input" type="date" name="fromDt" formControlName="from_dt"
+            [disabled]="!txnFields.from_dt?.canEdit">
         </div>
 
-        <div
+        <div class="add-edit-expense--date"
           *ngIf="txnFields.to_dt?.canView && txnFields.to_dt?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
-          <div>
+          <div class="add-edit-expense--date-label">
             {{(etxn$|async)?.tx?.to_dt ? txnFields.to_dt?.title : 'Select ' + txnFields.to_dt?.title}}
-            <div>*</div>
+            <span>*</span>
           </div>
-          <input type="date" name="toDt" formControlName="to_dt" ng-change="onToDateChange()"
-            [disabled]="!txnFields.to_dt?.canEdit">
+          <input class="add-edit-expense--date-input" type="date" name="toDt" formControlName="to_dt"
+            ng-change="onToDateChange()" [disabled]="!txnFields.to_dt?.canEdit">
         </div>
 
-        <div
+        <div class="add-edit-expense--date"
           *ngIf="txnFields.flight_journey_travel_class?.canView && txnFields.flight_journey_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
-          <div>
-            {{(etxn$|async)?.tx?.flight_journey_travel_class ? txnFields.flight_journey_travel_class?.title : 'Select ' + txnFields.flight_journey_travel_class?.title}}
-            <div>*</div>
-          </div>
           <app-fy-select formControlName="flight_journey_travel_class"
+            [label]="(etxn$|async)?.tx?.flight_journey_travel_class ? txnFields.flight_journey_travel_class?.title : 'Select ' + txnFields.flight_journey_travel_class?.title"
             *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-            [options]="flightJourneyTravelClassOptions" hide-none="true"
-            title="Choose {{txnFields.flight_journey_travel_class?.title}} Class" sub-title="Onward Travel Classes"
-            [disabled]="!txnFields.flight_journey_travel_class?.canEdit">
+            [options]="flightJourneyTravelClassOptions" [disabled]="!txnFields.flight_journey_travel_class?.canEdit">
           </app-fy-select>
         </div>
 
         <div
           *ngIf="txnFields.flight_return_travel_class?.canView && txnFields.flight_return_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
-          <div>
-            {{(etxn$|async)?.tx?.flight_return_travel_class ? txnFields.flight_return_travel_class?.title : 'Select ' + txnFields.flight_return_travel_class?.title}}
-            <div>*</div>
-          </div>
-          <app-fy-select name="flightReturnClass" formControlName="flight_return_travel_class"
-            [options]="txnFields.flight_return_travel_class?.values"
-            title="Choose {{txnFields.flight_return_travel_class?.title}}" sub-title="Return Travel Classes"
+          <app-fy-select name="flightReturnClass"
+            *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
+            [label]="(etxn$|async)?.tx?.flight_return_travel_class ? txnFields.flight_return_travel_class?.title : 'Select ' + txnFields.flight_return_travel_class?.title"
+            formControlName="flight_return_travel_class" [options]="flightJourneyTravelClassOptions"
             [disabled]="!txnFields.flight_return_travel_class?.canEdit">
           </app-fy-select>
         </div>
 
         <div
           *ngIf="txnFields.train_travel_class?.canView && txnFields.train_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
-          <div>
-            {{(etxn$|async)?.tx?.train_travel_class ? txnFields.train_travel_class?.title : 'Enter ' + txnFields.train_travel_class?.title}}
-            <div>*</div>
-          </div>
-          <input type="text" *ngIf="txnFields.train_travel_class?.type === 'TEXT'" name="trainTravelClass"
-            formControlName="train_travel_class" [disabled]="!txnFields.train_travel_class?.canEdit">
-          <app-fy-select *ngIf="txnFields.train_travel_class?.type === 'SELECT'" name="trainTravelClass"
-            formControlName="train_travel_class" [options]="txnFields.train_travel_class?.values" hide-none="true"
-            [disabled]="!txnFields.train_travel_class?.canEdit"></app-fy-select>
+          <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'">
+            <div>
+              {{(etxn$|async)?.tx?.train_travel_class ? txnFields.train_travel_class?.title : 'Enter ' + txnFields.train_travel_class?.title}}
+              <span>*</span>
+            </div>
+            <input type="text" formControlName="train_travel_class" [disabled]="!txnFields.train_travel_class?.canEdit">
+          </span>
+
+          <app-fy-select
+            [label]="(etxn$|async)?.tx?.train_travel_class ? txnFields.train_travel_class?.title : 'Enter ' + txnFields.train_travel_class?.title"
+            *ngIf="txnFields.train_travel_class?.type === 'SELECT'" formControlName="train_travel_class"
+            [options]="txnFields.train_travel_class?.values" [disabled]="!txnFields.train_travel_class?.canEdit">
+          </app-fy-select>
         </div>
 
         <div
@@ -417,7 +409,7 @@
           <div>
             <div>
               {{(etxn$|async)?.tx?.distance ? txnFields.distance?.title : 'Enter ' + txnFields.distance?.title}}
-              <div>*</div>
+              <span>*</span>
             </div>
             <input type="number" formControlName="distance" [disabled]="!txnFields.distance?.canEdit">
           </div>
@@ -437,12 +429,14 @@
     <div>
       <div *ngFor="let customInput of this.customInputs$ | async as customInputs">
         <form [formGroup]="customInput.control">
-          <div *ngIf="customInput.type !== 'BOOLEAN'">
-            {{customInput.name}}
+          <div
+            *ngIf="customInput.type !== 'BOOLEAN'&&customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
+            {{customInput.name}} {{customInput.type}}
+            <span *ngIf="customInput.mandatory">
+              *
+            </span>
           </div>
-          <div *ngIf="customInput.mandatory">
-            *
-          </div>
+
 
           <input type="text" formControlName="value" *ngIf="customInput.type === 'TEXT'">
 
@@ -451,23 +445,21 @@
           <input type="checkbox" [placeholder]="customInput.name" formControlName="value"
             *ngIf="customInput.type === 'BOOLEAN'">
 
-          <input type="text" name="{{customInput.name}}" formControlName="value"
-            *ngIf="customInput.type === 'LOCATION'">
+          <app-fy-location [label]="customInput.name" formControlName="value" *ngIf="customInput.type === 'LOCATION'">
+          </app-fy-location>
 
-          <app-fy-select [options]="customInput.options" *ngIf="customInput.type === 'SELECT'">
+          <app-fy-select [label]="customInput.name" [options]="customInput.options"
+            *ngIf="customInput.type === 'SELECT'" formControlName="value">
           </app-fy-select>
 
-          <!-- <enterprise-fy-multiselect name="{{customInput.name}}" [options]="customInput.options"
-                on-selection="selectMultipleCustomField(item, customInput)"
-                *ngIf="customInput.type === 'MULTI_SELECT' && customInput.options.length > 0" simple="true"
-                title="Choose {{customInput.name}}s" sub-title="{{customInput.name}}"></enterprise-fy-multiselect> -->
+          <app-fy-multiselect [label]="customInput.name" [options]="customInput.options"
+            *ngIf="customInput.type === 'MULTI_SELECT'" formControlName="value">
+          </app-fy-multiselect>
 
           <input type="date" name="{{customInput.name}}" formControlName="value" *ngIf="customInput.type === 'DATE'">
 
-          <!-- <enterprise-fy-userlist name="{{customInput.name}}" [options]="customInput.options"
-                on-selection="selectMultipleCustomFieldUserList(item, customInput)"
-                *ngIf="customInput.type === 'USER_LIST' && customInput.options.length > 0"
-                title="Choose {{customInput.name}}s" sub-title="{{customInput.name}}"></enterprise-fy-userlist> -->
+          <app-fy-userlist [label]="customInput.name" *ngIf="customInput.type === 'USER_LIST'" formControlName="value">
+          </app-fy-userlist>
         </form>
       </div>
     </div>

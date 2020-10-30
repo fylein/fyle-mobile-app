@@ -1,3 +1,32 @@
-<p>
-  fy-location-modal works!
-</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <h1 class="selection-modal--title">
+        Select Location
+      </h1>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onDoneClick()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar class="selection-modal--form-field-container">
+    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
+      <input #searchBar id="selection-modal--search-input" matInput placeholder="Search">
+    </mat-form-field>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="selection-modal--header">
+    {{header | lowercase}}
+  </div>
+  <div matRipple class="selection-modal--list-element" (click)="getCurrentLocation()">
+    Select Current Location
+  </div>
+  <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredList$ | async as list"
+    (click)="onElementSelect(filteredListItem)">
+    {{filteredListItem.description}}
+  </div>
+</ion-content>

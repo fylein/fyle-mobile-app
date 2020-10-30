@@ -17,6 +17,7 @@ import { FyUserlistComponent } from './components/fy-userlist/fy-userlist.compon
 import { FyLocationModalComponent } from './components/fy-location/fy-location-modal/fy-location-modal.component';
 import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-multiselect-modal/fy-multiselect-modal.component';
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 
@@ -41,7 +42,8 @@ import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-m
     FormsModule,
     MatInputModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
+    MatCheckboxModule
   ],
   exports: [
     EllipsisPipe,

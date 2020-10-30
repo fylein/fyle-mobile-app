@@ -3,6 +3,7 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
+import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 
 @Component({
   selector: 'app-fy-location',
@@ -43,7 +44,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
       this.innerValue = v;
       const selectedOption = this.innerValue;
       if (selectedOption) {
-        this.displayValue = selectedOption.projectv2_name;
+        this.displayValue = selectedOption.display;
       }
 
       this.onChangeCallback(v);
@@ -52,7 +53,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   async openModal() {
     const currencyModal = await this.modalController.create({
-      component: FySelectModalComponent,
+      component: FyLocationModalComponent,
       componentProps: {
         currentSelection: this.value
       }
@@ -62,8 +63,10 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
     const { data } = await currencyModal.onWillDismiss();
 
+    console.log(data);
+
     if (data) {
-      this.value = data.value;
+      this.value = data.selection;
     }
   }
 
@@ -76,7 +79,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
       this.innerValue = value;
       const selectedOption = this.innerValue;
       if (selectedOption) {
-        this.displayValue = selectedOption.projectv2_name;
+        this.displayValue = selectedOption.display;
       }
     }
   }
