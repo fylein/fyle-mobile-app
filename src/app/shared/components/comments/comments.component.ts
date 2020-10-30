@@ -10,7 +10,14 @@ import { ViewCommentComponent } from './view-comment/view-comment.component';
 export class CommentsComponent implements OnInit {
 
   @Input() objectType: string;
-  @Input() objectId: any;
+  @Input() objectId: string;
+  @Input() mode: string;
+  @Input() hideIcon?: Boolean;
+  @Input() text: string;
+  @Input() showCommentsCount?: Boolean; 
+  @Input() dontLoadComments?: Boolean;
+
+  noOfComments: number;
 
   constructor(
     private modalController: ModalController
@@ -22,12 +29,14 @@ export class CommentsComponent implements OnInit {
         componentProps: {
           'objectType': this.objectType,
           'objectId': this.objectId,
+          'mode': this.mode
         }
       });
       return await modal.present();
   }
 
   ngOnInit() {
+    // Todo: showCommentsCount and dontLoadComments, need to figure out one tech debt for not loading comments in modal when this the showCommentsCount is true;
   }
 
 }

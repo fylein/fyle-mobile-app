@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { IonContent } from '@ionic/angular';
 import { from, Observable } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -23,6 +24,7 @@ export class MyViewMileagePage implements OnInit {
   isCriticalPolicyViolated$: Observable<boolean>;
   isAmountCapped$: Observable<boolean>;
   policyViloations$: Observable<any>;
+  @ViewChild(IonContent) myContent: IonContent;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -39,6 +41,8 @@ export class MyViewMileagePage implements OnInit {
 
   goBack() {
     // Todo: All logic of redirect to previous page
+    //debugger;
+    this.myContent.scrollToBottom();
   }
 
   ionViewWillEnter() {

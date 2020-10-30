@@ -30,4 +30,12 @@ export class StatusService {
       })
     );
   }
+
+
+  post(objectType, objectId, status, notify?) {
+    return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
+      status,
+      notify: notify || false // By default don't notify via mail for the new status to the interested parties.
+    });
+  };
 }

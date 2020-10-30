@@ -1,6 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { from, Observable } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { IonContent } from '@ionic/angular';
+import { forkJoin, from, Observable, Subject } from 'rxjs';
+import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
 
@@ -14,19 +15,51 @@ export class ViewCommentComponent implements OnInit {
 
   @Input() objectType: string;
   @Input() objectId: any;
+  @Input() mode: string;
+
+  @ViewChild('title') title: ElementRef;
 
   estatuses$: Observable<any>;
   totalCommentsCount$: Observable<number>;
-
+  showBotComments: Boolean;
+  newComment: string;
+  refreshEstatuses$: Subject<void> = new Subject();
+  
   constructor(
     private statusService: StatusService,
     private authService: AuthService
   ) { }
 
+  changeBotComments() {
+    this.showBotComments = !this.showBotComments
+  }
+
+  addComment() {
+
+    if(this.newComment) {
+      const data = {
+        comment: this.newComment
+      }
+
+      this.newComment = null;
+
+      this.statusService.post(this.objectType, this.objectId, data).pipe(
+      ).subscribe(res=> {
+        this.refreshEstatuses$.next();
+      });
+
+    }
+  }
+
   ngOnInit() {
-    // MatIconModule
+    this.showBotComments = false;
     const eou$ = from(this.authService.getEou());
-    this.estatuses$ = eou$.pipe(
+
+    this.estatuses$ = this.refreshEstatuses$.pipe(
+      startWith(0),
+      switchMap(() => {
+        return eou$;
+      }),
       switchMap(eou => {
         return this.statusService.find(this.objectType, this.objectId).pipe(
           map(res => {
@@ -39,15 +72,14 @@ export class ViewCommentComponent implements OnInit {
             return res.sort(function(a,b){
               return a.st.created_at - b.st.created_at;
             });
+          }),finalize(() => {
+            setTimeout(() => {
+              this.title.nativeElement.scrollToBottom();
+            }, 500);
           })
         )
-      }), shareReplay()
+      })
     )
-
-
-    // this.estatuses$.subscribe(res => {
-    //   debugger;
-    // })
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
       map(res => {
@@ -56,7 +88,6 @@ export class ViewCommentComponent implements OnInit {
         }).length;
       })
     )
-
 
   }
 
