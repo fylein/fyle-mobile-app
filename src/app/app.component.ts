@@ -18,7 +18,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
 import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
-import { GlobalCacheConfig } from 'ngx-cacheable';
+import { GlobalCacheConfig } from 'ts-cacheable';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 
