@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { DatePipe } from '@angular/common';
+import { ExtendedStatus } from '../models/extended_status.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,9 +26,17 @@ export class StatusService {
           this.dateService.fixDates(res.st);
           res.st.created_at = this.dateService.getLocalDate(res.st.created_at);
           res.st.createdAtNew = this.datePipe.transform(res.st.created_at, 'MMM d, y');
-          return res;
+          return res as ExtendedStatus[];
         });
       })
     );
   }
+
+
+  post(objectType, objectId, status, notify = false) {
+    return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
+      status,
+      notify: notify
+    });
+  };
 }

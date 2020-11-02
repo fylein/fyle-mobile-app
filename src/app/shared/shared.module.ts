@@ -15,7 +15,8 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 import { IconModule } from './icon/icon.module';
 import { CurrencyComponent } from './components/currency/currency.component';
-
+import { CommentsComponent } from './components/comments/comments.component';
+import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
 
 
 @NgModule({
@@ -27,11 +28,13 @@ import { CurrencyComponent } from './components/currency/currency.component';
     AdvanceState,
     InitialsPipe,
     DelegatedAccMessageComponent,
-    CurrencyComponent
+    CurrencyComponent,
+    CommentsComponent,
+    ViewCommentComponent
   ],
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
   ],
   exports: [
     EllipsisPipe,
@@ -42,7 +45,8 @@ import { CurrencyComponent } from './components/currency/currency.component';
     InitialsPipe,
     DelegatedAccMessageComponent,
     IconModule,
-    CurrencyComponent
+    CurrencyComponent,
+    CommentsComponent
   ],
   providers: [
     DecimalPipe,

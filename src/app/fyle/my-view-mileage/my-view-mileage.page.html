@@ -103,12 +103,8 @@
 
     </div>
 
-    <!-- Todo: comment component -->
     <div class="view-mileage--info-card">
-      <div class="view-mileage--common-action-block">
-        <mat-icon>chat</mat-icon>
-        <p>Comment</p>
-      </div>
+      <app-comments objectType="transactions" [objectId]="extendedMileage.tx_id" mode="view" text="Comments"></app-comments>
     </div>
 
   </div>
