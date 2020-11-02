@@ -16,7 +16,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   providers: [MatIconRegistry]
 })
 export class IconModule {
-  path = '../../assets/svg/';
+  path = '../../assets/svg';
 
   svgImageArray = [ 'add-advance.svg', 'fy-card.svg', 'fy-team-reports-new.svg', 'add-expense.svg', 'fy-cards-new.svg', 'fy-team-trips-new.svg', 'add-mileage.svg', 'fy-dashboard-new.svg', 'fy-trips-new.svg', 'add-per-diem.svg', 'fy-delegate-switch.svg', 'fy-trips.svg', 'add-report.svg', 'fy-expenses-new.svg', 'fy-wallet.svg', 'add-trip.svg', 'fy-help-new.svg', 'insta-fyle.svg', 'auto_fyle.svg', 'fy-profile-new.svg', 'instafyle.svg', 'chevron-right.svg', 'fy-receipts-new.svg', 'logo-icon-white.svg', 'create-expense.svg', 'fy-receipts.svg', 'logo-white.svg', 'create-mileage.svg', 'fy-reports-new.svg', 'mileage.svg', 'create-per-diem.svg', 'fy-reports.svg', 'per_diem.svg', 'curve.svg', 'fy-switch-new.svg', 'warning-inverted.svg', 'expense.svg', 'fy-switch.svg' , 'warning.svg', 'fy-advances-new.svg', 'fy-team-advances-new.svg', 'fy-bot.svg'];
 
