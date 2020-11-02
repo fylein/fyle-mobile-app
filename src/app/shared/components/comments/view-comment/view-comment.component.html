@@ -7,7 +7,7 @@
     </ion-buttons>
     <ion-title mode="md">
       Comment 
-      (<span *ngIf="totalCommentsCount$|async as totalCommentsCount">{{totalCommentsCount}}</span>)
+      <span *ngIf="totalCommentsCount$|async as totalCommentsCount">({{totalCommentsCount}})</span>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -19,7 +19,7 @@
         <ion-col size="2">
           <span class="view-comment--profile" *ngIf="estatus.us.full_name">{{estatus.us.full_name | initials}}</span>
           <span class="view-comment--profile" *ngIf="!estatus.us.full_name">
-            <img src="assets/images/fy-bot.svg">
+            <mat-icon svgIcon="fy-bot"></mat-icon>
           </span>
         </ion-col>
         <ion-col size="10">

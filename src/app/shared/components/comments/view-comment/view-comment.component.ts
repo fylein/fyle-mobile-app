@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { IonContent, ModalController } from '@ionic/angular';
 import { forkJoin, from, Observable, Subject } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
 
@@ -19,7 +20,7 @@ export class ViewCommentComponent implements OnInit {
 
   @ViewChild('title') title: ElementRef;
 
-  estatuses$: Observable<any>;
+  estatuses$: Observable<ExtendedStatus[]>;
   totalCommentsCount$: Observable<number>;
   showBotComments: Boolean;
   newComment: string;
@@ -55,6 +56,7 @@ export class ViewCommentComponent implements OnInit {
   }
 
   closeCommentModal() {
+
     if(this.isCommentAdded) {
       // Todo: Track Add Comment Event
       // TrackingService.addComment({Asset: 'Mobile'});

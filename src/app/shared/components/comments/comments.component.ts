@@ -27,9 +27,9 @@ export class CommentsComponent implements OnInit {
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
-        'objectType': this.objectType,
-        'objectId': this.objectId,
-        'mode': this.mode
+        objectType: this.objectType,
+        objectId: this.objectId,
+        mode: this.mode
       }
     });
     return await modal.present();

@@ -7,7 +7,6 @@ import { IonicModule } from '@ionic/angular';
 import { MyViewMileagePageRoutingModule } from './my-view-mileage-routing.module';
 
 import { MyViewMileagePage } from './my-view-mileage.page';
-import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
@@ -16,7 +15,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     FormsModule,
     IonicModule,
     MyViewMileagePageRoutingModule,
-    MatIconModule,
     SharedModule
   ],
   declarations: [MyViewMileagePage]
