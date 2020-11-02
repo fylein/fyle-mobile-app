@@ -24,15 +24,15 @@ export class CommentsComponent implements OnInit {
   ) { }
 
   async presentModal() {
-      const modal = await this.modalController.create({
-        component: ViewCommentComponent,
-        componentProps: {
-          'objectType': this.objectType,
-          'objectId': this.objectId,
-          'mode': this.mode
-        }
-      });
-      return await modal.present();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        'objectType': this.objectType,
+        'objectId': this.objectId,
+        'mode': this.mode
+      }
+    });
+    return await modal.present();
   }
 
   ngOnInit() {

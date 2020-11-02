@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { IonContent } from '@ionic/angular';
+import { IonContent, ModalController } from '@ionic/angular';
 import { forkJoin, from, Observable, Subject } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -24,10 +24,12 @@ export class ViewCommentComponent implements OnInit {
   showBotComments: Boolean;
   newComment: string;
   refreshEstatuses$: Subject<void> = new Subject();
+  isCommentAdded: Boolean;
   
   constructor(
     private statusService: StatusService,
-    private authService: AuthService
+    private authService: AuthService,
+    private modalController: ModalController
   ) { }
 
   changeBotComments() {
@@ -42,6 +44,7 @@ export class ViewCommentComponent implements OnInit {
       }
 
       this.newComment = null;
+      this.isCommentAdded = true;
 
       this.statusService.post(this.objectType, this.objectId, data).pipe(
       ).subscribe(res=> {
@@ -49,6 +52,17 @@ export class ViewCommentComponent implements OnInit {
       });
 
     }
+  }
+
+  closeCommentModal() {
+    if(this.isCommentAdded) {
+      // Todo: Track Add Comment Event
+      // TrackingService.addComment({Asset: 'Mobile'});
+    } else {
+      // Todo: Track View Comment Event
+      // TrackingService.viewComment({Asset: 'Mobile'});
+    }
+    this.modalController.dismiss();
   }
 
   ngOnInit() {
