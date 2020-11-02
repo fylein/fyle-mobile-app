@@ -297,6 +297,15 @@ export class TransactionService {
     if(data.tx_txn_dt) {
       data.tx_txn_dt = new Date(data.tx_txn_dt);
     }
+
+    if(data.tx_from_dt) {
+      data.tx_from_dt = new Date(data.tx_from_dt);
+    }
+
+    if(data.tx_to_dt) {
+      data.tx_to_dt = new Date(data.tx_to_dt);
+    }
+
     data.tx_updated_at = new Date(data.tx_updated_at);
     return data;
   }
