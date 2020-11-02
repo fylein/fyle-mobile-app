@@ -15,7 +15,6 @@ import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { SharedModule } from './shared/shared.module';
-import { CommonModule } from '@angular/common';
 
 
 @NgModule({
@@ -29,8 +28,7 @@ import { CommonModule } from '@angular/common';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    SharedModule,
-    CommonModule
+    SharedModule
   ],
   providers: [
     StatusBar,
