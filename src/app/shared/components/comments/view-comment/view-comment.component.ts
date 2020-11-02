@@ -22,10 +22,10 @@ export class ViewCommentComponent implements OnInit {
 
   estatuses$: Observable<ExtendedStatus[]>;
   totalCommentsCount$: Observable<number>;
-  showBotComments: Boolean;
+  showBotComments: boolean;
   newComment: string;
   refreshEstatuses$: Subject<void> = new Subject();
-  isCommentAdded: Boolean;
+  isCommentAdded: boolean;
   
   constructor(
     private statusService: StatusService,

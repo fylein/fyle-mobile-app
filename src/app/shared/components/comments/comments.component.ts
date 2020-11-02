@@ -12,10 +12,10 @@ export class CommentsComponent implements OnInit {
   @Input() objectType: string;
   @Input() objectId: string;
   @Input() mode: string;
-  @Input() hideIcon?: Boolean;
+  @Input() hideIcon =  false;
   @Input() text: string;
-  @Input() showCommentsCount?: Boolean; 
-  @Input() dontLoadComments?: Boolean;
+  @Input() showCommentsCount?: boolean; 
+  @Input() dontLoadComments?: boolean;
 
   noOfComments: number;
 
