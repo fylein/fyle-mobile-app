@@ -251,4 +251,12 @@ export class ReportService {
     );
   }
 
+  getReportPurpose(reportPurpose) {
+    return this.apiService.post('/reports/purpose', reportPurpose).pipe(
+      map(res => {
+        return res.purpose;
+      })
+    )
+  }
+
 }

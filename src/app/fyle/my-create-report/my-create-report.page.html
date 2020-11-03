@@ -6,6 +6,11 @@
 
 <ion-content>
   <div class="my-create-report--container">
+
+    <div class="my-create-report--report-card">
+      <p class="my-create-report--report-title">Report Name*</p>
+      <input class="my-create-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" ngModel="{{this.reportTitle}}" required>
+    </div>
     
       <div *ngFor="let etxn of readyToReportEtxns$ | async as list; let i = index">
       <p class="expense-head-info" *ngIf="etxn.showDt">
@@ -37,3 +42,50 @@
 
 
 </ion-content>
+
+
+<ion-footer>
+  <ion-toolbar >
+    <ion-grid>
+      <ion-row>
+        <ion-col size="8">
+          <div class="">
+            <span class="my-create-report--footer-currency">{{homeCurrency$ | async}}</span> 
+            <span class="my-create-report--footer-amount"> {{selectedTotalAmount}} </span>
+          </div>
+          <div class="my-create-report--footer-summary">
+            {{selectedTotalTxns}} expenses selected
+          </div>
+  
+        </ion-col>
+  
+        <ion-col size="4">
+          <div *ngIf="readyToReportEtxns$|async as readyToReportEtxns">
+            <span *ngIf="readyToReportEtxns.length === selectedTotalTxns" (click)="toggleSelectAll(false)">Unselect alll</span>
+            <span *ngIf="readyToReportEtxns.length !== selectedTotalTxns" (click)="toggleSelectAll(true)">Select all</span>
+
+          </div>
+          
+        </ion-col>
+
+      </ion-row>
+      
+
+    </ion-grid>
+
+
+
+
+  </ion-toolbar>
+  <!-- <ion-toolbar *ngIf="this.baseState === 'all'">
+    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+      (click)="addNewExpense()">
+      ADD NEW EXPENSE
+    </ion-button>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="this.baseState === 'draft'">
+    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+      START REVIEW
+    </ion-button>
+  </ion-toolbar> -->
+</ion-footer>
