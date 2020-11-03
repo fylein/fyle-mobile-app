@@ -1,0 +1,21 @@
+.my-create-report {
+
+  &--container {
+    padding: 0 16px;
+  }
+
+  &--item-card {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    border: 1px solid #fff;
+  }
+
+  &--item-card-selected {
+    border: 1px solid #0077ee;
+  }
+
+
+
+
+}

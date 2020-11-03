@@ -5,22 +5,35 @@
 </ion-header>
 
 <ion-content>
+  <div class="my-create-report--container">
+    
+      <div *ngFor="let etxn of readyToReportEtxns$ | async as list; let i = index">
+      <p class="expense-head-info" *ngIf="etxn.showDt">
+        <span>{{etxn.tx_txn_dt | date: 'EEEE, dd MMMM yyyy'}}</span>
+        <!-- <span>{{etxn.tx_txn_dt | date: 'dd MMMM yyyy'}}</span> -->
+      </p>
+      <ion-grid class="my-create-report--item-card" [ngClass]="{'my-create-report--item-card-selected': etxn.isSelected}" (click)="toggleTransaction(etxn)">
+      <ion-row>
+        <ion-col size="3">
+            <ion-checkbox checked="{{etxn.isSelected}}"></ion-checkbox>
+          
+        </ion-col>
+        <ion-col size ="9">
+          <ion-row>
+            <span>{{etxn.tx_currency}}</span>
+            <span>{{etxn.tx_amount}}</span>
+          </ion-row>
+          <ion-row>{{etxn.vendorDetails}}</ion-row>
+          <ion-row>{{etxn.tx_org_category}}</ion-row>
+  
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    </div>
+  
 
-  <ion-grid>
-    <ion-row>
-      <ion-col size="3">
-        <ion-checkbox mode="md"></ion-checkbox>
-      </ion-col>
-      <ion-col size ="9">
-        <ion-row>
-          <span>INR</span>
-          <span>100</span>
-        </ion-row>
-        <ion-row>100 miles</ion-row>
-        <ion-row>Mileage</ion-row>
+  </div>
 
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+
 
 </ion-content>
