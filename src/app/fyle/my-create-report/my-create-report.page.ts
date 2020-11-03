@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { empty, from, Observable, Subject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject, empty, from, Observable, Subject } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -15,31 +15,37 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 })
 export class MyCreateReportPage implements OnInit {
 
-  readyToReportEtxns$: Observable<Expense[]>
-  reportTitle$: Observable<any>;
+  readyToReportEtxns: Expense[];
   reportTitle: string;
   homeCurrency$: Observable<string>;
   selectedTotalAmount: number = 0;
   selectedTotalTxns: number = 0;
+  selectedTxnIds: string[];
 
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
     private currencyService: CurrencyService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private router: Router
 
   ) { }
 
+  cancel = function () {
+    if (this.selectedTxnIds.length > 0) {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
+    }
+  };
+
+
   toggleSelectAll(value: boolean) {
-    this.readyToReportEtxns$.pipe(
-      map(etxns => {
-        etxns.forEach(res => {
-          res.isSelected = value;
-        })
-      })
-    ).subscribe();
-    this.reportTitle$.subscribe();
+    this.readyToReportEtxns.forEach(res => {
+      res.isSelected = value;
+    });
+    this.getReportTitle();
   }
 
   getVendorDetails(expense) {
@@ -57,28 +63,43 @@ export class MyCreateReportPage implements OnInit {
     return vendorName;
   }
 
-  toggleTransaction (etxn) {
-    // vm.resetReportTitle();
-    //vm.selectedExpensesCount = vm.etxnc.filterSelected().size();
+  getReportTitle() {
+    let txnIds = [];
+    this.selectedTotalAmount = 0;
+    this.readyToReportEtxns.filter(etxn => {
+      if (etxn.isSelected) {
+        txnIds.push(etxn.tx_id);
+        this.selectedTotalAmount = this.selectedTotalAmount + etxn.tx_amount;
+      }
+    });
+    this.selectedTotalTxns = txnIds.length;
 
-    // if (vm.selectedExpensesCount === 0) {
-    //   vm.showClearAll = false;
-    // }
-    //debugger;
+    if (txnIds.length > 0) {  
+      return this.reportService.getReportPurpose({ids: txnIds}).pipe(
+        map(res => {
+          this.reportTitle = res;
+          return this.reportTitle;
+        })
+      ).subscribe()
+    } else {
+      return empty().pipe(startWith('')).subscribe();
+    }
+  }
+
+  toggleTransaction (etxn) {
     etxn.isSelected = !etxn.isSelected;
-    this.reportTitle$.subscribe();
+    this.getReportTitle();
   };
 
   ionViewWillEnter() {
-    const selectedTxnIds = this.activatedRoute.snapshot.params.txn_ids? JSON.parse(this.activatedRoute.snapshot.params.txn_ids) : new Array();
-    //debugger;
+    this.selectedTxnIds = this.activatedRoute.snapshot.params.txn_ids? JSON.parse(this.activatedRoute.snapshot.params.txn_ids) : new Array();
     const queryParams = {
       tx_report_id : 'is.null',
       tx_state: 'in.(COMPLETE)',
       order: 'tx_txn_dt.desc'
     }
 
-    this.readyToReportEtxns$ = from(this.loaderService.showLoader()).pipe(
+    from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return this.transactionService.getAllExpenses({ queryParams }).pipe(
           map(etxns => {
@@ -90,61 +111,21 @@ export class MyCreateReportPage implements OnInit {
               }
               etxn.isSelected = true;
 
-              if (selectedTxnIds.length > 0) {
-                if (selectedTxnIds.indexOf(etxn.tx_id) === -1) {
+              if (this.selectedTxnIds.length > 0) {
+                if (this.selectedTxnIds.indexOf(etxn.tx_id) === -1) {
                   etxn.isSelected = false;
                 }
               }
             });
-            return etxns as Expense[];
+            this.readyToReportEtxns = etxns;
+            this.getReportTitle();
           }),
-          shareReplay()
         );
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    )
+      }),finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay()
+    ).subscribe()
     
-
-    // this.readyToReportEtxns$.subscribe(res=> {
-    //   debugger;
-    // })
-
-      //this.getReportTitle();
-
-      this.reportTitle$ = this.readyToReportEtxns$.pipe(
-        switchMap(res => {
-          let txnIds = [];
-          this.selectedTotalAmount = 0;
-          res.filter(etxn => {
-            if (etxn.isSelected) {
-              txnIds.push(etxn.tx_id);
-              this.selectedTotalAmount = this.selectedTotalAmount + etxn.tx_amount;
-            }
-          });
-          this.selectedTotalTxns = txnIds.length;
-  
-          if (txnIds.length > 0) {  
-            return this.reportService.getReportPurpose({ids: txnIds}).pipe(
-              map(res => {
-                this.reportTitle = res;
-                return this.reportTitle;
-              })
-            )
-          } else {
-            return empty().pipe(startWith(7));
-          }
-  
-        })
-      );
-
-      this.reportTitle$.subscribe();
-      this.homeCurrency$ = this.currencyService.getHomeCurrency();
-
-      
-    
-
-
-
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
   }
   
   ngOnInit() {

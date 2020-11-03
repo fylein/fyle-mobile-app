@@ -1,52 +1,49 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>my-create-report</ion-title>
+  <ion-toolbar class="my-create-report--toolbar">
+    <ion-buttons mode="md" slot="end" (click)="cancel()">
+      <mat-icon>close</mat-icon>
+    </ion-buttons>
+    <ion-title mode="md">
+      <span>Create Report</span>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="my-create-report--container">
-
     <div class="my-create-report--report-card">
       <p class="my-create-report--report-title">Report Name*</p>
-      <input class="my-create-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" ngModel="{{this.reportTitle}}" required>
+      <input class="my-create-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required>
     </div>
-    
-      <div *ngFor="let etxn of readyToReportEtxns$ | async as list; let i = index">
-      <p class="expense-head-info" *ngIf="etxn.showDt">
+
+    <div *ngFor="let etxn of readyToReportEtxns as list; let i = index">
+      <p class="my-create-report--expense-date" *ngIf="etxn.showDt">
         <span>{{etxn.tx_txn_dt | date: 'EEEE, dd MMMM yyyy'}}</span>
-        <!-- <span>{{etxn.tx_txn_dt | date: 'dd MMMM yyyy'}}</span> -->
       </p>
       <ion-grid class="my-create-report--item-card" [ngClass]="{'my-create-report--item-card-selected': etxn.isSelected}" (click)="toggleTransaction(etxn)">
-      <ion-row>
-        <ion-col size="3">
-            <ion-checkbox checked="{{etxn.isSelected}}"></ion-checkbox>
-          
-        </ion-col>
-        <ion-col size ="9">
-          <ion-row>
-            <span>{{etxn.tx_currency}}</span>
-            <span>{{etxn.tx_amount}}</span>
-          </ion-row>
-          <ion-row>{{etxn.vendorDetails}}</ion-row>
-          <ion-row>{{etxn.tx_org_category}}</ion-row>
-  
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+        <ion-row>
+          <ion-col size="3">
+            <ion-checkbox class="my-create-report--item-card-checkbox" checked="{{etxn.isSelected}}"></ion-checkbox>
+          </ion-col>
+          <ion-col size ="9">
+            <ion-row>
+              <span class="my-create-report--item-card-currency">{{etxn.tx_currency}}</span>
+              <span class="my-create-report--item-card-amount">{{etxn.tx_amount}}</span>
+            </ion-row>
+
+            <ion-row class="my-create-report--item-card-vendor">{{etxn.vendorDetails}}</ion-row>
+            <ion-row class="my-create-report--item-card-category">{{etxn.tx_org_category}}</ion-row>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
-  
-
   </div>
-
-
-
 </ion-content>
 
-
 <ion-footer>
-  <ion-toolbar >
+  <ion-toolbar>
     <ion-grid>
+
       <ion-row>
         <ion-col size="8">
           <div class="">
@@ -56,36 +53,28 @@
           <div class="my-create-report--footer-summary">
             {{selectedTotalTxns}} expenses selected
           </div>
-  
         </ion-col>
-  
+        
         <ion-col size="4">
-          <div *ngIf="readyToReportEtxns$|async as readyToReportEtxns">
-            <span *ngIf="readyToReportEtxns.length === selectedTotalTxns" (click)="toggleSelectAll(false)">Unselect alll</span>
+          <div *ngIf="readyToReportEtxns" class="my-create-report--secondary-action">
+            <span *ngIf="readyToReportEtxns.length === selectedTotalTxns" (click)="toggleSelectAll(false)">Unselect all</span>
             <span *ngIf="readyToReportEtxns.length !== selectedTotalTxns" (click)="toggleSelectAll(true)">Select all</span>
-
           </div>
-          
         </ion-col>
-
       </ion-row>
-      
 
+      <ion-row>
+        <ion-col size="6">
+          <ion-button class="my-create-report--primary-cta" fill="outline" color="fyle-primary" (click)="showReportSummaryPopover('draft')">
+            SAVE DRAFT
+          </ion-button>
+        </ion-col>
+        <ion-col size="6">
+          <ion-button class="my-create-report--primary-cta" fill="solid" color="fyle-primary" (click)="showReportSummaryPopover('submit')">
+            SUBMIT REPORT
+          </ion-button>
+        </ion-col>
+      </ion-row>
     </ion-grid>
-
-
-
-
   </ion-toolbar>
-  <!-- <ion-toolbar *ngIf="this.baseState === 'all'">
-    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      (click)="addNewExpense()">
-      ADD NEW EXPENSE
-    </ion-button>
-  </ion-toolbar>
-  <ion-toolbar *ngIf="this.baseState === 'draft'">
-    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
-      START REVIEW
-    </ion-button>
-  </ion-toolbar> -->
 </ion-footer>

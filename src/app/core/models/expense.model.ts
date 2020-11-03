@@ -1,5 +1,5 @@
 export interface Expense {
-  isSelected: any;
+  isSelected?: boolean;
   external_expense_id?: any;
   external_expense_source?: any;
   matched_by?: any;
