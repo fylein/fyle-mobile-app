@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { switchMap, tap, map, concatMap, reduce, shareReplay } from 'rxjs/operators';
+import { switchMap, tap, map, concatMap, reduce, shareReplay, finalize, mergeMap } from 'rxjs/operators';
 import { from, range, forkJoin } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
@@ -258,5 +258,27 @@ export class ReportService {
       })
     )
   }
+
+  createDraft(report) {
+    return this.apiService.post('/reports', report)
+  }
+
+  create(report, txnIds) {
+    return this.apiService.post('/reports', report).pipe(
+      mergeMap(newReport => {
+        return this.apiService.post('/reports/' + newReport.id + '/txns', {ids: txnIds}).pipe(
+          mergeMap(res => {
+            return this.apiService.post('/reports/' + newReport.id + '/submit').pipe()
+          })
+        )
+      })
+    )
+  }
+
+  addTransactions(reportId, txnIds) {
+    return this.apiService.post('/reports/' + reportId + '/txns', {
+      ids: txnIds
+    })
+  };
 
 }

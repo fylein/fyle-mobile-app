@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PopoverController } from '@ionic/angular';
 import { BehaviorSubject, empty, from, Observable, Subject } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -7,6 +8,8 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ReportSummaryComponent } from './report-summary/report-summary.component';
+
 
 @Component({
   selector: 'app-my-create-report',
@@ -28,17 +31,69 @@ export class MyCreateReportPage implements OnInit {
     private reportService: ReportService,
     private currencyService: CurrencyService,
     private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private popoverController: PopoverController
 
   ) { }
 
-  cancel = function () {
+  cancel() {
     if (this.selectedTxnIds.length > 0) {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
     }
   };
+
+  async showReportSummaryPopover(action) {
+    const reportSummaryPopover = await this.popoverController.create({
+      component: ReportSummaryComponent,
+      componentProps: {
+        selectedTotalAmount: this.selectedTotalAmount,
+        selectedTotalTxns: this.selectedTotalTxns,
+        homeCurrency$: this.homeCurrency$,
+        purpose: this.reportTitle,
+        action: action
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    await reportSummaryPopover.present();
+
+    const { data } = await reportSummaryPopover.onWillDismiss();
+
+    if (data && data.saveReport) {
+      let report = {
+        purpose: this.reportTitle,
+        source: 'MOBILE'
+      }
+      let txnIds = [];
+      this.readyToReportEtxns.filter(etxn => {
+        if (etxn.isSelected) {
+          txnIds.push(etxn.tx_id);
+          this.selectedTotalAmount = this.selectedTotalAmount + etxn.tx_amount;
+        }
+      });
+
+      if (action === 'draft') {
+        this.reportService.createDraft(report).pipe(
+          map(res => {
+            return this.reportService.addTransactions(res.id, txnIds).pipe(
+              finalize(() => {
+                this.router.navigate(['/', 'enterprise', 'my_reports']);
+              })
+            ).subscribe()
+          }),
+        ).subscribe()
+      } else {
+        this.reportService.create(report, txnIds).pipe(
+          finalize(() => {
+            this.router.navigate(['/', 'enterprise', 'my_reports']);
+          })
+        ).subscribe()
+      }
+      
+    }
+  }
 
 
   toggleSelectAll(value: boolean) {

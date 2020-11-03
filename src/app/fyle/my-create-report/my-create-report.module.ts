@@ -8,6 +8,7 @@ import { MyCreateReportPageRoutingModule } from './my-create-report-routing.modu
 
 import { MyCreateReportPage } from './my-create-report.page';
 import { MatIconModule } from '@angular/material/icon';
+import { ReportSummaryComponent } from './report-summary/report-summary.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,9 @@ import { MatIconModule } from '@angular/material/icon';
     MyCreateReportPageRoutingModule,
     MatIconModule
   ],
-  declarations: [MyCreateReportPage]
+  declarations: [
+    MyCreateReportPage,
+    ReportSummaryComponent
+  ]
 })
 export class MyCreateReportPageModule {}
