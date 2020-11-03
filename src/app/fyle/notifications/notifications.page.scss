@@ -1,0 +1,20 @@
+$heading-shadow-color: #ababab;
+
+.notifications {
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--container {
+    margin: 2px 18px;
+  }
+
+  &--notif-setting-header {
+    color: $heading-shadow-color;
+    padding: 10px 0;
+  }
+
+  &--form-fields {
+    width: 100%;
+  }
+}

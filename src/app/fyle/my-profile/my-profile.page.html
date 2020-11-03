@@ -41,6 +41,24 @@
   </div>
 
   <div class="my-profile--blocks">
+    <span class="my-profile--blocks-header">Notifications</span>
+    <ion-card class="my-profile--cards" [routerLink]="[ '/', 'enterprise', 'notifications' ]" >
+      <ion-card-header class="my-profile--cards-header">
+        <ion-grid fixed>
+          <ion-row>
+            <ion-col size="11">
+              <ion-card-subtitle class="my-profile--cards-title">Manage Notifications</ion-card-subtitle>
+            </ion-col>
+            <ion-col size="1">
+              <mat-icon class="my-profile--notifications-arrow">keyboard_arrow_right</mat-icon>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-header>
+    </ion-card>
+  </div>
+
+  <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Usage</span>
     <ion-card class="my-profile--cards">
       <ion-card-header class="my-profile--cards-header">

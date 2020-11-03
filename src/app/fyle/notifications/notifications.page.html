@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar class="notifications--toolbar">
+    <ion-buttons mode="md" slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title mode="md">Notifications</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="notifications--container">
+    
+    <div class="notifications--notif-setting-header">
+      Set notifications you want to receive
+    </div>
+
+    <div *ngIf="isDelegateePresent$|async">
+      <h2>Delegatee Notification</h2>
+      <mat-form-field class="notifications--form-fields">
+        <mat-select [(value)]="notifyOption">
+          <mat-option *ngFor="let option of delegationOptions" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="notificationEvents$|async  as notificationEvents">
+      <div *ngFor="let feature of notificationEvents['features']|keyvalue; index as $index;first as $first">
+        <div class="feature-name">
+          <h4 class="item-col feature-name">
+            <strong>{{ feature.value.textLabel }}</strong>
+          </h4>
+        </div>
+        <div *ngIf="$first && (orgUserSettings$|async).notification_settings.push.enabled" class="toggle-select-all feature-toggle">
+          <ion-checkbox class="checkbox-square checkbox-select-all" [checked]="isAllSelected.push" (click)="toggleAllChannelEvents('push')" ></ion-checkbox>
+          <mat-icon svgIcon="fy-iphone"></mat-icon>
+        </div>
+        <div *ngIf="$first" class="toggle-select-all feature-toggle">
+          <ion-checkbox *ngIf="$first" class="checkbox-square checkbox-select-all" [checked]="isAllSelected.email" (click)="toggleAllChannelEvents('email')" ng-indeterminate="vm.isSomeSelected('email')"></ion-checkbox>
+          <mat-icon svgIcon="fy-email"></mat-icon>
+        </div>
+        <div class="features-list-row" *ngFor="let event of  notificationEvents['events']">
+          <div class="feature-name" *ngIf="event.feature === feature.key">
+            <p class="m-0">{{ event.textLabel }}</p>
+            <ion-checkbox *ngIf="(orgUserSettings$|async).notification_settings.push.enabled" class="checkbox-square checkbox-select-all feature-toggle" [(ngModel)]="event.push.selected" (click)="updateIsAllSelected('push')"></ion-checkbox>
+            <ion-checkbox class="checkbox-square checkbox-select-all feature-toggle" [(ngModel)]="event.email.selected" (click)="updateIsAllSelected('email')"></ion-checkbox>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
