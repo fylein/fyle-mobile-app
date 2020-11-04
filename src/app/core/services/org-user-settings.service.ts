@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
 import { finalize, map } from 'rxjs/operators';
 import { forkJoin, Subject } from 'rxjs';
-import { Cacheable, CacheBuster } from 'ngx-cacheable';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
