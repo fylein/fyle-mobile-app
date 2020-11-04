@@ -27,9 +27,8 @@ export class StatusService {
           return estatus as ExtendedStatus;
         });
       })
-    )
+    );
   }
-
 
   post(objectType, objectId, status, notify = false) {
     return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
