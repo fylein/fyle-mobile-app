@@ -20,7 +20,7 @@ export class ViewCommentComponent implements OnInit {
 
   @ViewChild('title') title: ElementRef;
 
-  estatuses$: Observable<any>; //Todo: Fix this to Observable<ExtendedStatus[]>, need to fix in service, html and ts file
+  estatuses$: Observable<ExtendedStatus[]>;
   totalCommentsCount$: Observable<number>;
   showBotComments: boolean;
   newComment: string;
