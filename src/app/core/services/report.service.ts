@@ -265,10 +265,10 @@ export class ReportService {
 
   create(report, txnIds) {
     return this.apiService.post('/reports', report).pipe(
-      mergeMap(newReport => {
+      switchMap(newReport => {
         return this.apiService.post('/reports/' + newReport.id + '/txns', {ids: txnIds}).pipe(
-          mergeMap(res => {
-            return this.apiService.post('/reports/' + newReport.id + '/submit').pipe()
+          switchMap(res => {
+            return this.apiService.post('/reports/' + newReport.id + '/submit')
           })
         )
       })
@@ -278,7 +278,7 @@ export class ReportService {
   addTransactions(reportId, txnIds) {
     return this.apiService.post('/reports/' + reportId + '/txns', {
       ids: txnIds
-    })
-  };
+    });
+  }
 
 }

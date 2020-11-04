@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
-import { BehaviorSubject, empty, from, Observable, Subject } from 'rxjs';
+import { from, noop, Observable } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -66,30 +66,26 @@ export class MyCreateReportPage implements OnInit {
         purpose: this.reportTitle,
         source: 'MOBILE'
       }
-      let txnIds = [];
-      this.readyToReportEtxns.filter(etxn => {
-        if (etxn.isSelected) {
-          txnIds.push(etxn.tx_id);
-          this.selectedTotalAmount = this.selectedTotalAmount + etxn.tx_amount;
-        }
-      });
+      let etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
+      let txnIds = etxns.map(etxn => etxn.tx_id);
+      this.selectedTotalAmount = etxns.reduce(function (acc, obj) { return acc + obj.tx_amount; }, 0);
 
       if (action === 'draft') {
         this.reportService.createDraft(report).pipe(
-          map(res => {
-            return this.reportService.addTransactions(res.id, txnIds).pipe(
-              finalize(() => {
-                this.router.navigate(['/', 'enterprise', 'my_reports']);
-              })
-            ).subscribe()
+          switchMap((res) => {
+            return this.reportService.addTransactions(res.id, txnIds)
           }),
-        ).subscribe()
+          finalize(() => {
+            this.router.navigate(['/', 'enterprise', 'my_reports']);
+          })
+        ).subscribe(noop);
+          
       } else {
         this.reportService.create(report, txnIds).pipe(
           finalize(() => {
             this.router.navigate(['/', 'enterprise', 'my_reports']);
           })
-        ).subscribe()
+        ).subscribe(noop)
       }
       
     }
@@ -97,8 +93,8 @@ export class MyCreateReportPage implements OnInit {
 
 
   toggleSelectAll(value: boolean) {
-    this.readyToReportEtxns.forEach(res => {
-      res.isSelected = value;
+    this.readyToReportEtxns.forEach(etxn => {
+      etxn.isSelected = value;
     });
     this.getReportTitle();
   }
@@ -119,25 +115,19 @@ export class MyCreateReportPage implements OnInit {
   }
 
   getReportTitle() {
-    let txnIds = [];
-    this.selectedTotalAmount = 0;
-    this.readyToReportEtxns.filter(etxn => {
-      if (etxn.isSelected) {
-        txnIds.push(etxn.tx_id);
-        this.selectedTotalAmount = this.selectedTotalAmount + etxn.tx_amount;
-      }
-    });
+    let etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
+    let txnIds = etxns.map(etxn => etxn.tx_id);
+    this.selectedTotalAmount = etxns.reduce(function (acc, obj) { return acc + obj.tx_amount; }, 0);
     this.selectedTotalTxns = txnIds.length;
 
     if (txnIds.length > 0) {  
       return this.reportService.getReportPurpose({ids: txnIds}).pipe(
         map(res => {
-          this.reportTitle = res;
-          return this.reportTitle;
+          return res;
         })
-      ).subscribe()
-    } else {
-      return empty().pipe(startWith('')).subscribe();
+      ).subscribe(res => {
+        this.reportTitle = res;
+      })
     }
   }
 
@@ -178,7 +168,7 @@ export class MyCreateReportPage implements OnInit {
         );
       }),finalize(() => from(this.loaderService.hideLoader())),
       shareReplay()
-    ).subscribe()
+    ).subscribe(noop);
     
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
   }
@@ -186,7 +176,5 @@ export class MyCreateReportPage implements OnInit {
   ngOnInit() {
     // Todo: Support for select trip request during create report
   }
-
-  
 
 }
