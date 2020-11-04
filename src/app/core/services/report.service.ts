@@ -256,23 +256,23 @@ export class ReportService {
       map(res => {
         return res.purpose;
       })
-    )
+    );
   }
 
   createDraft(report) {
-    return this.apiService.post('/reports', report)
+    return this.apiService.post('/reports', report);
   }
 
   create(report, txnIds) {
-    return this.apiService.post('/reports', report).pipe(
+    return this.createDraft(report).pipe(
       switchMap(newReport => {
         return this.apiService.post('/reports/' + newReport.id + '/txns', {ids: txnIds}).pipe(
           switchMap(res => {
             return this.apiService.post('/reports/' + newReport.id + '/submit')
           })
-        )
+        );
       })
-    )
+    );
   }
 
   addTransactions(reportId, txnIds) {
