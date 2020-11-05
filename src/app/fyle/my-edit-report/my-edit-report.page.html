@@ -12,6 +12,11 @@
 <ion-content>
   <div class="my-edit-report--container" *ngIf="extendedReport$|async as extendedReport">
 
+    <div class="my-edit-report--report-card" *ngIf="(extendedReport.rp_state === 'DRAFT')">
+      <p class="my-edit-report--report-title">Report Name*</p>
+      <input class="my-edit-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required (ngModelChange)="setPurposeChanged()">
+    </div>
+
       <div class="my-edit-report--add-expense-container" (click)="showAddExpensesToReportModal()" *ngIf="(extendedReport.rp_state === 'DRAFT' || extendedReport.rp_state === 'APPROVER_PENDING')">
         <mat-icon class="my-edit-report--add-expense-icon">add_circle_outline</mat-icon>
         <span class="my-edit-report--add-expense-title">Add expenses to report</span>
@@ -51,9 +56,9 @@
         </div>
       </div>
 
-      <div class="my-edit-report--expense-list">
+      <div class="my-edit-report--expense-list" *ngIf="reportedEtxns$|async as reportedEtxns">
         <p class="my-edit-report--expense-list-title">Report Expenses</p>
-        <div *ngFor="let reportedEtxn of reportedEtxns$|async as reportedEtxns; let i = index;">
+        <div *ngFor="let reportedEtxn of reportedEtxns; let i = index;">
 
           <div class="my-edit-report--expense-card">
             <ion-row [ngClass]="{'my-edit-report--expense-card-info-hidden': reportedEtxn.isHidden}">
@@ -89,7 +94,7 @@
 
 <ion-footer>
   <ion-toolbar>
-    <ion-button class="my-edit-report--primary-cta" fill="solid" color="fyle-primary" expand="block" [disabled]="!isReportEdited">
+    <ion-button class="my-edit-report--primary-cta" fill="solid" color="fyle-primary" expand="block" [disabled]="!isReportEdited" (click)="saveReport()">
       Save Report
     </ion-button>
   </ion-toolbar>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { from, noop, Observable } from 'rxjs';
+import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedReport } from 'src/app/core/models/report.model';
@@ -23,8 +23,10 @@ export class MyEditReportPage implements OnInit {
   reportedEtxns$: Observable<Expense[]>;
   unReportedEtxns: Expense[];
   deleteExpensesIdList = [];
-  addedExpensesIdList = []
+  addedExpensesIdList = [];
   isReportEdited = false;
+  reportTitle: string;
+  isPurposeChanged = false;
 
   constructor(
     private router: Router,
@@ -41,7 +43,7 @@ export class MyEditReportPage implements OnInit {
   }
 
   checkReportEdited = function () {
-    this.isReportEdited = (this.deleteExpensesIdList.length > 0) || (this.addedExpensesIdList.length > 0);
+    this.isReportEdited = (this.deleteExpensesIdList.length > 0) || (this.addedExpensesIdList.length > 0) || this.isPurposeChanged;
   };
 
   ngOnInit() {
@@ -102,8 +104,49 @@ export class MyEditReportPage implements OnInit {
     this.checkReportEdited();
   }
 
+  setPurposeChanged() {
+    console.log("changed");
+    this.isPurposeChanged = true;
+    this.checkReportEdited();
+  }
+
+  removeTxnFromReport() {
+    let removeTxnList$ = [];
+    this.deleteExpensesIdList.forEach(txnId => {
+      removeTxnList$.push(this.reportService.removeTransaction(this.activatedRoute.snapshot.params.id, txnId))
+    });
+
+    return forkJoin(removeTxnList$);
+  }
+
+
+  saveReport() {
+    let report = {
+      purpose: this.reportTitle,
+      id: this.activatedRoute.snapshot.params.id
+    }
+
+    this.reportService.createDraft(report).pipe(
+      switchMap(res => {
+        return iif(() => (this.addedExpensesIdList.length > 0), this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList) ,of(false));
+      }),
+      switchMap(res => {
+        return iif(() => (this.deleteExpensesIdList.length > 0), this.removeTxnFromReport() ,of(false));
+      }),
+      finalize(() => {
+        this.addedExpensesIdList = [];
+        this.deleteExpensesIdList = [];
+        this.router.navigate(['/', 'enterprise', 'my_reports']);
+      })
+    ).subscribe(noop)
+  }
+
   ionViewWillEnter() {
     this.extendedReport$ = this.reportService.getReport(this.activatedRoute.snapshot.params.id);
+
+    this.extendedReport$.subscribe(res => {
+      this.reportTitle = res.rp_purpose;
+    })
 
     this.reportedEtxns$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
