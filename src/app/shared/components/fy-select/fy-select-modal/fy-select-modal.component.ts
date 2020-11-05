@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
@@ -13,7 +13,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() options: { label: string, value: any, selected?: boolean }[] = [];
   @Input() currentSelection: any;
-  @Input() filteredOptions$: Observable<{ label: string, value: any ,selected?: boolean}[]>;
+  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+  @Input() selectionElement: TemplateRef<ElementRef>;
+  @Input() nullOption = true;
 
   constructor(
     private modalController: ModalController,
@@ -27,12 +29,20 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      map((searchText) => [{ label: 'None', value: null }].concat(this.options
-        .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
-        .map(option => {
-          option.selected = isEqual(option.value, this.currentSelection);
-          return option;
-        }))
+      map((searchText) => {
+        const initial = [];
+
+        if (this.nullOption) {
+          initial.push({ label: 'None', value: null });
+        }
+
+        return initial.concat(this.options
+          .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
+          .map(option => {
+            option.selected = isEqual(option.value, this.currentSelection);
+            return option;
+          }));
+      }
       )
     );
     this.cdr.detectChanges();

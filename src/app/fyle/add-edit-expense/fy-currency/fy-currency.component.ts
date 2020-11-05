@@ -1,8 +1,7 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
@@ -20,6 +19,7 @@ import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-
   ]
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
+  private ngControl: NgControl;
   @Input() txnDt: Date;
   @Input() homeCurrency: string;
 
@@ -34,12 +34,23 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   private onChangeCallback: (_: any) => void = noop;
   fg: FormGroup;
 
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
+  }
+
   constructor(
     private fb: FormBuilder,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private injector: Injector
   ) { }
 
   ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
+
     this.fg = this.fb.group({
       currency: [], // currency which is currently shown
       amount: [], // amount which is currently shown
@@ -66,7 +77,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         }
       } else {
         value.currency = this.homeCurrency;
-        value.amount = +formValue.amount;
+        value.amount = formValue.amount && +formValue.amount;
       }
 
       if (!this.checkIfSameValue(value, this.innerValue)) {
@@ -97,7 +108,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       };
     } else {
       return {
-        amount: 0,
+        amount: null,
         currency: this.homeCurrency,
         homeCurrencyAmount: null
       };
@@ -111,7 +122,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
-      this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
+      this.fg.setValue(
+        this.convertInnerValueToFormValue(
+          this.innerValue));
       this.onChangeCallback(v);
     }
   }

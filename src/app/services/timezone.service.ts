@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { CurrencyService } from '../core/services/currency.service';
+import { cloneDeep } from 'lodash';
 
 @Injectable({
   providedIn: 'root'
@@ -2986,7 +2987,7 @@ export class TimezoneService {
 
   conversionGenerator(transform) {
     return (date, offset) => {
-      const correctedDate = { ...date };
+      const correctedDate = cloneDeep(date);
 
       let hourOffset = +offset.split(':')[0];
       const minOffset = +offset.split(':')[1];

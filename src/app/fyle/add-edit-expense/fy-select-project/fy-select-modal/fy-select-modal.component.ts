@@ -56,7 +56,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
           ))
         );
       }),
-      map(projects => projects.map(project => ({ label: project.projectv2_name, value: project })))
+      map(projects => [{ label: 'None', value: null }].concat(projects.map(project => ({ label: project.projectv2_name, value: project }))))
     );
   }
 

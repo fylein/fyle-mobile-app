@@ -4,6 +4,9 @@
   border: 1px solid #e0e0e0;
   padding: 20px 0;
   height: 88px;
+  &__invalid {
+    border: 1px solid red;
+  }
   &--currency {
     font-size: 16px;
     font-weight: 500;

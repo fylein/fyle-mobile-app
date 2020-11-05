@@ -57,7 +57,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   }
 
   async openModal() {
-    const currencyModal = await this.modalController.create({
+    const selectionModal = await this.modalController.create({
       component: FyMultiselectModalComponent,
       componentProps: {
         options: this.options,
@@ -65,9 +65,9 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
       }
     });
 
-    await currencyModal.present();
+    await selectionModal.present();
 
-    const { data } = await currencyModal.onWillDismiss();
+    const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
       console.log(data);

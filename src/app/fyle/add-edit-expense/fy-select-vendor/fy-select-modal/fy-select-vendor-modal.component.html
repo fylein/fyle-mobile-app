@@ -1,27 +1,33 @@
 <ion-header>
-    <ion-toolbar>
-      <mat-form-field class="select-modal--form-field mat-form-field-no-padding" appearance="outline">
-        <span class="material-icons select-modal--search-icon" matPrefix>
-          search
-        </span>
-        <input #searchBar id="select-modal--search-input" matInput placeholder="Search">
-      </mat-form-field>
-      <ion-buttons slot="end">
-        <ion-button (click)="onDoneClick()">
-          Done
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
-  
-  <ion-content>
-    <div matRipple class="select-modal--element" *ngFor="let option of filteredOptions$ | async as list"
-      (click)="onElementSelect(option)">
+  <ion-toolbar>
+    <ion-title>
+      <h1 class="selection-modal--title">
+        Select Items
+      </h1>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onDoneClick()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar class="selection-modal--form-field-container">
+    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
+      <input #searchBar id="selection-modal--search-input" matInput placeholder="Search">
+    </mat-form-field>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="selection-modal--container">
+    <div matRipple class="selection-modal--list-element"
+      *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
       <div>
-        {{option.label}}
+        {{filteredListItem.label}}
       </div>
-      <mat-icon *ngIf="option.selected">
+      <mat-icon *ngIf="filteredListItem.selected">
         check
       </mat-icon>
     </div>
-  </ion-content>
+  </div>
+</ion-content>

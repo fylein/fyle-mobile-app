@@ -1,5 +1,5 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, OnDestroy, Injector } from '@angular/core';
+import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor-modal.component';
@@ -13,10 +13,16 @@ import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectVendorComponent),
       multi: true
-    }
+    },
+    // {
+    //   provide: NG_VALIDATORS,
+    //   useExisting: FySelectVendorComponent,
+    //   multi: true
+    // }
   ]
 })
-export class FySelectVendorComponent implements OnInit {
+export class FySelectVendorComponent implements OnInit, OnDestroy {
+  // private ngControl: NgControl;
   @Input() options: any[];
   @Input() label = '';
   @Input() mandatory = false;
@@ -29,9 +35,17 @@ export class FySelectVendorComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
+    private injector: Injector
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    // this.ngControl = this.injector.get(NgControl);
+  }
+
+  ngOnDestroy() {
+    // this.ngControl.control.clearValidators();
+    // this.ngControl.control.updateValueAndValidity();
+  }
 
   get value(): any {
     return this.innerValue;
@@ -79,6 +93,14 @@ export class FySelectVendorComponent implements OnInit {
       }
     }
   }
+
+  // validate(fc: FormControl) {
+  //   if (this.mandatory && fc.value === null) {
+  //     return {
+  //       required: true
+  //     };
+  //   }
+  // }
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;

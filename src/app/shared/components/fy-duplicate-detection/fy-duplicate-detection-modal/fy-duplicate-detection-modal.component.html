@@ -20,17 +20,9 @@
 
 <ion-content>
   <div class="selection-modal--container">
-    <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
-      <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-        <div>
-          {{label}}
-        </div>
-        <mat-icon *ngIf="selected">
-          check
-        </mat-icon>
-      </ng-template>
-      <ng-container *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:filteredListItem">
-      </ng-container>
+    <div matRipple class="selection-modal--list-element"
+      *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
+      {{filteredListItem.label}}
     </div>
   </div>
 </ion-content>

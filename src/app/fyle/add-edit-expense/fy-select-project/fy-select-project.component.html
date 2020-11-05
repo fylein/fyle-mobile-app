@@ -1,7 +1,7 @@
 <label class="fy-select-project--label">
-  <div class="fy-select-project--label-content">
+  <div class="fy-select-project--label-content" [ngClass]="{'fy-select-project--label-content__invalid': !valid}">
     <span>
-      Project
+      {{label}}
     </span>
     <span *ngIf="mandatory">
       *

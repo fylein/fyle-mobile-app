@@ -1,5 +1,5 @@
 <label class="fy-select-vendor--label">
-  <div class="fy-select-vendor--label-content">
+  <div class="fy-select-vendor--label-content" [ngClass]="{'fy-select-vendor--label-content__invalid': !valid}">
     <span>
       {{label}}
     </span>

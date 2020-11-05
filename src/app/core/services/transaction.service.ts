@@ -12,6 +12,7 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/services/timezone.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { FileService } from 'src/app/services/file.service';
+import { PolicyApiService } from './policy-api.service';
 
 
 
@@ -31,7 +32,8 @@ export class TransactionService {
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
-    private fileService: FileService
+    private fileService: FileService,
+    private policyApiService: PolicyApiService
   ) { }
 
   get(txnId) {
@@ -336,6 +338,43 @@ export class TransactionService {
             );
           })
         );
+      })
+    );
+  }
+
+
+  testPolicy(etxn) {
+    return this.orgUserSettingsService.get().pipe(
+      switchMap((orgUserSettings) => {
+        // setting txn_dt time to T10:00:00:000 in local time zone
+        if (etxn.tx_txn_dt) {
+          etxn.tx_txn_dt.setHours(12);
+          etxn.tx_txn_dt.setMinutes(0);
+          etxn.tx_txn_dt.setSeconds(0);
+          etxn.tx_txn_dt.setMilliseconds(0);
+          etxn.tx_txn_dt = this.timezoneService.convertToUtc(etxn.tx_txn_dt, orgUserSettings.locale.offset);
+        }
+
+        if (etxn.tx_from_dt) {
+          etxn.tx_from_dt.setHours(12);
+          etxn.tx_from_dt.setMinutes(0);
+          etxn.tx_from_dt.setSeconds(0);
+          etxn.tx_from_dt.setMilliseconds(0);
+          etxn.tx_from_dt = this.timezoneService.convertToUtc(etxn.tx_from_dt, orgUserSettings.locale.offset);
+        }
+
+        if (etxn.tx_to_dt) {
+          etxn.tx_to_dt.setHours(12);
+          etxn.tx_to_dt.setMinutes(0);
+          etxn.tx_to_dt.setSeconds(0);
+          etxn.tx_to_dt.setMilliseconds(0);
+          etxn.tx_to_dt = this.timezoneService.convertToUtc(etxn.tx_to_dt, orgUserSettings.locale.offset);
+        }
+
+        // FYLE-6148. Don't send custom_attributes.
+        etxn.tx_custom_attributes = null;
+
+        return this.policyApiService.post('/policy/test', etxn);
       })
     );
   }

@@ -214,13 +214,13 @@ export class TransactionsOutboxService {
     return this.saveQueue();
   }
 
-  // addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic, receiptsData) {
-  //   return this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData).pipe(
-  //     switchMap(() => {
-  //       return this.syncEntry(this.queue.pop());
-  //     })
-  //   );
-  // }
+  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic, receiptsData) {
+    return this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData).pipe(
+      switchMap(() => {
+        return this.syncEntry(this.queue.pop());
+      })
+    );
+  }
 
   getPendingTransactions() {
     return this.queue.map((entry) => {
@@ -232,87 +232,88 @@ export class TransactionsOutboxService {
     return this.dataExtractionQueue;
   }
 
-  // syncEntry(entry) {
-  //   let fileUploads$ = from([]);
-  //   const reportId = entry.reportId;
 
-  //   if (!entry.receiptsData) {
-  //     if (entry.dataUrls && entry.dataUrls.length > 0) {
-  //       fileUploads$ = concat<any[]>(entry.dataUrls.map(dataUrl => this.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates)));
-  //     }
-  //   }
+  syncEntry(entry) {
+    let fileUploads$ = from([]);
+    const reportId = entry.reportId;
 
-  //   return this.transactionService.createTxnWithFiles(entry.transaction, fileUploads$).pipe(
-  //     switchMap((resp: any) => {
-  //       let comments = entry.comments;
-  //       // adding created transaction id into entry object to get created transaction id when promise is resolved.
-  //       entry.transaction.id = resp.id;
-  //       let statusUpdates = [];
-  //       if (comments && comments.length > 0) {
-  //         statusUpdates = comments.map((comment) => this.statusService.post('transactions', resp.id, { comment }, true));
-  //       }
+    if (!entry.receiptsData) {
+      if (entry.dataUrls && entry.dataUrls.length > 0) {
+        fileUploads$ = concat<any[]>(entry.dataUrls.map(dataUrl => this.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates)));
+      }
+    }
 
-  //       if (entry.receiptsData) {
-  //         const linkReceiptPayload = {
-  //           transaction_id: entry.transaction.id,
-  //           linked_by: entry.receiptsData.linked_by
-  //         };
-  //         ReceiptsService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
-  //       };
-  //       if (entry.dataUrls && entry.dataUrls.length > 0) {
-  //         TransactionService.getETxn(resp.id).then(function (etxn) {
-  //           entry.dataUrls.forEach(function (dataUrl) {
-  //             if (dataUrl.callBackUrl) {
-  //               $http.post(dataUrl.callBackUrl, {
-  //                 'entered_data': {
-  //                   'amount': etxn.tx.amount,
-  //                   'currency': etxn.tx.currency,
-  //                   'orig_currency': etxn.tx.orig_currency,
-  //                   'orig_amount': etxn.tx.orig_amount,
-  //                   'date': etxn.tx.txn_dt,
-  //                   'vendor': etxn.tx.vendor,
-  //                   'category': etxn.tx.fyle_category,
-  //                   'external_id': etxn.tx.external_id,
-  //                   'transaction_id': etxn.tx.id
-  //                 }
-  //               });
-  //             }
-  //           });
-  //         });
-  //       }
+    return this.transactionService.createTxnWithFiles(entry.transaction, fileUploads$).pipe(
+      switchMap((resp: any) => {
+        let comments = entry.comments;
+        // adding created transaction id into entry object to get created transaction id when promise is resolved.
+        entry.transaction.id = resp.id;
+        let statusUpdates = [];
+        if (comments && comments.length > 0) {
+          statusUpdates = comments.map((comment) => this.statusService.post('transactions', resp.id, { comment }, true));
+        }
 
-  //       if (reportId) {
-  //         txnIds = [resp.id];
-  //         ReportService.addTransactions(reportId, txnIds).then(function (result) {
-  //           TrackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
-  //           return result;
-  //         });
-  //       }
+        if (entry.receiptsData) {
+          const linkReceiptPayload = {
+            transaction_id: entry.transaction.id,
+            linked_by: entry.receiptsData.linked_by
+          };
+          ReceiptsService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
+        };
+        if (entry.dataUrls && entry.dataUrls.length > 0) {
+          TransactionService.getETxn(resp.id).then(function (etxn) {
+            entry.dataUrls.forEach(function (dataUrl) {
+              if (dataUrl.callBackUrl) {
+                $http.post(dataUrl.callBackUrl, {
+                  'entered_data': {
+                    'amount': etxn.tx.amount,
+                    'currency': etxn.tx.currency,
+                    'orig_currency': etxn.tx.orig_currency,
+                    'orig_amount': etxn.tx.orig_amount,
+                    'date': etxn.tx.txn_dt,
+                    'vendor': etxn.tx.vendor,
+                    'category': etxn.tx.fyle_category,
+                    'external_id': etxn.tx.external_id,
+                    'transaction_id': etxn.tx.id
+                  }
+                });
+              }
+            });
+          });
+        }
 
-  //       removeEntry(entry);
+        if (reportId) {
+          txnIds = [resp.id];
+          ReportService.addTransactions(reportId, txnIds).then(function (result) {
+            TrackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
+            return result;
+          });
+        }
 
-  //       //This would be on matching an expense for the first time
-  //       if (entry.transaction.matchCCCId) {
-  //         TransactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId);
-  //       }
+        removeEntry(entry);
 
-  //       if (entry.applyMagic) {
-  //         addDataExtractionEntry(resp, entry.dataUrls);
-  //       }
-  //     })
-  //   )
+        //This would be on matching an expense for the first time
+        if (entry.transaction.matchCCCId) {
+          TransactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId);
+        }
 
-  //   TransactionService.createTxnWithFiles(entry.transaction, fileObjPromiseArray).then(function (resp) {
-  //     d.resolve(entry);
-  //   }, function (err) {
-  //     TrackingService.syncError({ Asset: 'Mobile', label: err });
+        if (entry.applyMagic) {
+          addDataExtractionEntry(resp, entry.dataUrls);
+        }
+      })
+    )
 
-  //     d.reject(err);
-  //     console.log("unable to upload.. will try later");
-  //   });
+    TransactionService.createTxnWithFiles(entry.transaction, fileObjPromiseArray).then(function (resp) {
+      d.resolve(entry);
+    }, function (err) {
+      TrackingService.syncError({ Asset: 'Mobile', label: err });
 
-  //   return d.promise;
-  // }
+      d.reject(err);
+      console.log("unable to upload.. will try later");
+    });
+
+    return d.promise;
+  }
 
   // sync() {
   //   self = this;

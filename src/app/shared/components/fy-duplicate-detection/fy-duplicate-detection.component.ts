@@ -1,62 +1,42 @@
-import { Component, OnInit, forwardRef, Input, ContentChild, TemplateRef, ElementRef, OnDestroy, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, FormControl, NgControl } from '@angular/forms';
+import { Component, OnInit, Input, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
+import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
+import { FyDuplicateDetectionModalComponent } from './fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
 import { isEqual } from 'lodash';
 
 @Component({
-  selector: 'app-fy-select',
-  templateUrl: './fy-select.component.html',
-  styleUrls: ['./fy-select.component.scss'],
+  selector: 'app-fy-duplicate-detection',
+  templateUrl: './fy-duplicate-detection.component.html',
+  styleUrls: ['./fy-duplicate-detection.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FySelectComponent),
+      useExisting: forwardRef(() => FyDuplicateDetectionComponent),
       multi: true
-    },
-    // {
-    //   provide: NG_VALIDATORS,
-    //   useExisting: FySelectComponent,
-    //   multi: true
-    // }
+    }
   ]
 })
-export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
-  private ngControl: NgControl;
-  @Input() options: { label: string, value: any }[] = [];
-  @Input() disabled = false;
-  @Input() label = '';
-  @Input() mandatory = false;
-  @Input() selectionElement: TemplateRef<any>;
-  @Input() nullOption = true;
+export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccessor {
+
+  @Input() duplicates: any;
+  @Input() transactionId: any;
 
   private innerValue;
   displayValue;
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
-
   private onTouchedCallback: () => void = noop;
   private onChangeCallback: (_: any) => void = noop;
+  options: { label: string, value: any }[];
 
   constructor(
     private modalController: ModalController,
-    private injector: Injector
+    private duplicateDetectionService: DuplicateDetectionService
   ) { }
 
   ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
-
-  ngOnDestroy(): void {
-    // this.ngControl.control.clearValidators();
-    // this.ngControl.control.updateValueAndValidity();
+    this.options = this.duplicateDetectionService.getDuplicateReasons().map(reason => ({ label: reason, value: reason }));
   }
 
   get value(): any {
@@ -79,12 +59,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
   async openModal() {
     const selectionModal = await this.modalController.create({
-      component: FySelectModalComponent,
+      component: FyDuplicateDetectionModalComponent,
       componentProps: {
         options: this.options,
-        currentSelection: this.value,
-        selectionElement: this.selectionElement,
-        nullOption: this.nullOption
+        currentSelection: this.value
       }
     });
 
@@ -98,7 +76,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   onBlur() {
-    console.log('Blurrrred');
     this.onTouchedCallback();
   }
 
@@ -111,14 +88,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       }
     }
   }
-
-  // validate(fc: FormControl) {
-  //   if (this.mandatory && fc.value === null) {
-  //     return {
-  //       required: true
-  //     };
-  //   }
-  // }
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;

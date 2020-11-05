@@ -10,9 +10,6 @@ $list-element-color: #333;
     border-bottom: 1px solid $header-border;
     font-size: 16px;
     color: $list-element-color;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
   }
 
   &--title {

@@ -20,6 +20,7 @@ import { FySelectProjectComponent } from './fy-select-project/fy-select-project.
 import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
 import { FySelectVendorComponent } from './fy-select-vendor/fy-select-vendor.component';
 import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal
     MatRippleModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatCheckboxModule,
     SharedModule
   ],
   declarations: [

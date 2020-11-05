@@ -1,5 +1,5 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, OnDestroy, Injector } from '@angular/core';
+import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -14,23 +14,47 @@ import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.compon
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectProjectComponent),
       multi: true
-    }
+    },
+    // {
+    //   provide: NG_VALIDATORS,
+    //   useExisting: FySelectProjectComponent,
+    //   multi: true
+    // }
   ]
 })
-export class FySelectProjectComponent implements OnInit {
+export class FySelectProjectComponent implements OnInit, ControlValueAccessor, OnDestroy {
+  private ngControl: NgControl;
+
   @Input() mandatory = false;
+  @Input() label = 'Project';
 
   private innerValue;
   displayValue;
+
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
+  }
 
   private onTouchedCallback: () => void = noop;
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
     private modalController: ModalController,
+    private injector: Injector
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
+  }
+
+  ngOnDestroy(): void {
+    // this.ngControl.control.clearValidators();
+    // this.ngControl.control.updateValueAndValidity();
+  }
 
   get value(): any {
     return this.innerValue;
@@ -78,6 +102,14 @@ export class FySelectProjectComponent implements OnInit {
       }
     }
   }
+
+  // validate(fc: FormControl) {
+  //   if (this.mandatory && fc.value === null) {
+  //     return {
+  //       required: true
+  //     };
+  //   }
+  // }
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;

@@ -18,6 +18,9 @@ import { FyLocationModalComponent } from './components/fy-location/fy-location-m
 import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-multiselect-modal/fy-multiselect-modal.component';
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
+import { FyDuplicateDetectionComponent } from './components/fy-duplicate-detection/fy-duplicate-detection.component';
+import { FyDuplicateDetectionModalComponent } from './components/fy-duplicate-detection/fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
 
 
 
@@ -34,7 +37,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     FyUserlistComponent,
     FyLocationModalComponent,
     FyMultiselectModalComponent,
-    FyUserlistModalComponent
+    FyUserlistModalComponent,
+    FyAlertComponent,
+    FyDuplicateDetectionComponent,
+    FyDuplicateDetectionModalComponent
   ],
   imports: [
     CommonModule,
@@ -53,7 +59,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     FySelectComponent,
     FyLocationComponent,
     FyMultiselectComponent,
-    FyUserlistComponent
+    FyUserlistComponent,
+    FyAlertComponent,
+    FyDuplicateDetectionComponent,
   ]
 })
 export class SharedModule { }
