@@ -1,0 +1,96 @@
+<ion-header>
+  <ion-toolbar class="my-edit-report--toolbar">
+    <ion-buttons mode="md" slot="end" (click)="goBack()">
+      <mat-icon>close</mat-icon>
+    </ion-buttons>
+    <ion-title mode="md">
+      <span>Edit Report</span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="my-edit-report--container" *ngIf="extendedReport$|async as extendedReport">
+
+      <div class="my-edit-report--add-expense-container" (click)="showAddExpensesToReportModal()" *ngIf="(extendedReport.rp_state === 'DRAFT' || extendedReport.rp_state === 'APPROVER_PENDING')">
+        <mat-icon class="my-edit-report--add-expense-icon">add_circle_outline</mat-icon>
+        <span class="my-edit-report--add-expense-title">Add expenses to report</span>
+      </div>
+
+      <div class="my-edit-report--report-info">
+        <div>
+          <span class="my-edit-report--report-info-currency">{{extendedReport.rp_currency}}</span> 
+          <span class="my-edit-report--report-info-amount"> {{extendedReport.rp_amount}} </span>
+        </div>
+        <p class="my-edit-report--report-info-no-of-txns">Contain {{extendedReport.rp_num_transactions}} expenses</p>
+      </div>
+
+      <div class="my-edit-report--expense-list" *ngIf="addedExpensesIdList.length > 0">
+        <p class="my-edit-report--expense-list-title">Selected Expenses To Add</p>
+        <div *ngFor="let unReportedEtxn of unReportedEtxns; let i = index;">
+
+          <div *ngIf="addedExpensesIdList.indexOf(unReportedEtxn.tx_id) > -1">
+            <div class="my-edit-report--expense-card">
+              <ion-row>
+                <ion-col size="3" (click)="removeExpenseFromAddedExpensesList(unReportedEtxn)">
+                  <mat-icon class="my-edit-report--expense-card-icon">remove_circle</mat-icon>
+                </ion-col>
+                <ion-col size ="9">
+                  <ion-row>
+                    <span class="my-edit-report--expense-card-currency">{{unReportedEtxn.tx_currency}}</span>
+                    <span class="my-edit-report--expense-card-amount">{{unReportedEtxn.tx_amount}}</span>
+                  </ion-row>
+      
+                  <ion-row class="my-edit-report--expense-card-vendor">{{unReportedEtxn.vendorDetails}}</ion-row>
+                  <ion-row class="my-edit-report--expense-card-category">{{unReportedEtxn.tx_org_category}}</ion-row>
+                </ion-col>
+              </ion-row>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="my-edit-report--expense-list">
+        <p class="my-edit-report--expense-list-title">Report Expenses</p>
+        <div *ngFor="let reportedEtxn of reportedEtxns$|async as reportedEtxns; let i = index;">
+
+          <div class="my-edit-report--expense-card">
+            <ion-row [ngClass]="{'my-edit-report--expense-card-info-hidden': reportedEtxn.isHidden}">
+              <ion-col size="3" (click)="addExpenseToDeleteList(reportedEtxn)">
+                <mat-icon class="my-edit-report--expense-card-icon">remove_circle</mat-icon>
+              </ion-col>
+              <ion-col size ="9">
+                <ion-row>
+                  <span class="my-edit-report--expense-card-currency">{{reportedEtxn.tx_currency}}</span>
+                  <span class="my-edit-report--expense-card-amount">{{reportedEtxn.tx_amount}}</span>
+                </ion-row>
+    
+                <ion-row class="my-edit-report--expense-card-vendor">{{reportedEtxn.vendorDetails}}</ion-row>
+                <ion-row class="my-edit-report--expense-card-category">{{reportedEtxn.tx_org_category}}</ion-row>
+              </ion-col>
+            </ion-row>
+
+            <div class="my-edit-report--expense-card-removed-info-block" *ngIf="reportedEtxn.isHidden">
+              <p class="my-edit-report--expense-card-removed-info">Expense will be removed</p>
+              <p class="my-edit-report--expense-card-removed-undo-action" (click)="undoExpenseDelete(reportedEtxn)">Undo</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+    
+  </div>
+
+</ion-content>
+
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button class="my-edit-report--primary-cta" fill="solid" color="fyle-primary" expand="block" [disabled]="!isReportEdited">
+      Save Report
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

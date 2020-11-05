@@ -97,6 +97,10 @@ const routes: Routes = [
   {
     path: 'view_team_mileage',
     loadChildren: () => import('./view-team-mileage/view-team-mileage.module').then( m => m.ViewTeamMileagePageModule)
+  },
+  {
+    path: 'my_edit_report',
+    loadChildren: () => import('./my-edit-report/my-edit-report.module').then( m => m.MyEditReportPageModule)
   }
 ];
 

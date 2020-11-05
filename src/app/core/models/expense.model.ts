@@ -1,4 +1,7 @@
 export interface Expense {
+  isSelected?: boolean;
+  showDt?: boolean;
+  vendorDetails?: string;
   external_expense_id?: any;
   external_expense_source?: any;
   matched_by?: any;
