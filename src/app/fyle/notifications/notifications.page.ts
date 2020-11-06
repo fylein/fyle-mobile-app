@@ -6,6 +6,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 
 @Component({
@@ -36,7 +37,8 @@ export class NotificationsPage implements OnInit {
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private formBuilder: FormBuilder,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private loaderService: LoaderService
   ) { }
 
   updateDelegateeSubscription() {
@@ -110,22 +112,20 @@ export class NotificationsPage implements OnInit {
       }
     });
 
-    this.orgUserSettings.notification_settings.email.unsubscribed_events =
-    this.orgUserSettings.notification_settings.email.unsubscribed_events
-      .concat(unsubscribedEmailEvents)
-      .filter((value, index, self) => {
-        return self.indexOf(value) === index;
-      });
+    this.orgUserSettings.notification_settings.email.unsubscribed_events = [];
+    this.orgUserSettings.notification_settings.email.unsubscribed_events = unsubscribedEmailEvents;
 
-    this.orgUserSettings.notification_settings.push.unsubscribed_events =
-    this.orgUserSettings.notification_settings.push.unsubscribed_events
-      .concat(unsubscribedPushEvents)
-      .filter((value, index, self) => {
-        return self.indexOf(value) === index;
-      });
+    this.orgUserSettings.notification_settings.push.unsubscribed_events = [];
+    this.orgUserSettings.notification_settings.push.unsubscribed_events = unsubscribedPushEvents;
 
-    console.log('this.orgUserSettings.notification_settings', this.orgUserSettings.notification_settings);
-
+    console.log('this.orgUserSettings.notification_settings', this.orgUserSettings);
+    from(this.loaderService.showLoader('Saving')).pipe(
+      switchMap(() => {
+        console.log('commingngggg');
+        return this.orgUserSettingsService.post(this.orgUserSettings);
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(noop);
   }
 
   isAllEventsSubscribed() {
@@ -148,14 +148,14 @@ export class NotificationsPage implements OnInit {
   updateAdvanceRequestFeatures() {
     this.orgSettings$.pipe(
       map(setting => {
-        if (!setting && setting.advance_requests && setting.advance_requests.enabled) {
+        if (!setting.advance_requests.enabled) {
           this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => {
             return notificationEvent.feature !== 'advances';
           });
           delete this.notificationEvents.features.advances;
         }
       })
-    );
+    ).subscribe(noop);
   }
 
   updateTripRequestFeatures() {
@@ -180,7 +180,11 @@ export class NotificationsPage implements OnInit {
           });
         }
       })
-    );
+    ).subscribe(noop);
+  }
+
+  updateDelegateeNotifyPreference() {
+    this.orgUserSettings.notification_settings.notify_only_delegatee = !this.orgUserSettings.notification_settings.notify_only_delegatee;
   }
 
   removeDisabledFeatures() {

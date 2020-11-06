@@ -18,7 +18,7 @@
       <ng-container *ngIf="isDelegateePresent$|async">
         <h2>Delegatee Notification</h2>
         <mat-form-field class="notifications--form-fields">
-          <mat-select formControlName="notifyOption">
+          <mat-select formControlName="notifyOption"  (selectionChange)="updateDelegateeNotifyPreference()">
             <mat-option *ngFor="let option of delegationOptions" [value]="option">
               {{option}}
             </mat-option>
