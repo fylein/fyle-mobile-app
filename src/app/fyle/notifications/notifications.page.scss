@@ -17,4 +17,53 @@ $heading-shadow-color: #ababab;
   &--form-fields {
     width: 100%;
   }
+
+  &--select-box {
+    display: flex;
+  }
+
+  &--checkbox-square {
+    margin: 10px 6px;
+    margin-right: 30px;
+    width: 30px;
+    height: 30px
+  }
+
+  &--checkbox-square-header {
+    margin: 10px 6px;
+    width: 30px;
+    height: 30px
+  }
+
+  &--type-icon {
+    height: 16px;
+    fill: gray;
+    vertical-align: middle;
+  }
+
+  &--odd {
+    background-color: #f3f5f8;
+  }
+
+  &--action-button {
+    background-color: #ff3366;
+    color: #fff;
+    display: block;
+    margin: 30px auto 10px;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+    font-size: 20px;
+    height: 48px;
+    line-height: 48px;
+    border-radius: 4px;
+  }
+
+  .mat-checkbox-inner-container {
+    margin-right: 30px !important;
+  }
+
+
 }

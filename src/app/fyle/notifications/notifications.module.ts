@@ -6,15 +6,20 @@ import { NotificationsPageRoutingModule } from './notifications-routing.module';
 import { NotificationsPage } from './notifications.page';
 import { MatSelectModule } from '@angular/material/select';
 import { SharedModule } from '../../shared/shared.module';
+import { ReactiveFormsModule } from '@angular/forms';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     IonicModule,
     NotificationsPageRoutingModule,
     MatSelectModule,
-    SharedModule
+    SharedModule,
+    MatCheckboxModule
   ],
   declarations: [NotificationsPage]
 })
