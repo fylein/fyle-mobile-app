@@ -17,7 +17,7 @@
       <input class="my-edit-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required (ngModelChange)="setPurposeChanged()">
     </div>
 
-      <div class="my-edit-report--add-expense-container" (click)="showAddExpensesToReportModal()" *ngIf="(extendedReport.rp_state === 'DRAFT' || extendedReport.rp_state === 'APPROVER_PENDING')">
+      <div class="my-edit-report--add-expense-container" (click)="showAddExpensesToReportModal()" *ngIf="(extendedReport.rp_state === 'DRAFT' || extendedReport.rp_state === 'APPROVER_PENDING') && (unReportedEtxns && unReportedEtxns.length > 0)">
         <mat-icon class="my-edit-report--add-expense-icon">add_circle_outline</mat-icon>
         <span class="my-edit-report--add-expense-title">Add expenses to report</span>
       </div>
