@@ -1,0 +1,136 @@
+.my-edit-report {
+
+  &--container {
+    padding: 15px;
+  }
+
+  &--report-card {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    border: 1px solid #fff;
+    padding: 10px;
+  }
+
+  &--report-title {
+    color: #ababab;
+    font-size: 16px;
+  }
+
+  &--report-name {
+    width: 100%;
+    font-size: 20px;
+    color: #4a4a4a;
+    border: 0;
+  }
+
+  &--add-expense-container {
+    font-size: 16px;
+    color: #0077ee;
+    margin-bottom: 16px;
+    display: flex;
+  }
+
+  &--add-expense-title {
+    margin-left: 10px;
+    margin-top: 2px;
+  }
+  
+  &--report-info {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+  }
+  
+  &--report-info-currency {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 700;
+  }
+
+  &--report-info-amount {
+    font-size: 24px;
+    color: #000;
+    font-weight: 500;
+  }
+
+  &--report-info-no-of-txns {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 300;
+  }
+
+  &--expense-list-title {
+    font-size: 14px;
+    color: #818a91;
+    font-weight: 700;
+  }
+
+  &--expense-card {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    border: 1px solid #fff;
+    padding: 10px;
+    position: relative;
+  }
+
+  &--expense-card-info-hidden {
+    opacity: .3;
+  }
+
+  &--expense-card-icon {
+    color: #f00;
+    padding: 16px;
+  }
+
+  &--expense-card-currency {
+    color: #ababab;
+  }
+
+  &--expense-card-amount {
+    font-size: 18px;
+    margin-left: 8px;
+    font-weight: 700;
+    color: #4a4a4a
+  }
+
+  &--expense-card-vendor {
+    font-size: 16px;
+    color: #4a4a4a;
+  }
+
+  &--expense-card-category {
+    color: #ababab;
+  }
+
+  &--expense-card-removed-info-block {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  &--expense-card-removed-info {
+    color: #f00;
+    font-size: 16px;
+    margin-top: 18px;
+  }
+
+  &--expense-card-removed-undo-action {
+    padding: 6px;
+    font-size: 16px;
+    background: #4798FF;
+    color: #fff;
+    width: 76px;
+    margin: 14px auto 0;
+    line-height: 1;
+    text-transform: uppercase;
+    border-radius: 4px;
+  }  
+}

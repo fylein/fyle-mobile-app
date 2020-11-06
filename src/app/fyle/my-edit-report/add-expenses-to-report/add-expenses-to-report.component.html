@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar class="add-expenses-to-report--toolbar">
+    <ion-buttons mode="md" slot="end" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </ion-buttons>
+    <ion-title mode="md">
+      <span>Add Expenses</span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="add-expenses-to-report--container">
+    <div *ngFor="let etxn of unReportedEtxns as list; let i = index">
+      <p class="add-expenses-to-report--expense-date" *ngIf="etxn.showDt">
+        <span>{{etxn.tx_txn_dt | date: 'EEEE, dd MMMM yyyy'}}</span>
+      </p>
+      <ion-grid class="add-expenses-to-report--item-card" [ngClass]="{'add-expenses-to-report--item-card-selected': etxn.isSelected}" (click)="toggleTransaction(etxn)">
+        <ion-row>
+          <ion-col size="3">
+            <ion-checkbox class="add-expenses-to-report--item-card-checkbox" checked="{{etxn.isSelected}}"></ion-checkbox>
+          </ion-col>
+          <ion-col size ="9">
+            <ion-row>
+              <span class="add-expenses-to-report--item-card-currency">{{etxn.tx_currency}}</span>
+              <span class="add-expenses-to-report--item-card-amount">{{etxn.tx_amount}}</span>
+            </ion-row>
+  
+            <ion-row class="add-expenses-to-report--item-card-vendor">{{etxn.vendorDetails}}</ion-row>
+            <ion-row class="add-expenses-to-report--item-card-category">{{etxn.tx_org_category}}</ion-row>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="add-expenses-to-report--footer">
+      <div>
+        <span class="add-expenses-to-report--footer-currency">{{homeCurrency$ | async}}</span> 
+        <span class="add-expenses-to-report--footer-amount"> {{selectedTotalAmount}} </span>
+      </div>
+      <div class="add-expenses-to-report--footer-summary">
+        {{selectedTotalTxns}} expenses selected
+      </div>
+      <ion-button class="add-expenses-to-report--primary-cta" fill="solid" color="fyle-primary" [disabled]="!(selectedTotalTxns > 0)" (click)="addExpensestoReport()">
+        ADD TO REPORT
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

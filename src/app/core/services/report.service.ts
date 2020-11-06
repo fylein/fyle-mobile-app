@@ -251,4 +251,23 @@ export class ReportService {
     );
   }
 
+  createDraft(report) {
+    return this.apiService.post('/reports', report);
+  }
+
+  addTransactions(reportId, txnIds) {
+    return this.apiService.post('/reports/' + reportId + '/txns', {
+      ids: txnIds
+    });
+  }
+
+  removeTransaction(rptId, txnId, comment?) {
+    var aspy = {
+      status: {
+        comment
+      }
+    };
+    return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy);
+  };
+
 }
