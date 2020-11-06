@@ -193,10 +193,6 @@ export class MyEditReportPage implements OnInit {
         this.unReportedEtxns = etxns;
       }),
     ).subscribe(noop);
-
-    // this.unReportedEtxns$.subscribe(res => {
-    //   debugger;
-    // })
   }
 
 }
