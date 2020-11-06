@@ -20,11 +20,9 @@
 
     <div class="dashboard-card--needs-attention dashboard-card--need-attention-block" *ngIf="this.needsAttentionStats && this.needsAttentionStats.count && this.needsAttentionStats.count > 0">
       <div class="dashboard-card--need-attention-curve-container">
-        <ion-icon class="dashboard-card--icon-curve" src="../../../assets/svg/curve.svg"></ion-icon>
+        <mat-icon class="dashboard-card--icon-curve" svgIcon="curve"></mat-icon>
         <div class="dashboard-card--need-attention-text text-right">
-          <div class="warning-icon">
-            <ion-icon src="../../../assets/svg/warning.svg"></ion-icon>
-          </div>
+            <mat-icon class="dashboard-card--icon-warning" svgIcon="warning"></mat-icon>
           <div class="text-ellipsis">
             {{ this.needsAttentionStats.count || 0 }} {{ this.needsAttentionStats.count > 1 ? item.subTitle + 's' : item.subTitle }} {{this.needsAttentionStats.count > 1 ? 'need' : 'needs'}} your attention
           </div>
@@ -44,10 +42,10 @@
               <p class="dashboard-card--expanded-card-title m-0"> {{ stat.title }} </p>
             </div>
             <div *ngIf="this.item.title === 'trips'">
-              <ion-icon class="dashboard-card--icon-curve" *ngIf="stat && stat.warning && stat.count && stat.count > 0" class="dashboard-card--icon-card" src="../../../assets/svg/warning-inverted.svg" ></ion-icon>
+              <mat-icon class="dashboard-card--icon-card" *ngIf="stat && stat.warning && stat.count && stat.count > 0"  svgIcon="warning-inverted" ></mat-icon>
             </div>
             <div *ngIf="this.item.title !== 'trips'">
-              <ion-icon class="dashboard-card--icon-curve" *ngIf="stat && stat.warning && stat.total_count && stat.total_count > 0"class="dashboard-card--icon-card" src="../../../assets/svg/warning-inverted.svg"></ion-icon>
+              <mat-icon class="dashboard-card--icon-card" *ngIf="stat && stat.warning && stat.total_count && stat.total_count > 0" svgIcon="warning-inverted"></mat-icon>
             </div>
           </div>
           <p class="dashboard-card--card-count">
@@ -60,7 +58,7 @@
           <div class="dashboard-card--expanded-amount-icon">
             <div *ngIf="this.item.title !== 'trips'" class="dashboard-card--expanded-amount" [textContent]="this.stat.total_amount | humanizeCurrency: this.homeCurrency:2"></div>
             <div class="icon-arrow-left">
-              <ion-icon class="dashboard-card--expanded-icon" src="../../../assets/svg/chevron-right.svg"></ion-icon>
+              <mat-icon class="dashboard-card--expanded-icon" svgIcon="chevron-right"></mat-icon>
             </div>
           </div>
         </ion-col>
