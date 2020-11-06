@@ -1,4 +1,5 @@
 export interface Expense {
+  isHidden?: boolean;
   isSelected?: boolean;
   showDt?: boolean;
   vendorDetails?: string;

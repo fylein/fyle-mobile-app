@@ -76,36 +76,41 @@ export class MyEditReportPage implements OnInit {
 
     const { data } = await AddExpensesToReportModal.onWillDismiss();
     if (data && data.selectedTxnIds) {
-      console.log(data);
       this.addedExpensesIdList = data.selectedTxnIds;
       this.checkReportEdited();
     }
   }
 
-  addExpenseToDeleteList(etxn) {
+  addExpenseToDeleteList(etxn: Expense) {
     etxn.isHidden = true;
     this.deleteExpensesIdList.push(etxn.tx_id);
     this.checkReportEdited();
-    // updateStats(etxn);
+    // Todo: update report amount and count after 
+    // 1. deselct old reported expense and 
+    // 2. select new expense
   };
 
-  undoExpenseDelete(etxn) {
+  undoExpenseDelete(etxn: Expense) {
     etxn.isHidden = false;
     let index = this.deleteExpensesIdList.indexOf(etxn.tx_id);
     this.deleteExpensesIdList.splice(index, 1);
     this.checkReportEdited();
-    // updateStats(etxn);
+    // Todo: update report amount and count after 
+    // 1. deselct old reported expense and 
+    // 2. select new expense
   }
 
-  removeExpenseFromAddedExpensesList(etxn) {
+  removeExpenseFromAddedExpensesList(etxn: Expense) {
     etxn.isSelected = false;
     let index = this.addedExpensesIdList.indexOf(etxn.tx_id);
     this.addedExpensesIdList.splice(index, 1);
     this.checkReportEdited();
+    // Todo: update report amount and count after 
+    // 1. deselct old reported expense and 
+    // 2. select new expense
   }
 
   setPurposeChanged() {
-    console.log("changed");
     this.isPurposeChanged = true;
     this.checkReportEdited();
   }
@@ -118,7 +123,6 @@ export class MyEditReportPage implements OnInit {
 
     return forkJoin(removeTxnList$);
   }
-
 
   saveReport() {
     let report = {
