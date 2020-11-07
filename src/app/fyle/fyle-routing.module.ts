@@ -55,7 +55,7 @@ const routes: Routes = [
     loadChildren: () => import('./my-view-advance-request/my-view-advance-request.module').then( m => m.MyViewAdvanceRequestPageModule)
   },
   {
-    path: 'team-advance',
+    path: 'team_advance',
     loadChildren: () => import('./team-advance/team-advance.module').then( m => m.TeamAdvancePageModule)
   },
   {
@@ -69,6 +69,42 @@ const routes: Routes = [
   {
     path: 'my_view_advance',
     loadChildren: () => import('./my-view-advance/my-view-advance.module').then( m => m.MyViewAdvancePageModule)
+  },
+  {
+    path: 'my_view_expense',
+    loadChildren: () => import('./my-view-expense/my-view-expense.module').then( m => m.MyViewExpensePageModule)
+  },
+  {
+    path: 'delegated_accounts',
+    loadChildren: () => import('./delegated-accounts/delegated-accounts.module').then( m => m.DelegatedAccountsPageModule)
+  },
+  {
+    path: 'view_team_advance',
+    loadChildren: () => import('./view-team-advance/view-team-advance.module').then( m => m.ViewTeamAdvancePageModule)
+  },
+  {
+    path: 'view_team_expense',
+    loadChildren: () => import('./view-team-expense/view-team-expense.module').then( m => m.ViewTeamExpensePageModule)
+  },
+  {
+    path: 'my_view_mileage',
+    loadChildren: () => import('./my-view-mileage/my-view-mileage.module').then( m => m.MyViewMileagePageModule)
+  },
+  {
+    path: 'my_view_per_diem',
+    loadChildren: () => import('./my-view-per-diem/my-view-per-diem.module').then( m => m.MyViewPerDiemPageModule)
+  },
+  {
+    path: 'view_team_per_diem',
+    loadChildren: () => import('./view-team-per-diem/view-team-per-diem.module').then( m => m.ViewTeamPerDiemPageModule)
+  },
+  {
+    path: 'view_team_mileage',
+    loadChildren: () => import('./view-team-mileage/view-team-mileage.module').then( m => m.ViewTeamMileagePageModule)
+  },
+  {
+    path: 'my_edit_report',
+    loadChildren: () => import('./my-edit-report/my-edit-report.module').then( m => m.MyEditReportPageModule)
   }
 ];
 

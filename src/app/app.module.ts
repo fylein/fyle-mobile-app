@@ -14,6 +14,8 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { SharedModule } from './shared/shared.module';
+
 
 @NgModule({
   declarations: [
@@ -25,7 +27,8 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
     IonicModule.forRoot(),
     AppRoutingModule,
     BrowserAnimationsModule,
-    HttpClientModule
+    HttpClientModule,
+    SharedModule
   ],
   providers: [
     StatusBar,

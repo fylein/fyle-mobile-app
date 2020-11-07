@@ -35,8 +35,8 @@
     "cordova-plugin-googleplus": "^8.5.0",
     "cordova-plugin-inappbrowser": "^4.0.0",
     "moment": "^2.27.0",
-    "ngx-cacheable": "^1.4.3",
     "rxjs": "~6.5.5",
+    "ts-cacheable": "^1.0.1",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
   },

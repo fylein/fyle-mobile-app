@@ -1,4 +1,8 @@
 export interface Expense {
+  isHidden?: boolean;
+  isSelected?: boolean;
+  showDt?: boolean;
+  vendorDetails?: string;
   external_expense_id?: any;
   external_expense_source?: any;
   matched_by?: any;
@@ -68,7 +72,7 @@ export interface Expense {
   tx_extracted_data?: any;
   tx_flight_journey_travel_class?: any;
   tx_flight_return_travel_class?: any;
-  tx_from_dt?: any;
+  tx_from_dt?: Date;
   tx_fyle_category: string;
   tx_hotel_is_breakfast_provided?: any;
   tx_id: string;
@@ -159,7 +163,7 @@ export interface Expense {
   tx_timestamp_column7?: any;
   tx_timestamp_column8?: any;
   tx_timestamp_column9?: any;
-  tx_to_dt?: any;
+  tx_to_dt?: Date;
   tx_train_travel_class?: any;
   tx_transcribed_data?: any;
   tx_transcription_state?: any;
@@ -174,4 +178,5 @@ export interface Expense {
   tx_verification_state?: any;
   us_email: string;
   us_full_name: string;
+  tx_categoryDisplayName: string;  // custom property added in the service
 }

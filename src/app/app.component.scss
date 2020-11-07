@@ -8,7 +8,11 @@ $sidenav-bg: #161528;
 
 .list-ios {
   background: $sidenav-bg;
-} 
+}
+
+.main-outlet {
+  margin-top: 20px;
+}
 
 .sidemenu {
   &--header {

@@ -13,4 +13,8 @@ export class PerDiemService {
   getRates() {
     return this.apiService.get('/per_diem_rates');
   }
+
+  getRate(id: number) {
+    return this.apiService.get('/per_diem_rates/' + id);
+  };
 }

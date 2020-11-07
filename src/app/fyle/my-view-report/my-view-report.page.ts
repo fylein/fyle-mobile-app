@@ -125,7 +125,7 @@ export class MyViewReportPage implements OnInit {
 
   goToEditReport() {
     // TODO
-    // this.router.navigate(['/', 'enterprise', 'edit_report', { id: this.activatedRoute.snapshot.params.id }]);
+    this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   async deleteReport() {
@@ -170,7 +170,40 @@ export class MyViewReportPage implements OnInit {
   }
 
   goToTransaction(etxn: any) {
-    this.router.navigate(['/', 'enterprise', 'my_view_expense', { id: etxn.tx_id }]);
+    const canEdit = this.canEditTxn(etxn.tx_state);
+    let category;
+
+    if (etxn.tx_org_category) {
+      category = etxn.tx_org_category.toLowerCase();
+    }
+
+    if (category === 'activity') {
+      // showCannotEditActivityDialog();
+      alert('can not edit Activity -> TODO show can not edit activity Dialog');
+      return;
+    }
+
+    let route;
+
+    if (category === 'mileage') {
+      route = '/enterprise/my_view_mileage';
+      if (canEdit) {
+        route = '/enterprise/my_add_edit_mileage';
+      }
+    } else if (category === 'per diem') {
+      route = '/enterprise/my_view_per_diem';
+      if (canEdit) {
+        route = '/enterprise/my_add_edit_per_diem';
+      }
+    } else {
+      route = '/enterprise/my_view_expense';
+      if (canEdit) {
+        route = '/enterprise/my_add_edit_expense';
+      }
+    }
+
+    // TODO: also need to send scroll position
+    this.router.navigate([route, { id: etxn.tx_id }]);
   }
 
   async shareReport(event) {
@@ -207,5 +240,9 @@ export class MyViewReportPage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  canEditTxn(txState) {
+    return (this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1);
   }
 }

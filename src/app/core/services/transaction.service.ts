@@ -8,6 +8,7 @@ import { from, Observable, range } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
+import { Expense } from '../models/expense.model';
 
 
 
@@ -27,8 +28,25 @@ export class TransactionService {
   ) { }
 
   get(txnId) {
+    // TODO api v2
     return this.apiService.get('/transactions/' + txnId).pipe(
       map((transaction) => {
+        return this.dateService.fixDates(transaction);
+      })
+    );
+  }
+
+  getEtxn(txnId) {
+    // TODO api v2
+    return this.apiService.get('/etxns/' + txnId).pipe(
+      map((transaction) => {
+
+        let categoryDisplayName = transaction.tx_org_category;
+        if (transaction.tx_sub_category && transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
+          categoryDisplayName += ' / ' + transaction.tx_sub_category;
+        }
+        transaction.tx_categoryDisplayName = categoryDisplayName;
+
         return this.dateService.fixDates(transaction);
       })
     );
@@ -262,7 +280,38 @@ export class TransactionService {
     );
   }
 
+  getExpenseV2(id: string): Observable<any> {
+    return this.apiV2Service.get('/expenses', {
+      params: {
+        tx_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as Expense
+      )
+    );
+  }
+
+  fixDates(data: Expense) {
+    data.tx_created_at = new Date(data.tx_created_at);
+    if(data.tx_txn_dt) {
+      data.tx_txn_dt = new Date(data.tx_txn_dt);
+    }
+
+    if(data.tx_from_dt) {
+      data.tx_from_dt = new Date(data.tx_from_dt);
+    }
+
+    if(data.tx_to_dt) {
+      data.tx_to_dt = new Date(data.tx_to_dt);
+    }
+
+    data.tx_updated_at = new Date(data.tx_updated_at);
+    return data;
+  }
+
   delete(txnId: string) {
     return this.apiService.delete('/transactions/' + txnId);
   }
+
 }
