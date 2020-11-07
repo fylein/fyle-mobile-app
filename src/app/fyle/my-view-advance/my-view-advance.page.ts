@@ -19,7 +19,7 @@ export class MyViewAdvancePage implements OnInit {
     private loaderService: LoaderService
   ) { }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceService.getAdvance(id);
 
@@ -30,6 +30,9 @@ export class MyViewAdvancePage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay()
     );
+  }
+  ngOnInit() {
+    
   }
 
 }
