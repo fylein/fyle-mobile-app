@@ -10,60 +10,42 @@ $heading-shadow-color: #ababab;
   }
 
   &--notif-setting-header {
-    color: $heading-shadow-color;
+    color: #ababab;
     padding: 10px 0;
   }
-
-  &--form-fields {
-    width: 100%;
+  
+  &--features-list-row {
+    padding: 2px 0;
   }
 
-  &--select-box {
-    display: flex;
+  &--feature-toggle {
+    align-items: center;
+    display: contents;
   }
 
-  &--checkbox-square {
-    margin: 10px 6px;
-    margin-right: 30px;
-    width: 30px;
-    height: 30px
+  &--checkbox-select-all {
+    padding-right: 0;
+    flex: 10;
+    background-color: transparent;
+    border: none;
   }
 
-  &--checkbox-square-header {
-    margin: 10px 6px;
-    width: 30px;
-    height: 30px
-  }
-
-  &--type-icon {
-    height: 16px;
-    fill: gray;
+  &--notif-type-icon {
     vertical-align: middle;
+    width: 18px;
+    fill: gray;
+    margin-left: 8px;
   }
 
   &--odd {
     background-color: #f3f5f8;
   }
 
-  &--action-button {
-    background-color: #ff3366;
-    color: #fff;
-    display: block;
-    margin: 30px auto 10px;
-    text-align: center;
-    text-decoration: none;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: 100%;
-    font-size: 20px;
-    height: 48px;
-    line-height: 48px;
-    border-radius: 4px;
+  &--primary-cta {
+    margin: 12px 0;
   }
+}
 
-  .mat-checkbox-inner-container {
-    margin-right: 30px !important;
-  }
-
-
+mat-form-field {
+  width: 100%;
 }

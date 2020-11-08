@@ -7,6 +7,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -38,7 +39,8 @@ export class NotificationsPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private formBuilder: FormBuilder,
     private offlineService: OfflineService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private router: Router
   ) { }
 
   updateDelegateeSubscription() {
@@ -94,6 +96,10 @@ export class NotificationsPage implements OnInit {
         email: b
       }));
     });
+  }
+
+  goBack() {
+    this.router.navigate(['/', 'enterprise', 'my_profile']);
   }
 
   saveNotificationSettings() {
@@ -253,10 +259,11 @@ export class NotificationsPage implements OnInit {
       notifyOption = option;
     });
 
+    // creating form
     this.notificationForm = this.formBuilder.group({
       notifyOption: [notifyOption],
-      pushEvents: new FormArray([]),
-      emailEvents: new FormArray([])
+      pushEvents: new FormArray([]), // push notification event form control array
+      emailEvents: new FormArray([]) // email  notification event form control array
     });
 
     this.isDelegateePresent$ = from(this.authService.getEou()).pipe(
@@ -279,6 +286,10 @@ export class NotificationsPage implements OnInit {
       this.setEvents(this.notificationEvents, this.orgUserSettings);
     });
 
+    /**
+     * on valueChange of any check box, checking for all box selected or not
+     * if selected will toggle all select box
+     */
     this.notificationForm.valueChanges.subscribe(change => {
       this.isAllSelected.emailEvents = change.emailEvents.every(selected => selected === true);
       this.isAllSelected.pushEvents = change.pushEvents.every(selected => selected === true);
