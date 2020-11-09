@@ -1,6 +1,6 @@
 export interface Expense {
-  isHidden?: boolean;
   isSelected?: boolean;
+  isHidden?: boolean;
   showDt?: boolean;
   vendorDetails?: string;
   external_expense_id?: any;

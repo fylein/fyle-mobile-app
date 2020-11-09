@@ -67,6 +67,10 @@ const routes: Routes = [
     loadChildren: () => import('./view-team-report/view-team-report.module').then( m => m.ViewTeamReportPageModule)
   },
   {
+    path: 'my_view_advance',
+    loadChildren: () => import('./my-view-advance/my-view-advance.module').then( m => m.MyViewAdvancePageModule)
+  },
+  {
     path: 'my_view_expense',
     loadChildren: () => import('./my-view-expense/my-view-expense.module').then( m => m.MyViewExpensePageModule)
   },
@@ -97,6 +101,10 @@ const routes: Routes = [
   {
     path: 'view_team_mileage',
     loadChildren: () => import('./view-team-mileage/view-team-mileage.module').then( m => m.ViewTeamMileagePageModule)
+  },
+  {
+    path: 'my_create_report',
+    loadChildren: () => import('./my-create-report/my-create-report.module').then( m => m.MyCreateReportPageModule)
   },
   {
     path: 'my_edit_report',
