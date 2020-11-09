@@ -115,7 +115,7 @@ export class TripRequestsService {
     );
   }
 
-  getTeamTripsCount(queryParams = {}) {
+  getTeamTripsCount(queryParams = {})  {
     return this.getTeamTrips({
       offset: 0,
       limit: 1,
@@ -136,6 +136,7 @@ export class TripRequestsService {
           params: {
             offset: config.offset,
             limit: config.limit,
+            order: 'trp_created_at.desc',
             approvers: 'cs.{' + eou.ou.id + '}',
             ...config.queryParams
           }

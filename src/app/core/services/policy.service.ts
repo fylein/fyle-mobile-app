@@ -1,17 +1,20 @@
 import { Injectable } from '@angular/core';
+import { PolicyApiService } from './policy-api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PolicyService {
 
-  constructor() { }
+  constructor(
+    private policyApiService: PolicyApiService
+  ) { }
 
   getCriticalPolicyRules(result) {
     const criticalPopupRules = [];
 
     result.transaction_policy_rule_desired_states.forEach((desiredState) => {
-      if (typeof(desiredState.policy_amount) === 'number' && desiredState.policy_amount < 0.0001) {
+      if (typeof (desiredState.policy_amount) === 'number' && desiredState.policy_amount < 0.0001) {
         criticalPopupRules.push(desiredState.description);
       }
     });
@@ -30,4 +33,12 @@ export class PolicyService {
 
     return popupRules;
   }
+
+  getPolicyRuleViolationsAndQueryParams(txnId) {
+    const params = {
+      txn_id: txnId
+    };
+    return this.policyApiService.get('/policy/violating_transactions', { params });
+  }
+
 }

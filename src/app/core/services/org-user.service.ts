@@ -34,6 +34,7 @@ export class OrgUserService {
     );
   }
 
+  // TODO: move to v2
   getCompanyEouc(params: { offset: number, limit: number }) {
     return this.apiService.get('/eous/company', {
       params
@@ -73,6 +74,7 @@ export class OrgUserService {
   }
 
 
+  // TODO: move to v2
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map(delegatedAccounts => {
@@ -91,6 +93,22 @@ export class OrgUserService {
     });
     return eousFiltered;
 
+  }
+
+  switchToDelegator(orgUser) {
+    return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
+      switchMap(data => {
+        return this.authService.newRefreshToken(data.refresh_token);
+      })
+    );
+  }
+
+  switchToDelegatee() {
+    return this.apiService.post('/orgusers/delegatee_refresh_token').pipe(
+      switchMap(data => {
+        return this.authService.newRefreshToken(data.refresh_token);
+      })
+    );
   }
 
   async isSwitchedToDelegator() {

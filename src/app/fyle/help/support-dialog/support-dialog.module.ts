@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { SupportDialogPageRoutingModule } from './support-dialog-routing.module';
 
 import { SupportDialogPage } from './support-dialog.page';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import { SupportDialogPage } from './support-dialog.page';
     FormsModule,
     IonicModule,
     MatButtonModule,
-    SupportDialogPageRoutingModule
+    SupportDialogPageRoutingModule,
+    MatIconModule
   ],
   declarations: [SupportDialogPage]
 })

@@ -16,6 +16,8 @@ import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { AgmCoreModule } from '@agm/core';
 import { environment } from 'src/environments/environment';
+import { SharedModule } from './shared/shared.module';
+
 
 @NgModule({
   declarations: [
@@ -30,7 +32,8 @@ import { environment } from 'src/environments/environment';
     HttpClientModule,
     AgmCoreModule.forRoot({
       apiKey: environment.GOOGLE_MAPS_API_KEY
-    })
+    }),
+    SharedModule
   ],
   providers: [
     StatusBar,

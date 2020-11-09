@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { switchMap, tap, map, concatMap, reduce, shareReplay } from 'rxjs/operators';
+import { switchMap, tap, map, concatMap, reduce, shareReplay, finalize, mergeMap } from 'rxjs/operators';
 import { from, range, forkJoin, of } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
@@ -269,7 +269,7 @@ export class ReportService {
     params = this.addOrderByParams(params, sortOrder);
 
     return params;
-  };
+  }
 
   userReportsSearchParamsGenerator(params, search) {
 
@@ -293,7 +293,7 @@ export class ReportService {
       // Set toDate to Dec 31, 2020 if none specified
       if (search.dateRange.to) {
         // Setting time to the end of the day
-        toDate = new Date(new Date(search.dateRange.to).setHours(23, 59, 59, 999))
+        toDate = new Date(new Date(search.dateRange.to).setHours(23, 59, 59, 999));
       }
 
       dateParams = {
@@ -319,6 +319,14 @@ export class ReportService {
     return this.apiService.get('/erpts', data).pipe(
       map((erptcs) => {
         return erptcs.map(erptc => this.dataTransformService.unflatten(erptc));
+      })
+    );
+  }
+
+  getReportPurpose(reportPurpose) {
+    return this.apiService.post('/reports/purpose', reportPurpose).pipe(
+      map(res => {
+        return res.purpose;
       })
     );
   }
@@ -394,4 +402,29 @@ export class ReportService {
       ids: txnIds
     });
   }
+  createDraft(report) {
+    return this.apiService.post('/reports', report);
+  }
+
+  create(report, txnIds) {
+    return this.createDraft(report).pipe(
+      switchMap(newReport => {
+        return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe(
+          switchMap(res => {
+            return this.apiService.post('/reports/' + newReport.id + '/submit');
+          })
+        );
+      })
+    );
+  }
+
+  removeTransaction(rptId, txnId, comment?) {
+    const aspy = {
+      status: {
+        comment
+      }
+    };
+    return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy);
+  }
+
 }

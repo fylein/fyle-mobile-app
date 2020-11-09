@@ -98,10 +98,8 @@ export class MyViewTripsPage implements OnInit {
   }
 
   getTripRequestCustomFields(allTripRequestCustomFields, tripRequest: ExtendedTripRequest, requestType, requestObj) {
-    const customFields = this.tripRequestCustomFieldsService
-      .filterByRequestTypeAndTripType(allTripRequestCustomFields, requestType, tripRequest.trp_trip_type);
-    requestObj.custom_field_values = this.customFieldsService
-      .standardizeCustomFields(requestObj.custom_field_values, customFields);
+    const customFields = this.tripRequestCustomFieldsService.filterByRequestTypeAndTripType(allTripRequestCustomFields, requestType, tripRequest.trp_trip_type);
+    requestObj.custom_field_values = this.customFieldsService.standardizeCustomFields(requestObj.custom_field_values, customFields);
     return requestObj;
   }
 

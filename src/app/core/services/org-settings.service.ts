@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+
+
+const orgSettingsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -459,6 +464,9 @@ export class OrgSettingsService {
     };
   }
 
+  @Cacheable({
+    cacheBusterObserver: orgSettingsCacheBuster$
+  })
   get() {
     return this.apiService.get('/org/settings').pipe(
       map(
@@ -472,6 +480,9 @@ export class OrgSettingsService {
     return defaultLimitAmount;
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: orgSettingsCacheBuster$
+  })
   post(settings) {
     const data = this.processOutgoing(settings);
     return this.apiService.post('/org/settings', data);

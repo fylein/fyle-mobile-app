@@ -13,6 +13,7 @@ import { TimezoneService } from 'src/app/services/timezone.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { FileService } from 'src/app/services/file.service';
 import { PolicyApiService } from './policy-api.service';
+import { Expense } from '../models/expense.model';
 
 
 
@@ -37,8 +38,25 @@ export class TransactionService {
   ) { }
 
   get(txnId) {
+    // TODO api v2
     return this.apiService.get('/transactions/' + txnId).pipe(
       map((transaction) => {
+        return this.dateService.fixDates(transaction);
+      })
+    );
+  }
+
+  getEtxn(txnId) {
+    // TODO api v2
+    return this.apiService.get('/etxns/' + txnId).pipe(
+      map((transaction) => {
+
+        let categoryDisplayName = transaction.tx_org_category;
+        if (transaction.tx_sub_category && transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
+          categoryDisplayName += ' / ' + transaction.tx_sub_category;
+        }
+        transaction.tx_categoryDisplayName = categoryDisplayName;
+
         return this.dateService.fixDates(transaction);
       })
     );
@@ -272,6 +290,36 @@ export class TransactionService {
     );
   }
 
+  getExpenseV2(id: string): Observable<any> {
+    return this.apiV2Service.get('/expenses', {
+      params: {
+        tx_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as Expense
+      )
+    );
+  }
+
+  fixDates(data: Expense) {
+    data.tx_created_at = new Date(data.tx_created_at);
+    if (data.tx_txn_dt) {
+      data.tx_txn_dt = new Date(data.tx_txn_dt);
+    }
+
+    if (data.tx_from_dt) {
+      data.tx_from_dt = new Date(data.tx_from_dt);
+    }
+
+    if (data.tx_to_dt) {
+      data.tx_to_dt = new Date(data.tx_to_dt);
+    }
+
+    data.tx_updated_at = new Date(data.tx_updated_at);
+    return data;
+  }
+
   delete(txnId: string) {
     return this.apiService.delete('/transactions/' + txnId);
   }
@@ -385,7 +433,7 @@ export class TransactionService {
 
   getETxn(txnId) {
     return this.apiService.get('/etxns/' + txnId).pipe(
-      map((data) =>{
+      map((data) => {
         const etxn = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(etxn.tx);
 

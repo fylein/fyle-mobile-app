@@ -1,0 +1,98 @@
+.my-create-report {
+
+  &--container {
+    padding: 0 16px;
+  }
+
+  &--report-card {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    border: 1px solid #fff;
+    padding: 10px;
+  }
+
+  &--report-title {
+    color: #ababab;
+    font-size: 16px;
+  }
+
+  &--report-name {
+    width: 100%;
+    font-size: 20px;
+    color: #4a4a4a;
+    border: 0;
+  }
+
+  &--expense-date {
+    color: #ababab;
+    font-size: 16px;
+  }
+
+  &--item-card {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    border: 1px solid #fff;
+    min-height: 100px;
+    padding: 10px;
+  }
+
+  &--item-card-selected {
+    border: 1px solid #0077ee;
+  }
+
+  &--item-card-checkbox {
+    margin: 18px;
+  }
+
+  &--item-card-currency {
+    color: #ababab;
+  }
+
+  &--item-card-amount {
+    font-size: 18px;
+    margin-left: 8px;
+    font-weight: 700;
+    color: #666;
+  }
+
+  &--item-card-vendor {
+    font-size: 16px;
+    color: #666;
+  }
+
+  &--item-card-category {
+    color: #ababab;
+    font-size: 16px;
+  }
+
+  &--footer-currency {
+    font-size: 16px;
+    color: #000;
+    font-weight: 500;
+  }
+
+  &--footer-amount {
+    font-size: 24px;
+    color: #000;
+    font-weight: 500;
+  }
+
+  &--footer-summary {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ababab;
+  }
+
+  &--primary-cta {
+    width: 100%;
+  }
+
+  &--secondary-action {
+    text-align: right;
+    color: #0077EE;
+    font-size: 16px;
+    margin-top: 8px;
+  }
+}

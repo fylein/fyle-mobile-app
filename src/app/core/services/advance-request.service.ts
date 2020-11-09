@@ -3,15 +3,17 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
+import { Approval } from '../models/approval.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdvanceRequestService {
+  
 
   constructor(
     private networkService: NetworkService,
@@ -38,7 +40,7 @@ export class AdvanceRequestService {
         is_sent_back: true
       },
       all: {
-        state: ['APPROVAL_PENDING','DRAFT','APPROVED','REJECTED']
+        state: ['APPROVAL_PENDING', 'DRAFT', 'APPROVED', 'REJECTED']
       }
     };
 
@@ -97,6 +99,28 @@ export class AdvanceRequestService {
     );
   }
 
+  getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
+    return this.apiv2Service.get('/advance_requests', {
+      params: {
+        areq_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as ExtendedAdvanceRequest
+      )
+    );
+  }
+
+  getActions(advanceRequestId: string) {
+    return this.apiService.get('/advance_requests/' + advanceRequestId + '/actions');
+  }
+
+  getApproversByAdvanceRequestId(advanceRequestId: string) {
+    return this.apiService.get('/eadvance_requests/' + advanceRequestId + '/approvals').pipe(
+      map(res => res as Approval[])
+    );
+  }
+
   getTeamadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -104,11 +128,17 @@ export class AdvanceRequestService {
   }) {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
+
+        const defaultParams = {};
+        defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_PENDING'];
+
         return this.apiv2Service.get('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
+            order: 'areq_created_at.desc',
             areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
+            ...defaultParams,
             ...config.queryParams
           }
         });
@@ -127,6 +157,20 @@ export class AdvanceRequestService {
     );
   }
 
+  getActiveApproversByAdvanceRequestId(advanceRequestId: string) {
+    return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
+      map(approvers => {
+        const filteredApprovers = approvers.filter((approver) => {
+          if (approver.state !== 'APPROVAL_DISABLED') {
+            return approver;
+          }
+        })
+        return filteredApprovers;
+      })
+    )
+  }
+  
+
   getMyAdvanceRequestsCount(queryParams = {}) {
     return this.getMyadvanceRequests({
       offset: 0,
@@ -137,7 +181,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getTeamAdvanceRequestsCount(queryParams = {}) {
+  getTeamAdvanceRequestsCount(queryParams: {}) {
     return this.getTeamadvanceRequests({
       offset: 0,
       limit: 1,
@@ -145,6 +189,16 @@ export class AdvanceRequestService {
     }).pipe(
       map(advanceRequest => advanceRequest.count)
     );
+  }
+
+  modifyAdvanceRequestCustomFields(customFields) {
+    customFields = customFields.map(customField => {
+      if (customField.type === 'DATE') {
+        customField.value = new Date(customField.value);
+      }
+      return customField;
+    });
+    return customFields;
   }
 
   fixDates(data: ExtendedAdvanceRequest) {
@@ -201,6 +255,14 @@ export class AdvanceRequestService {
         name: 'Rejected'
       };
     }
+  }
+
+  delete(advanceRequestId: string) {
+    return this.apiService.delete('/advance_requests/' + advanceRequestId);
+  }
+
+  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
   }
 
 

@@ -5,6 +5,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, switchMap, finalize, map, scan, shareReplay } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-team-advance',
@@ -22,7 +23,8 @@ export class TeamAdvancePage implements OnInit {
   constructor(
     private offlineService: OfflineService,
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -34,8 +36,9 @@ export class TeamAdvancePage implements OnInit {
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
+                areq_state: ['eq.APPROVAL_PENDING'],
                 areq_trip_request_id: ['is.null'],
-                areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}']
+                or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
               }
             });
           }),
@@ -54,10 +57,13 @@ export class TeamAdvancePage implements OnInit {
       shareReplay()
     );
 
-    this.count$ = this.advanceRequestService.getTeamAdvanceRequestsCount({
-      areq_trip_request_id: ['is.null'],
-      areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}']
-    }).pipe(
+    this.count$ = this.advanceRequestService.getTeamAdvanceRequestsCount(
+      {
+        areq_state: ['eq.APPROVAL_PENDING'],
+        areq_trip_request_id: ['is.null'],
+        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+      }
+    ).pipe(
       shareReplay()
     );
 
@@ -86,6 +92,10 @@ export class TeamAdvancePage implements OnInit {
     this.currentPageNumber = 1;
     this.loadData$.next(this.currentPageNumber);
     event.target.complete();
+  }
+
+  onAdvanceClick(areq: ExtendedAdvanceRequest) {
+    this.router.navigate(['/', 'enterprise', 'view_team_advance', { id: areq.areq_id }]);
   }
 
 }
