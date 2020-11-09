@@ -103,6 +103,10 @@ const routes: Routes = [
     loadChildren: () => import('./view-team-mileage/view-team-mileage.module').then( m => m.ViewTeamMileagePageModule)
   },
   {
+    path: 'my_create_report',
+    loadChildren: () => import('./my-create-report/my-create-report.module').then( m => m.MyCreateReportPageModule)
+  },
+  {
     path: 'my_edit_report',
     loadChildren: () => import('./my-edit-report/my-edit-report.module').then( m => m.MyEditReportPageModule)
   }

@@ -79,7 +79,7 @@
     <!-- <app-my-expenses-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
       (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-my-expenses-card> -->
     <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
-      (deleteTransaction)="onDeleteExpenseClick($event)" (addTransactionToNewReport)="onAddTransactionToNewReport($event)"  (addTransactionToReport)="onAddTransactionToReport($event)">
+      (deleteTransaction)="onDeleteExpenseClick($event)" (addTransactionToNewReport)="onAddTransactionToNewReport($event, expense.tx_id)"  (addTransactionToReport)="onAddTransactionToReport($event)">
     </app-my-expenses-card>
   </div>
 
