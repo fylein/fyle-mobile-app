@@ -10,39 +10,44 @@ import { TransactionService } from '../core/services/transaction.service';
 import { FileService } from './file.service';
 import { UtilityService } from './utility.service';
 import { StatusService } from './status.service';
+import { cloneDeep } from 'lodash';
+import { ReceiptService } from '../core/services/receipt.service';
+import { ReportService } from '../core/services/report.service';
+import { queue } from 'rxjs/internal/scheduler/queue';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransactionsOutboxService {
   queue = [];
-  syncDeferred = null;
+  syncDeferred: Promise<any> = null;
   syncInProgress = false;
   dataExtractionQueue = [];
   tempQueue;
+
   constructor(
     private storageService: StorageService,
     private dateService: DateService,
-    private httpClient: HttpClient,
-    private offlineService: OfflineService,
     private transactionService: TransactionService,
-    private utilityService: UtilityService,
     private fileService: FileService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private httpClient: HttpClient,
+    private receiptService: ReceiptService,
+    private reportService: ReportService,
+    private offlineService: OfflineService
   ) {
-    from(this.restoreQueue()).subscribe(noop);
+    this.restoreQueue();
   }
 
-
-  saveQueue() {
-    return from(this.storageService.set('outbox', this.queue));
+  async saveQueue() {
+    await this.storageService.set('outbox', this.queue);
   }
 
-  saveDataExtractionQueue() {
-    return from(this.storageService.set('data_extraction_queue', this.dataExtractionQueue));
+  async saveDataExtractionQueue() {
+    await this.storageService.set('data_extraction_queue', this.dataExtractionQueue);
   }
 
-  removeDataExtractionEntry(expense, dataUrls) {
+  async removeDataExtractionEntry(expense, dataUrls) {
     const entry = {
       transaction: expense,
       dataUrls
@@ -50,111 +55,90 @@ export class TransactionsOutboxService {
 
     const idx = this.dataExtractionQueue.indexOf(entry);
     this.dataExtractionQueue.splice(idx, 1);
-    return this.saveDataExtractionQueue();
+    console.log('removing entry ' + idx);
+    await this.saveDataExtractionQueue();
   }
 
-  restoreQueue() {
-    const queue$ = from(this.storageService.get('outbox'));
-    const dataExtractionQueue$ = from(this.storageService.get('data_extraction_queue'));
+  async restoreQueue() {
+    this.queue = await this.storageService.get('outbox');
+    this.dataExtractionQueue = await this.storageService.get('data_extraction_queue');
 
-    return forkJoin({
-      queue: queue$,
-      dataExtractionQueue: dataExtractionQueue$
-    }).pipe(
-      map(({ queue, dataExtractionQueue }) => {
-        this.queue = queue;
-        this.dataExtractionQueue = dataExtractionQueue;
+    if (!this.queue) {
+      this.queue = [];
+    }
 
-        if (!this.queue) {
-          this.queue = [];
-        }
+    if (!this.dataExtractionQueue) {
+      this.dataExtractionQueue = [];
+    }
 
-        if (!this.dataExtractionQueue) {
-          this.dataExtractionQueue = [];
-        }
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.queue.length; i++) {
+      const entry = this.queue[i];
+      // In localStorage the date objects are stored as string, have to convert them to date instance
+      entry.transaction = this.dateService.fixDates(entry.transaction);
+    }
 
-        this.queue = this.queue.map(entry => {
-          // In localStorage the date objects are stored as string, have to convert them to date instance
-          entry.transaction = this.dateService.fixDates(entry.transaction);
-          return entry;
-        });
-
-        this.dataExtractionQueue = this.dataExtractionQueue.map(entry => {
-          // In localStorage the date objects are stored as string, have to convert them to date instance
-          entry.transaction = this.dateService.fixDates(entry.transaction);
-          return entry;
-        });
-        return {
-          queue: this.queue,
-          dataExtractionQueue: this.dataExtractionQueue
-        };
-      })
-    );
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.dataExtractionQueue.length; i++) {
+      const entry = this.dataExtractionQueue[i];
+      // In localStorage the date objects are stored as string, have to convert them to date instance
+      entry.transaction = this.dateService.fixDates(entry.transaction);
+    }
   }
 
-  addDataExtractionEntry(transaction, dataUrls) {
+  async addDataExtractionEntry(transaction, dataUrls) {
     this.dataExtractionQueue.push({
       transaction,
       dataUrls
     });
-    return from(this.saveDataExtractionQueue());
+    await this.saveDataExtractionQueue();
   }
 
-  extractData(data, suggestedCurrency) {
-    return this.httpClient.post(environment.ROOT_URL + '/data_extraction/extract', {
-      files: [{
-        name: '000.jpeg',
-        content: data
-      }],
-      suggested_currency: suggestedCurrency
-    }, {
-      headers: new HttpHeaders({ timeout: `${15000}` })
-    }).pipe(
-      map((res: any) => res.data)
-    );
-  }
-
-  parseReceipt(data) {
-    return this.offlineService.getHomeCurrency().pipe(
-      catchError(err => null),
-      switchMap((homeCurrency) => {
-        return this.extractData(data, homeCurrency);
-      }),
-    );
-  }
-
-  processDataExtractionEntry() {
-    const clonedQueue = [...this.dataExtractionQueue];
+  async processDataExtractionEntry() {
+    const that = this;
+    const clonedQueue = cloneDeep(this.dataExtractionQueue);
 
     if (clonedQueue.length > 0) {
       // calling data_extraction serially for all expenses in queue.
       // https://gist.github.com/steve-taylor/5075717
-      return from(clonedQueue).pipe(
-        concatMap((entry) => {
-          const base64Image = entry.dataUrls[0].url.replace('data:image/jpeg;base64,', '');
-          return this.parseReceipt(base64Image).pipe(
-            concatMap((res: any) => {
-              const parsedResponse = res.data;
-              if (parsedResponse) {
-                const extractedData = {
-                  amount: parsedResponse.amount,
-                  currency: parsedResponse.currency,
-                  category: parsedResponse.category,
-                  date: parsedResponse.date ? new Date(parsedResponse.date) : null,
-                  vendor: parsedResponse.vendor
-                };
+      const loop = (index) => {
+        const entry = clonedQueue[index];
 
-                entry.transaction.extracted_data = extractedData;
-                entry.transaction.txn_dt = new Date();
-                return this.transactionService.upsert(entry.transaction);
-              }
-            }),
-            finalize(() => from(this.removeDataExtractionEntry(entry.transaction, entry.dataUrls)))
-          );
-        })
-      );
-    } else {
-      return EMPTY;
+        const base64Image = entry.dataUrls[0].url.replace('data:image/jpeg;base64,', '');
+
+        that.parseReceipt(base64Image).then((response) => {
+          const parsedResponse = response.data;
+
+          if (parsedResponse) {
+            const extractedData = {
+              amount: parsedResponse.amount,
+              currency: parsedResponse.currency,
+              category: parsedResponse.category,
+              date: parsedResponse.date ? new Date(parsedResponse.date) : null,
+              vendor: parsedResponse.vendor
+            };
+
+            entry.transaction.extracted_data = extractedData;
+            entry.transaction.txn_dt = new Date();
+
+            this.transactionService.upsert(entry.transaction).toPromise().finally(() => {
+              this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+            });
+
+          } else {
+            this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+          }
+        }, (err) => {
+          this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+        }).finally(() => {
+          // iterating to next item on list.
+          if (index < clonedQueue.length - 1) {
+            loop(index + 1);
+          }
+        });
+      };
+
+      loop(0);
     }
   }
 
@@ -164,41 +148,45 @@ export class TransactionsOutboxService {
     });
   }
 
-  fileUpload(dataUrl, fileType, receiptCoordinates) {
-    let fileExtension = fileType;
-    let contentType = 'application/pdf';
+  async fileUpload(dataUrl, fileType, receiptCoordinates) {
+    return new Promise((resolve, reject) => {
+      let fileExtension = fileType;
+      let contentType = 'application/pdf';
 
-    if (fileType === 'image') {
-      fileExtension = 'jpeg';
-      contentType = 'image/jpeg';
-    }
+      if (fileType === 'image') {
+        fileExtension = 'jpeg';
+        contentType = 'image/jpeg';
+      }
 
-    return this.fileService.post({
-      name: '000.' + fileExtension,
-      receipt_coordinates: receiptCoordinates
-    }).pipe(
-      concatMap((fileObj: any) => {
-        return forkJoin({
-          uploadUrl: this.fileService.uploadUrl(fileObj.id),
-          blob: from(fetch(dataUrl).then(res => res.blob()))
-        }).pipe(
-          concatMap(({ uploadUrl, blob }) => {
-            return this.uploadData(uploadUrl, blob, contentType);
-          })
-        );
-      }),
-      concatMap((fileObj) => {
-        return this.fileService.uploadComplete(fileObj.id).pipe(
-          map(() => fileObj)
-        );
-      })
-    );
+      this.fileService.post({
+        name: '000.' + fileExtension,
+        receipt_coordinates: receiptCoordinates
+      }).toPromise().then((fileObj) => {
+        this.fileService.uploadUrl(fileObj.id).toPromise().then((url) => {
+          const uploadUrl = url;
+          const fileName = fileObj.name;
+          // check from here
+          fetch(dataUrl).then(res => res.blob()).then(blob => {
+            this.uploadData(uploadUrl, blob, contentType)
+              .toPromise()
+              .then(resp => {
+                return this.fileService.uploadComplete(fileObj.id);
+              })
+              .then(() => resolve(fileObj))
+              .catch(err => {
+                reject(err);
+              });
+          });
+        });
+      });
+    });
   }
 
   removeEntry(entry) {
     const idx = this.queue.indexOf(entry);
     this.queue.splice(idx, 1);
-    return this.saveQueue();
+    console.log('removing entry ' + idx);
+    this.saveQueue();
   }
 
   addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData) {
@@ -211,16 +199,13 @@ export class TransactionsOutboxService {
       receiptsData
     });
 
-    return this.saveQueue();
+    this.saveQueue();
   }
 
-  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic, receiptsData) {
-    return this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData).pipe(
-      switchMap(() => {
-        return this.syncEntry(this.queue.pop());
-      })
-    );
-  }
+  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
+    this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData);
+    return this.syncEntry(this.queue.pop());
+  };
 
   getPendingTransactions() {
     return this.queue.map((entry) => {
@@ -232,49 +217,60 @@ export class TransactionsOutboxService {
     return this.dataExtractionQueue;
   }
 
-
   syncEntry(entry) {
-    let fileUploads$ = from([]);
+    const that = this;
+    const fileObjPromiseArray = [];
     const reportId = entry.reportId;
 
     if (!entry.receiptsData) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
-        fileUploads$ = concat<any[]>(entry.dataUrls.map(dataUrl => this.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates)));
+        entry.dataUrls.forEach((dataUrl) => {
+          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates).then((fileObj) => {
+            return fileObj;
+          }, (evt) => {
+            const progressPercentage = 100.0 * evt.loaded / evt.total;
+            console.log('progress: ' + progressPercentage);
+          });
+
+          fileObjPromiseArray.push(fileObjPromise);
+        });
       }
     }
-
-    return this.transactionService.createTxnWithFiles(entry.transaction, fileUploads$).pipe(
-      switchMap((resp: any) => {
-        let comments = entry.comments;
+    console.log('Herehere');
+    return new Promise((resolve, reject) => {
+      console.log(entry.transaction);
+      console.log(fileObjPromiseArray);
+      this.transactionService.createTxnWithFiles(entry.transaction, from(Promise.all(fileObjPromiseArray))).toPromise().then((resp) => {
+        const comments = entry.comments;
         // adding created transaction id into entry object to get created transaction id when promise is resolved.
         entry.transaction.id = resp.id;
-        let statusUpdates = [];
         if (comments && comments.length > 0) {
-          statusUpdates = comments.map((comment) => this.statusService.post('transactions', resp.id, { comment }, true));
+          comments.forEach(function (comment) {
+            this.statusService.post('transactions', resp.id, { comment }, true);
+          });
         }
-
         if (entry.receiptsData) {
           const linkReceiptPayload = {
             transaction_id: entry.transaction.id,
             linked_by: entry.receiptsData.linked_by
           };
-          ReceiptsService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
-        };
+          this.receiptService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
+        }
         if (entry.dataUrls && entry.dataUrls.length > 0) {
-          TransactionService.getETxn(resp.id).then(function (etxn) {
-            entry.dataUrls.forEach(function (dataUrl) {
+          this.transactionService.getETxn(resp.id).toPromise().then((etxn) => {
+            entry.dataUrls.forEach((dataUrl) => {
               if (dataUrl.callBackUrl) {
-                $http.post(dataUrl.callBackUrl, {
-                  'entered_data': {
-                    'amount': etxn.tx.amount,
-                    'currency': etxn.tx.currency,
-                    'orig_currency': etxn.tx.orig_currency,
-                    'orig_amount': etxn.tx.orig_amount,
-                    'date': etxn.tx.txn_dt,
-                    'vendor': etxn.tx.vendor,
-                    'category': etxn.tx.fyle_category,
-                    'external_id': etxn.tx.external_id,
-                    'transaction_id': etxn.tx.id
+                this.httpClient.post(dataUrl.callBackUrl, {
+                  entered_data: {
+                    amount: etxn.tx.amount,
+                    currency: etxn.tx.currency,
+                    orig_currency: etxn.tx.orig_currency,
+                    orig_amount: etxn.tx.orig_amount,
+                    date: etxn.tx.txn_dt,
+                    vendor: etxn.tx.vendor,
+                    category: etxn.tx.fyle_category,
+                    external_id: etxn.tx.external_id,
+                    transaction_id: etxn.tx.id
                   }
                 });
               }
@@ -283,87 +279,119 @@ export class TransactionsOutboxService {
         }
 
         if (reportId) {
-          txnIds = [resp.id];
-          ReportService.addTransactions(reportId, txnIds).then(function (result) {
-            TrackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
+          const txnIds = [resp.id];
+          this.reportService.addTransactions(reportId, txnIds).toPromise().then((result) => {
+            // TrackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
             return result;
           });
         }
 
-        removeEntry(entry);
+        this.removeEntry(entry);
 
         //This would be on matching an expense for the first time
         if (entry.transaction.matchCCCId) {
-          TransactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId);
+          this.transactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId);
         }
 
         if (entry.applyMagic) {
-          addDataExtractionEntry(resp, entry.dataUrls);
+          this.addDataExtractionEntry(resp, entry.dataUrls);
         }
-      })
-    )
+        resolve(entry);
+      }, (err) => {
+        // TrackingService.syncError({ Asset: 'Mobile', label: err });
 
-    TransactionService.createTxnWithFiles(entry.transaction, fileObjPromiseArray).then(function (resp) {
-      d.resolve(entry);
-    }, function (err) {
-      TrackingService.syncError({ Asset: 'Mobile', label: err });
-
-      d.reject(err);
-      console.log("unable to upload.. will try later");
+        reject(err);
+        // console.log('unable to upload.. will try later');
+      });
     });
-
-    return d.promise;
   }
 
-  // sync() {
-  //   self = this;
+  sync() {
+    const that = this;
 
-  //   if (syncDeferred) {
-  //     console.log('returning old promise');
-  //     return syncDeferred.promise;
-  //   }
+    if (that.syncDeferred) {
+      console.log('returning old promise');
+      return that.syncDeferred;
+    }
 
-  //   syncInProgress = true;
-  //   syncDeferred = $q.defer();
+    that.syncInProgress = true;
+    that.syncDeferred = new Promise((resolve, reject) => {
+      const p = [];
 
-  //   p = [];
+      for (let i = 0; i < that.queue.length; i++) {
+        console.log("processing txn " + i);
+        p.push(that.syncEntry(that.queue[i]));
+      }
 
-  //   for (i = 0; i < queue.length; i++) {
-  //     console.log("processing txn " + i);
-  //     p.push(self.syncEntry(queue[i]));
-  //   }
+      Promise.all(p).finally(function () {
+        // if (p.length > 0) {
+        //   console.log('clearing cache');
+        //   TransactionService.deleteCache();
+        //   console.log('clearing syncDeferred');
+        // }
+        that.processDataExtractionEntry();
 
-  //   $q.all(p).finally(function () {
-  //     // if (p.length > 0) {
-  //     //   console.log('clearing cache');
-  //     //   TransactionService.deleteCache();
-  //     //   console.log('clearing syncDeferred');
-  //     // }
-  //     processDataExtractionEntry();
+        resolve(true);
+        that.syncDeferred = null;
+        that.syncInProgress = false;
+      });
+    });
 
-  //     syncDeferred.resolve(true);
-  //     syncDeferred = null;
-  //     syncInProgress = false;
-  //   });
+    return this.syncDeferred;
+  };
 
-  //   return syncDeferred.promise;
-  // };
+  createTxnAndUploadBase64File(transaction, base64Content) {
+    return this.transactionService.upsert(transaction).pipe(
+      switchMap((res) => {
+        return this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null);
+      })
+    );
+  }
 
-  // createTxnAndUploadBase64File(transaction, base64Content) {
-  //   return TransactionService.upsert(transaction).then(function (res) {
-  //     return FileService.base64Upload('expense.jpg', base64Content, res.id, null, null);
-  //   });
-  // };
+  isSyncInProgress() {
+    return this.syncInProgress;
+  }
 
-  // isSyncInProgress() {
-  //   return syncInProgress;
-  // };
+  parseReceipt(data) {
+    const url = environment.ROOT_URL + '/data_extraction/extract';
+    let suggestedCurrency = null;
+    // res = {
+    //   amount: 100,
+    //   category: 'food',
+    //   currency: 'KWD'
+    // };
 
-  // isDataExtractionPending(txnId) {
-  //   txnIds = dataExtractionQueue.map(function (entry) {
-  //     return entry.transaction.id;
-  //   });
+    // return $q.when(res);
+    // send homeCurrency of the user's org as suggestedCurrency for data-extraction
+    return this.offlineService.getHomeCurrency().toPromise().then((homeCurrency) => {
+      suggestedCurrency = homeCurrency;
+      return this.httpClient.post(url, {
+        files: [{
+          name: '000.jpeg',
+          content: data
+        }],
+        suggested_currency: suggestedCurrency
+      }).toPromise().then((resp: any) => {
+        return resp.data;
+      });
+    }).catch(function () {
+      return this.httpClient.post(url, {
+        files: [{
+          name: '000.jpeg',
+          content: data
+        }],
+        suggested_currency: suggestedCurrency
+      }).then((resp: any) => {
+        return resp.data;
+      });
+    });
+  }
 
-  //   return txnIds.indexOf(txnId) > -1;
-  // };
+  isDataExtractionPending(txnId) {
+    const txnIds = this.dataExtractionQueue.map((entry) => {
+      return entry.transaction.id;
+    });
+
+    return txnIds.indexOf(txnId) > -1;
+  }
 }

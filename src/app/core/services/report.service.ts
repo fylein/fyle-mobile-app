@@ -387,4 +387,11 @@ export class ReportService {
       }),
     );
   }
+
+
+  addTransactions(rptId, txnIds) {
+    return this.apiService.post('/reports/' + rptId + '/txns', {
+      ids: txnIds
+    });
+  }
 }

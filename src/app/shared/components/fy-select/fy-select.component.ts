@@ -14,12 +14,7 @@ import { isEqual } from 'lodash';
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectComponent),
       multi: true
-    },
-    // {
-    //   provide: NG_VALIDATORS,
-    //   useExisting: FySelectComponent,
-    //   multi: true
-    // }
+    }
   ]
 })
 export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
@@ -55,8 +50,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   ngOnDestroy(): void {
-    // this.ngControl.control.clearValidators();
-    // this.ngControl.control.updateValueAndValidity();
   }
 
   get value(): any {
@@ -70,6 +63,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
         if (selectedOption) {
           this.displayValue = selectedOption && selectedOption.label;
+        } else {
+          this.displayValue = '';
         }
       }
 

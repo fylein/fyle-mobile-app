@@ -24,4 +24,16 @@ export class FileService {
   uploadComplete(fileId) {
     return this.apiService.post('/files/' + fileId + '/upload_completed');
   }
+
+  base64Upload(name, content, transaction_id, invoice_id, password) {
+    return this.apiService.post('/files/upload_b64',
+      {
+        name,
+        content,
+        transaction_id,
+        invoice_id,
+        password
+      }
+    );
+  }
 }

@@ -57,6 +57,8 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
       const selectedOption = this.innerValue;
       if (selectedOption) {
         this.displayValue = selectedOption.display_name;
+      } else {
+        this.displayValue = '';
       }
 
       this.onChangeCallback(v);

@@ -656,11 +656,15 @@ export class AddEditExpensePage implements OnInit {
           })
         );
       }),
-      tap(console.log),
+      tap(a => {
+        console.log('Before test policy', a);
+      }),
       switchMap((policyETxn) => {
         return this.transactionService.testPolicy(policyETxn);
       }),
-      tap(console.log)
+      tap(a => {
+        console.log('After test policy', a);
+      })
     );
   }
 
@@ -684,9 +688,14 @@ export class AddEditExpensePage implements OnInit {
         this.generateEtxnFromFg(this.etxn$, customFields$)
           .pipe(
             switchMap(etxn => {
-              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
-
+              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(
+                tap(a => {
+                  console.log('Inside etxn generation', a);
+                }),
+                shareReplay()
+                );
               return policyViolations$.pipe(
+                tap(console.log),
                 map(this.policyService.getCriticalPolicyRules),
                 switchMap(criticalPolicyViolations => {
                   if (criticalPolicyViolations.length > 0) {
@@ -695,6 +704,7 @@ export class AddEditExpensePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
+                tap(console.log),
                 map(this.policyService.getPolicyRules),
                 switchMap(policyRules => {
                   if (policyRules.length > 0) {
@@ -702,7 +712,8 @@ export class AddEditExpensePage implements OnInit {
                   } else {
                     return of(etxn);
                   }
-                })
+                }),
+                tap(console.log)
               );
             }),
             switchMap((etxn) => {
@@ -746,9 +757,9 @@ export class AddEditExpensePage implements OnInit {
                     }
 
                     if (entry) {
-                      return this.transactionOutboxService.addEntryAndSync(
+                      return from(this.transactionOutboxService.addEntryAndSync(
                         etxn.tx, etxn.dataUrls, entry.comments, entry.reportId
-                        );
+                        ));
                     } else {
                       let receiptsData = null;
                       if (this.receiptsData) {
@@ -758,14 +769,14 @@ export class AddEditExpensePage implements OnInit {
                           fileId: this.receiptsData.fileId
                         };
                       }
-                      return this.transactionOutboxService.addEntry(
-                        etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData);
+                      return of(this.transactionOutboxService.addEntry(
+                        etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData));
                     }
                   }
                 })
-              )
+              );
             })
-          );
+          ).subscribe(console.log);
       } else {
         // to do edit
       }

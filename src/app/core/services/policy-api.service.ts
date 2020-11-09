@@ -21,12 +21,6 @@ export class PolicyApiService {
   }
 
   post(url, data) {
-    return this.httpClient.post(environment.ROOT_URL + '/policy/expenses' + url, data).pipe(
-      tap(console.log),
-      map((resp: any) => {
-        console.log()
-        return resp.data;
-      })
-    );
+    return this.httpClient.post(environment.ROOT_URL + '/policy/expenses' + url, data);
   }
 }

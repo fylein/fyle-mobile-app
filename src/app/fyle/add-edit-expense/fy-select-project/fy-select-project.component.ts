@@ -14,12 +14,7 @@ import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.compon
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectProjectComponent),
       multi: true
-    },
-    // {
-    //   provide: NG_VALIDATORS,
-    //   useExisting: FySelectProjectComponent,
-    //   multi: true
-    // }
+    }
   ]
 })
 export class FySelectProjectComponent implements OnInit, ControlValueAccessor, OnDestroy {
@@ -52,8 +47,6 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   }
 
   ngOnDestroy(): void {
-    // this.ngControl.control.clearValidators();
-    // this.ngControl.control.updateValueAndValidity();
   }
 
   get value(): any {
@@ -99,6 +92,8 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
       const selectedOption = this.innerValue;
       if (selectedOption) {
         this.displayValue = selectedOption.projectv2_name;
+      } else {
+        this.displayValue = '';
       }
     }
   }

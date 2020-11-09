@@ -325,9 +325,13 @@ export class TransactionService {
     );
   }
 
-  createTxnWithFiles(txn, fileUploads$) {
+  createTxnWithFiles(txn, fileUploads$: Observable<any>) {
+    console.log(arguments);
     return fileUploads$.pipe(
+      tap(console.log),
       switchMap((fileObjs: any[]) => {
+        console.log('inside createTxnWithFiles');
+        console.log(fileObjs);
         return this.upsert(txn).pipe(
           switchMap(transaction => {
             return concat(fileObjs.map(fileObj => {
@@ -377,5 +381,31 @@ export class TransactionService {
         return this.policyApiService.post('/policy/test', etxn);
       })
     );
+  }
+
+  getETxn(txnId) {
+    return this.apiService.get('/etxns/' + txnId).pipe(
+      map((data) =>{
+        const etxn = this.dataTransformService.unflatten(data);
+        this.dateService.fixDates(etxn.tx);
+
+        // Adding a field categoryDisplayName in transaction object to save funciton calls
+        let categoryDisplayName = etxn.tx.org_category;
+        if (etxn.tx.sub_category && etxn.tx.sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
+          categoryDisplayName += ' / ' + etxn.tx.sub_category;
+        }
+        etxn.tx.categoryDisplayName = categoryDisplayName;
+        return etxn;
+      })
+    );
+  }
+
+  matchCCCExpense(txnId, corporateCreditCardExpenseId) {
+    const data = {
+      transaction_id: txnId,
+      corporate_credit_card_expense_id: corporateCreditCardExpenseId
+    };
+
+    return this.apiService.post('/transactions/match', data);
   }
 }
