@@ -162,13 +162,15 @@ export class MyCreateReportPage implements OnInit {
                 }
               }
             });
-            this.readyToReportEtxns = etxns;
-            this.getReportTitle();
+            return etxns;
           }),
         );
       }),finalize(() => from(this.loaderService.hideLoader())),
       shareReplay()
-    ).subscribe(noop);
+    ).subscribe(res => {
+      this.readyToReportEtxns = res;
+      this.getReportTitle();
+    });
     
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
   }
