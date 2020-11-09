@@ -101,6 +101,10 @@ const routes: Routes = [
   {
     path: 'my_create_report',
     loadChildren: () => import('./my-create-report/my-create-report.module').then( m => m.MyCreateReportPageModule)
+  },
+  {
+    path: 'my_edit_report',
+    loadChildren: () => import('./my-edit-report/my-edit-report.module').then( m => m.MyEditReportPageModule)
   }
 ];
 
