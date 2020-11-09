@@ -36,9 +36,9 @@
         <div class="view-mileage--element-label">Type</div>
         <div class="view-mileage--element-value">
           <!-- Todo: Fix all vehicle icon later -->
-          <ion-icon class="view-mileage--vehicle-icon" name="bicycle" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'}" *ngIf="orgSettings.mileage.two_wheeler || extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'"></ion-icon>    
-          <ion-icon class="view-mileage--vehicle-icon" name="car" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'}" *ngIf="orgSettings.mileage.four_wheeler || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'"></ion-icon>
-          <ion-icon class="view-mileage--vehicle-icon" name="car-sport-outline" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'}" *ngIf="orgSettings.mileage.four_wheeler1 || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'"></ion-icon>
+          <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'}" *ngIf="orgSettings.mileage.two_wheeler || extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'" svgIcon="fy-bike"></mat-icon>    
+          <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'}" *ngIf="orgSettings.mileage.four_wheeler || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'" svgIcon="fy-car-mini"></mat-icon>
+          <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'}" *ngIf="orgSettings.mileage.four_wheeler1 || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'" svgIcon="fy-car"></mat-icon>
         </div>
       </div>
 
