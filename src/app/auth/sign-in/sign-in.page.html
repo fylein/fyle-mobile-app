@@ -33,6 +33,7 @@
           </ion-row>
         </ion-grid>
       </div>
+
       <mat-form-field class="sign-in--form-field" appearance="outline" *ngIf="emailSet">
         <input id="sign-in--password" formControlName="password" [type]="hide ? 'text': 'password'" matInput
           placeholder="Password">
@@ -43,7 +44,7 @@
     </form>
     <div class="sign-in--primary-cta">
       <button id="sign-in--continue" [disabled]="!fg.controls.email.valid" *ngIf="!emailSet" mat-flat-button
-        color="primary" (click)="checkIfEmailExists()">
+        color="primary" (click)="checkIfEmailExists()" appFormButtonValidation [formToValidate]="fg" [apiPromise]="checkEmailExists$">
         CONTINUE
       </button>
     </div>

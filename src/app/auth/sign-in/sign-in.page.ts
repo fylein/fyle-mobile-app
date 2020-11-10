@@ -20,6 +20,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 export class SignInPage implements OnInit {
   fg: FormGroup;
   emailSet = false;
+  emailPromise = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -77,8 +78,6 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
-    await this.loaderService.showLoader();
-
     const checkEmailExists$ = this.routerAuthService
       .checkEmailExists(this.fg.controls.email.value)
       .pipe(
@@ -88,7 +87,7 @@ export class SignInPage implements OnInit {
         }),
         shareReplay(),
         finalize(async () => {
-          await this.loaderService.hideLoader();
+          this.emailPromise = true;
         })
       );
 
@@ -107,6 +106,7 @@ export class SignInPage implements OnInit {
     saml$.subscribe((res) => {
       this.handleSamlSignIn(res);
     });
+
   }
 
   async handleError(err: HttpErrorResponse) {

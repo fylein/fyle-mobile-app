@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -18,6 +19,9 @@ import { CurrencyComponent } from './components/currency/currency.component';
 import { CommentsComponent } from './components/comments/comments.component';
 import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
 
+// directive imports
+import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
+
 
 @NgModule({
   declarations: [
@@ -30,11 +34,12 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     DelegatedAccMessageComponent,
     CurrencyComponent,
     CommentsComponent,
-    ViewCommentComponent
+    ViewCommentComponent,
+    FormButtonValidationDirective
   ],
   imports: [
     CommonModule,
-    FormsModule,
+    FormsModule
   ],
   exports: [
     EllipsisPipe,
@@ -46,7 +51,9 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     DelegatedAccMessageComponent,
     IconModule,
     CurrencyComponent,
-    CommentsComponent
+    CommentsComponent,
+    FormButtonValidationDirective,
+    MatProgressSpinnerModule
   ],
   providers: [
     DecimalPipe,
