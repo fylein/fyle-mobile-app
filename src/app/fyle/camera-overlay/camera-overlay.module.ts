@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { CameraOverlayPageRoutingModule } from './camera-overlay-routing.module';
 
 import { CameraOverlayPage } from './camera-overlay.page';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    CameraOverlayPageRoutingModule
+    CameraOverlayPageRoutingModule,
+    MatIconModule
   ],
   declarations: [CameraOverlayPage]
 })

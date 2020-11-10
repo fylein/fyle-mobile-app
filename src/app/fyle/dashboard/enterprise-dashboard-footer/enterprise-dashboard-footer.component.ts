@@ -3,6 +3,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { pipe, forkJoin } from 'rxjs';
 import { AlertController } from '@ionic/angular';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-enterprise-dashboard-footer',
@@ -21,7 +22,8 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
   constructor(
     private offlineService: OfflineService,
     private dashboardService: DashboardService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private router: Router
   ) { }
 
 
@@ -130,7 +132,10 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
 
   actionFn(item) {
     // Redirect to proper page based on params.
-    this.presentAlert(item.type);
+    //this.presentAlert(item.type);
+    // this.router.navigate(['/', 'enterprise', 'camera_overlay']);
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
+
   }
 
   reset (state: string) {
