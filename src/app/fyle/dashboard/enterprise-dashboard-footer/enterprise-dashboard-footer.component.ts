@@ -133,8 +133,8 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
   actionFn(item) {
     // Redirect to proper page based on params.
     //this.presentAlert(item.type);
-    // this.router.navigate(['/', 'enterprise', 'camera_overlay']);
-    this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
+    this.router.navigate(['/', 'enterprise', 'camera_overlay']);
+    //this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
 
   }
 

@@ -18,7 +18,7 @@
       <div class="camera-overlay--camera-settings">
         <mat-icon class="camera-overlay--camera-single" [ngClass]="{'active': !isBulkMode}" *ngIf="captureCount === 0" svgIcon="single" (click)="switchMode()"></mat-icon>
         <mat-icon class="camera-overlay--camera-bulk" [ngClass]="{'active': isBulkMode}" *ngIf="captureCount === 0" svgIcon="bulk" (click)="switchMode()"></mat-icon>
-        <mat-icon class="camera-overlay--camera-gallery" *ngIf="captureCount === 0" svgIcon="fy-bike"></mat-icon>
+        <mat-icon class="camera-overlay--camera-gallery" *ngIf="captureCount === 0" (click)="uploadFiles()">image</mat-icon>
 
         <div *ngIf="captureCount > 0">
           <p class="camera-overlay--image-count">{{captureCount}}</p>
@@ -32,17 +32,19 @@
         <div class="camera-overlay--capture-btn" (click)="onCapture()"></div>
       </div>
   
+      <!-- Todo check Flash Mode -->
       <mat-icon class="camera-overlay--flash-active">flash_on</mat-icon>
   
       <div class="camera-overlay--finish">
-        <span>Cancel</span>
+        <span *ngIf="!isBulkMode" (click)="finishProcess()">Cancel</span>
+        <span *ngIf="isBulkMode" (click)="syncExpenseAndFinishProcess()">Finish</span>
       </div>
     </div>
 
     <ion-grid *ngIf="!isCameraShown">
       <ion-row>
         <ion-col size="6" class="camera-overlay--retake-btn">
-          <span (click)="closePreview()">Retake</span> 
+          <span (click)="retake()">Retake</span> 
         </ion-col>
         <ion-col size="6" class="camera-overlay--continue-btn">
           <span (click)="save()">Continue</span>
