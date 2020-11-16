@@ -253,7 +253,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log("==========");
     this.checkAppSupportedVersion();
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
@@ -263,7 +262,6 @@ export class AppComponent implements OnInit {
     });
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
-        console.log("\\\\\\\\\\\\\\\\\\");
         this.showSideMenu();
       }, 500);
     });
