@@ -1,16 +1,8 @@
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-title>camera_overlay</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
 <ion-content>
   <div id="cameraPreview"></div>
 
   <div class="camera-overlay--preview-container" *ngIf="!isCameraShown">
-    <!-- <img class="preview-receipt" id="imagePreview" alt="receipt"> -->
     <ion-img class="camera-overlay--preview-receipt" [src]="recentImage" *ngIf="recentImage"></ion-img>
-  
   </div>
 
   <div class="camera-overlay--action-container">
@@ -22,7 +14,6 @@
 
         <div *ngIf="captureCount > 0">
           <p class="camera-overlay--image-count">{{captureCount}}</p>
-          <!-- <img class="img-thumbnail" ng-src="{{ vm.lastImage }}"> -->
           <ion-img class="camera-overlay--image-thumbnail" [src]="lastImage"></ion-img>
         </div>
 
@@ -31,8 +22,7 @@
       <div class="camera-overlay--capture-container">
         <div class="camera-overlay--capture-btn" (click)="onCapture()"></div>
       </div>
-  
-      <!-- Todo check Flash Mode -->
+
       <mat-icon class="camera-overlay--flash-active">flash_on</mat-icon>
   
       <div class="camera-overlay--finish">
@@ -51,10 +41,6 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-    
-    
-
-
   </div>
 
 </ion-content>

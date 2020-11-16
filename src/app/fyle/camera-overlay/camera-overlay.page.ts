@@ -82,10 +82,11 @@ export class CameraOverlayPage implements OnInit {
   }
 
   async syncExpenseAndFinishProcess() {
-    // from(this.transactionsOutboxService.getAllQueue()).subscribe(res => {
-    //   console.log(res);
-    // });
-    await this.finishProcess();
+    if (this.isCameraOpenedInOneClick) {
+      // Todo: Sync expense and redirect to close_app page
+    } else {
+      await this.finishProcess();
+    }
   }
 
   async finishProcess() {
@@ -111,12 +112,10 @@ export class CameraOverlayPage implements OnInit {
     } else {
       // Single mode
       if (this.isCameraOpenedInOneClick) {
-        // todo
-        //add expense to queue
+        // Todo: Add expense to queue
+        // this.syncExpenseAndFinishProcess()
       } else {
-        console.log(this.recentImage);
         this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage}]);
-        // todo redirect to add_Edit_exp page
       }
     }
   }
@@ -125,7 +124,7 @@ export class CameraOverlayPage implements OnInit {
     this.loaderService.showLoader('Hold Still...');
     this.isCameraShown = false;
     const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-      quality: 100 // Reduce this to 50 later
+      quality: 50
     };
 
     const result = await CameraPreview.capture(cameraPreviewPictureOptions);
@@ -136,8 +135,6 @@ export class CameraOverlayPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    console.log('Staring camera overlay');
-    console.log(window.screen.height);
     this.captureCount = 0;
     this.isBulkMode = false;
     this.setUpAndStartCamera();

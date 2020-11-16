@@ -48,23 +48,27 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         addPerDiem: {
           name: 'Add Per Diem',
           icon: 'add-per-diem',
-          type: 'per_diem'
+          type: 'per_diem',
+          route: ['/', 'enterprise', 'add_edit_per_diem']
         },
         addExpense: {
           name: 'Add Expense',
           icon: 'add-expense',
-          type: 'expense'
+          type: 'expense',
+          route: ['/', 'enterprise', 'add_edit_expense']
         },
         instafyle: {
           name: 'Instafyle',
           icon: 'instafyle',
           expenseType: 'AUTO_FYLE',
-          type: 'auto_fyle'
+          type: 'auto_fyle',
+          route: ['/', 'enterprise', 'camera_overlay']
         },
         addMileage: {
           name: 'Add Mileage',
           icon: 'add-mileage',
-          type: 'mileage'
+          type: 'mileage',
+          route: ['/', 'enterprise', 'add_edit_mileage']
         }
       };
 
@@ -131,11 +135,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
   }
 
   actionFn(item) {
-    // Redirect to proper page based on params.
-    //this.presentAlert(item.type);
-    this.router.navigate(['/', 'enterprise', 'camera_overlay']);
-    //this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
-
+    this.router.navigate(item.route);
   }
 
   reset (state: string) {

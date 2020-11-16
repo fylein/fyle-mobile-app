@@ -141,7 +141,6 @@ export class AppComponent implements OnInit {
       isSwitchedToDelegator: isSwitchedToDelegator$
     }).subscribe((res) => {
       this.eou = res.eou;
-      console.log(this.eou);
       const orgs = res.orgs;
       this.activeOrg = res.currentOrg;
       const orgSettings = res.orgSettings;
