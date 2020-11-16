@@ -59,7 +59,6 @@ export class OrgUserService {
     );
   }
 
-  // TODO: move to v2
   getCompanyEouCount(): Observable<{ count: number }> {
     return this.apiService.get('/eous/company/count').pipe(
       map(

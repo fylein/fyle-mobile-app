@@ -15,6 +15,8 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
+import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -51,6 +53,7 @@ export class MyExpensesPage implements OnInit {
   isInstaFyleEnabled$: Observable<boolean>;
   isMileageEnabled$: Observable<boolean>;
   isPerDiemEnabled$: Observable<boolean>;
+  pendingTransactions = [];
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -66,7 +69,9 @@ export class MyExpensesPage implements OnInit {
     private popoverController: PopoverController,
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private router: Router
+    private router: Router,
+    private transactionOutboxService: TransactionsOutboxService,
+    private categoriesService: CategoriesService
   ) { }
 
   ngOnInit() {
@@ -74,8 +79,6 @@ export class MyExpensesPage implements OnInit {
     this.isInstaFyleEnabled$ = this.orgUserSettingsService.get().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
     );
-    // TODO
-    this.isInstaFyleEnabled$.subscribe(console.log);
 
     this.isMileageEnabled$ = this.orgSettingsService.get().pipe(
       map(orgSettings => orgSettings.mileage.enabled)
@@ -85,11 +88,34 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
+  formatTransactions(transactions) {
+    return transactions.map(transaction => {
+      const formattedTxn = {};
+      Object.keys(transaction).forEach(key => {
+        formattedTxn['tx_' + key] = transaction[key];
+      });
+      return formattedTxn;
+    });
+  }
+
   ionViewWillEnter() {
     this.acc = [];
     this.loadData$ = new BehaviorSubject({
       pageNumber: 1
     });
+
+
+    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+
+    from(this.pendingTransactions).pipe(
+      switchMap(() => {
+        return from(this.transactionOutboxService.sync());
+      })
+    ).subscribe((a) => {
+      console.log('Promise has resolved', a);
+      this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    });
+
     this.baseState = 'all';
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 

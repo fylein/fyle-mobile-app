@@ -1,0 +1,47 @@
+$header-border: #ddd;
+$header-input: #f8f8f8;
+$sub-title: #ababab;
+$list-element-color: #333;
+
+.selection-modal {
+  color: black;
+  &--list-element {
+    padding: 14px;
+    border-bottom: 1px solid $header-border;
+    font-size: 16px;
+    color: $list-element-color;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &--title {
+    margin: 0;
+  }
+
+  &--header {
+    margin: 0;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-bottom: 1px solid $header-border;
+    color: $sub-title;
+  }
+
+  &--form-field {
+    font-size: 11px;
+    width: 80%;
+    padding: 4px;
+  }
+  &--search-icon {
+    font-size: 14px;
+  }
+
+  &--form-field-container {
+    text-align: center;
+  }
+
+  &--container {
+    display: flex;
+    flex-direction: column;
+  }
+}
