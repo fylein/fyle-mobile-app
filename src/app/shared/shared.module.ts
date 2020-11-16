@@ -37,6 +37,8 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
 
 @NgModule({
   declarations: [
+    AdvanceState,
+    InitialsPipe,
     EllipsisPipe,
     HumanizeCurrencyPipe,
     ReportState,
@@ -51,7 +53,11 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     FyUserlistModalComponent,
     FyAlertComponent,
     FyDuplicateDetectionComponent,
-    FyDuplicateDetectionModalComponent
+    FyDuplicateDetectionModalComponent,
+    DelegatedAccMessageComponent,
+    CurrencyComponent,
+    CommentsComponent,
+    ViewCommentComponent
   ],
   imports: [
     CommonModule,
@@ -60,13 +66,7 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     MatInputModule,
     MatFormFieldModule,
     MatIconModule,
-    MatCheckboxModule,
-    AdvanceState,
-    InitialsPipe,
-    DelegatedAccMessageComponent,
-    CurrencyComponent,
-    CommentsComponent,
-    ViewCommentComponent
+    MatCheckboxModule
   ],
   exports: [
     EllipsisPipe,
