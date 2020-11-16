@@ -1,4 +1,4 @@
-<div class="fy-currency" [ngClass]="{'fy-currency__invalid': !valid, 'fy-currency__disabled': disabled}">
+<div class="fy-currency" [ngClass]="{'fy-currency__disabled': disabled}">
   <form [formGroup]="fg">
     <input class="fy-currency--currency" (click)="openCurrencyModal()" formControlName="currency" (blur)="onBlur()" [disabled]="disabled">
     <input class="fy-currency--amount" formControlName="amount" (blur)="onBlur()" [disabled]="disabled">

@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable, forkJoin, iif, of, combineLatest } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { switchMap, map, startWith, tap, shareReplay, concatMap, distinctUntilChanged, filter } from 'rxjs/operators';
-import { FormBuilder, FormGroup, Validators, FormArray, FormControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl, ValidationErrors, AbstractControl } from '@angular/forms';
 import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -42,6 +42,8 @@ export class AddEditPerDiemPage implements OnInit {
   customInputs$: Observable<any>;
   costCenters$: Observable<any>;
   reports$: Observable<any[]>;
+  allowedProjectIds$: Observable<string[]>;
+  isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -56,15 +58,6 @@ export class AddEditPerDiemPage implements OnInit {
     private reportService: ReportService
   ) { }
 
-  currencyObjValidator(c: FormControl): ValidationErrors {
-    if (c.value && c.value.amount && c.value.currency) {
-      return null;
-    }
-    return {
-      required: false
-    };
-  }
-
   ngOnInit() {
     const today = new Date();
     this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
@@ -74,14 +67,13 @@ export class AddEditPerDiemPage implements OnInit {
       currencyObj: [{
         value: null,
         disabled: true
-      }, this.currencyObjValidator],
+      }],
       paymentMode: [, Validators.required],
       project: [],
       sub_category: [, Validators.required],
-      numDays: [],
-      per_diem_rate: [],
+      per_diem_rate: [, Validators.required],
       purpose: [],
-      num_days: [],
+      num_days: [, Validators.required],
       report: [],
       from_dt: [],
       to_dt: [],
@@ -91,8 +83,6 @@ export class AddEditPerDiemPage implements OnInit {
       billable: [],
       costCenter: []
     });
-
-    this.fg.valueChanges.subscribe(console.log);
   }
 
   getTransactionFields() {
@@ -232,6 +222,7 @@ export class AddEditPerDiemPage implements OnInit {
           return customField;
         });
       }),
+      tap(console.log),
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
         customFieldsFormArray.clear();
@@ -348,6 +339,34 @@ export class AddEditPerDiemPage implements OnInit {
       map(reports => reports.map(report => ({ label: report.rp.purpose, value: report })))
     );
 
+    this.txnFields$.pipe(
+      distinctUntilChanged((a, b) => isEqual(a, b))
+    ).subscribe(txnFields => {
+      const keyToControlMap: { [id: string]: AbstractControl; } = {
+        purpose: this.fg.controls.purpose,
+        cost_center_id: this.fg.controls.costCenter,
+        from_dt: this.fg.controls.from_dt,
+        to_dt: this.fg.controls.to_dt,
+        num_days: this.fg.controls.num_days
+      };
+
+      for (const control of Object.values(keyToControlMap)) {
+        control.clearValidators();
+        control.updateValueAndValidity();
+      }
+
+      for (const txnFieldKey of Object.keys(txnFields)) {
+        const control = keyToControlMap[txnFieldKey];
+
+        if (txnFields[txnFieldKey].mandatory) {
+          control.setValidators(Validators.required);
+        }
+        control.updateValueAndValidity();
+      }
+
+      this.fg.updateValueAndValidity();
+    });
+
     combineLatest(
       this.fg.controls.from_dt.valueChanges,
       this.fg.controls.to_dt.valueChanges
@@ -424,6 +443,41 @@ export class AddEditPerDiemPage implements OnInit {
           orig_amount: perDiemRate.rate * numDays
         });
       });
+
+    this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
+      switchMap((paymentMode) => {
+        if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
+          return this.offlineService.getAccounts().pipe(
+            map(accounts => {
+              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT').length > 0;
+            })
+          );
+        }
+        return of(false);
+      })
+    );
+  }
+
+  savePerDiem() {
+    if (this.fg.valid) {
+      console.log(this.fg.value);
+    } else {
+      this.fg.markAllAsTouched();
+    }
+  }
+
+  getFormValidationErrors() {
+    console.log(this.fg.errors);
+    console.log(this.fg.valid);
+    Object.keys(this.fg.controls).forEach(key => {
+
+      const controlErrors: ValidationErrors = this.fg.get(key).errors;
+      if (controlErrors != null) {
+        Object.keys(controlErrors).forEach(keyError => {
+          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+        });
+      }
+    });
   }
 
 }
