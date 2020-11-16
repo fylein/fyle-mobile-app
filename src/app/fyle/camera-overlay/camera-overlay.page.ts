@@ -7,9 +7,10 @@ import { Router } from '@angular/router';
 const { CameraPreview } = Plugins;
 import '@capacitor-community/camera-preview';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -81,9 +82,9 @@ export class CameraOverlayPage implements OnInit {
   }
 
   async syncExpenseAndFinishProcess() {
-    from(this.transactionsOutboxService.getAllQueue()).subscribe(res => {
-      console.log(res);
-    });
+    // from(this.transactionsOutboxService.getAllQueue()).subscribe(res => {
+    //   console.log(res);
+    // });
     await this.finishProcess();
   }
 
@@ -114,7 +115,7 @@ export class CameraOverlayPage implements OnInit {
         //add expense to queue
       } else {
         console.log(this.recentImage);
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage}]);
         // todo redirect to add_Edit_exp page
       }
     }

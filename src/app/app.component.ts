@@ -141,6 +141,7 @@ export class AppComponent implements OnInit {
       isSwitchedToDelegator: isSwitchedToDelegator$
     }).subscribe((res) => {
       this.eou = res.eou;
+      console.log(this.eou);
       const orgs = res.orgs;
       this.activeOrg = res.currentOrg;
       const orgSettings = res.orgSettings;
@@ -252,12 +253,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log("==========");
     this.checkAppSupportedVersion();
-    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
-      if (loggedInStatus) {
-        this.showSideMenu();
-      }
-    });
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
@@ -266,6 +263,7 @@ export class AppComponent implements OnInit {
     });
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
+        console.log("\\\\\\\\\\\\\\\\\\");
         this.showSideMenu();
       }, 500);
     });
