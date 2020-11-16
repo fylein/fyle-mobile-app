@@ -20,11 +20,11 @@ const routes: Routes = [
   },
   {
     path: 'team_trips',
-    loadChildren: () => import('./team-trips/team-trips.module').then( m => m.TeamTripsPageModule)
+    loadChildren: () => import('./team-trips/team-trips.module').then(m => m.TeamTripsPageModule)
   },
   {
     path: 'view_team_trips',
-    loadChildren: () => import('./view-team-trip/view-team-trip.module').then( m => m.ViewTeamTripPageModule)
+    loadChildren: () => import('./view-team-trip/view-team-trip.module').then(m => m.ViewTeamTripPageModule)
   },
   {
     path: 'my_profile',
@@ -48,7 +48,7 @@ const routes: Routes = [
   },
   {
     path: 'help',
-    loadChildren: () => import('./help/help.module').then( m => m.HelpPageModule)
+    loadChildren: () => import('./help/help.module').then(m => m.HelpPageModule)
   },
   {
     path: 'my_view_advance_request',
@@ -56,15 +56,23 @@ const routes: Routes = [
   },
   {
     path: 'team_advance',
-    loadChildren: () => import('./team-advance/team-advance.module').then( m => m.TeamAdvancePageModule)
+    loadChildren: () => import('./team-advance/team-advance.module').then(m => m.TeamAdvancePageModule)
+  },
+  {
+    path: 'add_edit_expense',
+    loadChildren: () => import('./add-edit-expense/add-edit-expense.module').then(m => m.AddEditExpensePageModule)
   },
   {
     path: 'team_reports',
-    loadChildren: () => import('./team-reports/team-reports.module').then( m => m.TeamReportsPageModule)
+    loadChildren: () => import('./team-reports/team-reports.module').then(m => m.TeamReportsPageModule)
   },
   {
     path: 'view_team_report',
     loadChildren: () => import('./view-team-report/view-team-report.module').then( m => m.ViewTeamReportPageModule)
+  },
+  {
+    path: 'my_view_advance',
+    loadChildren: () => import('./my-view-advance/my-view-advance.module').then( m => m.MyViewAdvancePageModule)
   },
   {
     path: 'my_view_expense',
@@ -97,6 +105,14 @@ const routes: Routes = [
   {
     path: 'view_team_mileage',
     loadChildren: () => import('./view-team-mileage/view-team-mileage.module').then( m => m.ViewTeamMileagePageModule)
+  },
+  {
+    path: 'my_create_report',
+    loadChildren: () => import('./my-create-report/my-create-report.module').then( m => m.MyCreateReportPageModule)
+  },
+  {
+    path: 'my_edit_report',
+    loadChildren: () => import('./my-edit-report/my-edit-report.module').then( m => m.MyEditReportPageModule)
   }
 ];
 

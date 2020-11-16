@@ -1,0 +1,18 @@
+.fy-select-vendor {
+    border: none;
+    width: 100%;
+    &--label-content {
+      margin: 0 8px 0 0;
+      font-size: 16px;
+      color: #ababab;
+      font-weight: 500;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+  
+    &--label {
+      display: flex;
+      align-items: center;
+    }
+  }
+  

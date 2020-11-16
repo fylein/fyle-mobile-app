@@ -21,19 +21,11 @@ export class CustomInputsService {
   }
 
   filterByCategory(customInputs, orgCategoryId) {
-    let filteredCustomInputs = [];
-    customInputs.forEach(customInput => {
-      if (customInput.org_category_ids) {
-        customInput.org_category_ids.some(categoryId => {
-          if (categoryId === orgCategoryId) {
-            filteredCustomInputs.push(customInput);
-          }
-        });
-      } else {
-        filteredCustomInputs.push(customInput);
-      }
-    });
-    return filteredCustomInputs;
+    return customInputs
+      .filter(
+        customInput => customInput.org_category_ids ?
+          customInput.org_category_ids && customInput.org_category_ids.some(id => id === orgCategoryId) : true
+      ).sort();
   }
 
   // TODO: Siva - eventually this should be replaced by rank

@@ -125,7 +125,7 @@ export class MyViewReportPage implements OnInit {
 
   goToEditReport() {
     // TODO
-    // this.router.navigate(['/', 'enterprise', 'edit_report', { id: this.activatedRoute.snapshot.params.id }]);
+    this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   async deleteReport() {

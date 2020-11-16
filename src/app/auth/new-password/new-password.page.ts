@@ -22,6 +22,7 @@ export class NewPasswordPage implements OnInit {
   uppercaseValidationDisplay$: Observable<boolean>;
   numberValidationDisplay$: Observable<boolean>;
   specialCharValidationDisplay$: Observable<boolean>;
+  hide = false;
 
 
   constructor(

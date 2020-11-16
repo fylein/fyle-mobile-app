@@ -10,6 +10,7 @@ import { MyProfilePage } from './my-profile.page';
 import { SelectCurrencyComponent } from 'src/app/post-verification/setup-account/select-currency/select-currency.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   imports: [
@@ -18,7 +19,8 @@ import { MatInputModule } from '@angular/material/input';
     IonicModule,
     MyProfilePageRoutingModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatIconModule
   ],
   declarations: [
     MyProfilePage,

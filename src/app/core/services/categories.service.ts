@@ -7,6 +7,8 @@ import { map } from 'rxjs/operators';
 })
 export class CategoriesService {
 
+  skipCategories = ['activity', 'mileage', 'per diem', 'unspecified'];
+
   constructor(
     private apiService: ApiService
   ) { }
@@ -65,5 +67,15 @@ export class CategoriesService {
       map(this.sortCategories),
       map(this.addDisplayName)
     );
+  }
+
+  filterRequired(categoryList) {
+    return categoryList.filter((category) => {
+      if (!category.fyle_category) {
+        return true;
+      }
+
+      return this.skipCategories.indexOf(category.fyle_category.toLowerCase()) === -1;
+    });
   }
 }

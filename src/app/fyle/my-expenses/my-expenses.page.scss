@@ -85,6 +85,21 @@
     margin: 12px;
   }
 
+  &--offline-header {
+    font-size: 16px;
+    margin-bottom: 0;
+    line-height: 1;
+    font-weight: 500;
+    padding: 0 12px;
+  }
+
+  &--offline-sub-header {
+    color: #4a4a4a;
+    line-height: 1.5;
+    font-size: 12px;
+    padding: 0 12px;
+  }
+
   &--zero-state {
     display: flex;
     flex-direction: column;

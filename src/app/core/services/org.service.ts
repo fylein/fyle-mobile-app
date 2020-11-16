@@ -4,7 +4,7 @@ import { tap, map, switchMap, catchError, concatMap } from 'rxjs/operators';
 import { Org } from '../models/org.model';
 import { AuthService } from './auth.service';
 import { forkJoin } from 'rxjs';
-import { globalCacheBusterNotifier } from 'ngx-cacheable';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'

@@ -1,0 +1,397 @@
+import { Injectable } from '@angular/core';
+import { StorageService } from '../core/services/storage.service';
+import { DateService } from '../core/services/date.service';
+import { from, empty, EMPTY, forkJoin, noop, concat } from 'rxjs';
+import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { OfflineService } from '../core/services/offline.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { TransactionService } from '../core/services/transaction.service';
+import { FileService } from './file.service';
+import { UtilityService } from './utility.service';
+import { StatusService } from './status.service';
+import { cloneDeep } from 'lodash';
+import { ReceiptService } from '../core/services/receipt.service';
+import { ReportService } from '../core/services/report.service';
+import { queue } from 'rxjs/internal/scheduler/queue';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TransactionsOutboxService {
+  queue = [];
+  syncDeferred: Promise<any> = null;
+  syncInProgress = false;
+  dataExtractionQueue = [];
+  tempQueue;
+
+  constructor(
+    private storageService: StorageService,
+    private dateService: DateService,
+    private transactionService: TransactionService,
+    private fileService: FileService,
+    private statusService: StatusService,
+    private httpClient: HttpClient,
+    private receiptService: ReceiptService,
+    private reportService: ReportService,
+    private offlineService: OfflineService
+  ) {
+    this.restoreQueue();
+  }
+
+  async saveQueue() {
+    await this.storageService.set('outbox', this.queue);
+  }
+
+  async saveDataExtractionQueue() {
+    await this.storageService.set('data_extraction_queue', this.dataExtractionQueue);
+  }
+
+  async removeDataExtractionEntry(expense, dataUrls) {
+    const entry = {
+      transaction: expense,
+      dataUrls
+    };
+
+    const idx = this.dataExtractionQueue.indexOf(entry);
+    this.dataExtractionQueue.splice(idx, 1);
+    console.log('removing entry ' + idx);
+    await this.saveDataExtractionQueue();
+  }
+
+  async restoreQueue() {
+    this.queue = await this.storageService.get('outbox');
+    this.dataExtractionQueue = await this.storageService.get('data_extraction_queue');
+
+    if (!this.queue) {
+      this.queue = [];
+    }
+
+    if (!this.dataExtractionQueue) {
+      this.dataExtractionQueue = [];
+    }
+
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.queue.length; i++) {
+      const entry = this.queue[i];
+      // In localStorage the date objects are stored as string, have to convert them to date instance
+      entry.transaction = this.dateService.fixDates(entry.transaction);
+    }
+
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.dataExtractionQueue.length; i++) {
+      const entry = this.dataExtractionQueue[i];
+      // In localStorage the date objects are stored as string, have to convert them to date instance
+      entry.transaction = this.dateService.fixDates(entry.transaction);
+    }
+  }
+
+  async addDataExtractionEntry(transaction, dataUrls) {
+    this.dataExtractionQueue.push({
+      transaction,
+      dataUrls
+    });
+    await this.saveDataExtractionQueue();
+  }
+
+  async processDataExtractionEntry() {
+    const that = this;
+    const clonedQueue = cloneDeep(this.dataExtractionQueue);
+
+    if (clonedQueue.length > 0) {
+      // calling data_extraction serially for all expenses in queue.
+      // https://gist.github.com/steve-taylor/5075717
+      const loop = (index) => {
+        const entry = clonedQueue[index];
+
+        const base64Image = entry.dataUrls[0].url.replace('data:image/jpeg;base64,', '');
+
+        that.parseReceipt(base64Image).then((response) => {
+          const parsedResponse = response.data;
+
+          if (parsedResponse) {
+            const extractedData = {
+              amount: parsedResponse.amount,
+              currency: parsedResponse.currency,
+              category: parsedResponse.category,
+              date: parsedResponse.date ? new Date(parsedResponse.date) : null,
+              vendor: parsedResponse.vendor
+            };
+
+            entry.transaction.extracted_data = extractedData;
+            entry.transaction.txn_dt = new Date();
+
+            this.transactionService.upsert(entry.transaction).toPromise().finally(() => {
+              this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+            });
+
+          } else {
+            this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+          }
+        }, (err) => {
+          this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+        }).finally(() => {
+          // iterating to next item on list.
+          if (index < clonedQueue.length - 1) {
+            loop(index + 1);
+          }
+        });
+      };
+
+      loop(0);
+    }
+  }
+
+  uploadData(uploadUrl, blob, contentType) {
+    return this.httpClient.put<any>(uploadUrl, blob, {
+      headers: new HttpHeaders({ 'Content-Type': contentType })
+    });
+  }
+
+  async fileUpload(dataUrl, fileType, receiptCoordinates) {
+    return new Promise((resolve, reject) => {
+      let fileExtension = fileType;
+      let contentType = 'application/pdf';
+
+      if (fileType === 'image') {
+        fileExtension = 'jpeg';
+        contentType = 'image/jpeg';
+      }
+
+      this.fileService.post({
+        name: '000.' + fileExtension,
+        receipt_coordinates: receiptCoordinates
+      }).toPromise().then((fileObj) => {
+        this.fileService.uploadUrl(fileObj.id).toPromise().then((url) => {
+          const uploadUrl = url;
+          const fileName = fileObj.name;
+          // check from here
+          fetch(dataUrl).then(res => res.blob()).then(blob => {
+            this.uploadData(uploadUrl, blob, contentType)
+              .toPromise()
+              .then(resp => {
+                return this.fileService.uploadComplete(fileObj.id);
+              })
+              .then(() => resolve(fileObj))
+              .catch(err => {
+                reject(err);
+              });
+          });
+        });
+      });
+    });
+  }
+
+  removeEntry(entry) {
+    const idx = this.queue.indexOf(entry);
+    this.queue.splice(idx, 1);
+    console.log('removing entry ' + idx);
+    this.saveQueue();
+  }
+
+  addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData) {
+    this.queue.push({
+      transaction,
+      dataUrls,
+      comments,
+      reportId,
+      applyMagic: !!applyMagic,
+      receiptsData
+    });
+
+    this.saveQueue();
+  }
+
+  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
+    this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData);
+    return this.syncEntry(this.queue.pop());
+  };
+
+  getPendingTransactions() {
+    return this.queue.map((entry) => {
+      return entry.transaction;
+    });
+  }
+
+  getPendingDataExtractions() {
+    return this.dataExtractionQueue;
+  }
+
+  syncEntry(entry) {
+    const that = this;
+    const fileObjPromiseArray = [];
+    const reportId = entry.reportId;
+
+    if (!entry.receiptsData) {
+      if (entry.dataUrls && entry.dataUrls.length > 0) {
+        entry.dataUrls.forEach((dataUrl) => {
+          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates).then((fileObj) => {
+            return fileObj;
+          }, (evt) => {
+            const progressPercentage = 100.0 * evt.loaded / evt.total;
+            console.log('progress: ' + progressPercentage);
+          });
+
+          fileObjPromiseArray.push(fileObjPromise);
+        });
+      }
+    }
+    console.log('Herehere');
+    return new Promise((resolve, reject) => {
+      console.log(entry.transaction);
+      console.log(fileObjPromiseArray);
+      this.transactionService.createTxnWithFiles(entry.transaction, from(Promise.all(fileObjPromiseArray))).toPromise().then((resp) => {
+        const comments = entry.comments;
+        // adding created transaction id into entry object to get created transaction id when promise is resolved.
+        entry.transaction.id = resp.id;
+        if (comments && comments.length > 0) {
+          comments.forEach(function (comment) {
+            this.statusService.post('transactions', resp.id, { comment }, true);
+          });
+        }
+        if (entry.receiptsData) {
+          const linkReceiptPayload = {
+            transaction_id: entry.transaction.id,
+            linked_by: entry.receiptsData.linked_by
+          };
+          this.receiptService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
+        }
+        if (entry.dataUrls && entry.dataUrls.length > 0) {
+          this.transactionService.getETxn(resp.id).toPromise().then((etxn) => {
+            entry.dataUrls.forEach((dataUrl) => {
+              if (dataUrl.callBackUrl) {
+                this.httpClient.post(dataUrl.callBackUrl, {
+                  entered_data: {
+                    amount: etxn.tx.amount,
+                    currency: etxn.tx.currency,
+                    orig_currency: etxn.tx.orig_currency,
+                    orig_amount: etxn.tx.orig_amount,
+                    date: etxn.tx.txn_dt,
+                    vendor: etxn.tx.vendor,
+                    category: etxn.tx.fyle_category,
+                    external_id: etxn.tx.external_id,
+                    transaction_id: etxn.tx.id
+                  }
+                });
+              }
+            });
+          });
+        }
+
+        if (reportId) {
+          const txnIds = [resp.id];
+          this.reportService.addTransactions(reportId, txnIds).toPromise().then((result) => {
+            // TrackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
+            return result;
+          });
+        }
+
+        this.removeEntry(entry);
+
+        //This would be on matching an expense for the first time
+        if (entry.transaction.matchCCCId) {
+          this.transactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId);
+        }
+
+        if (entry.applyMagic) {
+          this.addDataExtractionEntry(resp, entry.dataUrls);
+        }
+        resolve(entry);
+      }, (err) => {
+        // TrackingService.syncError({ Asset: 'Mobile', label: err });
+
+        reject(err);
+        // console.log('unable to upload.. will try later');
+      });
+    });
+  }
+
+  sync() {
+    const that = this;
+
+    if (that.syncDeferred) {
+      console.log('returning old promise');
+      return that.syncDeferred;
+    }
+
+    that.syncInProgress = true;
+    that.syncDeferred = new Promise((resolve, reject) => {
+      const p = [];
+
+      for (let i = 0; i < that.queue.length; i++) {
+        console.log("processing txn " + i);
+        p.push(that.syncEntry(that.queue[i]));
+      }
+
+      Promise.all(p).finally(function () {
+        // if (p.length > 0) {
+        //   console.log('clearing cache');
+        //   TransactionService.deleteCache();
+        //   console.log('clearing syncDeferred');
+        // }
+        that.processDataExtractionEntry();
+
+        resolve(true);
+        that.syncDeferred = null;
+        that.syncInProgress = false;
+      });
+    });
+
+    return this.syncDeferred;
+  };
+
+  createTxnAndUploadBase64File(transaction, base64Content) {
+    return this.transactionService.upsert(transaction).pipe(
+      switchMap((res) => {
+        return this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null);
+      })
+    );
+  }
+
+  isSyncInProgress() {
+    return this.syncInProgress;
+  }
+
+  parseReceipt(data) {
+    const url = environment.ROOT_URL + '/data_extraction/extract';
+    let suggestedCurrency = null;
+    // res = {
+    //   amount: 100,
+    //   category: 'food',
+    //   currency: 'KWD'
+    // };
+
+    // return $q.when(res);
+    // send homeCurrency of the user's org as suggestedCurrency for data-extraction
+    return this.offlineService.getHomeCurrency().toPromise().then((homeCurrency) => {
+      suggestedCurrency = homeCurrency;
+      return this.httpClient.post(url, {
+        files: [{
+          name: '000.jpeg',
+          content: data
+        }],
+        suggested_currency: suggestedCurrency
+      }).toPromise().then((resp: any) => {
+        return resp.data;
+      });
+    }).catch(function () {
+      return this.httpClient.post(url, {
+        files: [{
+          name: '000.jpeg',
+          content: data
+        }],
+        suggested_currency: suggestedCurrency
+      }).then((resp: any) => {
+        return resp.data;
+      });
+    });
+  }
+
+  isDataExtractionPending(txnId) {
+    const txnIds = this.dataExtractionQueue.map((entry) => {
+      return entry.transaction.id;
+    });
+
+    return txnIds.indexOf(txnId) > -1;
+  }
+}
