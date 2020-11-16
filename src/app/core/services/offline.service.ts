@@ -17,6 +17,7 @@ import { switchMap, tap, map, catchError, finalize } from 'rxjs/operators';
 import { from, forkJoin } from 'rxjs';
 import { PermissionsService } from './permissions.service';
 import { Org } from '../models/org.model';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -75,6 +76,7 @@ export class OfflineService {
     ]);
   }
 
+  @Cacheable()
   getOrgSettings() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -93,6 +95,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getOrgUserSettings() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -111,6 +114,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getOrgUserMileageSettings() {
     return this.getOrgUserSettings().pipe(
       map((res: any) => res.mileage_settings)
@@ -125,6 +129,7 @@ export class OfflineService {
     return from(this.storageService.set('activeExpenseTab', activeTab));
   }
 
+  @Cacheable()
   getAllowedCostCenters(orgUserSettings) {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -143,6 +148,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getDefaultCostCenter() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -161,6 +167,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getHomeCurrency() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -179,6 +186,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getAllCategories() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -197,6 +205,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getAccounts() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -215,6 +224,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getCostCenters() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -233,6 +243,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getProjects() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -251,6 +262,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getPerDiemRates() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -269,6 +281,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getCustomInputs() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -287,6 +300,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getCurrentOrg() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -305,6 +319,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getOrgs() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -351,6 +366,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getTransactionFieldConfigurationsMap() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -377,6 +393,7 @@ export class OfflineService {
     return from(this.storageService.get('activeCorporateCardExpenseTab'));
   }
 
+  @Cacheable()
   getAllowedPerDiems(allPerDiemRates) {
     return this.getOrgUserSettings().pipe(
       map(

@@ -43,6 +43,7 @@
     padding: 8px;
     text-align: center;
     color: #0077ee;
+    white-space: nowrap;
     &__left {
       border-radius: 4px 0 0 4px;
     }
@@ -98,6 +99,10 @@
     line-height: 1.5;
     font-size: 12px;
     padding: 0 12px;
+  }
+
+  &--offline-message {
+    padding: 8px 0;
   }
 
   &--zero-state {
