@@ -36,7 +36,7 @@
             </div>
           </div>
 
-          <ng-container *ngIf="fg.controls.currencyObj?.value?.orig_amount">
+          <ng-container class="add-edit-per-diem--error" *ngIf="fg.controls.currencyObj?.value?.orig_amount">
             <div class="add-edit-per-diem--conversion">
               <div class="add-edit-per-diem--conversion-amount">
                 {{fg.controls.currencyObj?.value?.amount}} {{fg.controls.currencyObj?.value?.currency}}
@@ -63,7 +63,7 @@
                     <input type="date" class="add-edit-per-diem--date-input" formControlName="from_dt" [min]="minDate"
                       [max]="maxDate" [disabled]="isAmountDisabled || !txnFields?.from_dt.can_edit">
                   </div>
-                  <div *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid">
+                  <div class="add-edit-per-diem--error" *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid">
                     Please select {{ etxn.tx.from_dt ? txnFields?.from_dt.title : 'Select From Date' }}
                   </div>
                 </ng-container>
@@ -84,7 +84,7 @@
                       [min]="fg.controls.from_dt.value" [max]="maxDate"
                       [disabled]="isAmountDisabled || !txnFields?.to_dt.can_edit">
                   </div>
-                  <div *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid">
+                  <div class="add-edit-per-diem--error" *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid">
                     Please select {{ etxn.tx.to_dt ? txnFields?.to_dt.title : 'Select From Date' }}
                   </div>
                 </ng-container>
@@ -104,7 +104,7 @@
                     <input class="add-edit-per-diem--text-input" type="number" formControlName="num_days" [min]="0"
                       [disabled]="isAmountDisabled || !txnFields?.num_days.can_edit">
                   </div>
-                  <div *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid">
+                  <div class="add-edit-per-diem--error" *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid">
                     Please select {{txnFields?.num_days.title  }}
                   </div>
                 </ng-container>
@@ -117,7 +117,7 @@
                     [disabled]="isAmountDisabled">
                   </app-fy-select>
                 </div>
-                <div *ngIf="fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid">
+                <div class="add-edit-per-diem--error" *ngIf="fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid">
                   Please select a per diem type
                 </div>
               </ng-container>
@@ -153,7 +153,7 @@
                     </mat-icon>
                   </ng-template>
                 </div>
-                <div *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid">
+                <div class="add-edit-per-diem--error" *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid">
                   Please select a payment mode.
                 </div>
               </ng-container>
@@ -182,7 +182,7 @@
                       formControlName="purpose" [options]="txnFields?.purpose?.values"
                       [disabled]="!txnFields?.purpose.can_edit"></app-fy-select>
                   </div>
-                  <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid">
+                  <div class="add-edit-per-diem--error" *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid">
                     Please enter {{ txnFields?.purpose.title }}.
                   </div>
                 </ng-container>
@@ -196,7 +196,7 @@
                       [mandatory]="transactionMandatoyFields?.project" formControlName="project">
                     </app-fy-select-project>
                   </div>
-                  <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid">
+                  <div class="add-edit-per-diem--error" *ngIf="fg.controls.project.touched && !fg.controls.project.valid">
                     Please select a project.
                   </div>
                 </ng-container>
@@ -217,7 +217,7 @@
                     [options]="subCategories">
                   </app-fy-select>
                 </div>
-                <div *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid">
+                <div class="add-edit-per-diem--error" *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid">
                   Please select a Sub Category.
                 </div>
               </ng-container>
@@ -280,7 +280,7 @@
                       [options]="costCenters">
                     </app-fy-select>
                   </div>
-                  <div *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid">
+                  <div class="add-edit-per-diem--error" *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid">
                     Please select a Cost Center.
                   </div>
                 </ng-container>
@@ -324,9 +324,9 @@
               </ng-container>
 
               <!-- This is very helpful for debugging - Angular will remove this when compiling so lets have this here -->
-              <ion-button (click)="getFormValidationErrors()">
+              <!-- <ion-button (click)="getFormValidationErrors()">
                 Click me for errors!
-              </ion-button>
+              </ion-button> -->
             </div>
           </div>
         </ng-container>

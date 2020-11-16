@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, forkJoin, iif, of, combineLatest } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { switchMap, map, startWith, tap, shareReplay, concatMap, distinctUntilChanged, filter } from 'rxjs/operators';
+import { switchMap, map, startWith, tap, shareReplay, concatMap, distinctUntilChanged, filter, take, first } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl, ValidationErrors, AbstractControl } from '@angular/forms';
 import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -13,6 +13,9 @@ import { CustomFieldsService } from 'src/app/core/services/custom-fields.service
 import { isEqual } from 'lodash';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -44,6 +47,7 @@ export class AddEditPerDiemPage implements OnInit {
   reports$: Observable<any[]>;
   allowedProjectIds$: Observable<string[]>;
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
+  paymentModeInvalid$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -55,7 +59,9 @@ export class AddEditPerDiemPage implements OnInit {
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private currencyService: CurrencyService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private projectService: ProjectsService,
+    private transactionsOutboxService: TransactionsOutboxService
   ) { }
 
   ngOnInit() {
@@ -130,7 +136,9 @@ export class AddEditPerDiemPage implements OnInit {
         const isMultipleAdvanceEnabled = orgSettings && orgSettings.advance_account_settings &&
           orgSettings.advance_account_settings.multiple_accounts;
         const userAccounts = this.accountsService
-          .filterAccountsWithSufficientBalance(accounts.filter(account => account.acc.type), isAdvanceEnabled);
+          .filterAccountsWithSufficientBalance(accounts.filter(account => account.acc.type), isAdvanceEnabled)
+          .filter(userAccount => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
+
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map(paymentModes => paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode })))
@@ -222,7 +230,6 @@ export class AddEditPerDiemPage implements OnInit {
           return customField;
         });
       }),
-      tap(console.log),
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
         customFieldsFormArray.clear();
@@ -235,7 +242,8 @@ export class AddEditPerDiemPage implements OnInit {
         }
 
         return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
-      })
+      }),
+      shareReplay()
     );
   }
 
@@ -293,7 +301,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.subCategories$ = this.getSubCategories();
 
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
-      map(allowedPerDiemRates => allowedPerDiemRates.map(rate => ({ label: rate.full_name, value: rate })))
+      map(allowedPerDiemRates => allowedPerDiemRates.map(rate => ({ label: rate.full_name, value: rate }))),
+      tap(console.log)
     );
 
     this.transactionMandatoyFields$ = orgSettings$.pipe(
@@ -456,19 +465,195 @@ export class AddEditPerDiemPage implements OnInit {
         return of(false);
       })
     );
+
+    const selectedProject$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return iif(() => etxn.tx.project_id, this.projectService.getbyId(etxn.tx.project_id), of(null));
+      })
+    );
+
+    const selectedPaymentMode$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
+          map(paymentModes => paymentModes
+            .map(res => res.value)
+            .find(paymentMode => paymentMode.acc.id === etxn.tx.source_account_id))
+        ), of(null));
+      })
+    );
+
+    const selectedSubCategory$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return iif(() => etxn.tx.org_category_id,
+          this.subCategories$.pipe(
+            map(subCategories => subCategories
+              .map(res => res.value)
+              .find(subCategory => subCategory.id === etxn.tx.org_category_id))
+          ),
+          of(null)
+        );
+      })
+    );
+
+    const selectedPerDiemOption$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return iif(() => etxn.tx.per_diem_rate_id,
+          this.allowedPerDiemRateOptions$.pipe(
+            map(perDiemOptions => perDiemOptions
+              .map(res => res.value)
+              .find(perDiemOption => perDiemOption.id === etxn.tx.per_diem_rate_id))
+          ),
+          of(null)
+        );
+      })
+    );
+
+    const selectedReport$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return iif(() => etxn.tx.report_id,
+          this.reports$.pipe(
+            map(reportOptions => reportOptions
+              .map(res => res.value)
+              .find(reportOption => reportOption.id === etxn.tx.report_id))
+          ),
+          of(null)
+        );
+      })
+    );
+
+    const selectedCostCenter$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return iif(() => etxn.tx.cost_center_id,
+          this.costCenters$.pipe(
+            map(costCenters => costCenters
+              .map(res => res.value)
+              .find(costCenter => costCenter.id === etxn.tx.cost_center_id))
+          ),
+          of(null)
+        );
+      })
+    );
+
+    combineLatest([
+      this.etxn$,
+      selectedPaymentMode$,
+      selectedProject$,
+      selectedSubCategory$,
+      selectedPerDiemOption$,
+      this.txnFields$,
+      selectedReport$,
+      selectedCostCenter$
+    ]).pipe(
+      take(1)
+    ).subscribe(([etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter]) => {
+      this.fg.patchValue({
+        paymentMode,
+        project,
+        sub_category: subCategory,
+        per_diem_rate: perDiemRate,
+        purpose: etxn.tx.purpose,
+        num_days: etxn.tx.num_days,
+        report,
+        from_dt: etxn.tx.from_dt ? moment(new Date(etxn.tx.from_dt)).format('y-MM-D') : null,
+        to_dt: etxn.tx.to_dt ? moment(new Date(etxn.tx.to_dt)).format('y-MM-D') : null,
+        billable: etxn.tx.billable,
+        costCenter
+      });
+    });
+
+    this.paymentModeInvalid$ = iif(() => this.activatedRoute.snapshot.params.id, this.etxn$, of(null)).pipe(
+      map(etxn => {
+        if (this.fg.value.paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+          if (etxn && etxn.id && this.fg.value.paymentMode.acc.id === etxn.source_account_id && etxn.state !== 'DRAFT') {
+            return (this.fg.value.paymentMode.acc.tentative_balance_amount + etxn.amount) < this.fg.value.currencyObj.amount;
+          } else {
+            return this.fg.value.paymentMode.acc.tentative_balance_amount < this.fg.value.currencyObj.amount;
+          }
+        } else {
+          return false;
+        }
+      })
+    );
+  }
+
+
+  generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
+    return forkJoin({
+      etxn: etxn$,
+      customProperties: standardisedCustomProperties$
+    }).pipe(
+      map((res) => {
+        const etxn: any = res.etxn;
+        const customProperties = res.customProperties;
+        const skipReimbursement = this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT'
+          && !this.fg.value.paymentMode.acc.isReimbursable;
+
+        const formValue = this.fg.value;
+        const currencyObj = this.fg.controls.currencyObj.value;
+        return {
+          tx: {
+            ...etxn.tx,
+            source_account_id: formValue.paymentMode.acc.id,
+            billable: formValue.billable,
+            org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
+            skip_reimbursement: skipReimbursement,
+            per_diem_rate_id: formValue.per_diem_rate.id,
+            source: 'MOBILE',
+            txn_dt: new Date(formValue.dateOfSpend),
+            currency: currencyObj.currency,
+            amount: currencyObj.amount,
+            orig_currency: currencyObj.orig_currency,
+            orig_amount: currencyObj.orig_amount,
+            project_id: formValue.project && formValue.project.id,
+            purpose: formValue.purpose,
+            custom_properties: customProperties || [],
+            org_user_id: etxn.tx.org_user_id,
+            from_dt: formValue.from_dt,
+            to_dt: formValue.to_dt,
+            category: null,
+            num_days: formValue.num_days,
+            cost_center_id: formValue.costCenter && formValue.costCenter.id,
+            cost_center_name: formValue.costCenter && formValue.costCenter.name,
+            cost_center_code: formValue.costCenter && formValue.costCenter.code
+          },
+          dataUrls: []
+        };
+      })
+    );
   }
 
   savePerDiem() {
+    const customFields$ = this.customInputs$.pipe(
+      take(1),
+      map(customInputs => {
+        return customInputs.map((customInput, i) => {
+          return {
+            id: customInput.id,
+            mandatory: customInput.mandatory,
+            name: customInput.name,
+            options: customInput.options,
+            placeholder: customInput.placeholder,
+            prefix: customInput.prefix,
+            type: customInput.type,
+            value: this.fg.value.custom_inputs[i].value
+          };
+        });
+      })
+    );
+
     if (this.fg.valid) {
-      console.log(this.fg.value);
+      if (this.mode === 'add') {
+        this.generateEtxnFromFg(this.etxn$, customFields$)
+          .subscribe(etxn => {
+            this.transactionsOutboxService.addEntry(etxn.tx, null, [], this.fg.value.report.id, null, null);
+          });
+      }
     } else {
       this.fg.markAllAsTouched();
     }
   }
 
   getFormValidationErrors() {
-    console.log(this.fg.errors);
-    console.log(this.fg.valid);
     Object.keys(this.fg.controls).forEach(key => {
 
       const controlErrors: ValidationErrors = this.fg.get(key).errors;

@@ -585,6 +585,7 @@ export class AddEditExpensePage implements OnInit {
 
         return {
           tx: {
+            ...etxn.tx,
             billable: this.fg.value.billable,
             skip_reimbursement: this.fg.value.paymentMode.acc.isReimbursable,
             source: 'MOBILE',
@@ -672,18 +673,22 @@ export class AddEditExpensePage implements OnInit {
   }
 
   saveExpense() {
-    const customFields$ = this.customInputsService.getAll(true).pipe(
-      map(customFields => {
-        // TODO: Convert custom properties to get generated from formValue
-        return this.customFieldsService
-          .standardizeCustomFields([],
-            this.customInputsService
-              .filterByCategory(customFields, this.fg.value.category && this.fg.value.category.id));
-      }),
-      map((customFields: any[]) => {
-        return customFields.map((customField, i) => ({ ...customField, value: this.fg.value.custom_inputs[i].value }));
-      }),
-      map(this.customFieldsService.standardizeProperties)
+    const customFields$ = this.customInputs$.pipe(
+      take(1),
+      map(customInputs => {
+        return customInputs.map((customInput, i) => {
+          return {
+            id: customInput.id,
+            mandatory: customInput.mandatory,
+            name: customInput.name,
+            options: customInput.options,
+            placeholder: customInput.placeholder,
+            prefix: customInput.prefix,
+            type: customInput.type,
+            value: this.fg.value.custom_inputs[i].value
+          };
+        });
+      })
     );
 
     if (this.fg.valid) {
