@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar class="add-edit-trip--toolbar">
+    <ion-buttons mode="md" slot="end" (click)="goBack()">
+      <mat-icon>close</mat-icon>
+    </ion-buttons>
+    <ion-title mode="md">
+      <span>{{ mode === 'edit' ? 'Edit Trip Request' : 'Request Trip' }}</span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="add-edit-trip--container">
+    <form [formGroup]="fg" (ngSubmit)="onSubmit()">
+      <ng-container formArrayName="travellerDetails">
+        <p class="sub-info">Traveller Details</p>
+
+        <!-- travellerDetails => {{fg.controls}}
+        <button (click)="debug(fg.controls)">dabav</button> -->
+        <br>
+        <div *ngFor="let control of travellerDetails.controls; index as i" [formGroupName]="i">
+          <div>
+              traveller {{i+1}}
+              <div><label>Name: </label> <input type="text"  formControlName="name"></div>
+              <div><label>Contact</label> <input type="text" formControlName="contact"></div>
+              <button *ngIf="i !== 0" style="background: red; color: white" (click)="remove(i)">remove</button>
+          </div>
+        </div>
+
+        <button (click)="addNewTraveller()" type="button">
+            <i class="icon ion-plus-circled"></i>
+            Add Traveller
+        </button>
+      </ng-container>
+      <div>
+        <p class="sub-info">Trip information</p>
+        <div class="trip-request--element">
+          <div class="trip-request--element-label">
+            Trip Type <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+          </div>
+          <div class="trip-request--element-value">
+            <!-- {{tripRequest.trp_start_date | date: 'dd, MMM yyyy'}} -->
+          </div>
+        </div>
+        <div class="trip-request--element">
+          <div class="trip-request--element-label">
+            Trip Type <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+          </div>
+          <div class="trip-request--element-value">
+            <!-- {{tripRequest.trp_start_date | date: 'dd, MMM yyyy'}} -->
+          </div>
+        </div>
+      </div>
+      <div>
+        <button type="submit">Submit</button>
+      </div>
+
+    </form>
+  </div>
+</ion-content>

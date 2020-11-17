@@ -1,0 +1,11 @@
+$item-border-color: #e0e0e0;
+
+.add-edit-trip {
+  &--toolbar {
+    border-bottom: 1px solid $item-border-color;
+  }
+
+  &--container {
+    padding: 4px 10px;
+  }
+}
