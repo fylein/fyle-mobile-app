@@ -64,23 +64,24 @@ export class CameraOverlayPage implements OnInit {
       if (permission === 'OK') {
         const options = {
           maximumImagesCount: 10,
-          outputType: 1, // Todo: // If android app crashes b
+          outputType: 1, // If android app start crashing then convert it 0 to get path and then convert it to base64 before upload to s3.
           quality: 50
         };
 
-        this.imagePicker.getPictures(options).then((imageBase64Strings: []) => {
+        from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings) => {
           this.loaderService.showLoader('Processing....');
           imageBase64Strings.forEach((base64String, key) => {
             const base64PictureData = 'data:image/jpeg;base64,' + base64String;
             this.addExpenseToQueue('GALLERY_UPLOAD', base64PictureData);
             if (key === imageBase64Strings.length - 1) {
               this.transactionsOutboxService.sync().then((res) => {
-                this.loaderService.hideLoader();
                 this.showGalleryUploadSuccessPopup(imageBase64Strings.length);
               });
             }
           });
+          this.loaderService.hideLoader();
         });
+
       } else {
         this.imagePicker.requestReadPermission();
         this.uploadFiles();
