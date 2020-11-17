@@ -19,6 +19,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -77,7 +78,8 @@ export class AddEditExpensePage implements OnInit {
     private transactionService: TransactionService,
     private dataTransformService: DataTransformService,
     private policyService: PolicyService,
-    private transactionOutboxService: TransactionsOutboxService
+    private transactionOutboxService: TransactionsOutboxService,
+    private imagePicker: ImagePicker
   ) { }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -150,6 +152,18 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+
+    this.imagePicker.requestReadPermission().then(() => {
+      return this.imagePicker.getPictures({
+        maximumImagesCount: 3,
+        outputType: 1
+      });
+    }).then(res => {
+      console.log(res);
+    });
+
+
+
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const allCategories$ = this.offlineService.getAllCategories();

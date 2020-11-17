@@ -21,6 +21,7 @@ import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-s
 import { FySelectVendorComponent } from './fy-select-vendor/fy-select-vendor.component';
 import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
 
 
 @NgModule({
@@ -49,6 +50,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     FySelectModalComponent,
     FySelectVendorComponent,
     FySelectVendorModalComponent
+  ],
+  providers: [
+    ImagePicker
   ]
 })
 export class AddEditExpensePageModule { }
