@@ -1,0 +1,9 @@
+<div class="alert" [ngClass]="{'alert__info': type === 'information', 'alert__warning': type === 'warning'}">
+  <mat-icon *ngIf="type === 'information'" class="alert--icon alert--info">
+    info
+  </mat-icon>
+  <mat-icon *ngIf="type === 'warning'" class="alert--icon alert--icon__warning">
+    warning
+  </mat-icon>
+  <div> {{ message }} </div>
+</div>

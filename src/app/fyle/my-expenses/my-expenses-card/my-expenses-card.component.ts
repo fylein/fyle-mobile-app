@@ -17,6 +17,7 @@ export class MyExpensesCardComponent implements OnInit {
   @Input() prevExpense;
   @Input() dateComparatorProp;
   @Input() canDelete = false;
+  @Input() skipDate = false;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() toggleFlashMode: EventEmitter<Expense> = new EventEmitter();

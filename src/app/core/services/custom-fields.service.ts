@@ -77,5 +77,18 @@ export class CustomFieldsService {
     });
 
     return filledCustomPropertiesWithType.concat(filledCustomPropertiesWithInputType).sort(this.sortcustomFieldsByType);
+  }
+
+  standardizeProperties(customProperties) {
+    const changedCustomProperties = customProperties.map((customProperty) => {
+      return {
+        id: customProperty.id,
+        name: customProperty.name,
+        value: customProperty.value,
+        type: customProperty.type
+      };
+    });
+
+    return changedCustomProperties;
   };
 }
