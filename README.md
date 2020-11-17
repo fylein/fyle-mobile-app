@@ -57,5 +57,7 @@ To make google login work in your physical device you need to do some extra acti
 
 ## Camera Overlay
   - Add these lines in MainActivity.java
-    - import com.ahm.capacitor.camera.preview.CameraPreview; (After package com.fylehq.production;)
-    - add(CameraPreview.class); (After // Ex: add(TotallyAwesomePlugin.class);)
+    - import com.ahm.capacitor.camera.preview.CameraPreview; (After line -> package com.fylehq.production;)
+    - add(CameraPreview.class); (After this line -> // Ex: add(TotallyAwesomePlugin.class);)
+  - Add these lines in AndroidManifest.xml 
+    - android:usesCleartextTraffic="true" (After this line -> android:theme="@style/AppTheme")
