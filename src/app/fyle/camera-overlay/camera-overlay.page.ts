@@ -64,9 +64,10 @@ export class CameraOverlayPage implements OnInit {
       if (permission === 'OK') {
         const options = {
           maximumImagesCount: 10,
-          outputType: 1, // If android app start crashing then convert it 0 to get path and then convert it to base64 before upload to s3.
+          outputType: 1,
           quality: 50
         };
+        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
 
         from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings) => {
           this.loaderService.showLoader('Processing....');
