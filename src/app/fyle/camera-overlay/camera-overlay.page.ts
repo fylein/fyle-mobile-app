@@ -98,7 +98,7 @@ export class CameraOverlayPage implements OnInit {
       componentProps: {
         uploadedTitle
       },
-      cssClass: 'error-popover'
+      cssClass: 'gallery-upload-success-popover'
     });
 
     await galleryUploadSuccessPopup.present();
