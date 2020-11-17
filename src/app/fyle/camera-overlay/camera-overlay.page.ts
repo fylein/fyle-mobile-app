@@ -11,6 +11,10 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { toBase64String } from '@angular/compiler/src/output/source_map';
+import { PopoverController } from '@ionic/angular';
+import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-popup/gallery-upload-success-popup.component';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -32,6 +36,8 @@ export class CameraOverlayPage implements OnInit {
     private transactionsOutboxService: TransactionsOutboxService,
     private loaderService: LoaderService,
     private router: Router,
+    private imagePicker: ImagePicker,
+    private popoverController: PopoverController
   ) { }
 
   setUpAndStartCamera() {
@@ -53,6 +59,50 @@ export class CameraOverlayPage implements OnInit {
   }
 
   async uploadFiles() {
+    await CameraPreview.stop();
+    this.imagePicker.requestReadPermission().then((permission) => {
+      if (permission === 'OK') {
+        const options = {
+          maximumImagesCount: 10,
+          outputType: 1, // Todo: // If android app crashes b
+          quality: 50
+        };
+
+        this.imagePicker.getPictures(options).then((imageBase64Strings: []) => {
+          this.loaderService.showLoader('Processing....');
+          imageBase64Strings.forEach((base64String, key) => {
+            const base64PictureData = 'data:image/jpeg;base64,' + base64String;
+            this.addExpenseToQueue('GALLERY_UPLOAD', base64PictureData);
+            if (key === imageBase64Strings.length - 1) {
+              this.transactionsOutboxService.sync().then((res) => {
+                this.loaderService.hideLoader();
+                this.showGalleryUploadSuccessPopup(imageBase64Strings.length);
+              });
+            }
+          });
+        });
+      } else {
+        this.imagePicker.requestReadPermission();
+        this.uploadFiles();
+      }
+    });
+  }
+
+
+  async showGalleryUploadSuccessPopup(count) {
+    const uploadedTitle = count === 1 ? 'Uploaded ' + count + ' receipt' : 'Uploaded ' + count + ' receipts';
+    const galleryUploadSuccessPopup = await this.popoverController.create({
+      component: GalleryUploadSuccessPopupComponent,
+      componentProps: {
+        uploadedTitle
+      },
+      cssClass: 'error-popover'
+    });
+
+    await galleryUploadSuccessPopup.present();
+
+    const { data } = await galleryUploadSuccessPopup.onWillDismiss();
+    this.router.navigate(['/', 'enterprise', 'my_dashboard']);
   }
 
   addExpenseToQueue(source, imageBase64String) {

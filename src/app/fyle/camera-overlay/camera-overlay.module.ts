@@ -8,6 +8,7 @@ import { CameraOverlayPageRoutingModule } from './camera-overlay-routing.module'
 
 import { CameraOverlayPage } from './camera-overlay.page';
 import { MatIconModule } from '@angular/material/icon';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
 
 @NgModule({
   imports: [
@@ -17,6 +18,9 @@ import { MatIconModule } from '@angular/material/icon';
     CameraOverlayPageRoutingModule,
     MatIconModule
   ],
-  declarations: [CameraOverlayPage]
+  declarations: [CameraOverlayPage],
+  providers: [
+    ImagePicker
+  ]
 })
 export class CameraOverlayPageModule {}
