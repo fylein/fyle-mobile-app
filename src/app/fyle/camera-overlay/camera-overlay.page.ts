@@ -60,8 +60,8 @@ export class CameraOverlayPage implements OnInit {
 
   async uploadFiles() {
     await CameraPreview.stop();
-    this.imagePicker.requestReadPermission().then((permission) => {
-      if (permission === 'OK') {
+    this.imagePicker.hasReadPermission().then((permission) => {
+      if (permission) {
         const options = {
           maximumImagesCount: 10,
           outputType: 1,
