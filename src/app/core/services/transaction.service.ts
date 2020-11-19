@@ -459,4 +459,8 @@ export class TransactionService {
 
     return this.apiService.post('/transactions/match', data);
   }
+
+  review(txnId: string) {
+    return this.apiService.post('/transactions/' + txnId + '/review');
+  }
 }

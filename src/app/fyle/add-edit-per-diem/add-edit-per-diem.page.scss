@@ -49,6 +49,7 @@
 
   &--date-label {
     margin: 0 8px 0 0;
+    min-width: 145px;
     font-size: 16px;
     color: #ababab;
     font-weight: 500;
@@ -77,12 +78,12 @@
   &--text-label {
     margin: 0 8px 0 0;
     font-size: 16px;
+    min-width: 145px;
     color: #ababab;
     font-weight: 500;
     line-height: 2;
     white-space: nowrap;
     display: flex;
-    min-width: 128px;
     &__invalid {
       color: red;
     }

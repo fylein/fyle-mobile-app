@@ -1,21 +1,25 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Observable, forkJoin, iif, of, combineLatest } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, forkJoin, iif, of, combineLatest, from, throwError, noop } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { switchMap, map, startWith, tap, shareReplay, concatMap, distinctUntilChanged, filter, take, first } from 'rxjs/operators';
-import { FormBuilder, FormGroup, Validators, FormArray, FormControl, ValidationErrors, AbstractControl } from '@angular/forms';
+import { switchMap, map, startWith, tap, shareReplay, distinctUntilChanged, filter, take, finalize } from 'rxjs/operators';
+import { FormBuilder, FormGroup, Validators, FormArray, ValidationErrors, AbstractControl } from '@angular/forms';
 import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
 import * as moment from 'moment';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { isEqual } from 'lodash';
+import { isEqual, isNumber, cloneDeep } from 'lodash';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
+import { DataTransformService } from 'src/app/core/services/data-transform.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -48,6 +52,9 @@ export class AddEditPerDiemPage implements OnInit {
   allowedProjectIds$: Observable<string[]>;
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
   paymentModeInvalid$: Observable<boolean>;
+  isAmountCapped$: Observable<boolean>;
+  isAmountDisabled$: Observable<boolean>;
+  isCriticalPolicyViolated$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -61,7 +68,13 @@ export class AddEditPerDiemPage implements OnInit {
     private currencyService: CurrencyService,
     private reportService: ReportService,
     private projectService: ProjectsService,
-    private transactionsOutboxService: TransactionsOutboxService
+    private transactionsOutboxService: TransactionsOutboxService,
+    private transactionService: TransactionService,
+    private authService: AuthService,
+    private policyService: PolicyService,
+    private dataTransformService: DataTransformService,
+    private loaderService: LoaderService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -207,44 +220,61 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  getCustomInputs() {
-    return this.fg.controls.sub_category.valueChanges.pipe(
-      startWith({}),
-      concatMap((category) => {
-        const formValue = this.fg.value;
-        return this.customInputsService.getAll(true).pipe(
-          map(customFields => {
-            // TODO: Convert custom properties to get generated from formValue
-            return this.customFieldsService.standardizeCustomFields([],
-              this.customInputsService.filterByCategory(customFields, category && category.id));
-          }),
-          map(customFields => customFields.filter(customField => customField.type !== 'USER_LIST'))
-        );
-      }),
-      map(customFields => {
-        return customFields.map(customField => {
-          if (customField.options) {
-            customField.options = customField.options.map(option => ({ label: option, value: option }));
-          }
-
-          return customField;
-        });
-      }),
-      map((customFields: any[]) => {
-        const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
-        customFieldsFormArray.clear();
-        for (const customField of customFields) {
-          customFieldsFormArray.push(
-            this.fb.group({
-              value: [, customField.mandatory && Validators.required]
-            })
-          );
-        }
-
-        return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
-      }),
+  getEditExpense() {
+    return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       shareReplay()
     );
+  }
+
+  getCustomInputs() {
+    return this.fg.controls.sub_category.valueChanges
+      .pipe(
+        startWith({}),
+        switchMap((category) => {
+          const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+            return iif(() => etxn.tx.org_category_id,
+              this.offlineService.getAllCategories().pipe(
+                map(categories => categories
+                  .find(category => category.id === etxn.tx.org_category_id))), of(null));
+          }));
+          return iif(() => this.mode === 'add', of(category), selectedCategory$);
+        }),
+        switchMap((category) => {
+          const formValue = this.fg.value;
+          return this.customInputsService.getAll(true).pipe(
+            map(customFields => {
+              // TODO: Convert custom properties to get generated from formValue
+              return this.customFieldsService
+                .standardizeCustomFields(
+                  formValue.custom_inputs || [],
+                  this.customInputsService.filterByCategory(customFields, category && category.id)
+                );
+            })
+          );
+        }),
+        map(customFields => {
+          return customFields.map(customField => {
+            if (customField.options) {
+              customField.options = customField.options.map(option => ({ label: option, value: option }));
+            }
+            return customField;
+          });
+        }),
+        map((customFields: any[]) => {
+          const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+          customFieldsFormArray.clear();
+          for (const customField of customFields) {
+            customFieldsFormArray.push(
+              this.fb.group({
+                name: [customField.name],
+                value: [customField.value, customField.mandatory && Validators.required]
+              })
+            );
+          }
+          return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+        }),
+        shareReplay()
+      );
   }
 
   ionViewWillEnter() {
@@ -260,10 +290,15 @@ export class AddEditPerDiemPage implements OnInit {
     const perDiemRates$ = this.offlineService.getPerDiemRates();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
-    const allowedPerDiemRates$ = forkJoin({
-      orgSettings: orgSettings$,
-      allowedPerDiemRates: perDiemRates$.pipe(switchMap(perDiemRates => this.offlineService.getAllowedPerDiems(perDiemRates)))
-    }).pipe(
+    const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return forkJoin({
+          orgSettings: orgSettings$,
+          allowedPerDiemRates: perDiemRates$.pipe(switchMap(perDiemRates => this.offlineService.getAllowedPerDiems(perDiemRates)))
+        });
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).pipe(
       switchMap(({ orgSettings, allowedPerDiemRates }) => {
         return iif(
           () => allowedPerDiemRates.length > 0 || orgSettings.per_diem.enable_individual_per_diem_rates,
@@ -276,11 +311,16 @@ export class AddEditPerDiemPage implements OnInit {
       }))
     );
 
-    this.canCreatePerDiem$ = forkJoin({
-      orgSettings: orgSettings$,
-      perDiemRates: perDiemRates$,
-      allowedPerDiemRates: allowedPerDiemRates$
-    }).pipe(
+    this.canCreatePerDiem$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return forkJoin({
+          orgSettings: orgSettings$,
+          perDiemRates: perDiemRates$,
+          allowedPerDiemRates: allowedPerDiemRates$
+        });
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).pipe(
       map(({ orgSettings, perDiemRates, allowedPerDiemRates }) => {
         if (orgSettings.per_diem.enable_individual_per_diem_rates) {
           if (allowedPerDiemRates.length > 0 && perDiemRates.length > 0) {
@@ -309,7 +349,7 @@ export class AddEditPerDiemPage implements OnInit {
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields)
     );
 
-    this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), of({}));
+    this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
@@ -375,6 +415,24 @@ export class AddEditPerDiemPage implements OnInit {
 
       this.fg.updateValueAndValidity();
     });
+
+    this.isAmountCapped$ = this.etxn$.pipe(
+      map(
+        etxn => !!etxn.tx.admin_amount || !!etxn.tx.policy_amount
+      )
+    );
+
+    this.isAmountDisabled$ = this.etxn$.pipe(
+      map(
+        etxn => !!etxn.tx.admin_amount
+      )
+    );
+
+    this.isCriticalPolicyViolated$ = this.etxn$.pipe(
+      map(
+        etxn => isNumber(etxn.tx.policy_amount) && (etxn.tx.policy_amount < 0.0001)
+      )
+    );
 
     combineLatest(
       this.fg.controls.from_dt.valueChanges,
@@ -534,18 +592,42 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    combineLatest([
-      this.etxn$,
-      selectedPaymentMode$,
-      selectedProject$,
-      selectedSubCategory$,
-      selectedPerDiemOption$,
-      this.txnFields$,
-      selectedReport$,
-      selectedCostCenter$
-    ]).pipe(
-      take(1)
-    ).subscribe(([etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter]) => {
+    const selectedCustomInputs$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return this.customInputsService.getAll(true).pipe(map(customFields => {
+          // TODO: Convert custom properties to get generated from formValue
+          return this.customFieldsService
+            .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
+        }));
+      })
+    );
+
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return combineLatest([
+          this.etxn$,
+          selectedPaymentMode$,
+          selectedProject$,
+          selectedSubCategory$,
+          selectedPerDiemOption$,
+          this.txnFields$,
+          selectedReport$,
+          selectedCostCenter$,
+          selectedCustomInputs$,
+        ]);
+      }),
+      take(1),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(([etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs]) => {
+      const customInputValues = customInputs
+        .map(customInput => {
+          const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
+          return {
+            name: customInput.name,
+            value: (cpor && cpor.value) || null
+          };
+        });
+
       this.fg.patchValue({
         paymentMode,
         project,
@@ -554,11 +636,15 @@ export class AddEditPerDiemPage implements OnInit {
         purpose: etxn.tx.purpose,
         num_days: etxn.tx.num_days,
         report,
-        from_dt: etxn.tx.from_dt ? moment(new Date(etxn.tx.from_dt)).format('y-MM-D') : null,
-        to_dt: etxn.tx.to_dt ? moment(new Date(etxn.tx.to_dt)).format('y-MM-D') : null,
+        from_dt: etxn.tx.from_dt ? moment(new Date(etxn.tx.from_dt)).format('y-MM-DD') : null,
+        to_dt: etxn.tx.to_dt ? moment(new Date(etxn.tx.to_dt)).format('y-MM-DD') : null,
         billable: etxn.tx.billable,
         costCenter
       });
+
+      setTimeout(() => {
+        this.fg.controls.custom_inputs.setValue(customInputValues);
+      }, 1000);
     });
 
     this.paymentModeInvalid$ = iif(() => this.activatedRoute.snapshot.params.id, this.etxn$, of(null)).pipe(
@@ -590,6 +676,20 @@ export class AddEditPerDiemPage implements OnInit {
 
         const formValue = this.fg.value;
         const currencyObj = this.fg.controls.currencyObj.value;
+        const amountData: any = {
+          currency: currencyObj.currency,
+          orig_currency: currencyObj.orig_currency,
+          orig_amount: currencyObj.orig_amount,
+        };
+
+        if (this.mode === 'edit') {
+          if (etxn.tx.user_amount !== currencyObj.amount) {
+            amountData.amount = currencyObj.amount;
+          }
+        } else {
+          amountData.amount = currencyObj.amount;
+        }
+
         return {
           tx: {
             ...etxn.tx,
@@ -599,7 +699,7 @@ export class AddEditPerDiemPage implements OnInit {
             skip_reimbursement: skipReimbursement,
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
-            txn_dt: new Date(formValue.dateOfSpend),
+            txn_dt: formValue.dateOfSpend && new Date(formValue.dateOfSpend),
             currency: currencyObj.currency,
             amount: currencyObj.amount,
             orig_currency: currencyObj.orig_currency,
@@ -608,16 +708,67 @@ export class AddEditPerDiemPage implements OnInit {
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
             org_user_id: etxn.tx.org_user_id,
-            from_dt: formValue.from_dt,
-            to_dt: formValue.to_dt,
+            from_dt: formValue.from_dt && new Date(formValue.from_dt),
+            to_dt: formValue.from_dt && new Date(formValue.to_dt),
             category: null,
             num_days: formValue.num_days,
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
             cost_center_code: formValue.costCenter && formValue.costCenter.code
           },
-          dataUrls: []
+          dataUrls: [],
+          ou: etxn.ou
         };
+      })
+    );
+  }
+
+  checkPolicyViolation(etxn) {
+    // Prepare etxn object with just tx and ou object required for test call
+    return from(this.authService.getEou()).pipe(
+      switchMap(currentEou => {
+        console.log(etxn.ou);
+        const policyETxn = {
+          tx: cloneDeep(etxn.tx),
+          ou: cloneDeep(etxn.ou)
+        };
+
+        if (!etxn.tx.id) {
+          policyETxn.ou = currentEou.ou;
+        }
+        /* Adding number of attachements and sending in test call as tx_num_files
+         * If editing an expense with receipts, check for already uploaded receipts
+         */
+        if (etxn.tx) {
+          policyETxn.tx.num_files = etxn.tx.num_files;
+
+          // Check for receipts uploaded from mobile
+          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
+            policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+          }
+        }
+
+        return this.offlineService.getAllCategories().pipe(
+          map((categories: any[]) => {
+            // policy engine expects org_category and sub_category fields
+            if (policyETxn.tx.org_category_id) {
+              const orgCategory = categories.find(cat => cat.id === policyETxn.tx.org_category_id);
+              policyETxn.tx.org_category = orgCategory && orgCategory.name;
+              policyETxn.tx.sub_category = orgCategory && orgCategory.sub_category;
+            } else {
+              policyETxn.tx.org_category_id = null;
+              policyETxn.tx.sub_category = null;
+              policyETxn.tx.org_category = null;
+            }
+
+            // Flatten the etxn obj
+            return this.dataTransformService.etxnRaw(policyETxn);
+
+          })
+        );
+      }),
+      switchMap((policyETxn) => {
+        return this.transactionService.testPolicy(policyETxn);
       })
     );
   }
@@ -643,14 +794,104 @@ export class AddEditPerDiemPage implements OnInit {
 
     if (this.fg.valid) {
       if (this.mode === 'add') {
-        this.generateEtxnFromFg(this.etxn$, customFields$)
+        from(this.loaderService.showLoader())
+          .pipe(
+            switchMap(() => {
+              return this.generateEtxnFromFg(this.etxn$, customFields$);
+            }),
+            switchMap(etxn => {
+              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+              return policyViolations$.pipe(
+                map(this.policyService.getCriticalPolicyRules),
+                switchMap(criticalPolicyViolations => {
+                  if (criticalPolicyViolations.length > 0) {
+                    return throwError(new Error('Critical Policy Violated'));
+                  }
+                  else {
+                    return policyViolations$;
+                  }
+                }),
+                map(this.policyService.getPolicyRules), switchMap(policyRules => {
+                  if (policyRules.length > 0) {
+                    return throwError(new Error('Policy Violated'));
+                  }
+                  else {
+                    return of(etxn);
+                  }
+                })
+              );
+            }),
+            finalize(() => from(this.loaderService.hideLoader()))
+          )
           .subscribe(etxn => {
-            this.transactionsOutboxService.addEntry(etxn.tx, null, [], this.fg.value.report.id, null, null);
+            this.transactionsOutboxService.addEntry(etxn.tx, null, [], this.fg.value.report && this.fg.value.report.id, null, null);
           });
+      } else {
+        from(this.loaderService.showLoader())
+          .pipe(
+            switchMap(() => {
+              return this.generateEtxnFromFg(this.etxn$, customFields$);
+            }),
+            switchMap(etxn => {
+              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+              return policyViolations$.pipe(
+
+                map(this.policyService.getCriticalPolicyRules),
+                switchMap(criticalPolicyViolations => {
+                  if (criticalPolicyViolations.length > 0) {
+                    return throwError(new Error('Critical Policy Violated'));
+                  }
+                  else {
+                    return policyViolations$;
+                  }
+                }), map(this.policyService.getPolicyRules), switchMap(policyRules => {
+                  if (policyRules.length > 0) {
+                    return throwError(new Error('Policy Violated'));
+                  }
+                  else {
+                    return of(etxn);
+                  }
+                }));
+            }),
+            switchMap((etxn) => {
+              return this.etxn$.pipe(
+                switchMap((txnCopy) => {
+                  return this.transactionService.upsert(etxn.tx).pipe(
+                    switchMap((txn) => {
+                      return this.transactionService.getETxn(txn.id);
+                    }),
+                    map(savedEtxn => savedEtxn && savedEtxn.tx),
+                    switchMap((tx) => {
+                      const addTransactionToReport$ = this.reportService.addTransactions(etxn.tx.report_id, [tx.id]);
+                      const removeTransactionFromReport$ = this.reportService.removeTransaction(txnCopy.report_id, tx.id);
+                      const reviewTxn = this.transactionService.review(tx.id);
+                      return forkJoin({
+                        addExpenseToReport: iif(() => !txnCopy.report_id && etxn.tx.report_id, addTransactionToReport$, of(null)),
+                        changeReport: iif(() => txnCopy.report_id && etxn.tx.report_id && etxn.tx.report_id !== etxn.tx.report_id,
+                          removeTransactionFromReport$.pipe(
+                            switchMap(() => addTransactionToReport$)
+                          ),
+                          of(null)),
+                        transactionRemovedFromReport: iif(
+                          () => txnCopy.report_id && !etxn.tx.report_id, removeTransactionFromReport$, of(null)
+                        ),
+                        review: iif(() => etxn.tx.user_review_needed, reviewTxn, of(null))
+                      }).pipe(map(() => tx));
+                    })
+                  );
+                })
+              );
+            }),
+            finalize(() => from(this.loaderService.hideLoader()))
+          ).subscribe(noop);
       }
     } else {
       this.fg.markAllAsTouched();
     }
+  }
+
+  close() {
+    this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
   getFormValidationErrors() {

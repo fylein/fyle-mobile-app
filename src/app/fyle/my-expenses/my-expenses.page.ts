@@ -456,6 +456,28 @@ export class MyExpensesPage implements OnInit {
     await alert.present();
   }
 
+  goToTransaction(expense) {
+    let category;
+
+    if (expense.tx_org_category) {
+      category = expense.tx_org_category.toLowerCase();
+    }
+    //TODO: Leave for later
+    // if (category === 'activity') {
+    //   showCannotEditActivityDialog();
+
+    //   return;
+    // }
+
+    if (category === 'mileage') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.tx_id }]);
+    } else if (category === 'per diem') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.tx_id }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id }]);
+    }
+  }
+
   onAddTransactionToNewReport(event, transactionId) {
     let transactionIds = JSON.stringify([transactionId]);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);

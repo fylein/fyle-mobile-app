@@ -85,7 +85,7 @@
       </div>
     </span>
     <span>
-      
+
     </span>
   </div>
   <div *ngFor="let expense of pendingTransactions as list; let i = index">
@@ -102,7 +102,7 @@
     <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
       (deleteTransaction)="onDeleteExpenseClick($event)"
       (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
-      (addTransactionToReport)="onAddTransactionToReport($event)">
+      (addTransactionToReport)="onAddTransactionToReport($event)" (goToTransaction)="goToTransaction($event)">
     </app-my-expenses-card>
   </div>
 
@@ -113,7 +113,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar *ngIf="this.baseState === 'all'">
+  <ion-toolbar *ngIf="baseState === 'all' && (allExpensesCount$|async) > 0">
     <div class="my-expenses--stats">
       <div class="my-expenses--amount" *ngIf="expensesAmountStats$|async as expensesAmountStats">
         <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span> {{expensesAmountStats}}
