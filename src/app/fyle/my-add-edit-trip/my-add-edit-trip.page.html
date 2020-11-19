@@ -12,45 +12,124 @@
 <ion-content>
   <div class="add-edit-trip--container">
     <form [formGroup]="fg" (ngSubmit)="onSubmit()">
-      <ng-container formArrayName="travellerDetails">
-        <p class="sub-info">Traveller Details</p>
 
-        <!-- travellerDetails => {{fg.controls}}
-        <button (click)="debug(fg.controls)">dabav</button> -->
-        <br>
-        <div *ngFor="let control of travellerDetails.controls; index as i" [formGroupName]="i">
-          <div>
-              traveller {{i+1}}
-              <div><label>Name: </label> <input type="text"  formControlName="name"></div>
-              <div><label>Contact</label> <input type="text" formControlName="contact"></div>
-              <button *ngIf="i !== 0" style="background: red; color: white" (click)="remove(i)">remove</button>
-          </div>
+      <!-- Traveller details block start -->
+      <div class="add-edit-trip--elements-wrapper">
+        <div class="add-edit-trip--wrapper-title">
+          Traveller Details
         </div>
+        <div class="add-edit-trip--element-container">
+          <ng-container formArrayName="travellerDetails">
+            <div *ngFor="let control of travellerDetails.controls; index as i" [formGroupName]="i">
+              <div class="add-edit-trip--traveller-detail-block">
+                  <div class="add-edit-trip--traveller-count-action">
+                    <div>Traveller {{i+1}}</div>
+                    <div>
+                      <mat-icon *ngIf="i !== 0" (click)="remove(i)" class="add-edit-trip--delete-traveller">delete</mat-icon>
+                    </div>
+                  </div>
+                  <div class="add-edit-trip--text">
+                    <div class="add-edit-trip--text-label">Name</div>
+                    <input class="add-edit-trip--text-input" type="text"  formControlName="name">
+                  </div>
+                  <div class="add-edit-trip--text">
+                    <div class="add-edit-trip--text-label">Contact</div>
+                    <input class="add-edit-trip--text-input" type="text" formControlName="contact">
+                  </div>
+              </div>
+            </div>
+      
+            <div (click)="addNewTraveller()" class="add-edit-trip--add-traveller">
+              <mat-icon class="add-edit-trip--add-traveller-add-icon">add_circle</mat-icon> Add Traveller
+            </div>
+            </ng-container>
+        </div>
+      </div>
+      <!-- Traveller details block ends -->
 
-        <button (click)="addNewTraveller()" type="button">
-            <i class="icon ion-plus-circled"></i>
-            Add Traveller
-        </button>
-      </ng-container>
-      <div>
-        <p class="sub-info">Trip information</p>
-        <div class="trip-request--element">
-          <div class="trip-request--element-label">
-            Trip Type <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
-          </div>
-          <div class="trip-request--element-value">
-            <!-- {{tripRequest.trp_start_date | date: 'dd, MMM yyyy'}} -->
-          </div>
+      <!-- Trip information block starts -->
+      <div class="add-edit-trip--elements-wrapper">
+        <div class="add-edit-trip--wrapper-title">
+          Trip information
         </div>
-        <div class="trip-request--element">
-          <div class="trip-request--element-label">
-            Trip Type <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+        
+        <div class="add-edit-trip--element-container">
+          <div class="add-edit-trip--text">
+            <app-fy-select [mandatory]="true" [label]="'Select Trip Type'" formControlName="tripType"
+            [options]="tripTypes" [nullOption]="false"></app-fy-select>
           </div>
-          <div class="trip-request--element-value">
-            <!-- {{tripRequest.trp_start_date | date: 'dd, MMM yyyy'}} -->
+  
+          <div class="add-edit-trip--text">
+            <div class="add-edit-trip--text-label">
+              Start date <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+            </div>
+            <input class="add-edit-trip--date-input" matInput type="date" formControlName="startDate"
+            (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+          </div>
+
+          <div class="add-edit-trip--text">
+            <div class="add-edit-trip--text-label">
+              End date <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+            </div>
+            <input class="add-edit-trip--date-input" matInput type="date" formControlName="endDate"
+            (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+          </div>
+          
+          <div class="add-edit-trip--text">
+            <div class="add-edit-trip--text-label">
+              Purpose
+            </div>
+            <input class="add-edit-trip--text-input" type="text" formControlName="purpose">
+          </div>
+
+          <ng-container formArrayName="cities">
+            <div *ngFor="let control of cities.controls; index as i" [formGroupName]="i">
+              <div class="add-edit-trip--traveller-detail-block">
+                  <div class="add-edit-trip--traveller-count-action">
+                    <div>City {{i+1}}</div>
+                    <div>
+                      <mat-icon *ngIf="isTripTypeMultiCity$ && i > 1" (click)="removeCity(i)" class="add-edit-trip--delete-traveller">delete</mat-icon>
+                    </div>
+                  </div>
+                  <div class="add-edit-trip--text">
+                    <app-fy-location
+                      [label]="'From City'"
+                      formControlName="fromCity">
+                    </app-fy-location>
+                  </div>
+                  <div class="add-edit-trip--text">
+                      <app-fy-location
+                      [label]="'To City'"
+                      formControlName="toCity">
+                    </app-fy-location>
+                  </div>
+                  <div class="add-edit-trip--text">
+                    <div class="add-edit-trip--text-label">
+                      Select Depart Date
+                    </div>
+                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="date" 
+                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+                  </div>
+              </div>
+            </div>
+    
+            <div (click)="addNewCity()" *ngIf="isTripTypeMultiCity$|async" class="add-edit-trip--add-traveller">
+              <mat-icon class="add-edit-trip--add-traveller-add-icon">add_circle</mat-icon> Add City
+            </div>
+          </ng-container>
+          <!-- show if projects .length > 0 -->
+          <div class="add-edit-trip--text">
+            <app-fy-select-project [label]="'Select Project'" formControlName="project"></app-fy-select-project>
+          </div>
+
+          <!-- show if travel agent length > 0 -->
+          <div class="add-edit-trip--text">
+            <app-fy-select [mandatory]="true" [label]="'Select Agent'" formControlName="tripType"
+            [options]="this.travelAgents$|async" [nullOption]="false"></app-fy-select>
           </div>
         </div>
       </div>
+      <!-- Trip information block ends -->
       <div>
         <button type="submit">Submit</button>
       </div>

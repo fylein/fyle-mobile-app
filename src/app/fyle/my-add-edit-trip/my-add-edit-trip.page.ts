@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { from, forkJoin, Observable } from 'rxjs';
-import { OfflineService } from 'src/app/core/services/offline.service';
+import { from, Observable, noop, noop } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
-import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
-import { switchMap, map } from 'rxjs/operators';
-import { noop } from '@angular/compiler/src/render3/view/util';
+import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
+import { map, tap } from 'rxjs/operators';
+import * as moment from 'moment';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -24,13 +23,19 @@ export class MyAddEditTripPage implements OnInit {
   hotelDate;
   tripActions;
   mode;
+  minDate;
+  maxDate;
+  today;
+  isTripTypeMultiCity$: Observable<boolean>;
+  travelAgents$: Observable<any>;
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private dateService: DateService,
     private activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private orgUserService: OrgUserService
   ) { }
 
   fg: FormGroup;
@@ -51,6 +56,10 @@ export class MyAddEditTripPage implements OnInit {
     this.travellerDetails.removeAt(i);
   }
 
+  removeCity(i) {
+    this.cities.removeAt(i);
+  }
+
   addNewTraveller() {
     const intialTraveler = this.formBuilder.group({
       name: [null],
@@ -63,10 +72,6 @@ export class MyAddEditTripPage implements OnInit {
     return this.fg.get('travellerDetails') as FormArray;
   }
 
-  intializeTraveler() {
-
-  }
-
   debug(doubt) {
     console.log('\n\n\n doubt =>', doubt);
   }
@@ -75,29 +80,66 @@ export class MyAddEditTripPage implements OnInit {
     console.log('\n\n\n finally form has been submited -> ', this.fg.value);
   }
 
+  get startDate() {
+    return this.fg.get('startDate') as FormControl;
+  }
+
+  setDefaultStarrtDate() {
+    this.today = new Date();
+    this.startDate.setValue(moment(this.today).format('y-MM-DD'));
+  }
+
+  get cities() {
+    return this.fg.get('cities') as FormArray;
+  }
+
+  addDefaultCity() {
+    const intialCity = this.formBuilder.group({
+      fromCity: [null, Validators.required],
+      toCity: [null, Validators.required],
+      date: [null, Validators.required]
+    });
+    this.cities.push(intialCity);
+  }
+
+  addNewCity() {
+    this.addDefaultCity();
+  }
+
+  intializeDefaults() {
+    this.setDefaultStarrtDate();
+    this.addDefaultCity();
+  }
+
   ngOnInit() {
 
     const id = this.activatedRoute.snapshot.params.id;
 
-    const eou$ = from(this.authService.getEou());
-
     this.tripTypes = [
       {
-        id: 'ONE_WAY',
-        name: 'One Way'
+        value: 'ONE_WAY',
+        label: 'One Way'
       }, {
-        id: 'ROUND',
-        name: 'Round Trip'
+        value: 'ROUND',
+        label: 'Round Trip'
       }, {
-        id: 'MULTI_CITY',
-        name: 'Multi City'
+        value: 'MULTI_CITY',
+        label: 'Multi City'
       }
     ];
 
+    // TODO use formBuilder.group
     this.fg = new FormGroup({
-      travellerDetails: new FormArray([])
-   });
+      travellerDetails: new FormArray([]),
+      tripType: new FormControl('ONE_WAY', [Validators.required]),
+      startDate: new FormControl('', [Validators.required]),
+      endDate: new FormControl('', [Validators.required]),
+      purpose: new FormControl('', [Validators.required]),
+      cities: new FormArray([]),
+      project: new FormControl('', [Validators.required])
+    });
 
+    this.intializeDefaults();
 
     this.tripDate = {
       startMin: this.dateService.addDaysToDate(new Date(), -1),
@@ -112,6 +154,9 @@ export class MyAddEditTripPage implements OnInit {
       checkOutMin: this.dateService.addDaysToDate(new Date(), -1),
     };
 
+    this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
+    this.maxDate = moment(this.dateService.addDaysToDate(this.today, 1)).format('y-MM-D');
+
     if (id) {
       // promises.tripRequest = TripRequestsService.getETripRequest(id);
       this.mode = 'edit';
@@ -124,15 +169,41 @@ export class MyAddEditTripPage implements OnInit {
     }
 
     this.eou$ = from(this.authService.getEou());
+    this.travelAgents$ = this.orgUserService.getAllCompanyEouc().pipe(
+      map(eous => {
+        let travelAgents = [];
+        eous.filter(eou => {
+          if (eou.ou.roles.indexOf('TRAVEL_AGENT') > -1) {
+            travelAgents.push({
+              label: eou.us.full_name + '(' + eou.us.email + ')',
+              value: eou.ou.id
+            });
+          }
+        });
+        return travelAgents;
+      })
+    );
 
     if (this.mode === 'edit') {
 
     } else if (this.mode === 'add') {
-      eou$.subscribe(res => {
+      this.eou$.subscribe(res => {
         this.setTripRequestObject(res.us.full_name, res.ou.mobile);
       });
     }
 
+    this.isTripTypeMultiCity$ = this.fg.controls.tripType.valueChanges.pipe(
+      map(res => res === 'MULTI_CITY')
+    );
+    this.isTripTypeMultiCity$.subscribe(isMulticity => {
+      if (isMulticity) {
+        this.addDefaultCity();
+      } else {
+        const firstCity = this.cities.at(0);
+        this.cities.clear();
+        this.cities.push(firstCity);
+      }
+    });
   }
 
 }
