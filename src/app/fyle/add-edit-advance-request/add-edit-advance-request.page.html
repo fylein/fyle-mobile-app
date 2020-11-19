@@ -1,0 +1,57 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons mode="md" slot="end">
+      <ion-button (click)="goBack()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title mode="md" *ngIf="mode">
+      <div *ngIf="mode === 'add'">
+        Request Advance
+      </div>
+      <div *ngIf="mode === 'edit'">
+        Edit Advance Request
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="fg" class="add-edit-advance-request--form">
+
+    <div class="add-edit-advance-request--receipt-currency">
+      <div class="add-edit-advance-request--receipt">
+        <div>Add</div>
+        <div>Receipt</div>
+      </div>
+
+      <div class="add-edit-advance-request--currency" *ngIf="extendedAdvanceRequest$|async as extendedAdvanceRequest">
+        <!-- a-{{homeCurrency$|async as homeCurrency}} -->
+        <div *ngIf="homeCurrency$|async as homeCurrency">
+          <app-fy-currency formControlName="currencyObj" [txnDt]="extendedAdvanceRequest?.created_at" [homeCurrency]="homeCurrency"></app-fy-currency>
+        </div>
+      </div>
+    </div>
+
+    <div class="add-edit-advance-request--primary-block">
+
+      <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
+        <div class="add-edit-advance-request--text-label">Enter Purpose</div>
+        <input class="add-edit-advance-request--text-input" formControlName="purpose"  [required]="true" >
+      </div>
+
+      <!-- <div class="add-edit-advance-request--internal-block">
+        <app-fy-select [mandatory]="true" [label]="'Enter Purpose'" formControlName="purpose" [nullOption]="false"></app-fy-select>
+      </div> -->
+
+      <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
+        <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">Enter Additional Notes</div>
+        <input class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input" formControlName="notes" [required]="true" >
+      </div>
+
+    </div>
+
+  </form>
+
+</ion-content>
