@@ -7,14 +7,20 @@ import { IonicModule } from '@ionic/angular';
 import { CameraOverlayPageRoutingModule } from './camera-overlay-routing.module';
 
 import { CameraOverlayPage } from './camera-overlay.page';
+import { MatIconModule } from '@angular/material/icon';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    CameraOverlayPageRoutingModule
+    CameraOverlayPageRoutingModule,
+    MatIconModule
   ],
-  declarations: [CameraOverlayPage]
+  declarations: [CameraOverlayPage],
+  providers: [
+    ImagePicker
+  ]
 })
 export class CameraOverlayPageModule {}

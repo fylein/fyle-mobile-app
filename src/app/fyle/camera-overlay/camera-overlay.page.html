@@ -1,9 +1,46 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>camera_overlay</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
+  <div id="cameraPreview"></div>
+
+  <div class="camera-overlay--preview-container" *ngIf="!isCameraShown">
+    <ion-img class="camera-overlay--preview-receipt" [src]="recentImage" *ngIf="recentImage"></ion-img>
+  </div>
+
+  <div class="camera-overlay--action-container">
+    <div *ngIf="isCameraShown">
+      <div class="camera-overlay--camera-settings">
+        <mat-icon class="camera-overlay--camera-single" [ngClass]="{'active': !isBulkMode}" *ngIf="captureCount === 0" svgIcon="single" (click)="switchMode()"></mat-icon>
+        <mat-icon class="camera-overlay--camera-bulk" [ngClass]="{'active': isBulkMode}" *ngIf="captureCount === 0" svgIcon="bulk" (click)="switchMode()"></mat-icon>
+        <mat-icon class="camera-overlay--camera-gallery" *ngIf="captureCount === 0" (click)="uploadFiles()">image</mat-icon>
+
+        <div *ngIf="captureCount > 0">
+          <p class="camera-overlay--image-count">{{captureCount}}</p>
+          <ion-img class="camera-overlay--image-thumbnail" [src]="lastImage"></ion-img>
+        </div>
+
+      </div>
+  
+      <div class="camera-overlay--capture-container">
+        <div class="camera-overlay--capture-btn" (click)="onCapture()"></div>
+      </div>
+
+      <mat-icon class="camera-overlay--flash-active">flash_on</mat-icon>
+  
+      <div class="camera-overlay--finish">
+        <span *ngIf="!isBulkMode" (click)="finishProcess()">Cancel</span>
+        <span *ngIf="isBulkMode" (click)="syncExpenseAndFinishProcess()">Finish</span>
+      </div>
+    </div>
+
+    <ion-grid *ngIf="!isCameraShown">
+      <ion-row>
+        <ion-col size="6" class="camera-overlay--retake-btn">
+          <span (click)="retake()">Retake</span> 
+        </ion-col>
+        <ion-col size="6" class="camera-overlay--continue-btn">
+          <span (click)="save()">Continue</span>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 
 </ion-content>
