@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, iif, of, combineLatest, from, throwError, noop } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { switchMap, map, startWith, tap, shareReplay, distinctUntilChanged, filter, take, finalize } from 'rxjs/operators';
+import { switchMap, map, startWith, tap, shareReplay, distinctUntilChanged, filter, take, finalize, catchError } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators, FormArray, ValidationErrors, AbstractControl } from '@angular/forms';
 import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -418,7 +418,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.isAmountCapped$ = this.etxn$.pipe(
       map(
-        etxn => !!etxn.tx.admin_amount || !!etxn.tx.policy_amount
+        etxn => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount)
       )
     );
 
@@ -811,7 +811,8 @@ export class AddEditPerDiemPage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map(this.policyService.getPolicyRules), switchMap(policyRules => {
+                map(this.policyService.getPolicyRules), 
+                switchMap(policyRules => {
                   if (policyRules.length > 0) {
                     return throwError(new Error('Policy Violated'));
                   }
@@ -820,6 +821,10 @@ export class AddEditPerDiemPage implements OnInit {
                   }
                 })
               );
+            }),
+            catchError(err => {
+              console.log(err);
+              return this.generateEtxnFromFg(this.etxn$, customFields$);
             }),
             finalize(() => from(this.loaderService.hideLoader()))
           )
@@ -852,6 +857,10 @@ export class AddEditPerDiemPage implements OnInit {
                     return of(etxn);
                   }
                 }));
+            }),
+            catchError(err => {
+              console.log(err);
+              return this.generateEtxnFromFg(this.etxn$, customFields$);
             }),
             switchMap((etxn) => {
               return this.etxn$.pipe(

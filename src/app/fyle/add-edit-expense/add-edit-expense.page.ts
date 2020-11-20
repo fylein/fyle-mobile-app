@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, of, iif, forkJoin, from, combineLatest, throwError, noop } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { concatMap, switchMap, map, startWith, shareReplay, distinctUntilChanged, take, tap, finalize, filter, debounceTime } from 'rxjs/operators';
+import {
+  concatMap, switchMap, map, startWith, shareReplay,
+  distinctUntilChanged, take, tap, finalize, filter, debounceTime, catchError
+} from 'rxjs/operators';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -22,6 +25,8 @@ import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import * as _ from 'lodash';
+import { ModalController } from '@ionic/angular';
+import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -65,6 +70,9 @@ export class AddEditExpensePage implements OnInit {
   receiptsData: any;
   duplicates$: Observable<any>;
   duplicateBoxOpen = false;
+  isAmountCapped$: Observable<boolean>;
+  isAmountDisabled$: Observable<boolean>;
+  isCriticalPolicyViolated$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -85,7 +93,8 @@ export class AddEditExpensePage implements OnInit {
     private transactionOutboxService: TransactionsOutboxService,
     private router: Router,
     private duplicateDetectionService: DuplicateDetectionService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private modalController: ModalController,
   ) { }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -117,10 +126,6 @@ export class AddEditExpensePage implements OnInit {
   canGetDuplicates() {
     return this.offlineService.getOrgSettings().pipe(
       map(orgSettings => {
-        console.log('********');
-        console.log(this.fg.valid);
-
-        console.log('********');
         const isAmountCurrencyTxnDtPresent =
           isNumber(this.fg.value.currencyObj && this.fg.value.currencyObj.amount) && !!this.fg.value.dateOfSpend
           && !!(this.fg.value.currencyObj && this.fg.value.currencyObj.currency);
@@ -270,21 +275,25 @@ export class AddEditExpensePage implements OnInit {
     const orgSettings$ = this.offlineService.getOrgSettings();
 
     this.transactionMandatoyFields$ = orgSettings$.pipe(
-      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields)
+      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
     // TODO: Put this in per diem
-    this.transactionMandatoyFields$.subscribe((transactionMandatoyFields) => {
-      if (transactionMandatoyFields.project) {
-        this.fg.controls.project.setValidators(Validators.required);
-        this.fg.controls.project.updateValueAndValidity();
-      }
+    this.transactionMandatoyFields$
+      .pipe(
+        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
+      )
+      .subscribe((transactionMandatoyFields) => {
+        if (transactionMandatoyFields.project) {
+          this.fg.controls.project.setValidators(Validators.required);
+          this.fg.controls.project.updateValueAndValidity();
+        }
 
-      if (transactionMandatoyFields.category) {
-        this.fg.controls.category.setValidators(Validators.required);
-        this.fg.controls.category.updateValueAndValidity();
-      }
-    });
+        if (transactionMandatoyFields.category) {
+          this.fg.controls.category.setValidators(Validators.required);
+          this.fg.controls.category.updateValueAndValidity();
+        }
+      });
   }
 
   setupBalanceFlag() {
@@ -461,7 +470,7 @@ export class AddEditExpensePage implements OnInit {
           report: selectedReport$,
           costCenter: selectedCostCenter$,
           customInputs: selectedCustomInputs$
-        })
+        });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(({ etxn, paymentMode, project, category, report, costCenter, customInputs }) => {
@@ -474,7 +483,12 @@ export class AddEditExpensePage implements OnInit {
             value: (cpor && cpor.value) || null
           };
         });
-
+      console.log(
+        etxn.tx.amount,
+        etxn.tx.currency,
+        etxn.tx.orig_amount,
+        etxn.tx.orig_currency
+      );
       if (etxn.tx.amount && etxn.tx.currency) {
         this.fg.patchValue({
           currencyObj: {
@@ -482,6 +496,15 @@ export class AddEditExpensePage implements OnInit {
             currency: etxn.tx.currency,
             orig_amount: etxn.tx.orig_amount,
             orig_currency: etxn.tx.orig_currency,
+          }
+        });
+      } else if (etxn.tx.user_amount) {
+        this.fg.patchValue({
+          currencyObj: {
+            amount: etxn.tx.user_amount,
+            currency: etxn.tx.currency,
+            orig_amount: null,
+            orig_currency: null,
           }
         });
       }
@@ -771,6 +794,28 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.isNotReimbursable$ = this.etxn$.pipe(map(etxn => !etxn.tx.user_can_delete && this.mode === 'edit'));
+
+    this.isAmountCapped$ = this.etxn$.pipe(
+      map(
+        etxn => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount)
+      )
+    );
+
+    this.isAmountDisabled$ = this.etxn$.pipe(
+      map(
+        etxn => !!etxn.tx.admin_amount
+      )
+    );
+
+    this.isCriticalPolicyViolated$ = this.etxn$.pipe(
+      map(
+        etxn => isNumber(etxn.tx.policy_amount) && (etxn.tx.policy_amount < 0.0001)
+      )
+    );
+
+    this.isAmountCapped$.subscribe(console.log);
+    this.isAmountDisabled$.subscribe(console.log);
+    this.isCriticalPolicyViolated$.subscribe(console.log);
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
@@ -894,22 +939,22 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  public findInvalidControlsRecursive(formToInvestigate:FormGroup|FormArray):string[] {
-    var invalidControls:string[] = [];
-    let recursiveFunc = (form:FormGroup|FormArray) => {
-      Object.keys(form.controls).forEach(field => { 
-        const control = form.get(field);
-        if (control.invalid) invalidControls.push(field);
-        if (control instanceof FormGroup) {
-          recursiveFunc(control);
-        } else if (control instanceof FormArray) {
-          recursiveFunc(control);
-        }        
-      });
-    }
-    recursiveFunc(formToInvestigate);
-    return invalidControls;
-  }
+  // public findInvalidControlsRecursive(formToInvestigate:FormGroup|FormArray):string[] {
+  //   var invalidControls:string[] = [];
+  //   let recursiveFunc = (form:FormGroup|FormArray) => {
+  //     Object.keys(form.controls).forEach(field => { 
+  //       const control = form.get(field);
+  //       if (control.invalid) invalidControls.push(field);
+  //       if (control instanceof FormGroup) {
+  //         recursiveFunc(control);
+  //       } else if (control instanceof FormArray) {
+  //         recursiveFunc(control);
+  //       }        
+  //     });
+  //   }
+  //   recursiveFunc(formToInvestigate);
+  //   return invalidControls;
+  // }
 
   saveExpense() {
     if (this.fg.valid) {
@@ -924,6 +969,21 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
+    console.log(criticalPolicyViolations);
+    const currencyModal = await this.modalController.create({
+      component: CriticalPolicyViolationComponent,
+      componentProps: {
+        criticalViolationMessages: criticalPolicyViolations
+      }
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+    return !!data;
+  }
+
   editExpense() {
     const customFields$ = this.getCustomFields();
 
@@ -935,23 +995,55 @@ export class AddEditExpensePage implements OnInit {
         switchMap(etxn => {
           const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
           return policyViolations$.pipe(
-
             map(this.policyService.getCriticalPolicyRules),
-            switchMap(criticalPolicyViolations => {
-              if (criticalPolicyViolations.length > 0) {
-                return throwError(new Error('Critical Policy Violated'));
+            switchMap(policyViolations => {
+              if (policyViolations.length > 0) {
+                return throwError({
+                  type: 'criticalPolicyViolations',
+                  policyViolations,
+                  etxn
+                });
               }
               else {
                 return policyViolations$;
               }
-            }), map(this.policyService.getPolicyRules), switchMap(policyRules => {
-              if (policyRules.length > 0) {
-                return throwError(new Error('Policy Violated'));
+            }),
+            map(this.policyService.getPolicyRules),
+            switchMap(policyViolations => {
+              if (policyViolations.length > 0) {
+                return throwError({
+                  type: 'policyViolations',
+                  policyViolations,
+                  etxn
+                });
               }
               else {
                 return of(etxn);
               }
-            }));
+            })
+          );
+        }),
+        catchError(err => {
+          if (err.type === 'criticalPolicyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => {
+                return this.continueWithCriticalPolicyViolation(err.policyViolations);
+              }),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() => {
+                      return of(err.etxn);
+                    })
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else {
+            return throwError(err);
+          }
         }),
         switchMap((etxn) => {
           return forkJoin({

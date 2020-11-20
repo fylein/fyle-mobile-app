@@ -154,4 +154,11 @@
   &--error {
     color: red;
   }
+
+  &--critical-policy {
+    border-radius: 6px;
+    background: #f2f2f2;
+    padding: 8px 16px;
+    margin-bottom: 16px;
+  }
 }

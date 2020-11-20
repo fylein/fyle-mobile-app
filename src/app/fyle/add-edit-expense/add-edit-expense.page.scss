@@ -142,23 +142,30 @@
   &--duplicates-box {
     background-color: #f3f5f8;
   }
-  
+
   &--duplicate-header {
     padding: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   &--duplicate-sub-box {
     padding: 8px;
   }
-  
+
   &--duplicate-reason {
     padding: 8px;
   }
-  
+
   &--duplicate-reason-select {
     padding: 8px;
+  }
+
+  &--critical-policy {
+    border-radius: 6px;
+    background: #f2f2f2;
+    padding: 8px 16px;
+    margin: 8px 0;
   }
 }

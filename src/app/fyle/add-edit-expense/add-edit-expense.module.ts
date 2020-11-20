@@ -21,6 +21,7 @@ import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-s
 import { FySelectVendorComponent } from './fy-select-vendor/fy-select-vendor.component';
 import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 
 
 @NgModule({
@@ -48,7 +49,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     FySelectProjectComponent,
     FySelectModalComponent,
     FySelectVendorComponent,
-    FySelectVendorModalComponent
+    FySelectVendorModalComponent,
+    CriticalPolicyViolationComponent
   ]
 })
 export class AddEditExpensePageModule { }
