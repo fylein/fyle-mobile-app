@@ -75,11 +75,34 @@
       You dont have any expenses for the selected filter(s)
     </div>
   </div>
+  <div *ngIf="pendingTransactions.length > 0">
+    <span>
+      <div class="my-expenses--offline-header">
+        Offline Expenses
+      </div>
+      <div class="my-expenses--offline-sub-header">
+        Expenses willl be synced when connected to the internet
+      </div>
+    </span>
+    <span>
+      
+    </span>
+  </div>
+  <div *ngFor="let expense of pendingTransactions as list; let i = index">
+    <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
+      [skipDate]="true" (deleteTransaction)="onDeleteExpenseClick($event)"
+      (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
+      (addTransactionToReport)="onAddTransactionToReport($event)">
+    </app-my-expenses-card>
+  </div>
+
   <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
     <!-- <app-my-expenses-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
       (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-my-expenses-card> -->
     <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
-      (deleteTransaction)="onDeleteExpenseClick($event)" (addTransactionToNewReport)="onAddTransactionToNewReport($event)"  (addTransactionToReport)="onAddTransactionToReport($event)">
+      (deleteTransaction)="onDeleteExpenseClick($event)"
+      (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
+      (addTransactionToReport)="onAddTransactionToReport($event)">
     </app-my-expenses-card>
   </div>
 

@@ -24,7 +24,7 @@
           </div>
           <div *ngIf="attachedFiles.length > 1" class="view-advance-request--receipt-count">
             <span class="view-advance-request--additional-icon">
-              <ion-icon name="add-outline"></ion-icon>
+              <mat-icon>add</mat-icon>
             </span>
             <span class="view-advance-request--count">{{attachedFiles.length-1}}</span>
           </div>
@@ -146,7 +146,7 @@
     </div>
 
     <div class="view-advance-request--view-advance" *ngIf="advanceRequest.areq_advance_id">
-      <a href>View Advance</a>
+      <a [routerLink]="['/', 'enterprise', 'my_view_advance', {id: advanceRequest.areq_advance_id}]">View Advance</a>
     </div>
 
   </div>

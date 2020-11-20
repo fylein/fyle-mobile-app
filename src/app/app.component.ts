@@ -18,7 +18,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
 import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
-import { GlobalCacheConfig } from 'ngx-cacheable';
+import { GlobalCacheConfig } from 'ts-cacheable';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -253,11 +253,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.checkAppSupportedVersion();
-    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
-      if (loggedInStatus) {
-        this.showSideMenu();
-      }
-    });
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {

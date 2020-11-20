@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { OrgService } from './org.service';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
-import { from } from 'rxjs';
+import { from, of } from 'rxjs';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,39 @@ export class CurrencyService {
       );
   }
 
- 
+  getAmountDecimalsBasedOnValue(amount) {
+    let decimalAmount;
+
+    if (amount < 0.01) {
+      decimalAmount = parseFloat(amount.toFixed(7));
+    } else if (amount >= 0.01 && amount < 1) {
+      decimalAmount = parseFloat(amount.toFixed(4));
+    } else {
+      decimalAmount = parseFloat(amount.toFixed(2));
+    }
+
+    return decimalAmount;
+  }
+
+  getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?) {
+    const txnDt = moment(dt).format('y-MM-D');
+    const queryParams = {
+      from: fromCurrency,
+      to: toCurrency,
+      dt: txnDt
+    };
+
+    if (txnId) {
+      queryParams[txnId] = txnId;
+    }
+
+    return this.apiService.get('/currency/exchange', {
+      params: queryParams
+    }).pipe(
+      map((res) => this.getAmountDecimalsBasedOnValue(res.exchange_rate)),
+      catchError(() => of(1))
+    );
+  }
 
   getAll() {
     return from(this.authService.getEou())

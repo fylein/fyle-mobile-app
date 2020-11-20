@@ -1,0 +1,26 @@
+.gallery-upload-success {
+
+  &--header {
+    padding: 16px;
+    border-bottom: 0;
+    text-align: left;
+    font-size: 24px;
+    font-weight: 700px;
+  }
+
+  &--body {
+    color: #ababab;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    padding: 0 16px;
+  }
+
+  &--footer {
+    padding: 20px 16px 0 16px;
+  }
+
+  &--primary-cta {
+    width: 100%;
+  }
+}

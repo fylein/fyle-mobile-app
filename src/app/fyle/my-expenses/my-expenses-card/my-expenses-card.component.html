@@ -1,5 +1,5 @@
 <div>
-  <div class="my-expenses-card--date" *ngIf="showDt">
+  <div class="my-expenses-card--date" *ngIf="showDt && !skipDate">
     <div *ngIf="expense.tx_txn_dt">
       {{expense.tx_txn_dt | date: 'EEEE'}}
     </div>
