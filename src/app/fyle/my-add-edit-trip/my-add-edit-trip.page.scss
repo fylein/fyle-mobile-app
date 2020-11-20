@@ -90,4 +90,42 @@ $item-border-color: #e0e0e0;
   &--element-container {
     padding: 0 16px;
   }
+
+  &--other-element-container {
+    padding: 8px;
+  }
+
+  &--other-requests {
+    border: 1px solid #e5e5e5;
+    padding: 16px;
+    border-radius: 4px;
+    font-size: 16px;
+    margin: 10px 0;
+
+    &-checkbox {
+      .mat-checkbox-inner-container {
+        padding: 16px;
+      }
+      margin-right: 10px;
+    }
+  }
+
+  &--cta-block {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  &--cta-container {
+    display: flex;
+    justify-content: space-between;
+
+    &-cta {
+      height: 48px;
+      width: 100%;
+      margin: 12px;
+      --border-radius: 4px;
+    }
+  }
 }

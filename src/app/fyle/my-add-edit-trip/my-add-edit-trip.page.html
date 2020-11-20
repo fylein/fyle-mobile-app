@@ -10,9 +10,8 @@
 </ion-header>
 
 <ion-content>
-  <div class="add-edit-trip--container">
     <form [formGroup]="fg" (ngSubmit)="onSubmit()">
-
+      <div class="add-edit-trip--container">
       <!-- Traveller details block start -->
       <div class="add-edit-trip--elements-wrapper">
         <div class="add-edit-trip--wrapper-title">
@@ -50,7 +49,7 @@
       <!-- Trip information block starts -->
       <div class="add-edit-trip--elements-wrapper">
         <div class="add-edit-trip--wrapper-title">
-          Trip information
+          Trip Information
         </div>
         
         <div class="add-edit-trip--element-container">
@@ -124,16 +123,60 @@
 
           <!-- show if travel agent length > 0 -->
           <div class="add-edit-trip--text">
-            <app-fy-select [mandatory]="true" [label]="'Select Agent'" formControlName="tripType"
+            <app-fy-select [mandatory]="true" [label]="'Select Agent'" formControlName="travelAgent"
             [options]="this.travelAgents$|async" [nullOption]="false"></app-fy-select>
+          </div>
+
+          <div class="add-edit-trip--text">
+            <div class="add-edit-trip--text-label">
+              Notes
+            </div>
+            <input class="add-edit-trip--text-input" type="text" formControlName="notes">
           </div>
         </div>
       </div>
       <!-- Trip information block ends -->
-      <div>
-        <button type="submit">Submit</button>
-      </div>
 
-    </form>
-  </div>
+      <!-- Aditional information block starts -->
+      <div class="add-edit-trip--elements-wrapper">
+        <div class="add-edit-trip--wrapper-title">
+          Aditional information
+        </div>
+        <p>
+          some custom fields will come here
+        </p>
+      </div>
+      <!-- Aditional information block ends -->
+
+      <div>
+        <div class="add-edit-trip--other-requests">
+          <label>
+            <mat-checkbox color="primary" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
+            Request Transportation
+          </label>
+        </div>
+        <div class="add-edit-trip--other-requests">
+          <label>
+            <mat-checkbox color="primary" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
+            Request Hotel
+          </label>
+        </div>
+        <div class="add-edit-trip--other-requests">
+          <label>
+            <mat-checkbox color="primary" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
+            Request Advance
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="add-edit-trip--cta-block">
+      <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
+        <ion-button class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
+      </div>
+      <div *ngIf="((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" class="add-edit-trip--cta-container">
+        <ion-button class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="openModal()">Continue</ion-button>
+      </div>
+    </div>
+  </form>
 </ion-content>

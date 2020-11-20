@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { from, Observable, noop, noop } from 'rxjs';
+import { from, Observable, noop } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -27,6 +27,9 @@ export class MyAddEditTripPage implements OnInit {
   maxDate;
   today;
   isTripTypeMultiCity$: Observable<boolean>;
+  isTransportationRequested$: Observable<boolean>;
+  isHotelRequested$: Observable<boolean>;
+  isAdvanceRequested$: Observable<boolean>;
   travelAgents$: Observable<any>;
 
   constructor(
@@ -136,7 +139,12 @@ export class MyAddEditTripPage implements OnInit {
       endDate: new FormControl('', [Validators.required]),
       purpose: new FormControl('', [Validators.required]),
       cities: new FormArray([]),
-      project: new FormControl('', [Validators.required])
+      project: new FormControl('', [Validators.required]),
+      travelAgent: new FormControl('', []),
+      notes: new FormControl('', []),
+      transportationRequest: new FormControl('', []),
+      hotelRequest: new FormControl('', []),
+      advanceRequest: new FormControl('', [])
     });
 
     this.intializeDefaults();
@@ -195,6 +203,7 @@ export class MyAddEditTripPage implements OnInit {
     this.isTripTypeMultiCity$ = this.fg.controls.tripType.valueChanges.pipe(
       map(res => res === 'MULTI_CITY')
     );
+
     this.isTripTypeMultiCity$.subscribe(isMulticity => {
       if (isMulticity) {
         this.addDefaultCity();
@@ -204,6 +213,24 @@ export class MyAddEditTripPage implements OnInit {
         this.cities.push(firstCity);
       }
     });
+
+    this.isTransportationRequested$ = this.fg.controls.transportationRequest.valueChanges.pipe(
+      map(res => {
+        return res;
+      })
+    );
+
+    this.isHotelRequested$ = this.fg.controls.hotelRequest.valueChanges.pipe(
+      map(res => {
+        return res;
+      })
+    );
+
+    this.isAdvanceRequested$ = this.fg.controls.advanceRequest.valueChanges.pipe(
+      map(res => {
+        return res;
+      })
+    );
   }
 
 }

@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { FySelectProjectComponent } from '../add-edit-expense/fy-select-project/fy-select-project.component';
 import { SharedModule } from '../../shared/shared.module';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [
@@ -18,7 +19,8 @@ import { SharedModule } from '../../shared/shared.module';
     MyAddEditTripPageRoutingModule,
     MatIconModule,
     MatSelectModule,
-    SharedModule
+    SharedModule,
+    MatCheckboxModule
   ],
   declarations: [MyAddEditTripPage,
     FySelectProjectComponent
