@@ -71,7 +71,7 @@
               End date <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
             </div>
             <input class="add-edit-trip--date-input" matInput type="date" formControlName="endDate"
-            (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+            (keydown)="$event.preventDefault()" [min]="minDate" [max]="today">
           </div>
           
           <div class="add-edit-trip--text">
@@ -106,7 +106,7 @@
                     <div class="add-edit-trip--text-label">
                       Select Depart Date
                     </div>
-                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="date" 
+                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="departDate" 
                     (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
                   </div>
               </div>

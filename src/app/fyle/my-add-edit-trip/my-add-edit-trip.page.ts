@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { from, Observable, noop } from 'rxjs';
+import { from, Observable, noop, forkJoin } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -8,6 +8,8 @@ import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@ang
 import { map, tap } from 'rxjs/operators';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { ModalController } from '@ionic/angular';
+import { OtherRequestsPage } from './other-requests/other-requests.page';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -38,7 +40,8 @@ export class MyAddEditTripPage implements OnInit {
     private dateService: DateService,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private modalController: ModalController
   ) { }
 
   fg: FormGroup;
@@ -100,7 +103,7 @@ export class MyAddEditTripPage implements OnInit {
     const intialCity = this.formBuilder.group({
       fromCity: [null, Validators.required],
       toCity: [null, Validators.required],
-      date: [null, Validators.required]
+      departDate: [null, Validators.required]
     });
     this.cities.push(intialCity);
   }
@@ -112,6 +115,39 @@ export class MyAddEditTripPage implements OnInit {
   intializeDefaults() {
     this.setDefaultStarrtDate();
     this.addDefaultCity();
+  }
+
+  getRequestedBookingData() {
+    forkJoin({
+      isHotelRequested: this.isHotelRequested$,
+      isAdvanceRequested: this.isHotelRequested$,
+      isTransportationsRequested: this.isTransportationRequested$
+    }).subscribe(res => {
+      console.log('yo boiiii ->', res);
+      return res;
+    });
+  }
+
+  async openModal() {
+
+    const getData = this.getRequestedBookingData();
+
+    console.log('\n\n\n getData ->', getData);
+
+    const modal = await this.modalController.create({
+      component: OtherRequestsPage,
+      componentProps: {
+        otherRequests: [
+          { test: 'yo boies' }
+        ]
+      }
+    });
+
+    if (this.fg.valid) {
+      return await modal.present();
+    } else {
+      this.fg.markAllAsTouched();
+    }
   }
 
   ngOnInit() {
@@ -140,7 +176,7 @@ export class MyAddEditTripPage implements OnInit {
       purpose: new FormControl('', [Validators.required]),
       cities: new FormArray([]),
       project: new FormControl('', [Validators.required]),
-      travelAgent: new FormControl('', []),
+      travelAgent: new FormControl('', [Validators.required]),
       notes: new FormControl('', []),
       transportationRequest: new FormControl('', []),
       hotelRequest: new FormControl('', []),

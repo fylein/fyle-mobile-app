@@ -156,3 +156,12 @@ mat-checkbox {
     }
   }
 }
+
+mat-tab-group {
+  .mat-tab-list {
+    .mat-tab-labels {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}

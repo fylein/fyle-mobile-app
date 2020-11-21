@@ -22,7 +22,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     SharedModule,
     MatCheckboxModule
   ],
-  declarations: [MyAddEditTripPage,
+  declarations: [
+    MyAddEditTripPage,
     FySelectProjectComponent
   ]
 })
