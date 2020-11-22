@@ -14,6 +14,8 @@ import { FyCurrencyExchangeRateComponent } from './fy-currency/fy-currency-excha
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { FySelectProjectComponent } from './fy-select-project/fy-select-project.component';
+import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
 
 @NgModule({
   imports: [
@@ -32,6 +34,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
+    FySelectProjectComponent,
+    FySelectModalComponent
   ]
 })
 export class AddEditAdvanceRequestPageModule {}

@@ -8,20 +8,37 @@ import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 import { Approval } from '../models/approval.model';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { TimezoneService } from 'src/app/services/timezone.service';
+import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdvanceRequestService {
   
-
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
-    private authService: AuthService
+    private authService: AuthService,
+    private orgUserSettingsService: OrgUserSettingsService,
+    private timezoneService: TimezoneService,
+    private advanceRequestPolicyService: AdvanceRequestPolicyService
   ) { }
+
+
+  testPolicy(advanceRequest) {
+    return this.orgUserSettingsService.get().pipe(
+      switchMap(orgUserSettings => {
+        if (advanceRequest.created_at) {
+          advanceRequest.created_at = this.timezoneService.convertToUtc(advanceRequest.created_at, orgUserSettings.locale.offset);
+        }
+        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, {timeout: 5000});
+      })
+    )
+  }
 
   getUserAdvanceRequestParams(state: string) {
     var stateMap = {
