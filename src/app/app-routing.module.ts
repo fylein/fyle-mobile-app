@@ -25,6 +25,10 @@ const routes: Routes = [
     path: 'enterprise',
     loadChildren: () => import('./fyle/fyle-routing.module').then(m => m.FyleRoutingModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'approver-modal',
+    loadChildren: () => import('./shared/components/fy-apporver/approver-modal/approver-modal.module').then( m => m.ApproverModalPageModule)
   }
 ];
 
