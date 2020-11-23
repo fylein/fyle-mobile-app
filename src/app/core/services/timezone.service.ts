@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { CurrencyService } from '../core/services/currency.service';
 import { cloneDeep } from 'lodash';
+import { CurrencyService } from './currency.service';
 
 @Injectable({
   providedIn: 'root'

@@ -9,9 +9,9 @@ import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { TimezoneService } from 'src/app/services/timezone.service';
-import { UtilityService } from 'src/app/services/utility.service';
-import { FileService } from 'src/app/services/file.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 

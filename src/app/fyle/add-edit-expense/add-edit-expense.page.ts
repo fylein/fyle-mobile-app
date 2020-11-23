@@ -21,12 +21,14 @@ import { isEqual, cloneDeep, isNumber } from 'lodash';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import * as _ from 'lodash';
 import { ModalController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
+import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -95,6 +97,7 @@ export class AddEditExpensePage implements OnInit {
     private duplicateDetectionService: DuplicateDetectionService,
     private loaderService: LoaderService,
     private modalController: ModalController,
+    private statusService: StatusService
   ) { }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -198,8 +201,6 @@ export class AddEditExpensePage implements OnInit {
         return this.getPossibleDuplicates();
       })
     );
-
-    this.duplicates$.subscribe(console.log);
   }
 
   ngOnInit() {
@@ -483,12 +484,7 @@ export class AddEditExpensePage implements OnInit {
             value: (cpor && cpor.value) || null
           };
         });
-      console.log(
-        etxn.tx.amount,
-        etxn.tx.currency,
-        etxn.tx.orig_amount,
-        etxn.tx.orig_currency
-      );
+
       if (etxn.tx.amount && etxn.tx.currency) {
         this.fg.patchValue({
           currencyObj: {
@@ -812,10 +808,6 @@ export class AddEditExpensePage implements OnInit {
         etxn => isNumber(etxn.tx.policy_amount) && (etxn.tx.policy_amount < 0.0001)
       )
     );
-
-    this.isAmountCapped$.subscribe(console.log);
-    this.isAmountDisabled$.subscribe(console.log);
-    this.isCriticalPolicyViolated$.subscribe(console.log);
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
@@ -970,7 +962,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    console.log(criticalPolicyViolations);
     const currencyModal = await this.modalController.create({
       component: CriticalPolicyViolationComponent,
       componentProps: {
@@ -984,6 +975,21 @@ export class AddEditExpensePage implements OnInit {
     return !!data;
   }
 
+  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
+    const currencyModal = await this.modalController.create({
+      component: PolicyViolationComponent,
+      componentProps: {
+        policyViolationMessages: policyViolations,
+        policyActionDescription
+      }
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+    return data;
+  }
+
   editExpense() {
     const customFields$ = this.getCustomFields();
 
@@ -992,6 +998,7 @@ export class AddEditExpensePage implements OnInit {
         switchMap(() => {
           return this.generateEtxnFromFg(this.etxn$, customFields$);
         }),
+        tap(console.log),
         switchMap(etxn => {
           const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
           return policyViolations$.pipe(
@@ -1008,21 +1015,27 @@ export class AddEditExpensePage implements OnInit {
                 return policyViolations$;
               }
             }),
-            map(this.policyService.getPolicyRules),
-            switchMap(policyViolations => {
+            map((policyViolations: any) =>
+              [this.policyService.getPolicyRules(policyViolations),
+              policyViolations &&
+              policyViolations.transaction_desired_state &&
+              policyViolations.transaction_desired_state.action_description]),
+            switchMap(([policyViolations, policyActionDescription]) => {
               if (policyViolations.length > 0) {
                 return throwError({
                   type: 'policyViolations',
                   policyViolations,
+                  policyActionDescription,
                   etxn
                 });
               }
               else {
-                return of(etxn);
+                return of({etxn});
               }
             })
           );
         }),
+        tap(console.log),
         catchError(err => {
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
@@ -1033,7 +1046,24 @@ export class AddEditExpensePage implements OnInit {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
                     switchMap(() => {
-                      return of(err.etxn);
+                      return of({etxn: err.etxn});
+                    })
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else if (err.type === 'policyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => {
+                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
+              }),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() => {
+                      return of({etxn: err.etxn, comment: continueWithTransaction.comment});
                     })
                   );
                 } else {
@@ -1042,10 +1072,12 @@ export class AddEditExpensePage implements OnInit {
               })
             );
           } else {
+            console.log(err);
             return throwError(err);
           }
         }),
-        switchMap((etxn) => {
+        tap(console.log),
+        switchMap(({ etxn , comment}) => {
           return forkJoin({
             eou: from(this.authService.getEou()),
             txnCopy: this.etxn$
@@ -1086,9 +1118,27 @@ export class AddEditExpensePage implements OnInit {
                   }).pipe(map(() => tx));
                 })
               );
-            })
+            }),
+            switchMap((txn) => {
+              if (comment) {
+                return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+                  switchMap((result) => {
+                    if (result !== comment) {
+                      this.statusService.post('transactions', txn.id, { comment }, true).pipe(
+                        map(() => txn)
+                      );
+                    } else {
+                      return of(txn);
+                    }
+                  })
+                );
+              } else {
+                return of(txn);
+              }
+            }),
           );
         }),
+        tap(console.log),
         map((transaction) => {
           // if (transaction.corporate_credit_card_expense_group_id && vm.selectedCCCTransaction && vm.selectedCCCTransaction.id) {
           //   if (transaction.corporate_credit_card_expense_group_id !== vm.selectedCCCTransaction.id) {
@@ -1119,7 +1169,7 @@ export class AddEditExpensePage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$)
+          return this.generateEtxnFromFg(this.etxn$, customFields$);
         }),
         switchMap(etxn => {
           const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
@@ -1133,17 +1183,72 @@ export class AddEditExpensePage implements OnInit {
               else {
                 return policyViolations$;
               }
-            }), map(this.policyService.getPolicyRules), switchMap(policyRules => {
-              if (policyRules.length > 0) {
-                return throwError(new Error('Policy Violated'));
+            }),
+            map((policyViolations: any) =>
+              [this.policyService.getPolicyRules(policyViolations),
+              policyViolations &&
+              policyViolations.transaction_desired_state &&
+              policyViolations.transaction_desired_state.action_description]),
+            switchMap(([policyViolations, policyActionDescription]) => {
+              if (policyViolations.length > 0) {
+                return throwError({
+                  type: 'policyViolations',
+                  policyViolations,
+                  policyActionDescription,
+                  etxn
+                });
               }
               else {
-                return of(etxn);
+                return of({ etxn, comment: null });
               }
-            }));
+            })
+          );
         }),
-        switchMap((etxn) => {
-          return from(this.authService.getEou()).pipe(switchMap(eou => {
+        catchError(err => {
+          if (err.type === 'criticalPolicyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => {
+                return this.continueWithCriticalPolicyViolation(err.policyViolations);
+              }),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() => {
+                      return of({ etxn: err.etxn });
+                    })
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else if (err.type === 'policyViolations') {
+            return from(this.loaderService.hideLoader())
+            .pipe(
+              switchMap(() => {
+                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
+              }),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader())
+                  .pipe(
+                    switchMap(() => {
+                      return of({etxn: err.etxn, comment: continueWithTransaction.comment});
+                    })
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else {
+            return throwError(err);
+          }
+        }),
+        switchMap(({ etxn, comment }: any) => {
+          return from(this.authService.getEou())
+          .pipe(
+            switchMap(eou => {
 
             const comments = [];
             // if (this.activatedRoute.snapshot.params.dataUrl) {
@@ -1157,9 +1262,9 @@ export class AddEditExpensePage implements OnInit {
             //   // track click of save and new expense button
             //   TrackingService.clickSaveAddNew({Asset: 'Mobile'});
             // }
-            // if (this.comment) {
-            //   comments.push(this.comment);
-            // }
+            if (comment) {
+              comments.push(comment);
+            }
             // if (this.selectedCCCTransaction) {
             //   this.etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
             //   setSourceAccount('PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');

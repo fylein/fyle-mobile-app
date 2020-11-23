@@ -15,11 +15,13 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
+import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
+import { ModalController } from '@ionic/angular';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -74,7 +76,8 @@ export class AddEditPerDiemPage implements OnInit {
     private policyService: PolicyService,
     private dataTransformService: DataTransformService,
     private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private modalController: ModalController
   ) { }
 
   ngOnInit() {
@@ -773,6 +776,21 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
+  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
+    console.log(criticalPolicyViolations);
+    const currencyModal = await this.modalController.create({
+      component: CriticalPolicyViolationComponent,
+      componentProps: {
+        criticalViolationMessages: criticalPolicyViolations
+      }
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+    return !!data;
+  }
+
   savePerDiem() {
     const customFields$ = this.customInputs$.pipe(
       take(1),
@@ -823,8 +841,26 @@ export class AddEditPerDiemPage implements OnInit {
               );
             }),
             catchError(err => {
-              console.log(err);
-              return this.generateEtxnFromFg(this.etxn$, customFields$);
+              if (err.type === 'criticalPolicyViolations') {
+                return from(this.loaderService.hideLoader()).pipe(
+                  switchMap(() => {
+                    return this.continueWithCriticalPolicyViolation(err.policyViolations);
+                  }),
+                  switchMap((continueWithTransaction) => {
+                    if (continueWithTransaction) {
+                      return from(this.loaderService.showLoader()).pipe(
+                        switchMap(() => {
+                          return of(err.etxn);
+                        })
+                      );
+                    } else {
+                      return throwError('unhandledError');
+                    }
+                  })
+                );
+              } else {
+                return throwError(err);
+              }
             }),
             finalize(() => from(this.loaderService.hideLoader()))
           )
@@ -859,8 +895,26 @@ export class AddEditPerDiemPage implements OnInit {
                 }));
             }),
             catchError(err => {
-              console.log(err);
-              return this.generateEtxnFromFg(this.etxn$, customFields$);
+              if (err.type === 'criticalPolicyViolations') {
+                return from(this.loaderService.hideLoader()).pipe(
+                  switchMap(() => {
+                    return this.continueWithCriticalPolicyViolation(err.policyViolations);
+                  }),
+                  switchMap((continueWithTransaction) => {
+                    if (continueWithTransaction) {
+                      return from(this.loaderService.showLoader()).pipe(
+                        switchMap(() => {
+                          return of(err.etxn);
+                        })
+                      );
+                    } else {
+                      return throwError('unhandledError');
+                    }
+                  })
+                );
+              } else {
+                return throwError(err);
+              }
             }),
             switchMap((etxn) => {
               return this.etxn$.pipe(

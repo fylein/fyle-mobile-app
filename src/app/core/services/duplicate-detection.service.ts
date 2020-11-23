@@ -3,7 +3,7 @@ import { OfflineService } from './offline.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { switchMap, map, tap } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
-import { TimezoneService } from 'src/app/services/timezone.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 

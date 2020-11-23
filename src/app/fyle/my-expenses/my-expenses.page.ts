@@ -15,8 +15,8 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
-import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-my-expenses',

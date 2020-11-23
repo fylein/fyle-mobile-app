@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { StorageService } from '../core/services/storage.service';
-import { DateService } from '../core/services/date.service';
+import { StorageService } from './storage.service';
+import { DateService } from './date.service';
 import { from, empty, EMPTY, forkJoin, noop, concat } from 'rxjs';
 import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { OfflineService } from '../core/services/offline.service';
+import { OfflineService } from './offline.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { TransactionService } from '../core/services/transaction.service';
+import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
 import { UtilityService } from './utility.service';
 import { StatusService } from './status.service';
 import { cloneDeep } from 'lodash';
-import { ReceiptService } from '../core/services/receipt.service';
-import { ReportService } from '../core/services/report.service';
+import { ReceiptService } from './receipt.service';
+import { ReportService } from './report.service';
 import { queue } from 'rxjs/internal/scheduler/queue';
 
 @Injectable({
