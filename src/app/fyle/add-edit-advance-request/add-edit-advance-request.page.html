@@ -39,7 +39,7 @@
     <div class="add-edit-advance-request--primary-block">
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
         <div class="add-edit-advance-request--text-label" [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.purpose.touched && !fg.controls.purpose.valid}">Enter Purpose *</div>
-        <input class="add-edit-advance-request--text-input" formControlName="purpose" [required]="true" >
+        <input class="add-edit-advance-request--text-input" formControlName="purpose">
       </div>
       <div class="add-edit-advance-request--mandatory-text" *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid">Please enter the purpose</div>
 
@@ -49,32 +49,34 @@
 
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
         <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">Enter Additional Notes</div>
-        <input class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input" formControlName="notes" [required]="true" >
+        <input class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input" formControlName="notes">
       </div>
     </div>
 
-    <!-- <div *ngFor="let customInput of customFields$ | async as customFields">
-      <div class="add-edit-advance-request--primary-block">
+    <div class="add-edit-advance-request--primary-block">
+
+    <div *ngFor="let customInput of customFields$ | async as customFields">
+      
         <form [formGroup]="customInput.control">
-          <div class="add-edit-expense--text add-edit-expense--internal-block"
-            *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
-            <div class="add-edit-expense--text-label" [ngClass]="{'add-edit-expense--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+          <div class="add-edit-advance-request--text add-edit-advance-request--custom-field-internal-block"
+            *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
+            <div class="add-edit-advance-request--text-label">
               {{customInput.name | ellipsis: 20}}
               <span *ngIf="customInput.mandatory">
                 *
               </span>
             </div>
-            <input class="add-edit-expense--text-input" type="text" formControlName="value"
+            <input class="add-edit-advance-request--text-input" type="text" formControlName="value"
               *ngIf="customInput.type === 'TEXT'">
 
-            <input class="add-edit-expense--text-input" type="number" formControlName="value"
+            <input class="add-edit-advance-request--text-input" type="number" formControlName="value"
               *ngIf="customInput.type === 'NUMBER'">
 
-            <input class="add-edit-expense--date-input" *ngIf="customInput.type === 'DATE'" type="date"
+            <input class="add-edit-advance-request--date-input" *ngIf="customInput.type === 'DATE'" type="date"
               formControlName="value">
           </div>
 
-          <div class="add-edit-expense--checkbox add-edit-expense--internal-block"
+          <div class="add-edit-advance-request--checkbox add-edit-advance-request--custom-field-internal-block"
             *ngIf="customInput.type === 'BOOLEAN'">
             <label>
               <mat-checkbox color="primary" formControlName="value">
@@ -83,29 +85,29 @@
             </label>
           </div>
 
-          <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'LOCATION'">
+          <div class="add-edit-advance-request--custom-field-internal-block" *ngIf="customInput.type === 'LOCATION'">
             <app-fy-location [label]="customInput.name" formControlName="value">
             </app-fy-location>
           </div>
 
-          <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'SELECT'">
+          <div class="add-edit-advance-request--custom-field-internal-block" *ngIf="customInput.type === 'SELECT'">
             <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value">
             </app-fy-select>
           </div>
 
-          <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'MULTI_SELECT'">
+          <div class="add-edit-advance-request--custom-field-internal-block" *ngIf="customInput.type === 'MULTI_SELECT'">
             <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value">
             </app-fy-multiselect>
           </div>
 
-          <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'USER_LIST'">
+          <div class="add-edit-advance-request--custom-field-internal-block" *ngIf="customInput.type === 'USER_LIST'">
             <app-fy-userlist [label]="customInput.name" formControlName="value">
             </app-fy-userlist>
           </div>
 
         </form>
       </div>
-    </div> -->
+    </div>
 
   </form>
 
@@ -117,12 +119,12 @@
     <ion-grid>
       <ion-row>
         <ion-col size="6">
-          <ion-button (click)="saveAdvanceRequest()" class="add-edit-advance-request--primary-cta" fill="outline" color="fyle-primary">
+          <ion-button (click)="save('DRAFT')" class="add-edit-advance-request--primary-cta" fill="outline" color="fyle-primary">
             SAVE DRAFT
           </ion-button>
         </ion-col>
         <ion-col size="6">
-          <ion-button (click)="saveAdvanceRequest()" class="add-edit-advance-request--primary-cta" fill="solid" color="fyle-primary">
+          <ion-button (click)="save('SUBMIT')" class="add-edit-advance-request--primary-cta" fill="solid" color="fyle-primary">
             SUBMIT REQUEST
           </ion-button>
         </ion-col>

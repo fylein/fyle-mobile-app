@@ -11,6 +11,15 @@ export class AdvanceRequestPolicyService {
     private httpClient: HttpClient
   ) { }
 
+
+  getPolicyRules(result) {
+    return result.advance_request_policy_rule_desired_states.filter((desiredState) =>  {
+      return desiredState.popup === true;
+    }).map((desiredState) => {
+      return desiredState.description;
+    });
+  }
+
   servicePost(url, data, config) {
     if (url.indexOf('remotecopy') === -1 && url.indexOf('upload_html') === -1) {
       console.log('post ' + url + ' with data ' + JSON.stringify(data));

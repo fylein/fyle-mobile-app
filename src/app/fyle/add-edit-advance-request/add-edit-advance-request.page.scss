@@ -49,6 +49,14 @@
     }
   }
 
+  &--custom-field-internal-block {
+    padding: 16px 0;
+    background: #fff;
+    border: 0;
+    line-height: 1;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
   &--text {
     display: flex;
     align-items: center;
@@ -74,6 +82,21 @@
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
+  }
+
+  &--checkbox {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+  }
+
+  &--date-input {
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    height: 24px;
+    text-align: right;
   }
 
   &--additional-notes-label {

@@ -29,7 +29,7 @@ export class AdvanceRequestService {
   ) { }
 
 
-  testPolicy(advanceRequest) {
+  testPolicy(advanceRequest): Observable<any> {
     return this.orgUserSettingsService.get().pipe(
       switchMap(orgUserSettings => {
         if (advanceRequest.created_at) {
@@ -280,6 +280,26 @@ export class AdvanceRequestService {
 
   pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
+  }
+
+  submit(advanceRequest) {
+    return this.apiService.post('/advance_requests/submit', advanceRequest);
+    // Todo: Fix dates and delete cache
+  }
+
+  saveDraft(advanceRequest) {
+    return this.apiService.post('/advance_requests/save', advanceRequest);
+    // Todo: Fix dates and delete cache
+  }
+
+  createAdvReqWithFilesAndSubmit(advanceRequest, fileObjs?) {
+    // Todo: create adv req with files
+    return this.submit(advanceRequest);
+  }
+
+  saveDraftAdvReqWithFiles(advanceRequest, fileObjs?) {
+    // Todo: create adv req with files
+    return this.saveDraft(advanceRequest);
   }
 
 

@@ -1,12 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, from, iif, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { ModalController } from '@ionic/angular';
+import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
+import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { StatusService } from 'src/app/services/status.service';
+import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -31,7 +36,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
-    private advanceRequestService: AdvanceRequestService
+    private advanceRequestService: AdvanceRequestService,
+    private advanceRequestPolicyService: AdvanceRequestPolicyService,
+    private modalController: ModalController,
+    private statusService: StatusService,
+    private loaderService: LoaderService
   ) { }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -49,7 +58,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       purpose: [, Validators.required],
       notes: [],
       project: [],
-      custom_fields: new FormArray([]),
+      custom_field_values: new FormArray([]),
     });
   }
 
@@ -58,22 +67,90 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_advances']);
   }
 
-  saveAdvanceRequest() {
-    if (this.fg.valid) {
-      debugger;
-      this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$).pipe(
+  checkPolicyViolation(advanceRequest) {
+    return this.advanceRequestService.testPolicy(advanceRequest);
+  }
+
+  submitAdvanceRequest(advanceRequest){
+    return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest);
+  }
+
+
+  saveDraftAdvanceRequest(advanceRequest){
+    return this.advanceRequestService.saveDraftAdvReqWithFiles(advanceRequest);
+  }
+
+  saveAndSubmit(event, advanceRequest) {
+    if (event !== 'DRAFT') {
+      return this.submitAdvanceRequest(advanceRequest);
+    } else {
+      return this.saveDraftAdvanceRequest(advanceRequest);
+    }
+  }
+
+  async showPolicyModal(violatedPolicyRules: string[], policyViolationActionDescription: string, event: string, advanceRequest) {
+
+    const policyViolationModal = await this.modalController.create({
+      component: PolicyViolationDialogComponent,
+      componentProps: {
+        violatedPolicyRules,
+        policyViolationActionDescription
+      }
+    });
+
+    await policyViolationModal.present();
+
+    const { data } = await policyViolationModal.onWillDismiss();
+
+    if (data && data.reason) {
+      this.loaderService.showLoader('Creating Advance Request...');
+      return this.saveAndSubmit(event, advanceRequest).pipe(
         switchMap(res => {
-          debugger;
-          return this.advanceRequestService.testPolicy(res);
+          return this.statusService.post('advance_requests', res.id, {comment: data.reason}, true);
+        }),
+        finalize(() => {
+          this.fg.reset();
+          this.loaderService.hideLoader();
+          return this.router.navigate(['/', 'enterprise', 'my_advances']);
         })
-  
-      ).subscribe(res => {
-        debugger;
-      })
+      ).subscribe(noop);
+    }
+  }
+
+  save(event) {
+    if (this.fg.valid) {
+      this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$).pipe(
+        switchMap(advanceRequest => {
+          const policyViolations$ = this.checkPolicyViolation(advanceRequest).pipe(
+            shareReplay()
+          );
+
+          let policyViolationActionDescription = '';
+          return policyViolations$.pipe(
+            map(policyViolations => {
+              policyViolationActionDescription = policyViolations?.advance_request_desired_state?.action_description;
+              return this.advanceRequestPolicyService.getPolicyRules(policyViolations);
+            }),
+            switchMap((policyRules: string[]) => {
+              if (policyRules.length > 0) {
+                return this.showPolicyModal(policyRules, policyViolationActionDescription, event, advanceRequest);
+              } else {
+                this.loaderService.showLoader('Creating Advance Request...');
+                return this.saveAndSubmit(event, advanceRequest).pipe(
+                  finalize(() => {
+                    this.fg.reset();
+                    this.loaderService.hideLoader();
+                    return this.router.navigate(['/', 'enterprise', 'my_advances']);
+                  })
+                );
+              }
+            }),
+          )
+        })
+      ).subscribe(noop);
     } else {
       this.fg.markAllAsTouched();
     }
-    
   }
 
   generateAdvanceRequestFromFg(extendedAdvanceRequest$) {
@@ -95,9 +172,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
   }
 
-  checkPolicyViolation(advanceRequest) {
-    return this.advanceRequestService.testPolicy(advanceRequest);
-  };
+
 
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
@@ -148,24 +223,39 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.projects$ = this.offlineService.getProjects();
 
 
-    // this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
-    //   map((customFields: any[]) => {
-    //     const customFieldsFormArray = this.fg.controls.custom_fields as FormArray;
-    //     customFieldsFormArray.clear();
-    //     for (const customField of customFields) {
-    //       customFieldsFormArray.push(
-    //         this.formBuilder.group({
-    //           value: [, customField.mandatory && Validators.required]
-    //         })
-    //       );
-    //     }
-    //     return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
-    //   })
-    // )
+    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
+      map((customFields: any[]) => {
+        const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
+        customFieldsFormArray.clear();
+        for (const customField of customFields) {
+          customFieldsFormArray.push(
+            this.formBuilder.group({
+              id: customField.id,
+              name: customField.name,
+              value: [, customField.mandatory && Validators.required]
+            })
+          );
+        }
 
-    // this.customFields$.subscribe(res => {
-    //   debugger;
-    // })
+        return customFields.map((customField, i) => {
+          customField.control = customFieldsFormArray.at(i);
+
+          if (customField.options) {
+            // customField.options = customField.options.map(option => ({ label: option, value: option }));
+            customField.options = customField.options.map(option => {
+              return { label: option, value: option };
+            })
+          }
+          return customField;
+        })
+
+        //return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+      })
+    )
+
+    this.customFields$.subscribe(res => {
+     //debugger;
+    })
 
   }
 
