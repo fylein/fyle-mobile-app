@@ -189,7 +189,7 @@ export class TransactionsOutboxService {
     this.saveQueue();
   }
 
-  addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData) {
+  addEntry(transaction, dataUrls, comments?, reportId?, applyMagic?, receiptsData?) {
     this.queue.push({
       transaction,
       dataUrls,

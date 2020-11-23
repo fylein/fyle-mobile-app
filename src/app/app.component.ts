@@ -253,11 +253,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.checkAppSupportedVersion();
-    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
-      if (loggedInStatus) {
-        this.showSideMenu();
-      }
-    });
     // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {

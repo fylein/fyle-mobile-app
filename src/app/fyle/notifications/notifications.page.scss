@@ -1,0 +1,51 @@
+$heading-shadow-color: #ababab;
+
+.notifications {
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--container {
+    margin: 2px 18px;
+  }
+
+  &--notif-setting-header {
+    color: #ababab;
+    padding: 10px 0;
+  }
+  
+  &--features-list-row {
+    padding: 2px 0;
+  }
+
+  &--feature-toggle {
+    align-items: center;
+    display: contents;
+  }
+
+  &--checkbox-select-all {
+    padding-right: 0;
+    flex: 10;
+    background-color: transparent;
+    border: none;
+  }
+
+  &--notif-type-icon {
+    vertical-align: middle;
+    width: 18px;
+    fill: gray;
+    margin-left: 8px;
+  }
+
+  &--odd {
+    background-color: #f3f5f8;
+  }
+
+  &--primary-cta {
+    margin: 12px 0;
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}
