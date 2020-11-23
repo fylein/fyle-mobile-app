@@ -697,6 +697,7 @@ export class AddEditExpensePage implements OnInit {
     this.setupTransactionMandatoryFields();
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
+
     this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
     this.reviewList = this.activatedRoute.snapshot.params.txnIds;
@@ -1124,7 +1125,7 @@ export class AddEditExpensePage implements OnInit {
                 return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
                   switchMap((result) => {
                     if (result !== comment) {
-                      this.statusService.post('transactions', txn.id, { comment }, true).pipe(
+                      return this.statusService.post('transactions', txn.id, { comment }, true).pipe(
                         map(() => txn)
                       );
                     } else {

@@ -19,6 +19,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FySelectProjectComponent } from '../add-edit-per-diem/fy-select-project/fy-select-project.component';
 import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 
 @NgModule({
   imports: [
@@ -43,7 +44,8 @@ import { CriticalPolicyViolationComponent } from './critical-policy-violation/cr
     FyCurrencyExchangeRateComponent,
     FySelectProjectComponent,
     FySelectModalComponent,
-    CriticalPolicyViolationComponent
+    CriticalPolicyViolationComponent,
+    PolicyViolationComponent
   ]
 })
 export class AddEditPerDiemPageModule {}

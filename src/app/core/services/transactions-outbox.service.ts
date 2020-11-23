@@ -205,7 +205,7 @@ export class TransactionsOutboxService {
   addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
     this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData);
     return this.syncEntry(this.queue.pop());
-  };
+  }
 
   getPendingTransactions() {
     return this.queue.map((entry) => {
@@ -236,17 +236,17 @@ export class TransactionsOutboxService {
         });
       }
     }
-    console.log('Herehere');
+
     return new Promise((resolve, reject) => {
       console.log(entry.transaction);
       console.log(fileObjPromiseArray);
-      this.transactionService.createTxnWithFiles(entry.transaction, from(Promise.all(fileObjPromiseArray))).toPromise().then((resp) => {
+      that.transactionService.createTxnWithFiles(entry.transaction, from(Promise.all(fileObjPromiseArray))).toPromise().then((resp) => {
         const comments = entry.comments;
         // adding created transaction id into entry object to get created transaction id when promise is resolved.
         entry.transaction.id = resp.id;
         if (comments && comments.length > 0) {
-          comments.forEach(function (comment) {
-            this.statusService.post('transactions', resp.id, { comment }, true);
+          comments.forEach((comment) => {
+            that.statusService.post('transactions', resp.id, { comment }, true);
           });
         }
         if (entry.receiptsData) {
@@ -254,13 +254,13 @@ export class TransactionsOutboxService {
             transaction_id: entry.transaction.id,
             linked_by: entry.receiptsData.linked_by
           };
-          this.receiptService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
+          that.receiptService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
         }
         if (entry.dataUrls && entry.dataUrls.length > 0) {
-          this.transactionService.getETxn(resp.id).toPromise().then((etxn) => {
+          that.transactionService.getETxn(resp.id).toPromise().then((etxn) => {
             entry.dataUrls.forEach((dataUrl) => {
               if (dataUrl.callBackUrl) {
-                this.httpClient.post(dataUrl.callBackUrl, {
+                that.httpClient.post(dataUrl.callBackUrl, {
                   entered_data: {
                     amount: etxn.tx.amount,
                     currency: etxn.tx.currency,
@@ -280,21 +280,21 @@ export class TransactionsOutboxService {
 
         if (reportId) {
           const txnIds = [resp.id];
-          this.reportService.addTransactions(reportId, txnIds).toPromise().then((result) => {
+          that.reportService.addTransactions(reportId, txnIds).toPromise().then((result) => {
             // TrackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
             return result;
           });
         }
 
-        this.removeEntry(entry);
+        that.removeEntry(entry);
 
-        //This would be on matching an expense for the first time
+        // that would be on matching an expense for the first time
         if (entry.transaction.matchCCCId) {
-          this.transactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId);
+          that.transactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId);
         }
 
         if (entry.applyMagic) {
-          this.addDataExtractionEntry(resp, entry.dataUrls);
+          that.addDataExtractionEntry(resp, entry.dataUrls);
         }
         resolve(entry);
       }, (err) => {
@@ -319,11 +319,11 @@ export class TransactionsOutboxService {
       const p = [];
 
       for (let i = 0; i < that.queue.length; i++) {
-        console.log("processing txn " + i);
+        console.log('processing txn ' + i);
         p.push(that.syncEntry(that.queue[i]));
       }
 
-      Promise.all(p).finally(function () {
+      Promise.all(p).finally(() => {
         // if (p.length > 0) {
         //   console.log('clearing cache');
         //   TransactionService.deleteCache();
@@ -374,14 +374,14 @@ export class TransactionsOutboxService {
       }).toPromise().then((resp: any) => {
         return resp.data;
       });
-    }).catch(function () {
+    }).catch(() => {
       return this.httpClient.post(url, {
         files: [{
           name: '000.jpeg',
           content: data
         }],
         suggested_currency: suggestedCurrency
-      }).then((resp: any) => {
+      }).toPromise().then((resp: any) => {
         return resp.data;
       });
     });

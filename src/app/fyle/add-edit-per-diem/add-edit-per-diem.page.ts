@@ -22,6 +22,8 @@ import { DataTransformService } from 'src/app/core/services/data-transform.servi
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { ModalController } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
+import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -77,7 +79,8 @@ export class AddEditPerDiemPage implements OnInit {
     private dataTransformService: DataTransformService,
     private loaderService: LoaderService,
     private router: Router,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private statusService: StatusService
   ) { }
 
   ngOnInit() {
@@ -343,14 +346,33 @@ export class AddEditPerDiemPage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
 
+    this.subCategories$.subscribe(subCategories => {
+      if (!subCategories.length) {
+        this.fg.controls.sub_category.clearValidators();
+        this.fg.controls.sub_category.updateValueAndValidity();
+      }
+    });
+
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
-      map(allowedPerDiemRates => allowedPerDiemRates.map(rate => ({ label: rate.full_name, value: rate }))),
-      tap(console.log)
+      map(allowedPerDiemRates => allowedPerDiemRates.map(rate => ({ label: rate.full_name, value: rate })))
     );
 
     this.transactionMandatoyFields$ = orgSettings$.pipe(
-      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields)
+      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
+
+    // TODO: Put this in per diem
+    this.transactionMandatoyFields$
+      .pipe(
+        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
+      )
+      .subscribe((transactionMandatoyFields) => {
+        if (transactionMandatoyFields.project) {
+          this.fg.controls.project.setValidators(Validators.required);
+          this.fg.controls.project.updateValueAndValidity();
+        }
+      });
+
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
@@ -702,7 +724,6 @@ export class AddEditPerDiemPage implements OnInit {
             skip_reimbursement: skipReimbursement,
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
-            txn_dt: formValue.dateOfSpend && new Date(formValue.dateOfSpend),
             currency: currencyObj.currency,
             amount: currencyObj.amount,
             orig_currency: currencyObj.orig_currency,
@@ -777,7 +798,6 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    console.log(criticalPolicyViolations);
     const currencyModal = await this.modalController.create({
       component: CriticalPolicyViolationComponent,
       componentProps: {
@@ -789,6 +809,21 @@ export class AddEditPerDiemPage implements OnInit {
 
     const { data } = await currencyModal.onWillDismiss();
     return !!data;
+  }
+
+  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
+    const currencyModal = await this.modalController.create({
+      component: PolicyViolationComponent,
+      componentProps: {
+        policyViolationMessages: policyViolations,
+        policyActionDescription
+      }
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+    return data;
   }
 
   savePerDiem() {
@@ -821,21 +856,34 @@ export class AddEditPerDiemPage implements OnInit {
               const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
               return policyViolations$.pipe(
                 map(this.policyService.getCriticalPolicyRules),
-                switchMap(criticalPolicyViolations => {
-                  if (criticalPolicyViolations.length > 0) {
-                    return throwError(new Error('Critical Policy Violated'));
+                switchMap(policyViolations => {
+                  if (policyViolations.length > 0) {
+                    return throwError({
+                      type: 'criticalPolicyViolations',
+                      policyViolations,
+                      etxn
+                    });
                   }
                   else {
                     return policyViolations$;
                   }
                 }),
-                map(this.policyService.getPolicyRules), 
-                switchMap(policyRules => {
-                  if (policyRules.length > 0) {
-                    return throwError(new Error('Policy Violated'));
+                map((policyViolations: any) =>
+                  [this.policyService.getPolicyRules(policyViolations),
+                  policyViolations &&
+                  policyViolations.transaction_desired_state &&
+                  policyViolations.transaction_desired_state.action_description]),
+                switchMap(([policyViolations, policyActionDescription]) => {
+                  if (policyViolations.length > 0) {
+                    return throwError({
+                      type: 'policyViolations',
+                      policyViolations,
+                      policyActionDescription,
+                      etxn
+                    });
                   }
                   else {
-                    return of(etxn);
+                    return of({ etxn });
                   }
                 })
               );
@@ -850,7 +898,24 @@ export class AddEditPerDiemPage implements OnInit {
                     if (continueWithTransaction) {
                       return from(this.loaderService.showLoader()).pipe(
                         switchMap(() => {
-                          return of(err.etxn);
+                          return of({etxn: err.etxn});
+                        })
+                      );
+                    } else {
+                      return throwError('unhandledError');
+                    }
+                  })
+                );
+              } else if (err.type === 'policyViolations') {
+                return from(this.loaderService.hideLoader()).pipe(
+                  switchMap(() => {
+                    return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
+                  }),
+                  switchMap((continueWithTransaction) => {
+                    if (continueWithTransaction) {
+                      return from(this.loaderService.showLoader()).pipe(
+                        switchMap(() => {
+                          return of({etxn: err.etxn, comment: continueWithTransaction.comment});
                         })
                       );
                     } else {
@@ -864,8 +929,12 @@ export class AddEditPerDiemPage implements OnInit {
             }),
             finalize(() => from(this.loaderService.hideLoader()))
           )
-          .subscribe(etxn => {
-            this.transactionsOutboxService.addEntry(etxn.tx, null, [], this.fg.value.report && this.fg.value.report.id, null, null);
+          .subscribe(({ etxn, comment }: any) => {
+            const comments = [];
+            if (comment) {
+              comments.push(comment);
+            }
+            this.transactionsOutboxService.addEntry(etxn.tx, null, comments, this.fg.value.report && this.fg.value.report.id, null, null);
           });
       } else {
         from(this.loaderService.showLoader())
@@ -876,23 +945,38 @@ export class AddEditPerDiemPage implements OnInit {
             switchMap(etxn => {
               const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
               return policyViolations$.pipe(
-
                 map(this.policyService.getCriticalPolicyRules),
-                switchMap(criticalPolicyViolations => {
-                  if (criticalPolicyViolations.length > 0) {
-                    return throwError(new Error('Critical Policy Violated'));
+                switchMap(policyViolations => {
+                  if (policyViolations.length > 0) {
+                    return throwError({
+                      type: 'criticalPolicyViolations',
+                      policyViolations,
+                      etxn
+                    });
                   }
                   else {
                     return policyViolations$;
                   }
-                }), map(this.policyService.getPolicyRules), switchMap(policyRules => {
-                  if (policyRules.length > 0) {
-                    return throwError(new Error('Policy Violated'));
+                }),
+                map((policyViolations: any) =>
+                  [this.policyService.getPolicyRules(policyViolations),
+                  policyViolations &&
+                  policyViolations.transaction_desired_state &&
+                  policyViolations.transaction_desired_state.action_description]),
+                switchMap(([policyViolations, policyActionDescription]) => {
+                  if (policyViolations.length > 0) {
+                    return throwError({
+                      type: 'policyViolations',
+                      policyViolations,
+                      policyActionDescription,
+                      etxn
+                    });
                   }
                   else {
-                    return of(etxn);
+                    return of({ etxn });
                   }
-                }));
+                })
+              );
             }),
             catchError(err => {
               if (err.type === 'criticalPolicyViolations') {
@@ -904,7 +988,24 @@ export class AddEditPerDiemPage implements OnInit {
                     if (continueWithTransaction) {
                       return from(this.loaderService.showLoader()).pipe(
                         switchMap(() => {
-                          return of(err.etxn);
+                          return of({etxn: err.etxn});
+                        })
+                      );
+                    } else {
+                      return throwError('unhandledError');
+                    }
+                  })
+                );
+              } else if (err.type === 'policyViolations') {
+                return from(this.loaderService.hideLoader()).pipe(
+                  switchMap(() => {
+                    return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
+                  }),
+                  switchMap((continueWithTransaction) => {
+                    if (continueWithTransaction) {
+                      return from(this.loaderService.showLoader()).pipe(
+                        switchMap(() => {
+                          return of({etxn: err.etxn, comment: continueWithTransaction.comment});
                         })
                       );
                     } else {
@@ -913,10 +1014,11 @@ export class AddEditPerDiemPage implements OnInit {
                   })
                 );
               } else {
+                console.log(err);
                 return throwError(err);
               }
             }),
-            switchMap((etxn) => {
+            switchMap(({ etxn, comment }: any) => {
               return this.etxn$.pipe(
                 switchMap((txnCopy) => {
                   return this.transactionService.upsert(etxn.tx).pipe(
@@ -939,10 +1041,29 @@ export class AddEditPerDiemPage implements OnInit {
                           () => txnCopy.report_id && !etxn.tx.report_id, removeTransactionFromReport$, of(null)
                         ),
                         review: iif(() => etxn.tx.user_review_needed, reviewTxn, of(null))
-                      }).pipe(map(() => tx));
+                      }).pipe(
+                        map(() => tx)
+                      );
                     })
                   );
-                })
+                }),
+                switchMap((txn) => {
+                  if (comment) {
+                    return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+                      switchMap((result) => {
+                        if (result !== comment) {
+                          return this.statusService.post('transactions', txn.id, { comment }, true).pipe(
+                            map(() => txn)
+                          );
+                        } else {
+                          return of(txn);
+                        }
+                      })
+                    );
+                  } else {
+                    return of(txn);
+                  }
+                }),
               );
             }),
             finalize(() => from(this.loaderService.hideLoader()))
