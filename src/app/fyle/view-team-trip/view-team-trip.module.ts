@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { TransportationRequestComponent } from '../view-team-trip/transportation-request/transportation-request.component';
 import { AdvanceRequestComponent } from '../view-team-trip/advance-request/advance-request.component';
 import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-request.component';
-import { FyApporverComponent } from '../../shared/components/fy-apporver/fy-apporver.component';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -19,7 +19,7 @@ import { FyApporverComponent } from '../../shared/components/fy-apporver/fy-appo
     ViewTeamTripPageRoutingModule,
     MatIconModule,
     MatButtonModule,
-    FyApporverComponent
+    SharedModule
   ],
   declarations: [
     ViewTeamTripPage,

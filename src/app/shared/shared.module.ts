@@ -33,6 +33,7 @@ import { IconModule } from './icon/icon.module';
 import { CurrencyComponent } from './components/currency/currency.component';
 import { CommentsComponent } from './components/comments/comments.component';
 import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
+import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
 
 
 @NgModule({
@@ -57,7 +58,8 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     DelegatedAccMessageComponent,
     CurrencyComponent,
     CommentsComponent,
-    ViewCommentComponent
+    ViewCommentComponent,
+    FyApporverComponent
   ],
   imports: [
     CommonModule,
@@ -85,7 +87,8 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     DelegatedAccMessageComponent,
     IconModule,
     CurrencyComponent,
-    CommentsComponent
+    CommentsComponent,
+    FyApporverComponent
   ],
   providers: [
     DecimalPipe,
