@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { from, Observable, noop, forkJoin } from 'rxjs';
+import { from, Observable, noop, forkJoin, of, concat } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, mergeMap } from 'rxjs/operators';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ModalController } from '@ionic/angular';
@@ -118,21 +118,36 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   getRequestedBookingData() {
-    forkJoin({
-      isHotelRequested: this.isHotelRequested$,
-      isAdvanceRequested: this.isHotelRequested$,
-      isTransportationsRequested: this.isTransportationRequested$
-    }).subscribe(res => {
-      console.log('yo boiiii ->', res);
-      return res;
-    });
+    // return forkJoin({
+    //   isHotelRequested: this.isHotelRequested$,
+    //   isAdvanceRequested: this.isAdvanceRequested$,
+    //   isTransportationsRequested: this.isTransportationRequested$
+    // }).pipe(
+    //   map(res => {
+    //     return res;
+    //   })
+    // );
+    // return forkJoin([
+    //   this.isHotelRequested$,
+    //   this.isAdvanceRequested$,
+    //   this.isTransportationRequested$
+    // ]).pipe(
+    //   mergeMap(res => {
+    //     return res;
+    //   })
+    // );
+    const finalObs = concat(this.isHotelRequested$, this.isAdvanceRequested$, this.isTransportationRequested$);
+    console.log('finalObs ->', finalObs);
+    return finalObs;
   }
 
   async openModal() {
 
-    const getData = this.getRequestedBookingData();
-
-    console.log('\n\n\n getData ->', getData);
+    const finalObs = concat(this.isHotelRequested$, this.isAdvanceRequested$, this.isTransportationRequested$);
+    // console.log('finalObs ->', finalObs);
+    finalObs.subscribe(res => {
+      console.log('res ->', res);
+    });
 
     const modal = await this.modalController.create({
       component: OtherRequestsPage,
@@ -143,11 +158,11 @@ export class MyAddEditTripPage implements OnInit {
       }
     });
 
-    if (this.fg.valid) {
-      return await modal.present();
-    } else {
-      this.fg.markAllAsTouched();
-    }
+    // if (this.fg.valid) {
+    return await modal.present();
+    // } else {
+    //   this.fg.markAllAsTouched();
+    // }
   }
 
   ngOnInit() {
