@@ -11,6 +11,9 @@ import { Approval } from '../models/approval.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/services/timezone.service';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
+import { DataTransformService } from './data-transform.service';
+import { DateService } from './date.service';
+import { CustomField } from '../models/custom_field.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,9 +28,21 @@ export class AdvanceRequestService {
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
-    private advanceRequestPolicyService: AdvanceRequestPolicyService
+    private advanceRequestPolicyService: AdvanceRequestPolicyService,
+    private dataTransformService: DataTransformService,
+    private dateService: DateService
   ) { }
 
+  getEReq(advanceRequestId) {
+    return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
+      map(res => {
+      const eAdvanceRequest = this.dataTransformService.unflatten(res);
+      this.dateService.fixDates(eAdvanceRequest.areq);
+      // self.setInternalStateAndDisplayName(eAdvanceRequest.areq);
+      return eAdvanceRequest;
+      })
+    );
+  }
 
   testPolicy(advanceRequest): Observable<any> {
     return this.orgUserSettingsService.get().pipe(
@@ -208,9 +223,9 @@ export class AdvanceRequestService {
     );
   }
 
-  modifyAdvanceRequestCustomFields(customFields) {
+  modifyAdvanceRequestCustomFields(customFields): CustomField[] {
     customFields = customFields.map(customField => {
-      if (customField.type === 'DATE') {
+      if (customField.type === 'DATE' && customField.value) {
         customField.value = new Date(customField.value);
       }
       return customField;

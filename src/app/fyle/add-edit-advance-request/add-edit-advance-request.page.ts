@@ -172,8 +172,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
   }
 
-
-
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -181,7 +179,22 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
 
-    const editAdvanceRequestPipe$ = of({});
+    const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
+      map(res => {
+        this.fg.patchValue({
+          currencyObj: {
+            currency: res.areq.currency,
+            amount: res.areq.amount
+          },
+          purpose: res.areq.purpose,
+          notes: res.areq.notes,
+          //project: [],
+          //custom_field_values: new FormArray([]),
+        })
+        return res.areq;
+      }),
+      shareReplay()
+    );
 
     const newAdvanceRequestPipe$ = forkJoin({
       orgSettings: orgSettings$,
@@ -253,8 +266,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
       })
     )
 
-    this.customFields$.subscribe(res => {
-     //debugger;
+    this.extendedAdvanceRequest$.subscribe(res => {
+     debugger;
     })
 
   }
