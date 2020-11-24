@@ -26,8 +26,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   mode: string;
   fg: FormGroup;
   homeCurrency$: Observable<any>;
-  isIndividualProjectsEnabled$: Observable<boolean>;
-  individualProjectIds$: Observable<[]>;
   projects$: Observable<[]>;
   customFields$: Observable<any>;
 
@@ -78,13 +76,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest);
   }
 
-
   saveDraftAdvanceRequest(advanceRequest){
     return this.advanceRequestService.saveDraftAdvReqWithFiles(advanceRequest);
   }
 
   saveAndSubmit(event, advanceRequest) {
-    if (event !== 'DRAFT') {
+    if (event !== 'draft') {
       return this.submitAdvanceRequest(advanceRequest);
     } else {
       return this.saveDraftAdvanceRequest(advanceRequest);
@@ -120,7 +117,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  save(event) {
+  save(event: string) {
+    event = event.toLowerCase();
     if (this.fg.valid) {
       this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$).pipe(
         switchMap(advanceRequest => {
@@ -164,6 +162,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         const advanceRequest: any = res.extendedAdvanceRequest;
 
         return {
+          ...advanceRequest,
           currency: this.fg.value.currencyObj.currency,
           amount: this.fg.value.currencyObj.amount,
           purpose: this.fg.value.purpose,
@@ -183,8 +182,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         const updatedDate = new Date(customField.value);
         customField.value = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
       }
-      //return customField;
-      return {id: customField.id, name: customField.name, value: customField.value}
+      return {id: customField.id, name: customField.name, value: customField.value};
     });
     return customFields;
   }
@@ -205,7 +203,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
           },
           purpose: res.areq.purpose,
           notes: res.areq.notes,
-          custom_field_values: this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values)
         });
 
         if (res.areq.project_id) {
@@ -214,6 +211,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
             this.fg.patchValue({
               project: selectedProject
             });
+          });
+        }
+
+        if(res.areq.custom_field_values) {
+          this.fg.patchValue({
+            custom_field_values: this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values)
           });
         }
         return res.areq;
@@ -245,19 +248,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
         return orgSettings.projects && orgSettings.projects.enabled;
       })
     );
-
-    this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
-      map(orgSettings => {
-        return orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects;
-      })
-    );
-
-    this.individualProjectIds$ = orgUserSettings$.pipe(
-      map((orgUserSettings: any) => {
-        return orgUserSettings.project_ids || [];
-      })
-    );
-
     this.projects$ = this.offlineService.getProjects();
 
 
@@ -279,15 +269,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
           customField.control = customFieldsFormArray.at(i);
 
           if (customField.options) {
-            // customField.options = customField.options.map(option => ({ label: option, value: option }));
             customField.options = customField.options.map(option => {
               return { label: option, value: option };
-            })
+            });
           }
           return customField;
-        })
-
-        //return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+        });
       })
     )
   }

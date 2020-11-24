@@ -32,7 +32,6 @@
         </div>
         <div class="add-edit-advance-request--mandatory-text" *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid">Please enter the amount.</div>
       </div>
-      
     </div>
 
     <div class="add-edit-advance-request--primary-block">
@@ -53,9 +52,7 @@
     </div>
 
     <div class="add-edit-advance-request--primary-block">
-
-    <div *ngFor="let customInput of customFields$ | async as customFields">
-      
+      <div *ngFor="let customInput of customFields$ | async as customFields">
         <form [formGroup]="customInput.control">
           <div class="add-edit-advance-request--text add-edit-advance-request--custom-field-internal-block"
             *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
@@ -103,27 +100,23 @@
             <app-fy-userlist [label]="customInput.name" formControlName="value">
             </app-fy-userlist>
           </div>
-
         </form>
       </div>
     </div>
-
   </form>
-
 </ion-content>
-
 
 <ion-footer>
   <ion-toolbar>
     <ion-grid>
       <ion-row>
         <ion-col size="6">
-          <ion-button (click)="save('DRAFT')" class="add-edit-advance-request--primary-cta" fill="outline" color="fyle-primary">
+          <ion-button (click)="save('Draft')" class="add-edit-advance-request--primary-cta" fill="outline" color="fyle-primary">
             SAVE DRAFT
           </ion-button>
         </ion-col>
         <ion-col size="6">
-          <ion-button (click)="save('SUBMIT')" class="add-edit-advance-request--primary-cta" fill="solid" color="fyle-primary">
+          <ion-button (click)="save('Submit')" class="add-edit-advance-request--primary-cta" fill="solid" color="fyle-primary">
             SUBMIT REQUEST
           </ion-button>
         </ion-col>
