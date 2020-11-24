@@ -54,6 +54,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ngOnInit() {
+    // Todo: Support to add receipts to advance request
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
       purpose: [, Validators.required],
@@ -64,7 +65,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   goBack() {
-    // Todo: Fix all cases here later
+    // Todo: Fix all redirecton cases here later
     this.router.navigate(['/', 'enterprise', 'my_advances']);
   }
 
@@ -89,7 +90,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   async showPolicyModal(violatedPolicyRules: string[], policyViolationActionDescription: string, event: string, advanceRequest) {
-
     const policyViolationModal = await this.modalController.create({
       component: PolicyViolationDialogComponent,
       componentProps: {

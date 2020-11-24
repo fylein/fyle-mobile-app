@@ -36,10 +36,10 @@ export class AdvanceRequestService {
   getEReq(advanceRequestId) {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map(res => {
-      const eAdvanceRequest = this.dataTransformService.unflatten(res);
-      this.dateService.fixDates(eAdvanceRequest.areq);
-      // self.setInternalStateAndDisplayName(eAdvanceRequest.areq);
-      return eAdvanceRequest;
+        const eAdvanceRequest = this.dataTransformService.unflatten(res);
+        this.dateService.fixDates(eAdvanceRequest.areq);
+        // self.setInternalStateAndDisplayName(eAdvanceRequest.areq);
+        return eAdvanceRequest;
       })
     );
   }
@@ -201,7 +201,6 @@ export class AdvanceRequestService {
       })
     )
   }
-  
 
   getMyAdvanceRequestsCount(queryParams = {}) {
     return this.getMyadvanceRequests({

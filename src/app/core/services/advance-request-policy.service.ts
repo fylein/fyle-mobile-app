@@ -11,7 +11,6 @@ export class AdvanceRequestPolicyService {
     private httpClient: HttpClient
   ) { }
 
-
   getPolicyRules(result) {
     return result.advance_request_policy_rule_desired_states.filter((desiredState) =>  {
       return desiredState.popup === true;

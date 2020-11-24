@@ -66,7 +66,6 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   }
 
   async openModal() {
-    debugger;
     const currencyModal = await this.modalController.create({
       component: FySelectModalComponent,
       componentProps: {
