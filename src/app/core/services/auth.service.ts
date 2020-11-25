@@ -26,6 +26,7 @@ export class AuthService {
   }
 
   refreshEou(): Observable<ExtendedOrgUser> {
+    console.log('----coming inside refresh eou------');
     return this.apiService.get('/eous/current').pipe(
       map(data => this.dataTransformService.unflatten(data)),
       tap(
@@ -33,6 +34,20 @@ export class AuthService {
           await this.storageService.set('user', data);
         }
       )
+    );
+  }
+
+  refreshEou1(): Observable<ExtendedOrgUser> {
+    console.log('----coming inside refresh eou1------');
+    return this.apiService.get('/eous/current').pipe(
+      map(data => {
+        const extendedOrgUser = this.dataTransformService.unflatten(data);
+        this.storageService.set('user', extendedOrgUser);
+        return extendedOrgUser;
+      }),
+      map(extendedOrgUser => {
+        return extendedOrgUser;
+      })
     );
   }
 

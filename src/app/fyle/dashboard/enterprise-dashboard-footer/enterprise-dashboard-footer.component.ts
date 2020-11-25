@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './enterprise-dashboard-footer.component.html',
   styleUrls: ['./enterprise-dashboard-footer.component.scss'],
 })
-export class EnterpriseDashboardFooterComponent implements OnInit {
+export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
 
   @Input() dashboardList: any[];
   @Input() orgUserSettings: any;
@@ -25,6 +25,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
     private alertController: AlertController,
     private router: Router
   ) { }
+  
 
   setIconList() {
     const isInstaFyleEnabled = this.orgUserSettings ? this.orgUserSettings.insta_fyle_settings.enabled : false;
@@ -148,12 +149,16 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
     this.setIconList();
   }
 
-  ngOnInit() {
+  ngOnChanges(changes: SimpleChanges): void {
     this.canCreateExpense = true;
     this.setIconList();
 
     this.dashboardService.getDashBoardState().subscribe((state) => {
       this.reset(state);
     });
+  }
+
+  ngOnInit() {
+
   }
 }
