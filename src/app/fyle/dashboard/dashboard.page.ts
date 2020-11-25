@@ -1,10 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { UserEventService } from 'src/app/core/services/user-event.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { Router } from '@angular/router';
-import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/enterprise-dashboard-card.component';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -25,11 +19,6 @@ export class DashboardPage implements OnInit {
   homeCurrency$: Observable<any>;
 
   constructor(
-    private userEventService: UserEventService,
-    private authService: AuthService,
-    private storageService: StorageService,
-    private router: Router,
-    private transactionService: TransactionService,
     private mobileEventService: MobileEventService,
     private dashboardService: DashboardService,
     private offlineService: OfflineService,
@@ -107,7 +96,6 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    console.log("----coming inside dashboard----");
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
      shareReplay(),
     );
@@ -118,7 +106,6 @@ export class DashboardPage implements OnInit {
       shareReplay(),
     );
     this.dashboardList = [];
-    console.log(this.dashboardList.length);
     this.reset();
 
     this.mobileEventService.onDashboardCardExpanded().subscribe(() => {

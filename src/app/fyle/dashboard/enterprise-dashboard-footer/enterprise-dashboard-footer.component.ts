@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './enterprise-dashboard-footer.component.html',
   styleUrls: ['./enterprise-dashboard-footer.component.scss'],
 })
-export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
+export class EnterpriseDashboardFooterComponent implements OnInit {
 
   @Input() dashboardList: any[];
   @Input() orgUserSettings: any;
@@ -25,17 +25,6 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
     private alertController: AlertController,
     private router: Router
   ) { }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('---coming inside footer---');
-    this.canCreateExpense = true;
-    this.setIconList();
-
-    this.dashboardService.getDashBoardState().subscribe((state) => {
-      this.reset(state);
-    });
-  }
-
 
   setIconList() {
     const isInstaFyleEnabled = this.orgUserSettings ? this.orgUserSettings.insta_fyle_settings.enabled : false;
@@ -160,6 +149,11 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    this.canCreateExpense = true;
+    this.setIconList();
 
+    this.dashboardService.getDashBoardState().subscribe((state) => {
+      this.reset(state);
+    });
   }
 }

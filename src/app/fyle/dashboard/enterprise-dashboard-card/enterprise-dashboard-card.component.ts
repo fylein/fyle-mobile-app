@@ -255,7 +255,12 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     } else if (type === 'reports') {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
     } else {
-
+      const navigateToMap = {
+        trips: ['/', 'enterprise', 'my_trips'],
+        advances: ['/', 'enterprise', 'my_advances'],
+        corporate_cards: ['/', 'enterprise', 'my_ccc'] //Todo: Yet to implement CCC
+      };
+      this.router.navigate(navigateToMap[type]);
     }
   }
 
