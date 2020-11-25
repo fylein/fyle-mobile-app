@@ -214,7 +214,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           });
         }
 
-        if(res.areq.custom_field_values) {
+        if (res.areq.custom_field_values) {
           this.fg.patchValue({
             custom_field_values: this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values)
           });
@@ -225,13 +225,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
 
     const newAdvanceRequestPipe$ = forkJoin({
-      orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
       homeCurrency: this.homeCurrency$,
       eou: eou$
     }).pipe(
       map(res => {
-        const { orgSettings, orgUserSettings, homeCurrency, eou } = res;
+        const { orgUserSettings, homeCurrency, eou } = res;
         const advanceRequest = {
           org_user_id: eou.ou.id,
           currency: orgUserSettings.currency_settings.preferred_currency || homeCurrency,
