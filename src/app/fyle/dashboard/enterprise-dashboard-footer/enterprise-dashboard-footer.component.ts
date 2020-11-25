@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { pipe, forkJoin } from 'rxjs';
@@ -10,12 +10,12 @@ import { Router } from '@angular/router';
   templateUrl: './enterprise-dashboard-footer.component.html',
   styleUrls: ['./enterprise-dashboard-footer.component.scss'],
 })
-export class EnterpriseDashboardFooterComponent implements OnInit {
+export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
 
   @Input() dashboardList: any[];
+  @Input() orgUserSettings: any;
+  @Input() orgSettings: any;
   ctaList: any[];
-  orgUserSettings: any;
-  orgSettings: any;
   canCreateExpense: boolean; // no idea why this variable is used
   gridSize: number;
 
@@ -26,13 +26,23 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
     private router: Router
   ) { }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('---coming inside footer---');
+    this.canCreateExpense = true;
+    this.setIconList();
+
+    this.dashboardService.getDashBoardState().subscribe((state) => {
+      this.reset(state);
+    });
+  }
+
 
   setIconList() {
     const isInstaFyleEnabled = this.orgUserSettings ? this.orgUserSettings.insta_fyle_settings.enabled : false;
     const isBulkFyleEnabled = this.orgUserSettings ? this.orgUserSettings.bulk_fyle_settings.enabled : false;
     this.ctaList = [];
 
-    if(this.canCreateExpense) {
+    if (this.canCreateExpense) {
       let isPerDiemEnabled = false;
       let isMileageEnabled = false;
       if (this.orgSettings && this.orgSettings.per_diem && this.orgSettings.per_diem.enabled) {
@@ -44,7 +54,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         isMileageEnabled = true;
       }
 
-      let buttonList = {
+      const buttonList = {
         addPerDiem: {
           name: 'Add Per Diem',
           icon: 'add-per-diem',
@@ -97,7 +107,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         }
       }
     } else {
-      var cannotFyleExpenseCTA = {
+      const cannotFyleExpenseCTA = {
         reports: {
           name: 'Create new report',
           icon: 'add-report',
@@ -114,9 +124,9 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
           type: 'advance'
         }
       };
-      this.ctaList = this.dashboardList.filter(function (element) {
+      this.ctaList = this.dashboardList.filter((element) => {
         return (!element.isCollapsed && cannotFyleExpenseCTA[element.title]);
-      }).map(function (element) {
+      }).map((element) => {
         return cannotFyleExpenseCTA[element.title];
       });
     }
@@ -127,7 +137,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
     const alert = await this.alertController.create({
       cssClass: 'my-custom-class',
       header: 'Coming soon',
-      message: "Redirecting to -> " + msg,
+      message: 'Redirecting to -> ' + msg,
       buttons: ['Close']
     });
 
@@ -138,38 +148,18 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
     this.router.navigate(item.route);
   }
 
-  reset (state: string) {
-    this.canCreateExpense= this.dashboardList.some(function (element) {
+  reset(state: string) {
+    this.canCreateExpense = this.dashboardList.some((element) => {
       if (state === 'default') {
         return true;
       } else {
         return (!element.isCollapsed && (element.title === 'expenses' || element.title === 'corporate cards'));
       }
-      
-    });    
+    });
     this.setIconList();
   }
 
   ngOnInit() {
-    this.canCreateExpense = true;
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const orgSettings$ = this.offlineService.getOrgSettings();
 
-    const primaryData$ = forkJoin({
-      orgUserSettings$,
-      orgSettings$
-    });
-
-    primaryData$.subscribe((res) => {
-      this.orgUserSettings = res.orgUserSettings$;
-      this.orgSettings = res.orgSettings$;
-      this.setIconList();
-    })
-
-    this.dashboardService.getDashBoardState().subscribe((state)=> {
-      this.reset(state);
-    })
-   
   }
-
 }

@@ -8,7 +8,8 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,8 +20,9 @@ export class DashboardPage implements OnInit {
   dashboardList: { title: string, isVisible: boolean, isCollapsed: boolean, class: string, icon: string, subTitle: string }[];
   isDashboardCardExpanded: boolean;
   pageTitle: string;
-  orgUserSettings: any;
-  orgSettings: any;
+  orgUserSettings$: Observable<any>;
+  orgSettings$: Observable<any>;
+  homeCurrency$: Observable<any>;
 
   constructor(
     private userEventService: UserEventService,
@@ -54,64 +56,70 @@ export class DashboardPage implements OnInit {
   reset() {
     this.isDashboardCardExpanded = false;
     this.pageTitle = 'dashboard';
-    this.dashboardList = [{
-      title: 'expenses',
-      isVisible: true,
-      isCollapsed: false,
-      class: 'expenses',
-      icon: 'fy-receipts',
-      subTitle: 'Expense'
-    },
-    {
-      title: 'reports',
-      isVisible: true,
-      isCollapsed: false,
-      class: 'reports',
-      icon: 'fy-reports',
-      subTitle: 'Report'
-    },
-    {
-      title: 'corporate cards',
-      isVisible: !!(this.orgSettings.corporate_credit_card_settings.enabled),
-      isCollapsed: false,
-      class: 'corporate-cards',
-      icon: 'fy-card',
-      subTitle: 'Unmatched Expense'
-    },
-    {
-      title: 'advances',
-      isVisible: !!(this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled),
-      isCollapsed: false,
-      class: 'advances',
-      icon: 'fy-wallet',
-      subTitle: 'Advance Request'
-    },
-    {
-      title: 'trips',
-      isVisible: !!(this.orgSettings.trip_requests.enabled
-        && (!this.orgSettings.trip_requests.enable_for_certain_employee
-          || (this.orgSettings.trip_requests.enable_for_certain_employee && this.orgUserSettings.trip_request_org_user_settings.enabled))),
-      isCollapsed: false,
-      class: 'trips',
-      icon: 'fy-trips',
-      subTitle: 'Trip Request'
-    }];
+    forkJoin({
+      orgUserSettings: this.orgUserSettings$,
+      orgSettings: this.orgSettings$
+    }).subscribe(res => {
+      this.dashboardList = [{
+        title: 'expenses',
+        isVisible: true,
+        isCollapsed: false,
+        class: 'expenses',
+        icon: 'fy-receipts',
+        subTitle: 'Expense'
+      },
+      {
+        title: 'reports',
+        isVisible: true,
+        isCollapsed: false,
+        class: 'reports',
+        icon: 'fy-reports',
+        subTitle: 'Report'
+      },
+      {
+        title: 'corporate cards',
+        isVisible: !!(res.orgSettings.corporate_credit_card_settings.enabled),
+        isCollapsed: false,
+        class: 'corporate-cards',
+        icon: 'fy-card',
+        subTitle: 'Unmatched Expense'
+      },
+      {
+        title: 'advances',
+        isVisible: !!(res.orgSettings.advances.enabled || res.orgSettings.advance_requests.enabled),
+        isCollapsed: false,
+        class: 'advances',
+        icon: 'fy-wallet',
+        subTitle: 'Advance Request'
+      },
+      {
+        title: 'trips',
+        isVisible: !!(res.orgSettings.trip_requests.enabled
+          && (!res.orgSettings.trip_requests.enable_for_certain_employee
+            || (res.orgSettings.trip_requests.enable_for_certain_employee && res.orgUserSettings.trip_request_org_user_settings.enabled))),
+        isCollapsed: false,
+        class: 'trips',
+        icon: 'fy-trips',
+        subTitle: 'Trip Request'
+      }];
+    })
+
   }
 
   ionViewWillEnter() {
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const orgSettings$ = this.offlineService.getOrgSettings();
-
-    const primaryData$ = forkJoin({
-      orgUserSettings$,
-      orgSettings$
-    });
-
-    primaryData$.subscribe((res) => {
-      this.orgUserSettings = res.orgUserSettings$;
-      this.orgSettings = res.orgSettings$;
-      this.reset();
-    });
+    console.log("----coming inside dashboard----");
+    this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
+     shareReplay(),
+    );
+    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
+      shareReplay(),
+    );
+    this.homeCurrency$ = this.offlineService.getHomeCurrency().pipe(
+      shareReplay(),
+    );
+    this.dashboardList = [];
+    console.log(this.dashboardList.length);
+    this.reset();
 
     this.mobileEventService.onDashboardCardExpanded().subscribe(() => {
       this.dashboardCardExpanded();

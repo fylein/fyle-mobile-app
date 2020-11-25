@@ -37,7 +37,7 @@ export class DelegatedAccountsPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
 
     const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn;
 
