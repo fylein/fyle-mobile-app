@@ -1,14 +1,16 @@
-<ion-header>
-  <ion-toolbar class="dashboard--header-toolbar">
-    <ion-buttons slot="start">
-      <ion-menu-button *ngIf="!isDashboardCardExpanded" class="dashboard--menubutton" auto-hide="false"></ion-menu-button>
-      <ion-button color="dark" class="dashboard--menubutton" *ngIf="isDashboardCardExpanded" (click)="backButtonClick()">
-        <mat-icon>keyboard_backspace</mat-icon>
-      </ion-button>
-    </ion-buttons>
-
-    <ion-title mode="md" class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
-  </ion-toolbar>
+<ion-header class="ion-no-border">
+  <div class="dashboard--header">
+    <ion-toolbar class="dashboard--header-toolbar">
+      <ion-buttons slot="start">
+        <ion-menu-button *ngIf="!isDashboardCardExpanded" class="dashboard--menubutton" auto-hide="false"></ion-menu-button>
+        <ion-button color="dark" class="dashboard--menubutton" *ngIf="isDashboardCardExpanded" (click)="backButtonClick()">
+          <mat-icon>keyboard_backspace</mat-icon>
+        </ion-button>
+      </ion-buttons>
+  
+      <ion-title slot="primary" mode="ios" class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
+    </ion-toolbar>
+  </div>
 </ion-header>
 
 <ion-content>
