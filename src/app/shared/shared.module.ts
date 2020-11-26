@@ -89,7 +89,7 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
   ],
   providers: [
     DecimalPipe,
-    DatePipe
+    DatePipe,
   ]
 })
 export class SharedModule { }

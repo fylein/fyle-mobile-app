@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { OfflineService } from './offline.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, tap } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
-import { TimezoneService } from 'src/app/services/timezone.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
@@ -22,15 +22,16 @@ export class DuplicateDetectionService {
     return ['Different expense', 'Other'];
   }
 
+  get(url, config?) {
+    return this.httpClient.get(environment.ROOT_URL + '/property_evaluator' + url, config);
+  }
+
   post(url, data, config?) {
-    return this.httpClient.post(environment.ROOT_URL + '/property_evaluator' + url, data, config).pipe(
-      map((resp: any) => {
-        return resp.data;
-      })
-    );
+    return this.httpClient.post(environment.ROOT_URL + '/property_evaluator' + url, data, config);
   }
 
   getPossibleDuplicates(transaction) {
+    console.log('getPossibleDuplicates');
     return this.orgUserSettingsService.get().pipe(
       switchMap(orgUserSettings => {
         const localeOffset = orgUserSettings.locale.offset;
@@ -56,8 +57,12 @@ export class DuplicateDetectionService {
           transactionCopy.from_dt.setMilliseconds(0);
           transactionCopy.from_dt = this.timezoneService.convertToUtc(transactionCopy.from_dt, localeOffset);
         }
-        return this.post('/duplicate/test', transactionCopy);
+        return this.post('/duplicate/test', transactionCopy).pipe(tap(console.log));
       })
     );
+  }
+
+  getDuplicates(transactionId: string) {
+    return this.get('/duplicate/violating_txns/' + transactionId).pipe(tap(console.log));
   }
 }

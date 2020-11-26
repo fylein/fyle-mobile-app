@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { StatusService } from './status.service';
+import { MileageService } from './mileage.service';
 
-describe('StatusService', () => {
-  let service: StatusService;
+describe('MileageService', () => {
+  let service: MileageService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(StatusService);
+    service = TestBed.inject(MileageService);
   });
 
   it('should be created', () => {

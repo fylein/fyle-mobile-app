@@ -425,6 +425,6 @@ export class ReportService {
       }
     };
     return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy);
-  };
+  }
 
 }
