@@ -23,6 +23,7 @@ export class DelegatedAccountsPage implements OnInit {
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
   ) { }
+  
 
   switchToDelegatee(eou) {
     from(this.loaderService.showLoader('Switching Account')).pipe(
@@ -37,8 +38,10 @@ export class DelegatedAccountsPage implements OnInit {
     });
   }
 
-  ionViewWillEnter() {
+  ngOnInit(){
+  }
 
+  ionViewWillEnter() {
     const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn;
 
     if (switchToOwn) {
