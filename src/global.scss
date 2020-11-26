@@ -85,6 +85,18 @@ $header-input-interior: #eeeeee;
   }
 }
 
+.split-expense-popover {
+  .popover-wrapper {
+    .popover-content {
+      top: auto !important;
+      left: 0 !important;
+      width: 100%;
+      bottom: 0;
+      background: #fff;
+    }
+  }
+}
+
 .switch-org--form-field {
   .mat-form-field-wrapper {
     padding: 0;

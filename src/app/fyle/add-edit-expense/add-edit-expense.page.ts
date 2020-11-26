@@ -19,6 +19,8 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
+import { PopoverController } from '@ionic/angular';
+import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -60,6 +62,7 @@ export class AddEditExpensePage implements OnInit {
   isNotReimbursable$: Observable<boolean>;
   costCenters$: Observable<any[]>;
   receiptsData: any;
+  isSplitExpenseAllowed$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -77,7 +80,8 @@ export class AddEditExpensePage implements OnInit {
     private transactionService: TransactionService,
     private dataTransformService: DataTransformService,
     private policyService: PolicyService,
-    private transactionOutboxService: TransactionsOutboxService
+    private transactionOutboxService: TransactionsOutboxService,
+    private popoverController: PopoverController
   ) { }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -147,6 +151,45 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     });
+  }
+
+  openSplitExpenseModal(type) {
+    console.log(type);
+  }
+
+  async splitExpense() {
+    return forkJoin({
+      costCenters: this.costCenters$,
+      projects: this.offlineService.getProjects()
+    }).subscribe(async res => {
+      const areCostCentersAvailable = res.costCenters.length > 0;
+      const areProjectsAvailable = res.projects.length > 0;
+      let popupTypeItemClass = '';
+      if (areProjectsAvailable || areCostCentersAvailable) {
+        popupTypeItemClass = 'two-items-list';
+
+        if (areProjectsAvailable && areCostCentersAvailable) {
+          popupTypeItemClass = 'three-items-list';
+        }
+      }
+
+      const splitExpensePopover = await this.popoverController.create({
+        component: SplitExpensePopoverComponent,
+        componentProps: {
+          class: popupTypeItemClass,
+          areProjectsAvailable,
+          areCostCentersAvailable
+        },
+        cssClass: 'split-expense-popover'
+      });
+      await splitExpensePopover.present();
+
+      const { data } = await splitExpensePopover.onWillDismiss();
+
+      if (data && data.type) {
+        this.openSplitExpenseModal(data.type);
+      }
+    })
   }
 
   ionViewWillEnter() {
@@ -492,6 +535,12 @@ export class AddEditExpensePage implements OnInit {
         }
 
         return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+      })
+    );
+
+    this.isSplitExpenseAllowed$ = orgSettings$.pipe(
+      map(orgSettings => {
+        return orgSettings.expense_settings.split_expense_settings.enabled;
       })
     );
 
