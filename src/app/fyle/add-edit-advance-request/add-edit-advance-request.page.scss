@@ -1,0 +1,116 @@
+.add-edit-advance-request {
+
+  &--form {
+    padding: 0 16px;
+  }
+
+
+  &--receipt-currency {
+    display: flex;
+    align-items: center;
+  }
+
+  &--receipt {
+    align-items: center;
+    text-align: center;
+    margin: 12px 4px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    background-color: #d8d8d8;
+    padding: 20px 8px;
+    border-radius: 4px;
+    color: #ababab;
+    margin-left: 0;
+  }
+
+  &--currency {
+    margin: 12px;
+    margin-right: 0;
+  }
+
+  &--primary-block {
+    margin: 16px 0;
+    padding: 0 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+  }
+
+  &--internal-block {
+    padding: 16px 0;
+    background: #fff;
+    border: 0;
+    line-height: 1;
+    border-bottom: 1px solid #e0e0e0;
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &--custom-field-internal-block {
+    padding: 16px 0;
+    background: #fff;
+    border: 0;
+    line-height: 1;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  &--text {
+    display: flex;
+    align-items: center;
+  }
+
+  &--text-label {
+    margin: 0 8px 0 0;
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 2;
+    white-space: nowrap;
+    display: flex;
+    min-width: 120px;
+    &__invalid {
+      color: red;
+    }
+  }
+
+  &--text-input {
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    height: 24px;
+  }
+
+  &--checkbox {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+  }
+
+  &--date-input {
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    height: 24px;
+    text-align: right;
+  }
+
+  &--additional-notes-label {
+    min-width: 170px;
+  }
+
+  &--additional-notes-input {
+    width: 135px;
+  }
+
+  &--mandatory-text {
+    color:#f00;
+  }
+
+  &--primary-cta {
+    width: 100%;
+  }
+}
+  

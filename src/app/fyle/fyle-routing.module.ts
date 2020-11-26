@@ -117,6 +117,10 @@ const routes: Routes = [
   {
     path: 'my_edit_report',
     loadChildren: () => import('./my-edit-report/my-edit-report.module').then( m => m.MyEditReportPageModule)
+  },
+  {
+    path: 'add_edit_advance_request',
+    loadChildren: () => import('./add-edit-advance-request/add-edit-advance-request.module').then( m => m.AddEditAdvanceRequestPageModule)
   }
 ];
 

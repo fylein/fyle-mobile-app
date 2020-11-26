@@ -91,7 +91,7 @@ export class MyAdvancesPage implements OnInit {
     let route = clickedAdvance.advanceRequest.areq_advance_id ? 'my_view_advance' : 'my_view_advance_request';
 
     if ((['draft', 'pulledBack', 'inquiry']).indexOf(clickedAdvance.internalState.state) > -1) {
-      route = 'enterprise.add_edit_advance_request';
+      route = 'add_edit_advance_request';
     }
 
     //Todo: Redirect to page later.

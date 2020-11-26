@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, PopoverController } from '@ionic/angular';
-import { forkJoin, from, noop, Observable } from 'rxjs';
+import { from, noop, Observable, of } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { Approval } from 'src/app/core/models/approval.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -67,7 +67,11 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     this.advanceRequestCustomFields$ = this.advanceRequest$.pipe(
       map(res => {
-         return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.areq_custom_field_values));
+        if ((res.areq_custom_field_values !== null) && (res.areq_custom_field_values.length > 0)) {
+          return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.areq_custom_field_values));
+        } else {
+          return of(null) as unknown as CustomField[];
+        }
       })
     );
   }
@@ -107,6 +111,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   // Todo: Redirect to edit advance page
   edit() {
+    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   async delete() {
