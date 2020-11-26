@@ -101,7 +101,8 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
         reports: {
           name: 'Create new report',
           icon: 'add-report',
-          type: 'report'
+          type: 'report',
+          route: ['/', 'enterprise', 'my_create_report']
         },
         trips: {
           name: 'Request new trip',
