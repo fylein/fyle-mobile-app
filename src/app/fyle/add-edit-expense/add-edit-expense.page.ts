@@ -665,9 +665,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupFilteredCategories(activeCategories$: Observable<any>) {
-    this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(startWith(this.fg.controls.project.value), concatMap(project => {
+    this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
+      startWith(this.fg.controls.project.value), 
+      concatMap(project => {
       return activeCategories$.pipe(map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)));
-    }), map(categories => categories.map(category => ({ label: category.name, value: category }))));
+    }), map(categories => categories.map(category => ({ label: category.displayName, value: category }))));
 
     this.filteredCategories$.subscribe(categories => {
       if (this.fg.value.category

@@ -74,14 +74,14 @@
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="isAmountCapped$|async">
           <div class="add-edit-expense--critical-policy">
-          <ng-container *ngIf="isCriticalPolicyViolated$|async;else justAmountCapped">
-            This expense has violated a critical policy. You cannot create a report with this expense.
-          </ng-container>
-          <ng-template #justAmountCapped>
-            Claimed amount {{etxn.tx.user_amount}} was capped to {{etxn.tx.amount}} due to policy <span
-              *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
-          </ng-template>
-        </div>
+            <ng-container *ngIf="isCriticalPolicyViolated$|async;else justAmountCapped">
+              This expense has violated a critical policy. You cannot create a report with this expense.
+            </ng-container>
+            <ng-template #justAmountCapped>
+              Claimed amount {{etxn.tx.user_amount}} was capped to {{etxn.tx.amount}} due to policy <span
+                *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+            </ng-template>
+          </div>
         </ng-container>
       </ng-container>
 
@@ -214,23 +214,23 @@
         <ng-container *ngIf="filteredCategories$|async as categories">
           <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
             <div class="add-edit-expense--internal-block">
-              <app-fy-select 
-                [label]="'Select Category'" 
-                formControlName="category"
-                [mandatory]="transactionMandatoyFields.category" 
-                [options]="categories">
+              <app-fy-select [label]="'Select Category'" formControlName="category"
+                [mandatory]="transactionMandatoyFields.category" [options]="categories">
               </app-fy-select>
             </div>
           </ng-container>
         </ng-container>
 
-        <div class="add-edit-expense--date add-edit-expense--internal-block">
-          <div class="add-edit-expense--date-label">
-            Date of Spend
+        <ng-container *ngIf="txnFields$|async as txnFields">
+          <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt.canView">
+            <div class="add-edit-expense--date-label">
+              Date of Spend
+              <span ng-if="txnFields.txn_dt.mandatory">*</span>
+            </div>
+            <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
+              (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
           </div>
-          <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
-            (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
-        </div>
+        </ng-container>
 
         <ng-container *ngIf="txnFields$|async as txnFields">
           <div class="add-edit-expense--internal-block" *ngIf="txnFields.vendor_id?.canView">
@@ -261,8 +261,8 @@
                 [disabled]="!txnFields.purpose?.canEdit">
             </div>
             <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block">
-              <app-fy-select formControlName="purpose"
-                [options]="txnFields.purpose?.values" [mandatory]="txnFields.purpose?.mandatory"
+              <app-fy-select formControlName="purpose" [options]="txnFields.purpose?.values"
+                [mandatory]="txnFields.purpose?.mandatory"
                 [label]="(etxn$|async)?.tx?.purpose ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
                 [disabled]="!txnFields.purpose?.canEdit">
               </app-fy-select>

@@ -121,6 +121,10 @@ const routes: Routes = [
   {
     path: 'add_edit_per_diem',
     loadChildren: () => import('./add-edit-per-diem/add-edit-per-diem.module').then( m => m.AddEditPerDiemPageModule)
+  },
+  {
+    path: 'add_edit_mileage',
+    loadChildren: () => import('./add-edit-mileage/add-edit-mileage.module').then( m => m.AddEditMileagePageModule)
   }
 ];
 

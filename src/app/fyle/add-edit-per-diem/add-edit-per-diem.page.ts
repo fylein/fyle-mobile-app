@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, iif, of, combineLatest, from, throwError, noop } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { switchMap, map, startWith, tap, shareReplay, distinctUntilChanged, filter, take, finalize, catchError } from 'rxjs/operators';
+import { switchMap, map, startWith, tap, shareReplay, distinctUntilChanged, filter, take, finalize, catchError, concatMap } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators, FormArray, ValidationErrors, AbstractControl } from '@angular/forms';
 import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -59,6 +59,8 @@ export class AddEditPerDiemPage implements OnInit {
   isAmountCapped$: Observable<boolean>;
   isAmountDisabled$: Observable<boolean>;
   isCriticalPolicyViolated$: Observable<boolean>;
+  projectCategoryIds$: Observable<string[]>;
+  filteredCategories$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -173,8 +175,21 @@ export class AddEditPerDiemPage implements OnInit {
             && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()))
           .filter(category => category.enabled);
       }),
-      map(subCategories => subCategories.map(subCat => ({ label: subCat.displayName, value: subCat }))),
       shareReplay()
+    );
+  }
+
+  getProjectCategoryIds() {
+    return this.offlineService.getAllCategories().pipe(
+      map(categories => {
+
+        const perDiemCategories = categories
+          .filter(category => category.enabled)
+          .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
+          .map(category => category.id as string);
+
+        return perDiemCategories;
+      })
     );
   }
 
@@ -230,6 +245,26 @@ export class AddEditPerDiemPage implements OnInit {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       shareReplay()
     );
+  }
+
+  setupFilteredCategories(activeCategories$: Observable<any>) {
+    this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
+      startWith(this.fg.controls.project.value),
+      concatMap(project => {
+        return activeCategories$.pipe(
+          map(activeCategories =>
+            this.projectService.getAllowedOrgCategoryIds(project, activeCategories)));
+      }),
+      tap(console.log),
+      map(categories => categories.map(category => ({ label: category.displayName, value: category }))));
+
+    this.filteredCategories$.subscribe(categories => {
+      if (this.fg.value.sub_category
+        && this.fg.value.sub_category.id
+        && !categories.some(category => this.fg.value.sub_category && this.fg.value.sub_category.id === category.value.id)) {
+        this.fg.controls.sub_category.reset();
+      }
+    });
   }
 
   getCustomInputs() {
@@ -345,8 +380,11 @@ export class AddEditPerDiemPage implements OnInit {
     this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
+    this.setupFilteredCategories(this.subCategories$);
 
-    this.subCategories$.subscribe(subCategories => {
+    this.projectCategoryIds$ =  this.getProjectCategoryIds();
+
+    this.filteredCategories$.subscribe(subCategories => {
       if (!subCategories.length) {
         this.fg.controls.sub_category.clearValidators();
         this.fg.controls.sub_category.updateValueAndValidity();
@@ -527,7 +565,6 @@ export class AddEditPerDiemPage implements OnInit {
         })
       )
       .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]) => {
-        // console.log(perDiemRate, numDays, homeCurrency, exchangeRate);
         this.fg.controls.currencyObj.setValue({
           currency: homeCurrency,
           amount: perDiemRate.rate * numDays * exchangeRate,
@@ -570,7 +607,6 @@ export class AddEditPerDiemPage implements OnInit {
         return iif(() => etxn.tx.org_category_id,
           this.subCategories$.pipe(
             map(subCategories => subCategories
-              .map(res => res.value)
               .find(subCategory => subCategory.id === etxn.tx.org_category_id))
           ),
           of(null)
@@ -687,7 +723,6 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
     return forkJoin({
       etxn: etxn$,
@@ -724,10 +759,10 @@ export class AddEditPerDiemPage implements OnInit {
             skip_reimbursement: skipReimbursement,
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
-            currency: currencyObj.currency,
-            amount: currencyObj.amount,
-            orig_currency: currencyObj.orig_currency,
-            orig_amount: currencyObj.orig_amount,
+            currency: amountData.currency,
+            amount: amountData.amount,
+            orig_currency: amountData.orig_currency,
+            orig_amount: amountData.orig_amount,
             project_id: formValue.project && formValue.project.id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
@@ -751,7 +786,6 @@ export class AddEditPerDiemPage implements OnInit {
     // Prepare etxn object with just tx and ou object required for test call
     return from(this.authService.getEou()).pipe(
       switchMap(currentEou => {
-        console.log(etxn.ou);
         const policyETxn = {
           tx: cloneDeep(etxn.tx),
           ou: cloneDeep(etxn.ou)
@@ -1014,7 +1048,6 @@ export class AddEditPerDiemPage implements OnInit {
                   })
                 );
               } else {
-                console.log(err);
                 return throwError(err);
               }
             }),

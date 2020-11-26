@@ -118,8 +118,10 @@ export class ProjectsService {
 
   getAllowedOrgCategoryIds(project, activeCategoryList) {
     let categoryList = [];
+    console.log(project, activeCategoryList);
     if (project) {
       categoryList = activeCategoryList.filter((category) => {
+        console.log(project.project_org_category_ids.indexOf(category.id) > -1);
         return project.project_org_category_ids.indexOf(category.id) > -1;
       });
     } else {

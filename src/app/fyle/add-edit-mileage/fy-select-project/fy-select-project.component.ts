@@ -21,8 +21,8 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   private ngControl: NgControl;
 
   @Input() mandatory = false;
-  @Input() categoryIds: string[] = [];
   @Input() label = 'Project';
+  @Input() categoryIds: string[] = [];
 
   private innerValue;
   displayValue;

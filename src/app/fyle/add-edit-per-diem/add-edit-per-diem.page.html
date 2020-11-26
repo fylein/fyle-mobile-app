@@ -206,15 +206,21 @@
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                 <ng-container
                   *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (allowedProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
-                  <div class="add-edit-per-diem--internal-block">
-                    <app-fy-select-project [label]="etxn?.tx?.project_id ? 'Project' : 'Select Project'"
-                      [mandatory]="transactionMandatoyFields?.project" formControlName="project">
-                    </app-fy-select-project>
-                  </div>
-                  <div class="add-edit-per-diem--error"
-                    *ngIf="fg.controls.project.touched && !fg.controls.project.valid">
-                    Please select a project.
-                  </div>
+                  <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
+                      <div class="add-edit-per-diem--internal-block">
+                          <app-fy-select-project 
+                            [label]="etxn?.tx?.project_id ? 'Project' : 'Select Project'"
+                            [mandatory]="transactionMandatoyFields?.project" 
+                            formControlName="project" 
+                            [categoryIds]="projectCategoryIds">
+                          </app-fy-select-project>
+                        </div>
+                        <div class="add-edit-per-diem--error"
+                          *ngIf="fg.controls.project.touched && !fg.controls.project.valid">
+                          Please select a project.
+                        </div>
+                  </ng-container>
+                  
                 </ng-container>
               </ng-container>
 
@@ -226,7 +232,7 @@
                 </mat-checkbox>
               </div>
 
-              <ng-container *ngIf="subCategories$|async as subCategories">
+              <ng-container *ngIf="filteredCategories$|async as subCategories">
                 <ng-container *ngIf="subCategories.length > 0">
                   <div class="add-edit-per-diem--internal-block">
                     <app-fy-select formControlName="sub_category"
@@ -371,4 +377,4 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-</ion-footer>yo
+</ion-footer>

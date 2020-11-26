@@ -463,4 +463,12 @@ export class TransactionService {
   review(txnId: string) {
     return this.apiService.post('/transactions/' + txnId + '/review');
   }
+
+  setDefaultVehicleType(vehicleType) {
+    return from(this.storageService.set('vehicle_preference', vehicleType));
+  }
+
+  getDefaultVehicleType() {
+    return from(this.storageService.get('vehicle_preference'));
+  }
 }
