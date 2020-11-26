@@ -125,6 +125,10 @@ const routes: Routes = [
   {
     path: 'add_edit_mileage',
     loadChildren: () => import('./add-edit-mileage/add-edit-mileage.module').then( m => m.AddEditMileagePageModule)
+  },
+  {
+    path: 'add_edit_advance_request',
+    loadChildren: () => import('./add-edit-advance-request/add-edit-advance-request.module').then( m => m.AddEditAdvanceRequestPageModule)
   }
 ];
 
