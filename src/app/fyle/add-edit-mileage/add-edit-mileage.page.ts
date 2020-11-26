@@ -556,16 +556,38 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    this.rate$ = iif(() => this.mode === 'edit', this.etxn$.pipe(map(etxn => etxn.tx.mileage_rate)), this.fg.valueChanges.pipe(
-      map(formValue => formValue.mileage_vehicle_type),
-      switchMap((vehicleType) => {
-        return this.offlineService.getOrgSettings().pipe(
-          map(orgSettings => {
-            return orgSettings.mileage[vehicleType];
-          })
-        );
-      })
-    )
+    this.rate$ = iif(() => this.mode === 'edit',
+      // this.etxn$.pipe(
+      //   map(etxn => etxn.tx.mileage_rate)
+      // )
+      this.fg.valueChanges.pipe(
+        map(formValue => formValue.mileage_vehicle_type),
+        switchMap((vehicleType) => {
+          return forkJoin({
+            orgSettings: this.offlineService.getOrgSettings(),
+            etxn: this.etxn$
+          }).pipe(
+            map(({ orgSettings, etxn }) => {
+              if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === vehicleType) {
+                return etxn.tx.mileage_rate;
+              } else {
+                return orgSettings.mileage[vehicleType];
+              }
+            })
+          );
+        })
+      )
+      ,
+      this.fg.valueChanges.pipe(
+        map(formValue => formValue.mileage_vehicle_type),
+        switchMap((vehicleType) => {
+          return this.offlineService.getOrgSettings().pipe(
+            map(orgSettings => {
+              return orgSettings.mileage[vehicleType];
+            })
+          );
+        })
+      )
     );
 
     this.amount$ = combineLatest(

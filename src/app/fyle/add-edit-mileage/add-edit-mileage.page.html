@@ -123,7 +123,17 @@
                 <div class="add-edit-mileage--text-label"
                   [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}">
                   {{ etxn.tx.distance ? txnFields?.distance.title : 'Enter ' + txnFields?.distance.title }}
-                  ({{ etxn.tx.distance_unit }})
+                  (
+                    <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
+                        <span>{{ etxn.tx.distance_unit }}</span>
+                    </ng-container>
+    
+                    <ng-template #defaultDistanceUnit>
+                      <ng-container *ngIf="mileageConfig$|async as mileageConfig">
+                          <span>{{ mileageConfig.unit }}</span>
+                      </ng-container>
+                    </ng-template>
+                  )
                   <div>
                     *
                   </div>

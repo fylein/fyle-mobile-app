@@ -12,7 +12,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
-import { StatusService } from 'src/app/services/status.service';
+import { StatusService } from 'src/app/core/services/status.service';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 
 @Component({
@@ -129,7 +129,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           let policyViolationActionDescription = '';
           return policyViolations$.pipe(
             map(policyViolations => {
-              policyViolationActionDescription = policyViolations?.advance_request_desired_state?.action_description;
+              policyViolationActionDescription = policyViolations.advance_request_desired_state.action_description;
               return this.advanceRequestPolicyService.getPolicyRules(policyViolations);
             }),
             switchMap((policyRules: string[]) => {
