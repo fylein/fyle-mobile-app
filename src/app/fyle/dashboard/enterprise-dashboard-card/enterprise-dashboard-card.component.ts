@@ -267,9 +267,9 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   async expandCard() {
     await this.loaderService.showLoader();
     this.expandedCard = this.item && this.item.title ? this.item.title : '';
-    this.dashboardList = this.dashboardList.map((dashbboarditem) => {
-      dashbboarditem.isCollapsed = true;
-      return dashbboarditem;
+    this.dashboardList = this.dashboardList.map((dashboardItem) => {
+      dashboardItem.isCollapsed = true;
+      return dashboardItem;
     });
 
     this.item.isCollapsed = false;
@@ -283,7 +283,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         this.detailedStats = res;
         this.mobileEventService.dashboardCardExpanded();
         this.dashboardService.setDashBoardState(this.item.title);
-      })
+      });
     }
   }
 
@@ -344,9 +344,9 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     if (this.dashboardList && this.dashboardList[this.index]) {
       // await this.loaderService.showLoader();
       this.dashboardList[this.index].isLoading = true;
-      var title = this.dashboardList[this.index].title.replace(' ', '_');
+      const title = this.dashboardList[this.index].title.replace(' ', '_');
 
-      var statsMap = {
+      const statsMap = {
         expenses: this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all')),
         reports: this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('pending')),
         advances: this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('pending')),
@@ -354,21 +354,20 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' })
       }
 
-      var stats$ = statsMap[title].pipe(
+      const stats$ = statsMap[title].pipe(
         finalize(async () => {
           //await this.loaderService.hideLoader();
         })
-      )
+      );
 
       stats$.subscribe((res) => {
         this.stats = res;
         this.getNeedAttentionCount(this.stats);
-      })
+      });
     }
   }
 
   ngOnInit() {
-    console.log("----coming inside card----");
     this.item = this.dashboardList[this.index];
     this.getStats();
   }

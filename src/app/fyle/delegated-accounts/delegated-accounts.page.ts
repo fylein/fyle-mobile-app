@@ -23,7 +23,6 @@ export class DelegatedAccountsPage implements OnInit {
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
   ) { }
-  
 
   switchToDelegatee(eou) {
     from(this.loaderService.showLoader('Switching Account')).pipe(
