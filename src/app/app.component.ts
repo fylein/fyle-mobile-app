@@ -265,7 +265,6 @@ export class AppComponent implements OnInit {
       }, 500);
     });
 
-
     this.userEventService.onLogout(() => {
       this.router.navigate(['/', 'auth', 'sign-in']);
     });
