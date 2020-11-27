@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 import { Approval } from '../models/approval.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { TimezoneService } from 'src/app/services/timezone.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';

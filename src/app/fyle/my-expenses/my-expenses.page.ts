@@ -15,8 +15,8 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
-import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -454,6 +454,28 @@ export class MyExpensesPage implements OnInit {
       ]
     });
     await alert.present();
+  }
+
+  goToTransaction(expense) {
+    let category;
+
+    if (expense.tx_org_category) {
+      category = expense.tx_org_category.toLowerCase();
+    }
+    //TODO: Leave for later
+    // if (category === 'activity') {
+    //   showCannotEditActivityDialog();
+
+    //   return;
+    // }
+
+    if (category === 'mileage') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.tx_id }]);
+    } else if (category === 'per diem') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.tx_id }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id }]);
+    }
   }
 
   onAddTransactionToNewReport(event, transactionId) {

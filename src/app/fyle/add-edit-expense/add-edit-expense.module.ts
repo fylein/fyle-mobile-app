@@ -22,6 +22,8 @@ import { FySelectVendorComponent } from './fy-select-vendor/fy-select-vendor.com
 import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
+import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 
 
 @NgModule({
@@ -50,7 +52,9 @@ import { SplitExpensePopoverComponent } from './split-expense-popover/split-expe
     FySelectModalComponent,
     FySelectVendorComponent,
     FySelectVendorModalComponent,
-    SplitExpensePopoverComponent
+    SplitExpensePopoverComponent,
+    CriticalPolicyViolationComponent,
+    PolicyViolationComponent
   ]
 })
 export class AddEditExpensePageModule { }

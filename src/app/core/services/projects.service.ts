@@ -3,6 +3,7 @@ import { ApiService } from './api.service';
 import { ApiV2Service } from './api-v2.service';
 import { map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +43,7 @@ export class ProjectsService {
     );
   }
 
+  @Cacheable()
   getByParamsUnformatted(projectParams:
     Partial<{
       orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds, isIndividualProjectEnabled
@@ -86,6 +88,7 @@ export class ProjectsService {
     );
   }
 
+  @Cacheable()
   getByParams(queryParams: Partial<{
     orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds, isIndividualProjectEnabled
   }>) {
@@ -115,8 +118,10 @@ export class ProjectsService {
 
   getAllowedOrgCategoryIds(project, activeCategoryList) {
     let categoryList = [];
+    console.log(project, activeCategoryList);
     if (project) {
       categoryList = activeCategoryList.filter((category) => {
+        console.log(project.project_org_category_ids.indexOf(category.id) > -1);
         return project.project_org_category_ids.indexOf(category.id) > -1;
       });
     } else {

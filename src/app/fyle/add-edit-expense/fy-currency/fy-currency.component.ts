@@ -5,6 +5,7 @@ import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
+import { isEqual } from 'lodash';
 
 @Component({
   selector: 'app-fy-currency',
@@ -80,18 +81,18 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         value.amount = formValue.amount && +formValue.amount;
       }
 
-      if (!this.checkIfSameValue(value, this.innerValue)) {
+      if (!isEqual(value, this.innerValue)) {
         this.value = value;
       }
     });
   }
 
-  checkIfSameValue(amount1, amount2) {
-    return amount1 && amount2 && amount1.amount === amount2.amount &&
-      amount1.currency === amount2.currency &&
-      amount1.orig_amount === amount2.orig_amount &&
-      amount1.orig_currency === amount2.orig_currency;
-  }
+  // checkIfSameValue(amount1, amount2) {
+  //   return amount1 && amount2 && amount1.amount === amount2.amount &&
+  //     amount1.currency === amount2.currency &&
+  //     amount1.orig_amount === amount2.orig_amount &&
+  //     amount1.orig_currency === amount2.orig_currency;
+  // }
 
   convertInnerValueToFormValue(innerVal) {
     if (innerVal && innerVal.orig_currency && innerVal.orig_currency !== this.homeCurrency) {

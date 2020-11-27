@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
 import { AgmGeocoder } from '@agm/core';
-import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize } from 'rxjs/operators';
 import { Plugins } from '@capacitor/core';
 import { ModalController } from '@ionic/angular';
 import { Observable, fromEvent, of, from, forkJoin } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 const { Geolocation } = Plugins;
 @Component({
@@ -24,7 +25,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private locationService: LocationService,
-    private authService: AuthService
+    private authService: AuthService,
+    private loaderService: LoaderService
   ) { }
 
   ngAfterViewInit(): void {
@@ -38,11 +40,15 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
           currentLocation: from(Geolocation.getCurrentPosition())
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
-            return this.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
+            return from(this.loaderService.showLoader()).pipe(
+              switchMap(() => {
+                return this.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
+              }),
+              finalize(() => from(this.loaderService.hideLoader()))
+            );
           })
         );
-      }),
-      tap(console.log)
+      })
     );
 
     this.cdr.detectChanges();
@@ -94,7 +100,12 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation() {
-    from(Geolocation.getCurrentPosition()).pipe(
+
+
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return Geolocation.getCurrentPosition();
+      }),
       switchMap((coordinates) => {
         return this.agmGeocode.geocode({
           location: {
@@ -103,7 +114,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
           }
         });
       }),
-      map(this.formatGeocodeResponse)
+      map(this.formatGeocodeResponse),
+      finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe((selection) => {
       this.modalController.dismiss({
         selection
