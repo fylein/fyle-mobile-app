@@ -5,11 +5,14 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
-import { map, tap, mergeMap } from 'rxjs/operators';
+import { map, tap, mergeMap, startWith, concatMap } from 'rxjs/operators';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ModalController } from '@ionic/angular';
-import { OtherRequestsPage } from './other-requests/other-requests.page';
+import { OtherRequestsComponent } from './other-requests/other-requests.component';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -33,6 +36,7 @@ export class MyAddEditTripPage implements OnInit {
   isHotelRequested$: Observable<boolean>;
   isAdvanceRequested$: Observable<boolean>;
   travelAgents$: Observable<any>;
+  customInputs$: Observable<any>;
 
   constructor(
     private router: Router,
@@ -41,7 +45,9 @@ export class MyAddEditTripPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private orgUserService: OrgUserService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private customInputsService: CustomInputsService,
+    private customFieldsService: CustomFieldsService
   ) { }
 
   fg: FormGroup;
@@ -100,10 +106,17 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   addDefaultCity() {
+    let toCity;
+    if (this.cities.value.length >= 1) {
+      toCity = this.cities.controls[this.cities.value.length - 1].value.toCity;
+      this.minDate = this.cities.controls[this.cities.value.length - 1].value.departDate;
+    }
+
     const intialCity = this.formBuilder.group({
-      fromCity: [null, Validators.required],
+      fromCity: [toCity, Validators.required],
       toCity: [null, Validators.required],
-      departDate: [null, Validators.required]
+      departDate: [null, Validators.required],
+      returnDate: [null, Validators.required]
     });
     this.cities.push(intialCity);
   }
@@ -117,44 +130,17 @@ export class MyAddEditTripPage implements OnInit {
     this.addDefaultCity();
   }
 
-  getRequestedBookingData() {
-    // return forkJoin({
-    //   isHotelRequested: this.isHotelRequested$,
-    //   isAdvanceRequested: this.isAdvanceRequested$,
-    //   isTransportationsRequested: this.isTransportationRequested$
-    // }).pipe(
-    //   map(res => {
-    //     return res;
-    //   })
-    // );
-    // return forkJoin([
-    //   this.isHotelRequested$,
-    //   this.isAdvanceRequested$,
-    //   this.isTransportationRequested$
-    // ]).pipe(
-    //   mergeMap(res => {
-    //     return res;
-    //   })
-    // );
-    const finalObs = concat(this.isHotelRequested$, this.isAdvanceRequested$, this.isTransportationRequested$);
-    console.log('finalObs ->', finalObs);
-    return finalObs;
-  }
-
   async openModal() {
 
-    const finalObs = concat(this.isHotelRequested$, this.isAdvanceRequested$, this.isTransportationRequested$);
-    // console.log('finalObs ->', finalObs);
-    finalObs.subscribe(res => {
-      console.log('res ->', res);
-    });
-
     const modal = await this.modalController.create({
-      component: OtherRequestsPage,
+      component: OtherRequestsComponent,
       componentProps: {
         otherRequests: [
-          { test: 'yo boies' }
-        ]
+          { hotel: this.fg.get('hotelRequest').value || false },
+          { advance: this.fg.get('advanceRequest').value || false },
+          { transportation: this.fg.get('transportationRequest').value || false }
+        ],
+        fgValues: this.fg.value
       }
     });
 
@@ -198,6 +184,40 @@ export class MyAddEditTripPage implements OnInit {
       advanceRequest: new FormControl('', [])
     });
 
+    this.customInputs$ = this.fg.controls.category.valueChanges.pipe(
+      startWith({}),
+      concatMap((category) => {
+        const formValue = this.fg.value;
+        return this.customInputsService.getAll(true).pipe(
+          map(customFields => {
+            // TODO: Convert custom properties to get generated from formValue
+            return this.customFieldsService.standardizeCustomFields([],
+              this.customInputsService.filterByCategory(customFields, category && category.id));
+          })
+        );
+      }),
+      map(customFields => {
+        return customFields.map(customField => {
+          if (customField.options) {
+            customField.options = customField.options.map(option => ({ label: option, value: option }));
+          }
+          return customField;
+        });
+      }),
+      map((customFields: any[]) => {
+        const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+        customFieldsFormArray.clear();
+        for (const customField of customFields) {
+          customFieldsFormArray.push(
+            this.formBuilder.group({
+              value: [, customField.mandatory && Validators.required]
+            })
+          );
+        }
+        return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+      })
+    );
+
     this.intializeDefaults();
 
     this.tripDate = {
@@ -210,11 +230,11 @@ export class MyAddEditTripPage implements OnInit {
     this.hotelDate = {
       checkInMin: this.dateService.addDaysToDate(new Date(), -1),
       checkInMax: this.dateService.addDaysToDate(new Date(), -1),
-      checkOutMin: this.dateService.addDaysToDate(new Date(), -1),
+      checkOutMin: this.dateService.addDaysToDate(new Date(), -1)
     };
 
-    this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
-    this.maxDate = moment(this.dateService.addDaysToDate(this.today, 1)).format('y-MM-D');
+    this.minDate = this.fg.controls.startDate.value;
+    this.maxDate = this.fg.controls.endDate.value;
 
     if (id) {
       // promises.tripRequest = TripRequestsService.getETripRequest(id);

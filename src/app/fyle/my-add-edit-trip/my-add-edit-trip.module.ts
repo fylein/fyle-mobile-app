@@ -9,6 +9,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { FySelectProjectComponent } from '../add-edit-expense/fy-select-project/fy-select-project.component';
 import { SharedModule } from '../../shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTabsModule } from '@angular/material/tabs';
+import { OtherRequestsComponent } from './other-requests/other-requests.component';
 
 @NgModule({
   imports: [
@@ -20,11 +22,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatIconModule,
     MatSelectModule,
     SharedModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatTabsModule,
   ],
   declarations: [
     MyAddEditTripPage,
-    FySelectProjectComponent
+    FySelectProjectComponent,
+    OtherRequestsComponent
+  ],
+  exports: [
+    MatTabsModule
   ]
 })
 export class MyAddEditTripPageModule {}

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -63,6 +63,7 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     CommonModule,
     IonicModule,
     FormsModule,
+    ReactiveFormsModule,
     MatInputModule,
     MatFormFieldModule,
     MatIconModule,

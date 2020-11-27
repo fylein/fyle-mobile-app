@@ -1,0 +1,243 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Trip Request</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <mat-icon>keyboard_backspace</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <form [formGroup]="otherDetailsForm">
+    <div class="other-details--container">
+      <mat-tab-group>
+        <!-- Hote Tab starts -->
+        <mat-tab *ngIf="otherRequests[0].hotel" label="Hotel">
+          <ng-container formArrayName="hotelDetails">
+            <div *ngFor="let item of hotelDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
+              <div class="other-details--wrapper-title">
+                <strong>
+                  <p *ngIf="!(fgValues.cities[i].toCity.city)">
+                      City {{i + 1}}
+                  </p>
+                  <p *ngIf="fgValues.cities[i].toCity.city">Hotel in 
+                    {{ fgValues.cities[i].toCity.city }}
+                    on 
+                    {{ fgValues.cities[i].departDate | date: 'dd MMM yyyy' }}
+                    <span>
+                      to 
+                      {{ otherDetailsForm.value.hotelDetails[i].checkOutDt | date: 'dd MMM yyyy' }}
+                    </span>
+                  </p>
+                </strong>
+              </div>
+              <div class="other-details--element-container">
+                <div class="other-details--special-elements">
+                  <label>
+                    <mat-checkbox color="primary" class="other-details--need-checkbox" formControlName="needBooking"></mat-checkbox>
+                    Need Booking
+                  </label>
+                </div>
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                      check in date
+                  </div>
+                  <input class="other-details--date-input" matInput type="date" formControlName="checkInDt" 
+                  (keydown)="$event.preventDefault()">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    check out date
+                  </div>
+                  <input class="other-details--date-input" matInput type="date" formControlName="checkOutDt" 
+                  (keydown)="$event.preventDefault()">
+                </div>
+                
+                <div class="other-details--text">
+                  <app-fy-location
+                    [label]="'locality'"
+                    formControlName="location">
+                  </app-fy-location>
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Rooms
+                  </div>
+                  <input class="other-details--date-input" type="number" formControlName="rooms">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Currency
+                  </div>
+                  <!-- <app-fy-currency formControlName="currency" [homeCurrency]="homeCurrency$|async"></app-fy-currency> -->
+                  <input class="other-details--text-input" type="text" formControlName="currency">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Amount
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="amount">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Notes
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="notes">
+                </div>
+                <!-- Add Custom Fields here -->
+              </div>
+            </div>
+          </ng-container>
+        </mat-tab>
+        <!-- Hote Tab over -->
+        
+        <!-- Advance Tab starts -->
+        <mat-tab *ngIf="otherRequests[1].advance" label="Advance">
+          <ng-container formArrayName="advanceDetails">
+            <div *ngFor="let item of advanceDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
+              <div class="other-details--wrapper-title">
+                <strong>
+                  <p>Advance {{i + 1}}</p>
+                </strong>
+              </div>
+              <div class="other-details--element-container">
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Currency
+                  </div>
+                  <!-- <app-fy-currency formControlName="currency" [homeCurrency]="homeCurrency$|async"></app-fy-currency> -->
+                  <input class="other-details--text-input" type="text" formControlName="currency">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Amount
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="amount">
+                </div>
+
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Notes
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="notes">
+                </div>
+                  
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Notes
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="notes">
+                </div>
+                <!-- Add Custom Fields here -->
+              </div>
+            </div>
+
+            <div (click)="addAdvance()" class="other-details--add-advance">
+              <mat-icon class="other-details--add-advance-add-icon">add_circle</mat-icon> Add Advance
+            </div>
+
+          </ng-container>
+        </mat-tab>
+        <!-- Advance Tab over -->
+        
+        <!-- Transportation Tab starts -->
+        <mat-tab *ngIf="otherRequests[2].transportation" label="Transportation">
+          <ng-container formArrayName="transportDetails">
+            <div *ngFor="let item of transportDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
+              <div class="other-details--wrapper-title">
+                <!-- Big Hack, no other option, please try this at your own risk -->
+                <strong>
+                  <span *ngIf="fgValues.tripType === 'ROUND'">
+                    <p>
+                      {{ otherDetailsForm.value.transportDetails[i].fromCity.city }}
+                      to 
+                      {{ otherDetailsForm.value.transportDetails[i].toCity.city }}
+                      on 
+                      <span *ngIf="i === 0">
+                        {{ fgValues.cities[i].departDate | date: 'dd MMM yyyy' }}
+                      </span>
+                      <span *ngIf="i === 1">
+                        {{ fgValues.cities[0].returnDate | date: 'dd MMM yyyy' }}
+                      </span>
+                    </p>
+                  </span>
+                  <span *ngIf="fgValues.tripType !== 'ROUND'">
+                    <p *ngIf="!(fgValues.cities[i].fromCity.city && fgValues.cities[i].toCity.city)">
+                      City {{i + 1}}
+                    </p>
+                    <p *ngIf="fgValues.cities[i].fromCity.city && fgValues.cities[i].toCity.city">
+                      {{ fgValues.cities[i].fromCity.city }}
+                      to 
+                      {{ fgValues.cities[i].toCity.city }}
+                      on 
+                      {{ fgValues.cities[i].departDate | date: 'dd MMM yyyy' }}
+                    </p>
+                  </span>
+                </strong>
+                <!-- Big Hack over, please try this at your own risk -->
+              </div>
+              <div class="other-details--element-container">
+                <div class="other-details--special-elements">
+                  <label>
+                    <mat-checkbox color="primary" class="other-details--need-checkbox" formControlName="needBooking"></mat-checkbox>
+                    Need Booking
+                  </label>
+                </div>
+                
+                <div class="other-details--text">
+                  <app-fy-select [mandatory]="true" [label]="'Select Transportation Mode'" formControlName="transportMode" 
+                  [options]="transportationMode$|async" [nullOption]="false"></app-fy-select>
+                </div>
+    
+                <div class="other-details--text">
+                  <app-fy-select [mandatory]="false" [label]="'Select Preferred Timing'" formControlName="transportTiming" 
+                  [options]="preferredTransportationTiming$|async" [nullOption]="false"></app-fy-select>
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Currency
+                  </div>
+                  <ng-container *ngIf="homeCurrency$|async as homeCurrency">
+                    <!-- user app-fy-currency from shared/components -->
+                    <!-- <app-fy-currency formControlName="currency" [homeCurrency]="homeCurrency"></app-fy-currency> -->
+                    <input class="other-details--text-input" type="text" formControlName="currency">
+                  </ng-container>
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Amount
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="amount">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Notes
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="notes">
+                </div>
+                <!-- Add Custom Fields here -->
+              </div>
+            </div>
+          </ng-container>
+        </mat-tab>
+        <!-- Transportation Tab over -->
+      </mat-tab-group>
+    </div>
+    <div class="other-details--cta-block">
+      <div class="other-details--cta-container">
+        <ion-button class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
+      </div>
+    </div>
+  </form>
+</ion-content>

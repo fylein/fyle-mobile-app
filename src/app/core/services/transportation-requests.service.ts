@@ -9,11 +9,20 @@ export class TransportationRequestsService {
 
   getTransportationPreferredTiming() {
     return [
-      { id: 'NO_PREFERENCE', name: 'Any time' },
-      { id: 'MIDNIGHT_TO_SIX_AM', name: 'Before 6 am' },
-      { id: 'SIX_AM_TO_NOON', name: '6 am to 12 pm' },
-      { id: 'NOON_TO_SIX_PM', name: '12 pm to 6 pm' },
-      { id: 'SIX_PM_TO_MIDNIGHT', name: 'After 6 pm' }
+      { id: 'NO_PREFERENCE', label: 'Any time' },
+      { id: 'MIDNIGHT_TO_SIX_AM', label: 'Before 6 am' },
+      { id: 'SIX_AM_TO_NOON', label: '6 am to 12 pm' },
+      { id: 'NOON_TO_SIX_PM', label: '12 pm to 6 pm' },
+      { id: 'SIX_PM_TO_MIDNIGHT', label: 'After 6 pm' }
+    ];
+  }
+
+  getTransportationModes() {
+    return [
+      {id: 'FLIGHT', label: 'FLIGHT'},
+      {id: 'TRAIN', label: 'TRAIN'},
+      {id: 'BUS', label: 'BUS'},
+      {id: 'TAXI', label: 'TAXI'}
     ];
   }
 

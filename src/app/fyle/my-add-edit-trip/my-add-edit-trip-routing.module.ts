@@ -7,10 +7,6 @@ const routes: Routes = [
   {
     path: '',
     component: MyAddEditTripPage
-  },
-  {
-    path: 'other-requests',
-    loadChildren: () => import('./other-requests/other-requests.module').then( m => m.OtherRequestsPageModule)
   }
 ];
 

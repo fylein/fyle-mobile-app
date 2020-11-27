@@ -71,7 +71,7 @@
               End date <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
             </div>
             <input class="add-edit-trip--date-input" matInput type="date" formControlName="endDate"
-            (keydown)="$event.preventDefault()" [min]="minDate" [max]="today">
+            (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
           </div>
           
           <div class="add-edit-trip--text">
@@ -109,6 +109,13 @@
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="departDate" 
                     (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
                   </div>
+                  <div class="add-edit-trip--text" *ngIf="fg.controls.tripType.value === 'ROUND'">
+                    <div class="add-edit-trip--text-label">
+                      Select Return Date
+                    </div>
+                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="returnDate" 
+                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+                  </div>
               </div>
             </div>
     
@@ -124,7 +131,7 @@
           <!-- show if travel agent length > 0 -->
           <div class="add-edit-trip--text">
             <app-fy-select [mandatory]="true" [label]="'Select Agent'" formControlName="travelAgent"
-            [options]="this.travelAgents$|async" [nullOption]="false"></app-fy-select>
+            [options]="travelAgents$|async" [nullOption]="false"></app-fy-select>
           </div>
 
           <div class="add-edit-trip--text">
@@ -147,7 +154,6 @@
         </p>
       </div>
       <!-- Aditional information block ends -->
-
       <div>
         <div class="add-edit-trip--other-requests">
           <label>
