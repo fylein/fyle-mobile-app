@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, of, iif, forkJoin, from, combineLatest, throwError } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { concatMap, switchMap, map, startWith, shareReplay, distinctUntilChanged, take, tap } from 'rxjs/operators';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -81,7 +81,8 @@ export class AddEditExpensePage implements OnInit {
     private dataTransformService: DataTransformService,
     private policyService: PolicyService,
     private transactionOutboxService: TransactionsOutboxService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private router: Router
   ) { }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -153,8 +154,15 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  openSplitExpenseModal(type) {
-    console.log(type);
+  openSplitExpenseModal(splitType) {
+    console.log(splitType);
+    this.router.navigate(['/', 'enterprise', 'split_expense', {
+      splitType,
+      // txn: vm.etxn.tx,
+      currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
+      // fileObjs: vm.etxn.dataUrls,
+      // selectedCCCTransaction: vm.selectedCCCTransaction
+    }]);
   }
 
   async splitExpense() {

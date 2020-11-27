@@ -1,0 +1,115 @@
+$item-border-color: #e0e0e0;
+$menu-botton-color: #000;
+$background-color: #fff;
+
+.split-expense {
+  &--header {
+    background-color: $background-color;
+    height: 80px !important;
+    border-bottom: 1px solid $item-border-color;
+    // &-toolbar {
+    //   border-bottom: 1px solid $item-border-color;
+    // }
+
+    &-closebutton{
+      height: 65px;
+    }
+
+    &-title {
+      color: #4a4a4a;
+      font-size: 20px;
+      font-weight: 700;
+    }
+  }
+
+  &--container {
+    padding: 0 16px 16px;
+  }
+
+  &--card {
+    padding: 16px;
+    margin-top: 24px;
+    border-radius: 4px;
+    box-shadow: 0 5px 28px -15px #838fa1 !important;
+  }
+
+  &--card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  &--index {
+    font-size: 16px;
+    font-weight: 500;
+    color: #4a4a4a;
+  }
+
+  &--remove-card-button {
+    transition: opacity 0.1s;
+    padding: 0 6px;
+    min-width: initial;
+    border-color: transparent;
+    background: none;
+  }
+
+  &--amount-percentage {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  &--item {
+    width: 48%;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 16px 0;
+    background: #fff;
+    border: 0;
+    line-height: 1;
+  }
+
+  &--label {
+    width: 25%;
+    margin: 0 8px 0 0;
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  &--input {
+    width: 65%;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    height: 24px;
+    border: 0;
+  }
+
+
+  &--add-more {
+    justify-content: center;
+    margin-top: 16px;
+    border-radius: 6px;
+    box-shadow: 0 5px 28px -15px #838fa1 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &--add-more-button {
+    transition: opacity 0.1s;
+    padding: 0 6px;
+    min-width: initial;
+    border-color: transparent;
+    background: none;
+  }
+
+  &--add-more-label {
+    color: #3a94f6;
+    font-size: 16px;
+    text-align: center !important;
+  }
+
+
+
+}

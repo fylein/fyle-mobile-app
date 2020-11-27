@@ -1,0 +1,51 @@
+<ion-header class="ion-no-border">
+  <div class="split-expense--header">
+    <ion-toolbar class="ion-no-border split-expense--header-toolbar">
+      <ion-buttons mode="md" slot="end">
+        <ion-button class="split-expense--header-closebutton" (click)="goBack()">
+          <mat-icon>close</mat-icon>
+        </ion-button>
+      </ion-buttons>
+  
+      <ion-title class="split-expense--header-title" mode="md">Split Expense</ion-title>
+    </ion-toolbar>
+  </div>
+</ion-header>
+
+<ion-content>
+  <div class="split-expense--container">
+    <div class="split-expense--card" *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i">
+
+      <div class="split-expense--card-header">
+        <p class="split-expense--index">Split {{ i + 1 }}</p>
+        <button type="button" class="split-expense--remove-card-button" *ngIf="splitExpensesFormArray.controls.length > 2" (click)="remove(i)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <ng-container [formGroup]="splitExpenseForm">
+        <div class="split-expense--amount-percentage">
+          <label class="split-expense--item">
+            <span class="split-expense--label">*INR</span>
+            <input type="number" class="split-expense--input" formControlName="amount">
+          </label>
+  
+          <label class="split-expense--item">
+            <span class="split-expense--label">%</span>
+            <input type="number" class="split-expense--input" formControlName="percentage">
+          </label>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 10">
+      <button type="button" class="split-expense--add-more-button" (click)="add()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <p class="text-center split-expense--add-more-label">Split More</p>
+    </div>
+
+  </div>
+  
+
+</ion-content>
