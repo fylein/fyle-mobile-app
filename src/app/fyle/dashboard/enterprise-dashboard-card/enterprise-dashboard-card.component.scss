@@ -65,8 +65,10 @@ $chevron-fill: #757575;
   }
 
   &--icon-curve {
+    margin-right: -14px;
+    fill: #f7b74a;
+    width: 53px;
     height: 20px;
-    margin-right: -2px;
     fill: $curve-fill;
   }
 

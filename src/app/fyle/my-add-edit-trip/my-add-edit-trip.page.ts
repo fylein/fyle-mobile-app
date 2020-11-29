@@ -12,7 +12,7 @@ import { ModalController } from '@ionic/angular';
 import { OtherRequestsComponent } from './other-requests/other-requests.component';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -36,7 +36,7 @@ export class MyAddEditTripPage implements OnInit {
   isHotelRequested$: Observable<boolean>;
   isAdvanceRequested$: Observable<boolean>;
   travelAgents$: Observable<any>;
-  customInputs$: Observable<any>;
+  customFields$: Observable<any>;
 
   constructor(
     private router: Router,
@@ -46,8 +46,7 @@ export class MyAddEditTripPage implements OnInit {
     private formBuilder: FormBuilder,
     private orgUserService: OrgUserService,
     private modalController: ModalController,
-    private customInputsService: CustomInputsService,
-    private customFieldsService: CustomFieldsService
+    private tripRequestCustomFieldsService: TripRequestCustomFieldsService
   ) { }
 
   fg: FormGroup;
@@ -64,7 +63,7 @@ export class MyAddEditTripPage implements OnInit {
     this.travellerDetails.push(intialTraveler);
   }
 
-  remove(i) {
+  removeTraveller(i) {
     this.travellerDetails.removeAt(i);
   }
 
@@ -181,40 +180,37 @@ export class MyAddEditTripPage implements OnInit {
       notes: new FormControl('', []),
       transportationRequest: new FormControl('', []),
       hotelRequest: new FormControl('', []),
-      advanceRequest: new FormControl('', [])
+      advanceRequest: new FormControl('', []),
+      custom_field_values: new FormArray([])
     });
 
-    this.customInputs$ = this.fg.controls.category.valueChanges.pipe(
-      startWith({}),
-      concatMap((category) => {
-        const formValue = this.fg.value;
-        return this.customInputsService.getAll(true).pipe(
-          map(customFields => {
-            // TODO: Convert custom properties to get generated from formValue
-            return this.customFieldsService.standardizeCustomFields([],
-              this.customInputsService.filterByCategory(customFields, category && category.id));
-          })
-        );
-      }),
-      map(customFields => {
-        return customFields.map(customField => {
-          if (customField.options) {
-            customField.options = customField.options.map(option => ({ label: option, value: option }));
-          }
-          return customField;
-        });
-      }),
+    this.customFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
       map((customFields: any[]) => {
-        const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+        customFields = customFields.filter(field => {
+          return field.request_type === 'TRIP_REQUEST';
+        });
+        const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
         for (const customField of customFields) {
           customFieldsFormArray.push(
             this.formBuilder.group({
+              id: customField.id,
+              name: customField.input_name,
               value: [, customField.mandatory && Validators.required]
             })
           );
         }
-        return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+
+        return customFields.map((customField, i) => {
+          customField.control = customFieldsFormArray.at(i);
+
+          if (customField.options) {
+            customField.options = customField.options.map(option => {
+              return { label: option, value: option };
+            });
+          }
+          return customField;
+        });
       })
     );
 

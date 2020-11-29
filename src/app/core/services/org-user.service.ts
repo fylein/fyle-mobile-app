@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { range, of, Observable } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { DataTransformService } from './data-transform.service';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +46,7 @@ export class OrgUserService {
     );
   }
 
+  @Cacheable()
   getAllCompanyEouc() {
     return this.getCompanyEouCount().pipe(
       switchMap(res => {

@@ -3,7 +3,7 @@ import { Observable, fromEvent } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { isEqual } from 'lodash';
-import { VendorService } from 'src/app/services/vendor.service';
+import { VendorService } from 'src/app/core/services/vendor.service';
 @Component({
   selector: 'app-fy-select-vendor-modal',
   templateUrl: './fy-select-vendor-modal.component.html',

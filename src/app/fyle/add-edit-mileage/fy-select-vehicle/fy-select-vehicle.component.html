@@ -1,0 +1,28 @@
+<div class="fy-select-vehicle">
+  <div class="fy-select-vehicle--label">
+    {{label}}
+    <span *ngIf="mandatory">
+      *
+    </span>
+  </div>
+  <div class="fy-select-vehicle--selectors">
+    <div class="fy-select-vehicle--selector" [ngClass]="{ 'fy-select-vehicle--selector__selected' : value === 'two_wheeler'}" (click)="selectType('two_wheeler')"
+      *ngIf="mileageConfig.two_wheeler || value === 'two_wheeler'">
+      <mat-icon>
+        two_wheeler
+      </mat-icon>
+    </div>
+    <div class="fy-select-vehicle--selector" [ngClass]="{ 'fy-select-vehicle--selector__selected' : value === 'four_wheeler'}" (click)="selectType('four_wheeler')"
+      *ngIf="mileageConfig.four_wheeler || value === 'four_wheeler'">
+      <mat-icon>
+        drive_eta
+      </mat-icon>
+    </div>
+    <div class="fy-select-vehicle--selector" [ngClass]="{ 'fy-select-vehicle--selector__selected' : value === 'four_wheeler1'}" (click)="selectType('four_wheeler1')"
+      *ngIf="mileageConfig.four_wheeler1 || value === 'four_wheeler1'">
+      <mat-icon>
+        electric_car
+      </mat-icon>
+    </div>
+  </div>
+</div>

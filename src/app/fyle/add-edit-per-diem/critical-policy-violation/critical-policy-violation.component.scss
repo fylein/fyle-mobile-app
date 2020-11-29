@@ -1,0 +1,46 @@
+.critical-policy-violation {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin: 80px 48px;
+  &--warning-icon {
+    color: #ff9900;
+    font-size: 48px;
+    margin: 18px;
+    height: 40px;
+    width: 40px;
+  }
+
+  &--header {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1.6;
+    color: #ff9900;
+  }
+
+  &--sub-header {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #ababab;
+  }
+
+  &--reasons {
+    padding: 16px;
+    margin: 24px 0;
+    border-radius: 6px;
+    background-color: #f2f2f2;
+  }
+
+  &--content-footer {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #ff9900;
+  }
+
+  &--buttons {
+    display: flex;
+    justify-content: space-around;
+  }
+}

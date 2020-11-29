@@ -63,11 +63,10 @@ export class TransactionFieldConfigurationsService {
   }
 
 
-  filterByOrgCategoryIdProjectId(tfcMap: any, orgCategory: any, project: any) {
+  filterByOrgCategoryIdProjectId(tfcMap: any, fields: string[], orgCategory: any, project: any) {
     const orgCategoryId = orgCategory && orgCategory.id;
     const projectId = project && project.project_id;
-    return of(['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1',
-      'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class']).pipe(
+    return of(fields).pipe(
         map(fields => fields.map(field => {
           const configurations = tfcMap[field];
           let filteredField;

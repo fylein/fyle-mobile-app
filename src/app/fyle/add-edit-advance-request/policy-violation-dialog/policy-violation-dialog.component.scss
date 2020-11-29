@@ -1,0 +1,28 @@
+.policy-violation {
+  
+  &--container {
+    padding: 15px;
+  }
+
+  &--action-description {
+    margin-bottom: 25px;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #eee;
+  }
+
+  &--reason {
+    margin-left: 2%;
+    width: 95%;
+  }
+
+  &--primary-cta {
+    width: 80%;
+  }
+
+  &--secondary-cta {
+    width: 80%;
+  }
+  
+    
+}

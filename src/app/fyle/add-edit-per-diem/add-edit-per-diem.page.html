@@ -1,0 +1,380 @@
+<ion-header>
+  <ion-toolbar class="add-edit-per-diem--toolbar">
+    <ion-title mode="md" *ngIf="mode">
+      <div *ngIf="mode === 'add'">
+        Add Per Diem
+      </div>
+      <div *ngIf="mode === 'edit'">
+        {{title}} Per Diem
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button mode="md" (click)="close()">
+        <mat-icon slot="icon-only">close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form class="add-edit-per-diem--form" [formGroup]="fg">
+    <ng-container *ngIf="(canCreatePerDiem$|async); else NothingToSee">
+      <ng-container *ngIf="(allowedPerDiemRateOptions$|async)?.length > 0; else AdminKoBoloPerDiemAssignKare">
+        <ng-container *ngIf="etxn$|async as etxn">
+          <!-- <div class="add-edit-per-diem"> -->
+          <!-- <div ng-click="scrollTo('comments')" *ngIf="etxn.tx.policy_flag && comments">
+              <app-fy-policy-violation-info estatuses="comments"></app-fy-policy-violation-info>
+            </div> -->
+
+          <ng-container *ngIf="isAmountCapped$|async">
+            <div class="add-edit-per-diem--critical-policy">
+              <ng-container *ngIf="isCriticalPolicyViolated$|async;else justAmountCapped">
+                This expense has violated a critical policy. You cannot create a report with this expense.
+              </ng-container>
+              <ng-template #justAmountCapped>
+                Claimed amount {{etxn.tx.user_amount}} was capped to {{etxn.tx.amount}} due to policy <span
+                  *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+              </ng-template>
+            </div>
+          </ng-container>
+
+          <div class="add-edit-per-diem--currency" *ngIf="etxn$|async as etxn">
+            <div *ngIf="homeCurrency$|async as homeCurrency">
+              <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency"
+                [disabled]="true">
+              </app-fy-currency>
+            </div>
+          </div>
+
+          <ng-container class="add-edit-per-diem--error" *ngIf="fg.controls.currencyObj?.value?.orig_amount">
+            <div class="add-edit-per-diem--conversion">
+              <div class="add-edit-per-diem--conversion-amount">
+                {{fg.controls.currencyObj?.value?.currency}} {{fg.controls.currencyObj?.value?.amount}}
+              </div>
+              <div class="add-edit-per-diem--conversion-rate">
+                at {{ fg.controls.currencyObj?.value?.amount / fg.controls.currencyObj?.value?.orig_amount }}
+                {{fg.controls.currencyObj?.value?.currency}} / {{fg.controls.currencyObj?.value?.orig_currency}}
+              </div>
+            </div>
+          </ng-container>
+
+          <div class="add-edit-per-diem--primary-block">
+            <div>
+              <ng-container *ngIf="txnFields$|async as txnFields">
+                <ng-container *ngIf="txnFields?.from_dt?.canView">
+                  <div class="add-edit-per-diem--date add-edit-per-diem--internal-block">
+                    <div class="add-edit-per-diem--date-label"
+                      [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}">
+                      {{ etxn.tx.from_dt ? txnFields?.from_dt.title : 'Select From Date' }}
+                      <div *ngIf="txnFields?.from_dt?.mandatory">
+                        *
+                      </div>
+                    </div>
+                    <input type="date" class="add-edit-per-diem--date-input" formControlName="from_dt" [min]="minDate"
+                      [max]="maxDate" [disabled]="isAmountDisabled || !txnFields?.from_dt.can_edit">
+                  </div>
+                  <div class="add-edit-per-diem--error"
+                    *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid">
+                    Please select {{ etxn.tx.from_dt ? txnFields?.from_dt.title : 'Select From Date' }}
+                  </div>
+                </ng-container>
+              </ng-container>
+
+
+              <ng-container *ngIf="txnFields$|async as txnFields">
+                <ng-container *ngIf="txnFields?.to_dt?.canView">
+                  <div class="add-edit-per-diem--date add-edit-per-diem--internal-block">
+                    <div class="add-edit-per-diem--date-label"
+                      [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}">
+                      {{ etxn.tx.to_dt ? txnFields?.to_dt.title : 'Select To Date' }}
+                      <div *ngIf="txnFields?.to_dt?.mandatory">
+                        *
+                      </div>
+                    </div>
+                    <input type="date" class="add-edit-per-diem--date-input" name="toDate" formControlName="to_dt"
+                      [min]="fg.controls.from_dt.value" [max]="maxDate"
+                      [disabled]="isAmountDisabled || !txnFields?.to_dt.can_edit">
+                  </div>
+                  <div class="add-edit-per-diem--error" *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid">
+                    Please select {{ etxn.tx.to_dt ? txnFields?.to_dt.title : 'Select From Date' }}
+                  </div>
+                </ng-container>
+              </ng-container>
+
+
+              <ng-container *ngIf="txnFields$|async as txnFields">
+                <ng-container *ngIf="txnFields?.num_days?.canView">
+                  <div class="add-edit-per-diem--text add-edit-per-diem--internal-block">
+                    <div class="add-edit-per-diem--text-label"
+                      [ngClass]="{'add-edit-per-diem--text-label__invalid': fg.controls.num_days.touched && !fg.controls.num_days.valid}">
+                      {{ etxn.tx.num_days ? txnFields?.num_days.title : 'Enter ' + txnFields?.num_days.title }}
+                      <div>
+                        *
+                      </div>
+                    </div>
+                    <input class="add-edit-per-diem--text-input" type="number" formControlName="num_days" [min]="0"
+                      [disabled]="isAmountDisabled || !txnFields?.num_days.can_edit">
+                  </div>
+                  <div class="add-edit-per-diem--error"
+                    *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid">
+                    Please select {{txnFields?.num_days.title  }}
+                  </div>
+                </ng-container>
+              </ng-container>
+
+              <ng-container *ngIf="allowedPerDiemRateOptions$|async as allowedPerDiemRateOptions">
+                <div class="add-edit-per-diem--internal-block">
+                  <app-fy-select [label]="etxn.tx.per_diem_rate_id ? 'Per Diem Type' : 'Select Per Diem Type'"
+                    [options]="allowedPerDiemRateOptions" formControlName="per_diem_rate" [mandatory]="true"
+                    [disabled]="isAmountDisabled">
+                  </app-fy-select>
+                </div>
+                <div class="add-edit-per-diem--error"
+                  *ngIf="fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid">
+                  Please select a per diem type
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="paymentModes$|async as paymentModes">
+                <div class="add-edit-per-diem--internal-block">
+                  <app-fy-select [mandatory]="true"
+                    [label]="etxn.tx.source_account_id ? 'Payment Mode' : 'Select Payment Mode'"
+                    formControlName="paymentMode" [options]="paymentModes" [mandatory]="true"
+                    [selectionElement]="paymentMode" [nullOption]="false">
+                  </app-fy-select>
+                  <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
+                    <div>
+                      <div>
+                        {{label}}
+                      </div>
+                      <ng-container *ngIf="paymentMode">
+                        <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADiVANCE_ACCOUNT'">
+                          <div>
+                            {{paymentMode.advance.purpose}}
+                          </div>
+                        </ng-container>
+                        <div *ngIf="paymentMode.acc.isReimbursible">
+                          Reimbursible
+                        </div>
+                        <div *ngIf="!paymentMode.acc.isReimbursible">
+                          Non Reimbursible
+                        </div>
+                      </ng-container>
+                    </div>
+                    <mat-icon *ngIf="selected">
+                      check
+                    </mat-icon>
+                  </ng-template>
+                </div>
+                <div class="add-edit-per-diem--error"
+                  *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid">
+                  Please select a payment mode.
+                </div>
+              </ng-container>
+
+              <ng-container
+                *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount">
+                <app-fy-alert [type]="'information'"
+                  [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
+              </ng-container>
+
+              <ng-container *ngIf="txnFields$|async as txnFields">
+                <ng-container *ngIf="txnFields?.purpose?.canView">
+                  <div class="add-edit-per-diem--text add-edit-per-diem--internal-block"
+                    *ngIf="txnFields?.purpose.type === 'TEXT'">
+                    <div class="add-edit-per-diem--text-label"
+                      [ngClass]="{'add-edit-per-diem--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
+                      {{ etxn.tx.purpose ? txnFields?.purpose.title : 'Enter ' + txnFields?.purpose.title }}
+                      <div *ngIf="txnFields?.purpose?.mandatory">*</div>
+                    </div>
+                    <input type="text" name="purpose" class="add-edit-per-diem--text-input" formControlName="purpose"
+                      [disabled]="!txnFields?.purpose.can_edit">
+                  </div>
+                  <div class="add-edit-per-diem--internal-block" *ngIf="txnFields?.purpose.type === 'SELECT'">
+                    <app-fy-select class="add-edit-per-diem--text-input"
+                      [label]="etxn.tx.purpose ? txnFields?.purpose.title : 'Enter ' + txnFields?.purpose.title"
+                      formControlName="purpose" [options]="txnFields?.purpose?.values"
+                      [disabled]="!txnFields?.purpose.can_edit"></app-fy-select>
+                  </div>
+                  <div class="add-edit-per-diem--error"
+                    *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid">
+                    Please enter {{ txnFields?.purpose.title }}.
+                  </div>
+                </ng-container>
+              </ng-container>
+
+              <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+                <ng-container
+                  *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (allowedProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
+                  <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
+                      <div class="add-edit-per-diem--internal-block">
+                          <app-fy-select-project 
+                            [label]="etxn?.tx?.project_id ? 'Project' : 'Select Project'"
+                            [mandatory]="transactionMandatoyFields?.project" 
+                            formControlName="project" 
+                            [categoryIds]="projectCategoryIds">
+                          </app-fy-select-project>
+                        </div>
+                        <div class="add-edit-per-diem--error"
+                          *ngIf="fg.controls.project.touched && !fg.controls.project.valid">
+                          Please select a project.
+                        </div>
+                  </ng-container>
+                  
+                </ng-container>
+              </ng-container>
+
+              <div class="add-edit-per-diem--internal-block">
+                <mat-checkbox color="primary" formControlName="billable">
+                  <span class="add-edit-per-diem--checkbox">
+                    Billable
+                  </span>
+                </mat-checkbox>
+              </div>
+
+              <ng-container *ngIf="filteredCategories$|async as subCategories">
+                <ng-container *ngIf="subCategories.length > 0">
+                  <div class="add-edit-per-diem--internal-block">
+                    <app-fy-select formControlName="sub_category"
+                      [label]="etxn?.tx?.org_category_id ? 'Sub Category' : 'Select Sub Category'" [mandatory]="true"
+                      [options]="subCategories">
+                    </app-fy-select>
+                  </div>
+                  <div class="add-edit-per-diem--error"
+                    *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid">
+                    Please select a Sub Category.
+                  </div>
+                </ng-container>
+              </ng-container>
+
+              <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
+                <div *ngIf="customInput.type !== 'USER_LIST'" class="add-edit-per-diem--internal-block">
+                  <form [formGroup]="customInput.control">
+                    <div class="add-edit-per-diem--text"
+                      *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
+                      <div class="add-edit-per-diem--text-label"
+                        [ngClass]="{'add-edit-per-diem--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                        {{customInput.name | ellipsis: 20}}
+                        <span *ngIf="customInput.mandatory">
+                          *
+                        </span>
+                      </div>
+                      <input class="add-edit-per-diem--text-input" type="text" formControlName="value"
+                        *ngIf="customInput.type === 'TEXT'">
+
+                      <input class="add-edit-per-diem--text-input" type="number" formControlName="value"
+                        *ngIf="customInput.type === 'NUMBER'">
+
+                      <input class="add-edit-per-diem--date-input" *ngIf="customInput.type === 'DATE'" type="date"
+                        formControlName="value">
+                    </div>
+
+                    <div class="add-edit-per-diem--checkbox" *ngIf="customInput.type === 'BOOLEAN'">
+                      <label>
+                        <mat-checkbox color="primary" formControlName="value">
+                          {{customInput.name | ellipsis: 20 }}
+                          <span *ngIf="customInput.mandatory">*</span>
+                        </mat-checkbox>
+                      </label>
+                    </div>
+
+                    <div *ngIf="customInput.type === 'LOCATION'">
+                      <app-fy-location [label]="customInput.name" formControlName="value">
+                      </app-fy-location>
+                    </div>
+
+                    <div *ngIf="customInput.type === 'SELECT'">
+                      <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value">
+                      </app-fy-select>
+                    </div>
+
+                    <div *ngIf="customInput.type === 'MULTI_SELECT'">
+                      <app-fy-multiselect [label]="customInput.name" [options]="customInput.options"
+                        formControlName="value">
+                      </app-fy-multiselect>
+                    </div>
+                  </form>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="costCenters$|async as costCenters">
+                <ng-container *ngIf="txnFields$|async as txnFields">
+                  <div class="add-edit-per-diem--internal-block"
+                    *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
+                    <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id.mandatory"
+                      [label]="(etxn$|async)?.tx?.cost_center_id ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title"
+                      [options]="costCenters">
+                    </app-fy-select>
+                  </div>
+                  <div class="add-edit-per-diem--error"
+                    *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid">
+                    Please select a Cost Center.
+                  </div>
+                </ng-container>
+              </ng-container>
+
+
+              <ng-container *ngIf="reports$|async as reports">
+                <div class="add-edit-per-diem--internal-block">
+                  <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                    formControlName="report" [options]="reports"></app-fy-select>
+                  <ion-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                    Add to New Report
+                  </ion-checkbox>
+                </div>
+              </ng-container>
+
+
+              <!-- <div id="comments" class="element-container" *ngIf="etxn && mode === 'edit'">
+                <app-fy-comments class="element-block m-0 no-border comments-block" object-type="transactions"
+                  object-id="{{ etxn.tx.id }}" mode="{{mode}}" text="Comments" show-comments-count="false"
+                  dont-load-comments="true" estatuses="comments"></app-fy-comments>
+              </div> -->
+
+              <!-- <div class="element-container delete-block" *ngIf="etxn && mode === 'edit'">
+                <div class="element-block m-0 no-border" ng-click="deleteTxn()">
+                  <i class="icon ion-trash-b"></i>
+                  <div class="delete-text">Delete Expense</div>
+                </div>
+              </div> -->
+
+              <ng-container *ngIf="transactionMandatoyFields$|async as mandatoryExpenseFields">
+                <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
+                  <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
+                    <app-fy-alert
+                      *ngIf="mandatoryExpenseFields.project && isProjectsEnabled && ((isIndividualProjectsEnabled$|async) && individualProjectIds.length === 0)"
+                      [type]="'warning'"
+                      [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
+                    </app-fy-alert>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+
+              <!-- This is very helpful for debugging - Angular will remove this when compiling so lets have this here -->
+              <!-- <ion-button (click)="getFormValidationErrors()">
+                Click me for errors!
+              </ion-button> -->
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <ng-template #AdminKoBoloPerDiemAssignKare>
+        You have not been assigned with any per diem rates. Please contact your <strong>Fyle-Administrator</strong> to
+        resolve this issue.
+      </ng-template>
+    </ng-container>
+    <ng-template #NothingToSee>
+      Looks like no Per diem rates are set for your org yet
+    </ng-template>
+  </form>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons>
+      <ion-button (click)="savePerDiem()" class="add-edit-per-diem--primary-cta" fill="solid" color="fyle-primary">
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

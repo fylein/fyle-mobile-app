@@ -10,11 +10,11 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { TransactionsOutboxService } from 'src/app/services/transactions-outbox.service';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { toBase64String } from '@angular/compiler/src/output/source_map';
 import { PopoverController } from '@ionic/angular';
 import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-popup/gallery-upload-success-popup.component';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-camera-overlay',

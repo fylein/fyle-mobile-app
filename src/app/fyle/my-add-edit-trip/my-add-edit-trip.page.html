@@ -24,7 +24,7 @@
                   <div class="add-edit-trip--traveller-count-action">
                     <div>Traveller {{i+1}}</div>
                     <div>
-                      <mat-icon *ngIf="i !== 0" (click)="remove(i)" class="add-edit-trip--delete-traveller">delete</mat-icon>
+                      <mat-icon *ngIf="i !== 0" (click)="removeTraveller(i)" class="add-edit-trip--delete-traveller">delete</mat-icon>
                     </div>
                   </div>
                   <div class="add-edit-trip--text">
@@ -149,9 +149,53 @@
         <div class="add-edit-trip--wrapper-title">
           Aditional information
         </div>
-        <p>
-          some custom fields will come here
-        </p>
+        <div class="add-edit-trip--element-container">
+          <div *ngFor="let customInput of customFields$ | async as customFields">
+            <form [formGroup]="customInput.control">
+              <!-- <button (click)="debug(customInput)">debug</button> -->
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
+                <div class="add-edit-trip--text-label">
+                  {{customInput.input_name | ellipsis: 20}}
+                  <span *ngIf="customInput.mandatory">
+                    *
+                  </span>
+                </div>
+                <input class="add-edit-trip--text-input" type="text" formControlName="value"
+                  *ngIf="customInput.input_type === 'TEXT'">
+    
+                <input class="add-edit-trip--text-input" type="number" formControlName="value"
+                  *ngIf="customInput.input_type === 'NUMBER'">
+    
+                <input class="add-edit-trip--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
+                  formControlName="value">
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'BOOLEAN'">
+                <div class="add-edit-trip--checkbox">
+                  <mat-checkbox color="primary" formControlName="value">
+                    {{customInput.input_name | ellipsis: 20 }}
+                  </mat-checkbox>
+                </div>
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'LOCATION'">
+                <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'SELECT'">
+                <app-fy-select [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-select>
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
+                <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'USER_LIST'">
+                <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
       <!-- Aditional information block ends -->
       <div>
