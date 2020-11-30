@@ -26,6 +26,19 @@ $background-color: #fff;
     padding: 0 16px 16px;
   }
 
+  &--message {
+    font-size: 16px;
+    color: #ababab;
+  }
+
+  &--warning {
+    margin-top: 16px;
+    border-radius: 4px;
+    padding: 8px 16px;
+    background-color: #fff9e9;
+    color: #7b7b7b;
+  }
+
   &--card {
     padding: 16px;
     margin-top: 24px;
@@ -77,6 +90,10 @@ $background-color: #fff;
     line-height: 1.5;
   }
 
+  &--label-invalid {
+    color: red;
+  }
+
   &--input {
     width: 65%;
     font-size: 16px;
@@ -84,6 +101,21 @@ $background-color: #fff;
     line-height: 1.5;
     height: 24px;
     border: 0;
+  }
+
+  &--date {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%
+  }
+
+  &--date-label {
+    width: 30%;
+  }
+
+  &--date-input {
+    width: 60%;
   }
 
 
@@ -108,6 +140,10 @@ $background-color: #fff;
     color: #3a94f6;
     font-size: 16px;
     text-align: center !important;
+  }
+
+  &--primary-cta {
+    width: 100%;
   }
 
 

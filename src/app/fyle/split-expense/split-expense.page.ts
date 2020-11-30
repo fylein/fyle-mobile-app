@@ -1,6 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { PopoverController, ToastController } from '@ionic/angular';
+import { isNumber } from 'lodash';
+import * as moment from 'moment';
+import { from, iif, noop, Observable, of } from 'rxjs';
+import { catchError, finalize, map, switchMap } from 'rxjs/operators';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { DateService } from 'src/app/core/services/date.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { SplitExpenseService } from 'src/app/core/split-expense.service';
+import { SplitExpenseStatusComponent } from './split-expense-status/split-expense-status.component';
 
 @Component({
   selector: 'app-split-expense',
@@ -14,10 +25,24 @@ export class SplitExpensePage implements OnInit {
   splitType: string;
   amount: number;
   currency: string;
+  totalSplitAmount: number;
+  remainingAmount: number;
+  categories$: Observable<any>;
+  transaction: any;
+  fileObjs: any[];
+  maxDate: string;
+  minDate: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
+    private offlineService: OfflineService,
+    private categoriesService: CategoriesService,
+    private dateService: DateService,
+    private toastController: ToastController,
+    private splitExpenseService: SplitExpenseService,
+    private popoverController: PopoverController,
+    private transactionService: TransactionService
   ) { }
 
   ngOnInit() {
@@ -29,38 +54,198 @@ export class SplitExpensePage implements OnInit {
     // })
   }
 
-  ionViewWillEnter() {
-    const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj)
-    this.splitType = this.activatedRoute.snapshot.params.splitType;
+  onChangeAmount(splitExpenseForm) {
+    if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount))) {
+      return;
+    }
 
+    let percentage = (splitExpenseForm.value.amount / this.amount ) * 100;
+    percentage = parseFloat(percentage.toFixed(3));
 
-    this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
-    this.currency = currencyObj && (currencyObj.orig_currency || currencyObj.currency);
-
-
-    let amount1 = this.amount > 0.0001 ? this.amount * 0.6 : null; // 60% split
-    let amount2 = this.amount > 0.0001 ? this.amount * 0.4 : null; //40% split
-    let percentage1 = this.amount ? 60 : null;
-    let percentage2 = this.amount ? 40 : null;
-    amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
-    amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
-    this.add(amount1, this.currency, percentage1, null);
-    this.add(amount2, this.currency, percentage2, null);
-  }
-
-  add(amount?, currency?, percentage?, txn_dt?) {
-    const fg = this.formBuilder.group({
-      amount: [amount, ],
-      currency: [currency, ],
-      percentage: [percentage, ],
-      txn_dt: [txn_dt, ]
+    splitExpenseForm.patchValue({
+      percentage
     });
 
+    this.getTotalSplitAmount();
+  }
+
+  onChangePercentage(splitExpenseForm){
+    if (!splitExpenseForm.controls.percentage._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.percentage))) {
+      return;
+    }
+
+    let amount = (this.amount * splitExpenseForm.value.percentage) / 100;
+    amount = parseFloat(amount.toFixed(3));
+
+    splitExpenseForm.patchValue({
+      amount
+    });
+    this.getTotalSplitAmount();
+  }
+
+  getTotalSplitAmount() {
+    if (this.splitExpensesFormArray.value.length > 1) {
+
+      const amounts = this.splitExpensesFormArray.value.map(obj => obj.amount);
+
+      const totalSplitAmount = amounts.reduce((acc, curr) => {
+        return acc + curr;
+      });
+
+      this.totalSplitAmount = parseFloat(totalSplitAmount.toFixed(3)) || 0;
+      const remainingAmount = this.amount - this.totalSplitAmount;
+      this.remainingAmount = parseFloat(remainingAmount.toFixed(3)) || 0;
+    }
+  }
+
+  generateSplitEtxnFromFg(splitExpenseValue) {
+    return {
+        ...this.transaction,
+        org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
+        currency: splitExpenseValue.currency,
+        amount: splitExpenseValue.amount,
+        source: 'MOBILE'
+    }
+  }
+
+  uploadFiles(files) {
+    if (!this.transaction.id) {
+      return of(null);
+    } else {
+      return of(null);
+    }
+  }
+
+  createAndLinkTxnsWithFiles(splitExpenses) {
+    console.log(splitExpenses);
+    return this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses)
+  }
+
+  async showSplitExpenseStatusPopup(isSplitSuccessful: boolean) {
+    //return of(null);
+    const splitExpenseStatusPopup = await this.popoverController.create({
+      component: SplitExpenseStatusComponent,
+      componentProps: {
+        isSplitSuccessful
+      },
+      //cssClass: 'error-popover'
+    });
+
+    await splitExpenseStatusPopup.present();
+  }
+
+  save1() {
+    this.showSplitExpenseStatusPopup(true);
+  }
+
+  save() {
+    if (this.splitExpensesFormArray.valid) {
+      if (this.amount && this.amount > 0 && this.amount !== this.totalSplitAmount ) {
+        // Todo: show Error block
+      }
+      const generatedSplitEtxn = [];
+      this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
+        generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
+      });
+
+      this.createAndLinkTxnsWithFiles(generatedSplitEtxn).pipe(
+        switchMap(res => {
+          return iif(() => this.transaction.id, this.transactionService.delete(this.transaction.id),  of(null));
+        }),
+        catchError(() => {
+          return this.showSplitExpenseStatusPopup(false);
+        }),
+        finalize(() => {
+          this.showSplitExpenseStatusPopup(true);
+        })
+      ).subscribe(noop);
+    } else {
+      this.splitExpensesFormArray.markAllAsTouched();
+    }
+  }
+
+  
+
+  getActiveCategories() {
+    const allCategories$ = this.offlineService.getAllCategories();
+
+    return allCategories$.pipe(
+      map(catogories => {
+        return catogories.filter(category => {
+          return category.enabled === true;
+        });
+      }),
+      map(catogories => {
+        return this.categoriesService.filterRequired(catogories);
+      })
+    );
+  }
+
+  ionViewWillEnter() {
+    this.offlineService.getHomeCurrency().subscribe(homeCurrency => {
+      const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
+      this.splitType = this.activatedRoute.snapshot.params.splitType;
+      this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
+
+      if (this.splitType === 'categories') {
+        this.categories$ = this.getActiveCategories().pipe(
+          map(categories => {
+            return categories.map(category => {
+              return { label: category.displayName, value: category };
+            });
+          })
+        )
+      }
+
+      this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
+      this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
+
+      let amount1 = this.amount > 0.0001 ? this.amount * 0.6 : null; // 60% split
+      let amount2 = this.amount > 0.0001 ? this.amount * 0.4 : null; //40% split
+      const percentage1 = this.amount ? 60 : null;
+      const percentage2 = this.amount ? 40 : null;
+      amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
+      amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
+      this.add(amount1, this.currency, percentage1, null);
+      this.add(amount2, this.currency, percentage2, null);
+      this.getTotalSplitAmount();
+
+      const today = new Date();
+      const minDate = new Date('Jan 1, 2001');
+      const maxDate = this.dateService.addDaysToDate(today, 1);
+
+      this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
+      this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
+
+    });
+
+  }
+
+  add(amount?, currency?, percentage?, txnDt?) {
+    if (!txnDt) {
+      const dateOfTxn = this.transaction?.txn_dt;
+      const today: any = new Date();
+      txnDt = dateOfTxn ? new Date(dateOfTxn) : today;
+      txnDt = moment(txnDt).format('yyyy-MM-DD');
+    }
+    const fg = this.formBuilder.group({
+      amount: [amount, Validators.required],
+      currency: [currency, ],
+      percentage: [percentage, ],
+      txn_dt: [txnDt, Validators.required]
+    });
+
+    if (this.splitType === 'categories') {
+      fg.addControl('category', this.formBuilder.control('', [Validators.required]));
+    }
+
     this.splitExpensesFormArray.push(fg);
+    this.getTotalSplitAmount();
   }
 
   remove(index: number) {
     this.splitExpensesFormArray.removeAt(index);
+    this.getTotalSplitAmount();
   }
 
 
