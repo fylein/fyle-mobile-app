@@ -13,6 +13,7 @@ import { OtherRequestsComponent } from './other-requests/other-requests.componen
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -37,6 +38,8 @@ export class MyAddEditTripPage implements OnInit {
   isAdvanceRequested$: Observable<boolean>;
   travelAgents$: Observable<any>;
   customFields$: Observable<any>;
+  isProjectsEnabled$: Observable<boolean>;
+  projects$: Observable<[]>;
 
   constructor(
     private router: Router,
@@ -46,7 +49,8 @@ export class MyAddEditTripPage implements OnInit {
     private formBuilder: FormBuilder,
     private orgUserService: OrgUserService,
     private modalController: ModalController,
-    private tripRequestCustomFieldsService: TripRequestCustomFieldsService
+    private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
+    private offlineService: OfflineService
   ) { }
 
   fg: FormGroup;
@@ -88,7 +92,11 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   onSubmit() {
-    console.log('\n\n\n finally form has been submited -> ', this.fg.value);
+    if (this.fg.valid) {
+      console.log('\n\n\n finally form has been submited -> ', this.fg.value);
+    } else {
+      this.fg.markAllAsTouched();
+    }
   }
 
   get startDate() {
@@ -104,6 +112,10 @@ export class MyAddEditTripPage implements OnInit {
     return this.fg.get('cities') as FormArray;
   }
 
+  get tripType() {
+    return this.fg.get('tripType').value;
+  }
+
   addDefaultCity() {
     let toCity;
     if (this.cities.value.length >= 1) {
@@ -114,9 +126,12 @@ export class MyAddEditTripPage implements OnInit {
     const intialCity = this.formBuilder.group({
       fromCity: [toCity, Validators.required],
       toCity: [null, Validators.required],
-      departDate: [null, Validators.required],
-      returnDate: [null, Validators.required]
+      departDate: [null, Validators.required]
     });
+
+    if (this.fg.controls.tripType.value === 'ROUND') {
+      intialCity.addControl('returnDate', new FormControl('', Validators.required));
+    }
     this.cities.push(intialCity);
   }
 
@@ -143,16 +158,17 @@ export class MyAddEditTripPage implements OnInit {
       }
     });
 
-    // if (this.fg.valid) {
+    if (this.fg.valid) {
     return await modal.present();
-    // } else {
-    //   this.fg.markAllAsTouched();
-    // }
+    } else {
+      this.fg.markAllAsTouched();
+    }
   }
 
   ngOnInit() {
 
     const id = this.activatedRoute.snapshot.params.id;
+    const orgSettings$ = this.offlineService.getOrgSettings();
 
     this.tripTypes = [
       {
@@ -298,6 +314,28 @@ export class MyAddEditTripPage implements OnInit {
         return res;
       })
     );
+
+    this.isProjectsEnabled$ = orgSettings$.pipe(
+      map(orgSettings => {
+        return orgSettings.projects && orgSettings.projects.enabled;
+      })
+    );
+    this.projects$ = this.offlineService.getProjects();
+
+    this.fg.controls.tripType.valueChanges.subscribe(res => {
+      if (res === 'ROUND') {
+        const firstCity = this.cities.at(0);
+        this.cities.clear();
+        const intialCity = this.formBuilder.group({
+          fromCity: [firstCity.value.fromCity, Validators.required],
+          toCity: [firstCity.value.toCity, Validators.required],
+          departDate: [firstCity.value.departDate, Validators.required],
+          returnDate: [null, Validators.required]
+        });
+        this.cities.push(intialCity);
+        this.addDefaultCity();
+      }
+    });
   }
 
 }

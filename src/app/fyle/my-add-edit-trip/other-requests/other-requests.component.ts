@@ -178,6 +178,18 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
+  onSubmit() {
+    if (this.otherDetailsForm.valid) {
+      console.log('submitting other details form ->', this.otherDetailsForm);
+    } else {
+      this.otherDetailsForm.markAllAsTouched();
+    }
+  }
+
+  saveDraft() {
+
+  }
+
   ngOnInit() {
 
     this.orgUserSettings$ = this.orgUserSettings.get();

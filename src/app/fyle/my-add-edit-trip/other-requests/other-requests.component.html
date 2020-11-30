@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <form [formGroup]="otherDetailsForm">
+  <form [formGroup]="otherDetailsForm" (ngSubmit)="onSubmit()">
     <div class="other-details--container">
       <mat-tab-group>
         <!-- Hote Tab starts -->
@@ -375,8 +375,8 @@
     </div>
     <div class="other-details--cta-block">
       <div class="other-details--cta-container">
-        <ion-button class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
-        <ion-button class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
+        <ion-button (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button type="submit" class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
       </div>
     </div>
   </form>
