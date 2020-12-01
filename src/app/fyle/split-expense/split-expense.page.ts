@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ToastController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
@@ -45,7 +45,8 @@ export class SplitExpensePage implements OnInit {
     private splitExpenseService: SplitExpenseService,
     private popoverController: PopoverController,
     private transactionService: TransactionService,
-    private fileService: FileService
+    private fileService: FileService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -55,6 +56,14 @@ export class SplitExpensePage implements OnInit {
     //   percentage: [],
     //   txn_dt: []
     // })
+  }
+
+  goBack() {
+    if (this.transaction.id) {
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: this.transaction.id }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+    }
   }
 
   onChangeAmount(splitExpenseForm) {
