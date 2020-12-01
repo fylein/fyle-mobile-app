@@ -23,7 +23,9 @@ import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
-
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
 
 @NgModule({
   imports: [
@@ -40,7 +42,8 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
-    SharedModule
+    SharedModule,
+    PinchZoomModule
   ],
   declarations: [
     AddEditExpensePage,
@@ -52,7 +55,9 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
     FySelectVendorComponent,
     FySelectVendorModalComponent,
     CriticalPolicyViolationComponent,
-    PolicyViolationComponent
+    PolicyViolationComponent,
+    CameraOptionsPopupComponent,
+    ViewAttachmentsComponent
   ]
 })
 export class AddEditExpensePageModule { }

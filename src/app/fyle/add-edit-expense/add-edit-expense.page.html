@@ -62,9 +62,9 @@
     </div> -->
 
     <div>
-      <!-- <div *ngIf="instaFyleCancelled">
+      <div *ngIf="instaFyleCancelled">
         Instafyle is taking longer than expected due to a bad network, please add the details manually
-      </div> -->
+      </div>
 
       <!-- <div (click)="scrollTo('comments')" *ngIf="etxn.tx.policy_flag && comments">
         TODO - add comments support
@@ -92,51 +92,50 @@
           Preview Attachment Component
           <preview-attachments txn-id="{{ etxn.tx.id }}"></preview-attachments>
         </div> -->
-        <!-- <div *ngIf="!reviewList.length > 0 || !showAttachmentPreview">
-          <div *ngIf="attachmentUploadInProgress">
+
+      </div>
+      <div class="add-edit-expense--receipt-currency-container">
+        <div class="add-edit-expense--receipt">
+          <div class="add-edit-expense--receipt-image" *ngIf="attachmentUploadInProgress">
             <ion-spinner icon="circles"></ion-spinner>
             <div>
               Uploading
             </div>
           </div>
 
-          <div (click)="addAttachments($event)" *ngIf="(etxn.tx.num_files === 0 && !attachmentUploadInProgress)">
-            <div>
+          <div (click)="addAttachments($event)" class="add-edit-expense--receipt-image"
+            *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)">
+            <div class="add-edit-expense--receipt-text">
               Add Receipt
             </div>
-            <mat-icon>
-              plus
+            <mat-icon class="add-edit-expense--receipt-image-icon">
+              add_circle
             </mat-icon>
           </div>
 
-          <div (click)="viewAttachments($event)" *ngIf="etxn.tx.num_files > 0 && !attachmentUploadInProgress">
-            <mat-icon>
-              attachment
+          <div (click)="viewAttachments($event)" class="add-edit-expense--receipt-image"
+            *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress">
+            <mat-icon class="add-edit-expense--receipt-background">
+              description
             </mat-icon>
-            <div>
-              {{etxn.tx.num_files}}
+            <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
+              {{attachedReceiptsCount}}
             </div>
-            <mat-icon (click)="addAttachments($event)">
-              add-attachment
+            <mat-icon class="add-edit-expense--receipt-image-icon" (click)="addAttachments($event)">
+              add_circle
             </mat-icon>
-          </div>
-        </div> -->
-        <div class="add-edit-expense--receipt">
-          <div>
-            Add
-          </div>
-          <div>
-            Receipt
           </div>
         </div>
-
-        <div class="add-edit-expense--currency" *ngIf="etxn$|async as etxn">
-          <div *ngIf="homeCurrency$|async as homeCurrency">
-            <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
-            </app-fy-currency>
+        <div>
+          <div class="add-edit-expense--currency" *ngIf="etxn$|async as etxn">
+            <div *ngIf="homeCurrency$|async as homeCurrency">
+              <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
+              </app-fy-currency>
+            </div>
           </div>
         </div>
       </div>
+
 
       <!-- <div *ngIf="isSplitExpenseAllowed && !(reviewList && reviewList.length > 1) && !isOffline">
         <div (click)="splitExpense($event)">
@@ -484,22 +483,24 @@
           </div>
 
           <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'LOCATION'">
-            <app-fy-location [label]="customInput.name" formControlName="value">
+            <app-fy-location [mandatory]="customInput.mandatory" [label]="customInput.name" formControlName="value">
             </app-fy-location>
           </div>
 
           <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'SELECT'">
-            <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value">
+            <app-fy-select [mandatory]="customInput.mandatory" [label]="customInput.name"
+              [options]="customInput.options" formControlName="value">
             </app-fy-select>
           </div>
 
           <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'MULTI_SELECT'">
-            <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value">
+            <app-fy-multiselect [mandatory]="customInput.mandatory" [label]="customInput.name"
+              [options]="customInput.options" formControlName="value">
             </app-fy-multiselect>
           </div>
 
           <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'USER_LIST'">
-            <app-fy-userlist [label]="customInput.name" formControlName="value">
+            <app-fy-userlist [mandatory]="customInput.mandatory" [label]="customInput.name" formControlName="value">
             </app-fy-userlist>
           </div>
 

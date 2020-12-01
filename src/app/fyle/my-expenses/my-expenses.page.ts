@@ -114,11 +114,18 @@ export class MyExpensesPage implements OnInit {
     ).subscribe((a) => {
       console.log('Promise has resolved', a);
       this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+
+      console.log(this.pendingTransactions);
+
+      if (this.pendingTransactions.length === 0) {
+        this.doRefresh();
+      }
     });
 
     this.baseState = 'all';
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
+    this.simpleSearchInput.nativeElement.value = '';
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),

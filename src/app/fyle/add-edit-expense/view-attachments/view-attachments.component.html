@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Receipt Preview
+
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onDoneClick()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="view-attachments--controls">
+    <mat-icon class="view-attachments--go-back" (click)="goToPrevSlide()">
+      arrow_back_ios
+    </mat-icon>
+    <mat-icon class="view-attachments--go-forward" (click)="goToNextSlide()">
+      arrow_forward_ios
+    </mat-icon>
+  </div>
+  <ion-slides #slides [options]="sliderOptions" zoom>
+    <ng-container *ngFor="let attachment of attachments">
+      <ion-slide>
+        <div>
+          <pinch-zoom class="view-attachments--container">
+            <img [src]="attachment?.url"/>
+          </pinch-zoom>
+
+          <!-- TODO: Add Pdf viewing support -->
+        </div>
+      </ion-slide>
+    </ng-container>
+  </ion-slides>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button class="view-attachments--delete" fill="solid" color="fyle-primary" expand="full">
+      Delete attachment
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
