@@ -75,34 +75,34 @@ export class TripDatesService {
 
   convertToDateFormat(data) {
     if (data.start_dt) {
-      data.start_dt = moment(data.start_dt).format('yyyy-MM-dd');
+      data.start_dt = moment(data.start_dt).format('y-MM-D');
     }
 
     if (data.end_dt) {
-      data.end_dt = moment(data.end_dt).format('yyyy-MM-dd');
+      data.end_dt = moment(data.end_dt).format('y-MM-D');
     }
 
     if (data.onward_dt) {
-      data.onward_dt = moment(data.onward_dt).format('yyyy-MM-dd');
+      data.onward_dt = moment(data.onward_dt).format('y-MM-D');
     }
 
     if (data.check_in_dt) {
-      data.check_in_dt = moment(data.check_in_dt).format('yyyy-MM-dd');
+      data.check_in_dt = moment(data.check_in_dt).format('y-MM-D');
     }
 
     if (data.check_out_dt) {
-      data.check_out_dt = moment(data.check_out_dt).format('yyyy-MM-dd');
+      data.check_out_dt = moment(data.check_out_dt).format('y-MM-D');
     }
 
     if (data.trip_cities) {
       data.trip_cities.forEach(tripCity => {
 
         if (tripCity.onward_dt) {
-          tripCity.onward_dt = moment(tripCity.onward_dt).format('yyyy-MM-dd');
+          tripCity.onward_dt = moment(tripCity.onward_dt).format('y-MM-D');
         }
 
         if (tripCity.return_dt) {
-          tripCity.return_dt = moment(tripCity.return_dt).format('yyyy-MM-dd');
+          tripCity.return_dt = moment(tripCity.return_dt).format('y-MM-D');
         }
       });
     }

@@ -5,7 +5,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
-import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay } from 'rxjs/operators';
+import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ModalController } from '@ionic/angular';
@@ -15,6 +15,7 @@ import { CustomFieldsService } from 'src/app/core/services/custom-fields.service
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -52,7 +53,8 @@ export class MyAddEditTripPage implements OnInit {
     private modalController: ModalController,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
     private offlineService: OfflineService,
-    private tripRequestsService: TripRequestsService
+    private tripRequestsService: TripRequestsService,
+    private loaderService: LoaderService
   ) { }
 
   fg: FormGroup;
@@ -106,7 +108,37 @@ export class MyAddEditTripPage implements OnInit {
     }
   }
 
+  makeTrpfromFormFg(formValue, customFields) {
+    console.log('formValue.project.id ->', formValue.project);
+    const trp = {
+      custom_field_values: formValue.custom_field_values,
+      end_dt: formValue.endDate,
+      notes: formValue.notes,
+      project_id: formValue.project.project_id,
+      purpose: formValue.purpose,
+      source: 'MOBILE',
+      start_dt: formValue.startDate,
+      traveller_details: formValue.travellerDetails,
+      trip_cities: formValue.cities,
+      trip_type: formValue.tripType
+    };
+    return trp;
+  }
+
   submitTripRequest(formValue) {
+    from(this.loaderService.showLoader('Submitting Trip Request')).pipe(
+      map(() => {
+        return this.makeTrpfromFormFg(formValue, 'customField');
+      }),
+      switchMap(res => {
+        return this.tripRequestsService.submit(res);
+      }),
+      finalize(() => {
+        this.loaderService.hideLoader();
+        this.fg.reset();
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      })
+    ).subscribe(noop);
     // vm.criticalPromise = this.tripRequestsService.submit(angular.copy(vm.tripRequest.trp)).then(function (tripRequest) {
     //   var promises = submitTransportationAndHotelRequest(tripRequest);
     //   if (vm.advanceRequests.length > 0) {
@@ -152,9 +184,9 @@ export class MyAddEditTripPage implements OnInit {
     }
 
     const intialCity = this.formBuilder.group({
-      fromCity: [toCity, Validators.required],
-      toCity: [null, Validators.required],
-      departDate: [null, Validators.required]
+      from_city: [toCity, Validators.required],
+      to_city: [null, Validators.required],
+      depart_date: [null, Validators.required]
     });
 
     if (this.fg.controls.tripType.value === 'ROUND') {
@@ -347,10 +379,10 @@ export class MyAddEditTripPage implements OnInit {
         const firstCity = this.cities.at(0);
         this.cities.clear();
         const intialCity = this.formBuilder.group({
-          fromCity: [firstCity.value.fromCity, Validators.required],
-          toCity: [firstCity.value.toCity, Validators.required],
-          departDate: [firstCity.value.departDate, Validators.required],
-          returnDate: [null, Validators.required]
+          from_city: [firstCity.value.fromCity, Validators.required],
+          to_city: [firstCity.value.toCity, Validators.required],
+          depart_date: [firstCity.value.departDate, Validators.required],
+          return_date: [null, Validators.required]
         });
         this.cities.push(intialCity);
       }

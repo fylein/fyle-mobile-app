@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { from, Observable } from 'rxjs';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { from, Observable, noop } from 'rxjs';
+import { switchMap, map, tap, concatMap } from 'rxjs/operators';
 import { ExtendedTripRequest } from '../models/extended_trip_request.model';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
@@ -319,8 +319,15 @@ export class TripRequestsService {
   }
 
   submit(tripRequest) {
-    this.tripDatesService.convertToDateFormat(tripRequest);
-    return this.apiService.post('/trip_requests/submit', tripRequest);
+    // this.tripDatesService.convertToDateFormat(tripRequest);
+    return from(this.authService.getEou()).pipe(
+      map(eou => {
+        return tripRequest.org_user_id = eou.ou.id;
+      }),
+      concatMap(() => {
+        return this.apiService.post('/trip_requests/submit', tripRequest);
+      })
+    )
     // Todo: Fix dates and delete cache
   }
 }

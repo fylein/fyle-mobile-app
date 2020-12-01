@@ -172,6 +172,16 @@
                   <div class="other-details--text">
                     <app-fy-select [mandatory]="true" [label]="'Select Currency'" formControlName="currency"
                     [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
+                    <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
+                      <div>
+                        <div>
+                          {{display}}
+                        </div>
+                      </div>
+                      <mat-icon *ngIf="selected">
+                        check
+                      </mat-icon>
+                    </ng-template>
                   </div>
                 </ng-container>
     
@@ -312,6 +322,16 @@
                   <div class="other-details--text">
                     <app-fy-select [mandatory]="true" [label]="'Select Currency'" formControlName="currency"
                     [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
+                    <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
+                      <div>
+                        <div>
+                          {{display}}
+                        </div>
+                      </div>
+                      <mat-icon *ngIf="selected">
+                        check
+                      </mat-icon>
+                    </ng-template>
                   </div>
                 </ng-container>
     
