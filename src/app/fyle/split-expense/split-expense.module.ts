@@ -10,6 +10,10 @@ import { SplitExpensePage } from './split-expense.page';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SplitExpenseStatusComponent } from './split-expense-status/split-expense-status.component';
+import { FySelectProjectComponent } from './fy-select-project/fy-select-project.component';
+import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
+import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
   imports: [
@@ -19,11 +23,15 @@ import { SplitExpenseStatusComponent } from './split-expense-status/split-expens
     SplitExpensePageRoutingModule,
     MatIconModule,
     ReactiveFormsModule,
-    SharedModule
+    SharedModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
   declarations: [
     SplitExpensePage,
-    SplitExpenseStatusComponent
+    SplitExpenseStatusComponent,
+    FySelectProjectComponent,
+    FySelectModalComponent
   ]
 })
 export class SplitExpensePageModule {}

@@ -219,8 +219,6 @@ export class AddEditExpensePage implements OnInit {
       }]);
     });
 
-
-    
   }
 
   async splitExpense() {

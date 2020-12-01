@@ -29,6 +29,7 @@ export class SplitExpensePage implements OnInit {
   totalSplitAmount: number;
   remainingAmount: number;
   categories$: Observable<any>;
+  costCenters$: Observable<any>;
   transaction: any;
   fileObjs: any[];
   fileUrls: any[];
@@ -50,12 +51,6 @@ export class SplitExpensePage implements OnInit {
   ) { }
 
   ngOnInit() {
-    // this.fg = this.formBuilder.group({
-    //   amount: [],
-    //   currency: [],
-    //   percentage: [],
-    //   txn_dt: []
-    // })
   }
 
   goBack() {
@@ -114,6 +109,8 @@ export class SplitExpensePage implements OnInit {
     return {
         ...this.transaction,
         org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
+        project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
+        cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
         currency: splitExpenseValue.currency,
         amount: splitExpenseValue.amount,
         source: 'MOBILE'
@@ -241,7 +238,28 @@ export class SplitExpensePage implements OnInit {
               return { label: category.displayName, value: category };
             });
           })
-        )
+        );
+      } else if (this.splitType === 'cost_centers') {
+        const orgSettings$ = this.offlineService.getOrgSettings();
+        const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+        this.costCenters$ = forkJoin({
+          orgSettings: orgSettings$,
+          orgUserSettings: orgUserSettings$
+        }).pipe(
+          switchMap(({ orgSettings, orgUserSettings }) => {
+            if (orgSettings.cost_centers.enabled) {
+              return this.offlineService.getAllowedCostCenters(orgUserSettings);
+            } else {
+              return of([]);
+            }
+          }),
+          map(costCenters => {
+            return costCenters.map(costCenter => ({
+              label: costCenter.name,
+              value: costCenter
+            }));
+          })
+        );
       }
 
       this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
@@ -284,6 +302,10 @@ export class SplitExpensePage implements OnInit {
 
     if (this.splitType === 'categories') {
       fg.addControl('category', this.formBuilder.control('', [Validators.required]));
+    } else if (this.splitType === 'projects') {
+      fg.addControl('project', this.formBuilder.control('', [Validators.required]));
+    } else if (this.splitType === 'cost_centers') {
+      fg.addControl('cost_center', this.formBuilder.control('', [Validators.required]));
     }
 
     this.splitExpensesFormArray.push(fg);
