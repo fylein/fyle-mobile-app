@@ -10,6 +10,7 @@ import { TripDatesService } from './trip-dates.service';
 import { Approval } from '../models/approval.model';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -315,5 +316,11 @@ export class TripRequestsService {
 
   closeTrip(tripRequestId: string) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
+  }
+
+  submit(tripRequest) {
+    this.tripDatesService.convertToDateFormat(tripRequest);
+    return this.apiService.post('/trip_requests/submit', tripRequest);
+    // Todo: Fix dates and delete cache
   }
 }

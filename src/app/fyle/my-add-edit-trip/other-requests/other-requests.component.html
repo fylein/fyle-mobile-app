@@ -40,16 +40,16 @@
                   </label>
                 </div>
                 <div class="other-details--text">
-                  <div class="other-details--text-label">
-                      check in date
+                  <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': item.controls.checkInDt.touched && !item.controls.checkInDt.valid}">
+                    check in date <span> *</span>
                   </div>
                   <input class="other-details--date-input" matInput type="date" formControlName="checkInDt" 
                   (keydown)="$event.preventDefault()">
                 </div>
     
                 <div class="other-details--text">
-                  <div class="other-details--text-label">
-                    check out date
+                  <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': item.controls.checkOutDt.touched && !item.controls.checkOutDt.valid}">
+                    check out date <span> *</span>
                   </div>
                   <input class="other-details--date-input" matInput type="date" formControlName="checkOutDt" 
                   (keydown)="$event.preventDefault()">
@@ -69,19 +69,28 @@
                   <input class="other-details--date-input" type="number" formControlName="rooms">
                 </div>
     
-                <div class="other-details--text">
-                  <div class="other-details--text-label">
-                    Currency
+                <ng-container *ngIf="currencies$|async as currencies">
+                  <div class="other-details--text">
+                    <app-fy-select [mandatory]="true" [label]="'Select Currency'" formControlName="currency"
+                    [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
+                    <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
+                      <div>
+                        <div>
+                          {{display}}
+                        </div>
+                      </div>
+                      <mat-icon *ngIf="selected">
+                        check
+                      </mat-icon>
+                    </ng-template>
                   </div>
-                  <!-- <app-fy-currency formControlName="currency" [homeCurrency]="homeCurrency$|async"></app-fy-currency> -->
-                  <input class="other-details--text-input" type="text" formControlName="currency">
-                </div>
+                </ng-container>
     
                 <div class="other-details--text">
                   <div class="other-details--text-label">
                     Amount
                   </div>
-                  <input class="other-details--text-input" type="text" formControlName="amount">
+                  <input class="other-details--text-input" type="number" formControlName="amount">
                 </div>
     
                 <div class="other-details--text">
@@ -147,32 +156,37 @@
         <mat-tab *ngIf="otherRequests[1].advance" label="Advance">
           <ng-container formArrayName="advanceDetails">
             <div *ngFor="let item of advanceDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
-              <div class="other-details--wrapper-title">
-                <strong>
-                  <p>Advance {{i + 1}}</p>
-                </strong>
-              </div>
-              <div class="other-details--element-container">
-                <div class="other-details--text">
-                  <div class="other-details--text-label">
-                    Currency
-                  </div>
-                  <!-- <app-fy-currency formControlName="currency" [homeCurrency]="homeCurrency$|async"></app-fy-currency> -->
-                  <input class="other-details--text-input" type="text" formControlName="currency">
+              <div class="other-details--wrapper-title other-details--advance-count-action">
+                <div>
+                  <strong>
+                    <p>Advance {{i + 1}}</p>
+                  </strong>
                 </div>
+                <div>
+                  <mat-icon *ngIf="i !== 0" (click)="removeAdvance(i)" class="other-details--delete-traveller">delete</mat-icon>
+                </div>
+              </div>
+
+              <div class="other-details--element-container">
+                <ng-container *ngIf="currencies$|async as currencies">
+                  <div class="other-details--text">
+                    <app-fy-select [mandatory]="true" [label]="'Select Currency'" formControlName="currency"
+                    [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
+                  </div>
+                </ng-container>
     
                 <div class="other-details--text">
-                  <div class="other-details--text-label">
-                    Amount
+                  <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': item.controls.amount.touched && !item.controls.amount.valid}">
+                    Amount <span> *</span>
                   </div>
-                  <input class="other-details--text-input" type="text" formControlName="amount">
+                  <input class="other-details--text-input" type="number" formControlName="amount">
                 </div>
 
                 <div class="other-details--text">
-                  <div class="other-details--text-label">
-                    Notes
+                  <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': item.controls.purpose.touched && !item.controls.purpose.valid}">
+                    purpose <span> *</span>
                   </div>
-                  <input class="other-details--text-input" type="text" formControlName="notes">
+                  <input class="other-details--text-input" type="text" formControlName="purpose">
                 </div>
                   
                 <div class="other-details--text">
@@ -290,26 +304,22 @@
                 </div>
     
                 <div class="other-details--text">
-                  <app-fy-select [mandatory]="false" [label]="'Select Preferred Timing'" formControlName="transportTiming" 
+                  <app-fy-select [label]="'Select Preferred Timing'" formControlName="transportTiming" 
                   [options]="preferredTransportationTiming$|async" [nullOption]="false"></app-fy-select>
                 </div>
-    
-                <div class="other-details--text">
-                  <div class="other-details--text-label">
-                    Currency
+  
+                <ng-container *ngIf="currencies$|async as currencies">
+                  <div class="other-details--text">
+                    <app-fy-select [mandatory]="true" [label]="'Select Currency'" formControlName="currency"
+                    [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
                   </div>
-                  <ng-container *ngIf="homeCurrency$|async as homeCurrency">
-                    <!-- user app-fy-currency from shared/components -->
-                    <!-- <app-fy-currency formControlName="currency" [homeCurrency]="homeCurrency"></app-fy-currency> -->
-                    <input class="other-details--text-input" type="text" formControlName="currency">
-                  </ng-container>
-                </div>
+                </ng-container>
     
                 <div class="other-details--text">
                   <div class="other-details--text-label">
                     Amount
                   </div>
-                  <input class="other-details--text-input" type="text" formControlName="amount">
+                  <input class="other-details--text-input" type="number" formControlName="amount">
                 </div>
     
                 <div class="other-details--text">

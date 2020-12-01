@@ -5,7 +5,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
-import { map, tap, mergeMap, startWith, concatMap } from 'rxjs/operators';
+import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay } from 'rxjs/operators';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ModalController } from '@ionic/angular';
@@ -14,6 +14,7 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -50,7 +51,8 @@ export class MyAddEditTripPage implements OnInit {
     private orgUserService: OrgUserService,
     private modalController: ModalController,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private tripRequestsService: TripRequestsService
   ) { }
 
   fg: FormGroup;
@@ -87,20 +89,46 @@ export class MyAddEditTripPage implements OnInit {
     return this.fg.get('travellerDetails') as FormArray;
   }
 
-  debug(doubt) {
-    console.log('\n\n\n doubt =>', doubt);
-  }
+  // debug(doubt) {
+  //   console.log('\n\n\n doubt =>', doubt);
+  // }
 
   onSubmit() {
     if (this.fg.valid) {
-      console.log('\n\n\n finally form has been submited -> ', this.fg.value);
+      if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
+        this.fg.markAllAsTouched();
+        return;
+      } else {
+        this.submitTripRequest(this.fg.value);
+      }
     } else {
       this.fg.markAllAsTouched();
     }
   }
 
+  submitTripRequest(formValue) {
+    // vm.criticalPromise = this.tripRequestsService.submit(angular.copy(vm.tripRequest.trp)).then(function (tripRequest) {
+    //   var promises = submitTransportationAndHotelRequest(tripRequest);
+    //   if (vm.advanceRequests.length > 0) {
+    //     promises.advancesRequest = submitAdvancesRequests(tripRequest);
+    //   }
+    //   return $q.all(promises).then(function (res) {
+    //     $ionicLoading.hide();
+    //     TripRequestsService.triggerPolicyCheck(tripRequest.id);
+    //     res.tripRequest = tripRequest;
+    //     return res;
+    //   });
+    // });
+    // return vm.criticalPromise;
+
+  }
+
   get startDate() {
     return this.fg.get('startDate') as FormControl;
+  }
+
+  get endDate() {
+    return this.fg.get('endDate') as FormControl;
   }
 
   setDefaultStarrtDate() {
@@ -159,7 +187,12 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
-    return await modal.present();
+      if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
+        this.fg.markAllAsTouched();
+        return;
+      } else {
+        return await modal.present();
+      }
     } else {
       this.fg.markAllAsTouched();
     }
@@ -231,19 +264,6 @@ export class MyAddEditTripPage implements OnInit {
     );
 
     this.intializeDefaults();
-
-    this.tripDate = {
-      startMin: this.dateService.addDaysToDate(new Date(), -1),
-      endMin: this.dateService.addDaysToDate(new Date(), -1),
-      departMin: this.dateService.addDaysToDate(new Date(), -1),
-      departMax: this.dateService.addDaysToDate(new Date(), -1)
-    };
-
-    this.hotelDate = {
-      checkInMin: this.dateService.addDaysToDate(new Date(), -1),
-      checkInMax: this.dateService.addDaysToDate(new Date(), -1),
-      checkOutMin: this.dateService.addDaysToDate(new Date(), -1)
-    };
 
     this.minDate = this.fg.controls.startDate.value;
     this.maxDate = this.fg.controls.endDate.value;
@@ -333,7 +353,6 @@ export class MyAddEditTripPage implements OnInit {
           returnDate: [null, Validators.required]
         });
         this.cities.push(intialCity);
-        this.addDefaultCity();
       }
     });
   }

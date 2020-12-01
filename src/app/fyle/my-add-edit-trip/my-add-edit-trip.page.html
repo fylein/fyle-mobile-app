@@ -67,7 +67,7 @@
           </div>
 
           <div class="add-edit-trip--text">
-            <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': fg.controls.endDate.touched && !fg.controls.endDate.valid}">
+            <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': (fg.controls.endDate.touched && !fg.controls.endDate.valid) || !(fg.controls.endDate.value >= fg.controls.startDate.value)}">
               End date <span>*</span> <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
             </div>
             <input class="add-edit-trip--date-input" matInput type="date" formControlName="endDate"
@@ -110,7 +110,7 @@
                       Select Depart Date <span>*</span>
                     </div>
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="departDate"
-                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+                    (keydown)="$event.preventDefault()" [min]="fg.controls.startDate.value" [max]="fg.controls.endDate.value">
                   </div>
 
                   <div class="add-edit-trip--text" *ngIf="fg.controls.tripType.value === 'ROUND'">
@@ -118,7 +118,7 @@
                       Select Return Date <span>*</span>
                     </div>
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="returnDate"
-                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="fg.controls.endDate.value">
                   </div>
               </div>
             </div>

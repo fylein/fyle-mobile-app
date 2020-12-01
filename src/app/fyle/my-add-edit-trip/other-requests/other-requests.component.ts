@@ -1,13 +1,14 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Observable, forkJoin, noop, of } from 'rxjs';
+import { Observable, forkJoin, noop, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { map } from 'rxjs/operators';
+import { map, concatMap, finalize, shareReplay } from 'rxjs/operators';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-other-requests',
@@ -31,6 +32,7 @@ export class OtherRequestsComponent implements OnInit {
   transportRequestCustomFields$: Observable<any>;
   hotelRequestCustomFields$: Observable<any>;
   advanceRequestCustomFields$: Observable<any>;
+  currencies$: Observable<any>;
 
   otherDetailsForm: FormGroup;
 
@@ -41,7 +43,8 @@ export class OtherRequestsComponent implements OnInit {
     private currencyService: CurrencyService,
     private transportationRequestsService: TransportationRequestsService,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
-    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService
+    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
+    private loaderService: LoaderService
   ) { }
 
   goBack() {
@@ -71,9 +74,9 @@ export class OtherRequestsComponent implements OnInit {
     }).pipe(
       map(res => {
         const details = this.formBuilder.group({
-          amount: [null],
-          currency: [res.preferredCurrency || res.homeCurrency],
-          purpose: [null],
+          amount: [null, Validators.required],
+          currency: [res.preferredCurrency || res.homeCurrency, Validators.required],
+          purpose: [null, Validators.required],
           custom_field_values: new FormArray([]),
           notes: [null]
         });
@@ -178,6 +181,10 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
+  removeAdvance(i) {
+    this.advanceDetails.removeAt(i);
+  }
+
   onSubmit() {
     if (this.otherDetailsForm.valid) {
       console.log('submitting other details form ->', this.otherDetailsForm);
@@ -206,6 +213,21 @@ export class OtherRequestsComponent implements OnInit {
       })
     );
 
+    this.currencies$ = from(this.loaderService.showLoader()).pipe(
+      concatMap(() => {
+        return this.currencyService.getAll();
+      }),
+      map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({
+        value: shortCode,
+        label: shortCode,
+        displayValue: shortCode + ' - ' + currenciesObj[shortCode]
+      }))),
+      finalize(() => {
+        from(this.loaderService.hideLoader()).subscribe(noop);
+      }),
+      shareReplay()
+    );
+
     this.transportationMode$ = of(this.transportationRequestsService.getTransportationModes());
     this.preferredTransportationTiming$ = of (this.transportationRequestsService.getTransportationPreferredTiming());
 
@@ -223,8 +245,8 @@ export class OtherRequestsComponent implements OnInit {
             const details = this.formBuilder.group({
               assignedAt: [new Date()],
               assignedTo: [this.fgValues.travelAgent],
-              checkInDt: [city.departDate],
-              checkOutDt: [checkOutDate],
+              checkInDt: [city.departDate, Validators.required],
+              checkOutDt: [checkOutDate, Validators.required],
               city: [city.toCity.city],
               currency: [res.preferredCurrency || res.homeCurrency],
               amount: [],
@@ -254,7 +276,7 @@ export class OtherRequestsComponent implements OnInit {
               needBooking: [true],
               onwardDt: [onwardDt],
               toCity: [city.toCity],
-              transportMode: [],
+              transportMode: [, Validators.required],
               transportTiming: [],
               travellerDetails: [this.fgValues.travellerDetails],
               notes: []
@@ -284,9 +306,9 @@ export class OtherRequestsComponent implements OnInit {
 
         if (this.otherRequests[1].advance) {
           const details = this.formBuilder.group({
-            amount: [null],
-            currency: [res.preferredCurrency || res.homeCurrency],
-            purpose: [null],
+            amount: [null, Validators.required],
+            currency: [res.preferredCurrency || res.homeCurrency, Validators.required],
+            purpose: [null, Validators.required],
             custom_field_values: new FormArray([]),
             notes: [null]
           });
@@ -304,6 +326,8 @@ export class OtherRequestsComponent implements OnInit {
       transportDetails: new FormArray([]),
       advanceDetails: new FormArray([]),
     });
+
+    this.otherDetailsForm.valueChanges.subscribe(res => console.log('res ->', res));
   }
 
 }
