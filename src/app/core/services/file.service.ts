@@ -8,6 +8,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class FileService {
+
   constructor(
     private apiService: ApiService
   ) { }
@@ -15,6 +16,27 @@ export class FileService {
   downloadUrl(fileId: string): Observable<string> {
     return this.apiService.post('/files/' + fileId + '/download_url').pipe(
       map(res => res.url)
+    );
+  }
+
+  base64Download(fileId) {
+    return this.apiService.get('/files/' + fileId + '/download_b64');
+  }
+
+  findByTransactionId(txnId: string): Observable<File[]> {
+    return from(this.apiService.get('/files', {
+      params: {
+        transaction_id: txnId,
+        skip_html: 'true'
+      }
+    })).pipe(
+      map((files) => {
+        files.map(file => {
+          this.fixDates(file);
+          this.setFileType(file);
+        });
+        return files as File[];
+      })
     );
   }
   

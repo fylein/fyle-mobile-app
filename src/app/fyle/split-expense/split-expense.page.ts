@@ -4,10 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { PopoverController, ToastController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
-import { from, iif, noop, Observable, of } from 'rxjs';
-import { catchError, finalize, map, switchMap } from 'rxjs/operators';
+import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
+import { catchError, concatMap, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
+import { FileService } from 'src/app/core/services/file.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/split-expense.service';
@@ -30,6 +31,7 @@ export class SplitExpensePage implements OnInit {
   categories$: Observable<any>;
   transaction: any;
   fileObjs: any[];
+  fileUrls: any[];
   maxDate: string;
   minDate: string;
 
@@ -42,7 +44,8 @@ export class SplitExpensePage implements OnInit {
     private toastController: ToastController,
     private splitExpenseService: SplitExpenseService,
     private popoverController: PopoverController,
-    private transactionService: TransactionService
+    private transactionService: TransactionService,
+    private fileService: FileService
   ) { }
 
   ngOnInit() {
@@ -112,13 +115,38 @@ export class SplitExpensePage implements OnInit {
     if (!this.transaction.id) {
       return of(null);
     } else {
-      return of(null);
+      return this.getAttachedFiles(this.transaction.id);
     }
   }
 
   createAndLinkTxnsWithFiles(splitExpenses) {
     console.log(splitExpenses);
-    return this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses)
+    const splitExpense$: any = {
+      txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses)
+    };
+
+    if (this.fileObjs && this.fileObjs.length > 0) {
+      splitExpense$.files = this.splitExpenseService.getBase64Content(this.fileObjs);
+    }
+
+    return forkJoin(splitExpense$).pipe(
+      // switchMap(data => {
+      //   return this.splitExpenseService.linkTxnWithFiles(data);
+      // }),
+      switchMap((data: any) => {
+        const txnIds = data.txns.map((txn) => {
+          return txn.id;
+        });
+        console.log(txnIds);
+        return this.splitExpenseService.linkTxnWithFiles(data).pipe(
+          map(() => {
+            return txnIds;
+          })
+        )
+        //return txnIds;
+      })
+    )
+
   }
 
   async showSplitExpenseStatusPopup(isSplitSuccessful: boolean) {
@@ -134,8 +162,13 @@ export class SplitExpensePage implements OnInit {
     await splitExpenseStatusPopup.present();
   }
 
-  save1() {
-    this.showSplitExpenseStatusPopup(true);
+  getAttachedFiles(transactionId) {
+    return this.fileService.findByTransactionId(transactionId).pipe(
+      map(uploadedFiles => {
+        this.fileObjs = uploadedFiles;
+        return this.fileObjs;
+      })
+    );
   }
 
   save() {
@@ -148,23 +181,27 @@ export class SplitExpensePage implements OnInit {
         generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
       });
 
-      this.createAndLinkTxnsWithFiles(generatedSplitEtxn).pipe(
-        switchMap(res => {
-          return iif(() => this.transaction.id, this.transactionService.delete(this.transaction.id),  of(null));
+      const uploadFiles$ = this.uploadFiles(this.fileUrls);
+
+      uploadFiles$.pipe(
+        concatMap(() => {
+          return this.createAndLinkTxnsWithFiles(generatedSplitEtxn);
         }),
-        catchError(() => {
-          return this.showSplitExpenseStatusPopup(false);
+        concatMap(() => {
+          return iif(
+            () => this.transaction.id,
+            this.transactionService.delete(this.transaction.id),
+            of(null));
         }),
-        finalize(() => {
-          this.showSplitExpenseStatusPopup(true);
-        })
-      ).subscribe(noop);
+      ).subscribe(
+        () => this.showSplitExpenseStatusPopup(true),
+        () => this.showSplitExpenseStatusPopup(false)
+      );
+
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
     }
   }
-
-  
 
   getActiveCategories() {
     const allCategories$ = this.offlineService.getAllCategories();
@@ -186,6 +223,7 @@ export class SplitExpensePage implements OnInit {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
       this.splitType = this.activatedRoute.snapshot.params.splitType;
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
+      this.fileUrls = this.activatedRoute.snapshot.params.fileObjs;
 
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
