@@ -316,4 +316,14 @@ export class TripRequestsService {
   closeTrip(tripRequestId: string) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
   }
+
+  findMyUnreportedRequests() {
+    const data = {
+      params: {
+        only_unreported: true
+      }
+    };
+
+    return this.apiService.get('/trip_requests', data);
+  }
 }

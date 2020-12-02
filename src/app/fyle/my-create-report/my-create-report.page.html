@@ -16,6 +16,13 @@
       <input class="my-create-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required>
     </div>
 
+    <div class="my-create-report--report-card">
+      <span>Select a trip to associate with report:</span>
+      <app-fy-select [label]="'Select a Trip'" [options]="this.tripRequests" [(ngModel)]="selectedTripRequest">
+      </app-fy-select>
+
+    </div>
+
     <div *ngFor="let etxn of readyToReportEtxns as list; let i = index">
       <p class="my-create-report--expense-date" *ngIf="etxn.showDt">
         <span>{{etxn.tx_txn_dt | date: 'EEEE, dd MMMM yyyy'}}</span>
