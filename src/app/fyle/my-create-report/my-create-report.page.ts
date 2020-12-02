@@ -125,19 +125,19 @@ export class MyCreateReportPage implements OnInit {
   }
 
   getReportTitle() {
-    let etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
-    let txnIds = etxns.map(etxn => etxn.tx_id);
-    this.selectedTotalAmount = etxns.reduce(function (acc, obj) { return acc + obj.tx_amount; }, 0);
+    const etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
+    const txnIds = etxns.map(etxn => etxn.tx_id);
+    this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + obj.tx_amount, 0);
     this.selectedTotalTxns = txnIds.length;
 
-    if (txnIds.length > 0) {  
+    if (txnIds.length > 0) {
       return this.reportService.getReportPurpose({ids: txnIds}).pipe(
         map(res => {
           return res;
         })
       ).subscribe(res => {
         this.reportTitle = res;
-      })
+      });
     }
   }
 
