@@ -34,8 +34,8 @@ export class SplitExpenseService {
   }
 
   getBase64Content(fileObjs) {
-    const promises = [];
-    let newFileObjs: any[] = fileObjs.map((fileObj) => {
+    const fileObservables$ = [];
+    const newFileObjs: any[] = fileObjs.map((fileObj) => {
       return {
         id: fileObj.id,
         name: fileObj.name,
@@ -44,10 +44,10 @@ export class SplitExpenseService {
     });
 
     newFileObjs.forEach((fileObj) => {
-      promises.push(this.fileService.base64Download(fileObj.id));
+      fileObservables$.push(this.fileService.base64Download(fileObj.id));
     });
 
-    return forkJoin(promises).pipe(
+    return forkJoin(fileObservables$).pipe(
       map((data: any[]) => {
         newFileObjs.forEach((fileObj, index) => {
           fileObj.content = data[index].content;
@@ -88,7 +88,7 @@ export class SplitExpenseService {
   }
 
   createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, totalSplitExpensesCount) {
-    const promises = [];
+    const txnsObservables$ = [];
 
     splitExpenses.forEach((splitExpense, index) => {
       const transaction = { ...sourceTxn }
@@ -125,9 +125,9 @@ export class SplitExpenseService {
         transaction.purpose += ' (' + splitIndex  + ')';
       }
 
-      promises.push(this.transactionService.upsert(transaction));
+      txnsObservables$.push(this.transactionService.upsert(transaction));
     });
 
-    return forkJoin(promises);
+    return forkJoin(txnsObservables$);
   }
 }

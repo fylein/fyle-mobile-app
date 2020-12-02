@@ -239,7 +239,7 @@ export class SplitExpensePage implements OnInit {
             });
           })
         );
-      } else if (this.splitType === 'cost_centers') {
+      } else if (this.splitType === 'cost centers') {
         const orgSettings$ = this.offlineService.getOrgSettings();
         const orgUserSettings$ = this.offlineService.getOrgUserSettings();
         this.costCenters$ = forkJoin({
@@ -304,7 +304,7 @@ export class SplitExpensePage implements OnInit {
       fg.addControl('category', this.formBuilder.control('', [Validators.required]));
     } else if (this.splitType === 'projects') {
       fg.addControl('project', this.formBuilder.control('', [Validators.required]));
-    } else if (this.splitType === 'cost_centers') {
+    } else if (this.splitType === 'cost centers') {
       fg.addControl('cost_center', this.formBuilder.control('', [Validators.required]));
     }
 

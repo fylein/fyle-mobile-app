@@ -15,7 +15,7 @@
 <ion-content>
   <div class="split-expense--container">
 
-    <p class="split-expense--message">You are splitting across {{ splitType }}. <span ng-if="currency && amount">The splits must total upto {{ currency }} {{ amount  }}.</span></p>
+    <p class="split-expense--message">You are splitting across {{ splitType }}. <span *ngIf="currency && amount">The splits must total upto {{ currency }} {{ amount  }}.</span></p>
     <p class="split-expense--warning">Splitting an expense cannot be undone</p>
 
 
@@ -28,12 +28,10 @@
         </button>
       </div>
 
-
       <ng-container [formGroup]="splitExpenseForm">
-
         <div *ngIf="splitType === 'categories'">
           <div *ngIf="categories$|async as categories">
-            <app-fy-select [label]="'Select Category'" [mandatory]="true" formControlName="category" [options]="categories">
+            <app-fy-select [label]="'Select Category'" formControlName="category" [options]="categories">
             </app-fy-select>
           </div>
         </div>
@@ -42,22 +40,16 @@
           <app-fy-select-project [label]="'Select Project'" formControlName="project"></app-fy-select-project>
         </div>
 
-        <div *ngIf="splitType === 'cost_centers'">
+        <div *ngIf="splitType === 'cost centers'">
           <div *ngIf="costCenters$|async as costCenters">
-            <app-fy-select [label]="'Select Cost Centers'" [mandatory]="true" formControlName="cost_center" [options]="costCenters">
+            <app-fy-select [label]="'Select Cost Centers'" formControlName="cost_center" [options]="costCenters">
             </app-fy-select>
           </div>
         </div>
 
-        <div>
-          <div>
-              <div class="split-expense--item split-expense--date">
-                <div class="split-expense--label split-expense--date-label">Date*</div>
-                <!-- <input type="number" class="split-expense--input split-expense--date-input" formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm)"> -->
-                <input class="split-expense--input split-expense--date-input" matInput type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
-              </div>
-
-          </div>
+        <div class="split-expense--item split-expense--date">
+          <div class="split-expense--label split-expense--date-label">Date*</div>
+          <input class="split-expense--input split-expense--date-input" matInput type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
         </div>
 
         <div class="split-expense--amount-percentage">
