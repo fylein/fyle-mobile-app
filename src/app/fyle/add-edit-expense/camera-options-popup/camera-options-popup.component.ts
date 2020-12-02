@@ -13,7 +13,7 @@ import { FileService } from 'src/app/core/services/file.service';
 })
 export class CameraOptionsPopupComponent implements OnInit {
 
-  @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef;
+  @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
   constructor(
     private popoverController: PopoverController,
@@ -47,20 +47,23 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async getImageFromImagePicker() {
-    const fileUpload = this.fileUpload.nativeElement;
-    fileUpload.onchange = async () => {
-      const file = fileUpload.files[0];
+    const that = this;
+    const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+
+    nativeElement.onchange = async () => {
+      const file = nativeElement.files[0];
 
       if (file) {
-        const dataUrl = await this.fileService.readFile(file);
-        this.popoverController.dismiss({
+        const dataUrl = await that.fileService.readFile(file);
+        that.popoverController.dismiss({
           type: file.type,
           dataUrl
         });
       } else {
-        this.closeClicked();
+        that.closeClicked();
       }
     };
-    fileUpload.click();
+
+    nativeElement.click();
   }
 }

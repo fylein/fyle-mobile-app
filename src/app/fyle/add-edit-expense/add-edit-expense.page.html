@@ -221,10 +221,10 @@
         </ng-container>
 
         <ng-container *ngIf="txnFields$|async as txnFields">
-          <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt.canView">
+          <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt?.canView">
             <div class="add-edit-expense--date-label">
               Date of Spend
-              <span ng-if="txnFields.txn_dt.mandatory">*</span>
+              <span ng-if="txnFields.txn_dt?.mandatory">*</span>
             </div>
             <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
               (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
@@ -521,8 +521,8 @@
         <ng-container *ngIf="txnFields$|async as txnFields">
           <div class="add-edit-expense--internal-block"
             *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
-            <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id.mandatory"
-              [label]="(etxn$|async)?.tx?.cost_center_id ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title"
+            <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id?.mandatory"
+              [label]="(etxn$|async)?.tx?.cost_center_id ? txnFields.cost_center_id?.title : 'Enter ' + txnFields.cost_center_id?.title"
               [options]="costCenters">
             </app-fy-select>
           </div>
