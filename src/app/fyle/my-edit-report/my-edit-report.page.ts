@@ -3,11 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { concatMap, finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -104,7 +103,7 @@ export class MyEditReportPage implements OnInit {
 
   undoExpenseDelete(etxn: Expense) {
     etxn.isHidden = false;
-    let index = this.deleteExpensesIdList.indexOf(etxn.tx_id);
+    const index = this.deleteExpensesIdList.indexOf(etxn.tx_id);
     this.deleteExpensesIdList.splice(index, 1);
     this.checkReportEdited();
     // Todo: update report amount and count after 
@@ -114,7 +113,7 @@ export class MyEditReportPage implements OnInit {
 
   removeExpenseFromAddedExpensesList(etxn: Expense) {
     etxn.isSelected = false;
-    let index = this.addedExpensesIdList.indexOf(etxn.tx_id);
+    const index = this.addedExpensesIdList.indexOf(etxn.tx_id);
     this.addedExpensesIdList.splice(index, 1);
     this.checkReportEdited();
     // Todo: update report amount and count after 
@@ -128,7 +127,7 @@ export class MyEditReportPage implements OnInit {
   }
 
   removeTxnFromReport() {
-    let removeTxnList$ = [];
+    const removeTxnList$ = [];
     this.deleteExpensesIdList.forEach(txnId => {
       removeTxnList$.push(this.reportService.removeTransaction(this.activatedRoute.snapshot.params.id, txnId))
     });
@@ -145,10 +144,18 @@ export class MyEditReportPage implements OnInit {
 
     this.reportService.createDraft(report).pipe(
       switchMap(res => {
-        return iif(() => (this.addedExpensesIdList.length > 0), this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList) ,of(false));
+        return iif(
+          () => (this.addedExpensesIdList.length > 0),
+          this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList),
+          of(false)
+        );
       }),
       switchMap(res => {
-        return iif(() => (this.deleteExpensesIdList.length > 0), this.removeTxnFromReport() ,of(false));
+        return iif(
+          () => (this.deleteExpensesIdList.length > 0),
+          this.removeTxnFromReport() ,
+          of(false)
+        );
       }),
       finalize(() => {
         this.addedExpensesIdList = [];
@@ -225,18 +232,6 @@ export class MyEditReportPage implements OnInit {
         this.getSelectedTripInfo(extendedReport.rp_trip_request_id);
       }
     });
-
-    // this.extendedReport$.pipe(
-    //   switchMap(extendedReport => {
-    //     return iif(() => extendedReport.rp_trip_request_id, this.tripRequestsService.get(extendedReport.rp_trip_request_id), of(null));
-    //   }),
-    // ).subscribe((tripRequest: any) => {
-    //   const selectedTripRequest = {
-    //     label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,
-    //     value: tripRequest
-    //   };
-    //   this.tripRequests.push(selectedTripRequest);
-    // });
 
     this.reportedEtxns$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {

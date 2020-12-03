@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import * as moment from 'moment';
 import { forkJoin, from, noop, Observable } from 'rxjs';
-import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -54,7 +54,7 @@ export class MyCreateReportPage implements OnInit {
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
     }
-  };
+  }
 
   async showReportSummaryPopover(action) {
     const reportSummaryPopover = await this.popoverController.create({
@@ -229,12 +229,10 @@ export class MyCreateReportPage implements OnInit {
       this.readyToReportEtxns = res;
       this.getReportTitle();
     });
-    
+
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
   }
-  
-  ngOnInit() {
-    // Todo: Support for select trip request during create report
-  }
+
+  ngOnInit() {}
 
 }
