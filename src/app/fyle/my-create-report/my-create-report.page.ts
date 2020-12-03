@@ -86,7 +86,7 @@ export class MyCreateReportPage implements OnInit {
       if (action === 'draft') {
         this.reportService.createDraft(report).pipe(
           switchMap((res) => {
-            return this.reportService.addTransactions(res.id, txnIds)
+            return this.reportService.addTransactions(res.id, txnIds);
           }),
           finalize(() => {
             this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -101,7 +101,6 @@ export class MyCreateReportPage implements OnInit {
       }
     }
   }
-
 
   toggleSelectAll(value: boolean) {
     this.readyToReportEtxns.forEach(etxn => {
