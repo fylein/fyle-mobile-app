@@ -84,17 +84,21 @@ export class MyCreateReportPage implements OnInit {
       this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + obj.tx_amount, 0);
 
       if (action === 'draft') {
+        this.loaderService.showLoader('Saving Report...');
         this.reportService.createDraft(report).pipe(
           switchMap((res) => {
             return this.reportService.addTransactions(res.id, txnIds);
           }),
           finalize(() => {
+            this.loaderService.hideLoader();
             this.router.navigate(['/', 'enterprise', 'my_reports']);
           })
         ).subscribe(noop);
       } else {
+        this.loaderService.showLoader('Submitting Report...');
         this.reportService.create(report, txnIds).pipe(
           finalize(() => {
+            this.loaderService.hideLoader();
             this.router.navigate(['/', 'enterprise', 'my_reports']);
           })
         ).subscribe(noop);
