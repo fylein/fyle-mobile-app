@@ -142,7 +142,7 @@ export class MyCreateReportPage implements OnInit {
     }
   }
 
-  toggleTransaction (etxn) {
+  toggleTransaction(etxn) {
     etxn.isSelected = !etxn.isSelected;
     this.getReportTitle();
   }
@@ -173,9 +173,7 @@ export class MyCreateReportPage implements OnInit {
           return {label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest};
         });
       })
-    ).subscribe(res => {
-      this.tripRequests = res;
-    });
+    );
   }
 
   ionViewWillEnter() {
@@ -193,13 +191,14 @@ export class MyCreateReportPage implements OnInit {
 
     forkJoin({
       orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$
-    }).subscribe(({ orgSettings,  orgUserSettings}) => {
+      orgUserSettings: orgUserSettings$,
+      tripRequests: this.getTripRequests()
+    }).subscribe(({ orgSettings,  orgUserSettings, tripRequests}) => {
       this.isTripRequestsEnabled = orgSettings.trip_requests.enabled;
       this.canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee ||
       (orgSettings.trip_requests.enable_for_certain_employee &&
       orgUserSettings.trip_request_org_user_settings.enabled));
-      this.getTripRequests();
+      this.tripRequests = tripRequests;
     });
 
     from(this.loaderService.showLoader()).pipe(

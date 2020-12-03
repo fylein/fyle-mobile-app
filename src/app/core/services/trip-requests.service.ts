@@ -76,6 +76,10 @@ export class TripRequestsService {
     );
   }
 
+  get(tripRequestId) {
+    return this.apiService.get('/trip_requests/' + tripRequestId)
+  }
+
   getActions(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
   }

@@ -9,6 +9,7 @@ import { MyEditReportPageRoutingModule } from './my-edit-report-routing.module';
 import { MyEditReportPage } from './my-edit-report.page';
 import { MatIconModule } from '@angular/material/icon';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
     FormsModule,
     IonicModule,
     MyEditReportPageRoutingModule,
-    MatIconModule
+    MatIconModule,
+    SharedModule
   ],
   declarations: [
     MyEditReportPage,
