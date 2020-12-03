@@ -25,7 +25,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import * as _ from 'lodash';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, AlertController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -82,6 +82,7 @@ export class AddEditExpensePage implements OnInit {
   attachedReceiptsCount = 0;
   instaFyleCancelled = false;
   newExpenseDataUrls = [];
+  focusState = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -106,7 +107,8 @@ export class AddEditExpensePage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private fileService: FileService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private alertController: AlertController
   ) { }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -852,6 +854,54 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  goToPrev() {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+
+    if (this.reviewList[+this.activeIndex - 1]) {
+      this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe(etxn => {
+        this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
+      });
+    }
+  }
+
+  goToNext() {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+
+    if (this.reviewList[+this.activeIndex + 1]) {
+      this.transactionService.getETxn(this.reviewList[+this.activeIndex + 1]).subscribe(etxn => {
+        this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
+      });
+    }
+  }
+
+  goToTransaction(expense, reviewList, activeIndex) {
+    let category;
+
+    if (expense.tx.org_category) {
+      category = expense.tx.org_category.toLowerCase();
+    }
+    //TODO: Leave for later
+    // if (category === 'activity') {
+    //   showCannotEditActivityDialog();
+
+    //   return;
+    // }
+
+    if (category === 'mileage') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    } else if (category === 'per diem') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    }
+  }
+
   ionViewWillEnter() {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
@@ -867,8 +917,10 @@ export class AddEditExpensePage implements OnInit {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
     this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
+
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
-    this.reviewList = this.activatedRoute.snapshot.params.txnIds;
+    this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+
     this.title = 'Add Expense';
     this.title = this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
     this.duplicateBoxOpen = false;
@@ -1022,7 +1074,8 @@ export class AddEditExpensePage implements OnInit {
             train_travel_class: this.fg.value.train_travel_class,
             bus_travel_class: this.fg.value.bus_travel_class,
             distance: this.fg.value.distance,
-            distance_unit: this.fg.value.distance_unit
+            distance_unit: this.fg.value.distance_unit,
+            report_id: this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id
           },
           ou: etxn.ou,
           dataUrls: [].concat(this.newExpenseDataUrls)
@@ -1118,15 +1171,43 @@ export class AddEditExpensePage implements OnInit {
   // }
 
   saveExpense() {
-    if (this.fg.valid) {
-      if (this.mode === 'add') {
-        this.addExpense();
+    const that = this;
+
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense().subscribe(noop);
       } else {
         // to do edit
-        this.editExpense();
+        that.editExpense().subscribe(noop);
       }
     } else {
-      this.fg.markAllAsTouched();
+      that.fg.markAllAsTouched();
+    }
+  }
+
+  saveExpenseAndGotoNext() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense().subscribe(() => {
+          if (+this.activeIndex === this.reviewList.length - 1) {
+            that.closeAddEditExpenses();
+          } else {
+            that.goToNext();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense().subscribe(() => {
+          if (+this.activeIndex === this.reviewList.length - 1) {
+            that.closeAddEditExpenses();
+          } else {
+            that.goToNext();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
     }
   }
 
@@ -1162,7 +1243,7 @@ export class AddEditExpensePage implements OnInit {
   editExpense() {
     const customFields$ = this.getCustomFields();
 
-    from(this.loaderService.showLoader())
+    return from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
           return this.generateEtxnFromFg(this.etxn$, customFields$);
@@ -1324,13 +1405,13 @@ export class AddEditExpensePage implements OnInit {
           return transaction;
         }),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(noop);
+      );
   }
 
   addExpense() {
     const customFields$ = this.getCustomFields();
 
-    from(this.loaderService.showLoader())
+    return from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
           return this.generateEtxnFromFg(this.etxn$, customFields$);
@@ -1479,7 +1560,7 @@ export class AddEditExpensePage implements OnInit {
               }));
         }),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(noop);
+      );
   }
 
   closeAddEditExpenses() {
@@ -1510,33 +1591,28 @@ export class AddEditExpensePage implements OnInit {
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
           switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-          tap(console.log),
           map(fileObjs => {
             return (fileObjs && fileObjs.length) || 0;
           })
         );
 
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            let attachmentType = 'image';
+        this.attachmentUploadInProgress = true;
+        let attachmentType = 'image';
 
-            if (data.type === 'application/pdf') {
-              attachmentType = 'pdf';
-            }
-            // TODO: Resize file
-            return this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType);
-          }),
+        if (data.type === 'application/pdf') {
+          attachmentType = 'pdf';
+        }
+        from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType)).pipe(
           switchMap((fileObj: any) => {
             fileObj.transaction_id = this.activatedRoute.snapshot.params.id;
-            console.log(fileObj);
             return this.fileService.post(fileObj);
           }),
-          tap(console.log),
           switchMap(() => {
             return editExpenseAttachments$;
           }),
-          tap(console.log),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => {
+            this.attachmentUploadInProgress = false;
+          })
         ).subscribe((attachments) => {
           this.attachedReceiptsCount = attachments;
         });
@@ -1580,7 +1656,6 @@ export class AddEditExpensePage implements OnInit {
   viewAttachments() {
     const editExpenseAttachments = this.etxn$.pipe(
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-      tap(console.log),
       switchMap(fileObjs => {
         return from(fileObjs);
       }),
@@ -1597,22 +1672,79 @@ export class AddEditExpensePage implements OnInit {
       }),
       reduce((acc, curr) => acc.concat(curr), [])
     );
+
     const addExpenseAttachments = of(this.newExpenseDataUrls);
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
-    attachements$.subscribe(async (attachments) => {
-      const attachmentsModal = await this.modalController.create({
-        component: ViewAttachmentsComponent,
-        componentProps: {
-          attachments
+
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return attachements$;
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    )
+      .subscribe(async (attachments) => {
+        const attachmentsModal = await this.modalController.create({
+          component: ViewAttachmentsComponent,
+          componentProps: {
+            attachments
+          }
+        });
+
+        await attachmentsModal.present();
+
+        const { data } = await attachmentsModal.onWillDismiss();
+
+        if (this.mode === 'add') {
+          this.newExpenseDataUrls = data.attachments;
+
+        } else {
+          this.etxn$.pipe(
+            switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
+            tap(console.log),
+            map(fileObjs => {
+              return (fileObjs && fileObjs.length) || 0;
+            })
+          ).subscribe((attachments) => {
+            this.attachedReceiptsCount = attachments;
+          });
         }
       });
-
-      await attachmentsModal.present();
-
-      const { data } = await attachmentsModal.onWillDismiss();
-      return !!data;
-    });
   }
 
+  async deleteExpense() {
+    const id = this.activatedRoute.snapshot.params.id;
 
+    const alert = await this.alertController.create({
+      header: 'Confirm',
+      message: 'Are you sure you want to delete this Expense?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: noop
+        }, {
+          text: 'Okay',
+          handler: () => {
+            from(this.loaderService.showLoader('Deleting Expense...')).pipe(
+              switchMap(() => {
+                return this.transactionService.delete(id);
+              }),
+              finalize(() => from(this.loaderService.hideLoader()))
+            ).subscribe(() => {
+              if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+                this.reviewList.splice(+this.activeIndex, 1);
+                this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+                  this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+                });
+              } else {
+                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+              }
+            });
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
 }

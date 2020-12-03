@@ -2,7 +2,6 @@
   <ion-toolbar>
     <ion-title>
       Receipt Preview
-
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onDoneClick()">
@@ -38,7 +37,7 @@
 
 <ion-footer>
   <ion-toolbar>
-    <ion-button class="view-attachments--delete" fill="solid" color="fyle-primary" expand="full">
+    <ion-button class="view-attachments--delete" fill="solid" color="fyle-primary" expand="full" (click)="deleteAttachment()">
       Delete attachment
     </ion-button>
   </ion-toolbar>

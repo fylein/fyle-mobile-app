@@ -111,4 +111,8 @@ export class FileService {
       fileReader.readAsDataURL(file);
     });
   }
+
+  delete(fileId: string) {
+    return this.apiService.delete('/files/' + fileId);
+  };
 }

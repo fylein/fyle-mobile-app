@@ -148,6 +148,54 @@ export class AddEditMileagePage implements OnInit {
     return this.fg.controls.mileage_locations as FormArray;
   }
 
+  goToPrev() {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+
+    if (this.reviewList[+this.activeIndex - 1]) {
+      this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe(etxn => {
+        this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
+      });
+    }
+  }
+
+  goToNext() {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+
+    if (this.reviewList[+this.activeIndex + 1]) {
+      this.transactionService.getETxn(this.reviewList[+this.activeIndex + 1]).subscribe(etxn => {
+        this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
+      });
+    }
+  }
+
+  goToTransaction(expense, reviewList, activeIndex) {
+    let category;
+
+    if (expense.tx.org_category) {
+      category = expense.tx.org_category.toLowerCase();
+    }
+    //TODO: Leave for later
+    // if (category === 'activity') {
+    //   showCannotEditActivityDialog();
+
+    //   return;
+    // }
+
+    if (category === 'mileage') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    } else if (category === 'per diem') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    }
+  }
+
   getCalculateDistance() {
     return this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
       switchMap((distance) => {
@@ -511,8 +559,10 @@ export class AddEditMileagePage implements OnInit {
   ionViewWillEnter() {
     this.fg.reset();
     this.title = 'Add Mileage';
+
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
-    this.reviewList = this.activatedRoute.snapshot.params.txnIds;
+    this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+
     this.title = this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
     if (this.activatedRoute.snapshot.params.id) {
       this.mode = 'edit';
@@ -861,13 +911,39 @@ export class AddEditMileagePage implements OnInit {
   saveExpense() {
     if (this.fg.valid) {
       if (this.mode === 'add') {
-        this.addExpense();
+        this.addExpense().subscribe(noop);
       } else {
         // to do edit
-        this.editExpense();
+        this.editExpense().subscribe(noop);
       }
     } else {
       this.fg.markAllAsTouched();
+    }
+  }
+
+  saveExpenseAndGotoNext() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense().subscribe(() => {
+          if (+this.activeIndex === this.reviewList.length - 1) {
+            that.close();
+          } else {
+            that.goToNext();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense().subscribe(() => {
+          if (+this.activeIndex === this.reviewList.length - 1) {
+            that.close();
+          } else {
+            that.goToNext();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
     }
   }
 
@@ -1046,7 +1122,7 @@ export class AddEditMileagePage implements OnInit {
       shareReplay()
     );
 
-    from(this.loaderService.showLoader())
+    return from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
           return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
@@ -1213,7 +1289,7 @@ export class AddEditMileagePage implements OnInit {
           return transaction;
         }),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(noop);
+      );
   }
 
   addExpense() {
@@ -1236,7 +1312,7 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    from(this.loaderService.showLoader())
+    return from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
           return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
@@ -1362,7 +1438,7 @@ export class AddEditMileagePage implements OnInit {
               }));
         }),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(noop);
+      );
   }
 
 }

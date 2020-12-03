@@ -34,6 +34,7 @@ import { CurrencyComponent } from './components/currency/currency.component';
 import { CommentsComponent } from './components/comments/comments.component';
 import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
 
 
 @NgModule({
@@ -68,7 +69,8 @@ import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachmen
     MatInputModule,
     MatFormFieldModule,
     MatIconModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    PinchZoomModule
   ],
   exports: [
     EllipsisPipe,

@@ -1,61 +1,29 @@
-<!-- <div>
-  <div>
-    <div>
-      <div *ngIf="vm.dataUrls.length > 1">
-        <span class="attachment-slide-buttons slide-prev"
-          ng-click="vm.changeAttachmentView(vm.currentAttachmentIndex - 1)">
-          <i class="icon ion-chevron-left icon-navigate-receipt icon-left"
-            ng-class="{'disabled' : vm.currentAttachmentIndex === 0}"></i>
-        </span>
-        <span class="attachment-slide-buttons slide-next"
-          ng-click="vm.changeAttachmentView(vm.currentAttachmentIndex + 1)">
-          <i class="icon ion-chevron-right icon-navigate-receipt icon-right"
-            ng-class="{'disabled' : vm.currentAttachmentIndex === (vm.dataUrls.length - 1)}"></i>
-        </span>
-      </div>
-
-      <div class="pdf-controls flex-row" *ngIf="vm.isPdf">
-        <div class="flex-col">
-          <span ng-click="vm.zoomIn()">
-            <i class="icon ion-plus-circled"></i>
-          </span>
-
-          <span ng-click="vm.zoomOut()">
-            <i class="icon ion-minus-circled"></i>
-          </span>
-
-          <span ng-click="vm.resetZoom()">
-            <i class="icon ion-arrow-expand icon-reset"></i>
-          </span>
-        </div>
-      </div>
-    </div>
-    <div *ngIf="vm.isLoadingComplete" class="attachment-box">
-      <ion-slide-box active-slide="vm.currentAttachmentIndex" show-pager="vm.dataUrls.length > 1">
-        <ion-slide ng-repeat="dataUrl in vm.dataUrls track by $index" class="attachment">
-          <ion-scroll zooming="true" direction="xy" style="width: 100%; height: 100%" *ngIf="vm.isImage"
-            overflow-scroll="false">
-            <img class="full-width receipt-image" ng-src="{{ vm.imgSrc }}">
-          </ion-scroll>
-
-          <pdf-viewer class="pdf-viewer" *ngIf="vm.isPdf && (vm.currentAttachmentIndex === $index)" src="{{vm.pdfUrl}}"
-            current-page="vm.pdfCurrentPage" initial-scale="0.5" api="vm.pdfViewerAPI" render-text-layer="false"
-            progress-callback="vm.onPDFProgress(operation, state, value, total, message)"
-            password-callback="vm.onPDFPassword(reason)" search-term="{{vm.pdfSearchTerm}}"
-            search-result-id="vm.pdfSearchResultID" search-num-occurences="vm.pdfSearchNumOccurences">
-          </pdf-viewer>
-
-          <div class="row row-center unknow-file" *ngIf="vm.isUnknown">
-            <p>This file cannot be opened for preview</p>
-          </div>
-        </ion-slide>
-      </ion-slide-box>
-    </div>
-    <div class="receipt-pager" *ngIf="vm.isLoadingComplete && vm.dataUrls.length > 1">
-      <div class="pager" ng-repeat="dataUrl in vm.dataUrls track by $index">
-        <i class="icon ion-ios-circle-outline icon-pager" *ngIf="vm.currentAttachmentIndex !== $index"></i>
-        <i class="icon ion-ios-circle-filled icon-pager" *ngIf="vm.currentAttachmentIndex === $index"></i>
-      </div>
-    </div>
+<ng-container *ngIf="attachments$|async as attachments">
+  <div class="preview-attachments--controls" *ngIf="attachments.length > 1">
+    <mat-icon class="preview-attachments--go-back" (click)="goToPrevSlide()">
+      arrow_back_ios
+    </mat-icon>
+    <mat-icon class="preview-attachments--go-forward" (click)="goToNextSlide()">
+      arrow_forward_ios
+    </mat-icon>
   </div>
-</div> -->
+</ng-container>
+
+<ion-slides #slides>
+  <ng-container *ngIf="attachments$|async as attachments; else loading">
+    <ng-container *ngFor="let attachment of attachments">
+      <ion-slide>
+        <div>
+          <pinch-zoom>
+            <img class="preview-attachments--image" [src]="attachment?.url" />
+          </pinch-zoom>
+
+          <!-- TODO: Add Pdf viewing support -->
+        </div>
+      </ion-slide>
+    </ng-container>
+  </ng-container>
+  <ng-template #loading>
+    Loading attachments..
+  </ng-template>
+</ion-slides>

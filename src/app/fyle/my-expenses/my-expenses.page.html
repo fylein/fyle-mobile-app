@@ -6,18 +6,28 @@
     <ion-title>
       My Expenses
     </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <ion-button color="primary" (click)="switchSelectionMode()">
+        <span *ngIf="selectionMode; else setSelectionMode">
+          Cancel
+        </span>
+        <ng-template #setSelectionMode>
+          Select
+        </ng-template>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
     <div class="my-expenses--state">
       <div matRipple class="my-expenses--state-pill my-expenses--state-pill__left"
-        [ngClass]="{'my-expenses--state-pill__selected': this.baseState === 'all'}" (click)="setState('all')">
+        [ngClass]="{'my-expenses--state-pill__selected': baseState === 'all'}" (click)="setState('all')">
         All Expenses
         <span *ngIf="allExpensesCount$|async as allExpensesCount">
           ({{allExpensesCount}})
         </span>
       </div>
       <div matRipple class="my-expenses--state-pill my-expenses--state-pill__right"
-        [ngClass]="{'my-expenses--state-pill__selected': this.baseState === 'draft'}" (click)="setState('draft')">
+        [ngClass]="{'my-expenses--state-pill__selected': baseState === 'draft'}" (click)="setState('draft')">
         Draft Expenses
         <span *ngIf="draftExpensesCount$|async as draftExpensesCount">
           ({{draftExpensesCount}})
@@ -100,9 +110,11 @@
     <!-- <app-my-expenses-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
       (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-my-expenses-card> -->
     <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
+      [baseState]="baseState" [selectionMode]="selectionMode" [selectedElements]="selectedElements"
       (deleteTransaction)="onDeleteExpenseClick($event)"
       (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
-      (addTransactionToReport)="onAddTransactionToReport($event)" (goToTransaction)="goToTransaction($event)">
+      (addTransactionToReport)="onAddTransactionToReport($event)" (goToTransaction)="goToTransaction($event)"
+      (cardClickedForSelection)="selectExpense($event)">
     </app-my-expenses-card>
   </div>
 
@@ -123,14 +135,27 @@
       </div>
     </div>
   </ion-toolbar>
-  <ion-toolbar *ngIf="this.baseState === 'all'">
+  <ion-toolbar *ngIf="baseState === 'all' && !selectionMode">
     <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
       (click)="addNewExpense()">
       ADD NEW EXPENSE
     </ion-button>
   </ion-toolbar>
-  <ion-toolbar *ngIf="this.baseState === 'draft'">
+  <ion-toolbar *ngIf="baseState === 'draft'">
+    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block" (click)="openReviewExpenses()">
+      START REVIEW
+    </ion-button>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="baseState === 'all' && selectionMode && selectedElements.length === 0" (click)="openCreateReport()">
     <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+      CREATE REPORT
+    </ion-button>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="baseState === 'all' && selectionMode && selectedElements.length > 0">
+    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" (click)="openCreateReportWithSelectedIds()">
+      CREATE REPORT
+    </ion-button>
+    <ion-button class="my-expenses--primary-cta flat-button" fill="outline" color="fyle-primary" (click)="openReviewExpenses()">
       START REVIEW
     </ion-button>
   </ion-toolbar>

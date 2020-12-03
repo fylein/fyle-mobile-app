@@ -8,6 +8,10 @@
     margin: 12px;
     padding: 12px;
     margin-top: 0;
+
+    &__disabled {
+      opacity: .4;
+    }
   }
 
   &--body-internal {
@@ -20,6 +24,10 @@
     margin: 8px 12px;
     color: #ababab;
     font-size: 16px;
+  }
+
+  &--selection-icon {
+    padding: 19px;
   }
 
   &--icon {

@@ -5,7 +5,12 @@
         Add Expense
       </div>
       <div *ngIf="mode === 'edit'">
-        {{title}} Expense
+        <div>
+          {{title}} Expense
+        </div>
+        <div class="add-edit-expense--sub-header" *ngIf="reviewList?.length">
+          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+        </div>
       </div>
     </ion-title>
 
@@ -15,40 +20,24 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <!-- <ion-toolbar *ngIf="reviewList.length > 0">
-    <ion-title>
-      <div>
-        {{ activeIndex + 1 }} of {{ reviewList.length }} expense{{reviewList.length > 1 ? 's' : ''}}
-      </div>
-    </ion-title>
-    <ion-buttons slot="md">
-      <ion-button mode="md">
-        <mat-icon>close</mat-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar> -->
-  <!-- <ion-toolbar *ngIf="reviewList.length > 1 && showNavigationPanel">
-    <div>
-      <div>
-        <button [disabled]="activeIndex === 0" (click)="goToPreviousExpense()">
-          <mat-icon>
-            chevron-left
-          </mat-icon>
-        </button>
-      </div>
-      <div>
-        <button [disabled]="activeIndex === reviewList.length - 1" (click)="goToNextExpense()">
-          <i></i>
-          <mat-icon>
-            chevron-right
-          </mat-icon>
-        </button>
-      </div>
-    </div>
-  </ion-toolbar> -->
 </ion-header>
 
 <ion-content>
+  <div class="add-edit-expense--review-nav" *ngIf="reviewList?.length && !focusState">
+    <button class="add-edit-expense--review-go-left" [disabled]="+activeIndex === 0" (click)="goToPrev()"
+      [ngClass]="{'add-edit-expense--review-go-left__disabled': +activeIndex === 0}">
+      <mat-icon>
+        keyboard_arrow_left
+      </mat-icon>
+    </button>
+    <button class="add-edit-expense--review-go-right" [disabled]="+activeIndex === reviewList?.length - 1"
+      (click)="goToNext()"
+      [ngClass]="{'add-edit-expense--review-go-right__disabled': +activeIndex === reviewList?.length - 1}">
+      <mat-icon>
+        keyboard_arrow_right
+      </mat-icon>
+    </button>
+  </div>
   <form [formGroup]="fg" class="add-edit-expense--form">
     <!-- <div (click)="showDuplicates()" *ngIf="duplicates && duplicates.length > 0 && scrollToDuplicates">
       <div>
@@ -87,18 +76,18 @@
 
 
 
-      <div class="add-edit-expense--receipt-currency">
-        <!-- <div *ngIf="reviewList.length > 0 && showAttachmentPreview">
-          Preview Attachment Component
-          <preview-attachments txn-id="{{ etxn.tx.id }}"></preview-attachments>
-        </div> -->
-
+      <div>
+        <ng-container *ngIf="etxn$|async as etxn">
+          <div *ngIf="reviewList?.length > 0">
+            <app-fy-preview-attachments [txnId]="etxn.tx.id"></app-fy-preview-attachments>
+          </div>
+        </ng-container>
       </div>
       <div class="add-edit-expense--receipt-currency-container">
-        <div class="add-edit-expense--receipt">
+        <div *ngIf="!reviewList?.length" class="add-edit-expense--receipt">
           <div class="add-edit-expense--receipt-image" *ngIf="attachmentUploadInProgress">
-            <ion-spinner icon="circles"></ion-spinner>
-            <div>
+            <ion-spinner class="add-edit-expense--receipt-image-icon" icon="circles"></ion-spinner>
+            <div class="add-edit-expense--receipt-image-subheader">
               Uploading
             </div>
           </div>
@@ -137,7 +126,7 @@
       </div>
 
 
-      <!-- <div *ngIf="isSplitExpenseAllowed && !(reviewList && reviewList.length > 1) && !isOffline">
+      <!-- <div *ngIf="isSplitExpenseAllowed && !(reviewList && reviewList?.length > 1) && !isOffline">
         <div (click)="splitExpense($event)">
           <mat-icon>
             split-expense
@@ -324,7 +313,8 @@
         <div class="add-edit-expense--text-label">
           Tax Value
         </div>
-        <input class="add-edit-expense--text-input" type="number" formControlName="taxValue" />
+        <input class="add-edit-expense--text-input" type="number" formControlName="taxValue" (focus)="focusState = true"
+          (blur)="focusState = false" />
       </div>
     </div>
 
@@ -394,7 +384,8 @@
               <span>*</span>
             </div>
             <input class="add-edit-expense--text-input" type="text" formControlName="train_travel_class"
-              [disabled]="!txnFields.train_travel_class?.canEdit">
+              [disabled]="!txnFields.train_travel_class?.canEdit" (focus)="focusState = true"
+              (blur)="focusState = false">
           </span>
 
           <app-fy-select
@@ -414,7 +405,8 @@
             </div>
           </div>
           <input class="add-edit-expense--text-input" type="text" *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
-            formControlName="bus_travel_class" [disabled]="!txnFields.bus_travel_class?.canEdit">
+            formControlName="bus_travel_class" [disabled]="!txnFields.bus_travel_class?.canEdit"
+            (focus)="focusState = true" (blur)="focusState = false">
           <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" formControlName="bus_travel_class"
             [label]="(etxn$|async)?.tx?.bus_travel_class ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
             [mandatory]="txnFields.bus_travel_class?.mandatory" [options]="txnFields.bus_travel_class?.values"
@@ -435,7 +427,7 @@
               <span>*</span>
             </div>
             <input class="add-edit-expense--text-input" type="number" formControlName="distance"
-              [disabled]="!txnFields.distance?.canEdit">
+              [disabled]="!txnFields.distance?.canEdit" (focus)="focusState = true" (blur)="focusState = false">
           </div>
 
           <div class="add-edit-expense--internal-block">
@@ -461,10 +453,10 @@
               </span>
             </div>
             <input class="add-edit-expense--text-input" type="text" formControlName="value"
-              *ngIf="customInput.type === 'TEXT'">
+              *ngIf="customInput.type === 'TEXT'" (focus)="focusState = true" (blur)="focusState = false">
 
             <input class="add-edit-expense--text-input" type="number" formControlName="value"
-              *ngIf="customInput.type === 'NUMBER'">
+              *ngIf="customInput.type === 'NUMBER'" (focus)="focusState = true" (blur)="focusState = false">
 
             <input class="add-edit-expense--date-input" *ngIf="customInput.type === 'DATE'" type="date"
               formControlName="value">
@@ -592,7 +584,7 @@
 
     <ng-container *ngIf="etxn$|async as etxn">
       <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
-        class="add-edit-expense--delete" matRipple>
+        class="add-edit-expense--delete" matRipple (click)="deleteExpense()">
         <mat-icon class="add-edit-expense--delete-icon">
           delete
         </mat-icon>
@@ -648,12 +640,17 @@
 
 <ion-footer>
   <ion-toolbar>
-    <ion-buttons>
+    <ion-buttons *ngIf="!reviewList">
       <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
         Save
       </ion-button>
       <ion-button class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
         Save & New
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons *ngIf="reviewList">
+      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
+        Save & Next
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
