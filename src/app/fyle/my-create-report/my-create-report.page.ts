@@ -32,6 +32,7 @@ export class MyCreateReportPage implements OnInit {
   canAssociateTripRequests: boolean;
   tripRequests: any[];
   selectedTripRequest: any;
+  tripRequestId: string;
 
   constructor(
     private transactionService: TransactionService,
@@ -76,7 +77,7 @@ export class MyCreateReportPage implements OnInit {
       const report = {
         purpose: this.reportTitle,
         source: 'MOBILE',
-        trip_request_id: this.selectedTripRequest && this.selectedTripRequest.id
+        trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId
       };
       const etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
       const txnIds = etxns.map(etxn => etxn.tx_id);
