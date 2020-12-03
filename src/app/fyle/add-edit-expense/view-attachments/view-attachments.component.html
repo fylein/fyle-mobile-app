@@ -24,11 +24,13 @@
     <ng-container *ngFor="let attachment of attachments">
       <ion-slide>
         <div>
-          <pinch-zoom class="view-attachments--container">
-            <img [src]="attachment?.url"/>
+          <pinch-zoom *ngIf="attachment?.type !== 'pdf'" class="view-attachments--container">
+            <img [src]="attachment?.url" />
           </pinch-zoom>
 
-          <!-- TODO: Add Pdf viewing support -->
+          <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
+            <pdf-viewer [page]="1" [src]="attachment?.url" [render-text]="true" [zoom]="0.5"></pdf-viewer>
+          </div>
         </div>
       </ion-slide>
     </ng-container>
@@ -37,7 +39,8 @@
 
 <ion-footer>
   <ion-toolbar>
-    <ion-button class="view-attachments--delete" fill="solid" color="fyle-primary" expand="full" (click)="deleteAttachment()">
+    <ion-button class="view-attachments--delete" fill="solid" color="fyle-primary" expand="full"
+      (click)="deleteAttachment()">
       Delete attachment
     </ion-button>
   </ion-toolbar>

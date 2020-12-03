@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ModalController, AlertController } from '@ionic/angular';
-import { noop, from } from 'rxjs';
+import { noop, from, iif, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { switchMap, finalize } from 'rxjs/operators';
 import { FileService } from 'src/app/core/services/file.service';
@@ -61,7 +61,11 @@ export class ViewAttachmentsComponent implements OnInit {
           handler: () => {
             from(this.loaderService.showLoader()).pipe(
               switchMap(() => {
-                return this.fileService.delete(this.attachments[activeIndex].id);
+                if (this.attachments[activeIndex].id) {
+                  return this.fileService.delete(this.attachments[activeIndex].id);
+                } else {
+                  return of(null);
+                }
               }),
               finalize(() => from(this.loaderService.hideLoader()))
             ).subscribe(() => {

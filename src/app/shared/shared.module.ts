@@ -35,7 +35,7 @@ import { CommentsComponent } from './components/comments/comments.component';
 import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
-
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
   declarations: [
@@ -70,7 +70,8 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
     MatFormFieldModule,
     MatIconModule,
     MatCheckboxModule,
-    PinchZoomModule
+    PinchZoomModule,
+    PdfViewerModule
   ],
   exports: [
     EllipsisPipe,

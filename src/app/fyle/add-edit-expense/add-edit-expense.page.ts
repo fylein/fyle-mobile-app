@@ -1670,10 +1670,14 @@ export class AddEditExpensePage implements OnInit {
           })
         );
       }),
-      reduce((acc, curr) => acc.concat(curr), [])
+      reduce((acc, curr) => acc.concat(curr), []),
+      tap(console.log)
     );
 
-    const addExpenseAttachments = of(this.newExpenseDataUrls);
+    const addExpenseAttachments = of(this.newExpenseDataUrls.map(fileObj => {
+      fileObj.type = fileObj.type === 'application/pdf' ? 'pdf': 'image';
+      return fileObj;
+    }));
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
 
     from(this.loaderService.showLoader()).pipe(
@@ -1696,7 +1700,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (this.mode === 'add') {
           this.newExpenseDataUrls = data.attachments;
-
+          this.attachedReceiptsCount = data.attachments.length;
         } else {
           this.etxn$.pipe(
             switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),

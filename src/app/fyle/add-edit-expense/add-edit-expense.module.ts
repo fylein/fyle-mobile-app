@@ -26,6 +26,7 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
   imports: [
@@ -43,7 +44,8 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
     MatNativeDateModule,
     MatCheckboxModule,
     SharedModule,
-    PinchZoomModule
+    PinchZoomModule,
+    PdfViewerModule
   ],
   declarations: [
     AddEditExpensePage,

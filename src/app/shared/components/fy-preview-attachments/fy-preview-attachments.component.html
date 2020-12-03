@@ -14,11 +14,13 @@
     <ng-container *ngFor="let attachment of attachments">
       <ion-slide>
         <div>
-          <pinch-zoom>
+          <pinch-zoom *ngIf="attachment?.type !== 'pdf'">
             <img class="preview-attachments--image" [src]="attachment?.url" />
           </pinch-zoom>
 
-          <!-- TODO: Add Pdf viewing support -->
+          <div class="preview-attachments--image" *ngIf="attachment?.type === 'pdf'">
+            <pdf-viewer [page]="1" [src]="attachment?.url" [render-text]="true" [zoom]="0.5"></pdf-viewer>
+          </div>
         </div>
       </ion-slide>
     </ng-container>
