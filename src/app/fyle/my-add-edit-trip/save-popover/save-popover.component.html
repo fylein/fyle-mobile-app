@@ -1,0 +1,43 @@
+<div class="save-trip">
+  <div>
+    <ion-header>
+      <ion-toolbar class="save-trip--header">
+        <ion-buttons  *ngIf="saveMode === 'DRAFT'" mode="md" slot="end" class="save-trip--close-button" (click)="close()">
+          Back
+        </ion-buttons>
+        <ion-buttons  *ngIf="saveMode === 'SUBMIT'" mode="md" slot="end" class="save-trip--close-button" (click)="close()">
+          Cancel
+        </ion-buttons>
+        <ion-title mode="md">
+          <span *ngIf="saveMode === 'DRAFT'">Review</span>
+          <span *ngIf="saveMode === 'SUBMIT'">Missing Request</span>
+        </ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <div class="save-trip--warning-box" *ngIf="saveMode === 'DRAFT'">
+        <p>
+          This action will save a draft trip request and will not be submitted to your approvers directly.  
+          <strong>
+            You need to explicitly submit a draft trip request.
+          </strong>
+        </p>
+      </div>
+
+      <div *ngIf="saveMode === 'SUBMIT'" class="save-trip--pending-request-block">
+        <div class="save-trip--missing-request">Following requests are missing. Are you sure you want to submit?</div>
+        <ul class="save-trip--request-list">
+          <li *ngIf="!otherRequests[0].hotel">Hotel Request</li>
+          <li *ngIf="!otherRequests[1].transportation">Transportation Request</li>
+        </ul>
+      </div>
+
+      <div class="save-trip--cta-block">
+        <div class="save-trip--cta-container">
+          <ion-button class="save-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="saveAsDraft()">{{saveMode === 'DRAFT' ? 'Finish' : 'Continue'}}</ion-button>
+        </div>
+      </div>
+    </ion-content>
+  </div>
+</div>

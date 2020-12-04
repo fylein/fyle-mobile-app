@@ -110,7 +110,7 @@
                       Select Depart Date <span>*</span>
                     </div>
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="depart_date"
-                    (keydown)="$event.preventDefault()" [min]="fg.controls.startDate.value" [max]="fg.controls.endDate.value">
+                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="fg.controls.endDate.value">
                   </div>
 
                   <div class="add-edit-trip--text" *ngIf="fg.controls.tripType.value === 'ROUND'">
@@ -118,7 +118,7 @@
                       Select Return Date <span>*</span>
                     </div>
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="return_date"
-                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="fg.controls.endDate.value">
+                    (keydown)="$event.preventDefault()" [min]="control.controls.depart_date.value" [max]="fg.controls.endDate.value">
                   </div>
               </div>
             </div>
@@ -225,7 +225,7 @@
     </div>
     <div class="add-edit-trip--cta-block">
       <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
-        <ion-button class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
         <ion-button class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
       </div>
       <div *ngIf="((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" class="add-edit-trip--cta-container">

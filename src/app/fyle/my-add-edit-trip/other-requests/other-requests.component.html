@@ -18,13 +18,13 @@
             <div *ngFor="let item of hotelDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
               <div class="other-details--wrapper-title">
                 <strong>
-                  <p *ngIf="!(fgValues.cities[i].toCity.city)">
+                  <p *ngIf="!(fgValues.cities[i].to_city.city)">
                       City {{i + 1}}
                   </p>
-                  <p *ngIf="fgValues.cities[i].toCity.city">Hotel in 
-                    {{ fgValues.cities[i].toCity.city }}
+                  <p *ngIf="fgValues.cities[i].to_city.city">Hotel in 
+                    {{ fgValues.cities[i].to_city.city }}
                     on 
-                    {{ fgValues.cities[i].departDate | date: 'dd MMM yyyy' }}
+                    {{ fgValues.cities[i].depart_date | date: 'dd MMM yyyy' }}
                     <span>
                       to 
                       {{ otherDetailsForm.value.hotelDetails[i].checkOutDt | date: 'dd MMM yyyy' }}
@@ -272,27 +272,28 @@
                 <!-- Big Hack, no other option, please try this at your own risk -->
                 <strong>
                   <span *ngIf="fgValues.tripType === 'ROUND'">
+                      <!-- otherDetailsForm.value -> {{otherDetailsForm.value | json}} -->
                     <p>
                       {{ otherDetailsForm.value.transportDetails[i].fromCity.city }}
                       to 
                       {{ otherDetailsForm.value.transportDetails[i].toCity.city }}
                       on 
                       <span *ngIf="i === 0">
-                        {{ fgValues.cities[i].departDate | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[i].depart_date | date: 'dd MMM yyyy' }}
                       </span>
                       <span *ngIf="i === 1">
-                        {{ fgValues.cities[0].returnDate | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[0].return_date | date: 'dd MMM yyyy' }}
                       </span>
                     </p>
                   </span>
                   <span *ngIf="fgValues.tripType !== 'ROUND'">
-                    <p *ngIf="!(fgValues.cities[i].fromCity.city && fgValues.cities[i].toCity.city)">
+                    <p *ngIf="!(fgValues.cities[i].from_city.city && fgValues.cities[i].to_city.city)">
                       City {{i + 1}}
                     </p>
-                    <p *ngIf="fgValues.cities[i].fromCity.city && fgValues.cities[i].toCity.city">
-                      {{ fgValues.cities[i].fromCity.city }}
+                    <p *ngIf="fgValues.cities[i].from_city.city && fgValues.cities[i].to_city.city">
+                      {{ fgValues.cities[i].from_city.city }}
                       to 
-                      {{ fgValues.cities[i].toCity.city }}
+                      {{ fgValues.cities[i].to_city.city }}
                       on 
                       {{ fgValues.cities[i].departDate | date: 'dd MMM yyyy' }}
                     </p>

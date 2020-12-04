@@ -8,7 +8,7 @@ import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@ang
 import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { OtherRequestsComponent } from './other-requests/other-requests.component';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
@@ -16,6 +16,7 @@ import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-reque
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { SavePopoverComponent } from './save-popover/save-popover.component';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -54,7 +55,8 @@ export class MyAddEditTripPage implements OnInit {
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
     private offlineService: OfflineService,
     private tripRequestsService: TripRequestsService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private popoverController: PopoverController
   ) { }
 
   fg: FormGroup;
@@ -95,21 +97,93 @@ export class MyAddEditTripPage implements OnInit {
   //   console.log('\n\n\n doubt =>', doubt);
   // }
 
-  onSubmit() {
+  async onSubmit() {
+    const addExpensePopover = await this.popoverController.create({
+      component: SavePopoverComponent,
+      componentProps: {
+        saveMode: 'SUBMIT',
+        otherRequests: [
+          { hotel: this.fg.get('hotelRequest').value || false },
+          { transportation: this.fg.get('transportationRequest').value || false }
+        ]
+      },
+      cssClass: 'dialog-popover'
+    });
+
     if (this.fg.valid) {
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
         return;
       } else {
-        this.submitTripRequest(this.fg.value);
+        await addExpensePopover.present();
+        const { data } = await addExpensePopover.onDidDismiss();
+        if (data.continue) {
+          this.submitTripRequest(this.fg.value);
+        }
       }
     } else {
       this.fg.markAllAsTouched();
     }
   }
 
-  makeTrpfromFormFg(formValue, customFields) {
-    console.log('formValue.project.id ->', formValue.project);
+  async saveDraftModal() {
+    const addExpensePopover = await this.popoverController.create({
+      component: SavePopoverComponent,
+      componentProps: {
+        saveMode: 'DRAFT'
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    if (this.fg.valid) {
+      if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
+        this.fg.markAllAsTouched();
+        return;
+      } else {
+        await addExpensePopover.present();
+        const { data } = await addExpensePopover.onDidDismiss();
+        if (data.continue) {
+          this.saveAsDraft(this.fg.value);
+        }
+      }
+    } else {
+      this.fg.markAllAsTouched();
+    }
+  }
+
+  saveAsDraft(formValue) {
+    from(this.loaderService.showLoader('Saving as draft')).pipe(
+      map(() => {
+        return this.makeTrpfromFormFg(formValue);
+      }),
+      switchMap(res => {
+        return this.tripRequestsService.saveDraft(res);
+      }),
+      switchMap(res => {
+        return this.tripRequestsService.triggerPolicyCheck(res.id);
+      }),
+      finalize(() => {
+        this.loaderService.hideLoader();
+        this.fg.reset();
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      })
+    ).subscribe(noop);
+    // vm.criticalPromise = TripRequestsService.saveDraft(angular.copy(vm.tripRequest.trp)).then(function (tripRequest) {
+    //   var promises = submitTransportationAndHotelRequest(tripRequest);
+    //   if (vm.advanceRequests.length > 0) {
+    //     promises.advancesRequest = saveAdvancesRequests(tripRequest);
+    //   }
+    //   return $q.all(promises).then(function (res) {
+    //     $ionicLoading.hide();
+    //     TripRequestsService.triggerPolicyCheck(tripRequest.id);
+    //     res.tripRequest = tripRequest;
+    //     return res;
+    //   });
+    // });
+    // return vm.criticalPromise;
+  }
+
+  makeTrpfromFormFg(formValue) {
     const trp = {
       custom_field_values: formValue.custom_field_values,
       end_dt: formValue.endDate,
@@ -128,10 +202,13 @@ export class MyAddEditTripPage implements OnInit {
   submitTripRequest(formValue) {
     from(this.loaderService.showLoader('Submitting Trip Request')).pipe(
       map(() => {
-        return this.makeTrpfromFormFg(formValue, 'customField');
+        return this.makeTrpfromFormFg(formValue);
       }),
       switchMap(res => {
         return this.tripRequestsService.submit(res);
+      }),
+      switchMap(res => {
+        return this.tripRequestsService.triggerPolicyCheck(res.id);
       }),
       finalize(() => {
         this.loaderService.hideLoader();
@@ -179,8 +256,8 @@ export class MyAddEditTripPage implements OnInit {
   addDefaultCity() {
     let toCity;
     if (this.cities.value.length >= 1) {
-      toCity = this.cities.controls[this.cities.value.length - 1].value.toCity;
-      this.minDate = this.cities.controls[this.cities.value.length - 1].value.departDate;
+      toCity = this.cities.controls[this.cities.value.length - 1].value.to_city;
+      this.minDate = this.cities.controls[this.cities.value.length - 1].value.depart_date;
     }
 
     const intialCity = this.formBuilder.group({
@@ -385,6 +462,13 @@ export class MyAddEditTripPage implements OnInit {
           return_date: [null, Validators.required]
         });
         this.cities.push(intialCity);
+      }
+    });
+
+    this.fg.valueChanges.subscribe(formValue => {
+      console.log('\n\n\n\n formValue -> ', formValue);
+      if (formValue.tripType === 'MULTI_CITY') {
+        this.minDate = formValue.cities[formValue.cities.length - 2].depart_date;
       }
     });
   }

@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransportationRequestsService {
 
-  constructor() { }
+  constructor(
+    private apiService: ApiService
+  ) { }
 
   getTransportationPreferredTiming() {
     return [
@@ -56,5 +59,12 @@ export class TransportationRequestsService {
       transportationRequest.internalStateDisplayName = 'No Booking Needed';
     }
     return transportationRequest;
+  }
+
+  upsert(transportationRequest) {
+    // TripDatesService.convertToDateFormat(transportationRequest);
+    return this.apiService.post('/transportation_requests', transportationRequest)
+      // self.deleteCache();
+      // return fixDates(req);
   }
 }

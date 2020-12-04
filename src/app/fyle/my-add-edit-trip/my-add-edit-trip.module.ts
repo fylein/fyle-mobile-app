@@ -11,6 +11,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
 import { OtherRequestsComponent } from './other-requests/other-requests.component';
+import { SavePopoverComponent } from './save-popover/save-popover.component';
 
 @NgModule({
   imports: [
@@ -28,7 +29,8 @@ import { OtherRequestsComponent } from './other-requests/other-requests.componen
   declarations: [
     MyAddEditTripPage,
     FySelectProjectComponent,
-    OtherRequestsComponent
+    OtherRequestsComponent,
+    SavePopoverComponent
   ],
   exports: [
     MatTabsModule

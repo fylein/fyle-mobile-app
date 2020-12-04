@@ -1,14 +1,18 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Observable, forkJoin, noop, of, from } from 'rxjs';
+import { Observable, forkJoin, noop, of, from, zip, combineLatest } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { map, concatMap, finalize, shareReplay } from 'rxjs/operators';
+import { map, concatMap, finalize, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
+import { Router } from '@angular/router';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { HotelRequestService } from 'src/app/core/services/hotel-request.service';
 
 @Component({
   selector: 'app-other-requests',
@@ -44,7 +48,11 @@ export class OtherRequestsComponent implements OnInit {
     private transportationRequestsService: TransportationRequestsService,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private tripRequestsService: TripRequestsService,
+    private router: Router,
+    private advanceRequestService: AdvanceRequestService,
+    private hotelRequestService: HotelRequestService
   ) { }
 
   goBack() {
@@ -188,13 +196,147 @@ export class OtherRequestsComponent implements OnInit {
   onSubmit() {
     if (this.otherDetailsForm.valid) {
       console.log('submitting other details form ->', this.otherDetailsForm);
+      this.submitOtherRequests(this.otherDetailsForm.value);
     } else {
       this.otherDetailsForm.markAllAsTouched();
     }
   }
 
-  saveDraft() {
+  submitOtherRequests(formValue) {
+    let trpId;
+    from(this.loaderService.showLoader('Saving as draft')).pipe(
+      map(() => {
+        return this.makeTripRequestFromForm(this.fgValues);
+      }),
+      switchMap(res => {
+        return this.tripRequestsService.submit(res);
+      }),
+      switchMap(res => {
+        trpId = res.id;
+        // create other request and post
+        return this.createOtherRequestFormAndPost(formValue, trpId);
+      }),
+      switchMap(res => {
+        return this.tripRequestsService.triggerPolicyCheck(trpId);
+      }),
+      map(() => {
+        console.log('submit other requests');
+      }),
+      finalize(() => {
+        this.loaderService.hideLoader();
+        this.otherDetailsForm.reset();
+        this.modalController.dismiss();
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      })
+    ).subscribe(noop);
+  }
 
+  makeTripRequestFromForm(fgValues) {
+    const trp = {
+      custom_field_values: fgValues.custom_field_values,
+      end_dt: fgValues.endDate,
+      notes: fgValues.notes,
+      project_id: fgValues.project.project_id,
+      purpose: fgValues.purpose,
+      source: 'MOBILE',
+      start_dt: fgValues.startDate,
+      traveller_details: fgValues.travellerDetails,
+      trip_cities: fgValues.cities,
+      trip_type: fgValues.tripType
+    };
+    return trp;
+  }
+
+  createOtherRequestFormAndPost(formValue, trpId) {
+    console.log('\n\n\n formValue ->', formValue);
+    // let advanceRequestArray$: Observable<any>[] = [];
+    // let hotelRequestArray$: Observable<any>[] = [];
+    // let transportationRequestArray$: Observable<any>[] = [];
+
+    let arr = [];
+
+    if (formValue.advanceDetails.length > 0) {
+      formValue.advanceDetails.forEach(advanceDetail => {
+        arr.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId));
+      });
+    }
+
+    if (formValue.hotelDetails.length > 0) {
+      formValue.hotelDetails.forEach(hotelDetail => {
+        arr.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId));
+      });
+    }
+
+    if (formValue.transportDetails.length > 0) {
+      formValue.transportDetails.forEach(transportDetail => {
+        arr.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId));
+      });
+    }
+
+    return forkJoin(arr);
+  }
+
+  makeAdvanceRequestObjectFromForm(advanceDetail, trpId) {
+    let advanceDetailObject = {
+      amount: advanceDetail.amount,
+      currency: advanceDetail.currency,
+      custom_field_values: advanceDetail.custom_field_values,
+      notes: advanceDetail.notes,
+      purpose: advanceDetail.purpose,
+      source: 'MOBILE',
+      trip_request_id: trpId
+    };
+    return this.advanceRequestService.submit(advanceDetailObject);
+  }
+
+  makeHotelRequestObjectFromForm(hotelDetail, trpId) {
+    let hotelDetailObject = {
+      amount: 15,
+      assigned_at: hotelDetail.assignedAt,
+      assigned_to: hotelDetail.assignedTo,
+      check_in_dt: hotelDetail.checkInDt,
+      check_out_dt: hotelDetail.checkOutDt,
+      city: hotelDetail.city,
+      currency: hotelDetail.currency,
+      custom_field_values: hotelDetail.custom_field_values,
+      location: hotelDetail.location,
+      need_booking: hotelDetail.needBooking,
+      notes: hotelDetail.notes,
+      rooms: hotelDetail.rooms,
+      source: 'MOBILE',
+      traveller_details: hotelDetail.travellerDetails,
+      trip_request_id: trpId
+    };
+    return this.hotelRequestService.upsert(hotelDetailObject);
+  }
+
+  makeTransportRequestObjectFromForm(transportDetail, trpId) {
+    let transportDetailObject = {
+      amount: transportDetail.amount,
+      assigned_at: transportDetail.assignedAt,
+      assigned_to: this.fgValues.travelAgent || null,
+      currency: transportDetail.currency,
+      custom_field_values: transportDetail.custom_field_values,
+      from_city: transportDetail.fromCity,
+      need_booking: transportDetail.needBooking,
+      notes: transportDetail.notes,
+      onward_dt: transportDetail.onwardDt,
+      preferred_timing: transportDetail.transportTiming,
+      source: 'MOBILE',
+      to_city: transportDetail.toCity,
+      transport_mode: transportDetail.transportMode,
+      traveller_details: transportDetail.travellerDetails,
+      trip_request_id: trpId
+    };
+    return this.transportationRequestsService.upsert(transportDetailObject);
+  }
+
+  saveDraft() {
+    if (this.otherDetailsForm.valid) {
+      console.log('submitting other details form ->', this.otherDetailsForm);
+    } else {
+      this.otherDetailsForm.markAllAsTouched();
+    }
   }
 
   ngOnInit() {
@@ -240,14 +382,14 @@ export class OtherRequestsComponent implements OnInit {
           this.fgValues.cities.forEach((city, index) => {
 
             // tslint:disable-next-line: max-line-length
-            const checkOutDate = this.fgValues.cities.length > 1 && this.fgValues.cities[index + 1] ? this.fgValues.cities[index + 1].departDate : null;
+            const checkOutDate = this.fgValues.cities.length > 1 && this.fgValues.cities[index + 1] ? this.fgValues.cities[index + 1].depart_date : null;
 
             const details = this.formBuilder.group({
               assignedAt: [new Date()],
               assignedTo: [this.fgValues.travelAgent],
-              checkInDt: [city.departDate, Validators.required],
+              checkInDt: [city.depart_date, Validators.required],
               checkOutDt: [checkOutDate, Validators.required],
-              city: [city.toCity.city],
+              city: [city.to_city],
               currency: [res.preferredCurrency || res.homeCurrency],
               amount: [],
               custom_field_values: new FormArray([]),
@@ -265,17 +407,17 @@ export class OtherRequestsComponent implements OnInit {
         if (this.otherRequests[2].transportation) {
           this.fgValues.cities.forEach((city, index) => {
 
-            const onwardDt = this.fgValues.cities[index].departDate;
+            const onwardDt = this.fgValues.cities[index].depart_date;
 
             const details = this.formBuilder.group({
               assignedAt: [new Date()],
               currency: [res.preferredCurrency || res.homeCurrency],
               amount: [],
               custom_field_values: new FormArray([]),
-              fromCity: [city.fromCity],
+              fromCity: [city.from_city],
               needBooking: [true],
               onwardDt: [onwardDt],
-              toCity: [city.toCity],
+              toCity: [city.to_city],
               transportMode: [, Validators.required],
               transportTiming: [],
               travellerDetails: [this.fgValues.travellerDetails],
@@ -292,7 +434,7 @@ export class OtherRequestsComponent implements OnInit {
                 custom_field_values: new FormArray([]),
                 fromCity: [this.transportDetails.value[this.transportDetails.length - 1].toCity],
                 needBooking: [true],
-                onwardDt: [this.fgValues.cities[index].returnDate],
+                onwardDt: [this.fgValues.cities[index].return_date],
                 toCity: [this.transportDetails.value[this.transportDetails.length - 1].fromCity],
                 transportMode: [],
                 transportTiming: [],

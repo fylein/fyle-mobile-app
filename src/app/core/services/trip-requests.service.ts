@@ -318,8 +318,23 @@ export class TripRequestsService {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
   }
 
+  triggerPolicyCheck(tripRequestId) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/trigger_policy_check');
+  }
+
+  saveDraft(tripRequest) {
+    return from(this.authService.getEou()).pipe(
+      map(eou => {
+        return tripRequest.org_user_id = eou.ou.id;
+      }),
+      concatMap(() => {
+        return this.apiService.post('/trip_requests/save', tripRequest);
+      })
+    );
+    // Todo: Fix dates and delete cache
+  }
+
   submit(tripRequest) {
-    // this.tripDatesService.convertToDateFormat(tripRequest);
     return from(this.authService.getEou()).pipe(
       map(eou => {
         return tripRequest.org_user_id = eou.ou.id;
@@ -327,7 +342,7 @@ export class TripRequestsService {
       concatMap(() => {
         return this.apiService.post('/trip_requests/submit', tripRequest);
       })
-    )
+    );
     // Todo: Fix dates and delete cache
   }
 }
