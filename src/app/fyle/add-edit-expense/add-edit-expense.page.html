@@ -120,6 +120,7 @@
             <div *ngIf="homeCurrency$|async as homeCurrency">
               <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
               </app-fy-currency>
+              {{fg.controls.currencyObj.value|json}}
             </div>
           </div>
         </div>

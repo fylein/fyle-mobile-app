@@ -32,6 +32,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -108,7 +109,8 @@ export class AddEditExpensePage implements OnInit {
     private statusService: StatusService,
     private fileService: FileService,
     private popoverController: PopoverController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private currencyService: CurrencyService
   ) { }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -373,7 +375,7 @@ export class AddEditExpensePage implements OnInit {
               }
             });
           }),
-          switchMap(extractedDetails => {
+          switchMap((extractedDetails: any) => {
             const instaFyleImageData = {
               thumbnail: this.activatedRoute.snapshot.params.dataUrl,
               type: 'image',
@@ -383,7 +385,30 @@ export class AddEditExpensePage implements OnInit {
 
             // TODO: Check and Add iamge coordinates
 
-            return of(instaFyleImageData);
+            if (extractedDetails.parsedResponse) {
+              return this.offlineService.getHomeCurrency().pipe(
+                switchMap(homeCurrency => {
+                  if (homeCurrency !== extractedDetails.parsedResponse.currency) {
+                    return this.currencyService.getExchangeRate(
+                      extractedDetails.parsedResponse.currency,
+                      homeCurrency,
+                      extractedDetails.parsedResponse.date ?
+                        new Date(extractedDetails.parsedResponse.date) :
+                        new Date()
+                        ).pipe(
+                          map(exchangeRate => {
+                            return {
+                              ...instaFyleImageData,
+                              exchangeRate
+                            };
+                          })
+                        );
+                  }
+                })
+              );
+            } else {
+              return of(instaFyleImageData);
+            }
           }),
           finalize(() => from(this.loaderService.hideLoader()))
         );
@@ -484,12 +509,12 @@ export class AddEditExpensePage implements OnInit {
           this.instaFyleCancelled = true;
         } else if (imageData) {
           const extractedData = {
-            amount: imageData && imageData.parsedResponse.amount,
-            currency: imageData && imageData.parsedResponse.currency,
-            category: imageData && imageData.parsedResponse.category,
-            date: imageData && imageData.parsedResponse.date ? new Date(imageData && imageData.parsedResponse.date) : null,
-            vendor: imageData && imageData.parsedResponse.vendor,
-            invoice_dt: imageData && imageData.parsedResponse.invoice_dt || null
+            amount: imageData && imageData.parsedResponse && imageData.parsedResponse.amount,
+            currency: imageData && imageData.parsedResponse && imageData.parsedResponse.currency,
+            category: imageData && imageData.parsedResponse && imageData.parsedResponse.category,
+            date: (imageData && imageData.parsedResponse && imageData.parsedResponse.date) ? new Date(imageData.parsedResponse.date) : null,
+            vendor: imageData && imageData.parsedResponse && imageData.parsedResponse.vendor,
+            invoice_dt: imageData && imageData.parsedResponse && imageData.parsedResponse.invoice_dt || null
           };
 
           etxn.tx.extracted_data = extractedData;
@@ -500,6 +525,17 @@ export class AddEditExpensePage implements OnInit {
 
           if (instaFyleSettings.shouldExtractCurrency && extractedData.currency) {
             etxn.tx.currency = extractedData.currency;
+
+
+            if (homeCurrency !== extractedData.currency &&
+               instaFyleSettings.shouldExtractAmount &&
+                extractedData.amount &&
+                 imageData.exchangeRate) {
+              etxn.tx.orig_amount = extractedData.amount;
+              etxn.tx.orig_currency = extractedData.currency;
+              etxn.tx.amount = imageData.exchangeRate * extractedData.amount;
+              etxn.tx.currency = homeCurrency;
+            }
           }
 
           if (instaFyleSettings.shouldExtractDate && extractedData.date) {
@@ -600,6 +636,7 @@ export class AddEditExpensePage implements OnInit {
         });
 
       if (etxn.tx.amount && etxn.tx.currency) {
+        console.log(etxn.tx);
         this.fg.patchValue({
           currencyObj: {
             amount: etxn.tx.amount,
@@ -1675,7 +1712,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     const addExpenseAttachments = of(this.newExpenseDataUrls.map(fileObj => {
-      fileObj.type = fileObj.type === 'application/pdf' ? 'pdf': 'image';
+      fileObj.type = fileObj.type === 'application/pdf' ? 'pdf' : 'image';
       return fileObj;
     }));
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);

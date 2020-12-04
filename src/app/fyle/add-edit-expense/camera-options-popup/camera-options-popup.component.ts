@@ -30,7 +30,6 @@ export class CameraOptionsPopupComponent implements OnInit {
   async getImageFromPicture() {
     const image = await Camera.getPhoto({
       quality: 90,
-      allowEditing: true,
       source: CameraSource.Camera,
       direction: CameraDirection.Rear,
       resultType: CameraResultType.DataUrl
