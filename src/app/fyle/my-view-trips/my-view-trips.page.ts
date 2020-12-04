@@ -186,7 +186,7 @@ export class MyViewTripsPage implements OnInit {
 
     if (eTransportationRequest.tr.preferred_timing) {
       eTransportationRequest.tr.preferred_timing_formatted
-        = preferredTimings.filter(timing => timing.id === eTransportationRequest.tr.preferred_timing)[0].label;
+        = preferredTimings.filter(timing => timing.id === eTransportationRequest.tr.preferred_timing);
     }
 
     return forkJoin({

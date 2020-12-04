@@ -117,7 +117,7 @@ export class MyAddEditTripPage implements OnInit {
       } else {
         await addExpensePopover.present();
         const { data } = await addExpensePopover.onDidDismiss();
-        if (data.continue) {
+        if (data && data.continue) {
           this.submitTripRequest(this.fg.value);
         }
       }
@@ -142,7 +142,7 @@ export class MyAddEditTripPage implements OnInit {
       } else {
         await addExpensePopover.present();
         const { data } = await addExpensePopover.onDidDismiss();
-        if (data.continue) {
+        if (data && data.continue) {
           this.saveAsDraft(this.fg.value);
         }
       }
