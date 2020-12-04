@@ -403,6 +403,8 @@ export class AddEditExpensePage implements OnInit {
                             };
                           })
                         );
+                  } else {
+                    return of(instaFyleImageData);
                   }
                 })
               );
