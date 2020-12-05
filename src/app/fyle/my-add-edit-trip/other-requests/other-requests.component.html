@@ -44,7 +44,7 @@
                     check in date <span> *</span>
                   </div>
                   <input class="other-details--date-input" matInput type="date" formControlName="checkInDt" 
-                  (keydown)="$event.preventDefault()">
+                  (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
                 </div>
     
                 <div class="other-details--text">
@@ -52,7 +52,7 @@
                     check out date <span> *</span>
                   </div>
                   <input class="other-details--date-input" matInput type="date" formControlName="checkOutDt" 
-                  (keydown)="$event.preventDefault()">
+                  (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
                 </div>
                 
                 <div class="other-details--text">

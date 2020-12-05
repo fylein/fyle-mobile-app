@@ -20,7 +20,8 @@ $details-color: #ababab;
   }
 
   &--cta-block {
-    position: sticky;
+    position: fixed;
+    width: 100%;
     bottom: 0;
     background-color: white;
     box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1);
@@ -43,7 +44,7 @@ $details-color: #ababab;
   }
 
   &--cta-container {
-    margin: 0 10px;
+    margin: 0 10px 6px 10px;
 
     &-cta {
       height: 48px;

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Observable, forkJoin, noop, of, from, zip, combineLatest } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -13,6 +13,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { Router } from '@angular/router';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { HotelRequestService } from 'src/app/core/services/hotel-request.service';
+import { SavePopoverComponent } from '../save-popover/save-popover.component';
 
 @Component({
   selector: 'app-other-requests',
@@ -37,6 +38,8 @@ export class OtherRequestsComponent implements OnInit {
   hotelRequestCustomFields$: Observable<any>;
   advanceRequestCustomFields$: Observable<any>;
   currencies$: Observable<any>;
+  minDate;
+  maxDate;
 
   otherDetailsForm: FormGroup;
 
@@ -52,7 +55,8 @@ export class OtherRequestsComponent implements OnInit {
     private tripRequestsService: TripRequestsService,
     private router: Router,
     private advanceRequestService: AdvanceRequestService,
-    private hotelRequestService: HotelRequestService
+    private hotelRequestService: HotelRequestService,
+    private popoverController: PopoverController
   ) { }
 
   goBack() {
@@ -69,10 +73,6 @@ export class OtherRequestsComponent implements OnInit {
 
   get advanceDetails() {
     return this.otherDetailsForm.get('advanceDetails') as FormArray;
-  }
-
-  debug(ans) {
-    console.log('\n\n ans ->', ans);
   }
 
   addAdvance() {
@@ -193,23 +193,44 @@ export class OtherRequestsComponent implements OnInit {
     this.advanceDetails.removeAt(i);
   }
 
-  onSubmit() {
+  async onSubmit() {
+    console.log('\n\n\n fgValues ->', this.fgValues);
+    const addExpensePopover = await this.popoverController.create({
+      component: SavePopoverComponent,
+      componentProps: {
+        saveMode: 'SUBMIT',
+        otherRequests: [
+          { hotel: this.fgValues.hotelRequest },
+          { transportation: this.fgValues.transportationRequest }
+        ]
+      },
+      cssClass: 'dialog-popover'
+    });
+
     if (this.otherDetailsForm.valid) {
-      console.log('submitting other details form ->', this.otherDetailsForm);
-      this.submitOtherRequests(this.otherDetailsForm.value);
+      await addExpensePopover.present();
+      const { data } = await addExpensePopover.onDidDismiss();
+      if (data && data.continue) {
+        this.submitOtherRequests(this.otherDetailsForm.value, 'SUBMIT');
+      }
     } else {
       this.otherDetailsForm.markAllAsTouched();
     }
   }
 
-  submitOtherRequests(formValue) {
+  submitOtherRequests(formValue, mode) {
     let trpId;
     from(this.loaderService.showLoader('Saving as draft')).pipe(
       map(() => {
         return this.makeTripRequestFromForm(this.fgValues);
       }),
       switchMap(res => {
-        return this.tripRequestsService.submit(res);
+        if (mode === 'SUBMIT') {
+          return this.tripRequestsService.submit(res);
+        }
+        if (mode === 'DRAFT') {
+          return this.tripRequestsService.saveDraft(res);
+        }
       }),
       switchMap(res => {
         trpId = res.id;
@@ -218,9 +239,6 @@ export class OtherRequestsComponent implements OnInit {
       }),
       switchMap(res => {
         return this.tripRequestsService.triggerPolicyCheck(trpId);
-      }),
-      map(() => {
-        console.log('submit other requests');
       }),
       finalize(() => {
         this.loaderService.hideLoader();
@@ -248,10 +266,6 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   createOtherRequestFormAndPost(formValue, trpId) {
-    console.log('\n\n\n formValue ->', formValue);
-    // let advanceRequestArray$: Observable<any>[] = [];
-    // let hotelRequestArray$: Observable<any>[] = [];
-    // let transportationRequestArray$: Observable<any>[] = [];
 
     let arr = [];
 
@@ -331,17 +345,32 @@ export class OtherRequestsComponent implements OnInit {
     return this.transportationRequestsService.upsert(transportDetailObject);
   }
 
-  saveDraft() {
-    if (this.otherDetailsForm.valid) {
-      console.log('submitting other details form ->', this.otherDetailsForm);
-    } else {
+  async saveDraft() {
+    const addExpensePopover = await this.popoverController.create({
+      component: SavePopoverComponent,
+      componentProps: {
+        saveMode: 'DRAFT'
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    if (!this.otherDetailsForm.valid) {
       this.otherDetailsForm.markAllAsTouched();
+    } else {
+      await addExpensePopover.present();
+      const { data } = await addExpensePopover.onDidDismiss();
+      if (data && data.continue) {
+        this.submitOtherRequests(this.otherDetailsForm.value, 'DRAFT');
+      }
     }
   }
 
   ngOnInit() {
 
     this.orgUserSettings$ = this.orgUserSettings.get();
+
+    this.minDate = this.fgValues.startDate;
+    this.maxDate = this.fgValues.endDate;
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
       map(res => {

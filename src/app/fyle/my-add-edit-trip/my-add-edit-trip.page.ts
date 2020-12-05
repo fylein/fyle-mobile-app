@@ -36,6 +36,7 @@ export class MyAddEditTripPage implements OnInit {
   maxDate;
   today;
   isTripTypeMultiCity$: Observable<boolean>;
+  isTripTypeOneWay$: Observable<boolean>;
   isTransportationRequested$: Observable<boolean>;
   isHotelRequested$: Observable<boolean>;
   isAdvanceRequested$: Observable<boolean>;
@@ -92,10 +93,6 @@ export class MyAddEditTripPage implements OnInit {
   get travellerDetails() {
     return this.fg.get('travellerDetails') as FormArray;
   }
-
-  // debug(doubt) {
-  //   console.log('\n\n\n doubt =>', doubt);
-  // }
 
   async onSubmit() {
     const addExpensePopover = await this.popoverController.create({
@@ -416,6 +413,10 @@ export class MyAddEditTripPage implements OnInit {
       map(res => res === 'MULTI_CITY')
     );
 
+    this.isTripTypeOneWay$ = this.fg.controls.tripType.valueChanges.pipe(
+      map(res => res === 'ONE_WAY')
+    );
+
     this.isTripTypeMultiCity$.subscribe(isMulticity => {
       if (isMulticity) {
         this.addDefaultCity();
@@ -423,6 +424,13 @@ export class MyAddEditTripPage implements OnInit {
         const firstCity = this.cities.at(0);
         this.cities.clear();
         this.cities.push(firstCity);
+      }
+    });
+
+    this.isTripTypeOneWay$.subscribe(oneWay => {
+      if (oneWay) {
+        this.cities.clear();
+        this.addDefaultCity();
       }
     });
 
@@ -466,7 +474,6 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     this.fg.valueChanges.subscribe(formValue => {
-      console.log('\n\n\n\n formValue -> ', formValue);
       if (formValue.tripType === 'MULTI_CITY') {
         this.minDate = formValue.cities[formValue.cities.length - 2].depart_date;
       }
