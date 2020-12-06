@@ -5,12 +5,13 @@
         <ion-buttons  *ngIf="saveMode === 'DRAFT'" mode="md" slot="end" class="save-trip--close-button" (click)="close()">
           Back
         </ion-buttons>
-        <ion-buttons  *ngIf="saveMode === 'SUBMIT'" mode="md" slot="end" class="save-trip--close-button" (click)="close()">
+        <ion-buttons  *ngIf="saveMode === 'SUBMIT' || saveMode === 'CLOSE'" mode="md" slot="end" class="save-trip--close-button" (click)="close()">
           Cancel
         </ion-buttons>
         <ion-title mode="md">
           <span *ngIf="saveMode === 'DRAFT'">Review</span>
           <span *ngIf="saveMode === 'SUBMIT'">Missing Request</span>
+          <span *ngIf="saveMode === 'CLOSE'">DISCARD Request</span>
         </ion-title>
       </ion-toolbar>
     </ion-header>
@@ -33,9 +34,15 @@
         </ul>
       </div>
 
+      <div *ngIf="saveMode === 'CLOSE'" class="save-trip--pending-request-block">
+        <div class="save-trip--missing-request">Unsaved changes will be discarded. Are you sure you want to go back?</div>
+      </div>
+
       <div class="save-trip--cta-block">
         <div class="save-trip--cta-container">
-          <ion-button class="save-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="saveAsDraft()">{{saveMode === 'DRAFT' ? 'Finish' : 'Continue'}}</ion-button>
+          <ion-button class="save-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="saveAsDraft()" *ngIf="saveMode === 'DRAFT'">Finish</ion-button>
+          <ion-button class="save-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="saveAsDraft()" *ngIf="saveMode === 'SUBMIT'">Continue</ion-button>
+          <ion-button class="save-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="saveAsDraft()" *ngIf="saveMode === 'CLOSE'">DISCARD</ion-button>
         </div>
       </div>
     </ion-content>

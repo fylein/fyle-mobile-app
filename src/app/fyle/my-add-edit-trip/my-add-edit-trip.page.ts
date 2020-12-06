@@ -62,8 +62,19 @@ export class MyAddEditTripPage implements OnInit {
 
   fg: FormGroup;
 
-  goBack() {
-    this.router.navigate(['/', 'enterprise', 'my_trips']);
+  async goBack() {
+    const addExpensePopover = await this.popoverController.create({
+      component: SavePopoverComponent,
+      componentProps: {
+        saveMode: 'CLOSE',
+      },
+      cssClass: 'dialog-popover'
+    });
+    await addExpensePopover.present();
+    const { data } = await addExpensePopover.onDidDismiss();
+    if (data && data.continue) {
+      this.router.navigate(['/', 'enterprise', 'my_trips']);
+    }
   }
 
   setTripRequestObject(name, mobile) {
