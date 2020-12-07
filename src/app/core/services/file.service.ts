@@ -3,6 +3,7 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { File } from '../models/file.model';
 import { ApiService } from './api.service';
+import { FileObject } from '../models/file_obj.model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,23 +22,6 @@ export class FileService {
 
   base64Download(fileId) {
     return this.apiService.get('/files/' + fileId + '/download_b64');
-  }
-
-  findByTransactionId(txnId: string): Observable<File[]> {
-    return from(this.apiService.get('/files', {
-      params: {
-        transaction_id: txnId,
-        skip_html: 'true'
-      }
-    })).pipe(
-      map((files) => {
-        files = files.map(file => {
-          this.fixDates(file);
-          this.setFileType(file);
-        });
-        return files as File[];
-      })
-    );
   }
 
   findByAdvanceRequestId(advanceRequestId: string): Observable<File[]> {
@@ -115,4 +99,25 @@ export class FileService {
       }
     );
   }
+
+  findByTransactionId(txnId: string): Observable<FileObject[]> {
+    return this.apiService.get('/files', {
+      params: {
+        transaction_id: txnId,
+        skip_html: 'true'
+      }
+    });
+  }
+
+  readFile(file) {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.onload = () => resolve(fileReader.result);
+      fileReader.readAsDataURL(file);
+    });
+  }
+
+  delete(fileId: string) {
+    return this.apiService.delete('/files/' + fileId);
+  };
 }

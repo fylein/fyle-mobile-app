@@ -3,6 +3,12 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
+  &--sub-header {
+    color: #ababab;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
   &--footer {
     display: flex;
     justify-content: space-around;
@@ -160,5 +166,41 @@
     background: #f2f2f2;
     padding: 8px 16px;
     margin-bottom: 16px;
+  }
+
+  &--review-nav {
+    position: sticky;
+    top: 45vh;
+  }
+
+  &--review-go-left {
+    float: left;
+    width: 45px;
+    height: 76px;
+    border-bottom-right-radius: 100px;
+    border-top-right-radius: 100px;
+    padding-right: 18px;
+
+    background-color: #999;
+    opacity: 0.8;
+    &__disabled {
+      opacity: 0.2;
+    }
+  }
+
+  &--review-go-right {
+    float: right;
+    width: 45px;
+    height: 76px;
+    border-bottom-left-radius: 100px;
+    border-top-left-radius: 100px;
+
+    padding-left: 18px;
+
+    background-color: #999;
+    opacity: 0.8;
+    &__disabled {
+      opacity: 0.2;
+    }
   }
 }

@@ -5,7 +5,12 @@
         Add Expense
       </div>
       <div *ngIf="mode === 'edit'">
-        {{title}} Expense
+        <div>
+          {{title}} Expense
+        </div>
+        <div class="add-edit-expense--sub-header" *ngIf="reviewList?.length">
+          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+        </div>
       </div>
     </ion-title>
 
@@ -15,40 +20,24 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <!-- <ion-toolbar *ngIf="reviewList.length > 0">
-    <ion-title>
-      <div>
-        {{ activeIndex + 1 }} of {{ reviewList.length }} expense{{reviewList.length > 1 ? 's' : ''}}
-      </div>
-    </ion-title>
-    <ion-buttons slot="md">
-      <ion-button mode="md">
-        <mat-icon>close</mat-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar> -->
-  <!-- <ion-toolbar *ngIf="reviewList.length > 1 && showNavigationPanel">
-    <div>
-      <div>
-        <button [disabled]="activeIndex === 0" (click)="goToPreviousExpense()">
-          <mat-icon>
-            chevron-left
-          </mat-icon>
-        </button>
-      </div>
-      <div>
-        <button [disabled]="activeIndex === reviewList.length - 1" (click)="goToNextExpense()">
-          <i></i>
-          <mat-icon>
-            chevron-right
-          </mat-icon>
-        </button>
-      </div>
-    </div>
-  </ion-toolbar> -->
 </ion-header>
 
 <ion-content>
+  <div class="add-edit-expense--review-nav" *ngIf="reviewList?.length && !focusState">
+    <button class="add-edit-expense--review-go-left" [disabled]="+activeIndex === 0" (click)="goToPrev()"
+      [ngClass]="{'add-edit-expense--review-go-left__disabled': +activeIndex === 0}">
+      <mat-icon>
+        keyboard_arrow_left
+      </mat-icon>
+    </button>
+    <button class="add-edit-expense--review-go-right" [disabled]="+activeIndex === reviewList?.length - 1"
+      (click)="goToNext()"
+      [ngClass]="{'add-edit-expense--review-go-right__disabled': +activeIndex === reviewList?.length - 1}">
+      <mat-icon>
+        keyboard_arrow_right
+      </mat-icon>
+    </button>
+  </div>
   <form [formGroup]="fg" class="add-edit-expense--form">
     <!-- <div (click)="showDuplicates()" *ngIf="duplicates && duplicates.length > 0 && scrollToDuplicates">
       <div>
@@ -62,9 +51,9 @@
     </div> -->
 
     <div>
-      <!-- <div *ngIf="instaFyleCancelled">
+      <div *ngIf="instaFyleCancelled">
         Instafyle is taking longer than expected due to a bad network, please add the details manually
-      </div> -->
+      </div>
 
       <!-- <div (click)="scrollTo('comments')" *ngIf="etxn.tx.policy_flag && comments">
         TODO - add comments support
@@ -85,55 +74,51 @@
         </ng-container>
       </ng-container>
 
-
-
-      <div class="add-edit-expense--receipt-currency">
-        <!-- <div *ngIf="reviewList.length > 0 && showAttachmentPreview">
-          Preview Attachment Component
-          <preview-attachments txn-id="{{ etxn.tx.id }}"></preview-attachments>
-        </div> -->
-        <!-- <div *ngIf="!reviewList.length > 0 || !showAttachmentPreview">
-          <div *ngIf="attachmentUploadInProgress">
-            <ion-spinner icon="circles"></ion-spinner>
-            <div>
+      <div>
+        <ng-container *ngIf="etxn$|async as etxn">
+          <div *ngIf="reviewList?.length > 0">
+            <app-fy-preview-attachments [txnId]="etxn.tx.id"></app-fy-preview-attachments>
+          </div>
+        </ng-container>
+      </div>
+      <div class="add-edit-expense--receipt-currency-container">
+        <div *ngIf="!reviewList?.length" class="add-edit-expense--receipt">
+          <div class="add-edit-expense--receipt-image" *ngIf="attachmentUploadInProgress">
+            <ion-spinner class="add-edit-expense--receipt-image-icon" icon="circles"></ion-spinner>
+            <div class="add-edit-expense--receipt-image-subheader">
               Uploading
             </div>
           </div>
 
-          <div (click)="addAttachments($event)" *ngIf="(etxn.tx.num_files === 0 && !attachmentUploadInProgress)">
-            <div>
+          <div (click)="addAttachments($event)" class="add-edit-expense--receipt-image"
+            *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)">
+            <div class="add-edit-expense--receipt-text">
               Add Receipt
             </div>
-            <mat-icon>
-              plus
+            <mat-icon class="add-edit-expense--receipt-image-icon">
+              add_circle
             </mat-icon>
           </div>
 
-          <div (click)="viewAttachments($event)" *ngIf="etxn.tx.num_files > 0 && !attachmentUploadInProgress">
-            <mat-icon>
-              attachment
+          <div (click)="viewAttachments($event)" class="add-edit-expense--receipt-image"
+            *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress">
+            <mat-icon class="add-edit-expense--receipt-background">
+              description
             </mat-icon>
-            <div>
-              {{etxn.tx.num_files}}
+            <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
+              {{attachedReceiptsCount}}
             </div>
-            <mat-icon (click)="addAttachments($event)">
-              add-attachment
+            <mat-icon class="add-edit-expense--receipt-image-icon" (click)="addAttachments($event)">
+              add_circle
             </mat-icon>
-          </div>
-        </div> -->
-        <div class="add-edit-expense--receipt">
-          <div>
-            Add
-          </div>
-          <div>
-            Receipt
           </div>
         </div>
-
-        <div class="add-edit-expense--currency" *ngIf="etxn$|async as etxn">
-          <div *ngIf="homeCurrency$|async as homeCurrency">
-            <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
-            </app-fy-currency>
+        <div>
+          <div class="add-edit-expense--currency" *ngIf="etxn$|async as etxn">
+            <div *ngIf="homeCurrency$|async as homeCurrency">
+              <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
+              </app-fy-currency>
+            </div>
           </div>
         </div>
       </div>
@@ -180,7 +165,7 @@
         <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'info'"
           [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
 
-        <!-- <div *ngIf="(isCCCAccountSelected$|async) && !isCreatedFromCCC">
+        <div *ngIf="(isCCCAccountSelected$|async) && !isCreatedFromCCC">
           <div (click)="openMatchingTransactions()">
             <div>
               <mat-icon>card</mat-icon>
@@ -190,7 +175,7 @@
               </div>
             </div>
           </div>
-        </div> -->
+        </div>
 
         <app-fy-alert
           *ngIf="(isCCCAccountSelected$|async) && !selectedCCCTransaction && canChangeMatchingCCCTransaction && !(transactionInReport$|async)"
@@ -218,10 +203,10 @@
         </ng-container>
 
         <ng-container *ngIf="txnFields$|async as txnFields">
-          <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt.canView">
+          <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt?.canView">
             <div class="add-edit-expense--date-label">
               Date of Spend
-              <span ng-if="txnFields.txn_dt.mandatory">*</span>
+              <span ng-if="txnFields.txn_dt?.mandatory">*</span>
             </div>
             <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
               (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
@@ -321,7 +306,8 @@
         <div class="add-edit-expense--text-label">
           Tax Value
         </div>
-        <input class="add-edit-expense--text-input" type="number" formControlName="taxValue" />
+        <input class="add-edit-expense--text-input" type="number" formControlName="taxValue" (focus)="focusState = true"
+          (blur)="focusState = false" />
       </div>
     </div>
 
@@ -391,7 +377,8 @@
               <span>*</span>
             </div>
             <input class="add-edit-expense--text-input" type="text" formControlName="train_travel_class"
-              [disabled]="!txnFields.train_travel_class?.canEdit">
+              [disabled]="!txnFields.train_travel_class?.canEdit" (focus)="focusState = true"
+              (blur)="focusState = false">
           </span>
 
           <app-fy-select
@@ -411,7 +398,8 @@
             </div>
           </div>
           <input class="add-edit-expense--text-input" type="text" *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
-            formControlName="bus_travel_class" [disabled]="!txnFields.bus_travel_class?.canEdit">
+            formControlName="bus_travel_class" [disabled]="!txnFields.bus_travel_class?.canEdit"
+            (focus)="focusState = true" (blur)="focusState = false">
           <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" formControlName="bus_travel_class"
             [label]="(etxn$|async)?.tx?.bus_travel_class ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
             [mandatory]="txnFields.bus_travel_class?.mandatory" [options]="txnFields.bus_travel_class?.values"
@@ -432,7 +420,7 @@
               <span>*</span>
             </div>
             <input class="add-edit-expense--text-input" type="number" formControlName="distance"
-              [disabled]="!txnFields.distance?.canEdit">
+              [disabled]="!txnFields.distance?.canEdit" (focus)="focusState = true" (blur)="focusState = false">
           </div>
 
           <div class="add-edit-expense--internal-block">
@@ -458,10 +446,10 @@
               </span>
             </div>
             <input class="add-edit-expense--text-input" type="text" formControlName="value"
-              *ngIf="customInput.type === 'TEXT'">
+              *ngIf="customInput.type === 'TEXT'" (focus)="focusState = true" (blur)="focusState = false">
 
             <input class="add-edit-expense--text-input" type="number" formControlName="value"
-              *ngIf="customInput.type === 'NUMBER'">
+              *ngIf="customInput.type === 'NUMBER'" (focus)="focusState = true" (blur)="focusState = false">
 
             <input class="add-edit-expense--date-input" *ngIf="customInput.type === 'DATE'" type="date"
               formControlName="value">
@@ -480,22 +468,24 @@
           </div>
 
           <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'LOCATION'">
-            <app-fy-location [label]="customInput.name" formControlName="value">
+            <app-fy-location [mandatory]="customInput.mandatory" [label]="customInput.name" formControlName="value">
             </app-fy-location>
           </div>
 
           <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'SELECT'">
-            <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value">
+            <app-fy-select [mandatory]="customInput.mandatory" [label]="customInput.name"
+              [options]="customInput.options" formControlName="value">
             </app-fy-select>
           </div>
 
           <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'MULTI_SELECT'">
-            <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value">
+            <app-fy-multiselect [mandatory]="customInput.mandatory" [label]="customInput.name"
+              [options]="customInput.options" formControlName="value">
             </app-fy-multiselect>
           </div>
 
           <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'USER_LIST'">
-            <app-fy-userlist [label]="customInput.name" formControlName="value">
+            <app-fy-userlist [mandatory]="customInput.mandatory" [label]="customInput.name" formControlName="value">
             </app-fy-userlist>
           </div>
 
@@ -516,8 +506,8 @@
         <ng-container *ngIf="txnFields$|async as txnFields">
           <div class="add-edit-expense--internal-block"
             *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
-            <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id.mandatory"
-              [label]="(etxn$|async)?.tx?.cost_center_id ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title"
+            <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id?.mandatory"
+              [label]="(etxn$|async)?.tx?.cost_center_id ? txnFields.cost_center_id?.title : 'Enter ' + txnFields.cost_center_id?.title"
               [options]="costCenters">
             </app-fy-select>
           </div>
@@ -587,7 +577,7 @@
 
     <ng-container *ngIf="etxn$|async as etxn">
       <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
-        class="add-edit-expense--delete" matRipple>
+        class="add-edit-expense--delete" matRipple (click)="deleteExpense()">
         <mat-icon class="add-edit-expense--delete-icon">
           delete
         </mat-icon>
@@ -643,12 +633,17 @@
 
 <ion-footer>
   <ion-toolbar>
-    <ion-buttons>
+    <ion-buttons *ngIf="!reviewList">
       <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
         Save
       </ion-button>
       <ion-button class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
         Save & New
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons *ngIf="reviewList">
+      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
+        Save & Next
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
