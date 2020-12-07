@@ -323,14 +323,17 @@ export class AdvanceRequestService {
       advanceReq: this.saveDraft(advanceRequest)
     }).pipe(
       switchMap(res => {
-        const fileObjs: File[] = res.files;
-        const advanceReq = res.advanceReq;
-
-        const a = fileObjs.map((obj: File) => {
-          obj.advance_request_id = advanceReq.id;
-          return this.fileService.post(obj);
-        })
-        return forkJoin(a);
+        if (res.files && res.files.length > 0) {
+          const fileObjs: File[] = res.files;
+          const advanceReq = res.advanceReq;
+          const newFileObjs = fileObjs.map((obj: File) => {
+            obj.advance_request_id = advanceReq.id;
+            return this.fileService.post(obj);
+          });
+          return forkJoin(newFileObjs);
+        } else  {
+          return of(null);
+        }
       })
     )
   }

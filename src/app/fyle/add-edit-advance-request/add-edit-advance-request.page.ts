@@ -147,6 +147,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
               } else {
                 this.loaderService.showLoader('Creating Advance Request...');
                 return this.saveAndSubmit(event, advanceRequest).pipe(
+                  map(res => {
+                    debugger;
+                  }),
                   finalize(() => {
                     this.fg.reset();
                     this.loaderService.hideLoader();
@@ -197,15 +200,22 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   fileAttachments() {
-      // this.dataUrls.forEach((dataUrl) => {
-      //   return fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
-      // });
-
     const fileObjs = this.dataUrls.map(dataUrl => {
+      dataUrl.type = dataUrl.type === 'application/pdf' ? 'pdf' : 'image';
       return from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type));
-    })
+    });
 
-    return forkJoin(fileObjs);
+    // if (this.dataUrls.length === 0) {
+    //   fileObjs.push();
+    // }
+
+    // return forkJoin(fileObjs);
+
+    return iif(
+      () => this.dataUrls.length !== 0,
+      forkJoin(fileObjs),
+      of(null)
+    );
   }
 
   async addAttachments(event) {
