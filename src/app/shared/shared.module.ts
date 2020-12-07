@@ -33,7 +33,9 @@ import { IconModule } from './icon/icon.module';
 import { CurrencyComponent } from './components/currency/currency.component';
 import { CommentsComponent } from './components/comments/comments.component';
 import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
-
+import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
   declarations: [
@@ -57,7 +59,8 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     DelegatedAccMessageComponent,
     CurrencyComponent,
     CommentsComponent,
-    ViewCommentComponent
+    ViewCommentComponent,
+    FyPreviewAttachmentsComponent
   ],
   imports: [
     CommonModule,
@@ -66,7 +69,9 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     MatInputModule,
     MatFormFieldModule,
     MatIconModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    PinchZoomModule,
+    PdfViewerModule
   ],
   exports: [
     EllipsisPipe,
@@ -85,7 +90,8 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
     DelegatedAccMessageComponent,
     IconModule,
     CurrencyComponent,
-    CommentsComponent
+    CommentsComponent,
+    FyPreviewAttachmentsComponent
   ],
   providers: [
     DecimalPipe,

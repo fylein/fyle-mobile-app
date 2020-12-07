@@ -5,7 +5,12 @@
         Add Mileage
       </div>
       <div *ngIf="mode === 'edit'">
-        {{title}} Mileage
+        <div>
+          {{title}} Mileage
+        </div>
+        <div class="add-edit-mileage--sub-header" *ngIf="reviewList?.length">
+          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+        </div>
       </div>
     </ion-title>
     <ion-buttons slot="end">
@@ -18,7 +23,23 @@
 
 <ion-content>
   <div>
+    <div class="add-edit-mileage--review-nav" *ngIf="reviewList?.length">
+      <button class="add-edit-mileage--review-go-left" [disabled]="+activeIndex === 0" (click)="goToPrev()"
+        [ngClass]="{'add-edit-mileage--review-go-left__disabled': +activeIndex === 0}">
+        <mat-icon>
+          keyboard_arrow_left
+        </mat-icon>
+      </button>
+      <button class="add-edit-mileage--review-go-right" [disabled]="+activeIndex === reviewList?.length - 1"
+        (click)="goToNext()"
+        [ngClass]="{'add-edit-mileage--review-go-right__disabled': +activeIndex === reviewList?.length - 1}">
+        <mat-icon>
+          keyboard_arrow_right
+        </mat-icon>
+      </button>
+    </div>
     <ng-container *ngIf="etxn$|async as etxn">
+
       <form [formGroup]="fg" class="add-edit-mileage--form">
         <!-- <div ng-click="vm.scrollTo('comments')" *ngIf="etxn.tx.policy_flag && vm.comments">
             <enterprise-fy-policy-violation-info estatuses="vm.comments">
@@ -48,14 +69,14 @@
             </div>
             <div class="add-edit-mileage--rate">
               <p>
-                Rate / 
+                Rate /
                 <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                    <span>{{ etxn.tx.distance_unit }}</span>
+                  <span>{{ etxn.tx.distance_unit }}</span>
                 </ng-container>
 
                 <ng-template #defaultDistanceUnit>
                   <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span>{{ mileageConfig.unit }}</span>
+                    <span>{{ mileageConfig.unit }}</span>
                   </ng-container>
                 </ng-template>
               </p>
@@ -124,15 +145,15 @@
                   [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}">
                   {{ etxn.tx.distance ? txnFields?.distance.title : 'Enter ' + txnFields?.distance.title }}
                   (
-                    <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                        <span>{{ etxn.tx.distance_unit }}</span>
+                  <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
+                    <span>{{ etxn.tx.distance_unit }}</span>
+                  </ng-container>
+
+                  <ng-template #defaultDistanceUnit>
+                    <ng-container *ngIf="mileageConfig$|async as mileageConfig">
+                      <span>{{ mileageConfig.unit }}</span>
                     </ng-container>
-    
-                    <ng-template #defaultDistanceUnit>
-                      <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                          <span>{{ mileageConfig.unit }}</span>
-                      </ng-container>
-                    </ng-template>
+                  </ng-template>
                   )
                   <div>
                     *
@@ -223,7 +244,8 @@
             <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
               <div class="add-edit-mileage--internal-block">
                 <app-fy-select-project [label]="etxn.tx.project_id ? 'Project' : 'Select Project'"
-                  [mandatory]="transactionMandatoyFields.project" formControlName="project" [categoryIds]="projectCategoryIds"></app-fy-select-project>
+                  [mandatory]="transactionMandatoyFields.project" formControlName="project"
+                  [categoryIds]="projectCategoryIds"></app-fy-select-project>
               </div>
             </ng-container>
           </ng-container>
@@ -331,12 +353,36 @@
             </div>
           </ng-container>
 
-          <!-- <div id="duplicate-detection">
-              <enterprise-duplicate-detection class="element-block m-0"
-                *ngIf="!vm.isOffline && vm.duplicates && vm.duplicates.length > 0"
-                reason="etxn.tx.user_reason_for_duplicate_mileages" duplicates="vm.duplicates" transaction-id="etxn.tx.id">
-              </enterprise-duplicate-detection>
-            </div> -->
+          <ng-container *ngIf="duplicates$|async as duplicates">
+            <ng-container *ngIf="duplicates.length > 0">
+              <div class="add-edit-expense--duplicates-box add-edit-expense--primary-block">
+                <div class="add-edit-expense--duplicate-header">
+                  <mat-icon>
+                    warning
+                  </mat-icon>
+                  <div>
+                    {{duplicates.length}} Duplicates Detected
+                  </div>
+                  <div *ngIf="duplicateBoxOpen" (click)="duplicateBoxOpen = false">
+                    Collapse
+                  </div>
+                  <div *ngIf="!duplicateBoxOpen" (click)="duplicateBoxOpen = true">
+                    Expand
+                  </div>
+                </div>
+                <div class="add-edit-expense--duplicate-sub-box" *ngIf="duplicateBoxOpen">
+                  <div class="add-edit-expense--duplicate-reason" *ngFor="let duplicate of duplicates">
+                    {{duplicate.reason}}
+                  </div>
+                  <div class="add-edit-expense--duplicate-reason-select">
+                    <app-fy-select [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
+                      [options]="[]">
+                    </app-fy-select>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
 
           <!-- <div id="comments" class="element-container" *ngIf="etxn && vm.mode === 'edit'">
               <enterprise-fy-comments class="element-block m-0 no-border comments-block" object-type="transactions"
@@ -363,17 +409,19 @@
     </ng-container>
   </div>
 </ion-content>
-
-
-
 <ion-footer>
   <ion-toolbar>
-    <ion-buttons>
+    <ion-buttons *ngIf="!reviewList">
       <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
         Save
       </ion-button>
       <ion-button class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
         Save & New
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons *ngIf="reviewList">
+      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
+        Save & Next
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

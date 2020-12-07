@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, FormCon
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, forkJoin, iif, of, combineLatest, Observable, noop, throwError } from 'rxjs';
-import { switchMap, finalize, map, filter, distinctUntilChanged, take, startWith, shareReplay, tap, concatMap, catchError } from 'rxjs/operators';
+import { switchMap, finalize, map, filter, distinctUntilChanged, take, startWith, shareReplay, tap, concatMap, catchError, debounceTime } from 'rxjs/operators';
 import { isEqual, isNumber, cloneDeep } from 'lodash';
 import * as moment from 'moment';
 import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
@@ -23,6 +23,7 @@ import { DataTransformService } from 'src/app/core/services/data-transform.servi
 import { ModalController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
+import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -60,6 +61,8 @@ export class AddEditMileagePage implements OnInit {
   mileageConfig$: Observable<any>;
   rate$: Observable<number>;
   projectCategoryIds$: Observable<string[]>;
+  duplicates$: Observable<any>;
+  duplicateBoxOpen = false;
 
   formInitializedFlag = false;
 
@@ -82,6 +85,7 @@ export class AddEditMileagePage implements OnInit {
     private policyService: PolicyService,
     private statusService: StatusService,
     private dataTransformService: DataTransformService,
+    private duplicateDetectionService: DuplicateDetectionService,
     private modalController: ModalController
   ) { }
 
@@ -136,10 +140,157 @@ export class AddEditMileagePage implements OnInit {
         }
       }
     });
+
+    this.setupDuplicateDetection();
   }
 
   get mileage_locations() {
     return this.fg.controls.mileage_locations as FormArray;
+  }
+
+  goToPrev() {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+
+    if (this.reviewList[+this.activeIndex - 1]) {
+      this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe(etxn => {
+        this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
+      });
+    }
+  }
+
+  goToNext() {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+
+    if (this.reviewList[+this.activeIndex + 1]) {
+      this.transactionService.getETxn(this.reviewList[+this.activeIndex + 1]).subscribe(etxn => {
+        this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
+      });
+    }
+  }
+
+  goToTransaction(expense, reviewList, activeIndex) {
+    let category;
+
+    if (expense.tx.org_category) {
+      category = expense.tx.org_category.toLowerCase();
+    }
+    //TODO: Leave for later
+    // if (category === 'activity') {
+    //   showCannotEditActivityDialog();
+
+    //   return;
+    // }
+
+    if (category === 'mileage') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    } else if (category === 'per diem') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    }
+  }
+
+  getCalculateDistance() {
+    return this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
+      switchMap((distance) => {
+        return this.etxn$.pipe(map(etxn => {
+          const distanceInKm = distance / 1000;
+          const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
+          return finalDistance;
+        }));
+      }),
+      map(finalDistance => {
+        if (this.fg.value.round_trip) {
+          return (finalDistance * 2).toFixed(2);
+        } else {
+          return (finalDistance).toFixed(2);
+        }
+      }),
+      shareReplay()
+    );
+  }
+
+  canGetDuplicates() {
+    return this.offlineService.getOrgSettings().pipe(
+      map(orgSettings => {
+        const isAmountCurrencyTxnDtPresent =
+          isNumber(this.fg.value.currencyObj && this.fg.value.currencyObj.amount) && !!this.fg.value.dateOfSpend
+          && !!(this.fg.value.currencyObj && this.fg.value.currencyObj.currency);
+        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
+      })
+    );
+  }
+
+  checkForDuplicates() {
+    return this.canGetDuplicates().pipe(
+      switchMap((canGetDuplicates) => {
+        const customFields$ = this.getCustomFields();
+        return iif(
+          () => canGetDuplicates,
+          this.generateEtxnFromFg(this.etxn$, customFields$, this.getCalculateDistance()).pipe(
+            tap((etxn) => console.log(etxn.tx)),
+            switchMap(etxn => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
+          ),
+          of(null)
+        );
+      })
+    );
+  }
+
+  getDuplicates() {
+    return this.etxn$.pipe(
+      switchMap(etxn => {
+        return this.duplicateDetectionService.getDuplicates(etxn.tx.id);
+      })
+    );
+  }
+
+  getPossibleDuplicates() {
+    const currentTxn$ = this.generateEtxnFromFg(this.etxn$, this.getCustomFields(), this.getCalculateDistance());
+    const isSameTxn$ = forkJoin({
+      oldTxn: this.etxn$,
+      currentTxn: currentTxn$
+    }).pipe(
+      map(({ oldTxn, currentTxn }) => {
+        const oldTxnClone = cloneDeep(oldTxn);
+        const currentTxnClone = cloneDeep(currentTxn);
+        // safe hack - can clean off later on
+        oldTxnClone.tx.custom_properties = null;
+        currentTxnClone.tx.custom_properties = null;
+        oldTxnClone.tx.locations = null;
+        currentTxnClone.tx.locations = null;
+        oldTxnClone.tx.txn_dt = oldTxnClone.tx.txn_dt && moment(oldTxnClone.tx.txn_dt).format('y-MM-DD');
+        currentTxnClone.tx.txn_dt = currentTxnClone.tx.txn_dt && moment(currentTxnClone.tx.txn_dt).format('y-MM-DD');
+
+
+        return isEqual(oldTxnClone.tx, currentTxnClone.tx);
+      })
+    );
+
+    // TODO: Verify with policy team - getDuplicates never executes in old mobile app
+    // return isSameTxn$.pipe(
+    //   switchMap((isSameTxn) => {
+    //     return iif(() => isSameTxn, this.getDuplicates(), this.checkForDuplicates());
+    //   })
+    // );
+
+    return this.checkForDuplicates();
+  }
+
+  setupDuplicateDetection() {
+    this.duplicates$ = this.fg.valueChanges.pipe(
+      debounceTime(1000),
+      distinctUntilChanged((a, b) => isEqual(a, b)),
+      switchMap(() => {
+        return this.getPossibleDuplicates();
+      })
+    );
   }
 
   setupFilteredCategories(activeCategories$: Observable<any>) {
@@ -406,9 +557,12 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.fg.reset();
     this.title = 'Add Mileage';
+
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
-    this.reviewList = this.activatedRoute.snapshot.params.txnIds;
+    this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+
     this.title = this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
     if (this.activatedRoute.snapshot.params.id) {
       this.mode = 'edit';
@@ -757,13 +911,39 @@ export class AddEditMileagePage implements OnInit {
   saveExpense() {
     if (this.fg.valid) {
       if (this.mode === 'add') {
-        this.addExpense();
+        this.addExpense().subscribe(noop);
       } else {
         // to do edit
-        this.editExpense();
+        this.editExpense().subscribe(noop);
       }
     } else {
       this.fg.markAllAsTouched();
+    }
+  }
+
+  saveExpenseAndGotoNext() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense().subscribe(() => {
+          if (+this.activeIndex === this.reviewList.length - 1) {
+            that.close();
+          } else {
+            that.goToNext();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense().subscribe(() => {
+          if (+this.activeIndex === this.reviewList.length - 1) {
+            that.close();
+          } else {
+            that.goToNext();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
     }
   }
 
@@ -890,8 +1070,10 @@ export class AddEditMileagePage implements OnInit {
           tx: {
             ...etxn.tx,
             mileage_vehicle_type: formValue.mileage_vehicle_type,
+            mileage_is_round_trip: formValue.round_trip,
             source_account_id: formValue.paymentMode.acc.id,
             billable: formValue.billable,
+            distance: formValue.distance,
             org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
             txn_dt: new Date(formValue.dateOfSpend),
             skip_reimbursement: skipReimbursement,
@@ -940,7 +1122,7 @@ export class AddEditMileagePage implements OnInit {
       shareReplay()
     );
 
-    from(this.loaderService.showLoader())
+    return from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
           return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
@@ -1107,7 +1289,7 @@ export class AddEditMileagePage implements OnInit {
           return transaction;
         }),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(noop);
+      );
   }
 
   addExpense() {
@@ -1130,7 +1312,7 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    from(this.loaderService.showLoader())
+    return from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
           return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
@@ -1256,7 +1438,7 @@ export class AddEditMileagePage implements OnInit {
               }));
         }),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(noop);
+      );
   }
 
 }

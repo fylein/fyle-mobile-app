@@ -27,6 +27,7 @@ export class DelegatedAccountsPage implements OnInit {
   switchToDelegatee(eou) {
     from(this.loaderService.showLoader('Switching Account')).pipe(
       concatMap(() => {
+        // Todo: CacheService.clearAll()
         return this.orgUserService.switchToDelegator(eou.ou);
       }),
       finalize(async () => {
@@ -37,8 +38,10 @@ export class DelegatedAccountsPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(){
+  }
 
+  ionViewWillEnter() {
     const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn;
 
     if (switchToOwn) {

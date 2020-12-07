@@ -6,7 +6,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController, AlertController, ActionSheetController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { Router } from '@angular/router';
-import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, withLatestFrom, scan } from 'rxjs/operators';
+import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, withLatestFrom, scan, take } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
 import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
@@ -54,6 +54,8 @@ export class MyExpensesPage implements OnInit {
   isMileageEnabled$: Observable<boolean>;
   isPerDiemEnabled$: Observable<boolean>;
   pendingTransactions = [];
+  selectionMode = false;
+  selectedElements: string[];
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -98,12 +100,21 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
+  switchSelectionMode() {
+    this.selectionMode = !this.selectionMode;
+    if (!this.selectionMode) {
+      this.selectedElements = [];
+    }
+  }
+
   ionViewWillEnter() {
     this.acc = [];
     this.loadData$ = new BehaviorSubject({
       pageNumber: 1
     });
 
+    this.selectionMode = false;
+    this.selectedElements = [];
 
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
@@ -114,11 +125,18 @@ export class MyExpensesPage implements OnInit {
     ).subscribe((a) => {
       console.log('Promise has resolved', a);
       this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+
+      console.log(this.pendingTransactions);
+
+      if (this.pendingTransactions.length === 0) {
+        this.doRefresh();
+      }
     });
 
     this.baseState = 'all';
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
+    this.simpleSearchInput.nativeElement.value = '';
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),
@@ -456,6 +474,14 @@ export class MyExpensesPage implements OnInit {
     await alert.present();
   }
 
+  selectExpense(expense: Expense) {
+    if (this.selectedElements.includes(expense.tx_id)) {
+      this.selectedElements = this.selectedElements.filter(id => id !== expense.tx_id);
+    } else {
+      this.selectedElements.push(expense.tx_id);
+    }
+  }
+
   goToTransaction(expense) {
     let category;
 
@@ -479,8 +505,106 @@ export class MyExpensesPage implements OnInit {
   }
 
   onAddTransactionToNewReport(event, transactionId) {
-    let transactionIds = JSON.stringify([transactionId]);
+    const transactionIds = JSON.stringify([transactionId]);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
+  }
+
+  openCreateReportWithSelectedIds() {
+    // const transactionIds = JSON.stringify([transactionId]);
+    this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(this.selectedElements) }]);
+  }
+
+  openCreateReport() {
+    this.router.navigate(['/', 'enterprise', 'my_create_report']);
+  }
+
+  openReviewExpenses() {
+    const allDataPipe$ = this.loadData$.pipe(
+      take(1),
+      switchMap(params => {
+        console.log(params);
+        const queryParams = params.queryParams || {};
+
+        let defaultState;
+        if (this.baseState === 'all') {
+          defaultState = 'in.(COMPLETE,DRAFT)';
+        } else if (this.baseState === 'draft') {
+          defaultState = 'in.(DRAFT)';
+        }
+
+        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+        queryParams.tx_state = queryParams.tx_state || defaultState;
+
+        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+
+        return this.transactionService.getAllExpenses({
+          queryParams,
+          order: orderByParams
+        }).pipe(
+          map(expenses => expenses.filter(expense => {
+            if (params.searchString) {
+              return Object.values(expense)
+                .map(value => value && value.toString().toLowerCase())
+                .filter(value => !!value)
+                .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
+            } else {
+              return true;
+            }
+          }))
+        );
+      }),
+      map(etxns => etxns.map(etxn => etxn.tx_id))
+    );
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => {
+          return iif(() => this.selectedElements.length === 0, allDataPipe$, of(this.selectedElements));
+        }),
+        switchMap((selectedIds) => {
+          const initial = selectedIds[0];
+          const allIds = selectedIds;
+
+          return this.transactionService.getETxn(initial).pipe(
+            map((etxn) => ({
+              inital: etxn,
+              allIds
+            }))
+          );
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(({ inital, allIds }) => {
+        let category;
+
+        if (inital.tx.org_category) {
+          category = inital.tx.org_category.toLowerCase();
+        }
+        //TODO: Leave for later
+        // if (category === 'activity') {
+        //   showCannotEditActivityDialog();
+
+        //   return;
+        // }
+
+        if (category === 'mileage') {
+          this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
+            id: inital.tx.id,
+            txnIds: JSON.stringify(allIds),
+            activeIndex: 0
+          }]);
+        } else if (category === 'per diem') {
+          this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
+            id: inital.tx.id,
+            txnIds: JSON.stringify(allIds),
+            activeIndex: 0
+          }]);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+            id: inital.tx.id,
+            txnIds: JSON.stringify(allIds),
+            activeIndex: 0
+          }]);
+        }
+      });
   }
 
   onAddTransactionToReport() {
