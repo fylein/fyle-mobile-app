@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
@@ -13,6 +14,8 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 
 @Component({
@@ -28,6 +31,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
   homeCurrency$: Observable<any>;
   projects$: Observable<[]>;
   customFields$: Observable<any>;
+  attachmentUploadInProgress: boolean;
+  dataUrls: any[];
+  fileObjs: any[];
 
   constructor(
     private offlineService: OfflineService,
@@ -41,7 +47,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private loaderService: LoaderService,
-    private projectService: ProjectsService
+    private projectService: ProjectsService,
+    private popoverController: PopoverController,
+    private transactionsOutboxService: TransactionsOutboxService
   ) { }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -78,7 +86,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   saveDraftAdvanceRequest(advanceRequest){
-    return this.advanceRequestService.saveDraftAdvReqWithFiles(advanceRequest);
+    const fileObjPromises = this.fileAttachments();
+    return this.advanceRequestService.saveDraftAdvReqWithFiles(advanceRequest, fileObjPromises);
   }
 
   saveAndSubmit(event, advanceRequest) {
@@ -187,12 +196,52 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return customFields;
   }
 
+  fileAttachments() {
+      // this.dataUrls.forEach((dataUrl) => {
+      //   return fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
+      // });
+
+    const fileObjs = this.dataUrls.map(dataUrl => {
+      return from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type));
+    })
+
+    return forkJoin(fileObjs);
+  }
+
+  async addAttachments(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const cameraOptionsPopup = await this.popoverController.create({
+      component: CameraOptionsPopupComponent,
+      cssClass: 'camera-options-popover'
+    });
+
+    await cameraOptionsPopup.present();
+
+    const { data } = await cameraOptionsPopup.onWillDismiss();
+
+    if (data) {
+      //debugger;
+      if (this.mode === 'add') {
+        this.dataUrls.push({
+          type: data.type,
+          url: data.dataUrl,
+          thumbnail: data.dataUrl
+        });
+      }
+    }
+
+  }
+
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
+    this.dataUrls = [];
+    this.fileObjs = [];
 
     const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {

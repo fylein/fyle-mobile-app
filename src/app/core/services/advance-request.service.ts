@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { map, switchMap, tap } from 'rxjs/operators';
-import { from, Observable } from 'rxjs';
+import { concatMap, map, switchMap, tap } from 'rxjs/operators';
+import { forkJoin, from, noop, Observable, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
@@ -14,6 +14,10 @@ import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { CustomField } from '../models/custom_field.model';
+import { FileObject } from '../models/file_obj.model';
+import { FileService } from './file.service';
+import { File} from '../models/file.model';
+import { TransactionsOutboxService } from './transactions-outbox.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +34,9 @@ export class AdvanceRequestService {
     private timezoneService: TimezoneService,
     private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private dataTransformService: DataTransformService,
-    private dateService: DateService
+    private dateService: DateService,
+    private fileService: FileService,
+    private transactionsOutboxService: TransactionsOutboxService
   ) { }
 
   getEReq(advanceRequestId) {
@@ -311,10 +317,22 @@ export class AdvanceRequestService {
     return this.submit(advanceRequest);
   }
 
-  saveDraftAdvReqWithFiles(advanceRequest, fileObjs?) {
-    // Todo: create adv req with files
-    return this.saveDraft(advanceRequest);
-  }
+  saveDraftAdvReqWithFiles(advanceRequest, fileObservables?: Observable<any[]>) {
+    return forkJoin({
+      files: fileObservables,
+      advanceReq: this.saveDraft(advanceRequest)
+    }).pipe(
+      switchMap(res => {
+        const fileObjs: File[] = res.files;
+        const advanceReq = res.advanceReq;
 
+        const a = fileObjs.map((obj: File) => {
+          obj.advance_request_id = advanceReq.id;
+          return this.fileService.post(obj);
+        })
+        return forkJoin(a);
+      })
+    )
+  }
 
 }

@@ -88,13 +88,14 @@ export class FileService {
     return this.apiService.post('/files/' + fileId + '/upload_completed');
   }
 
-  base64Upload(name, content, transaction_id, invoice_id, password) {
+  base64Upload(name, content, transactionId?, advanceRequestId?, invoiceId?, password?) {
     return this.apiService.post('/files/upload_b64',
       {
         name,
         content,
-        transaction_id,
-        invoice_id,
+        transaction_id: transactionId,
+        advance_request_id: advanceRequestId,
+        invoice_id: invoiceId,
         password
       }
     );
