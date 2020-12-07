@@ -74,8 +74,6 @@
         </ng-container>
       </ng-container>
 
-
-
       <div>
         <ng-container *ngIf="etxn$|async as etxn">
           <div *ngIf="reviewList?.length > 0">
@@ -125,17 +123,12 @@
         </div>
       </div>
 
-
-      <!-- <div *ngIf="isSplitExpenseAllowed && !(reviewList && reviewList?.length > 1) && !isOffline">
-        <div (click)="splitExpense($event)">
-          <mat-icon>
-            split-expense
-          </mat-icon>
-          <div>
-            Split Expense
-          </div>
+      <div *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1) && !isOffline">
+        <div class="add-edit-expense--split-expense-container" (click)="splitExpense($event)">
+          <mat-icon class="add-edit-expense--split-expense-icon" svgIcon="split-expense"></mat-icon>
+          <div class="add-edit-expense--split-expense-title">Split Expense</div>
         </div>
-      </div> -->
+      </div>
 
       <div class="add-edit-expense--primary-block">
         <ng-container *ngIf="paymentModes$|async as paymentModes">
