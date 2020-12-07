@@ -3,13 +3,14 @@ import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Valid
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -49,7 +50,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private loaderService: LoaderService,
     private projectService: ProjectsService,
     private popoverController: PopoverController,
-    private transactionsOutboxService: TransactionsOutboxService
+    private transactionsOutboxService: TransactionsOutboxService,
+    private fileService: FileService
   ) { }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -197,13 +199,16 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   fileAttachments() {
-    const fileObjs = this.dataUrls.map(dataUrl => {
+    const fileObjs = [];
+    this.dataUrls.map(dataUrl => {
       dataUrl.type = dataUrl.type === 'application/pdf' ? 'pdf' : 'image';
-      return from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type));
+      if (!dataUrl.id) {
+        fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
+      }
     });
 
     return iif(
-      () => this.dataUrls.length !== 0,
+      () => fileObjs.length !== 0,
       forkJoin(fileObjs),
       of(null)
     );
@@ -223,15 +228,68 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const { data } = await cameraOptionsPopup.onWillDismiss();
 
     if (data) {
-      if (this.mode === 'add') {
+      // if (this.mode === 'add') {
         this.dataUrls.push({
           type: data.type,
           url: data.dataUrl,
           thumbnail: data.dataUrl
         });
+      // }
+    }
+
+  }
+
+  getReceiptExtension(name) {
+    let res = null;
+
+    if (name) {
+      const filename = name.toLowerCase();
+      const idx = filename.lastIndexOf('.');
+
+      if (idx > -1) {
+        res = filename.substring(idx + 1, filename.length);
       }
     }
 
+    return res;
+  }
+
+  getReceiptDetails(file) {
+    const ext = this.getReceiptExtension(file.name);
+    const res = {
+      type: 'unknown',
+      thumbnail: 'img/fy-receipt.svg'
+    };
+
+    if (ext && (['pdf'].indexOf(ext) > -1)) {
+      res.type = 'pdf';
+      res.thumbnail = 'img/fy-pdf.svg';
+    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+      res.type = 'image';
+      res.thumbnail = file.url;
+    }
+
+    return res;
+  }
+
+  getAttachedReceipts(id) {
+    return this.fileService.findByAdvanceRequestId(id).pipe(
+      switchMap(fileObjs => {
+        return from(fileObjs);
+      }),
+      concatMap((fileObj: any) => {
+        return this.fileService.downloadUrl(fileObj.id).pipe(
+          map(downloadUrl => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        );
+      }),
+      reduce((acc, curr) => acc.concat(curr), []),
+    )
   }
 
   ionViewWillEnter() {
@@ -268,6 +326,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
             custom_field_values: this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values)
           });
         }
+        this.getAttachedReceipts(this.activatedRoute.snapshot.params.id).subscribe(files => {
+          this.dataUrls = files;
+        });
         return res.areq;
       }),
       shareReplay()
