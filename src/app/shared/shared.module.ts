@@ -36,6 +36,7 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +61,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     CurrencyComponent,
     CommentsComponent,
     ViewCommentComponent,
-    FyPreviewAttachmentsComponent
+    FyPreviewAttachmentsComponent,
+    FyZeroStateComponent
   ],
   imports: [
     CommonModule,
@@ -91,7 +93,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     IconModule,
     CurrencyComponent,
     CommentsComponent,
-    FyPreviewAttachmentsComponent
+    FyPreviewAttachmentsComponent,
+    FyZeroStateComponent
   ],
   providers: [
     DecimalPipe,

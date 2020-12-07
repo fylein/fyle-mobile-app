@@ -105,6 +105,21 @@
     padding: 8px 0;
   }
 
+  &--syncing {
+    display: flex;
+    color: #f36;
+    margin: 0 0 16px;
+  }
+
+  &--syncing-image {
+
+    width: 36px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 8px;
+
+  }
+
   &--zero-state {
     display: flex;
     flex-direction: column;
