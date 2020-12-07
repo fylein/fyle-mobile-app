@@ -147,9 +147,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
               } else {
                 this.loaderService.showLoader('Creating Advance Request...');
                 return this.saveAndSubmit(event, advanceRequest).pipe(
-                  map(res => {
-                    debugger;
-                  }),
                   finalize(() => {
                     this.fg.reset();
                     this.loaderService.hideLoader();
@@ -205,12 +202,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
       return from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type));
     });
 
-    // if (this.dataUrls.length === 0) {
-    //   fileObjs.push();
-    // }
-
-    // return forkJoin(fileObjs);
-
     return iif(
       () => this.dataUrls.length !== 0,
       forkJoin(fileObjs),
@@ -232,7 +223,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const { data } = await cameraOptionsPopup.onWillDismiss();
 
     if (data) {
-      //debugger;
       if (this.mode === 'add') {
         this.dataUrls.push({
           type: data.type,
