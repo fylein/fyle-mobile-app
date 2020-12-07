@@ -1,0 +1,23 @@
+.fy-select-vehicle {
+  display: flex;
+  align-items: center;
+  &--label {
+    margin: 0 8px 0 0;
+    min-width: 145px;
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  &--selectors {
+    padding: 0 8px;
+    display: flex;
+  }
+  &--selector {
+    padding: 4px 8px;
+    &__selected {
+        color: #f36;
+    }
+  }
+}

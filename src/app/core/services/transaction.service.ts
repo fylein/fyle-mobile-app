@@ -4,14 +4,14 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { from, Observable, range, concat } from 'rxjs';
+import { from, Observable, range, concat, forkJoin } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { TimezoneService } from 'src/app/services/timezone.service';
-import { UtilityService } from 'src/app/services/utility.service';
-import { FileService } from 'src/app/services/file.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 
@@ -374,23 +374,26 @@ export class TransactionService {
   }
 
   createTxnWithFiles(txn, fileUploads$: Observable<any>) {
-    console.log(arguments);
     return fileUploads$.pipe(
-      tap(console.log),
       switchMap((fileObjs: any[]) => {
-        console.log('inside createTxnWithFiles');
-        console.log(fileObjs);
         return this.upsert(txn).pipe(
           switchMap(transaction => {
-            return concat(fileObjs.map(fileObj => {
+            return from(fileObjs.map(fileObj => {
               fileObj.transaction_id = transaction.id;
-              return this.fileService.post(fileObj);
+              return fileObj;
             })).pipe(
+              concatMap(fileObj => {
+                return this.fileService.post(fileObj);
+              }),
+              reduce((acc, curr) => {
+                return acc.concat([curr]);
+              }, []),
+              tap(console.log),
               map(() => transaction)
             );
           })
         );
-      })
+      }),
     );
   }
 
@@ -455,5 +458,17 @@ export class TransactionService {
     };
 
     return this.apiService.post('/transactions/match', data);
+  }
+
+  review(txnId: string) {
+    return this.apiService.post('/transactions/' + txnId + '/review');
+  }
+
+  setDefaultVehicleType(vehicleType) {
+    return from(this.storageService.set('vehicle_preference', vehicleType));
+  }
+
+  getDefaultVehicleType() {
+    return from(this.storageService.get('vehicle_preference'));
   }
 }

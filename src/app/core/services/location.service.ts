@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,7 @@ export class LocationService {
     );
   }
 
-  getDistance(fromLocation, toLocation) {
+  getDistance(fromLocation, toLocation): Observable<number> {
     const data = {
       params: {
         origin_lat: fromLocation.latitude,
@@ -47,7 +48,9 @@ export class LocationService {
       }
     };
 
-    return this.get('/distance', data);
+    return this.get('/distance', data).pipe(
+      map(res => res as number)
+    );
   }
 
   getPlace(placeId) {

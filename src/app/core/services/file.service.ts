@@ -3,6 +3,7 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { File } from '../models/file.model';
 import { ApiService } from './api.service';
+import { FileObject } from '../models/file_obj.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,7 @@ export class FileService {
       map(res => res.url)
     );
   }
-  
+
   findByAdvanceRequestId(advanceRequestId: string): Observable<File[]> {
     return from(this.apiService.get('/files', {
       params: {
@@ -67,4 +68,51 @@ export class FileService {
     file.file_type = fileType;
     return file;
   }
+
+  post(fileObj) {
+    return this.apiService.post('/files', fileObj);
+  }
+
+  uploadUrl(fileId) {
+    return this.apiService.post('/files/' + fileId + '/upload_url').pipe(
+      map(data => data.url)
+    );
+  }
+
+  uploadComplete(fileId) {
+    return this.apiService.post('/files/' + fileId + '/upload_completed');
+  }
+
+  base64Upload(name, content, transaction_id, invoice_id, password) {
+    return this.apiService.post('/files/upload_b64',
+      {
+        name,
+        content,
+        transaction_id,
+        invoice_id,
+        password
+      }
+    );
+  }
+
+  findByTransactionId(txnId: string): Observable<FileObject[]> {
+    return this.apiService.get('/files', {
+      params: {
+        transaction_id: txnId,
+        skip_html: 'true'
+      }
+    });
+  }
+
+  readFile(file) {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.onload = () => resolve(fileReader.result);
+      fileReader.readAsDataURL(file);
+    });
+  }
+
+  delete(fileId: string) {
+    return this.apiService.delete('/files/' + fileId);
+  };
 }

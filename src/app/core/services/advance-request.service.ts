@@ -8,20 +8,52 @@ import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 import { Approval } from '../models/approval.model';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { AdvanceRequestPolicyService } from './advance-request-policy.service';
+import { DataTransformService } from './data-transform.service';
+import { DateService } from './date.service';
+import { CustomField } from '../models/custom_field.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdvanceRequestService {
   
-
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
-    private authService: AuthService
+    private authService: AuthService,
+    private orgUserSettingsService: OrgUserSettingsService,
+    private timezoneService: TimezoneService,
+    private advanceRequestPolicyService: AdvanceRequestPolicyService,
+    private dataTransformService: DataTransformService,
+    private dateService: DateService
   ) { }
+
+  getEReq(advanceRequestId) {
+    return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
+      map(res => {
+        const eAdvanceRequest = this.dataTransformService.unflatten(res);
+        this.dateService.fixDates(eAdvanceRequest.areq);
+        // self.setInternalStateAndDisplayName(eAdvanceRequest.areq);
+        return eAdvanceRequest;
+      })
+    );
+  }
+
+  testPolicy(advanceRequest): Observable<any> {
+    return this.orgUserSettingsService.get().pipe(
+      switchMap(orgUserSettings => {
+        if (advanceRequest.created_at) {
+          advanceRequest.created_at = this.timezoneService.convertToUtc(advanceRequest.created_at, orgUserSettings.locale.offset);
+        }
+        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, {timeout: 5000});
+      })
+    )
+  }
 
   getUserAdvanceRequestParams(state: string) {
     var stateMap = {
@@ -169,7 +201,6 @@ export class AdvanceRequestService {
       })
     )
   }
-  
 
   getMyAdvanceRequestsCount(queryParams = {}) {
     return this.getMyadvanceRequests({
@@ -191,9 +222,9 @@ export class AdvanceRequestService {
     );
   }
 
-  modifyAdvanceRequestCustomFields(customFields) {
+  modifyAdvanceRequestCustomFields(customFields): CustomField[] {
     customFields = customFields.map(customField => {
-      if (customField.type === 'DATE') {
+      if (customField.type === 'DATE' && customField.value) {
         customField.value = new Date(customField.value);
       }
       return customField;
@@ -263,6 +294,26 @@ export class AdvanceRequestService {
 
   pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
+  }
+
+  submit(advanceRequest) {
+    return this.apiService.post('/advance_requests/submit', advanceRequest);
+    // Todo: Fix dates and delete cache
+  }
+
+  saveDraft(advanceRequest) {
+    return this.apiService.post('/advance_requests/save', advanceRequest);
+    // Todo: Fix dates and delete cache
+  }
+
+  createAdvReqWithFilesAndSubmit(advanceRequest, fileObjs?) {
+    // Todo: create adv req with files
+    return this.submit(advanceRequest);
+  }
+
+  saveDraftAdvReqWithFiles(advanceRequest, fileObjs?) {
+    // Todo: create adv req with files
+    return this.saveDraft(advanceRequest);
   }
 
 

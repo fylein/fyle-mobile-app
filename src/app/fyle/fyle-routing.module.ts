@@ -52,7 +52,7 @@ const routes: Routes = [
   },
   {
     path: 'my_view_advance_request',
-    loadChildren: () => import('./my-view-advance-request/my-view-advance-request.module').then( m => m.MyViewAdvanceRequestPageModule)
+    loadChildren: () => import('./my-view-advance-request/my-view-advance-request.module').then(m => m.MyViewAdvanceRequestPageModule)
   },
   {
     path: 'team_advance',
@@ -68,43 +68,43 @@ const routes: Routes = [
   },
   {
     path: 'view_team_report',
-    loadChildren: () => import('./view-team-report/view-team-report.module').then( m => m.ViewTeamReportPageModule)
+    loadChildren: () => import('./view-team-report/view-team-report.module').then(m => m.ViewTeamReportPageModule)
   },
   {
     path: 'my_view_advance',
-    loadChildren: () => import('./my-view-advance/my-view-advance.module').then( m => m.MyViewAdvancePageModule)
+    loadChildren: () => import('./my-view-advance/my-view-advance.module').then(m => m.MyViewAdvancePageModule)
   },
   {
     path: 'my_view_expense',
-    loadChildren: () => import('./my-view-expense/my-view-expense.module').then( m => m.MyViewExpensePageModule)
+    loadChildren: () => import('./my-view-expense/my-view-expense.module').then(m => m.MyViewExpensePageModule)
   },
   {
     path: 'delegated_accounts',
-    loadChildren: () => import('./delegated-accounts/delegated-accounts.module').then( m => m.DelegatedAccountsPageModule)
+    loadChildren: () => import('./delegated-accounts/delegated-accounts.module').then(m => m.DelegatedAccountsPageModule)
   },
   {
     path: 'view_team_advance',
-    loadChildren: () => import('./view-team-advance/view-team-advance.module').then( m => m.ViewTeamAdvancePageModule)
+    loadChildren: () => import('./view-team-advance/view-team-advance.module').then(m => m.ViewTeamAdvancePageModule)
   },
   {
     path: 'view_team_expense',
-    loadChildren: () => import('./view-team-expense/view-team-expense.module').then( m => m.ViewTeamExpensePageModule)
+    loadChildren: () => import('./view-team-expense/view-team-expense.module').then(m => m.ViewTeamExpensePageModule)
   },
   {
     path: 'my_view_mileage',
-    loadChildren: () => import('./my-view-mileage/my-view-mileage.module').then( m => m.MyViewMileagePageModule)
+    loadChildren: () => import('./my-view-mileage/my-view-mileage.module').then(m => m.MyViewMileagePageModule)
   },
   {
     path: 'my_view_per_diem',
-    loadChildren: () => import('./my-view-per-diem/my-view-per-diem.module').then( m => m.MyViewPerDiemPageModule)
+    loadChildren: () => import('./my-view-per-diem/my-view-per-diem.module').then(m => m.MyViewPerDiemPageModule)
   },
   {
     path: 'view_team_per_diem',
-    loadChildren: () => import('./view-team-per-diem/view-team-per-diem.module').then( m => m.ViewTeamPerDiemPageModule)
+    loadChildren: () => import('./view-team-per-diem/view-team-per-diem.module').then(m => m.ViewTeamPerDiemPageModule)
   },
   {
     path: 'view_team_mileage',
-    loadChildren: () => import('./view-team-mileage/view-team-mileage.module').then( m => m.ViewTeamMileagePageModule)
+    loadChildren: () => import('./view-team-mileage/view-team-mileage.module').then(m => m.ViewTeamMileagePageModule)
   },
   {
     path: 'notifications',
@@ -112,11 +112,23 @@ const routes: Routes = [
   },
   {
     path: 'my_create_report',
-    loadChildren: () => import('./my-create-report/my-create-report.module').then( m => m.MyCreateReportPageModule)
+    loadChildren: () => import('./my-create-report/my-create-report.module').then(m => m.MyCreateReportPageModule)
   },
   {
     path: 'my_edit_report',
-    loadChildren: () => import('./my-edit-report/my-edit-report.module').then( m => m.MyEditReportPageModule)
+    loadChildren: () => import('./my-edit-report/my-edit-report.module').then(m => m.MyEditReportPageModule)
+  },
+  {
+    path: 'add_edit_per_diem',
+    loadChildren: () => import('./add-edit-per-diem/add-edit-per-diem.module').then( m => m.AddEditPerDiemPageModule)
+  },
+  {
+    path: 'add_edit_mileage',
+    loadChildren: () => import('./add-edit-mileage/add-edit-mileage.module').then( m => m.AddEditMileagePageModule)
+  },
+  {
+    path: 'add_edit_advance_request',
+    loadChildren: () => import('./add-edit-advance-request/add-edit-advance-request.module').then( m => m.AddEditAdvanceRequestPageModule)
   }
 ];
 

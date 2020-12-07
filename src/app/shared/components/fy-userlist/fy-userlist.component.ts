@@ -42,7 +42,7 @@ export class FyUserlistComponent implements OnInit {
     this.eouc$ = this.orgUserService.getAllCompanyEouc();
 
     this.eouc$.pipe(
-      map(eous => eous.map(eou => ({ label: eou.us.full_name, value: eou })))
+      map(eous => eous.map(eou => ({ label: eou.us.email, value: eou.us.email })))
     ).subscribe((options) => {
       this.options = options;
     });
@@ -57,9 +57,7 @@ export class FyUserlistComponent implements OnInit {
       this.innerValue = v;
       if (this.innerValue && this.innerValue.length > 0) {
         this.displayValue = this.innerValue
-          .map(selectedValue => this.options.find(option => isEqual(option.value, selectedValue)))
-          .map(option => option && option.label)
-          .join(',');
+            .join(',');
       } else {
         this.displayValue = '';
       }
@@ -95,9 +93,7 @@ export class FyUserlistComponent implements OnInit {
       this.innerValue = value;
       if (this.innerValue && this.innerValue.length > 0) {
         this.displayValue = this.innerValue
-          .map(selectedValue => this.options.find(option => isEqual(option.value, selectedValue)))
-          .map(option => option && option.label)
-          .join(',');
+            .join(',');
       } else {
         this.displayValue = '';
       }
