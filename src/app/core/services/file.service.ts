@@ -31,7 +31,7 @@ export class FileService {
       }
     })).pipe(
       map((files) => {
-        files.map(file => {
+        files = files.map(file => {
           this.fixDates(file);
           this.setFileType(file);
         });
@@ -39,7 +39,7 @@ export class FileService {
       })
     );
   }
-  
+
   findByAdvanceRequestId(advanceRequestId: string): Observable<File[]> {
     return from(this.apiService.get('/files', {
       params: {

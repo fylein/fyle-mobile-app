@@ -16,25 +16,25 @@ export class SplitExpenseService {
 
 
   linkTxnWithFiles(data) {
-    const observables$ = [];
+    const observables = [];
     const files = data.files;
     const txns = data.txns;
 
     if (files && files.length > 0) {
       files.forEach((file) => {
         txns.forEach((txn) => {
-          observables$.push(this.transactionService.uploadBase64File(txn.id, file.name, file.content));
+          observables.push(this.transactionService.uploadBase64File(txn.id, file.name, file.content));
         });
       });
     } else {
-      observables$.push(of(null));
+      observables.push(of(null));
     }
 
-    return forkJoin(observables$);
+    return forkJoin(observables);
   }
 
   getBase64Content(fileObjs) {
-    const fileObservables$ = [];
+    const fileObservables = [];
     const newFileObjs: any[] = fileObjs.map((fileObj) => {
       return {
         id: fileObj.id,
@@ -44,10 +44,10 @@ export class SplitExpenseService {
     });
 
     newFileObjs.forEach((fileObj) => {
-      fileObservables$.push(this.fileService.base64Download(fileObj.id));
+      fileObservables.push(this.fileService.base64Download(fileObj.id));
     });
 
-    return forkJoin(fileObservables$).pipe(
+    return forkJoin(fileObservables).pipe(
       map((data: any[]) => {
         newFileObjs.forEach((fileObj, index) => {
           fileObj.content = data[index].content;
@@ -66,7 +66,7 @@ export class SplitExpenseService {
     }
 
     if (!splitGroupId) {
-      let firstSplitExpense = splitExpenses[0];
+      const firstSplitExpense = splitExpenses[0];
 
       return this.createTxns(sourceTxn, [firstSplitExpense], splitGroupAmount, null, splitExpenses.length).pipe(
         map(firstTxn => {
@@ -88,10 +88,10 @@ export class SplitExpenseService {
   }
 
   createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, totalSplitExpensesCount) {
-    const txnsObservables$ = [];
+    const txnsObservables = [];
 
     splitExpenses.forEach((splitExpense, index) => {
-      const transaction = { ...sourceTxn }
+      const transaction = { ...sourceTxn };
 
       if (sourceTxn.orig_currency) {
         const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
@@ -125,9 +125,9 @@ export class SplitExpenseService {
         transaction.purpose += ' (' + splitIndex  + ')';
       }
 
-      txnsObservables$.push(this.transactionService.upsert(transaction));
+      txnsObservables.push(this.transactionService.upsert(transaction));
     });
 
-    return forkJoin(txnsObservables$);
+    return forkJoin(txnsObservables);
   }
 }
