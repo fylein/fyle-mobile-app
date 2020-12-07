@@ -165,7 +165,7 @@
         <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'info'"
           [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
 
-        <div *ngIf="(isCCCAccountSelected$|async) && !isCreatedFromCCC">
+        <!-- <div *ngIf="(isCCCAccountSelected$|async) && !isCreatedFromCCC">
           <div (click)="openMatchingTransactions()">
             <div>
               <mat-icon>card</mat-icon>
@@ -174,7 +174,7 @@
                 matching transaction(s)
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
 
         <app-fy-alert
