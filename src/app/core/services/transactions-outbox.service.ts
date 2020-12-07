@@ -14,6 +14,7 @@ import { cloneDeep } from 'lodash';
 import { ReceiptService } from './receipt.service';
 import { ReportService } from './report.service';
 import { queue } from 'rxjs/internal/scheduler/queue';
+import { ParsedReceipt } from '../models/parsed_receipt.model';
 
 @Injectable({
   providedIn: 'root'
@@ -106,7 +107,7 @@ export class TransactionsOutboxService {
 
         const base64Image = entry.dataUrls[0].url.replace('data:image/jpeg;base64,', '');
 
-        that.parseReceipt(base64Image).then((response) => {
+        that.parseReceipt(base64Image).then((response: any) => {
           const parsedResponse = response.data;
 
           if (parsedResponse) {
@@ -148,7 +149,7 @@ export class TransactionsOutboxService {
     });
   }
 
-  async fileUpload(dataUrl, fileType, receiptCoordinates) {
+  async fileUpload(dataUrl, fileType, receiptCoordinates?) {
     return new Promise((resolve, reject) => {
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -158,6 +159,7 @@ export class TransactionsOutboxService {
         contentType = 'image/jpeg';
       }
 
+      console.log(fileExtension);
       this.fileService.post({
         name: '000.' + fileExtension,
         receipt_coordinates: receiptCoordinates
@@ -167,6 +169,7 @@ export class TransactionsOutboxService {
           const fileName = fileObj.name;
           // check from here
           fetch(dataUrl).then(res => res.blob()).then(blob => {
+            console.log(blob);
             this.uploadData(uploadUrl, blob, contentType)
               .toPromise()
               .then(resp => {
@@ -352,7 +355,7 @@ export class TransactionsOutboxService {
     return this.syncInProgress;
   }
 
-  parseReceipt(data) {
+  parseReceipt(data): Promise<ParsedReceipt> {
     const url = environment.ROOT_URL + '/data_extraction/extract';
     let suggestedCurrency = null;
     // res = {
@@ -371,19 +374,17 @@ export class TransactionsOutboxService {
           content: data
         }],
         suggested_currency: suggestedCurrency
-      }).toPromise().then((resp: any) => {
-        return resp.data;
-      });
-    }).catch(() => {
+      }).toPromise()
+      .then(res => res as ParsedReceipt);
+    }).catch((err) => {
       return this.httpClient.post(url, {
         files: [{
           name: '000.jpeg',
           content: data
         }],
         suggested_currency: suggestedCurrency
-      }).toPromise().then((resp: any) => {
-        return resp.data;
-      });
+      }).toPromise()
+      .then(res => res as ParsedReceipt);
     });
   }
 

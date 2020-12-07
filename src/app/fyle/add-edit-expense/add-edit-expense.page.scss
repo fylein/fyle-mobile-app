@@ -3,6 +3,12 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
+  &--sub-header {
+    color: #ababab;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
   &--footer {
     display: flex;
     justify-content: space-around;
@@ -23,15 +29,59 @@
   &--receipt {
     align-items: center;
     text-align: center;
-    margin: 12px 4px;
     display: flex;
     justify-content: center;
     flex-direction: column;
-    background-color: #d8d8d8;
-    padding: 20px 8px;
     border-radius: 4px;
     color: #ababab;
     margin-left: 0;
+  }
+
+  &--receipt-image {
+    background-color: #d8d8d8;
+    min-width: 64px;
+    min-height: 76px;
+    max-width: 64px;
+    max-height: 76px;
+    border-radius: 4px;
+    position: relative;
+  }
+
+  &--receipt-image-icon {
+    margin-top: 12px;
+  }
+
+  &--receipt-background {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    font-size: 64px;
+    height: auto;
+    width: auto;
+    background-color: rgba(34, 0, 51, 0.4);
+    color: black;
+    padding: 7px 0px;
+    border-radius: 4px;
+  }
+
+  &--receipt-text {
+    position: relative;
+    padding-top: 16px;
+    &__count {
+      color: #fff;
+      font-size: 42px;
+      font-weight: 400;
+      text-align: center;
+      padding-top: 32px;
+      padding-bottom: 6px;
+    }
+  }
+
+  &--receipt-image-icon {
+    color: #f36;
+    font-size: 40px;
+    position: relative;
+    left: -8px;
   }
 
   &--currency {
@@ -167,5 +217,49 @@
     background: #f2f2f2;
     padding: 8px 16px;
     margin: 8px 0;
+  }
+
+  &--receipt-currency-container {
+    display: flex;
+  }
+
+  &--receipt-image-subheader {
+    font-size: 8px;
+  }
+
+  &--review-nav {
+    position: sticky;
+    top: 45vh;
+  }
+
+  &--review-go-left {
+    float: left;
+    width: 45px;
+    height: 76px;
+    border-bottom-right-radius: 100px;
+    border-top-right-radius: 100px;
+    padding-right: 18px;
+
+    background-color: #999;
+    opacity: 0.8;
+    &__disabled {
+      opacity: .2;
+    }
+  }
+
+  &--review-go-right {
+    float: right;
+    width: 45px;
+    height: 76px;
+    border-bottom-left-radius: 100px;
+    border-top-left-radius: 100px;
+
+    padding-left: 18px;
+
+    background-color: #999;
+    opacity: 0.8;
+    &__disabled {
+      opacity: .2;
+    }
   }
 }

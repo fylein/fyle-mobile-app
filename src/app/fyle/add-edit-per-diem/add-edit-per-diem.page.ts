@@ -112,6 +112,54 @@ export class AddEditPerDiemPage implements OnInit {
     });
   }
 
+  goToPrev() {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+
+    if (this.reviewList[+this.activeIndex - 1]) {
+      this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe(etxn => {
+        this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
+      });
+    }
+  }
+
+  goToNext() {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+
+    if (this.reviewList[+this.activeIndex + 1]) {
+      this.transactionService.getETxn(this.reviewList[+this.activeIndex + 1]).subscribe(etxn => {
+        this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
+      });
+    }
+  }
+
+  goToTransaction(expense, reviewList, activeIndex) {
+    let category;
+
+    if (expense.tx.org_category) {
+      category = expense.tx.org_category.toLowerCase();
+    }
+    //TODO: Leave for later
+    // if (category === 'activity') {
+    //   showCannotEditActivityDialog();
+
+    //   return;
+    // }
+
+    if (category === 'mileage') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    } else if (category === 'per diem') {
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+        id: expense.tx.id, txnIds: JSON.stringify(reviewList), activeIndex
+      }]);
+    }
+  }
+
   getTransactionFields() {
     return this.fg.valueChanges.pipe(
       startWith({}),
@@ -321,7 +369,7 @@ export class AddEditPerDiemPage implements OnInit {
   ionViewWillEnter() {
     this.title = 'Add Expense';
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
-    this.reviewList = this.activatedRoute.snapshot.params.txnIds;
+    this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
     this.title = this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
     if (this.activatedRoute.snapshot.params.id) {
       this.mode = 'edit';
@@ -382,7 +430,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
 
-    this.projectCategoryIds$ =  this.getProjectCategoryIds();
+    this.projectCategoryIds$ = this.getProjectCategoryIds();
 
     this.filteredCategories$.subscribe(subCategories => {
       if (!subCategories.length) {
@@ -860,7 +908,7 @@ export class AddEditPerDiemPage implements OnInit {
     return data;
   }
 
-  savePerDiem() {
+  addExpense() {
     const customFields$ = this.customInputs$.pipe(
       take(1),
       map(customInputs => {
@@ -879,231 +927,323 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    if (this.fg.valid) {
-      if (this.mode === 'add') {
-        from(this.loaderService.showLoader())
-          .pipe(
-            switchMap(() => {
-              return this.generateEtxnFromFg(this.etxn$, customFields$);
-            }),
-            switchMap(etxn => {
-              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
-              return policyViolations$.pipe(
-                map(this.policyService.getCriticalPolicyRules),
-                switchMap(policyViolations => {
-                  if (policyViolations.length > 0) {
-                    return throwError({
-                      type: 'criticalPolicyViolations',
-                      policyViolations,
-                      etxn
-                    });
-                  }
-                  else {
-                    return policyViolations$;
-                  }
-                }),
-                map((policyViolations: any) =>
-                  [this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                  policyViolations.transaction_desired_state &&
-                  policyViolations.transaction_desired_state.action_description]),
-                switchMap(([policyViolations, policyActionDescription]) => {
-                  if (policyViolations.length > 0) {
-                    return throwError({
-                      type: 'policyViolations',
-                      policyViolations,
-                      policyActionDescription,
-                      etxn
-                    });
-                  }
-                  else {
-                    return of({ etxn });
-                  }
-                })
-              );
-            }),
-            catchError(err => {
-              if (err.type === 'criticalPolicyViolations') {
-                return from(this.loaderService.hideLoader()).pipe(
-                  switchMap(() => {
-                    return this.continueWithCriticalPolicyViolation(err.policyViolations);
-                  }),
-                  switchMap((continueWithTransaction) => {
-                    if (continueWithTransaction) {
-                      return from(this.loaderService.showLoader()).pipe(
-                        switchMap(() => {
-                          return of({etxn: err.etxn});
-                        })
-                      );
-                    } else {
-                      return throwError('unhandledError');
-                    }
-                  })
-                );
-              } else if (err.type === 'policyViolations') {
-                return from(this.loaderService.hideLoader()).pipe(
-                  switchMap(() => {
-                    return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-                  }),
-                  switchMap((continueWithTransaction) => {
-                    if (continueWithTransaction) {
-                      return from(this.loaderService.showLoader()).pipe(
-                        switchMap(() => {
-                          return of({etxn: err.etxn, comment: continueWithTransaction.comment});
-                        })
-                      );
-                    } else {
-                      return throwError('unhandledError');
-                    }
-                  })
-                );
-              } else {
-                return throwError(err);
-              }
-            }),
-            finalize(() => from(this.loaderService.hideLoader()))
-          )
-          .subscribe(({ etxn, comment }: any) => {
-            const comments = [];
-            if (comment) {
-              comments.push(comment);
+    return from(this.loaderService.showLoader())
+    .pipe(
+      switchMap(() => {
+        return this.generateEtxnFromFg(this.etxn$, customFields$);
+      }),
+      switchMap(etxn => {
+        const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+        return policyViolations$.pipe(
+          map(this.policyService.getCriticalPolicyRules),
+          switchMap(policyViolations => {
+            if (policyViolations.length > 0) {
+              return throwError({
+                type: 'criticalPolicyViolations',
+                policyViolations,
+                etxn
+              });
             }
-            this.transactionsOutboxService.addEntry(etxn.tx, null, comments, this.fg.value.report && this.fg.value.report.id, null, null);
-          });
-      } else {
-        from(this.loaderService.showLoader())
-          .pipe(
+            else {
+              return policyViolations$;
+            }
+          }),
+          map((policyViolations: any) =>
+            [this.policyService.getPolicyRules(policyViolations),
+            policyViolations &&
+            policyViolations.transaction_desired_state &&
+            policyViolations.transaction_desired_state.action_description]),
+          switchMap(([policyViolations, policyActionDescription]) => {
+            if (policyViolations.length > 0) {
+              return throwError({
+                type: 'policyViolations',
+                policyViolations,
+                policyActionDescription,
+                etxn
+              });
+            }
+            else {
+              return of({ etxn });
+            }
+          })
+        );
+      }),
+      catchError(err => {
+        if (err.type === 'criticalPolicyViolations') {
+          return from(this.loaderService.hideLoader()).pipe(
             switchMap(() => {
-              return this.generateEtxnFromFg(this.etxn$, customFields$);
+              return this.continueWithCriticalPolicyViolation(err.policyViolations);
             }),
-            switchMap(etxn => {
-              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
-              return policyViolations$.pipe(
-                map(this.policyService.getCriticalPolicyRules),
-                switchMap(policyViolations => {
-                  if (policyViolations.length > 0) {
-                    return throwError({
-                      type: 'criticalPolicyViolations',
-                      policyViolations,
-                      etxn
-                    });
-                  }
-                  else {
-                    return policyViolations$;
-                  }
-                }),
-                map((policyViolations: any) =>
-                  [this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                  policyViolations.transaction_desired_state &&
-                  policyViolations.transaction_desired_state.action_description]),
-                switchMap(([policyViolations, policyActionDescription]) => {
-                  if (policyViolations.length > 0) {
-                    return throwError({
-                      type: 'policyViolations',
-                      policyViolations,
-                      policyActionDescription,
-                      etxn
-                    });
-                  }
-                  else {
-                    return of({ etxn });
-                  }
-                })
-              );
-            }),
-            catchError(err => {
-              if (err.type === 'criticalPolicyViolations') {
-                return from(this.loaderService.hideLoader()).pipe(
+            switchMap((continueWithTransaction) => {
+              if (continueWithTransaction) {
+                return from(this.loaderService.showLoader()).pipe(
                   switchMap(() => {
-                    return this.continueWithCriticalPolicyViolation(err.policyViolations);
-                  }),
-                  switchMap((continueWithTransaction) => {
-                    if (continueWithTransaction) {
-                      return from(this.loaderService.showLoader()).pipe(
-                        switchMap(() => {
-                          return of({etxn: err.etxn});
-                        })
-                      );
-                    } else {
-                      return throwError('unhandledError');
-                    }
-                  })
-                );
-              } else if (err.type === 'policyViolations') {
-                return from(this.loaderService.hideLoader()).pipe(
-                  switchMap(() => {
-                    return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-                  }),
-                  switchMap((continueWithTransaction) => {
-                    if (continueWithTransaction) {
-                      return from(this.loaderService.showLoader()).pipe(
-                        switchMap(() => {
-                          return of({etxn: err.etxn, comment: continueWithTransaction.comment});
-                        })
-                      );
-                    } else {
-                      return throwError('unhandledError');
-                    }
+                    return of({ etxn: err.etxn });
                   })
                 );
               } else {
-                return throwError(err);
+                return throwError('unhandledError');
+              }
+            })
+          );
+        } else if (err.type === 'policyViolations') {
+          return from(this.loaderService.hideLoader()).pipe(
+            switchMap(() => {
+              return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
+            }),
+            switchMap((continueWithTransaction) => {
+              if (continueWithTransaction) {
+                return from(this.loaderService.showLoader()).pipe(
+                  switchMap(() => {
+                    return of({ etxn: err.etxn, comment: continueWithTransaction.comment });
+                  })
+                );
+              } else {
+                return throwError('unhandledError');
+              }
+            })
+          );
+        } else {
+          return throwError(err);
+        }
+      }),
+      switchMap(({ etxn, comment }: any) => {
+        return from(this.authService.getEou())
+          .pipe(
+            switchMap(eou => {
+
+              const comments = [];
+              // if (this.activatedRoute.snapshot.params.dataUrl) {
+              //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
+              // } else {
+              //   TrackingService.createExpense
+              // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
+              // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
+              // }
+              // if (this.saveAndCreate) {
+              //   // track click of save and new expense button
+              //   TrackingService.clickSaveAddNew({Asset: 'Mobile'});
+              // }
+              if (comment) {
+                comments.push(comment);
+              }
+              // if (this.selectedCCCTransaction) {
+              //   this.etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+              //   setSourceAccount('PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+              // }
+
+              let reportId;
+              if (this.fg.value.report &&
+                (etxn.tx.policy_amount === null ||
+                  (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
+                reportId = this.fg.value.report.id;
+              }
+              let entry;
+              if (this.fg.value.add_to_new_report) {
+                entry = {
+                  comments,
+                  reportId
+                };
+              }
+              if (entry) {
+                return from(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
+              }
+              else {
+                return of(this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null));
+              }
+
+            }));
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    );
+  }
+
+  editExpense() {
+    const customFields$ = this.customInputs$.pipe(
+      take(1),
+      map(customInputs => {
+        return customInputs.map((customInput, i) => {
+          return {
+            id: customInput.id,
+            mandatory: customInput.mandatory,
+            name: customInput.name,
+            options: customInput.options,
+            placeholder: customInput.placeholder,
+            prefix: customInput.prefix,
+            type: customInput.type,
+            value: this.fg.value.custom_inputs[i].value
+          };
+        });
+      })
+    );
+
+    return from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => {
+          return this.generateEtxnFromFg(this.etxn$, customFields$);
+        }),
+        switchMap(etxn => {
+          const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+          return policyViolations$.pipe(
+            map(this.policyService.getCriticalPolicyRules),
+            switchMap(policyViolations => {
+              if (policyViolations.length > 0) {
+                return throwError({
+                  type: 'criticalPolicyViolations',
+                  policyViolations,
+                  etxn
+                });
+              }
+              else {
+                return policyViolations$;
               }
             }),
-            switchMap(({ etxn, comment }: any) => {
-              return this.etxn$.pipe(
-                switchMap((txnCopy) => {
-                  return this.transactionService.upsert(etxn.tx).pipe(
-                    switchMap((txn) => {
-                      return this.transactionService.getETxn(txn.id);
-                    }),
-                    map(savedEtxn => savedEtxn && savedEtxn.tx),
-                    switchMap((tx) => {
-                      const addTransactionToReport$ = this.reportService.addTransactions(etxn.tx.report_id, [tx.id]);
-                      const removeTransactionFromReport$ = this.reportService.removeTransaction(txnCopy.report_id, tx.id);
-                      const reviewTxn = this.transactionService.review(tx.id);
-                      return forkJoin({
-                        addExpenseToReport: iif(() => !txnCopy.report_id && etxn.tx.report_id, addTransactionToReport$, of(null)),
-                        changeReport: iif(() => txnCopy.report_id && etxn.tx.report_id && etxn.tx.report_id !== etxn.tx.report_id,
-                          removeTransactionFromReport$.pipe(
-                            switchMap(() => addTransactionToReport$)
-                          ),
-                          of(null)),
-                        transactionRemovedFromReport: iif(
-                          () => txnCopy.report_id && !etxn.tx.report_id, removeTransactionFromReport$, of(null)
-                        ),
-                        review: iif(() => etxn.tx.user_review_needed, reviewTxn, of(null))
-                      }).pipe(
-                        map(() => tx)
-                      );
+            map((policyViolations: any) =>
+              [this.policyService.getPolicyRules(policyViolations),
+              policyViolations &&
+              policyViolations.transaction_desired_state &&
+              policyViolations.transaction_desired_state.action_description]),
+            switchMap(([policyViolations, policyActionDescription]) => {
+              if (policyViolations.length > 0) {
+                return throwError({
+                  type: 'policyViolations',
+                  policyViolations,
+                  policyActionDescription,
+                  etxn
+                });
+              }
+              else {
+                return of({ etxn });
+              }
+            })
+          );
+        }),
+        catchError(err => {
+          if (err.type === 'criticalPolicyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => {
+                return this.continueWithCriticalPolicyViolation(err.policyViolations);
+              }),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() => {
+                      return of({ etxn: err.etxn });
                     })
                   );
-                }),
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else if (err.type === 'policyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => {
+                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
+              }),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() => {
+                      return of({ etxn: err.etxn, comment: continueWithTransaction.comment });
+                    })
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else {
+            return throwError(err);
+          }
+        }),
+        switchMap(({ etxn, comment }: any) => {
+          return this.etxn$.pipe(
+            switchMap((txnCopy) => {
+              return this.transactionService.upsert(etxn.tx).pipe(
                 switchMap((txn) => {
-                  if (comment) {
-                    return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
-                      switchMap((result) => {
-                        if (result !== comment) {
-                          return this.statusService.post('transactions', txn.id, { comment }, true).pipe(
-                            map(() => txn)
-                          );
-                        } else {
-                          return of(txn);
-                        }
-                      })
-                    );
-                  } else {
-                    return of(txn);
-                  }
+                  return this.transactionService.getETxn(txn.id);
                 }),
+                map(savedEtxn => savedEtxn && savedEtxn.tx),
+                switchMap((tx) => {
+                  const addTransactionToReport$ = this.reportService.addTransactions(etxn.tx.report_id, [tx.id]);
+                  const removeTransactionFromReport$ = this.reportService.removeTransaction(txnCopy.report_id, tx.id);
+                  const reviewTxn = this.transactionService.review(tx.id);
+                  return forkJoin({
+                    addExpenseToReport: iif(() => !txnCopy.report_id && etxn.tx.report_id, addTransactionToReport$, of(null)),
+                    changeReport: iif(() => txnCopy.report_id && etxn.tx.report_id && etxn.tx.report_id !== etxn.tx.report_id,
+                      removeTransactionFromReport$.pipe(
+                        switchMap(() => addTransactionToReport$)
+                      ),
+                      of(null)),
+                    transactionRemovedFromReport: iif(
+                      () => txnCopy.report_id && !etxn.tx.report_id, removeTransactionFromReport$, of(null)
+                    ),
+                    review: iif(() => etxn.tx.user_review_needed, reviewTxn, of(null))
+                  }).pipe(
+                    map(() => tx)
+                  );
+                })
               );
             }),
-            finalize(() => from(this.loaderService.hideLoader()))
-          ).subscribe(noop);
+            switchMap((txn) => {
+              if (comment) {
+                return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+                  switchMap((result) => {
+                    if (result !== comment) {
+                      return this.statusService.post('transactions', txn.id, { comment }, true).pipe(
+                        map(() => txn)
+                      );
+                    } else {
+                      return of(txn);
+                    }
+                  })
+                );
+              } else {
+                return of(txn);
+              }
+            }),
+          );
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      );
+  }
+
+  savePerDiem() {
+    if (this.fg.valid) {
+      if (this.mode === 'add') {
+        this.addExpense().subscribe(noop);
+      } else {
+        this.editExpense().subscribe(noop);
       }
     } else {
       this.fg.markAllAsTouched();
+    }
+  }
+
+  saveExpenseAndGotoNext() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense().subscribe(() => {
+          if (+this.activeIndex === this.reviewList.length - 1) {
+            that.close();
+          } else {
+            that.goToNext();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense().subscribe(() => {
+          if (+this.activeIndex === this.reviewList.length - 1) {
+            that.close();
+          } else {
+            that.goToNext();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
     }
   }
 

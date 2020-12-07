@@ -11,6 +11,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
 
 @Component({
   selector: 'app-swicth-org',
@@ -157,6 +158,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       await this.storageService.clearAll();
       this.userEventService.logout();
       // TODO: Clear all caches also
+      globalCacheBusterNotifier.next();
     });
   }
 
