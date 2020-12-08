@@ -24,8 +24,6 @@ export class SavePopoverComponent implements OnInit {
     this.popoverController.dismiss({continue: true});
   }
 
-  ngOnInit() {
-    console.log('saveMode ->', this.otherRequests);
-  }
+  ngOnInit() {}
 
 }

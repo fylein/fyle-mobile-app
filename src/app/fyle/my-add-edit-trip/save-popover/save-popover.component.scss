@@ -13,7 +13,7 @@ $details-color: #ababab;
   }
 
   &--warning-box {
-    margin: 16px;
+    margin: 16px 16px 70px 16px;
     padding: 8px 16px;
     background-color: #fce4c3;
     color: #f3993e;
@@ -29,6 +29,7 @@ $details-color: #ababab;
 
   &--pending-request-block {
     padding: 10px;
+    margin-bottom: 70px;
   }
 
   &--missing-request {

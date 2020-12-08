@@ -28,10 +28,12 @@
 
       <div *ngIf="saveMode === 'SUBMIT'" class="save-trip--pending-request-block">
         <div class="save-trip--missing-request">Following requests are missing. Are you sure you want to submit?</div>
-        <ul class="save-trip--request-list">
-          <li *ngIf="!otherRequests[0].hotel">Hotel Request</li>
-          <li *ngIf="!otherRequests[1].transportation">Transportation Request</li>
-        </ul>
+        <div>
+          <ul class="save-trip--request-list">
+            <li *ngIf="!otherRequests[0].hotel">Hotel Request</li>
+            <li *ngIf="!otherRequests[1].transportation">Transportation Request</li>
+          </ul>
+        </div>
       </div>
 
       <div *ngIf="saveMode === 'CLOSE'" class="save-trip--pending-request-block">
