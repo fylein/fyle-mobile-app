@@ -196,7 +196,7 @@
           <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
             <div class="add-edit-expense--internal-block">
               <app-fy-select [label]="'Select Category'" formControlName="category"
-                [mandatory]="transactionMandatoyFields.category" [options]="categories">
+                [mandatory]="transactionMandatoyFields.category" [options]="categories" [cacheName]="'recentCategoryList'">
               </app-fy-select>
             </div>
           </ng-container>
