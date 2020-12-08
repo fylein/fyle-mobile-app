@@ -34,7 +34,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   customFields$: Observable<any>;
   attachmentUploadInProgress: boolean;
   dataUrls: any[];
-  fileObjs: any[];
 
   constructor(
     private offlineService: OfflineService,
@@ -298,7 +297,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
-    this.fileObjs = [];
 
     const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {
