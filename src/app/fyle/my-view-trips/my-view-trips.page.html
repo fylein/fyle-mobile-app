@@ -187,17 +187,11 @@
         <enterprise-fy-approver-list name="tripsApproverList" class="element-block m-0" list="vm.allApprovers"
           on-selection="vm.selectedApprovers(email, comment)" required title="Choose Approvers" sub-title="approvers"
           from-source="trip"></enterprise-fy-approver-list>
-      </div>
-
-      <div id="comments" class="element-container">
-        <enterprise-fy-comments class="element-block m-0 no-border comments-block" object-type="trip_requests"
-          object-id="{{ vm.tripRequest.trp.id }}" mode="edit" text="Comments" show-comments-count="false"
-          dont-load-comments="true" estatuses="vm.comments"></enterprise-fy-comments>
       </div> -->
+    
       <div class="view-trip--card">
         <div class="view-trip--card-action">
-          <mat-icon class="view-trip--card-action-icon">chat_bubble</mat-icon>
-          <div class="view-trip--card-action-text view-trip--card-action-text__comment">Comments</div>
+          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>
         </div>
       </div>
       <div class="view-trip--card" *ngIf="canDelete$|async" (click)="deleteTrip()">

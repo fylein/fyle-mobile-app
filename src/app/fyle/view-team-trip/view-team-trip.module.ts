@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { TransportationRequestComponent } from '../view-team-trip/transportation-request/transportation-request.component';
 import { AdvanceRequestComponent } from '../view-team-trip/advance-request/advance-request.component';
 import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-request.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-req
     IonicModule,
     ViewTeamTripPageRoutingModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    SharedModule
   ],
   declarations: [
     ViewTeamTripPage,

@@ -17,6 +17,7 @@ import { PullBackTripComponent } from './pull-back-trip/pull-back-trip.component
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -28,7 +29,8 @@ import {MatButtonModule} from '@angular/material/button';
     MatRippleModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    SharedModule
   ],
   declarations: [
     MyViewTripsPage,
