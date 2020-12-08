@@ -22,6 +22,11 @@
 
     <div class="add-edit-advance-request--receipt-currency">
       <div class="add-edit-advance-request--receipt-container text-center">
+        <div *ngIf="attachmentUploadInProgress">
+          <ion-spinner class="add-edit-advance-request--receipt-spinner-icon" icon="circles"></ion-spinner>
+          <div>Uploading</div>
+        </div>
+
         <div *ngIf="(dataUrls && dataUrls.length === 0) && !attachmentUploadInProgress" (click)="addAttachments($event)" >
           <p class="add-edit-advance-request--receipt-text">Add Receipt</p>
           <mat-icon class="add-edit-advance-request--receipt-image-icon">

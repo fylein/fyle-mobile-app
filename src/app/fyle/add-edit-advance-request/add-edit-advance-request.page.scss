@@ -35,6 +35,14 @@
     bottom: -8px;
   }
 
+  &--receipt-spinner-icon {
+    font-size: 24px;
+    bottom: -8px;
+    position: relative;
+    margin: 10px 0;
+    color: #000;
+  }
+
   &--receipt-background {
     position: absolute;
     top: 0px;

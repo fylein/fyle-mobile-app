@@ -229,13 +229,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const { data } = await cameraOptionsPopup.onWillDismiss();
 
     if (data) {
-      // if (this.mode === 'add') {
-        this.dataUrls.push({
-          type: data.type,
-          url: data.dataUrl,
-          thumbnail: data.dataUrl
-        });
-      // }
+      this.dataUrls.push({
+        type: data.type,
+        url: data.dataUrl,
+        thumbnail: data.dataUrl
+      });
     }
 
   }
