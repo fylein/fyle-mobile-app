@@ -122,12 +122,7 @@
     </div>
 
     <!-- TODO: make a proper method call -->
-    <div class="view-advances--card" *ngIf="(actions$|async)?.can_edit">
-      <div class="view-advances--common-action-block" (click)=edit()> 
-        <mat-icon>add_circle</mat-icon>
-        <p>Add Approvers</p>
-      </div>
-    </div>
+    <app-fy-apporver [request]="advanceRequest" [from]="'ADVANCE_REQUEST'" [title]="'Add Approvers'"></app-fy-apporver>
 
       <!-- Todo: comment component -->
       <div class="view-advances--card">

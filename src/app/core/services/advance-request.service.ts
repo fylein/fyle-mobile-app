@@ -265,5 +265,17 @@ export class AdvanceRequestService {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
   }
 
+  addApprover(advanceRequestId, approverEmail, comment) {
+    const data = {
+      advance_request_id: advanceRequestId,
+      approver_email: approverEmail,
+      comment: comment
+    };
+
+    return this.apiService.post('/advance_requests/add_approver', data);
+      // self.deleteCache();
+      // return fixDates(advance_request);
+  }
+
 
 }

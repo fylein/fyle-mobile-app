@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { Observable } from 'rxjs';
+import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalController } from '@ionic/angular';
-import { ApproverModalPageModule } from './approver-modal/approver-modal.module';
+import { ApproverDialogComponent } from './approver-dialog/approver-dialog.component';
+
 
 @Component({
   selector: 'app-fy-apporver',
@@ -9,20 +12,30 @@ import { ApproverModalPageModule } from './approver-modal/approver-modal.module'
 })
 export class FyApporverComponent implements OnInit {
 
+  @Input() request;
+  @Input() from;
+  @Input() title;
+
+  approverList$: Observable<any>;
+
   constructor(
+    private loaderService: LoaderService,
     private modalController: ModalController
   ) { }
 
-  async openApproverModal() {
-    const modal = await this.modalController.create({
-    component: ApproverModalPageModule,
-    componentProps: { value: 123 }
+  async openApproverListDialog() {
+    const approversListModal = await this.modalController.create({
+      component: ApproverDialogComponent,
+      componentProps: {
+        request: this.request,
+        from: this.from
+      }
     });
 
-    await modal.present();
-
+    await approversListModal.present();
   }
 
-  ngOnInit() {}
+  ngOnInit() {
 
+  }
 }

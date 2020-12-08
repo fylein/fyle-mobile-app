@@ -316,4 +316,15 @@ export class TripRequestsService {
   closeTrip(tripRequestId: string) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
   }
+
+  addApproverETripRequests(tripRequestId, approverEmail, comment) {
+    const data = {
+      approver_email: approverEmail,
+      comment: comment
+    };
+
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
+      // self.deleteCache();
+      // return fixDates(tripRequest);
+  }
 }

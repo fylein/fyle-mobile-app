@@ -1,5 +1,6 @@
-<!-- <button (click)="openApproverModal()">Add Approver</button> -->
-<mat-button (click)="openApproverModal()">
-  <mat-icon>add_circle</mat-icon>
-  Add Approvers
-</mat-button>
+<div class="approver--card" (click)="openApproverListDialog()">
+  <div class="approver--card-action">
+    <mat-icon class="approver--card-action-icon">add_circle</mat-icon>
+    <div class="approver--card-action-text approver--card-action-text__comment">{{title || 'Add Approver'}}</div>
+  </div>
+</div>

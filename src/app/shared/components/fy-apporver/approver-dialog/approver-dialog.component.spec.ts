@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ApproverModalPage } from './approver-modal.page';
+import { ApproverDialogComponent } from './approver-dialog.component';
 
-describe('ApproverModalPage', () => {
-  let component: ApproverModalPage;
-  let fixture: ComponentFixture<ApproverModalPage>;
+describe('ApproverDialogComponent', () => {
+  let component: ApproverDialogComponent;
+  let fixture: ComponentFixture<ApproverDialogComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ApproverModalPage ],
+      declarations: [ ApproverDialogComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ApproverModalPage);
+    fixture = TestBed.createComponent(ApproverDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
