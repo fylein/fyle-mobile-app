@@ -108,7 +108,8 @@
   &--syncing {
     display: flex;
     color: #f36;
-    margin: 0 0 16px;
+    margin: 0 0 8px;
+    padding: 0 12px;
   }
 
   &--syncing-image {
@@ -118,6 +119,13 @@
     vertical-align: middle;
     margin-left: 8px;
 
+  }
+
+  &--syncing-icon {
+    height: 8px;
+    top: 7px;
+    position: relative;
+    left: 4px;
   }
 
   &--zero-state {

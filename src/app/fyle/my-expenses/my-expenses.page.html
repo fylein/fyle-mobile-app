@@ -85,7 +85,7 @@
       You dont have any expenses for the selected filter(s)
     </div>
   </div>
-  <ng-container *ngIf="isConnected$|async">
+  <ng-container *ngIf="syncing">
     <ng-container *ngIf="pendingTransactions.length > 0">
       <div class="my-expenses--syncing">
         <span class="my-expenses--syncing-text">Sync in progress</span>
@@ -107,7 +107,9 @@
   </div>
 
   <div *ngFor="let expense of pendingTransactions as list; let i = index">
-    <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
+    <app-my-expenses-card 
+      [canOpenCard]="false"
+      [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
       [skipDate]="true" (deleteTransaction)="onDeleteExpenseClick($event)"
       (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
       (addTransactionToReport)="onAddTransactionToReport($event)">

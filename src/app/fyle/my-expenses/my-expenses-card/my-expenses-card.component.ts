@@ -20,6 +20,7 @@ export class MyExpensesCardComponent implements OnInit {
   @Input() selectionMode = false;
   @Input() selectedElements = [];
   @Input() baseState;
+  @Input() canOpenCard = true;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() toggleFlashMode: EventEmitter<Expense> = new EventEmitter();

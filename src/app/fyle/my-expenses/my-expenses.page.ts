@@ -56,6 +56,7 @@ export class MyExpensesPage implements OnInit {
   pendingTransactions = [];
   selectionMode = false;
   selectedElements: string[];
+  syncing = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -118,10 +119,12 @@ export class MyExpensesPage implements OnInit {
 
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
+    this.syncing = true;
     from(this.pendingTransactions).pipe(
       switchMap(() => {
         return from(this.transactionOutboxService.sync());
-      })
+      }),
+      finalize(() => this.syncing = false)
     ).subscribe((a) => {
       console.log('Promise has resolved', a);
       this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
@@ -306,6 +309,20 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?) {
+    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+
+    if (this.pendingTransactions.length ) {
+      this.syncing = true;
+      from(this.pendingTransactions).pipe(
+        switchMap(() => {
+          return from(this.transactionOutboxService.sync());
+        }),
+        finalize(() => this.syncing = false)
+      ).subscribe((a) => {
+        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+      });
+    }
+
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
