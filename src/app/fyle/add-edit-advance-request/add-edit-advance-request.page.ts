@@ -84,7 +84,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   submitAdvanceRequest(advanceRequest){
-    return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest);
+    const fileObjPromises = this.fileAttachments();
+    return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest, fileObjPromises);
   }
 
   saveDraftAdvanceRequest(advanceRequest){

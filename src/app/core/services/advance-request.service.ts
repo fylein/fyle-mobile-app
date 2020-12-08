@@ -14,7 +14,6 @@ import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { CustomField } from '../models/custom_field.model';
-import { FileObject } from '../models/file_obj.model';
 import { FileService } from './file.service';
 import { File} from '../models/file.model';
 import { TransactionsOutboxService } from './transactions-outbox.service';
@@ -23,7 +22,7 @@ import { TransactionsOutboxService } from './transactions-outbox.service';
   providedIn: 'root'
 })
 export class AdvanceRequestService {
-  
+
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -58,11 +57,11 @@ export class AdvanceRequestService {
         }
         return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, {timeout: 5000});
       })
-    )
+    );
   }
 
   getUserAdvanceRequestParams(state: string) {
-    var stateMap = {
+    const stateMap = {
       draft: {
         state: ['DRAFT'],
         is_sent_back: false
@@ -312,9 +311,25 @@ export class AdvanceRequestService {
     // Todo: Fix dates and delete cache
   }
 
-  createAdvReqWithFilesAndSubmit(advanceRequest, fileObjs?) {
-    // Todo: create adv req with files
-    return this.submit(advanceRequest);
+  createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
+    return forkJoin({
+      files: fileObservables,
+      advanceReq: this.submit(advanceRequest)
+    }).pipe(
+      switchMap(res => {
+        if (res.files && res.files.length > 0) {
+          const fileObjs: File[] = res.files;
+          const advanceReq = res.advanceReq;
+          const newFileObjs = fileObjs.map((obj: File) => {
+            obj.advance_request_id = advanceReq.id;
+            return this.fileService.post(obj);
+          });
+          return forkJoin(newFileObjs);
+        } else  {
+          return of(null);
+        }
+      })
+    );
   }
 
   saveDraftAdvReqWithFiles(advanceRequest, fileObservables?: Observable<any[]>) {
@@ -335,7 +350,7 @@ export class AdvanceRequestService {
           return of(null);
         }
       })
-    )
+    );
   }
 
 }
