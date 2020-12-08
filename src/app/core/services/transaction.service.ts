@@ -471,4 +471,12 @@ export class TransactionService {
   getDefaultVehicleType() {
     return from(this.storageService.get('vehicle_preference'));
   }
+
+  uploadBase64File(txnId, name, base64Content) {
+    const data = {
+      content: base64Content,
+      name
+    };
+    return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
+  }
 }

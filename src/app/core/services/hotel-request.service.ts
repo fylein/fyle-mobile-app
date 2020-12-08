@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
+import { TripDatesService } from './trip-dates.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,13 +8,11 @@ import { ApiService } from './api.service';
 export class HotelRequestService {
 
   constructor(
-    private apiService: ApiService
+    private apiService: ApiService,
+    private tripDatesService: TripDatesService
   ) { }
 
   upsert(hotelRequest) {
-    // TripDatesService.convertToDateFormat(hotelRequest);
     return this.apiService.post('/hotel_requests', hotelRequest);
-      // self.deleteCache();
-      // return fixDates(req);
   }
 }

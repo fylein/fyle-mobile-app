@@ -5,6 +5,7 @@
   padding: 20px 0;
   height: 88px;
   background-color: #efefef;
+  white-space: nowrap;
   &__invalid {
     border: 1px solid red;
   }

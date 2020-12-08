@@ -79,19 +79,17 @@ export class OtherRequestsComponent implements OnInit {
     forkJoin({
       homeCurrency: this.homeCurrency$,
       preferredCurrency: this.preferredCurrency$
-    }).pipe(
-      map(res => {
-        const details = this.formBuilder.group({
-          amount: [null, Validators.required],
-          currency: [res.preferredCurrency || res.homeCurrency, Validators.required],
-          purpose: [null, Validators.required],
-          custom_field_values: new FormArray([]),
-          notes: [null]
-        });
-        this.advanceDetails.push(details);
-        this.addCustomFields('advance', this.advanceDetails.length - 1);
-      })
-    ).subscribe(noop);
+    }).subscribe(res => {
+      const details = this.formBuilder.group({
+        amount: [null, Validators.required],
+        currency: [res.preferredCurrency || res.homeCurrency, Validators.required],
+        purpose: [null, Validators.required],
+        custom_field_values: new FormArray([]),
+        notes: [null]
+      });
+      this.advanceDetails.push(details);
+      this.addCustomFields('advance', this.advanceDetails.length - 1);
+    });
   }
 
   addCustomFields(requestType, index) {
@@ -194,7 +192,6 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   async onSubmit() {
-    console.log('\n\n\n fgValues ->', this.fgValues);
     const addExpensePopover = await this.popoverController.create({
       component: SavePopoverComponent,
       componentProps: {

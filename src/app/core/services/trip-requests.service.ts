@@ -77,6 +77,10 @@ export class TripRequestsService {
     );
   }
 
+  get(tripRequestId) {
+    return this.apiService.get('/trip_requests/' + tripRequestId)
+  }
+
   getActions(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
   }
@@ -331,7 +335,6 @@ export class TripRequestsService {
         return this.apiService.post('/trip_requests/save', tripRequest);
       })
     );
-    // Todo: Fix dates and delete cache
   }
 
   submit(tripRequest) {
@@ -343,6 +346,15 @@ export class TripRequestsService {
         return this.apiService.post('/trip_requests/submit', tripRequest);
       })
     );
-    // Todo: Fix dates and delete cache
+  }
+
+  findMyUnreportedRequests() {
+    const data = {
+      params: {
+        only_unreported: true
+      }
+    };
+
+    return this.apiService.get('/trip_requests', data);
   }
 }

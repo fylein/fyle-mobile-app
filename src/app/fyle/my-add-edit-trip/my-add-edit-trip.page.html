@@ -223,6 +223,11 @@
         </div>
       </div>
     </div>
+  </form>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
     <div class="add-edit-trip--cta-block">
       <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
         <ion-button (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
@@ -232,5 +237,5 @@
         <ion-button class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="openModal()">Continue</ion-button>
       </div>
     </div>
-  </form>
-</ion-content>
+  </ion-toolbar>
+</ion-footer>
