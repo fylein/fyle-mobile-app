@@ -34,7 +34,7 @@ export class ViewCommentComponent implements OnInit {
   ) { }
 
   changeBotComments() {
-    this.showBotComments = !this.showBotComments
+    this.showBotComments = !this.showBotComments;
   }
 
   addComment() {
@@ -56,8 +56,7 @@ export class ViewCommentComponent implements OnInit {
   }
 
   closeCommentModal() {
-
-    if(this.isCommentAdded) {
+    if (this.isCommentAdded) {
       // Todo: Track Add Comment Event
       // TrackingService.addComment({Asset: 'Mobile'});
     } else {
@@ -83,29 +82,31 @@ export class ViewCommentComponent implements OnInit {
               status.isBotComment = status && (status.st_org_user_id === 'SYSTEM');
               status.isSelfComment = status && eou && eou.ou && (status.st_org_user_id === eou.ou.id);
               return status;
-            })
-          }), 
+            });
+          }),
           map(res => {
-            return res.sort(function(a, b){ 
+            return res.sort((a, b) => {
               return a.st_created_at.valueOf() - b.st_created_at.valueOf();
             });
           }),
           finalize(() => {
             setTimeout(() => {
-              this.title.nativeElement.scrollToBottom();
+              if (this.title.nativeElement) {
+                this.title.nativeElement.scrollToBottom();
+              }
             }, 500);
           })
-        )
+        );
       })
-    )
+    );
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
       map(res => {
-        return res.filter(function (estatus) {
+        return res.filter((estatus) => {
           return estatus.st_org_user_id !== 'SYSTEM';
         }).length;
       })
-    )
+    );
 
   }
 
