@@ -4,7 +4,6 @@ import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { forkJoin, Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,8 +21,7 @@ export class DashboardPage implements OnInit {
   constructor(
     private mobileEventService: MobileEventService,
     private dashboardService: DashboardService,
-    private offlineService: OfflineService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private offlineService: OfflineService
   ) { }
 
 
@@ -97,14 +95,6 @@ export class DashboardPage implements OnInit {
 
   }
 
-  // post() {
-  //   let a = ['abc1', ]
-  //   this.recentLocalStorageItemsService.post('test', 'abc1');
-  //   this.recentLocalStorageItemsService.post('test', 'abc2');
-  //   this.recentLocalStorageItemsService.post('test', 'abc3');
-  // }
-
-
   ionViewWillEnter() {
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
      shareReplay(),
@@ -122,7 +112,6 @@ export class DashboardPage implements OnInit {
       this.dashboardCardExpanded();
     });
 
-   // this.post();
   }
 
   ngOnInit() {
