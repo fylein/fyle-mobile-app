@@ -7,7 +7,6 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { ConfirmationCommentPopoverComponent } from './confirmation-comment-popover/confirmation-comment-popover.component';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { Router } from '@angular/router';
 
 
 @Component({
@@ -29,8 +28,7 @@ export class ApproverDialogComponent implements OnInit {
     private modalController: ModalController,
     private tripRequestsService: TripRequestsService,
     private popoverController: PopoverController,
-    private advanceRequestService: AdvanceRequestService,
-    private router: Router
+    private advanceRequestService: AdvanceRequestService
   ) { }
 
   closeApproverModal() {
@@ -56,16 +54,18 @@ export class ApproverDialogComponent implements OnInit {
           switchMap(() => from(this.selectedApprovers)),
           concatMap(approver => this.tripRequestsService.addApproverETripRequests(this.request.trp_id, approver.us.email, data.message)),
           finalize(() => from(this.loaderService.hideLoader()))
-        ).subscribe(noop);
-        this.modalController.dismiss();
+        ).subscribe(() => {
+          this.modalController.dismiss({reload: true});
+        });
       }
       if (this.from === 'ADVANCE_REQUEST') {
         from(this.loaderService.showLoader()).pipe(
           switchMap(() => from(this.selectedApprovers)),
           concatMap(approver => this.advanceRequestService.addApprover(this.request.areq_id, approver.us.email, data.message)),
           finalize(() => from(this.loaderService.hideLoader()))
-        ).subscribe(noop);
-        this.modalController.dismiss();
+        ).subscribe(() => {
+          this.modalController.dismiss({reload: true});
+        });
       }
     }
   }

@@ -324,7 +324,5 @@ export class TripRequestsService {
     };
 
     return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
-      // self.deleteCache();
-      // return fixDates(tripRequest);
   }
 }

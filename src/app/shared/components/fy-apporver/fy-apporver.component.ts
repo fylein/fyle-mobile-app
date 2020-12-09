@@ -1,8 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Observable } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalController } from '@ionic/angular';
 import { ApproverDialogComponent } from './approver-dialog/approver-dialog.component';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -19,8 +19,8 @@ export class FyApporverComponent implements OnInit {
   approverList$: Observable<any>;
 
   constructor(
-    private loaderService: LoaderService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private router: Router
   ) { }
 
   async openApproverListDialog() {
@@ -33,9 +33,19 @@ export class FyApporverComponent implements OnInit {
     });
 
     await approversListModal.present();
+
+    const { data } = await approversListModal.onWillDismiss();
+    if (data.reload) {
+      if (this.from === 'TRIP_REQUEST') {
+        this.router.navigate(['/', 'enterprise', 'view_team_trips', {id: this.request.trp_id}]);
+        // this.router.navigateByUrl
+      }
+      if (this.from === 'ADVANCE_REQUEST') {
+        this.router.navigate(['/', 'enterprise', 'view_team_advance', {id: this.request.areq_id}]);
+      }
+    }
+
   }
 
-  ngOnInit() {
-
-  }
+  ngOnInit() { }
 }

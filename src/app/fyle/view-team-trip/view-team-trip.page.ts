@@ -382,11 +382,8 @@ export class ViewTeamTripPage implements OnInit {
     );
   }
 
-  openApproverDialog() {
-    alert('open add approver dialog, TODO');
+  ngOnInit() {
   }
-
-  ngOnInit() { }
 
 
 }
