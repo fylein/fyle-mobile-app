@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Platform, MenuController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { pipe, forkJoin, from, iif, of } from 'rxjs';
+import { pipe, forkJoin, from, iif, of, concat, Observable } from 'rxjs';
 import { map, switchMap, shareReplay } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -18,9 +18,10 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
 import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
-import { GlobalCacheConfig } from 'ts-cacheable';
+import { GlobalCacheConfig, globalCacheBusterNotifier } from 'ts-cacheable';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
+import { NetworkService } from './core/services/network.service';
 
 @Component({
   selector: 'app-root',
@@ -33,6 +34,7 @@ export class AppComponent implements OnInit {
   sideMenuList: any[];
   appVersion: string;
   isSwitchedToDelegator;
+  isConnected$: Observable<boolean>;
 
   constructor(
     private platform: Platform,
@@ -42,7 +44,6 @@ export class AppComponent implements OnInit {
     private authService: AuthService,
     private offlineService: OfflineService,
     private orgUserService: OrgUserService,
-    private orgUserSettingsService: OrgUserSettingsService,
     private userEventService: UserEventService,
     private permissionsService: PermissionsService,
     private menuController: MenuController,
@@ -51,6 +52,7 @@ export class AppComponent implements OnInit {
     private routerAuthService: RouterAuthService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
+    private networkService: NetworkService
 
   ) {
     this.initializeApp();
@@ -73,6 +75,7 @@ export class AppComponent implements OnInit {
     if (route.indexOf('switch-org') > -1) {
       this.userEventService.clearCache();
       // TODO: Clear all caches also
+      globalCacheBusterNotifier.next();
     }
     this.router.navigate(route);
   }
@@ -105,8 +108,8 @@ export class AppComponent implements OnInit {
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay()
     );
-    const orgUserSettings$ = this.orgUserSettingsService.get();
-    const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts().pipe(
+    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const delegatedAccounts$ = this.offlineService.getDelegatedAccounts().pipe(
       map(res => {
         return this.orgUserService.excludeByStatus(res, 'ACTIVE');
       })
@@ -129,17 +132,22 @@ export class AppComponent implements OnInit {
       })
     );
 
-    forkJoin({
-      eou: eou$,
-      orgs: orgs$,
-      currentOrg: currentOrg$,
-      orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
-      delegatedAccounts: delegatedAccounts$,
-      allowedActions: allowedActions$,
-      deviceInfo: deviceInfo$,
-      isSwitchedToDelegator: isSwitchedToDelegator$
-    }).subscribe((res) => {
+    this.isConnected$.pipe(
+      switchMap(isConnected => {
+        return forkJoin({
+          eou: eou$,
+          orgs: orgs$,
+          currentOrg: currentOrg$,
+          orgSettings: orgSettings$,
+          orgUserSettings: orgUserSettings$,
+          delegatedAccounts: delegatedAccounts$,
+          allowedActions: allowedActions$,
+          deviceInfo: deviceInfo$,
+          isSwitchedToDelegator: isSwitchedToDelegator$,
+          isConnected: of(isConnected)
+        });
+      })
+    ).subscribe((res) => {
       this.eou = res.eou;
       const orgs = res.orgs;
       this.activeOrg = res.currentOrg;
@@ -151,104 +159,221 @@ export class AppComponent implements OnInit {
       const allowedAdvancesActions = res.allowedActions && res.allowedActions.allowedAdvancesActions;
       const allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
       this.isSwitchedToDelegator = res.isSwitchedToDelegator;
+      const isConnected = res.isConnected;
 
-
-      this.sideMenuList = [
-        {
-          title: 'Dashboard',
-          isVisible: true,
-          icon: 'fy-dashboard-new',
-          route: ['/', 'enterprise', 'my_dashboard']
-        },
-        {
-          title: 'Expenses',
-          isVisible: true,
-          icon: 'fy-expenses-new',
-          route: ['/', 'enterprise', 'my_expenses']
-        },
-        {
-          title: 'Reports',
-          isVisible: true,
-          icon: 'fy-reports-new',
-          route: ['/', 'enterprise', 'my_reports']
-        },
-        {
-          title: 'Advances',
-          isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
-          icon: 'fy-advances-new',
-          route: ['/', 'enterprise', 'my_advances']
-        },
-        {
-          title: 'Trips',
-          // tslint:disable-next-line: max-line-length
-          isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
-          icon: 'fy-trips-new',
-          route: ['/', 'enterprise', 'my_trips']
-        },
-        {
-          title: 'Delegated Accounts',
-          isVisible: isDelegatee,
-          icon: 'fy-delegate-switch',
-          route: ['/', 'enterprise', 'delegated_accounts']
-        },
-        {
-          title: 'Corporate Cards',
-          isVisible: orgSettings.corporate_credit_card_settings.enabled,
-          icon: 'fy-cards-new',
-          route: ['/', 'enterprise', 'my_dashboard6']
-        },
-        {
-          title: 'Receipts',
-          isVisible: orgSettings.receipt_settings.enabled,
-          icon: 'fy-receipts-new',
-          route: ['/', 'enterprise', 'my_dashboard7']
-        },
-        {
-          title: 'Switch to own account',
-          isVisible: this.isSwitchedToDelegator,
-          icon: 'fy-switch',
-          route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }]
-        },
-        {
-          title: 'Profile',
-          isVisible: true,
-          icon: 'fy-profile-new',
-          route: ['/', 'enterprise', 'my_profile']
-        },
-        {
-          title: 'Team Reports',
-          isVisible: allowedReportsActions && allowedReportsActions.approve,
-          icon: 'fy-team-reports-new',
-          route: ['/', 'enterprise', 'team_reports'],
-          cssClass: 'team-trips'
-        },
-        {
-          title: 'Team Trips',
-          isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
-          icon: 'fy-team-trips-new',
-          route: ['/', 'enterprise', 'team_trips']
-        },
-        {
-          title: 'Team Advances',
-          isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
-          icon: 'fy-team-advances-new',
-          route: ['/', 'enterprise', 'team_advance']
-        },
-        {
-          title: 'Help',
-          isVisible: true,
-          icon: 'fy-help-new',
-          route: ['/', 'enterprise', 'help']
-        },
-        {
-          title: 'Switch Accounts',
-          isVisible: (orgs.length > 1),
-          icon: 'fy-switch-new',
-          route: ['/', 'auth', 'switch-org', { choose: true }]
-        },
-      ];
+      // TODO: remove nested subscribe - mini tech debt
+      if (isConnected) {
+        this.sideMenuList = [
+          {
+            title: 'Dashboard',
+            isVisible: true,
+            icon: 'fy-dashboard-new',
+            route: ['/', 'enterprise', 'my_dashboard']
+          },
+          {
+            title: 'Expenses',
+            isVisible: true,
+            icon: 'fy-expenses-new',
+            route: ['/', 'enterprise', 'my_expenses']
+          },
+          {
+            title: 'Reports',
+            isVisible: true,
+            icon: 'fy-reports-new',
+            route: ['/', 'enterprise', 'my_reports']
+          },
+          {
+            title: 'Advances',
+            isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
+            icon: 'fy-advances-new',
+            route: ['/', 'enterprise', 'my_advances']
+          },
+          {
+            title: 'Trips',
+            // tslint:disable-next-line: max-line-length
+            isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
+            icon: 'fy-trips-new',
+            route: ['/', 'enterprise', 'my_trips']
+          },
+          {
+            title: 'Delegated Accounts',
+            isVisible: isDelegatee,
+            icon: 'fy-delegate-switch',
+            route: ['/', 'enterprise', 'delegated_accounts']
+          },
+          {
+            title: 'Corporate Cards',
+            isVisible: orgSettings.corporate_credit_card_settings.enabled,
+            icon: 'fy-cards-new',
+            route: ['/', 'enterprise', 'my_dashboard6']
+          },
+          {
+            title: 'Receipts',
+            isVisible: orgSettings.receipt_settings.enabled,
+            icon: 'fy-receipts-new',
+            route: ['/', 'enterprise', 'my_dashboard7']
+          },
+          {
+            title: 'Switch to own account',
+            isVisible: this.isSwitchedToDelegator,
+            icon: 'fy-switch',
+            route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }]
+          },
+          {
+            title: 'Profile',
+            isVisible: true,
+            icon: 'fy-profile-new',
+            route: ['/', 'enterprise', 'my_profile']
+          },
+          {
+            title: 'Team Reports',
+            isVisible: allowedReportsActions && allowedReportsActions.approve,
+            icon: 'fy-team-reports-new',
+            route: ['/', 'enterprise', 'team_reports'],
+            cssClass: 'team-trips'
+          },
+          {
+            title: 'Team Trips',
+            isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
+            icon: 'fy-team-trips-new',
+            route: ['/', 'enterprise', 'team_trips']
+          },
+          {
+            title: 'Team Advances',
+            isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
+            icon: 'fy-team-advances-new',
+            route: ['/', 'enterprise', 'team_advance']
+          },
+          {
+            title: 'Help',
+            isVisible: true,
+            icon: 'fy-help-new',
+            route: ['/', 'enterprise', 'help']
+          },
+          {
+            title: 'Switch Accounts',
+            isVisible: (orgs.length > 1),
+            icon: 'fy-switch-new',
+            route: ['/', 'auth', 'switch-org', { choose: true }]
+          },
+        ];
+      } else {
+        this.sideMenuList = [
+          {
+            title: 'Dashboard',
+            isVisible: true,
+            icon: 'fy-dashboard-new',
+            route: ['/', 'enterprise', 'my_dashboard'],
+            disabled: true
+          },
+          {
+            title: 'Expenses',
+            isVisible: true,
+            icon: 'fy-expenses-new',
+            route: ['/', 'enterprise', 'my_expenses']
+          },
+          {
+            title: 'Reports',
+            isVisible: true,
+            icon: 'fy-reports-new',
+            route: ['/', 'enterprise', 'my_reports'],
+            disabled: true
+          },
+          {
+            title: 'Advances',
+            isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
+            icon: 'fy-advances-new',
+            route: ['/', 'enterprise', 'my_advances'],
+            disabled: true
+          },
+          {
+            title: 'Trips',
+            // tslint:disable-next-line: max-line-length
+            isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
+            icon: 'fy-trips-new',
+            route: ['/', 'enterprise', 'my_trips'],
+            disabled: true
+          },
+          {
+            title: 'Delegated Accounts',
+            isVisible: isDelegatee,
+            icon: 'fy-delegate-switch',
+            route: ['/', 'enterprise', 'delegated_accounts'],
+            disabled: true
+          },
+          {
+            title: 'Corporate Cards',
+            isVisible: orgSettings.corporate_credit_card_settings.enabled,
+            icon: 'fy-cards-new',
+            route: ['/', 'enterprise', 'my_dashboard6'],
+            disabled: true
+          },
+          {
+            title: 'Receipts',
+            isVisible: orgSettings.receipt_settings.enabled,
+            icon: 'fy-receipts-new',
+            route: ['/', 'enterprise', 'my_dashboard7'],
+            disabled: true
+          },
+          {
+            title: 'Switch to own account',
+            isVisible: this.isSwitchedToDelegator,
+            icon: 'fy-switch',
+            route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
+            disabled: true
+          },
+          {
+            title: 'Profile',
+            isVisible: true,
+            icon: 'fy-profile-new',
+            route: ['/', 'enterprise', 'my_profile'],
+          },
+          {
+            title: 'Team Reports',
+            isVisible: allowedReportsActions && allowedReportsActions.approve,
+            icon: 'fy-team-reports-new',
+            route: ['/', 'enterprise', 'team_reports'],
+            cssClass: 'team-trips',
+            disabled: true
+          },
+          {
+            title: 'Team Trips',
+            isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
+            icon: 'fy-team-trips-new',
+            route: ['/', 'enterprise', 'team_trips'],
+            disabled: true
+          },
+          {
+            title: 'Team Advances',
+            isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
+            icon: 'fy-team-advances-new',
+            route: ['/', 'enterprise', 'team_advance'],
+            disabled: true
+          },
+          {
+            title: 'Help',
+            isVisible: true,
+            icon: 'fy-help-new',
+            route: ['/', 'enterprise', 'help'],
+            disabled: true
+          },
+          {
+            title: 'Switch Accounts',
+            isVisible: (orgs.length > 1),
+            icon: 'fy-switch-new',
+            route: ['/', 'auth', 'switch-org', { choose: true }],
+            disabled: true
+          },
+        ];
+      }
     });
+  }
 
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
   }
 
   ngOnInit() {
@@ -259,6 +384,7 @@ export class AppComponent implements OnInit {
         this.showSideMenu();
       }
     });
+
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
         this.showSideMenu();
@@ -269,7 +395,7 @@ export class AppComponent implements OnInit {
       this.router.navigate(['/', 'auth', 'sign-in']);
     });
 
-    // Left with isonline/is offline method
+    this.setupNetworkWatcher();
   }
 
 }

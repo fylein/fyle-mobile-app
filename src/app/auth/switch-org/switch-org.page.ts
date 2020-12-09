@@ -40,6 +40,9 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+  }
+
+  ionViewWillEnter() {
     this.isLoading = true;
     this.orgs$ = this.offlineService.getOrgs().pipe(
       shareReplay(),
@@ -49,6 +52,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     );
 
     const choose = this.activatedRoute.snapshot.params.choose && JSON.parse(this.activatedRoute.snapshot.params.choose);
+    console.log('Choooose', choose);
     if (!choose) {
       from(this.proceed()).subscribe(noop);
     } else {
@@ -61,11 +65,12 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   async proceed() {
-    const offlineData$ = this.offlineService.load();
-    const pendingDetails$ = this.userService.isPendingDetails();
+    const offlineData$ = this.offlineService.load().pipe(shareReplay());
+    const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay());
     const eou$ = from(this.authService.getEou());
-    const roles$ = from(this.authService.getRoles());
-    const isOnline$ = this.networkService.isOnline();
+    const roles$ = from(this.authService.getRoles().pipe(shareReplay()));
+    const isOnline$ = this.networkService.isOnline().pipe(shareReplay());
+
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return forkJoin(
@@ -102,6 +107,8 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
         isOnline
       ] = aggregatedResults;
 
+      console.log('here1');
+
       const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
 
       // TODO: Setup Sentry
@@ -123,19 +130,24 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       }
 
       from(this.storageService.get('oneClickAction')).subscribe(oneClickActionInternal => {
+        console.log('here4');
         if (pendingDetails) {
+          console.log('here5');
           if (roles.indexOf('OWNER') > -1) {
             this.router.navigate(['/', 'post_verification', 'setup_account']);
           } else {
             this.router.navigate(['/', 'post_verification', 'invited_user']);
           }
         } else if (eou.ou.status === 'ACTIVE') {
+          console.log('here6');
           if (oneClickActionInternal === 'insta_fyle') {
             this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
           } else {
             if (!isOnline) {
+              console.log('here2');
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
             } else {
+              console.log('here4');
               this.router.navigate(['/', 'enterprise', 'my_dashboard']);
             }
           }
@@ -172,12 +184,14 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay())
+
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText) => {
-        return this.orgs$.pipe(
+        return currentOrgs$.pipe(
           map(
             orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
           )

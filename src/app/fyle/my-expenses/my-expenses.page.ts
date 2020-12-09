@@ -17,6 +17,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -63,30 +64,27 @@ export class MyExpensesPage implements OnInit {
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
-    private reportService: ReportService,
     private modalController: ModalController,
     private dateService: DateService,
     public alertController: AlertController,
     private transactionService: TransactionService,
     private currencyService: CurrencyService,
     private popoverController: PopoverController,
-    private orgSettingsService: OrgSettingsService,
-    private orgUserSettingsService: OrgUserSettingsService,
     private router: Router,
     private transactionOutboxService: TransactionsOutboxService,
-    private categoriesService: CategoriesService
+    private offlineService: OfflineService
   ) { }
 
   ngOnInit() {
     this.setupNetworkWatcher();
-    this.isInstaFyleEnabled$ = this.orgUserSettingsService.get().pipe(
+    this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
     );
 
-    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(
+    this.isMileageEnabled$ = this.offlineService.getOrgSettings().pipe(
       map(orgSettings => orgSettings.mileage.enabled)
     );
-    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(
+    this.isPerDiemEnabled$ = this.offlineService.getOrgSettings().pipe(
       map(orgSettings => orgSettings.per_diem.enabled)
     );
   }

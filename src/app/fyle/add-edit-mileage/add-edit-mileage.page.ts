@@ -202,7 +202,7 @@ export class AddEditMileagePage implements OnInit {
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
   }
 
   getCalculateDistance() {
@@ -457,19 +457,26 @@ export class AddEditMileagePage implements OnInit {
             return customField;
           });
         }),
-        map((customFields: any[]) => {
-          const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
-          customFieldsFormArray.clear();
-          for (const customField of customFields) {
-            customFieldsFormArray.push(
-              this.fb.group({
-                name: [customField.name],
-                value: [customField.value, customField.type !== 'BOOLEAN' && customField.mandatory && Validators.required]
-              })
-            );
-          }
-          customFieldsFormArray.updateValueAndValidity();
-          return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+        switchMap((customFields: any[]) => {
+          return this.isConnected$.pipe(
+            map(isConnected => {
+              const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+              customFieldsFormArray.clear();
+              for (const customField of customFields) {
+                customFieldsFormArray.push(
+                  this.fb.group({
+                    name: [customField.name],
+                    value: [
+                      customField.value,
+                      isConnected && customField.type !== 'BOOLEAN' && customField.mandatory && Validators.required
+                    ]
+                  })
+                );
+              }
+              customFieldsFormArray.updateValueAndValidity();
+              return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+            })
+          );
         }),
         shareReplay(1)
       );
@@ -598,8 +605,11 @@ export class AddEditMileagePage implements OnInit {
       map(orgSettings => orgSettings.mileage)
     );
 
-
-    this.transactionMandatoyFields$ = orgSettings$.pipe(
+    this.transactionMandatoyFields$ = this.isConnected$.pipe(
+      filter(isConnected => !!isConnected),
+      switchMap(() => {
+        return this.offlineService.getOrgSettings();
+      }),
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
@@ -661,8 +671,16 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.txnFields$.pipe(
-      distinctUntilChanged((a, b) => isEqual(a, b))
-    ).subscribe(txnFields => {
+      distinctUntilChanged((a, b) => isEqual(a, b)),
+      switchMap(txnFields => {
+        return this.isConnected$.pipe(
+          map(isConnected => ({
+            isConnected,
+            txnFields
+          }))
+        );
+      })
+    ).subscribe(({ isConnected, txnFields }) => {
       const keyToControlMap: { [id: string]: AbstractControl; } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
@@ -679,7 +697,7 @@ export class AddEditMileagePage implements OnInit {
         const control = keyToControlMap[txnFieldKey];
 
         if (txnFields[txnFieldKey].mandatory) {
-          control.setValidators(Validators.required);
+          control.setValidators(isConnected ? Validators.required : null);
         }
         control.updateValueAndValidity();
       }
@@ -1138,7 +1156,7 @@ export class AddEditMileagePage implements OnInit {
             if (isConnected) {
               const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
               return policyViolations$.pipe(
-  
+
                 map(this.policyService.getCriticalPolicyRules),
                 switchMap(criticalPolicyViolations => {
                   if (criticalPolicyViolations.length > 0) {
@@ -1309,22 +1327,32 @@ export class AddEditMileagePage implements OnInit {
   addExpense() {
     const customFields$ = this.getCustomFields();
 
-    const calculatedDistance$ = this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
-      switchMap((distance) => {
-        return this.etxn$.pipe(map(etxn => {
-          const distanceInKm = distance / 1000;
-          const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
-          return finalDistance;
-        }));
-      }),
-      map(finalDistance => {
-        if (this.fg.value.round_trip) {
-          return (finalDistance * 2).toFixed(2);
-        } else {
-          return (finalDistance).toFixed(2);
-        }
-      })
-    );
+    const calculatedDistance$ = this.isConnected$
+      .pipe(
+        switchMap((isConnected) => {
+          if (isConnected) {
+            return this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
+              switchMap((distance) => {
+                return this.etxn$.pipe(map(etxn => {
+                  const distanceInKm = distance / 1000;
+                  const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
+                  return finalDistance;
+                }));
+              }),
+              map(finalDistance => {
+                if (this.fg.value.round_trip) {
+                  return (finalDistance * 2).toFixed(2);
+                } else {
+                  return (finalDistance).toFixed(2);
+                }
+              })
+            );
+          } else {
+            return of(null);
+          }
+        }),
+        shareReplay()
+      );
 
     return from(this.loaderService.showLoader())
       .pipe(
@@ -1332,34 +1360,41 @@ export class AddEditMileagePage implements OnInit {
           return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
         }),
         switchMap(etxn => {
-          const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
-          return policyViolations$.pipe(
-
-            map(this.policyService.getCriticalPolicyRules),
-            switchMap(criticalPolicyViolations => {
-              if (criticalPolicyViolations.length > 0) {
-                return throwError(new Error('Critical Policy Violated'));
-              }
-              else {
-                return policyViolations$;
-              }
-            }),
-            map((policyViolations: any) =>
-              [this.policyService.getPolicyRules(policyViolations),
-              policyViolations &&
-              policyViolations.transaction_desired_state &&
-              policyViolations.transaction_desired_state.action_description]),
-            switchMap(([policyViolations, policyActionDescription]) => {
-              if (policyViolations.length > 0) {
-                return throwError({
-                  type: 'policyViolations',
-                  policyViolations,
-                  policyActionDescription,
-                  etxn
-                });
-              }
-              else {
-                return of({ etxn, comment: null });
+          return this.isConnected$.pipe(
+            switchMap(isConnected => {
+              if (isConnected) {
+                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+                return policyViolations$.pipe(
+                  map(this.policyService.getCriticalPolicyRules),
+                  switchMap(criticalPolicyViolations => {
+                    if (criticalPolicyViolations.length > 0) {
+                      return throwError(new Error('Critical Policy Violated'));
+                    }
+                    else {
+                      return policyViolations$;
+                    }
+                  }),
+                  map((policyViolations: any) =>
+                    [this.policyService.getPolicyRules(policyViolations),
+                    policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description]),
+                  switchMap(([policyViolations, policyActionDescription]) => {
+                    if (policyViolations.length > 0) {
+                      return throwError({
+                        type: 'policyViolations',
+                        policyViolations,
+                        policyActionDescription,
+                        etxn
+                      });
+                    }
+                    else {
+                      return of({ etxn, comment: null });
+                    }
+                  })
+                );
+              } else {
+                return of(etxn);
               }
             })
           );
@@ -1431,7 +1466,11 @@ export class AddEditMileagePage implements OnInit {
                 // }
 
                 let reportId;
-                if (this.fg.value.report && (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
+                if (
+                  this.fg.value.report &&
+                  (etxn.tx.policy_amount === null ||
+                    (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
+                ) {
                   reportId = this.fg.value.report.id;
                 }
                 let entry;
@@ -1448,10 +1487,10 @@ export class AddEditMileagePage implements OnInit {
                   return of(this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null));
                 }
 
-              }));
+              })
+            );
         }),
         finalize(() => from(this.loaderService.hideLoader()))
       );
   }
-
 }

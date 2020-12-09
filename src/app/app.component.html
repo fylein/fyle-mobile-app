@@ -22,7 +22,7 @@
       <div class="sidemenu--items-wrapper">
         <ion-list>
           <div *ngFor="let sideMenuItem of sideMenuList; index as i">
-            <ion-item detail="false" [routerLink]="sideMenuItem.route" routerLinkActive="item-active" class="sidemenu--items" [ngClass]="sideMenuItem.cssClass" *ngIf="sideMenuItem.isVisible" (click)="redirect(sideMenuItem.route)">
+            <ion-item detail="false" [disabled]="sideMenuItem.disabled" [routerLink]="sideMenuItem.route" routerLinkActive="item-active" class="sidemenu--items" [class]="sideMenuItem.cssClass" [ngClass]="{'sidemenu--items__disabled': sideMenuItem.disabled}"  *ngIf="sideMenuItem.isVisible" (click)="redirect(sideMenuItem.route)">
               <a class="sidemenu--item">
                 <ion-grid>
                   <ion-row>

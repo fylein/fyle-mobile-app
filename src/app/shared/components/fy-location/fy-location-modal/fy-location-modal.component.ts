@@ -43,7 +43,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     this.filteredList$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       debounceTime(300),
-      tap(console.log),
       distinctUntilChanged(),
       switchMap((searchText) => {
         return forkJoin({
@@ -53,13 +52,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             enableHighAccuracy: true
           }))
         }).pipe(
-          tap(console.log),
           switchMap(({ eou, currentLocation }) => {
             return from(this.loaderService.showLoader()).pipe(
               switchMap(() => {
                 return this.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
               }),
-              tap(console.log),
               finalize(() => from(this.loaderService.hideLoader()))
             );
           })

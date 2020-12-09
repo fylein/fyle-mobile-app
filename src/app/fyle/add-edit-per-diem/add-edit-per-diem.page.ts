@@ -100,7 +100,7 @@ export class AddEditPerDiemPage implements OnInit {
       }],
       paymentMode: [, Validators.required],
       project: [],
-      sub_category: [, Validators.required],
+      sub_category: [],
       per_diem_rate: [, Validators.required],
       purpose: [],
       num_days: [, Validators.required],
@@ -361,18 +361,22 @@ export class AddEditPerDiemPage implements OnInit {
             return customField;
           });
         }),
-        map((customFields: any[]) => {
-          const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
-          customFieldsFormArray.clear();
-          for (const customField of customFields) {
-            customFieldsFormArray.push(
-              this.fb.group({
-                name: [customField.name],
-                value: [customField.value, customField.mandatory && Validators.required]
-              })
-            );
-          }
-          return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+        switchMap((customFields: any[]) => {
+          return this.isConnected$.pipe(
+            map(isConnected => {
+              const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+              customFieldsFormArray.clear();
+              for (const customField of customFields) {
+                customFieldsFormArray.push(
+                  this.fb.group({
+                    name: [customField.name],
+                    value: [customField.value, isConnected && customField.mandatory && Validators.required]
+                  })
+                );
+              }
+              return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+            })
+          );
         }),
         shareReplay()
       );
@@ -457,9 +461,21 @@ export class AddEditPerDiemPage implements OnInit {
       map(allowedPerDiemRates => allowedPerDiemRates.map(rate => ({ label: rate.full_name, value: rate })))
     );
 
-    this.transactionMandatoyFields$ = orgSettings$.pipe(
+    this.transactionMandatoyFields$ = this.isConnected$.pipe(
+      filter(isConnected => !!isConnected),
+      switchMap(() => {
+        return this.offlineService.getOrgSettings();
+      }),
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
+
+    this.isConnected$.subscribe(isConnected => {
+      this.fg.controls.sub_category.clearValidators();
+      if (isConnected) {
+        this.fg.controls.sub_category.setValidators(Validators.required);
+      }
+      this.fg.controls.sub_category.updateValueAndValidity();
+    });
 
     // TODO: Put this in per diem
     this.transactionMandatoyFields$
@@ -514,8 +530,16 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.txnFields$.pipe(
-      distinctUntilChanged((a, b) => isEqual(a, b))
-    ).subscribe(txnFields => {
+      distinctUntilChanged((a, b) => isEqual(a, b)),
+      switchMap(txnFields => {
+        return this.isConnected$.pipe(
+          map(isConnected => ({
+            isConnected,
+            txnFields
+          }))
+        );
+      })
+    ).subscribe(({ isConnected, txnFields }) => {
       const keyToControlMap: { [id: string]: AbstractControl; } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
@@ -533,7 +557,7 @@ export class AddEditPerDiemPage implements OnInit {
         const control = keyToControlMap[txnFieldKey];
 
         if (txnFields[txnFieldKey].mandatory) {
-          control.setValidators(Validators.required);
+          control.setValidators(isConnected ? Validators.required : null);
         }
         control.updateValueAndValidity();
       }
@@ -942,137 +966,137 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     return from(this.loaderService.showLoader())
-    .pipe(
-      switchMap(() => {
-        return this.generateEtxnFromFg(this.etxn$, customFields$);
-      }),
-      switchMap(etxn => {
-        return this.isConnected$.pipe(switchMap(isConnected => {
-          if (isConnected) {
-            const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
-            return policyViolations$.pipe(
+      .pipe(
+        switchMap(() => {
+          return this.generateEtxnFromFg(this.etxn$, customFields$);
+        }),
+        switchMap(etxn => {
+          return this.isConnected$.pipe(switchMap(isConnected => {
+            if (isConnected) {
+              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+              return policyViolations$.pipe(
 
-              map(this.policyService.getCriticalPolicyRules),
-              switchMap(criticalPolicyViolations => {
-                if (criticalPolicyViolations.length > 0) {
-                  return throwError(new Error('Critical Policy Violated'));
-                }
-                else {
-                  return policyViolations$;
-                }
+                map(this.policyService.getCriticalPolicyRules),
+                switchMap(criticalPolicyViolations => {
+                  if (criticalPolicyViolations.length > 0) {
+                    return throwError(new Error('Critical Policy Violated'));
+                  }
+                  else {
+                    return policyViolations$;
+                  }
+                }),
+                map((policyViolations: any) =>
+                  [this.policyService.getPolicyRules(policyViolations),
+                  policyViolations &&
+                  policyViolations.transaction_desired_state &&
+                  policyViolations.transaction_desired_state.action_description]),
+                switchMap(([policyViolations, policyActionDescription]) => {
+                  if (policyViolations.length > 0) {
+                    return throwError({
+                      type: 'policyViolations',
+                      policyViolations,
+                      policyActionDescription,
+                      etxn
+                    });
+                  }
+                  else {
+                    return of({ etxn, comment: null });
+                  }
+                })
+              );
+            } else {
+              return of({ etxn, comment: null });
+            }
+          }));
+        }),
+        catchError(err => {
+          if (err.type === 'criticalPolicyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => {
+                return this.continueWithCriticalPolicyViolation(err.policyViolations);
               }),
-              map((policyViolations: any) =>
-                [this.policyService.getPolicyRules(policyViolations),
-                policyViolations &&
-                policyViolations.transaction_desired_state &&
-                policyViolations.transaction_desired_state.action_description]),
-              switchMap(([policyViolations, policyActionDescription]) => {
-                if (policyViolations.length > 0) {
-                  return throwError({
-                    type: 'policyViolations',
-                    policyViolations,
-                    policyActionDescription,
-                    etxn
-                  });
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() => {
+                      return of({ etxn: err.etxn });
+                    })
+                  );
+                } else {
+                  return throwError('unhandledError');
                 }
-                else {
-                  return of({ etxn, comment: null });
+              })
+            );
+          } else if (err.type === 'policyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => {
+                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
+              }),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() => {
+                      return of({ etxn: err.etxn, comment: continueWithTransaction.comment });
+                    })
+                  );
+                } else {
+                  return throwError('unhandledError');
                 }
               })
             );
           } else {
-            return of({ etxn, comment: null });
+            return throwError(err);
           }
-        }));
-      }),
-      catchError(err => {
-        if (err.type === 'criticalPolicyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => {
-              return this.continueWithCriticalPolicyViolation(err.policyViolations);
-            }),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() => {
-                    return of({ etxn: err.etxn });
-                  })
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
-        } else if (err.type === 'policyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => {
-              return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-            }),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() => {
-                    return of({ etxn: err.etxn, comment: continueWithTransaction.comment });
-                  })
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
-        } else {
-          return throwError(err);
-        }
-      }),
-      switchMap(({ etxn, comment }: any) => {
-        return from(this.authService.getEou())
-          .pipe(
-            switchMap(eou => {
+        }),
+        switchMap(({ etxn, comment }: any) => {
+          return from(this.authService.getEou())
+            .pipe(
+              switchMap(eou => {
 
-              const comments = [];
-              // if (this.activatedRoute.snapshot.params.dataUrl) {
-              //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
-              // } else {
-              //   TrackingService.createExpense
-              // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
-              // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
-              // }
-              // if (this.saveAndCreate) {
-              //   // track click of save and new expense button
-              //   TrackingService.clickSaveAddNew({Asset: 'Mobile'});
-              // }
-              if (comment) {
-                comments.push(comment);
-              }
-              // if (this.selectedCCCTransaction) {
-              //   this.etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
-              //   setSourceAccount('PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-              // }
+                const comments = [];
+                // if (this.activatedRoute.snapshot.params.dataUrl) {
+                //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
+                // } else {
+                //   TrackingService.createExpense
+                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
+                // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
+                // }
+                // if (this.saveAndCreate) {
+                //   // track click of save and new expense button
+                //   TrackingService.clickSaveAddNew({Asset: 'Mobile'});
+                // }
+                if (comment) {
+                  comments.push(comment);
+                }
+                // if (this.selectedCCCTransaction) {
+                //   this.etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+                //   setSourceAccount('PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+                // }
 
-              let reportId;
-              if (this.fg.value.report &&
-                (etxn.tx.policy_amount === null ||
-                  (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
-                reportId = this.fg.value.report.id;
-              }
-              let entry;
-              if (this.fg.value.add_to_new_report) {
-                entry = {
-                  comments,
-                  reportId
-                };
-              }
-              if (entry) {
-                return from(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
-              }
-              else {
-                return of(this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null));
-              }
+                let reportId;
+                if (this.fg.value.report &&
+                  (etxn.tx.policy_amount === null ||
+                    (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
+                  reportId = this.fg.value.report.id;
+                }
+                let entry;
+                if (this.fg.value.add_to_new_report) {
+                  entry = {
+                    comments,
+                    reportId
+                  };
+                }
+                if (entry) {
+                  return from(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
+                }
+                else {
+                  return of(this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null));
+                }
 
-            }));
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    );
+              }));
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      );
   }
 
   editExpense() {
@@ -1276,16 +1300,16 @@ export class AddEditPerDiemPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  getFormValidationErrors() {
-    Object.keys(this.fg.controls).forEach(key => {
+  // getFormValidationErrors() {
+  //   Object.keys(this.fg.controls).forEach(key => {
 
-      const controlErrors: ValidationErrors = this.fg.get(key).errors;
-      if (controlErrors != null) {
-        Object.keys(controlErrors).forEach(keyError => {
-          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-        });
-      }
-    });
-  }
+  //     const controlErrors: ValidationErrors = this.fg.get(key).errors;
+  //     if (controlErrors != null) {
+  //       Object.keys(controlErrors).forEach(keyError => {
+  //         console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+  //       });
+  //     }
+  //   });
+  // }
 
 }

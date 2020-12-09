@@ -293,18 +293,19 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupTransactionMandatoryFields() {
-    const orgSettings$ = this.offlineService.getOrgSettings();
-
-    this.transactionMandatoyFields$ = orgSettings$.pipe(
+    this.transactionMandatoyFields$ = this.isConnected$.pipe(
+      filter(isConnected => !!isConnected),
+      switchMap(() => {
+        return this.offlineService.getOrgSettings();
+      }),
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
-    // TODO: Put this in per diem
     this.transactionMandatoyFields$
       .pipe(
         filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
       )
-      .subscribe((transactionMandatoyFields) => {
+      .subscribe((transactionMandatoyFields: any) => {
         if (transactionMandatoyFields.project) {
           this.fg.controls.project.setValidators(Validators.required);
           this.fg.controls.project.updateValueAndValidity();
@@ -742,20 +743,27 @@ export class AddEditExpensePage implements OnInit {
             return customField;
           });
         }),
-        map((customFields: any[]) => {
-          const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
-          customFieldsFormArray.clear();
-          for (const customField of customFields) {
-            customFieldsFormArray.push(
-              this.formBuilder.group({
-                name: [customField.name],
-                // Since in boolean, required validation is kinda unnecessary
-                value: [customField.value, customField.type !== 'BOOLEAN' && customField.mandatory && Validators.required]
-              })
-            );
-          }
-          customFieldsFormArray.updateValueAndValidity();
-          return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+        switchMap((customFields: any[]) => {
+          return this.isConnected$.pipe(
+            map(isConnected => {
+              const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+              customFieldsFormArray.clear();
+              for (const customField of customFields) {
+                customFieldsFormArray.push(
+                  this.formBuilder.group({
+                    name: [customField.name],
+                    // Since in boolean, required validation is kinda unnecessary
+                    value: [
+                      customField.value,
+                      customField.type !== 'BOOLEAN' && customField.mandatory && Validators.required && isConnected
+                    ]
+                  })
+                );
+              }
+              customFieldsFormArray.updateValueAndValidity();
+              return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+            })
+          );
         }),
         shareReplay()
       );
@@ -768,9 +776,15 @@ export class AddEditExpensePage implements OnInit {
         return this.offlineService.getTransactionFieldConfigurationsMap().pipe(switchMap(tfcMap => {
           const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
           return this.transactionFieldConfigurationService
-            .filterByOrgCategoryIdProjectId(tfcMap, fields, formValue.category, formValue.project);
+            .filterByOrgCategoryIdProjectId(
+              tfcMap,
+              fields,
+              formValue.category,
+              formValue.project
+            );
         }));
-      }), map((tfcMap: any) => {
+      }),
+      map((tfcMap: any) => {
         if (tfcMap) {
           for (const tfc of Object.keys(tfcMap)) {
             if (tfcMap[tfc].values && tfcMap[tfc].values.length > 0) {
@@ -782,10 +796,17 @@ export class AddEditExpensePage implements OnInit {
       }),
       shareReplay());
 
-
     this.txnFields$.pipe(
-      distinctUntilChanged((a, b) => isEqual(a, b))
-    ).subscribe(txnFields => {
+      distinctUntilChanged((a, b) => isEqual(a, b)),
+      switchMap(txnFields => {
+        return this.isConnected$.pipe(
+          map(isConnected => ({
+            isConnected,
+            txnFields
+          }))
+        );
+      })
+    ).subscribe(({ isConnected, txnFields }) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -812,10 +833,10 @@ export class AddEditExpensePage implements OnInit {
         const control = keyToControlMap[txnFieldKey];
         if (txnFields[txnFieldKey].mandatory) {
           if (txnFieldKey === 'vendor_id') {
-            control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
+            control.setValidators(Validators.compose([isConnected ? Validators.required : null, this.merchantValidator]));
           }
           else {
-            control.setValidators(Validators.required);
+            control.setValidators(isConnected ? Validators.required : null);
           }
         }
         else {
