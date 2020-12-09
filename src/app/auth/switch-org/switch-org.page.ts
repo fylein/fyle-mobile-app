@@ -52,7 +52,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     );
 
     const choose = this.activatedRoute.snapshot.params.choose && JSON.parse(this.activatedRoute.snapshot.params.choose);
-    console.log('Choooose', choose);
+
     if (!choose) {
       from(this.proceed()).subscribe(noop);
     } else {
@@ -107,7 +107,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
         isOnline
       ] = aggregatedResults;
 
-      console.log('here1');
 
       const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
 
@@ -130,24 +129,19 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       }
 
       from(this.storageService.get('oneClickAction')).subscribe(oneClickActionInternal => {
-        console.log('here4');
         if (pendingDetails) {
-          console.log('here5');
           if (roles.indexOf('OWNER') > -1) {
             this.router.navigate(['/', 'post_verification', 'setup_account']);
           } else {
             this.router.navigate(['/', 'post_verification', 'invited_user']);
           }
         } else if (eou.ou.status === 'ACTIVE') {
-          console.log('here6');
           if (oneClickActionInternal === 'insta_fyle') {
             this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
           } else {
             if (!isOnline) {
-              console.log('here2');
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
             } else {
-              console.log('here4');
               this.router.navigate(['/', 'enterprise', 'my_dashboard']);
             }
           }
