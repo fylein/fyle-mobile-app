@@ -294,11 +294,11 @@ export class MyExpensesPage implements OnInit {
     this.isInfiniteScrollRequired$.subscribe(noop);
     if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
-      if (this.activatedRoute.snapshot.params.state === 'needsReceipt') {
+      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
         filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
-      } else if (this.activatedRoute.snapshot.params.state === 'policyViolated') {
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
         filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
-      } else if (this.activatedRoute.snapshot.params.state === 'cannotReport') {
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
         filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
       }
       this.filters = Object.assign({}, this.filters, filters);

@@ -1,6 +1,6 @@
 import { Component, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, iif, of } from 'rxjs';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime } from 'rxjs/operators';
@@ -53,7 +53,8 @@ export class MyReportsPage implements OnInit {
     private dateService: DateService,
     public alertController: AlertController,
     private router: Router,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private activatedRoute: ActivatedRoute
   ) { }
 
   ngOnInit() {
@@ -160,8 +161,19 @@ export class MyReportsPage implements OnInit {
     this.loadData$.subscribe(noop);
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
-    this.clearFilters();
     this.isInfiniteScrollRequired$.subscribe(noop);
+    if (this.activatedRoute.snapshot.params.state) {
+      const filters = {
+        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
+        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
+
+      this.filters = Object.assign({}, this.filters, filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else {
+      this.clearFilters();
+    }
   }
 
   setupNetworkWatcher() {

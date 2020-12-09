@@ -253,7 +253,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         this.goToCreateReport();
       }
     } else if (type === 'reports') {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
+      this.router.navigate(['/', 'enterprise', 'my_reports', {state}]);
     } else {
       const navigateToMap = {
         trips: ['/', 'enterprise', 'my_trips'],
