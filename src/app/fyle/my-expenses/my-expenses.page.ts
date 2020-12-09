@@ -166,13 +166,6 @@ export class MyExpensesPage implements OnInit {
         const queryParams = params.queryParams || {};
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
-        // if (this.activatedRoute.snapshot.params.state === 'needsReceipt') {
-        //   const filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
-        //   this.filters = Object.assign({}, this.filters, filters);
-        //   this.addNewFiltersToParams();
-        //   //this.loadData$.next(params);
-        //   queryParams.tx_receipt_required = 'eq.true';
-        // }
 
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return from(this.loaderService.showLoader()).pipe(switchMap(() => {
@@ -305,8 +298,9 @@ export class MyExpensesPage implements OnInit {
         filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
       } else if (this.activatedRoute.snapshot.params.state === 'policyViolated') {
         filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
+      } else if (this.activatedRoute.snapshot.params.state === 'cannotReport') {
+        filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
       }
-      
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
