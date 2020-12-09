@@ -129,6 +129,10 @@ const routes: Routes = [
   {
     path: 'add_edit_advance_request',
     loadChildren: () => import('./add-edit-advance-request/add-edit-advance-request.module').then( m => m.AddEditAdvanceRequestPageModule)
+  },
+  {
+    path: 'split_expense',
+    loadChildren: () => import('./split-expense/split-expense.module').then( m => m.SplitExpensePageModule)
   }
 ];
 

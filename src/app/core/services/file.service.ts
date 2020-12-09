@@ -9,6 +9,7 @@ import { FileObject } from '../models/file_obj.model';
   providedIn: 'root'
 })
 export class FileService {
+
   constructor(
     private apiService: ApiService
   ) { }
@@ -17,6 +18,10 @@ export class FileService {
     return this.apiService.post('/files/' + fileId + '/download_url').pipe(
       map(res => res.url)
     );
+  }
+
+  base64Download(fileId) {
+    return this.apiService.get('/files/' + fileId + '/download_b64');
   }
 
   findByAdvanceRequestId(advanceRequestId: string): Observable<File[]> {

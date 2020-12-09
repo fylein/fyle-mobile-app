@@ -27,12 +27,14 @@ export class AuthService {
 
   refreshEou(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(
-      map(data => this.dataTransformService.unflatten(data)),
-      tap(
-        async (data) => {
-          await this.storageService.set('user', data);
-        }
-      )
+      switchMap(data => {
+        const extendedOrgUser = this.dataTransformService.unflatten(data);
+        return from(this.storageService.set('user', extendedOrgUser)).pipe(
+          map(() =>  {
+            return extendedOrgUser as ExtendedOrgUser;
+          })
+        );
+      }),
     );
   }
 

@@ -62,7 +62,8 @@ import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.c
     CommentsComponent,
     ViewCommentComponent,
     FyPreviewAttachmentsComponent,
-    FyZeroStateComponent
+    FyZeroStateComponent,
+    FyPreviewAttachmentsComponent
   ],
   imports: [
     CommonModule,
@@ -94,7 +95,8 @@ import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.c
     CurrencyComponent,
     CommentsComponent,
     FyPreviewAttachmentsComponent,
-    FyZeroStateComponent
+    FyZeroStateComponent,
+    FyPreviewAttachmentsComponent
   ],
   providers: [
     DecimalPipe,

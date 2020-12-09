@@ -25,6 +25,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import * as _ from 'lodash';
+import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
 import { ModalController, PopoverController, AlertController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
@@ -80,6 +81,7 @@ export class AddEditExpensePage implements OnInit {
   isAmountCapped$: Observable<boolean>;
   isAmountDisabled$: Observable<boolean>;
   isCriticalPolicyViolated$: Observable<boolean>;
+  isSplitExpenseAllowed$: Observable<boolean>;
   attachmentUploadInProgress = false;
   attachedReceiptsCount = 0;
   instaFyleCancelled = false;
@@ -222,6 +224,56 @@ export class AddEditExpensePage implements OnInit {
         return this.getPossibleDuplicates();
       })
     );
+  }
+
+  openSplitExpenseModal(splitType) {
+    const customFields$ = this.getCustomFields();
+
+    this.generateEtxnFromFg(this.etxn$, customFields$).subscribe(res => {
+      this.router.navigate(['/', 'enterprise', 'split_expense', {
+        splitType,
+        txn: JSON.stringify(res.tx),
+        currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
+        fileObjs: res.dataUrls, // Todo: Need to check passing array is enough or need to do JSON.stringify before
+        // selectedCCCTransaction: vm.selectedCCCTransaction
+      }]);
+    });
+
+  }
+
+  async splitExpense() {
+    return forkJoin({
+      costCenters: this.costCenters$,
+      projects: this.offlineService.getProjects()
+    }).subscribe(async res => {
+      const areCostCentersAvailable = res.costCenters.length > 0;
+      const areProjectsAvailable = res.projects.length > 0;
+      let popupTypeItemClass = '';
+      if (areProjectsAvailable || areCostCentersAvailable) {
+        popupTypeItemClass = 'two-items-list';
+
+        if (areProjectsAvailable && areCostCentersAvailable) {
+          popupTypeItemClass = 'three-items-list';
+        }
+      }
+
+      const splitExpensePopover = await this.popoverController.create({
+        component: SplitExpensePopoverComponent,
+        componentProps: {
+          class: popupTypeItemClass,
+          areProjectsAvailable,
+          areCostCentersAvailable
+        },
+        cssClass: 'split-expense-popover'
+      });
+      await splitExpensePopover.present();
+
+      const { data } = await splitExpensePopover.onWillDismiss();
+
+      if (data && data.type) {
+        this.openSplitExpenseModal(data.type);
+      }
+    })
   }
 
   ngOnInit() {
@@ -646,6 +698,7 @@ export class AddEditExpensePage implements OnInit {
         });
 
       if (etxn.tx.amount && etxn.tx.currency) {
+        console.log(etxn.tx);
         this.fg.patchValue({
           currencyObj: {
             amount: etxn.tx.amount,
@@ -995,6 +1048,12 @@ export class AddEditExpensePage implements OnInit {
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
+    );
+
+    this.isSplitExpenseAllowed$ = orgSettings$.pipe(
+      map(orgSettings => {
+        return orgSettings.expense_settings.split_expense_settings.enabled;
+      })
     );
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(

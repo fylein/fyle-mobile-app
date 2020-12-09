@@ -1,12 +1,15 @@
-<ion-header>
-  <ion-toolbar class="my-create-report--toolbar">
-    <ion-buttons mode="md" slot="end" (click)="cancel()">
-      <mat-icon>close</mat-icon>
-    </ion-buttons>
-    <ion-title mode="md">
-      <span>Create Report</span>
-    </ion-title>
-  </ion-toolbar>
+<ion-header class="ion-no-border">
+  <div class="my-create-report--header">
+    <ion-toolbar class="ion-no-border my-create-report--header-toolbar">
+      <ion-buttons mode="md" slot="end">
+        <ion-button class="my-create-report--header-closebutton" (click)="cancel()">
+          <mat-icon>close</mat-icon>
+        </ion-button>
+      </ion-buttons>
+
+      <ion-title class="my-create-report--header-title" mode="md">Create Report</ion-title>
+    </ion-toolbar>
+  </div>
 </ion-header>
 
 <ion-content>
@@ -14,6 +17,19 @@
     <div class="my-create-report--report-card">
       <p class="my-create-report--report-title">Report Name*</p>
       <input class="my-create-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required>
+    </div>
+
+    <div class="my-create-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)">
+      <span>Select a trip to associate with report:</span>
+      <div class="my-create-report--select-trip">
+        <app-fy-select [label]="selectedTripRequest? 'Trip' : 'Select a Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest">
+        </app-fy-select>
+      </div>
+    </div>
+
+    <div class="my-create-report--report-card" *ngIf="!isTripRequestsEnabled">
+      <p class="my-create-report--report-title">Trip Request ID</p>
+      <input class="my-create-report--text-trip" type="text" placeholder="Enter Trip Request ID" [(ngModel)]="tripRequestId">
     </div>
 
     <div *ngFor="let etxn of readyToReportEtxns as list; let i = index">

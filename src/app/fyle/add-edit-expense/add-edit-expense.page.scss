@@ -171,6 +171,26 @@
     }
   }
 
+  &--split-expense-container {
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    margin-top: 12px;
+  }
+
+  &--split-expense-icon{
+    height: 20px;
+    width: 20px;
+    margin: 0 8px;
+  }
+
+  &--split-expense-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #3a94f6;
+    margin: 0 0 10px;
+  }
+  
   &--delete {
     display: flex;
     align-items: center;
