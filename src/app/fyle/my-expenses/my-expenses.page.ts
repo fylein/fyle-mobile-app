@@ -17,6 +17,8 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { AddExpensesToReportComponent } from '../my-edit-report/add-expenses-to-report/add-expenses-to-report.component';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -607,8 +609,15 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  onAddTransactionToReport() {
+  async onAddTransactionToReport() {
     // TODO
+    const addExpenseToReportModal = await this.modalController.create({
+      component: AddTxnToReportDialogComponent,
+      componentProps: {
+        data: 'test data'
+      }
+    });
+    await addExpenseToReportModal.present();
   }
 
   onViewCommentsClick(event) {
