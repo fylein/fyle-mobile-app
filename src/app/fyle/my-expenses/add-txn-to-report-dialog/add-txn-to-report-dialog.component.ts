@@ -46,9 +46,6 @@ export class AddTxnToReportDialogComponent implements OnInit {
           queryParams
         });
       }),
-      tap(res => {
-        console.log('\n\n\n res ->', res);
-      }),
       finalize(() => this.loaderService.hideLoader())
     );
   }

@@ -613,7 +613,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   async onAddTransactionToReport(event) {
-    console.log('yo yo ->', event);
     const addExpenseToReportModal = await this.modalController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
