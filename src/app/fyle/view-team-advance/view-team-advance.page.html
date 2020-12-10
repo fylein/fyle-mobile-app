@@ -129,11 +129,9 @@
         (notify)='onUpdateApprover($event)'>
       </app-fy-apporver>
 
-      <!-- Todo: comment component -->
-      <div class="view-advances--card">
+    <div class="view-advances--card">
       <div class="view-advances--common-action-block">
-        <mat-icon>chat</mat-icon>
-        <p>Comment (0)</p>
+        <app-comments objectType="advance_requests" [objectId]="advanceRequest.areq_id" mode="edit" text="Comments"></app-comments>
       </div>
     </div>
 

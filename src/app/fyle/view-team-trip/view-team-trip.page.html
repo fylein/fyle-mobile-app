@@ -191,8 +191,7 @@
 
       <div class="trip-request--card">
         <div class="trip-request--card-action">
-          <mat-icon class="trip-request--card-action-icon">chat_bubble</mat-icon>
-          <div class="trip-request--card-action-text trip-request--card-action-text__comment">Comments</div>
+          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>
         </div>
       </div>
     </div>
