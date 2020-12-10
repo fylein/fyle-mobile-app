@@ -18,6 +18,7 @@ import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-po
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { DeleteExpenseConfirmationDialogComponent } from './delete-expense-confirmation-dialog/delete-expense-confirmation-dialog.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -622,7 +623,7 @@ export class MyExpensesPage implements OnInit {
     await addExpenseToReportModal.present();
 
     const { data } = await addExpenseToReportModal.onDidDismiss();
-    if (data.reload) {
+    if (data && data.reload) {
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
     }
