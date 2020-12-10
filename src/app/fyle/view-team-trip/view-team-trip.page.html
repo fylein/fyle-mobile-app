@@ -181,7 +181,13 @@
         </div>
       </div>
 
-      <app-fy-apporver [request]="tripRequest" [from]="'TRIP_REQUEST'" [title]="'Add Approvers'"></app-fy-apporver>
+      <app-fy-apporver 
+        [approverList]="tripRequest.approvers" 
+        [id]="tripRequest.trp_id" 
+        [from]="'TRIP_REQUEST'" 
+        [title]="'Add Approvers'" 
+        (notify)='onUpdateApprover($event)'>
+      </app-fy-apporver>
 
       <div class="trip-request--card">
         <div class="trip-request--card-action">

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
-import { map, shareReplay, filter, switchMap, withLatestFrom, tap, finalize, concatMap, reduce } from 'rxjs/operators';
-import { Observable, forkJoin, noop, from, EMPTY, iif, of } from 'rxjs';
+import { map, shareReplay, filter, switchMap, withLatestFrom, tap, finalize, concatMap, reduce, startWith } from 'rxjs/operators';
+import { Observable, forkJoin, noop, from, EMPTY, iif, of, Subject } from 'rxjs';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -52,6 +52,7 @@ export class ViewTeamTripPage implements OnInit {
   canCloseTrip$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   canEdit$: Observable<boolean>;
+  refreshApprovers$ = new Subject();
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -94,6 +95,12 @@ export class ViewTeamTripPage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  onUpdateApprover(message: string) {
+    if (message) {
+      this.refreshApprovers$.next();
+    }
   }
 
   getTripRequestCustomFields(allTripRequestCustomFields, tripRequest: ExtendedTripRequest, requestType, requestObj) {
@@ -251,12 +258,16 @@ export class ViewTeamTripPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe(shareReplay());
+    this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe();
     this.actions$ = this.tripRequestsService.getActions(id).pipe(shareReplay());
     this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay());
     this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay());
 
-    this.activeApprovals$ = this.approvals$.pipe(
+    this.activeApprovals$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(() => {
+        return this.approvals$;
+      }),
       map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
     );
 
@@ -278,10 +289,14 @@ export class ViewTeamTripPage implements OnInit {
       })
     ));
 
-    this.transformedTripRequests$ = forkJoin({
-      tripRequest: this.tripRequest$,
-      allTripRequestCustomFields: this.allTripRequestCustomFields$
-    }).pipe(
+    this.transformedTripRequests$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(res => {
+        return forkJoin({
+          tripRequest: this.tripRequest$,
+          allTripRequestCustomFields: this.allTripRequestCustomFields$
+        });
+      }),
       map(({ tripRequest, allTripRequestCustomFields }) => {
         return this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest);
       })

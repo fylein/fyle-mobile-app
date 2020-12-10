@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { ApproverDialogComponent } from './approver-dialog/approver-dialog.component';
@@ -12,22 +12,25 @@ import { Router } from '@angular/router';
 })
 export class FyApporverComponent implements OnInit {
 
-  @Input() request;
+  @Input() approverList;
+  @Input() id;
   @Input() from;
   @Input() title;
+
+  @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
   approverList$: Observable<any>;
 
   constructor(
-    private modalController: ModalController,
-    private router: Router
+    private modalController: ModalController
   ) { }
 
   async openApproverListDialog() {
     const approversListModal = await this.modalController.create({
       component: ApproverDialogComponent,
       componentProps: {
-        request: this.request,
+        approverList: this.approverList,
+        id: this.id,
         from: this.from
       }
     });
@@ -37,11 +40,10 @@ export class FyApporverComponent implements OnInit {
     const { data } = await approversListModal.onWillDismiss();
     if (data.reload) {
       if (this.from === 'TRIP_REQUEST') {
-        this.router.navigate(['/', 'enterprise', 'view_team_trips', {id: this.request.trp_id}]);
-        // this.router.navigateByUrl
+        this.notify.emit(true);
       }
       if (this.from === 'ADVANCE_REQUEST') {
-        this.router.navigate(['/', 'enterprise', 'view_team_advance', {id: this.request.areq_id}]);
+        this.notify.emit(true);
       }
     }
 
