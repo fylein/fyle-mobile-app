@@ -1,6 +1,6 @@
 <div class="fy-currency" [ngClass]="{'fy-currency__invalid': !valid}">
   <form [formGroup]="fg">
     <input class="fy-currency--currency" (click)="openCurrencyModal()" formControlName="currency" (blur)="onBlur()">
-    <input class="fy-currency--amount" formControlName="amount" (blur)="onBlur()">
+    <input class="fy-currency--amount" type="number" formControlName="amount" (blur)="onBlur()">
   </form>
 </div>
