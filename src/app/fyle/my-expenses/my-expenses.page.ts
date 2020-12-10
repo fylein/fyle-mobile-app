@@ -2,11 +2,10 @@ import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular
 import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, AlertController, ActionSheetController, PopoverController } from '@ionic/angular';
+import { ModalController, AlertController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { Router } from '@angular/router';
-import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, withLatestFrom, scan, take } from 'rxjs/operators';
+import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, take } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
 import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
