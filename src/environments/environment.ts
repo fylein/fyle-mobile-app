@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  NAME: '',
+  NAME: 'asdad',
   CLUSTER_DOMAIN: '',
   ROOT_URL: '',
   ROUTER_API_ENDPOINT: '',
