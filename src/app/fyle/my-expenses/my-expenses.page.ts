@@ -311,7 +311,7 @@ export class MyExpensesPage implements OnInit {
   doRefresh(event?) {
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
-    if (this.pendingTransactions.length ) {
+    if (this.pendingTransactions.length) {
       this.syncing = true;
       from(this.pendingTransactions).pipe(
         switchMap(() => {
@@ -466,15 +466,15 @@ export class MyExpensesPage implements OnInit {
     });
 
     if (popupResults === 'primary') {
-            from(this.loaderService.showLoader()).pipe(
-              switchMap(() => {
-                return this.transactionService.delete(etxn.tx_id);
-              }),
-              finalize(async () => {
-                await this.loaderService.hideLoader();
-                this.doRefresh();
-              })
-            ).subscribe(noop);
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.transactionService.delete(etxn.tx_id);
+        }),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+          this.doRefresh();
+        })
+      ).subscribe(noop);
     }
   }
 
@@ -526,7 +526,6 @@ export class MyExpensesPage implements OnInit {
     const allDataPipe$ = this.loadData$.pipe(
       take(1),
       switchMap(params => {
-        console.log(params);
         const queryParams = params.queryParams || {};
 
         let defaultState;

@@ -6,6 +6,13 @@ import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { AuthResponse } from '../models/auth-response.model';
 import { Observable, from } from 'rxjs';
+import { AdvanceRequestPolicyService } from './advance-request-policy.service';
+import { ApiV2Service } from './api-v2.service';
+import { DuplicateDetectionService } from './duplicate-detection.service';
+import { LocationService } from './location.service';
+import { PolicyApiService } from './policy-api.service';
+import { TransactionsOutboxService } from './transactions-outbox.service';
+import { VendorService } from './vendor.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +23,14 @@ export class RouterAuthService {
     private routerApiService: RouterApiService,
     private storageService: StorageService,
     private tokenService: TokenService,
-    private apiService: ApiService
+    private advanceRequestPolicyService: AdvanceRequestPolicyService,
+    private apiService: ApiService,
+    private apiv2Service: ApiV2Service,
+    private duplicateDetectionService: DuplicateDetectionService,
+    private locationService: LocationService,
+    private policyApiService: PolicyApiService,
+    private transactionOutboxService: TransactionsOutboxService,
+    private vendorService: VendorService
   ) { }
 
   checkEmailExists(email) {
@@ -36,7 +50,16 @@ export class RouterAuthService {
   }
 
   async setClusterDomain(domain) {
+    
     this.apiService.setRoot(domain);
+    this.advanceRequestPolicyService.setRoot(domain);
+    this.apiv2Service.setRoot(domain);
+    this.duplicateDetectionService.setRoot(domain);
+    this.locationService.setRoot(domain);
+    this.policyApiService.setRoot(domain);
+    this.transactionOutboxService.setRoot(domain);
+    this.vendorService.setRoot(domain);
+
     await this.tokenService.setClusterDomain(domain);
   }
 
@@ -68,8 +91,8 @@ export class RouterAuthService {
     //   data.cluster_domain = environment.CLUSTER_DOMAIN;
     //   data.redirect_url = data.redirect_url.replace('https://staging.fyle.in', data.cluster_domain);
     // }
-    this.newRefreshToken(data.refresh_token);
-    this.setClusterDomain(data.cluster_domain);
+    await this.newRefreshToken(data.refresh_token);
+    await this.setClusterDomain(data.cluster_domain);
     const resp = await this.fetchAccessToken(data.refresh_token);
     this.newAccessToken(resp.access_token);
     return data;
@@ -80,7 +103,11 @@ export class RouterAuthService {
       email,
       password
     }).pipe(
-      tap(async res => await this.handleSignInResponse(res))
+      switchMap(res => {
+        return from(this.handleSignInResponse(res)).pipe(
+          map(()=> res)
+        )
+      })
     );
   }
 
@@ -88,7 +115,11 @@ export class RouterAuthService {
     return this.routerApiService.post('/auth/google/signin', {
       access_token: accessToken
     }).pipe(
-      tap(async res => await this.handleSignInResponse(res))
+      switchMap(res => {
+        return from(this.handleSignInResponse(res)).pipe(
+          map(()=> res)
+        )
+      })
     );
   }
 
@@ -102,8 +133,10 @@ export class RouterAuthService {
     return this.routerApiService.post('/auth/email_verify', {
       verification_code: verificationCode
     }).pipe(
-      switchMap((data) => {
-        return from(this.handleSignInResponse(data));
+      switchMap(res => {
+        return from(this.handleSignInResponse(res)).pipe(
+          map(()=> res)
+        )
       })
     );
   }
