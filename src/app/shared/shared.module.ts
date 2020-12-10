@@ -37,6 +37,8 @@ import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachmen
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
+import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -63,7 +65,8 @@ import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.c
     ViewCommentComponent,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
-    FyPreviewAttachmentsComponent
+    FyPreviewAttachmentsComponent,
+    FyPopupComponent
   ],
   imports: [
     CommonModule,
@@ -74,7 +77,8 @@ import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.c
     MatIconModule,
     MatCheckboxModule,
     PinchZoomModule,
-    PdfViewerModule
+    PdfViewerModule,
+    MatButtonModule
   ],
   exports: [
     EllipsisPipe,
@@ -96,7 +100,8 @@ import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.c
     CommentsComponent,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
-    FyPreviewAttachmentsComponent
+    FyPreviewAttachmentsComponent,
+    FyPopupComponent
   ],
   providers: [
     DecimalPipe,

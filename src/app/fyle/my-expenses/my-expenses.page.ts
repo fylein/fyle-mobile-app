@@ -18,6 +18,7 @@ import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-po
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -72,7 +73,8 @@ export class MyExpensesPage implements OnInit {
     private popoverController: PopoverController,
     private router: Router,
     private transactionOutboxService: TransactionsOutboxService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private popupService: PopupService
   ) { }
 
   ngOnInit() {
@@ -455,18 +457,15 @@ export class MyExpensesPage implements OnInit {
   }
 
   async onDeleteExpenseClick(etxn: Expense) {
-    const alert = await this.alertController.create({
-      header: 'Delete Expense?',
+    const popupResults = await this.popupService.showPopup({
+      header: 'Delete Expense',
       message: 'Are you sure you want to delete this expense?',
-      buttons: [
-        {
-          text: 'Close',
-          role: 'cancel',
-          handler: noop
-        },
-        {
-          text: 'Delete',
-          handler: async () => {
+      primaryCta: {
+        text: 'Delete'
+      }
+    });
+
+    if (popupResults === 'primary') {
             from(this.loaderService.showLoader()).pipe(
               switchMap(() => {
                 return this.transactionService.delete(etxn.tx_id);
@@ -476,12 +475,7 @@ export class MyExpensesPage implements OnInit {
                 this.doRefresh();
               })
             ).subscribe(noop);
-
-          }
-        }
-      ]
-    });
-    await alert.present();
+    }
   }
 
   selectExpense(expense: Expense) {
@@ -498,7 +492,7 @@ export class MyExpensesPage implements OnInit {
     if (expense.tx_org_category) {
       category = expense.tx_org_category.toLowerCase();
     }
-    //TODO: Leave for later
+    // TODO: Leave for later
     // if (category === 'activity') {
     //   showCannotEditActivityDialog();
 

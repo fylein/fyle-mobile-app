@@ -17,6 +17,7 @@ const { Geolocation } = Plugins;
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelection: any;
+  @Input() header = '';
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
@@ -35,7 +36,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (this.currentSelection.display) {
+    if (this.currentSelection && this.currentSelection.display) {
       const inputElement = this.searchBarRef.nativeElement as HTMLInputElement;
       inputElement.value = this.currentSelection.display;
     }

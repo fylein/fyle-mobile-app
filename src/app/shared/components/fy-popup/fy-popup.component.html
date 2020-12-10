@@ -1,0 +1,19 @@
+<div class="fy-popup">
+  <div class="fy-popup--header">
+    <div class="fy-popup--header-text">{{config.header}}</div>
+    <div class="fy-popup--header-cancel" (click)="cancel()">CANCEL</div>
+  </div>
+  <div class="fy-popup--body">
+    {{config.message}}
+  </div>
+  <div class="fy-popup--buttons">
+    <button class="fy-popup--button" *ngIf="config.secondaryCta" mat-flat-button color="accent"
+      (click)="secondaryCtaClicked()">
+      {{config.secondaryCta.text}}
+    </button>
+    <button class="fy-popup--button" *ngIf="config.primaryCta" mat-flat-button color="primary"
+      (click)="primaryCtaClicked()">
+      {{config.primaryCta.text}}
+    </button>
+  </div>
+</div>
