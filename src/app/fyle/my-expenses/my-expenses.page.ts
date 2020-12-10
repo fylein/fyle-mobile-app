@@ -269,7 +269,10 @@ export class MyExpensesPage implements OnInit {
           tx_report_id: 'is.null',
           tx_state: 'in.(COMPLETE,DRAFT)'
         }).pipe(
-          map(stats => stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)').function_value)
+          map(stats => {
+            const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+            return count && count.function_value;
+          })
         );
       })
     );
@@ -279,7 +282,10 @@ export class MyExpensesPage implements OnInit {
       tx_report_id: 'is.null',
       tx_state: 'in.(DRAFT)'
     }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)').function_value)
+      map(stats => {
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        return count && count.function_value;
+      })
     );
 
     this.expensesAmountStats$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
@@ -287,7 +293,10 @@ export class MyExpensesPage implements OnInit {
       tx_report_id: 'is.null',
       tx_state: 'in.(COMPLETE,DRAFT)'
     }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)').function_value)
+      map(stats => {
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        return count && count.function_value;
+      })
     );
 
     this.loadData$.subscribe(noop);
