@@ -89,8 +89,7 @@
 
     <div class="view-per-diem--card">
       <div class="view-per-diem--card-action" id="commentsSection">
-        <mat-icon class="view-per-diem--card-action-icon">chat_bubble</mat-icon>
-        <div class="view-per-diem--card-action-text view-per-diem--card-action-text__comment">Comments</div>
+        <app-comments objectType="transactions" [objectId]="extendedPerDiem.tx_id" mode="edit" text="Comments"></app-comments>
       </div>
     </div>
 

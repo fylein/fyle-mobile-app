@@ -89,11 +89,9 @@
       </div>
     </div>
 
-    <!-- Todo: comment component -->
     <div class="view-per-diem--info-card">
       <div class="view-per-diem--common-action-block">
-        <mat-icon>chat</mat-icon>
-        <p>Comment</p>
+        <app-comments objectType="transactions" [objectId]="extendedPerDiem.tx_id" mode="edit" text="Comments"></app-comments>
       </div>
     </div>
   </div>
