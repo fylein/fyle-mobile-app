@@ -181,12 +181,14 @@
         </div>
       </div>
 
-      <div class="trip-request--card" (click)="openApproverDialog()">
-        <div class="trip-request--card-action">
-          <mat-icon class="trip-request--card-action-icon">add_circle</mat-icon>
-          <div class="trip-request--card-action-text trip-request--card-action-text__comment">Add Approvers</div>
-        </div>
-      </div>
+      <app-fy-apporver 
+        [approverList]="tripRequest.approvers" 
+        [id]="tripRequest.trp_id" 
+        [from]="'TRIP_REQUEST'" 
+        [title]="'Add Approvers'" 
+        (notify)='onUpdateApprover($event)'>
+      </app-fy-apporver>
+
       <div class="trip-request--card">
         <div class="trip-request--card-action">
           <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>

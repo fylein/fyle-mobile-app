@@ -21,7 +21,7 @@ export class DashboardPage implements OnInit {
   constructor(
     private mobileEventService: MobileEventService,
     private dashboardService: DashboardService,
-    private offlineService: OfflineService,
+    private offlineService: OfflineService
   ) { }
 
 
@@ -111,6 +111,7 @@ export class DashboardPage implements OnInit {
     this.mobileEventService.onDashboardCardExpanded().subscribe(() => {
       this.dashboardCardExpanded();
     });
+
   }
 
   ngOnInit() {

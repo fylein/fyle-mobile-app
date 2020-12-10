@@ -1,18 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 
 @Component({
@@ -28,6 +32,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   homeCurrency$: Observable<any>;
   projects$: Observable<[]>;
   customFields$: Observable<any>;
+  attachmentUploadInProgress: boolean;
+  dataUrls: any[];
 
   constructor(
     private offlineService: OfflineService,
@@ -41,7 +47,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private loaderService: LoaderService,
-    private projectService: ProjectsService
+    private projectService: ProjectsService,
+    private popoverController: PopoverController,
+    private transactionsOutboxService: TransactionsOutboxService,
+    private fileService: FileService
   ) { }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -74,11 +83,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   submitAdvanceRequest(advanceRequest){
-    return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest);
+    const fileObjPromises = this.fileAttachments();
+    return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest, fileObjPromises);
   }
 
   saveDraftAdvanceRequest(advanceRequest){
-    return this.advanceRequestService.saveDraftAdvReqWithFiles(advanceRequest);
+    const fileObjPromises = this.fileAttachments();
+    return this.advanceRequestService.saveDraftAdvReqWithFiles(advanceRequest, fileObjPromises);
   }
 
   saveAndSubmit(event, advanceRequest) {
@@ -187,12 +198,105 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return customFields;
   }
 
+  fileAttachments() {
+    const fileObjs = [];
+    this.dataUrls.map(dataUrl => {
+      dataUrl.type = dataUrl.type === 'application/pdf' ? 'pdf' : 'image';
+      if (!dataUrl.id) {
+        fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
+      }
+    });
+
+    return iif(
+      () => fileObjs.length !== 0,
+      forkJoin(fileObjs),
+      of(null)
+    );
+  }
+
+  async addAttachments(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const cameraOptionsPopup = await this.popoverController.create({
+      component: CameraOptionsPopupComponent,
+      cssClass: 'camera-options-popover'
+    });
+
+    await cameraOptionsPopup.present();
+
+    const { data } = await cameraOptionsPopup.onWillDismiss();
+
+    if (data) {
+      this.dataUrls.push({
+        type: data.type,
+        url: data.dataUrl,
+        thumbnail: data.dataUrl
+      });
+    }
+
+  }
+
+  getReceiptExtension(name) {
+    let res = null;
+
+    if (name) {
+      const filename = name.toLowerCase();
+      const idx = filename.lastIndexOf('.');
+
+      if (idx > -1) {
+        res = filename.substring(idx + 1, filename.length);
+      }
+    }
+
+    return res;
+  }
+
+  getReceiptDetails(file) {
+    const ext = this.getReceiptExtension(file.name);
+    const res = {
+      type: 'unknown',
+      thumbnail: 'img/fy-receipt.svg'
+    };
+
+    if (ext && (['pdf'].indexOf(ext) > -1)) {
+      res.type = 'pdf';
+      res.thumbnail = 'img/fy-pdf.svg';
+    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+      res.type = 'image';
+      res.thumbnail = file.url;
+    }
+
+    return res;
+  }
+
+  getAttachedReceipts(id) {
+    return this.fileService.findByAdvanceRequestId(id).pipe(
+      switchMap(fileObjs => {
+        return from(fileObjs);
+      }),
+      concatMap((fileObj: any) => {
+        return this.fileService.downloadUrl(fileObj.id).pipe(
+          map(downloadUrl => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        );
+      }),
+      reduce((acc, curr) => acc.concat(curr), []),
+    )
+  }
+
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
+    this.dataUrls = [];
 
     const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {
@@ -219,6 +323,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
             custom_field_values: this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values)
           });
         }
+        this.getAttachedReceipts(this.activatedRoute.snapshot.params.id).subscribe(files => {
+          this.dataUrls = files;
+        });
         return res.areq;
       }),
       shareReplay()
