@@ -10,23 +10,76 @@
     align-items: center;
   }
 
-  &--receipt {
-    align-items: center;
-    text-align: center;
-    margin: 12px 4px;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    background-color: #d8d8d8;
-    padding: 20px 8px;
-    border-radius: 4px;
+  &--receipt-container {
+    width: 72px;
+    height: 88px;
+    border-radius: 6px;
+    background: #d8d8d8;
     color: #ababab;
-    margin-left: 0;
+    font-size: 14px;
+    font-weight: 500;
+    float: left;
+    position: relative;
+    margin-right: 16px;
   }
 
+  &--receipt-text {
+    margin-top: 20px;
+  }
+
+  &--receipt-image-icon {
+    font-size: 32px;
+    color: #FF3366;
+    position: absolute;
+    left: 20px;
+    bottom: -8px;
+  }
+
+  &--receipt-spinner-icon {
+    font-size: 24px;
+    bottom: -8px;
+    position: relative;
+    margin: 10px 0;
+    color: #000;
+  }
+
+  &--receipt-background {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    font-size: 64px;
+    height: 88px;
+    width: 72px;
+    background-color: rgba(34, 0, 51, 0.4);
+    color: black;
+    padding: 7px 0px;
+    border-radius: 4px;
+  }
+
+  &--receipt-count-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(34, 0, 51, 0.4);
+    color: #fff;
+    font-size: 42px;
+    font-weight: 400;
+    text-align: center;
+    border-radius: 6px;
+  }
+
+  &--receipt-count {
+    top: 25px;
+    left: 25px;
+    position: absolute;
+  }
+ 
   &--currency {
-    margin: 12px;
+    margin: 12px 0;
     margin-right: 0;
+    width: calc(100% - 88px);
   }
 
   &--primary-block {

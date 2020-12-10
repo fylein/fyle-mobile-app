@@ -26,6 +26,7 @@
     align-items: center;
   }
 
+
   &--receipt {
     align-items: center;
     text-align: center;
@@ -236,6 +237,11 @@
     color: #f00;
   }
 
+  &--comment {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
 
   &--review-nav {
     position: sticky;

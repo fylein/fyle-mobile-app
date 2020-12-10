@@ -196,7 +196,7 @@
           <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
             <div class="add-edit-expense--internal-block">
               <app-fy-select [label]="'Select Category'" formControlName="category"
-                [mandatory]="transactionMandatoyFields.category" [options]="categories">
+                [mandatory]="transactionMandatoyFields.category" [options]="categories" [cacheName]="'recentCategoryList'">
               </app-fy-select>
             </div>
           </ng-container>
@@ -570,12 +570,11 @@
       </ng-container>
     </ng-container>
 
-    <!-- <div id="comments">
-      <enterprise-fy-comments object-id="{{ etxn.tx.id }}" mode="{{mode}}" text="Comments" show-comments-count="false"
-        dont-load-comments="true" estatuses="comments"></enterprise-fy-comments>
-    </div> -->
-
     <ng-container *ngIf="etxn$|async as etxn">
+      <div class="add-edit-expense--comment" *ngIf="etxn && mode === 'edit'">
+        <app-comments objectType="transactions" [objectId]="etxn.tx.id" mode="edit" text="Comments"></app-comments>
+      </div>
+
       <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
         class="add-edit-expense--delete" matRipple (click)="deleteExpense()">
         <mat-icon class="add-edit-expense--delete-icon">

@@ -18,6 +18,7 @@ import { FySelectProjectComponent } from './fy-select-project/fy-select-project.
 import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 
 @NgModule({
   imports: [
@@ -39,7 +40,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     FyCurrencyExchangeRateComponent,
     FySelectProjectComponent,
     FySelectModalComponent,
-    PolicyViolationDialogComponent
+    PolicyViolationDialogComponent,
+    CameraOptionsPopupComponent
   ]
 })
 export class AddEditAdvanceRequestPageModule {}
