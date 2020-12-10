@@ -20,7 +20,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, AlertController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
@@ -86,7 +86,8 @@ export class AddEditMileagePage implements OnInit {
     private statusService: StatusService,
     private dataTransformService: DataTransformService,
     private duplicateDetectionService: DuplicateDetectionService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private alertController: AlertController
   ) { }
 
   ngOnInit() {
@@ -1439,6 +1440,42 @@ export class AddEditMileagePage implements OnInit {
         }),
         finalize(() => from(this.loaderService.hideLoader()))
       );
+  }
+
+  async deleteExpense() {
+    const id = this.activatedRoute.snapshot.params.id;
+
+    const alert = await this.alertController.create({
+      header: 'Confirm',
+      message: 'Are you sure you want to delete this Expense?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: noop
+        }, {
+          text: 'Okay',
+          handler: () => {
+            from(this.loaderService.showLoader('Deleting Expense...')).pipe(
+              switchMap(() => {
+                return this.transactionService.delete(id);
+              }),
+              finalize(() => from(this.loaderService.hideLoader()))
+            ).subscribe(() => {
+              if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+                this.reviewList.splice(+this.activeIndex, 1);
+                this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+                  this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+                });
+              } else {
+                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
 }

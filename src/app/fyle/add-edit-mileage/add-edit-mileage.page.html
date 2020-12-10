@@ -355,8 +355,8 @@
 
           <ng-container *ngIf="duplicates$|async as duplicates">
             <ng-container *ngIf="duplicates.length > 0">
-              <div class="add-edit-expense--duplicates-box add-edit-expense--primary-block">
-                <div class="add-edit-expense--duplicate-header">
+              <div class="add-edit-mileage--duplicates-box add-edit-mileage--primary-block">
+                <div class="add-edit-mileage--duplicate-header">
                   <mat-icon>
                     warning
                   </mat-icon>
@@ -370,11 +370,11 @@
                     Expand
                   </div>
                 </div>
-                <div class="add-edit-expense--duplicate-sub-box" *ngIf="duplicateBoxOpen">
-                  <div class="add-edit-expense--duplicate-reason" *ngFor="let duplicate of duplicates">
+                <div class="add-edit-mileage--duplicate-sub-box" *ngIf="duplicateBoxOpen">
+                  <div class="add-edit-mileage--duplicate-reason" *ngFor="let duplicate of duplicates">
                     {{duplicate.reason}}
                   </div>
-                  <div class="add-edit-expense--duplicate-reason-select">
+                  <div class="add-edit-mileage--duplicate-reason-select">
                     <app-fy-select [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
                       [options]="[]">
                     </app-fy-select>
@@ -402,6 +402,19 @@
             message="'There are no projects assigned to you, so this mileage will be saved as a draft. Please contact admin for further help.'">
           </app-fy-alert> -->
 
+        </div>
+
+        <ng-container *ngIf="etxn$|async as etxn">
+          <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
+            class="add-edit-mileage--delete" matRipple (click)="deleteExpense()">
+            <mat-icon class="add-edit-mileage--delete-icon">
+              delete
+            </mat-icon>
+            <div class="add-edit-mileage--delete-msg">
+              Delete Expense
+            </div>
+          </div>
+        </ng-container>
         </ng-container>
 
         

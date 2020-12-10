@@ -377,6 +377,19 @@
               </div>
             </div>
           </ng-container>
+
+          <ng-container *ngIf="etxn$|async as etxn">
+            <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
+              class="add-edit-per-diem--delete" matRipple (click)="deleteExpense()">
+              <mat-icon class="add-edit-per-diem--delete-icon">
+                delete
+              </mat-icon>
+              <div class="add-edit-per-diem--delete-msg">
+                Delete Expense
+              </div>
+            </div>
+          </ng-container>
+
         </ng-container>
         <ng-template #AdminKoBoloPerDiemAssignKare>
           You have not been assigned with any per diem rates. Please contact your <strong>Fyle-Administrator</strong> to
