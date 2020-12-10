@@ -261,12 +261,16 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.allExpensesCount$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_report_id: 'is.null',
-      tx_state: 'in.(COMPLETE,DRAFT)'
-    }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)').function_value)
+    this.allExpensesCount$ = this.loadData$.pipe(
+      switchMap(() => {
+        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_report_id: 'is.null',
+          tx_state: 'in.(COMPLETE,DRAFT)'
+        }).pipe(
+          map(stats => stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)').function_value)
+        );
+      })
     );
 
     this.draftExpensesCount$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
