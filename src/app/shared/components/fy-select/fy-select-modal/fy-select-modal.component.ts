@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
-import { fromEvent, Observable } from 'rxjs';
+import { from, fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { isEqual } from 'lodash';
+import { isEqual, tap } from 'lodash';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -16,10 +17,13 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() nullOption = true;
+  @Input() cacheName;
+  recentrecentlyUsedItems$: Observable<any[]>;
 
   constructor(
     private modalController: ModalController,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) { }
 
   ngOnInit() { }
@@ -45,6 +49,14 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       }
       )
     );
+    this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+      map((options: any) => {
+        options.map(option => {
+          option.selected = isEqual(option.value, this.currentSelection);
+        });
+        return options;
+      })
+    );
     this.cdr.detectChanges();
   }
 
@@ -53,6 +65,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   }
 
   onElementSelect(option) {
+    if (this.cacheName) {
+      this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
+    }
     this.modalController.dismiss(option);
   }
 

@@ -383,28 +383,29 @@
               </div>
             </ng-container>
           </ng-container>
+        </div>
 
-          <!-- <div id="comments" class="element-container" *ngIf="etxn && vm.mode === 'edit'">
-              <enterprise-fy-comments class="element-block m-0 no-border comments-block" object-type="transactions"
-                object-id="{{ etxn.tx.id }}" mode="{{vm.mode}}" text="Comments" show-comments-count="false"
-                dont-load-comments="true" estatuses="vm.comments"></enterprise-fy-comments>
-            </div> -->
+        <ng-container *ngIf="etxn$|async as etxn">
+          <div class="add-edit-mileage--comment" *ngIf="etxn && mode === 'edit'">
+            <app-comments objectType="transactions" [objectId]="etxn.tx.id" mode="edit" text="Comments"></app-comments>
+          </div>
 
           <!-- <div class="element-container delete-block" *ngIf="etxn && vm.mode === 'edit'">
-              <div class="element-block m-0 no-border" ng-click="vm.deleteTxn()">
-                <i class="icon ion-trash-b"></i>
-                <p class="delete-text">Delete mileage</p>
-              </div>
-            </div> -->
-          <!-- 
-        <app-fy-alert
-          *ngIf="!vm.isOffline && vm.mandatorymileageFields.project && vm.isProjectsEnabled && (vm.isIndividualProjectsEnabled && vm.allowedProjectIds.length === 0)"
-          type="warning"
-          message="'There are no projects assigned to you, so this mileage will be saved as a draft. Please contact admin for further help.'">
-        </app-fy-alert>
- -->
+            <div class="element-block m-0 no-border" ng-click="vm.deleteTxn()">
+              <i class="icon ion-trash-b"></i>
+              <p class="delete-text">Delete mileage</p>
+            </div>
+          </div> -->
+          <!-- <app-fy-alert
+            *ngIf="!vm.isOffline && vm.mandatorymileageFields.project && vm.isProjectsEnabled && (vm.isIndividualProjectsEnabled && vm.allowedProjectIds.length === 0)"
+            type="warning"
+            message="'There are no projects assigned to you, so this mileage will be saved as a draft. Please contact admin for further help.'">
+          </app-fy-alert> -->
 
-        </div>
+        </ng-container>
+
+        
+        
       </form>
     </ng-container>
   </div>

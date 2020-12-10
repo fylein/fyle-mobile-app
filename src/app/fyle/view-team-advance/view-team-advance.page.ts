@@ -9,8 +9,8 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { AlertController, PopoverController } from '@ionic/angular';
-import { from, noop } from 'rxjs';
-import { switchMap, finalize, shareReplay, concatMap, map, reduce } from 'rxjs/operators';
+import { from, noop, Subject } from 'rxjs';
+import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -21,9 +21,11 @@ export class ViewTeamAdvancePage implements OnInit {
 
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
   actions$: Observable<any>;
+  approvals$: Observable<Approval[]>;
   activeApprovals$: Observable<Approval[]>;
   attachedFiles$: Observable<File[]>;
   advanceRequestCustomFields$: Observable<CustomField[]>;
+  refreshApprovers$ = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -37,18 +39,29 @@ export class ViewTeamAdvancePage implements OnInit {
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
-    this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
+    this.advanceRequest$ = this.refreshApprovers$.pipe(
+      startWith(true),
       switchMap(() => {
         return this.advanceRequestService.getAdvanceRequest(id);
-      }),
-      finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      })
+      // finalize(() => from(this.loaderService.hideLoader())),
+      // shareReplay()
     );
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(
       shareReplay()
     );
-    this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
+
+    this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
+
+    this.activeApprovals$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(() => {
+        return this.approvals$;
+      }),
+      map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
+    );
+
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap(res => {
         return from(res);
@@ -75,6 +88,12 @@ export class ViewTeamAdvancePage implements OnInit {
 
   // Todo: Redirect to edit advance page
   edit() {
+  }
+
+  onUpdateApprover(message: string) {
+    if (message) {
+      this.refreshApprovers$.next();
+    }
   }
 
   async delete() {
