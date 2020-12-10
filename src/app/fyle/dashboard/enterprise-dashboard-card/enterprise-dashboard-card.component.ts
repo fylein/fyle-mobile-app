@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { AlertController } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -11,6 +10,7 @@ import { pipe, forkJoin } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Router } from '@angular/router';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-enterprise-dashboard-card',
@@ -38,7 +38,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private dashboardService: DashboardService,
     private mobileEventService: MobileEventService,
     private loaderService: LoaderService,
-    private alertController: AlertController,
+    private popupService: PopupService,
     private router: Router
   ) { }
 
@@ -228,16 +228,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       corporate_cards: this.getCCCEExpandedDetails
     };
     return expandedCardDetailsMap[title].apply(this);
-  }
-
-  async presentAlert() {
-    const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Coming soon',
-      buttons: ['Close']
-    });
-
-    await alert.present();
   }
 
   goToCreateReport() {

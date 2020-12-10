@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular
 import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ModalController, AlertController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { Router } from '@angular/router';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, take } from 'rxjs/operators';
@@ -63,7 +63,6 @@ export class MyExpensesPage implements OnInit {
     private loaderService: LoaderService,
     private modalController: ModalController,
     private dateService: DateService,
-    public alertController: AlertController,
     private transactionService: TransactionService,
     private currencyService: CurrencyService,
     private popoverController: PopoverController,

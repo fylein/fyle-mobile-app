@@ -12,6 +12,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MyViewReportEtxnCardComponent } from './my-view-report-etxn-card/my-view-report-etxn-card.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   imports: [
@@ -22,11 +25,14 @@ import { MatRippleModule } from '@angular/material/core';
     SharedModule,
     MatIconModule,
     MatButtonModule,
-    MatRippleModule
+    MatRippleModule,
+    MatInputModule,
+    MatFormFieldModule
   ],
   declarations: [
     MyViewReportPage,
-    MyViewReportEtxnCardComponent
+    MyViewReportEtxnCardComponent,
+    ShareReportComponent
   ]
 })
 export class MyViewReportPageModule { }

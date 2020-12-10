@@ -26,7 +26,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import * as _ from 'lodash';
 import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
-import { ModalController, PopoverController, AlertController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -35,6 +35,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -114,9 +115,9 @@ export class AddEditExpensePage implements OnInit {
     private statusService: StatusService,
     private fileService: FileService,
     private popoverController: PopoverController,
-    private alertController: AlertController,
     private currencyService: CurrencyService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private popupService: PopupService
   ) { }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -1859,37 +1860,30 @@ export class AddEditExpensePage implements OnInit {
   async deleteExpense() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    const alert = await this.alertController.create({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Expense?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            from(this.loaderService.showLoader('Deleting Expense...')).pipe(
-              switchMap(() => {
-                return this.transactionService.delete(id);
-              }),
-              finalize(() => from(this.loaderService.hideLoader()))
-            ).subscribe(() => {
-              if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-                this.reviewList.splice(+this.activeIndex, 1);
-                this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
-                  this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-                });
-              } else {
-                this.router.navigate(['/', 'enterprise', 'my_expenses']);
-              }
-            });
-          }
-        }
-      ]
+    const popupResult = await this.popupService.showPopup({
+      header: 'Delete Expense',
+      message: 'Are you sure you want to delete this expense?',
+      primaryCta: {
+        text: 'DELETE'
+      }
     });
 
-    await alert.present();
+    if (popupResult === 'primary') {
+      from(this.loaderService.showLoader('Deleting Expense...')).pipe(
+        switchMap(() => {
+          return this.transactionService.delete(id);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(() => {
+        if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+          this.reviewList.splice(+this.activeIndex, 1);
+          this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+            this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+          });
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        }
+      });
+    }
   }
 }
