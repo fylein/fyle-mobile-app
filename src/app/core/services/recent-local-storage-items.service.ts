@@ -60,9 +60,10 @@ export class RecentLocalStorageItemsService {
         recentItems.unshift(item);
       }
 
-      this.storageService.set(cacheName, recentItems);
-      return recentItems;
-    })
+      return this.storageService.set(cacheName, recentItems).then(() => {
+        return recentItems;
+      });
+    });
   }
 
 }
