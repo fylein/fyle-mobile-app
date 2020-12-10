@@ -10,6 +10,7 @@ import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { pipe, forkJoin } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-enterprise-dashboard-card',
@@ -21,9 +22,9 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   @Input() dashboardList: any[];
   @Input() index: number;
+  @Input() homeCurrency: any;
   expandedCard: string;
   detailedStats: any[];
-  homeCurrency: string;
   stats: any;
   needsAttentionStats: any = {
     count: 0
@@ -37,12 +38,13 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private dashboardService: DashboardService,
     private mobileEventService: MobileEventService,
     private loaderService: LoaderService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private router: Router
   ) { }
 
   isBlank(item) {
     return ((item === '') || (item === null)) ? {} : item;
-  };
+  }
 
   getExpensesExpandedDetails() {
     const readyToReportStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
@@ -162,7 +164,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res.draftStats, res.inquiryStats, res.pendingStats];
         return stats;
       })
-    )
+    );
   }
 
   getTripsExpandedDetails() {
@@ -197,11 +199,10 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res.draftStats, res.inquiryStats, res.submitted, res.toCloseStats];
         return stats;
       })
-    )
+    );
   }
 
   getCCCEExpandedDetails() {
-
     const CCCEExpandedDetails$ = this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' });
 
     return CCCEExpandedDetails$.pipe(
@@ -213,13 +214,13 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res];
         return stats;
       })
-    )
+    );
   }
 
 
   getExpandedDetails(title) {
     title = title.replace(' ', '_');
-    let expandedCardDetailsMap = {
+    const expandedCardDetailsMap = {
       expenses: this.getExpensesExpandedDetails,
       reports: this.getReportsExpandedDetails, //change this later
       advances: this.getAdvancesExpandedDetails,
@@ -239,17 +240,36 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     await alert.present();
   }
 
-  filterToState(a, b) {
-    this.presentAlert();
+  goToCreateReport() {
+    //TrackingService.clickCreateReport({Asset: 'Mobile'});
+    this.router.navigate(['/', 'enterprise', 'my_create_report', {isRedirectedFromDashboard: true}]);
   }
 
+  filterToState(type, state) {
+    if (type === 'expenses') {
+      if (state !== 'readyToReport') {
+        this.router.navigate(['/', 'enterprise', 'my_expenses', {state}]);
+      } else {
+        this.goToCreateReport();
+      }
+    } else if (type === 'reports') {
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
+    } else {
+      const navigateToMap = {
+        trips: ['/', 'enterprise', 'my_trips'],
+        advances: ['/', 'enterprise', 'my_advances'],
+        corporate_cards: ['/', 'enterprise', 'my_ccc'] //Todo: Yet to implement CCC
+      };
+      this.router.navigate(navigateToMap[type]);
+    }
+  }
 
-  async expandCard(item) {
+  async expandCard() {
     await this.loaderService.showLoader();
     this.expandedCard = this.item && this.item.title ? this.item.title : '';
-    this.dashboardList = this.dashboardList.map((item) => {
-      item.isCollapsed = true;
-      return item;
+    this.dashboardList = this.dashboardList.map((dashboardItem) => {
+      dashboardItem.isCollapsed = true;
+      return dashboardItem;
     });
 
     this.item.isCollapsed = false;
@@ -263,14 +283,9 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         this.detailedStats = res;
         this.mobileEventService.dashboardCardExpanded();
         this.dashboardService.setDashBoardState(this.item.title);
-      })
+      });
     }
   }
-
-  getHomeCurrency() {
-    // get home currency from homeCurrency service later
-    this.homeCurrency = 'INR';
-  };
 
   getExpenseNeedAttentionStats() {
     const policyFlaggedCount$ = this.transactionService.getPaginatedETxncCount(this.transactionService.getUserTransactionParams('flagged'));
@@ -290,17 +305,15 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   getReportNeedAttentionStats() {
     return this.reportService.getPaginatedERptcCount({ state: 'APPROVER_INQUIRY' });
-  };
+  }
 
   getAdvanceNeedAttentionStats() {
     return this.advanceRequestService.getPaginatedMyEAdvanceRequestsCount(this.advanceRequestService.getUserAdvanceRequestParams('inquiry'));
-  };
+  }
 
   getTripNeedAttentionStats() {
     return this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('inquiry'));
-  };
-
-
+  }
 
   getNeedAttentionCount(stats) {
     if (this.dashboardList && this.dashboardList[this.index]) {
@@ -312,7 +325,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
           reports: this.getReportNeedAttentionStats(),
           advances: this.getAdvanceNeedAttentionStats(),
           trips: this.getTripNeedAttentionStats()
-        }
+        };
 
         let count$ = countMap[this.dashboardList[this.index].title];
 
@@ -331,9 +344,9 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     if (this.dashboardList && this.dashboardList[this.index]) {
       // await this.loaderService.showLoader();
       this.dashboardList[this.index].isLoading = true;
-      var title = this.dashboardList[this.index].title.replace(' ', '_');
+      const title = this.dashboardList[this.index].title.replace(' ', '_');
 
-      var statsMap = {
+      const statsMap = {
         expenses: this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all')),
         reports: this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('pending')),
         advances: this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('pending')),
@@ -341,22 +354,21 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' })
       }
 
-      var stats$ = statsMap[title].pipe(
+      const stats$ = statsMap[title].pipe(
         finalize(async () => {
           //await this.loaderService.hideLoader();
         })
-      )
+      );
 
       stats$.subscribe((res) => {
         this.stats = res;
         this.getNeedAttentionCount(this.stats);
-      })
+      });
     }
   }
 
   ngOnInit() {
     this.item = this.dashboardList[this.index];
-    this.getHomeCurrency();
     this.getStats();
   }
 }

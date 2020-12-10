@@ -63,8 +63,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
         if (selectedOption) {
           this.displayValue = selectedOption && selectedOption.label;
-        } else {
-          this.displayValue = '';
+        } else if (typeof this.innerValue === 'string'){
+          this.displayValue = this.innerValue;
         }
       }
 
@@ -93,7 +93,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   onBlur() {
-    console.log('Blurrrred');
     this.onTouchedCallback();
   }
 
@@ -102,7 +101,11 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       this.innerValue = value;
       if (this.options) {
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
-        this.displayValue = selectedOption && selectedOption.label;
+        if (selectedOption) {
+          this.displayValue = selectedOption.label;
+        } else if (typeof this.innerValue === 'string') {
+          this.displayValue = this.innerValue;
+        }
       }
     }
   }

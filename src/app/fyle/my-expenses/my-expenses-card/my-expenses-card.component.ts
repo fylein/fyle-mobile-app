@@ -12,12 +12,14 @@ import { map } from 'rxjs/operators';
 export class MyExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
-  @Input() isSelectMode = false;
   @Input() disabledSelection = false;
   @Input() prevExpense;
   @Input() dateComparatorProp;
   @Input() canDelete = false;
   @Input() skipDate = false;
+  @Input() selectionMode = false;
+  @Input() selectedElements = [];
+  @Input() baseState;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() toggleFlashMode: EventEmitter<Expense> = new EventEmitter();
@@ -25,6 +27,7 @@ export class MyExpensesCardComponent implements OnInit {
   @Output() addTransactionToNewReport: EventEmitter<Expense> = new EventEmitter();
   @Output() selectTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() deleteTransaction: EventEmitter<Expense> = new EventEmitter();
+  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
 
   showDt = true;
   vendorDetails = '';
@@ -35,9 +38,14 @@ export class MyExpensesCardComponent implements OnInit {
   isDraft = false;
   actionOpened = false;
   addToReportPossible$: Observable<boolean>;
+
   constructor(
     private reportService: ReportService
   ) { }
+
+  get isSelected() {
+    return this.selectedElements.includes(this.expense.tx_id);
+  }
 
   getVendorDetails(expense) {
     const category = expense.tx_org_category && expense.tx_org_category.toLowerCase();
@@ -76,7 +84,13 @@ export class MyExpensesCardComponent implements OnInit {
   }
 
   onGoToTransaction() {
-    this.goToTransaction.emit(this.expense);
+    if (!this.selectionMode) {
+      this.goToTransaction.emit(this.expense);
+    } else {
+      if (!this.isDraft || this.baseState === 'draft') {
+        this.cardClickedForSelection.emit(this.expense);
+      }
+    }
   }
 
   onToggleFlashMode() {

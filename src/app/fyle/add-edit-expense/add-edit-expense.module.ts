@@ -21,7 +21,13 @@ import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-s
 import { FySelectVendorComponent } from './fy-select-vendor/fy-select-vendor.component';
 import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-
+import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
+import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
   imports: [
@@ -38,7 +44,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
-    SharedModule
+    SharedModule,
+    PinchZoomModule,
+    PdfViewerModule
   ],
   declarations: [
     AddEditExpensePage,
@@ -48,7 +56,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     FySelectProjectComponent,
     FySelectModalComponent,
     FySelectVendorComponent,
-    FySelectVendorModalComponent
+    FySelectVendorModalComponent,
+    SplitExpensePopoverComponent,
+    CriticalPolicyViolationComponent,
+    PolicyViolationComponent,
+    CameraOptionsPopupComponent,
+    ViewAttachmentsComponent
   ]
 })
 export class AddEditExpensePageModule { }

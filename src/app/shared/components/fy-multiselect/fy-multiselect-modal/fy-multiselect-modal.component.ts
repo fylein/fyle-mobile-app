@@ -34,7 +34,6 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
       map((searchText) => this.options
         .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
         .map(option => {
-          console.log(this.currentSelections);
           if (this.currentSelections) {
             option.selected = this.currentSelections.includes(option.value);
           }

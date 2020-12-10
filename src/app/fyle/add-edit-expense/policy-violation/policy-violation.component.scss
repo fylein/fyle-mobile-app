@@ -1,0 +1,41 @@
+.policy-violation {
+  &--toolbar {
+    border: none;
+    background-image: linear-gradient(0deg, #ddd, #ddd 50%, transparent 50%);
+    background-position: bottom;
+    background-size: 100% 1px;
+    background-repeat: no-repeat;
+  }
+
+  &--body {
+    margin: 24px;
+  }
+
+  &--header {
+    margin: 0 0 10px;
+  }
+
+  &--list {
+    margin: 25px 0 25px 15px;
+  }
+
+  &--description {
+    margin-bottom: 25px;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #eee;
+  }
+
+  &--textarea {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #fafafa;
+    border-radius: 4px;
+    min-height: 75px;
+  }
+
+  &--buttons {
+    display: flex;
+    justify-content: space-around;
+  }
+}

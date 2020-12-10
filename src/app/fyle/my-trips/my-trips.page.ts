@@ -35,7 +35,8 @@ export class MyTripsPage implements OnInit {
           switchMap(() => {
             return this.tripRequestsService.getMyTrips({
               offset: (pageNumber - 1) * 10,
-              limit: 10
+              limit: 10,
+              queryParams: { order: 'trp_created_at.desc,trp_id.desc' }
             });
           }),
           finalize(() => {

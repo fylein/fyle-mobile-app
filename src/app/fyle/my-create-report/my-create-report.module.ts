@@ -9,6 +9,7 @@ import { MyCreateReportPageRoutingModule } from './my-create-report-routing.modu
 import { MyCreateReportPage } from './my-create-report.page';
 import { MatIconModule } from '@angular/material/icon';
 import { ReportSummaryComponent } from './report-summary/report-summary.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { ReportSummaryComponent } from './report-summary/report-summary.componen
     FormsModule,
     IonicModule,
     MyCreateReportPageRoutingModule,
-    MatIconModule
+    MatIconModule,
+    SharedModule
   ],
   declarations: [
     MyCreateReportPage,

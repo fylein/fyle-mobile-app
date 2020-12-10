@@ -38,6 +38,9 @@ import { ViewCommentComponent } from './components/comments/view-comment/view-co
 import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 
+import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
   declarations: [
@@ -64,7 +67,8 @@ import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/ap
     ViewCommentComponent,
     FyApporverComponent,
     ApproverDialogComponent,
-    ConfirmationCommentPopoverComponent
+    ConfirmationCommentPopoverComponent,
+    FyPreviewAttachmentsComponent
   ],
   imports: [
     CommonModule,
@@ -75,7 +79,9 @@ import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/ap
     MatIconModule,
     MatCheckboxModule,
     MatButtonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    PinchZoomModule,
+    PdfViewerModule
   ],
   exports: [
     EllipsisPipe,
@@ -96,11 +102,12 @@ import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/ap
     CurrencyComponent,
     CommentsComponent,
     FyApporverComponent,
-    ConfirmationCommentPopoverComponent
+    ConfirmationCommentPopoverComponent,
+    FyPreviewAttachmentsComponent
   ],
   providers: [
     DecimalPipe,
-    DatePipe
+    DatePipe,
   ]
 })
 export class SharedModule { }

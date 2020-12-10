@@ -76,6 +76,10 @@ export class TripRequestsService {
     );
   }
 
+  get(tripRequestId) {
+    return this.apiService.get('/trip_requests/' + tripRequestId)
+  }
+
   getActions(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
   }
@@ -324,5 +328,15 @@ export class TripRequestsService {
     };
 
     return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
+  }
+
+  findMyUnreportedRequests() {
+    const data = {
+      params: {
+        only_unreported: true
+      }
+    };
+
+    return this.apiService.get('/trip_requests', data);
   }
 }
