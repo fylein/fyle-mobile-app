@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { from, Observable } from 'rxjs';
+import { forkJoin, from, Observable, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
@@ -14,12 +14,15 @@ import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { CustomField } from '../models/custom_field.model';
+import { FileService } from './file.service';
+import { File} from '../models/file.model';
+import { TransactionsOutboxService } from './transactions-outbox.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdvanceRequestService {
-  
+
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -30,7 +33,9 @@ export class AdvanceRequestService {
     private timezoneService: TimezoneService,
     private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private dataTransformService: DataTransformService,
-    private dateService: DateService
+    private dateService: DateService,
+    private fileService: FileService,
+    private transactionsOutboxService: TransactionsOutboxService
   ) { }
 
   getEReq(advanceRequestId) {
@@ -52,11 +57,11 @@ export class AdvanceRequestService {
         }
         return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, {timeout: 5000});
       })
-    )
+    );
   }
 
   getUserAdvanceRequestParams(state: string) {
-    var stateMap = {
+    const stateMap = {
       draft: {
         state: ['DRAFT'],
         is_sent_back: false
@@ -318,15 +323,46 @@ export class AdvanceRequestService {
     // Todo: Fix dates and delete cache
   }
 
-  createAdvReqWithFilesAndSubmit(advanceRequest, fileObjs?) {
-    // Todo: create adv req with files
-    return this.submit(advanceRequest);
+  createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
+    return forkJoin({
+      files: fileObservables,
+      advanceReq: this.submit(advanceRequest)
+    }).pipe(
+      switchMap(res => {
+        if (res.files && res.files.length > 0) {
+          const fileObjs: File[] = res.files;
+          const advanceReq = res.advanceReq;
+          const newFileObjs = fileObjs.map((obj: File) => {
+            obj.advance_request_id = advanceReq.id;
+            return this.fileService.post(obj);
+          });
+          return forkJoin(newFileObjs);
+        } else  {
+          return of(null);
+        }
+      })
+    );
   }
 
-  saveDraftAdvReqWithFiles(advanceRequest, fileObjs?) {
-    // Todo: create adv req with files
-    return this.saveDraft(advanceRequest);
+  saveDraftAdvReqWithFiles(advanceRequest, fileObservables?: Observable<any[]>) {
+    return forkJoin({
+      files: fileObservables,
+      advanceReq: this.saveDraft(advanceRequest)
+    }).pipe(
+      switchMap(res => {
+        if (res.files && res.files.length > 0) {
+          const fileObjs: File[] = res.files;
+          const advanceReq = res.advanceReq;
+          const newFileObjs = fileObjs.map((obj: File) => {
+            obj.advance_request_id = advanceReq.id;
+            return this.fileService.post(obj);
+          });
+          return forkJoin(newFileObjs);
+        } else  {
+          return of(null);
+        }
+      })
+    );
   }
-
 
 }

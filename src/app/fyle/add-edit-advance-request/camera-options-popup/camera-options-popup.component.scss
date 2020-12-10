@@ -1,0 +1,21 @@
+$details-color: #ababab;
+
+.camera-options {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  &--element {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+  }
+
+  &--icon {
+    margin: 12px;
+  }
+
+  &--content {
+
+  }
+}
