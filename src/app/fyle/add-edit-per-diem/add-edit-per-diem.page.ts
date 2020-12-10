@@ -20,7 +20,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
-import { ModalController } from '@ionic/angular';
+import { ModalController, AlertController } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -85,7 +85,8 @@ export class AddEditPerDiemPage implements OnInit {
     private router: Router,
     private modalController: ModalController,
     private statusService: StatusService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private alertController: AlertController
   ) { }
 
   ngOnInit() {
@@ -1311,5 +1312,41 @@ export class AddEditPerDiemPage implements OnInit {
   //     }
   //   });
   // }
+
+  async deleteExpense() {
+    const id = this.activatedRoute.snapshot.params.id;
+
+    const alert = await this.alertController.create({
+      header: 'Confirm',
+      message: 'Are you sure you want to delete this Expense?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: noop
+        }, {
+          text: 'Okay',
+          handler: () => {
+            from(this.loaderService.showLoader('Deleting Expense...')).pipe(
+              switchMap(() => {
+                return this.transactionService.delete(id);
+              }),
+              finalize(() => from(this.loaderService.hideLoader()))
+            ).subscribe(() => {
+              if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+                this.reviewList.splice(+this.activeIndex, 1);
+                this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+                  this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+                });
+              } else {
+                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
 
 }

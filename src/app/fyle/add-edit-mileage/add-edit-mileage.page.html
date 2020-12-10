@@ -409,6 +409,19 @@
             message="'There are no projects assigned to you, so this mileage will be saved as a draft. Please contact admin for further help.'">
           </app-fy-alert> -->
 
+
+
+        <ng-container *ngIf="etxn$|async as etxn">
+          <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
+            class="add-edit-mileage--delete" matRipple (click)="deleteExpense()">
+            <mat-icon class="add-edit-mileage--delete-icon">
+              delete
+            </mat-icon>
+            <div class="add-edit-mileage--delete-msg">
+              Delete Expense
+            </div>
+          </div>
+        </ng-container>
         </ng-container>
 
         

@@ -1,0 +1,49 @@
+.report-list {
+  &--container {
+    padding: 10px 20px;
+  }
+
+  &--title {
+    color: #ababab;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    line-height: 1.7;
+  }
+
+  &--list {
+    margin-top: 10px;
+  }
+
+  &--report-tile {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    border: 1px solid #fff;
+    padding: 16px;
+  }
+
+  &--date-amount-block {
+    justify-content: space-between;
+    display: flex;
+    color: #ababab;
+    vertical-align: bottom;
+
+    &-date {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    &-amount {
+      font-weight: 700;
+    }
+  }
+
+  &--purpose {
+    font-size: 16px;
+    font-weight: 700;
+    white-space: normal;
+    color: #666;
+    margin-top: 10px;
+  }
+}

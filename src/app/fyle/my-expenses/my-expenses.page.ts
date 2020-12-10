@@ -15,6 +15,7 @@ import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-po
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -258,12 +259,19 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.allExpensesCount$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_report_id: 'is.null',
-      tx_state: 'in.(COMPLETE,DRAFT)'
-    }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)').function_value)
+    this.allExpensesCount$ = this.loadData$.pipe(
+      switchMap(() => {
+        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_report_id: 'is.null',
+          tx_state: 'in.(COMPLETE,DRAFT)'
+        }).pipe(
+          map(stats => {
+            const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+            return count && count.function_value;
+          })
+        );
+      })
     );
 
     this.draftExpensesCount$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
@@ -271,7 +279,10 @@ export class MyExpensesPage implements OnInit {
       tx_report_id: 'is.null',
       tx_state: 'in.(DRAFT)'
     }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)').function_value)
+      map(stats => {
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        return count && count.function_value;
+      })
     );
 
     this.expensesAmountStats$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
@@ -279,7 +290,10 @@ export class MyExpensesPage implements OnInit {
       tx_report_id: 'is.null',
       tx_state: 'in.(COMPLETE,DRAFT)'
     }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)').function_value)
+      map(stats => {
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        return count && count.function_value;
+      })
     );
 
     this.loadData$.subscribe(noop);
@@ -605,8 +619,20 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  onAddTransactionToReport() {
-    // TODO
+  async onAddTransactionToReport(event) {
+    const addExpenseToReportModal = await this.modalController.create({
+      component: AddTxnToReportDialogComponent,
+      componentProps: {
+        txId: event.tx_id
+      }
+    });
+    await addExpenseToReportModal.present();
+
+    const { data } = await addExpenseToReportModal.onDidDismiss();
+    if (data && data.reload) {
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    }
   }
 
   onViewCommentsClick(event) {
