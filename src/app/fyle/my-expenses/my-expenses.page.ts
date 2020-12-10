@@ -11,9 +11,7 @@ import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-
 import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
-import { CategoriesService } from 'src/app/core/services/categories.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupService } from 'src/app/core/services/popup.service';
