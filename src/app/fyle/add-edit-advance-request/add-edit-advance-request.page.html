@@ -70,7 +70,7 @@
       </div>
     </div>
 
-    <div class="add-edit-advance-request--primary-block">
+    <div class="add-edit-advance-request--primary-block" *ngIf="extendedAdvanceRequest$|async">
       <div *ngFor="let customInput of customFields$ | async as customFields; index as i">
         <form [formGroup]="customInput.control">
           <div class="add-edit-advance-request--text add-edit-advance-request--custom-field-internal-block"
