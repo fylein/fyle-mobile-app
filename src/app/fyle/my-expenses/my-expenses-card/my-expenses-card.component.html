@@ -24,7 +24,7 @@
       *ngIf="expense.tx_id && isPolicyViolated && !isCriticalPolicyViolated">
       Policy Violation
     </div>
-    <div class="my-expenses-card--decorator" *ngIf="expense.tx_id && isCriticalPolicyViolated">
+    <div class="my-expenses-card--decorator my-expenses-card--decorator__critical-policy-violation" *ngIf="expense.tx_id && isCriticalPolicyViolated">
       Critical Policy Violation
     </div>
 
@@ -74,9 +74,7 @@
       </div>
 
       <div (click)="actionOpened = true">
-        <mat-icon>
-          more_horiz
-        </mat-icon>
+        <mat-icon class="my-expenses-card--more">more_horiz</mat-icon>
       </div>
     </div>
 
