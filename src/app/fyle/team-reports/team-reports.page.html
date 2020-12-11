@@ -36,31 +36,27 @@
 </ion-header>
 
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
+  <ng-container *ngIf="count$|async; else zeroState">
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
 
-  <div *ngIf="(count$ | async) === 0" class="reports--zero-state">
-    <img class="reports--zero-state-img" src="../../../assets/images/zero-states/reports.svg"
-      alt="Create First Reports">
-    <div *ngIf="!(filters?.state || filters?.date)" class="reports--zero-state-header">
-      This is the home to all your Reports
+    <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
+      <app-team-report-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
+        (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)">
+      </app-team-report-card>
     </div>
-    <div *ngIf="!(filters?.state || filters?.date)" class="reports--zero-state-subheader">
-      Create your first report to see how it looks
-    </div>
-    <div *ngIf="!(filters?.state || filters?.date)" class="reports--zero-state-action-button-container">
-      <div class="reports--zero-state-action-button">Create Report</div>
+  </ng-container>
+
+
+  <ng-template #zeroState>
+    <div class="reports--zero-state">
+      <app-fy-zero-state [image]="'../../../assets/images/zero-states/coffee.svg'"
+        [header]="'Nothing here, grab a coffee maybe?'"
+        [message]="'Expense reports that need your approval will show up here.'"></app-fy-zero-state>
     </div>
 
-    <div *ngIf="(filters?.state || filters?.date)" class="reports--zero-state-header">
-      You dont have any reports for the selected filter(s)
-    </div>
-  </div>
-  <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
-    <app-team-report-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
-      (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-team-report-card>
-  </div>
+  </ng-template>
 
   <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">

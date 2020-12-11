@@ -15,10 +15,11 @@ import { Router } from '@angular/router';
 export class TeamAdvancePage implements OnInit {
 
   teamAdvancerequests$: Observable<any[]>;
-  loadData$: Subject<number> = new Subject();
+  loadData$: Subject<{pageNumber: number, state: string}> = new Subject();
   count$: Observable<number>;
   currentPageNumber = 1;
   isInfiniteScrollRequired$: Observable<boolean>;
+  state = 'PENDING';
 
   constructor(
     private offlineService: OfflineService,
@@ -29,14 +30,16 @@ export class TeamAdvancePage implements OnInit {
 
   ngOnInit() {
     this.teamAdvancerequests$ = this.loadData$.pipe(
-      concatMap(pageNumber => {
+      concatMap(({ pageNumber, state }) => {
+        const extraParams = state === 'PENDING'? { areq_state: ['eq.APPROVAL_PENDING'] }: { areq_state: 'eq.PAID'};
+
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
             return this.advanceRequestService.getTeamadvanceRequests({
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
-                areq_state: ['eq.APPROVAL_PENDING'],
+                ...extraParams,
                 areq_trip_request_id: ['is.null'],
                 or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
               }
@@ -57,13 +60,18 @@ export class TeamAdvancePage implements OnInit {
       shareReplay()
     );
 
-    this.count$ = this.advanceRequestService.getTeamAdvanceRequestsCount(
-      {
-        areq_state: ['eq.APPROVAL_PENDING'],
-        areq_trip_request_id: ['is.null'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-      }
-    ).pipe(
+    this.count$ = this.loadData$.pipe(
+      switchMap(({ state })=> {
+        const extraParams = state === 'PENDING'? { areq_state: ['eq.APPROVAL_PENDING'] }: { areq_state: 'eq.PAID'};
+
+        return this.advanceRequestService.getTeamAdvanceRequestsCount(
+          {
+            ...extraParams,
+            areq_trip_request_id: ['is.null'],
+            or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+          }
+        );
+      }),
       shareReplay()
     );
 
@@ -79,23 +87,29 @@ export class TeamAdvancePage implements OnInit {
     this.teamAdvancerequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    this.loadData$.next(this.currentPageNumber);
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
   }
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
-    this.loadData$.next(this.currentPageNumber);
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
     event.target.complete();
   }
 
   doRefresh(event) {
     this.currentPageNumber = 1;
-    this.loadData$.next(this.currentPageNumber);
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
     event.target.complete();
   }
 
   onAdvanceClick(areq: ExtendedAdvanceRequest) {
     this.router.navigate(['/', 'enterprise', 'view_team_advance', { id: areq.areq_id }]);
+  }
+
+  changeState(state) {
+    this.currentPageNumber = 1;
+    this.state = state;
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
   }
 
 }

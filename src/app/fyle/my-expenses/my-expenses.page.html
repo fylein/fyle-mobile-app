@@ -144,8 +144,8 @@
 <ion-footer>
   <ion-toolbar *ngIf="baseState === 'all' && (allExpensesCount$|async) > 0">
     <div class="my-expenses--stats">
-      <div class="my-expenses--amount" *ngIf="expensesAmountStats$|async as expensesAmountStats">
-        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span> {{expensesAmountStats}}
+      <div class="my-expenses--amount">
+        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span> {{(expensesAmountStats$|async)}}
       </div>
       <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
         across {{allExpensesCount}} unreported expenses

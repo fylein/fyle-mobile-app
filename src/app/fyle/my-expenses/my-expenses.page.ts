@@ -121,11 +121,8 @@ export class MyExpensesPage implements OnInit {
         return from(this.transactionOutboxService.sync());
       }),
       finalize(() => this.syncing = false)
-    ).subscribe((a) => {
-      console.log('Promise has resolved', a);
+    ).subscribe(() => {
       this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-
-      console.log(this.pendingTransactions);
 
       if (this.pendingTransactions.length === 0) {
         this.doRefresh();
@@ -291,8 +288,8 @@ export class MyExpensesPage implements OnInit {
       tx_state: 'in.(COMPLETE,DRAFT)'
     }).pipe(
       map(stats => {
-        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
-        return count && count.function_value;
+        const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
+        return (sum && sum.function_value) || 0;
       })
     );
 

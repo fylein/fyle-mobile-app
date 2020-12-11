@@ -278,7 +278,6 @@ export class AddEditMileagePage implements OnInit {
         oldTxnClone.tx.txn_dt = oldTxnClone.tx.txn_dt && moment(oldTxnClone.tx.txn_dt).format('y-MM-DD');
         currentTxnClone.tx.txn_dt = currentTxnClone.tx.txn_dt && moment(currentTxnClone.tx.txn_dt).format('y-MM-DD');
 
-
         return isEqual(oldTxnClone.tx, currentTxnClone.tx);
       })
     );
