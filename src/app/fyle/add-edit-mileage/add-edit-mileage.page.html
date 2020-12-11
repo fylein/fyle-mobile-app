@@ -401,8 +401,7 @@
             type="warning"
             message="'There are no projects assigned to you, so this mileage will be saved as a draft. Please contact admin for further help.'">
           </app-fy-alert> -->
-
-        </div>
+        </ng-container>
 
         <ng-container *ngIf="etxn$|async as etxn">
           <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
@@ -414,7 +413,6 @@
               Delete Expense
             </div>
           </div>
-        </ng-container>
         </ng-container>
 
         
