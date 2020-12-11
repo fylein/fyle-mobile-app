@@ -75,7 +75,7 @@
         </div>
       </div>
 
-      <div (click)="actionOpened = true">
+      <div *ngIf="canOpenCard" (click)="actionOpened = true">
         <mat-icon>
           more_horiz
         </mat-icon>

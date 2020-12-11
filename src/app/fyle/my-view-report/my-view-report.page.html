@@ -127,12 +127,10 @@
 
 <ion-footer *ngIf="((erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)">
   <ion-toolbar>
-    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
+    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block" *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
       Resubmit Report
     </ion-button>
-    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
+    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"  *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
       (click)="showSubmitReportSummaryPopover($event)">
       Submit Report
     </ion-button>

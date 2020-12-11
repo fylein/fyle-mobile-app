@@ -5,12 +5,11 @@ import { File } from 'src/app/core/models/file.model';
 import { Approval } from 'src/app/core/models/approval.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { AlertController, PopoverController } from '@ionic/angular';
 import { from, noop, Subject } from 'rxjs';
 import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith } from 'rxjs/operators';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -29,12 +28,10 @@ export class ViewTeamAdvancePage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService,
     private advanceRequestService: AdvanceRequestService,
     private fileService: FileService,
-    private alertController: AlertController,
     private router: Router,
-    private popoverController: PopoverController
+    private popupService: PopupService
   ) { }
 
   ionViewWillEnter() {
@@ -99,29 +96,28 @@ export class ViewTeamAdvancePage implements OnInit {
   async delete() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    const alert = await this.alertController.create({
-      header: 'Confirm!',
+    const popupResults = await this.popupService.showPopup({
+      header: 'Confirm',
       message: 'Are you sure you want to delete this Advance Request',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            this.advanceRequestService.delete(id).subscribe(() => {
-              this.router.navigate(['/', 'enterprise', 'my_advances']);
-            });
-          }
-        }
-      ]
+      primaryCta: {
+        text: 'Okay'
+      },
+      secondaryCta: {
+        text: 'Cancel'
+      }
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      this.advanceRequestService.delete(id).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_advances']);
+      });
+    }
+  }
+
+  pullBack() {
+    // TODO
   }
 
   ngOnInit() {
   }
-
 }

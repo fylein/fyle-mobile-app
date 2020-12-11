@@ -479,4 +479,23 @@ export class TransactionService {
     };
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
+
+  removeTxnsFromRptInBulk(txnIds, comment?) {
+    return range(0, txnIds.length / 50).pipe(
+      concatMap(page => {
+        var data: any = {
+          ids: txnIds.slice((page - 1) * 50, page * 50)
+        };
+
+        if (comment) {
+          data.comment = comment;
+        }
+
+        return this.apiService.post('/transactions/remove_report/bulk', data)
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [] as any[])
+    )
+  }
 }

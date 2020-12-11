@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { ViewTeamReportEtxnCardComponent } from './view-team-report-etxn-card/view-team-report-etxn-card.component';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { ShareReportComponent } from './share-report/share-report.component';
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
   ],
   declarations: [
     ViewTeamReportPage,
-    ViewTeamReportEtxnCardComponent
+    ViewTeamReportEtxnCardComponent,
+    ShareReportComponent
   ]
 })
 export class ViewTeamReportPageModule {}

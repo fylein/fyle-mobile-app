@@ -64,11 +64,11 @@
 </ion-header>
 
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+  <ion-refresher *ngIf="isConnected$|async" slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="(count$ | async) === 0" class="my-expenses--zero-state">
+  <div *ngIf="((count$ | async) === 0) && isConnected$|async" class="my-expenses--zero-state">
     <img class="my-expenses--zero-state-img" src="../../../assets/images/zero-states/expenses.svg"
       alt="Create First Expenses">
     <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
@@ -85,6 +85,16 @@
       You dont have any expenses for the selected filter(s)
     </div>
   </div>
+  <ng-container *ngIf="syncing">
+    <ng-container *ngIf="pendingTransactions.length > 0">
+      <div class="my-expenses--syncing">
+        <span class="my-expenses--syncing-text">Sync in progress</span>
+        <img class="my-expenses--syncing-icon" src="../../../assets/svg/dots.svg" alt="">
+      </div>
+    </ng-container>
+  </ng-container>
+
+
   <div class="my-expenses--offline-message" *ngIf="pendingTransactions.length > 0">
     <span>
       <div class="my-expenses--offline-header">
@@ -94,34 +104,41 @@
         Expenses willl be synced when connected to the internet
       </div>
     </span>
-    <span>
-
-    </span>
   </div>
+
   <div *ngFor="let expense of pendingTransactions as list; let i = index">
-    <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
+    <app-my-expenses-card 
+      [canOpenCard]="false"
+      [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
       [skipDate]="true" (deleteTransaction)="onDeleteExpenseClick($event)"
       (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
       (addTransactionToReport)="onAddTransactionToReport($event)">
     </app-my-expenses-card>
   </div>
 
-  <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-    <!-- <app-my-expenses-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
-      (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-my-expenses-card> -->
-    <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
-      [baseState]="baseState" [selectionMode]="selectionMode" [selectedElements]="selectedElements"
-      (deleteTransaction)="onDeleteExpenseClick($event)"
-      (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
-      (addTransactionToReport)="onAddTransactionToReport($event)" (goToTransaction)="goToTransaction($event)"
-      (cardClickedForSelection)="selectExpense($event)">
-    </app-my-expenses-card>
-  </div>
+  <ng-container *ngIf="isConnected$|async; else isNotConnected">
+    <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
+      <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
+        [baseState]="baseState" [selectionMode]="selectionMode" [selectedElements]="selectedElements"
+        (deleteTransaction)="onDeleteExpenseClick($event)"
+        (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
+        (addTransactionToReport)="onAddTransactionToReport($event)" (goToTransaction)="goToTransaction($event)"
+        (cardClickedForSelection)="selectExpense($event)">
+      </app-my-expenses-card>
+    </div>
 
-  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
-    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+    <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+      <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </ng-container>
+  <ng-template #isNotConnected>
+    <app-fy-zero-state [image]="'../../../assets/images/zero-states/offline.svg'"
+      [header]="'You\'re not connected to internet'"
+      [message]="'You can still add expenses, we\'ll sync them to your account once you\'re connected to the internet again.'"
+      [submessage]="'You can\'t access existing expenses or reports without internet connectivity.'">
+    </app-fy-zero-state>
+  </ng-template>
 </ion-content>
 
 <ion-footer>
@@ -142,20 +159,24 @@
     </ion-button>
   </ion-toolbar>
   <ion-toolbar *ngIf="baseState === 'draft'">
-    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block" (click)="openReviewExpenses()">
+    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+      (click)="openReviewExpenses()">
       START REVIEW
     </ion-button>
   </ion-toolbar>
-  <ion-toolbar *ngIf="baseState === 'all' && selectionMode && selectedElements.length === 0" (click)="openCreateReport()">
+  <ion-toolbar *ngIf="baseState === 'all' && selectionMode && selectedElements.length === 0"
+    (click)="openCreateReport()">
     <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
       CREATE REPORT
     </ion-button>
   </ion-toolbar>
   <ion-toolbar *ngIf="baseState === 'all' && selectionMode && selectedElements.length > 0">
-    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" (click)="openCreateReportWithSelectedIds()">
+    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary"
+      (click)="openCreateReportWithSelectedIds()">
       CREATE REPORT
     </ion-button>
-    <ion-button class="my-expenses--primary-cta flat-button" fill="outline" color="fyle-primary" (click)="openReviewExpenses()">
+    <ion-button class="my-expenses--primary-cta flat-button" fill="outline" color="fyle-primary"
+      (click)="openReviewExpenses()">
       START REVIEW
     </ion-button>
   </ion-toolbar>

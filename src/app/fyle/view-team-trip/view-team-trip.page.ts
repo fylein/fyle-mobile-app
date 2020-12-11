@@ -16,10 +16,11 @@ import { TrpTravellerDetail } from 'src/app/core/models/trip_traveller_detail.mo
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { AlertController, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { TransportationRequestComponent } from '../view-team-trip/transportation-request/transportation-request.component';
 import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-request.component';
 import { AdvanceRequestComponent } from '../view-team-trip/advance-request/advance-request.component';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-view-team-trip',
@@ -66,35 +67,31 @@ export class ViewTeamTripPage implements OnInit {
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private transportationRequestsService: TransportationRequestsService,
     private transactionService: TransactionService,
-    public alertController: AlertController,
     private router: Router,
     private modalController: ModalController,
+    private popupService: PopupService
   ) { }
 
 
   async deleteTrip() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    const alert = await this.alertController.create({
-      header: 'Confirm!',
+    const popupResults = await this.popupService.showPopup({
+      header: 'Confirm',
       message: 'Are you sure you want to delete this trip',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            this.tripRequestsService.delete(id).subscribe(() => {
-              this.router.navigate(['/', 'enterprise', 'my_trips']);
-            });
-          }
-        }
-      ]
+      primaryCta: {
+        text: 'Okay'
+      },
+      secondaryCta: {
+        text: 'Cancel'
+      }
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      this.tripRequestsService.delete(id).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      });
+    }
   }
 
   onUpdateApprover(message: string) {
@@ -219,30 +216,27 @@ export class ViewTeamTripPage implements OnInit {
 
   async closeTrip() {
     const id = this.activatedRoute.snapshot.params.id;
-    const alert = await this.alertController.create({
-      header: 'Close Trip!',
+
+
+    const popupResults = await this.popupService.showPopup({
+      header: 'Close Trip',
       message: 'Are you sure you want to close this trip?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            from(this.loaderService.showLoader()).pipe(
-              switchMap(() => {
-                return this.tripRequestsService.closeTrip(id);
-              }),
-              finalize(() => from(this.loaderService.hideLoader()))
-            ).subscribe(noop);
-          }
-        }
-      ]
+      primaryCta: {
+        text: 'Okay'
+      },
+      secondaryCta: {
+        text: 'Cancel'
+      }
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.tripRequestsService.closeTrip(id);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      );
+    }
   }
 
   ionViewWillEnter() {
@@ -399,6 +393,5 @@ export class ViewTeamTripPage implements OnInit {
 
   ngOnInit() {
   }
-
 
 }

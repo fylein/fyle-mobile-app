@@ -3,4 +3,5 @@ export interface CustomField {
     name: string;
     value: any;
     type?: string;
+    displayValue?: string; 
 }
