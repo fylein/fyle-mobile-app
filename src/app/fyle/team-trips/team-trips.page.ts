@@ -29,6 +29,10 @@ export class TeamTripsPage implements OnInit {
   ) { }
 
   ngOnInit() {
+  }
+
+  ionViewWillEnter() {
+    this.currentPageNumber = 1;
     this.teamTripRequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(

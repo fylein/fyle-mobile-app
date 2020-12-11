@@ -29,6 +29,8 @@ export class MyTripsPage implements OnInit {
   ) { }
 
   ionViewWillEnter() {
+    this.currentPageNumber = 1;
+
     this.myTripRequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(

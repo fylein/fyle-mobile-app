@@ -74,7 +74,6 @@ export class AppComponent implements OnInit {
     this.menuController.close();
     if (route.indexOf('switch-org') > -1) {
       this.userEventService.clearCache();
-      // TODO: Clear all caches also
       globalCacheBusterNotifier.next();
     }
     this.router.navigate(route);

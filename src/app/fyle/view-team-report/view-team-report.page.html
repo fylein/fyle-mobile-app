@@ -11,7 +11,7 @@
       View Report
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button color="primary" *ngIf="isReportReported">Send Back</button>
+      <button mat-button color="primary" *ngIf="isReportReported" (click)="sendBack()">Send Back</button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -25,8 +25,9 @@
         <div class="view-reports--card-body">Owner: {{ erpt.us_full_name }}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
-            <p><strong>Approver<span *ngIf="reportApprovals.length === 1"> is </span><span *ngIf="reportApprovals.length > 1">s
-              are</span> </strong></p>
+            <p><strong>Approver<span *ngIf="reportApprovals.length === 1"> is </span><span
+                  *ngIf="reportApprovals.length > 1">s
+                  are</span> </strong></p>
             <span *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
               <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
                 {{ap.state | reportState}}
@@ -116,16 +117,11 @@
   </div>
 </ion-content>
 
-<ion-footer *ngIf="((erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)">
+<ion-footer *ngIf="isReportReported">
   <ion-toolbar>
     <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
-      Resubmit Report
-    </ion-button>
-    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
-      (click)="showSubmitReportSummaryPopover($event)">
-      Submit Report
+      (click)="approveReport($event)">
+      Approve Report
     </ion-button>
   </ion-toolbar>
 </ion-footer>

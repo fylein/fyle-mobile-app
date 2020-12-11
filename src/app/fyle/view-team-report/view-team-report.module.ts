@@ -10,6 +10,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { ViewTeamReportEtxnCardComponent } from './view-team-report-etxn-card/view-team-report-etxn-card.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ShareReportComponent } from './share-report/share-report.component';
+import { SendBackComponent } from './send-back/send-back.component';
+import { ApproveReportComponent } from './approve-report/approve-report.component';
 
 @NgModule({
   imports: [
@@ -20,12 +22,14 @@ import { ShareReportComponent } from './share-report/share-report.component';
     MatIconModule,
     MatButtonModule,
     MatRippleModule,
-    SharedModule
+    SharedModule,
   ],
   declarations: [
     ViewTeamReportPage,
     ViewTeamReportEtxnCardComponent,
-    ShareReportComponent
+    ShareReportComponent,
+    SendBackComponent,
+    ApproveReportComponent
   ]
 })
 export class ViewTeamReportPageModule {}

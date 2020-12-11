@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class TeamAdvancePage implements OnInit {
 
   teamAdvancerequests$: Observable<any[]>;
-  loadData$: Subject<{pageNumber: number, state: string}> = new Subject();
+  loadData$: Subject<{ pageNumber: number, state: string }> = new Subject();
   count$: Observable<number>;
   currentPageNumber = 1;
   isInfiniteScrollRequired$: Observable<boolean>;
@@ -29,9 +29,14 @@ export class TeamAdvancePage implements OnInit {
   ) { }
 
   ngOnInit() {
+
+  }
+
+  ionViewWillEnter() {
+    this.currentPageNumber = 1;
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
-        const extraParams = state === 'PENDING'? { areq_state: ['eq.APPROVAL_PENDING'] }: { areq_state: 'eq.PAID'};
+        const extraParams = state === 'PENDING' ? { areq_state: ['eq.APPROVAL_PENDING'] } : { areq_state: 'eq.PAID' };
 
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
@@ -61,8 +66,8 @@ export class TeamAdvancePage implements OnInit {
     );
 
     this.count$ = this.loadData$.pipe(
-      switchMap(({ state })=> {
-        const extraParams = state === 'PENDING'? { areq_state: ['eq.APPROVAL_PENDING'] }: { areq_state: 'eq.PAID'};
+      switchMap(({ state }) => {
+        const extraParams = state === 'PENDING' ? { areq_state: ['eq.APPROVAL_PENDING'] } : { areq_state: 'eq.PAID' };
 
         return this.advanceRequestService.getTeamAdvanceRequestsCount(
           {
@@ -87,18 +92,18 @@ export class TeamAdvancePage implements OnInit {
     this.teamAdvancerequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
   }
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
     event.target.complete();
   }
 
   doRefresh(event) {
     this.currentPageNumber = 1;
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
     event.target.complete();
   }
 
@@ -109,7 +114,7 @@ export class TeamAdvancePage implements OnInit {
   changeState(state) {
     this.currentPageNumber = 1;
     this.state = state;
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
   }
 
 }

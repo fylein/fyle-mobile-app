@@ -39,7 +39,6 @@ export class OrgService {
   }
 
   updateOrg(org) {
-    // TODO: Clear all cache
     return this.apiService.post('/orgs', org);
   }
 
