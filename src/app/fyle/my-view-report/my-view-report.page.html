@@ -24,8 +24,8 @@
         <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMMM dd, yyyy'}}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
-            Approver<span *ngIf="reportApprovals.length === 1"> is </span><span *ngIf="reportApprovals.length > 1">s
-              are</span>
+            <p> <strong> Approver<span *ngIf="reportApprovals.length === 1"> is </span><span *ngIf="reportApprovals.length > 1">s
+              are </span> </strong> </p>
             <span *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
               <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
                 {{ap.state | reportState}}

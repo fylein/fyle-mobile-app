@@ -38,7 +38,7 @@
   }
 
   &--state-pill {
-    width: 45%;
+    width: 47%;
     border: 1px solid #0077ee;
     padding: 8px;
     text-align: center;
@@ -63,6 +63,12 @@
     max-width: 80%;
     margin: 8px;
     font-size: 12px;
+
+    &-icon {
+      width: 16px;
+      margin-right: 10px;
+      color: #aaa;
+    }
   }
 
   &--filters {
@@ -80,6 +86,12 @@
   &--filter-button {
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     border-radius: 4px;
+    margin-left: 9px;
+
+    &-icon {
+      fill: #1978f7;
+    }
+    
   }
 
   &--primary-cta {

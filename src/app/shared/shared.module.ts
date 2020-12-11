@@ -28,7 +28,7 @@ import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ApproverDialogComponent } from './components/fy-apporver/approver-dialog/approver-dialog.component';
-
+import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 import { IconModule } from './icon/icon.module';
@@ -74,7 +74,8 @@ import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
     FyApporverComponent,
     ApproverDialogComponent,
     ConfirmationCommentPopoverComponent,
-    FyPreviewAttachmentsComponent
+    FyPreviewAttachmentsComponent,
+    FyCategoryIconComponent
   ],
   imports: [
     CommonModule,
@@ -113,7 +114,8 @@ import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
     FyPopupComponent,
     FyApporverComponent,
     ConfirmationCommentPopoverComponent,
-    FyPreviewAttachmentsComponent
+    FyPreviewAttachmentsComponent,
+    FyCategoryIconComponent
   ],
   providers: [
     DecimalPipe,

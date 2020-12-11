@@ -102,9 +102,7 @@
 
           <div (click)="viewAttachments($event)" class="add-edit-expense--receipt-image"
             *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress">
-            <mat-icon class="add-edit-expense--receipt-background">
-              description
-            </mat-icon>
+            <mat-icon class="add-edit-expense--receipt-background" svgIcon="fy-attachment"></mat-icon>
             <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
               {{attachedReceiptsCount}}
             </div>
@@ -584,7 +582,7 @@
 
       <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
         class="add-edit-expense--delete" matRipple (click)="deleteExpense()">
-        <mat-icon class="add-edit-expense--delete-icon">
+        <mat-icon class="add-edit-expense--delete-icon" svgIcon="">
           delete
         </mat-icon>
         <div class="add-edit-expense--delete-msg">

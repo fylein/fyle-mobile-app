@@ -10,19 +10,15 @@
   <ion-toolbar mode="md">
     <div class="my-reports--toolbar">
       <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
-        <mat-icon matPrefix>search</mat-icon>
+        <mat-icon matPrefix svgIcon="search" class="my-reports--simple-search-icon"></mat-icon>
         <input #simpleSearchInput matInput placeholder="Search">
       </mat-form-field>
       <ion-buttons mode="md" slot="end">
-        <button mat-icon-button class="my-reports--filter-button" (click)="openFilters()">
-          <mat-icon>
-            filter_list
-          </mat-icon>
-        </button>
         <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
-          <mat-icon>
-            sort
-          </mat-icon>
+          <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-sort-descending"></mat-icon>
+        </button>
+        <button mat-icon-button class="my-reports--filter-button" (click)="openFilters()">
+          <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-filter"></mat-icon>
         </button>
       </ion-buttons>
     </div>

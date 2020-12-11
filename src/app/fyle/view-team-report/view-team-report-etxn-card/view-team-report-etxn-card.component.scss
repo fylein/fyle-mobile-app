@@ -20,6 +20,14 @@
     color: #4a4a4a;
   }
 
+  &--non-reimbursable {
+    text-decoration: line-through;
+
+    &-amount {
+      color: #ababab;
+    }
+  }
+
   &--details {
     width: 60%;
     display: flex;
