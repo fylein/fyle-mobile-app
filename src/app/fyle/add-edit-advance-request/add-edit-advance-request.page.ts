@@ -18,6 +18,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
+import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -35,7 +36,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   attachmentUploadInProgress: boolean;
   dataUrls: any[];
   customFieldValues: any[];
-  a: any;
 
   constructor(
     private offlineService: OfflineService,
@@ -190,7 +190,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   modifyAdvanceRequestCustomFields(customFields): CustomField[] {
-    customFields.sort((a, b) => (a.id > b.id) ? 1 : -1)
+    customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
     customFields = customFields.map(customField => {
       if (customField.type === 'DATE' && customField.value) {
         const updatedDate = new Date(customField.value);
@@ -239,6 +239,32 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
     }
 
+  }
+
+  async viewAttachments() {
+
+    let attachments = this.dataUrls;
+
+    attachments = attachments.map(attachment => {
+      if (!attachment.id) {
+        attachment.type = attachment.type === 'application/pdf' ? 'pdf' : 'image';
+      }
+      return attachment;
+    });
+    const attachmentsModal = await this.modalController.create({
+      component: ViewAttachmentsComponent,
+      componentProps: {
+        attachments
+      }
+    });
+
+    await attachmentsModal.present();
+
+    const { data } = await attachmentsModal.onWillDismiss();
+
+    if (data) {
+      this.dataUrls = data.attachments;
+    }
   }
 
   getReceiptExtension(name) {
@@ -364,12 +390,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
-        customFields.sort((a, b) => (a.id > b.id) ? 1 : -1)
+        customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
         for (const customField of customFields) {
           let value;
           this.customFieldValues.filter(customFieldValue => {
             if (customFieldValue.id === customField.id) {
-                value = customFieldValue.value;
+              value = customFieldValue.value;
             }
           });
           customFieldsFormArray.push(
