@@ -1343,8 +1343,8 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
         }
-      }
-
+      });
+    }
   }
+}
 
-  }
