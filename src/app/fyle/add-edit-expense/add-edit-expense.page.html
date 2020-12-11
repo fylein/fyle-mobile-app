@@ -211,7 +211,7 @@
           <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt?.canView">
             <div class="add-edit-expense--date-label">
               Date of Spend
-              <span ng-if="txnFields.txn_dt?.mandatory">*</span>
+              <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
             </div>
             <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
               (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
@@ -625,9 +625,9 @@
     </div> -->
   </form>
   <!-- This is very helpful for debugging - Angular will remove this when compiling so lets have this here -->
-  <!-- <ion-button (click)="getFormValidationErrors()">
+  <ion-button (click)="getFormValidationErrors()">
     Click me for errors!
-  </ion-button> -->
+  </ion-button>
 </ion-content>
 
 <ion-footer>

@@ -17,6 +17,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { AgmCoreModule } from '@agm/core';
 import { environment } from 'src/environments/environment';
 import { SharedModule } from './shared/shared.module';
+import { CurrencyPipe } from '@angular/common';
 
 
 @NgModule({
@@ -42,7 +43,7 @@ import { SharedModule } from './shared/shared.module';
     InAppBrowser,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true },
-
+    CurrencyPipe
   ],
   bootstrap: [AppComponent]
 })

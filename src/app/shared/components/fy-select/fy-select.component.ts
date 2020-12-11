@@ -68,6 +68,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
           this.displayValue = selectedOption && selectedOption.label;
         } else if (typeof this.innerValue === 'string'){
           this.displayValue = this.innerValue;
+        } else {
+          this.displayValue = '';
         }
       }
 
@@ -91,6 +93,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
     const { data } = await selectionModal.onWillDismiss();
 
+    console.log(data);
+
     if (data) {
       this.value = data.value;
     }
@@ -109,6 +113,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
           this.displayValue = selectedOption.label;
         } else if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
+        } else {
+          this.displayValue = '';
         }
       }
     }
