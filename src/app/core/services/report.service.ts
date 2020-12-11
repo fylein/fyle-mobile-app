@@ -427,4 +427,11 @@ export class ReportService {
     return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy);
   }
 
+  submit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/submit');
+  };
+
+  resubmit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/resubmit')
+  }
 }

@@ -18,7 +18,14 @@
   &--icon {
     width: 20%;
     margin: 6px;
-    // color: #4a4a4a;
+  }
+
+  &--non-reimbursable {
+    text-decoration: line-through;
+
+    &-amount {
+      color: #ababab;
+    }
   }
 
   &--details {

@@ -2,21 +2,20 @@ import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular
 import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, AlertController, ActionSheetController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { Router } from '@angular/router';
-import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, withLatestFrom, scan, take } from 'rxjs/operators';
+import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, take } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
 import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
-import { CategoriesService } from 'src/app/core/services/categories.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -56,36 +55,34 @@ export class MyExpensesPage implements OnInit {
   pendingTransactions = [];
   selectionMode = false;
   selectedElements: string[];
+  syncing = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
-    private reportService: ReportService,
     private modalController: ModalController,
     private dateService: DateService,
-    public alertController: AlertController,
     private transactionService: TransactionService,
     private currencyService: CurrencyService,
     private popoverController: PopoverController,
-    private orgSettingsService: OrgSettingsService,
-    private orgUserSettingsService: OrgUserSettingsService,
     private router: Router,
     private transactionOutboxService: TransactionsOutboxService,
-    private categoriesService: CategoriesService
+    private offlineService: OfflineService,
+    private popupService: PopupService
   ) { }
 
   ngOnInit() {
     this.setupNetworkWatcher();
-    this.isInstaFyleEnabled$ = this.orgUserSettingsService.get().pipe(
+    this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
     );
 
-    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(
+    this.isMileageEnabled$ = this.offlineService.getOrgSettings().pipe(
       map(orgSettings => orgSettings.mileage.enabled)
     );
-    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(
+    this.isPerDiemEnabled$ = this.offlineService.getOrgSettings().pipe(
       map(orgSettings => orgSettings.per_diem.enabled)
     );
   }
@@ -118,10 +115,12 @@ export class MyExpensesPage implements OnInit {
 
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
+    this.syncing = true;
     from(this.pendingTransactions).pipe(
       switchMap(() => {
         return from(this.transactionOutboxService.sync());
-      })
+      }),
+      finalize(() => this.syncing = false)
     ).subscribe((a) => {
       console.log('Promise has resolved', a);
       this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
@@ -260,12 +259,19 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.allExpensesCount$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_report_id: 'is.null',
-      tx_state: 'in.(COMPLETE,DRAFT)'
-    }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)').function_value)
+    this.allExpensesCount$ = this.loadData$.pipe(
+      switchMap(() => {
+        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_report_id: 'is.null',
+          tx_state: 'in.(COMPLETE,DRAFT)'
+        }).pipe(
+          map(stats => {
+            const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+            return count && count.function_value;
+          })
+        );
+      })
     );
 
     this.draftExpensesCount$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
@@ -273,7 +279,10 @@ export class MyExpensesPage implements OnInit {
       tx_report_id: 'is.null',
       tx_state: 'in.(DRAFT)'
     }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)').function_value)
+      map(stats => {
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        return count && count.function_value;
+      })
     );
 
     this.expensesAmountStats$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
@@ -281,7 +290,10 @@ export class MyExpensesPage implements OnInit {
       tx_report_id: 'is.null',
       tx_state: 'in.(COMPLETE,DRAFT)'
     }).pipe(
-      map(stats => stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)').function_value)
+      map(stats => {
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
+        return count && count.function_value;
+      })
     );
 
     this.loadData$.subscribe(noop);
@@ -295,11 +307,6 @@ export class MyExpensesPage implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
-    this.isConnected$.subscribe((isOnline) => {
-      if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
-    });
   }
 
   loadData(event) {
@@ -311,6 +318,20 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?) {
+    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+
+    if (this.pendingTransactions.length) {
+      this.syncing = true;
+      from(this.pendingTransactions).pipe(
+        switchMap(() => {
+          return from(this.transactionOutboxService.sync());
+        }),
+        finalize(() => this.syncing = false)
+      ).subscribe((a) => {
+        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+      });
+    }
+
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -445,33 +466,25 @@ export class MyExpensesPage implements OnInit {
   }
 
   async onDeleteExpenseClick(etxn: Expense) {
-    const alert = await this.alertController.create({
-      header: 'Delete Expense?',
+    const popupResults = await this.popupService.showPopup({
+      header: 'Delete Expense',
       message: 'Are you sure you want to delete this expense?',
-      buttons: [
-        {
-          text: 'Close',
-          role: 'cancel',
-          handler: noop
-        },
-        {
-          text: 'Delete',
-          handler: async () => {
-            from(this.loaderService.showLoader()).pipe(
-              switchMap(() => {
-                return this.transactionService.delete(etxn.tx_id);
-              }),
-              finalize(async () => {
-                await this.loaderService.hideLoader();
-                this.doRefresh();
-              })
-            ).subscribe(noop);
-
-          }
-        }
-      ]
+      primaryCta: {
+        text: 'Delete'
+      }
     });
-    await alert.present();
+
+    if (popupResults === 'primary') {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.transactionService.delete(etxn.tx_id);
+        }),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+          this.doRefresh();
+        })
+      ).subscribe(noop);
+    }
   }
 
   selectExpense(expense: Expense) {
@@ -488,7 +501,7 @@ export class MyExpensesPage implements OnInit {
     if (expense.tx_org_category) {
       category = expense.tx_org_category.toLowerCase();
     }
-    //TODO: Leave for later
+    // TODO: Leave for later
     // if (category === 'activity') {
     //   showCannotEditActivityDialog();
 
@@ -522,7 +535,6 @@ export class MyExpensesPage implements OnInit {
     const allDataPipe$ = this.loadData$.pipe(
       take(1),
       switchMap(params => {
-        console.log(params);
         const queryParams = params.queryParams || {};
 
         let defaultState;
@@ -607,8 +619,20 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  onAddTransactionToReport() {
-    // TODO
+  async onAddTransactionToReport(event) {
+    const addExpenseToReportModal = await this.modalController.create({
+      component: AddTxnToReportDialogComponent,
+      componentProps: {
+        txId: event.tx_id
+      }
+    });
+    await addExpenseToReportModal.present();
+
+    const { data } = await addExpenseToReportModal.onDidDismiss();
+    if (data && data.reload) {
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    }
   }
 
   onViewCommentsClick(event) {

@@ -59,12 +59,20 @@
     color: #ababab;
   }
 
+  &--non-reimbursable {
+    text-decoration: line-through;
 
-&--more {
-  color: #686872;
-  font-size: 34px;
-  margin-right: 20px;
-}
+    &-amount {
+      color: #ababab;
+    }
+  }
+
+
+  &--more {
+    color: #686872;
+    font-size: 34px;
+    margin-right: 20px;
+  }
 
   &--decorator {
     margin: 0 12px;

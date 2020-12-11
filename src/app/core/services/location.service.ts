@@ -9,12 +9,20 @@ import { Observable } from 'rxjs';
 })
 export class LocationService {
 
+  ROOT_ENDPOINT: string;
+
   constructor(
     private httpClient: HttpClient
-  ) { }
+  ) {
+    this.ROOT_ENDPOINT = environment.ROOT_URL;
+  }
+
+  setRoot(rootUrl: string) {
+    this.ROOT_ENDPOINT = rootUrl;
+  }
 
   get(url, config = {}) {
-    return this.httpClient.get(environment.ROOT_URL + '/location' + url, config);
+    return this.httpClient.get(this.ROOT_ENDPOINT + '/location' + url, config);
   }
 
   getAutocompletePredictions(text, userId, currentLocation, types?) {

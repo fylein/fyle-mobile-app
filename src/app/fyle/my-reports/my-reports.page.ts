@@ -7,11 +7,12 @@ import { concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilCh
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { PopoverController, ModalController, AlertController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -51,9 +52,9 @@ export class MyReportsPage implements OnInit {
     private reportService: ReportService,
     private modalController: ModalController,
     private dateService: DateService,
-    public alertController: AlertController,
     private router: Router,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private popupService: PopupService
   ) { }
 
   ngOnInit() {
@@ -286,58 +287,41 @@ export class MyReportsPage implements OnInit {
 
   async onDeleteReportClick(erpt: ExtendedReport) {
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
-      const alert = await this.alertController.create({
+      await this.popupService.showPopup({
         header: 'Cannot Delete Report',
         message: 'Report cannot be deleted',
-        buttons: [
-          {
-            text: 'Close',
-            role: 'cancel',
-            handler: noop
-          }
-        ]
+        primaryCta: {
+          text: 'Close'
+        }
       });
-
-      await alert.present();
     } else {
-      const message = `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>"My Expenses"</strong> list.
-        </p>
-        <p class="mb-0">
-          Are you sure, you want to delete this report?
-        </p>
-      `;
-
-      const alert = await this.alertController.create({
-        header: 'Delete Report?',
-        message,
-        buttons: [
-          {
-            text: 'Close',
-            role: 'cancel',
-            handler: noop
-          },
-          {
-            text: 'Delete',
-            handler: async () => {
-              from(this.loaderService.showLoader()).pipe(
-                switchMap(() => {
-                  return this.reportService.delete(erpt.rp_id);
-                }),
-                finalize(async () => {
-                  await this.loaderService.hideLoader();
-                  this.doRefresh();
-                })
-              ).subscribe(noop);
-
-            }
-          }
-        ]
+      const popupResults = await this.popupService.showPopup({
+        header: 'Delete Report',
+        message: `
+          <p class="highlight-info">
+            On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
+          </p>
+          <p>
+            Are you sure, you want to delete this report?
+          </p>
+        `,
+        primaryCta: {
+          text: 'Delete'
+        }
       });
-      await alert.present();
-    }
 
+      if (popupResults === 'primary') {
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.reportService.delete(erpt.rp_id);
+          }),
+          finalize(async () => {
+            await this.loaderService.hideLoader();
+            this.doRefresh();
+          })
+        ).subscribe(noop);
+      }
+    }
   }
 
   onViewCommentsClick(event) {

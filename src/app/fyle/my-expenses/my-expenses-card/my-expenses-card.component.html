@@ -42,10 +42,10 @@
         </div>
         <div class="my-expenses-card--details">
           <div class="my-expenses-card--amount-details">
-            <div class="my-expenses-card--currency">
+            <div class="my-expenses-card--currency" [ngClass]="{'my-expenses-card--non-reimbursable': expense.tx_skip_reimbursement || expense.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' || expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT' }">
               {{expense.tx_currency || expense?.tx_extracted_data?.currency}}
             </div>
-            <div class="my-expenses-card--amount">
+            <div class="my-expenses-card--amount" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement || expense.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' || expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT' }">
               <div *ngIf="amountIsNumber || extractedAmountIsNumber">
                 {{(expense.tx_amount || expense?.tx_extracted_data?.amount) | number:'1.2'}}
               </div>
@@ -73,7 +73,7 @@
         </div>
       </div>
 
-      <div (click)="actionOpened = true">
+      <div *ngIf="canOpenCard" (click)="actionOpened = true">
         <mat-icon class="my-expenses-card--more">more_horiz</mat-icon>
       </div>
     </div>

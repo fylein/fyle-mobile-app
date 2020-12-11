@@ -23,6 +23,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() label = 'location';
   @Input() mandatory = false;
   @Input() disabled = false;
+  @Input() allowCustom = false;
 
   private innerValue;
   displayValue;
@@ -67,7 +68,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     const selectionModal = await this.modalController.create({
       component: FyLocationModalComponent,
       componentProps: {
-        currentSelection: this.value
+        currentSelection: this.value,
+        allowCustom: this.allowCustom
       }
     });
 

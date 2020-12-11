@@ -41,6 +41,8 @@ import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/ap
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
+import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +67,10 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     CurrencyComponent,
     CommentsComponent,
     ViewCommentComponent,
+    FyPreviewAttachmentsComponent,
+    FyZeroStateComponent,
+    FyPreviewAttachmentsComponent,
+    FyPopupComponent,
     FyApporverComponent,
     ApproverDialogComponent,
     ConfirmationCommentPopoverComponent,
@@ -102,6 +108,10 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     IconModule,
     CurrencyComponent,
     CommentsComponent,
+    FyPreviewAttachmentsComponent,
+    FyZeroStateComponent,
+    FyPreviewAttachmentsComponent,
+    FyPopupComponent,
     FyApporverComponent,
     ConfirmationCommentPopoverComponent,
     FyPreviewAttachmentsComponent,

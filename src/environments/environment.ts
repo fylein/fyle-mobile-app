@@ -10,7 +10,7 @@ export const environment = {
   ROUTER_API_ENDPOINT: '',
   IP_FIND_KEY: '',
   ANDROID_CLIENT_ID: '',
-  GOOGLE_MAPS_API_KEY: 'AIzaSyCb7vB5EUfVz7WrxrRvFKk1W45IQV_bvXQ'
+  GOOGLE_MAPS_API_KEY: ''
 };
 
 /*

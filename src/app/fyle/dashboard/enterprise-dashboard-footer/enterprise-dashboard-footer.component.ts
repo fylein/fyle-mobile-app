@@ -1,8 +1,6 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
-import { pipe, forkJoin } from 'rxjs';
-import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 
 @Component({
@@ -22,7 +20,6 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
   constructor(
     private offlineService: OfflineService,
     private dashboardService: DashboardService,
-    private alertController: AlertController,
     private router: Router
   ) { }
   
@@ -122,17 +119,6 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
       });
     }
     this.gridSize = Math.floor(12 / this.ctaList.length);
-  }
-
-  async presentAlert(msg) {
-    const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Coming soon',
-      message: 'Redirecting to -> ' + msg,
-      buttons: ['Close']
-    });
-
-    await alert.present();
   }
 
   actionFn(item) {

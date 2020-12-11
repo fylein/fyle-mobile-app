@@ -117,6 +117,29 @@
     padding: 8px 0;
   }
 
+  &--syncing {
+    display: flex;
+    color: #f36;
+    margin: 0 0 8px;
+    padding: 0 12px;
+  }
+
+  &--syncing-image {
+
+    width: 36px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 8px;
+
+  }
+
+  &--syncing-icon {
+    height: 8px;
+    top: 7px;
+    position: relative;
+    left: 4px;
+  }
+
   &--zero-state {
     display: flex;
     flex-direction: column;
