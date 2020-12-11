@@ -30,10 +30,8 @@
 
     <div matRipple class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!actionOpened" (click)="onGoToTransaction()" [ngClass]="{'my-expenses-card--body__disabled': isDraft && selectionMode && baseState !== 'draft'}">
       <div class="my-expenses-card--body-internal">
-        <div class="my-expenses-card--icon" *ngIf="!selectionMode">
-          <mat-icon>
-            fastfood
-          </mat-icon>
+        <div class="my-expenses-card--icon-container" *ngIf="!selectionMode">
+          <app-fy-category-icon [category]="expense.tx_org_category"></app-fy-category-icon>
         </div>
         <div class="my-expenses-card--selection-icon" *ngIf="selectionMode && !isSelected">
           <ion-checkbox mode="ios" checked="false" disabled="true"></ion-checkbox>

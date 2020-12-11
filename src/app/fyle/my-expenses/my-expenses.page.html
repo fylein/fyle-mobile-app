@@ -41,12 +41,13 @@
         <mat-icon matPrefix>search</mat-icon>
         <input #simpleSearchInput matInput placeholder="Search">
       </mat-form-field>
+
       <ion-buttons mode="md" slot="end">
-        <button mat-icon-button class="my-expenses--filter-button" (click)="openFilters()">
-          <mat-icon svgIcon="fy-sort-descending"></mat-icon>
-        </button>
         <button mat-icon-button class="my-expenses--filter-button" (click)="openSort()">
-          <mat-icon svgIcon="fy-item-filter"></mat-icon>
+          <mat-icon class="my-expenses--filter-button-icon" svgIcon="fy-sort-descending"></mat-icon>
+        </button>
+        <button mat-icon-button class="my-expenses--filter-button" (click)="openFilters()">
+          <mat-icon class="my-expenses--filter-button-icon" svgIcon="fy-filter"></mat-icon>
         </button>
       </ion-buttons>
     </div>
