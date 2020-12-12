@@ -3,7 +3,7 @@ import { Observable, Subject, from, noop } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { concatMap, switchMap, finalize, map, scan, shareReplay, tap } from 'rxjs/operators';
+import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { Router } from '@angular/router';
 
@@ -66,7 +66,7 @@ export class TeamAdvancePage implements OnInit {
         }
         return acc.concat(curr);
       }, [] as ExtendedAdvanceRequest[]),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
@@ -85,12 +85,14 @@ export class TeamAdvancePage implements OnInit {
           state
         );
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
       concatMap(teamAdvancerequests => {
-        return this.count$.pipe(map(count => {
+        return this.count$.pipe(
+          take(1),
+          map(count => {
           return count > teamAdvancerequests.length;
         }));
       })

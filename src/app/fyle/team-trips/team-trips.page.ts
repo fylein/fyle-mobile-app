@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Subject, Observable, from, noop, concat } from 'rxjs';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import { concatMap, switchMap, finalize, map, scan, shareReplay } from 'rxjs/operators';
+import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -68,7 +68,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
         }
         return acc.concat(curr);
       }, [] as ExtendedTripRequest[]),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
@@ -87,7 +87,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
           }
         );
       }),
-      shareReplay()
+      shareReplay(1)
     );
     
     // this.tripRequestsService.getTeamTripsCount({
@@ -99,7 +99,9 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
 
     this.isInfiniteScrollRequired$ = this.teamTripRequests$.pipe(
       concatMap(teamTrips => {
-        return this.count$.pipe(map(count => {
+        return this.count$.pipe(
+          take(1),
+          map(count => {
           return count > teamTrips.length;
         }));
       })
