@@ -30,7 +30,11 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
     private router: Router
   ) { }
 
+  ngOnInit() {
+  }
+
   ionViewWillEnter() {
+    this.currentPageNumber = 1;
     this.teamTripRequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
 
@@ -108,10 +112,6 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
 
     this.setupNetworkWatcher();
-  }
-
-  ngOnInit() {
-
   }
 
   doRefresh(event) {

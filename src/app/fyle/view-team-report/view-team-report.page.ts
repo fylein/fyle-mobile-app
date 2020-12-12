@@ -11,6 +11,8 @@ import { PopoverController } from '@ionic/angular';
 import { switchMap, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { SendBackComponent } from './send-back/send-back.component';
+import { ApproveReportComponent } from './approve-report/approve-report.component';
 
 @Component({
   selector: 'app-view-team-report',
@@ -155,17 +157,31 @@ export class ViewTeamReportPage implements OnInit {
         }),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_reports']);
+        this.router.navigate(['/', 'enterprise', 'team_reports']);
       });
     }
   }
 
-  showResubmitReportSummaryPopover() {
+  async approveReport() {
+    const erpt = await this.erpt$.toPromise();
+    const etxns = await this.etxns$.toPromise();
 
-  }
+    const popover = await this.popoverController.create({
+      componentProps: {
+        erpt,
+        etxns
+      },
+      component: ApproveReportComponent,
+      cssClass: 'dialog-popover'
+    });
 
-  showSubmitReportSummaryPopover() {
+    await popover.present();
 
+    const { data } = await popover.onWillDismiss();
+
+    if (data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'team_reports']);
+    }
   }
 
   goToTransaction(etxn: any) {
@@ -176,9 +192,13 @@ export class ViewTeamReportPage implements OnInit {
     }
 
     if (category === 'activity') {
-      // showCannotEditActivityDialog();
-      alert('can not edit Activity -> TODO show can not edit activity Dialog');
-      return;
+      return this.popupService.showPopup({
+        header: 'Cannot Edit Activity',
+        message: 'Editing activity is not supported in mobile app.',
+        primaryCta: {
+          text: 'Cancel'
+        }
+      });
     }
 
     let route;
@@ -214,6 +234,28 @@ export class ViewTeamReportPage implements OnInit {
         const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
         await this.loaderService.showLoader(message);
       });
+    }
+  }
+
+  async sendBack() {
+    const erpt = await this.erpt$.toPromise();
+    const etxns = await this.etxns$.toPromise();
+
+    const popover = await this.popoverController.create({
+      componentProps: {
+        erpt,
+        etxns
+      },
+      component: SendBackComponent,
+      cssClass: 'dialog-popover'
+    });
+
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }
 }

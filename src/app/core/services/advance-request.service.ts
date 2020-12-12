@@ -371,4 +371,16 @@ export class AdvanceRequestService {
     );
   }
 
+  approve(advanceRequestId) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/approve');
+  }
+
+
+  sendBack(advanceRequestId, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/inquire', addStatusPayload);
+  }
+
+  reject(advanceRequestId, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/reject', addStatusPayload);
+  };
 }

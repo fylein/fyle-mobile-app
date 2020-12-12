@@ -106,6 +106,8 @@ export class MyExpensesPage implements OnInit {
 
   ionViewWillEnter() {
     this.acc = [];
+
+    this.currentPageNumber = 1;
     this.loadData$ = new BehaviorSubject({
       pageNumber: 1
     });

@@ -9,12 +9,12 @@ export class OneClickActionService {
 
   oneClickActionOptions = [
     { 
-      id: 'insta_fyle', 
-      name: 'Insta fyle'
+      value: 'insta_fyle', 
+      label: 'Insta fyle'
     },
     { 
-      id: 'mileage', 
-      name: 'Mileage'
+      value: 'mileage', 
+      label: 'Mileage'
     }
   ];
 
@@ -22,7 +22,7 @@ export class OneClickActionService {
     return this.oneClickActionOptions;
   }
 
-  filterByOneClickActionById(id) {
-    return this.oneClickActionOptions.find(element => element.id === id);
+  filterByOneClickActionById(value) {
+    return this.oneClickActionOptions.find(element => element.value === value);
   }
 }

@@ -163,7 +163,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     }, async (err) => {
       await this.storageService.clearAll();
       this.userEventService.logout();
-      // TODO: Clear all caches also
       globalCacheBusterNotifier.next();
     });
   }

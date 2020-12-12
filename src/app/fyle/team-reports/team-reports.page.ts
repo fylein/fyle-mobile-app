@@ -69,8 +69,6 @@ export class TeamReportsPage implements OnInit {
       queryParams: {
         rp_approval_state: 'in.(APPROVAL_PENDING)',
         rp_state: 'in.(APPROVER_PENDING)',
-        // TODO verify with Vaishnavi to check wether to send true in both condition
-        // sequential_approval_turn: res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
         sequential_approval_turn: 'in.(true)',
       }
     });

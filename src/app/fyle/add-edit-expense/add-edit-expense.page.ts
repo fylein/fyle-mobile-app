@@ -310,16 +310,16 @@ export class AddEditExpensePage implements OnInit {
     this.setUpTaxCalculations();
   }
 
-  // getFormValidationErrors() {
-  //   Object.keys(this.fg.controls).forEach(key => {
-  //     const controlErrors: ValidationErrors = this.fg.get(key).errors;
-  //     if (controlErrors != null) {
-  //       Object.keys(controlErrors).forEach(keyError => {
-  //         console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-  //       });
-  //     }
-  //   });
-  // }
+  getFormValidationErrors() {
+    Object.keys(this.fg.controls).forEach(key => {
+      const controlErrors: ValidationErrors = this.fg.get(key).errors;
+      if (controlErrors != null) {
+        Object.keys(controlErrors).forEach(keyError => {
+          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+        });
+      }
+    });
+  }
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -356,7 +356,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.transactionMandatoyFields$
       .pipe(
-        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
+        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
+        tap(console.log)
       )
       .subscribe((transactionMandatoyFields: any) => {
         if (transactionMandatoyFields.project) {
@@ -797,6 +798,7 @@ export class AddEditExpensePage implements OnInit {
             return customField;
           });
         }),
+        tap(console.log),
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
             map(isConnected => {
@@ -809,7 +811,7 @@ export class AddEditExpensePage implements OnInit {
                     // Since in boolean, required validation is kinda unnecessary
                     value: [
                       customField.value,
-                      customField.type !== 'BOOLEAN' && customField.mandatory && Validators.required && isConnected
+                      customField.type !== 'BOOLEAN' && customField.mandatory  && isConnected && Validators.required
                     ]
                   })
                 );
@@ -848,19 +850,21 @@ export class AddEditExpensePage implements OnInit {
         }
         return tfcMap;
       }),
+      tap(console.log),
       shareReplay());
 
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
-        return this.isConnected$.pipe(
-          map(isConnected => ({
+        return forkJoin({isConnected: this.isConnected$, orgSettings: this.offlineService.getOrgSettings()}).pipe(
+          map(({isConnected, orgSettings}) => ({
             isConnected,
-            txnFields
+            txnFields,
+            orgSettings
           }))
         );
       })
-    ).subscribe(({ isConnected, txnFields }) => {
+    ).subscribe(({ isConnected, txnFields, orgSettings }) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -888,8 +892,24 @@ export class AddEditExpensePage implements OnInit {
         if (txnFields[txnFieldKey].mandatory) {
           if (txnFieldKey === 'vendor_id') {
             control.setValidators(Validators.compose([isConnected ? Validators.required : null, this.merchantValidator]));
-          }
-          else {
+          } else if ([
+            'location1',
+            'location2',
+            'from_dt',
+            'to_dt',
+            'flight_journey_travel_class',
+            'flight_return_travel_class',
+            'train_travel_class',
+            'bus_travel_class'
+          ].includes(txnFieldKey)) {
+            if (this.fg.value.category &&
+               this.fg.value.category.fyle_category && 
+               ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) && 
+               !(orgSettings.projects && orgSettings.projects.enabled && !isConnected)
+               ) {
+              control.setValidators(Validators.required);              
+            }
+          } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
         }
