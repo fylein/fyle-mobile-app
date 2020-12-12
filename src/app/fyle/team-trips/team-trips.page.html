@@ -6,6 +6,23 @@
     <ion-title mode="md" class="trip--title text-capitalize">
       Team Trips
     </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <button mat-button color="primary" [matMenuTriggerFor]="menu">Filter</button>
+    </ion-buttons>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="changeState('PENDING')">
+          <div class="trip--select-state">
+            <ion-checkbox class="trip--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'PENDING'" slot="start"></ion-checkbox>
+            <ion-label>Pending</ion-label>
+          </div>
+      </button>
+      <button mat-menu-item (click)="changeState('APPROVED')">          
+        <div class="trip--select-state">
+          <ion-checkbox class="trip--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'APPROVED'" slot="start"></ion-checkbox>
+          <ion-label>Approved</ion-label>
+        </div>
+      </button>
+    </mat-menu>
   </ion-toolbar>
 </ion-header>
 

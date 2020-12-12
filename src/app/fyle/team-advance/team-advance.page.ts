@@ -3,7 +3,7 @@ import { Observable, Subject, from, noop } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { concatMap, switchMap, finalize, map, scan, shareReplay } from 'rxjs/operators';
+import { concatMap, switchMap, finalize, map, scan, shareReplay, tap } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { Router } from '@angular/router';
 
@@ -31,7 +31,12 @@ export class TeamAdvancePage implements OnInit {
   ngOnInit() {
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
-        const extraParams = state === 'PENDING'? { areq_state: ['eq.APPROVAL_PENDING'] }: { areq_state: 'eq.PAID'};
+        const extraParams = state === 'PENDING'? { 
+          areq_state: ['eq.APPROVAL_PENDING'],
+          areq_trip_request_id: ['is.null'],
+          or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+
+        }: { };
 
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
@@ -39,10 +44,9 @@ export class TeamAdvancePage implements OnInit {
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
-                ...extraParams,
-                areq_trip_request_id: ['is.null'],
-                or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-              }
+                ...extraParams
+              },
+              filter: state
             });
           }),
           finalize(() => {
@@ -62,14 +66,18 @@ export class TeamAdvancePage implements OnInit {
 
     this.count$ = this.loadData$.pipe(
       switchMap(({ state })=> {
-        const extraParams = state === 'PENDING'? { areq_state: ['eq.APPROVAL_PENDING'] }: { areq_state: 'eq.PAID'};
+        const extraParams = state === 'PENDING'? { 
+          areq_state: ['eq.APPROVAL_PENDING'],
+          areq_trip_request_id: ['is.null'],
+          or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+
+        }: { };
 
         return this.advanceRequestService.getTeamAdvanceRequestsCount(
           {
-            ...extraParams,
-            areq_trip_request_id: ['is.null'],
-            or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-          }
+            ...extraParams
+          },
+          state
         );
       }),
       shareReplay()

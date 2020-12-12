@@ -21,6 +21,7 @@ import { TransportationRequestComponent } from '../view-team-trip/transportation
 import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-request.component';
 import { AdvanceRequestComponent } from '../view-team-trip/advance-request/advance-request.component';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { ActionPopoverComponent } from './action-popover/action-popover.component';
 
 @Component({
   selector: 'app-view-team-trip',
@@ -32,6 +33,7 @@ export class ViewTeamTripPage implements OnInit {
   tripRequest$: Observable<ExtendedTripRequest>;
   approvals$: Observable<Approval[]>;
   actions$: Observable<any>;
+  actionsRedefined$: Observable<any>;
   advanceRequests$: Observable<any>;
   transportationRequests$: Observable<any>;
   hotelRequests$: Observable<any>;
@@ -49,10 +51,7 @@ export class ViewTeamTripPage implements OnInit {
   transformedTripRequests$: Observable<any>;
   transformedAdvanceRequests$: Observable<any>;
   approvers$: Observable<ExtendedOrgUser[]>;
-  canPullBack$: Observable<boolean>;
-  canCloseTrip$: Observable<boolean>;
-  canDelete$: Observable<boolean>;
-  canEdit$: Observable<boolean>;
+  eou$: Observable<any>;
   refreshApprovers$ = new Subject();
 
   constructor(
@@ -69,6 +68,7 @@ export class ViewTeamTripPage implements OnInit {
     private transactionService: TransactionService,
     private router: Router,
     private modalController: ModalController,
+    private popoverController: PopoverController,
     private popupService: PopupService
   ) { }
 
@@ -214,6 +214,22 @@ export class ViewTeamTripPage implements OnInit {
     );
   }
 
+  async openActionBlock() {
+
+    const actions = await this.actionsRedefined$.toPromise()
+
+    const actionBlock = await this.popoverController.create({
+      component: ActionPopoverComponent,
+      componentProps: {
+        actions: actions
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    await actionBlock.present();
+
+  }
+
   async closeTrip() {
     const id = this.activatedRoute.snapshot.params.id;
 
@@ -242,7 +258,7 @@ export class ViewTeamTripPage implements OnInit {
   ionViewWillEnter() {
 
     const id = this.activatedRoute.snapshot.params.id;
-    const eou$ = from(this.authService.getEou());
+    this.eou$ = from(this.authService.getEou());
     this.tripRequest$ = from(
       this.loaderService.showLoader()
     ).pipe(
@@ -253,9 +269,26 @@ export class ViewTeamTripPage implements OnInit {
     );
 
     this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe();
-    this.actions$ = this.tripRequestsService.getActions(id).pipe(shareReplay());
+    this.actions$ = this.tripRequestsService.getActions(id);
     this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay());
     this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay());
+    
+    const currentApproval$ = forkJoin([this.eou$, this.tripRequest$]).pipe(
+      map(([eou, tripRequest]) => {
+        return tripRequest.approvals[eou.ou.id].state;
+      })
+    );
+
+    this.actionsRedefined$ = forkJoin([
+      this.eou$,
+      this.actions$,
+      currentApproval$
+    ]).pipe(
+      map(([eou, actions, currentApproval]) => {
+        actions.can_approve = actions.can_approve && eou.ou.roles.indexOf('ADMIN') > -1 && currentApproval === 'APPROVAL_PENDING'
+        return actions;
+      })
+    );
 
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
@@ -307,22 +340,6 @@ export class ViewTeamTripPage implements OnInit {
         const approversNotAllowed = this.getRestrictedApprovers(approvals, tripRequest);
         return this.orgUserService.exclude(eouc, approversNotAllowed);
       })
-    );
-
-    this.canPullBack$ = this.actions$.pipe(
-      map(actions => actions.can_pull_back)
-    );
-
-    this.canCloseTrip$ = this.actions$.pipe(
-      map(actions => actions.can_close_trip)
-    );
-
-    this.canDelete$ = this.actions$.pipe(
-      map(actions => actions.can_delete)
-    );
-
-    this.canEdit$ = this.actions$.pipe(
-      map(actions => actions.can_edit)
     );
 
     this.transportationRequests$ = forkJoin([

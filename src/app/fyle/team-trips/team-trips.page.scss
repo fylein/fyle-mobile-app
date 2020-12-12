@@ -29,5 +29,16 @@ $toolbar-border: #ababab6b;
   &--zero-state {
     padding-top: 80px;
   }
+
+  &--select-state {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    min-width: 120px;
+  }
+
+  &--select-state-checkbox {
+    margin-right: 8px;
+  }
 }
 
