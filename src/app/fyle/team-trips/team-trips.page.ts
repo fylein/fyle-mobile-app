@@ -33,14 +33,22 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
   ionViewWillEnter() {
     this.teamTripRequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
+
+        const extraParams = state === 'PENDING'? { 
+          trp_approval_state: ['in.(APPROVAL_PENDING)'],
+          trp_state: 'eq.APPROVAL_PENDING'
+        }: { 
+          or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
+          trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
+        };
+
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
             return this.tripRequestsService.getTeamTrips({
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
-                trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)'],
-                trp_state: 'eq.APPROVAL_PENDING'
+                ...extraParams
               }
             });
           }),
@@ -59,12 +67,31 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
       shareReplay()
     );
 
-    this.count$ = this.tripRequestsService.getTeamTripsCount({
-      trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)'],
-      trp_state: 'eq.APPROVAL_PENDING'
-    }).pipe(
+    this.count$ = this.loadData$.pipe(
+      switchMap(({ state })=> {
+        const extraParams = state === 'PENDING'? { 
+          trp_approval_state: ['in.(APPROVAL_PENDING)'],
+          trp_state: 'eq.APPROVAL_PENDING'
+        }: { 
+          or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
+          trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
+        };
+
+        return this.tripRequestsService.getTeamTripsCount(
+          {
+            ...extraParams
+          }
+        );
+      }),
       shareReplay()
     );
+    
+    // this.tripRequestsService.getTeamTripsCount({
+    //   trp_approval_state: ['in.(APPROVAL_PENDING)'],
+    //   trp_state: 'eq.APPROVAL_PENDING'
+    // }).pipe(
+    //   shareReplay()
+    // );
 
     this.isInfiniteScrollRequired$ = this.teamTripRequests$.pipe(
       concatMap(teamTrips => {

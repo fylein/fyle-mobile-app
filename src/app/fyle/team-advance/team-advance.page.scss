@@ -26,6 +26,12 @@ $toolbar-border: #ababab6b;
     padding-top: 80px;
   }
 
+  &--option {
+    font-weight: normal;
+    color: #0077ee;
+    font-size: 16px;
+  }
+
   &--select-state {
     display: flex;
     justify-content: start;

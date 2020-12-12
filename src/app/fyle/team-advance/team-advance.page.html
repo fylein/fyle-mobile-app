@@ -7,7 +7,7 @@
       Team Advances
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button color="primary" [matMenuTriggerFor]="menu">Filter</button>
+      <button mat-button class="advance-request--option" [matMenuTriggerFor]="menu">Filter</button>
     </ion-buttons>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="changeState('PENDING')">
