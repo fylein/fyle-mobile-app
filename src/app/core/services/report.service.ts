@@ -442,4 +442,9 @@ export class ReportService {
   approve(rptId) {
     return this.apiService.post('/reports/' + rptId + '/approve');
   }
+
+  addApprover(rptId, email, message) {
+
+  }
+
 }

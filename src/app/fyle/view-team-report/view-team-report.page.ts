@@ -184,6 +184,12 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
+  onUpdateApprover(message: string) {
+    if (message) {
+      // this.refreshApprovers$.next();
+    }
+  }
+
   goToTransaction(etxn: any) {
     let category;
 
