@@ -1,13 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Observable, from, noop} from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
-import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { switchMap, concatMap, reduce, finalize, map, tap } from 'rxjs/operators';
+import { switchMap, reduce, finalize, map, tap, mergeMap } from 'rxjs/operators';
 import { ModifyApproverConfirmationPopoverComponent } from './modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
 import { ReportService } from 'src/app/core/services/report.service';
+import { isEqual } from 'lodash';
 
 @Component({
   selector: 'app-modify-approver-dialog',
@@ -16,9 +15,11 @@ import { ReportService } from 'src/app/core/services/report.service';
 })
 export class ModifyApproverDialogComponent implements OnInit {
 
+  @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() approverList;
   @Input() id;
   @Input() from;
+  @Input() object;
 
   approverList$: Observable<any>;
   selectedApprovers: any[] = [];
@@ -39,12 +40,24 @@ export class ModifyApproverDialogComponent implements OnInit {
 
   async saveUpdatedApproveList() {
 
+    let reportApprovals: [];
     const selectedApprovers = this.selectedApprovers.filter(approver => this.intialSelectedApprovers.indexOf(approver) === -1);
+    const removedApprovers = this.intialSelectedApprovers.filter(approver => this.selectedApprovers.indexOf(approver) === -1);
+    this.reportService.getApproversByReportId(this.id).pipe(
+      map(res => {
+        reportApprovals = res.filter(eou => {
+          return removedApprovers.some(removedApprover => {
+            return removedApprover.ou.id === eou.approver_id && eou.state !== 'APPROVAL_DONE';
+          });
+        })
+      })
+    ).subscribe(noop);
 
     const saveApproverConfirmationPopover = await this.popoverController.create({
       component: ModifyApproverConfirmationPopoverComponent,
       componentProps: {
-        selectedApprovers: selectedApprovers
+        selectedApprovers: selectedApprovers,
+        removedApprovers: removedApprovers
       },
       cssClass: 'dialog-popover'
     });
@@ -53,16 +66,26 @@ export class ModifyApproverDialogComponent implements OnInit {
 
     const { data } = await saveApproverConfirmationPopover.onWillDismiss();
     if (data && data.message) {
-      if (this.from === 'TRIP_REQUEST') {
-        // from(this.loaderService.showLoader()).pipe(
-        //   switchMap(() => from(this.selectedApprovers)),
-        //   concatMap(approver => this.reportService.addApproverETripRequests(this.id, approver.us.email, data.message)),
-        //   reduce((acc, curr) => acc.concat(curr), []),
-        //   finalize(() => from(this.loaderService.hideLoader()))
-        // ).subscribe(() => {
-        //   this.modalController.dismiss({reload: true});
-        // });
-      }
+      
+      const selectedApproversTemp = selectedApprovers.map(eou => ({eou, command: 'add'}));
+      const reportApprovalsTemp = reportApprovals.map(eou => ({eou, command: 'remove'}));
+      
+      const changedOps = selectedApproversTemp.concat(reportApprovalsTemp);
+
+      from(changedOps).pipe(
+        mergeMap(res => {
+          if (res.command === 'add') {
+            return this.reportService.addApprover(this.id, res.eou.us.email, data.message);
+          } else {
+            return this.reportService.removeApprover(this.id, res.eou.id); 
+          }
+        }),
+        reduce((acc, curr) => {
+          return acc.concat(curr);
+        }, []),
+      ).subscribe(() => {
+        this.modalController.dismiss({reload: true});
+      });
     }
   }
 
@@ -83,14 +106,32 @@ export class ModifyApproverDialogComponent implements OnInit {
   }
 
   checkDifference(intialSelectedApprovers, selectedApprovers) {
-    return intialSelectedApprovers.some(approver => {
-      return selectedApprovers.some(selectedApprover => {
-        return approver.ou.id !== selectedApprover.ou.id;
-      });
-    });
+    return isEqual(intialSelectedApprovers, selectedApprovers);
   }
 
   ngOnInit() {
+
+    // this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+    //   map((event: any) => event.srcElement.value),
+    //   startWith(''),
+    //   distinctUntilChanged(),
+    //   map((searchText) => {
+    //     const initial = [];
+
+    //     if (this.nullOption) {
+    //       initial.push({ label: 'None', value: null });
+    //     }
+
+    //     return initial.concat(this.options
+    //       .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
+    //       .map(option => {
+    //         option.selected = isEqual(option.value, this.currentSelection);
+    //         return option;
+    //       }));
+    //   }
+    //   )
+    // );
+
     this.approverList$ = from(this.loaderService.showLoader('Loading Approvers', 10000)).pipe(
       switchMap(() => {
         return this.orgUserService.getAllCompanyEouc();
@@ -99,14 +140,18 @@ export class ModifyApproverDialogComponent implements OnInit {
         return this.orgUserService.excludeByStatus(eouc, 'DISABLED');
       }),
       map(eouc => {
-        eouc.filter(approver => {
+        return eouc.filter((approver) => {
           if (this.approverList.indexOf(approver.ou.id) > -1) {
             approver['checked'] = true;
-            this.selectedApprovers.push(approver)
+            this.selectedApprovers.push(approver);
           } else {
             approver['checked'] = false;
           }
+          return approver;
         });
+      }),
+      map(eouc => {
+        eouc = eouc.filter(approver => !this.selectedApprovers.includes(approver));
         return this.selectedApprovers.concat(eouc);
       }),
       tap(() => {

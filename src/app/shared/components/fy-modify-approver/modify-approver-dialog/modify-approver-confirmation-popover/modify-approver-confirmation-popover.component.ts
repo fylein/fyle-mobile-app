@@ -9,6 +9,7 @@ import { PopoverController } from '@ionic/angular';
 export class ModifyApproverConfirmationPopoverComponent implements OnInit {
 
   @Input() selectedApprovers;
+  @Input() removedApprovers;
   confirmationMessage = '';
   validMessage = true;
 

@@ -14,6 +14,7 @@ export class FyModifyApproverComponent implements OnInit {
   @Input() id;
   @Input() from;
   @Input() title;
+  @Input() object;
 
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
@@ -29,7 +30,8 @@ export class FyModifyApproverComponent implements OnInit {
       componentProps: {
         approverList: this.approverList,
         id: this.id,
-        from: this.from
+        from: this.from,
+        object: this.object
       }
     });
 
@@ -37,10 +39,7 @@ export class FyModifyApproverComponent implements OnInit {
 
     const { data } = await approversListModal.onWillDismiss();
     if (data && data.reload) {
-      if (this.from === 'TRIP_REQUEST') {
-        this.notify.emit(true);
-      }
-      if (this.from === 'ADVANCE_REQUEST') {
+      if (this.from === 'TEAM_REPORTS') {
         this.notify.emit(true);
       }
     }

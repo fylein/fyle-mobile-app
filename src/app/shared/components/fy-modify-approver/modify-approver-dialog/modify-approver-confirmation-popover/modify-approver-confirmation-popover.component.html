@@ -13,12 +13,25 @@
 
     <ion-content>
       <div class="save-approver--container">
-        <div class="--title">
-          Approver(s) to be added
+        <div *ngIf="selectedApprovers.length > 0">
+          <div class="save-approver--title">
+            Approver(s) to be added
+          </div>
+          <div class="save-approver--approver-list">
+            <div *ngFor="let approver of selectedApprovers" class="save-approver--approver-email">
+              <span>{{approver.us.email | ellipsis:30}}</span>
+            </div>
+          </div>
         </div>
-        <div class="save-approver--approver-list">
-          <div *ngFor="let approver of selectedApprovers" class="save-approver--approver-email">
-            <span>{{approver.us.email | ellipsis:30}}</span>
+
+        <div *ngIf="removedApprovers.length > 0">
+          <div class="save-approver--title">
+            Approver(s) to be removed
+          </div>
+          <div class="save-approver--approver-list">
+            <div *ngFor="let approver of removedApprovers" class="save-approver--approver-email">
+              <span>{{approver.us.email | ellipsis:30}}</span>
+            </div>
           </div>
         </div>
         <div>

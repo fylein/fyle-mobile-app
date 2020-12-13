@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, from, noop } from 'rxjs';
+import { Observable, from, noop, Subject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController } from '@ionic/angular';
-import { switchMap, finalize, map, shareReplay, tap } from 'rxjs/operators';
+import { switchMap, finalize, map, shareReplay, tap, startWith } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
@@ -25,6 +25,7 @@ export class ViewTeamReportPage implements OnInit {
   etxns$: Observable<any[]>;
   sharedWith$: Observable<any[]>;
   reportApprovals$: Observable<any>;
+  refreshApprovals$ = new Subject();
   tripRequest$: Observable<ExtendedTripRequest>;
   hideAllExpenses = true;
   sharedWithLimit = 3;
@@ -92,7 +93,11 @@ export class ViewTeamReportPage implements OnInit {
       })
     );
 
-    this.reportApprovals$ = this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id).pipe(
+    this.reportApprovals$ = this.refreshApprovals$.pipe(
+      startWith(true),
+      switchMap(() => {
+        return this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)  
+      }),
       map(reportApprovals => {
         return reportApprovals.filter((approval) => {
           return ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1;
@@ -186,7 +191,7 @@ export class ViewTeamReportPage implements OnInit {
 
   onUpdateApprover(message: string) {
     if (message) {
-      // this.refreshApprovers$.next();
+      this.refreshApprovals$.next();
     }
   }
 

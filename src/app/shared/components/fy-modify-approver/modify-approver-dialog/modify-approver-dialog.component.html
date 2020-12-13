@@ -23,7 +23,7 @@
         <label>
           <mat-checkbox color="primary" [checked]="approver.checked" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
           <span class="approver-list--approver-details">
-            {{approver.us.full_name | ellipsis: 16}} ({{approver.us.email | ellipsis: 16}})
+            {{approver.us.full_name | ellipsis: 14}} ({{approver.us.email | ellipsis: 14}})
           </span>
         </label>
       </div>
@@ -33,7 +33,7 @@
 
 <ion-footer>
   <ion-toolbar>
-    <ion-button class="approver-list--save" fill="solid" [disabled]="!(selectedApprovers.length > 0) || !equals" color="fyle-primary" expand="full" (click)="saveUpdatedApproveList()">
+    <ion-button class="approver-list--save" fill="solid" [disabled]="equals || !(selectedApprovers.length > 0)" color="fyle-primary" expand="full" (click)="saveUpdatedApproveList()">
       Proceed
     </ion-button>
   </ion-toolbar>
