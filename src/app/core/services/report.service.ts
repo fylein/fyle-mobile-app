@@ -339,7 +339,6 @@ export class ReportService {
         if (erpt && erpt.rp && erpt.rp.created_at) {
           erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
         }
-        console.log('erpt ka erpt ->', erpt);
         return erpt;
       })
     );
