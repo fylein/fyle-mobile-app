@@ -7,7 +7,7 @@
       Team Advances
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button color="primary" [matMenuTriggerFor]="menu">Filter</button>
+      <button mat-button class="advance-request--option" [matMenuTriggerFor]="menu">Filter</button>
     </ion-buttons>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="changeState('PENDING')">
@@ -28,7 +28,7 @@
 
 <ion-content>
   <div>
-    <ng-container *ngIf="count$|async; else zeroState">
+    <div *ngIf="count$|async; else zeroState">
       <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
@@ -37,7 +37,7 @@
         <app-team-adv-card [advanceRequest]=teamAdvancerequest (gotoAdvance)="onAdvanceClick($event)">
         </app-team-adv-card>
       </div>
-    </ng-container>
+    </div>
 
     <ng-template #zeroState>
       <div class="advance-request--zero-state">
@@ -45,9 +45,7 @@
           [header]="'Nothing here, grab a coffee maybe?'"
           [message]="'Advances that need your approval will show up here.'"></app-fy-zero-state>
       </div>
-
     </ng-template>
-
 
     <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
       <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
