@@ -56,16 +56,20 @@
 
     <div class="add-edit-advance-request--primary-block">
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
-        <div class="add-edit-advance-request--text-label" [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.purpose.touched && !fg.controls.purpose.valid}">Enter Purpose *</div>
+        <div class="add-edit-advance-request--text-label" [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
+          {{fg.controls.purpose.value ? 'Purpose *' : 'Enter Purpose *'}}
+        </div>
         <input class="add-edit-advance-request--text-input" formControlName="purpose">
       </div>
 
       <div class="add-edit-advance-request--internal-block" *ngIf="(projects$|async)?.length > 0">
-        <app-fy-select-project [label]="'Select Project'" formControlName="project"></app-fy-select-project>
+        <app-fy-select-project [label]="fg.controls.project.value ? 'Project *' : 'Select Project *'" formControlName="project"></app-fy-select-project>
       </div>
 
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
-        <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">Enter Additional Notes</div>
+        <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">
+          {{fg.controls.notes.value ? 'Additional Notes' : 'Enter Additional Notes'}}
+        </div>
         <input class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input" formControlName="notes">
       </div>
     </div>
