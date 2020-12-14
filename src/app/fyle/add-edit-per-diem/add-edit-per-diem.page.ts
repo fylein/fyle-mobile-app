@@ -2,7 +2,7 @@ import { Component, OnInit, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, iif, of, combineLatest, from, throwError, noop, concat } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { switchMap, map, startWith, tap, shareReplay, distinctUntilChanged, filter, take, finalize, catchError, concatMap } from 'rxjs/operators';
+import { switchMap, map, startWith, tap, shareReplay, distinctUntilChanged, filter, take, finalize, catchError, concatMap, debounceTime } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators, FormArray, ValidationErrors, AbstractControl } from '@angular/forms';
 import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -26,6 +26,7 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
 import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -64,6 +65,9 @@ export class AddEditPerDiemPage implements OnInit {
   projectCategoryIds$: Observable<string[]>;
   filteredCategories$: Observable<any>;
   isConnected$: Observable<boolean>;
+  invalidPaymentMode = false;
+  duplicates$: Observable<any>;
+  duplicateBoxOpen = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -87,34 +91,112 @@ export class AddEditPerDiemPage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private networkService: NetworkService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private duplicateDetectionService: DuplicateDetectionService
   ) { }
 
   ngOnInit() {
-    const today = new Date();
-    this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
-    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+  }
 
-    this.fg = this.fb.group({
-      currencyObj: [{
-        value: null,
-        disabled: true
-      }],
-      paymentMode: [, Validators.required],
-      project: [],
-      sub_category: [],
-      per_diem_rate: [, Validators.required],
-      purpose: [],
-      num_days: [, Validators.required],
-      report: [],
-      from_dt: [],
-      to_dt: [],
-      custom_inputs: new FormArray([]),
-      add_to_new_report: [],
-      duplicate_detection_reason: [],
-      billable: [],
-      costCenter: []
-    });
+  canGetDuplicates() {
+    // TODO: Verify for per diem
+    return this.offlineService.getOrgSettings().pipe(
+      map(orgSettings => {
+        const isAmountPresent = isNumber(this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount);
+        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountPresent;
+      })
+    );
+  }
+
+  checkForDuplicates() {
+    const customFields$ = this.customInputs$.pipe(
+      take(1),
+      map(customInputs => {
+        return customInputs.map((customInput, i) => {
+          return {
+            id: customInput.id,
+            mandatory: customInput.mandatory,
+            name: customInput.name,
+            options: customInput.options,
+            placeholder: customInput.placeholder,
+            prefix: customInput.prefix,
+            type: customInput.type,
+            value: this.fg.value.custom_inputs[i].value
+          };
+        });
+      })
+    );
+
+    return this.canGetDuplicates().pipe(
+      switchMap((canGetDuplicates) => {
+        return iif(
+          () => canGetDuplicates,
+          this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+            switchMap(etxn => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
+          ),
+          of(null)
+        );
+      })
+    );
+  }
+
+  getPossibleDuplicates() {
+    const customFields$ = this.customInputs$.pipe(
+      take(1),
+      map(customInputs => {
+        return customInputs.map((customInput, i) => {
+          return {
+            id: customInput.id,
+            mandatory: customInput.mandatory,
+            name: customInput.name,
+            options: customInput.options,
+            placeholder: customInput.placeholder,
+            prefix: customInput.prefix,
+            type: customInput.type,
+            value: this.fg.value.custom_inputs[i].value
+          };
+        });
+      })
+    );
+
+    const currentTxn$ = this.generateEtxnFromFg(this.etxn$, customFields$);
+    const isSameTxn$ = forkJoin({
+      oldTxn: this.etxn$,
+      currentTxn: currentTxn$
+    }).pipe(
+      map(({ oldTxn, currentTxn }) => {
+        const oldTxnClone = cloneDeep(oldTxn);
+        const currentTxnClone = cloneDeep(currentTxn);
+        // safe hack - can clean off later on
+        oldTxnClone.tx.custom_properties = null;
+        currentTxnClone.tx.custom_properties = null;
+        oldTxnClone.tx.locations = null;
+        currentTxnClone.tx.locations = null;
+        oldTxnClone.tx.txn_dt = oldTxnClone.tx.txn_dt && moment(oldTxnClone.tx.txn_dt).format('y-MM-DD');
+        currentTxnClone.tx.txn_dt = currentTxnClone.tx.txn_dt && moment(currentTxnClone.tx.txn_dt).format('y-MM-DD');
+
+        return isEqual(oldTxnClone.tx, currentTxnClone.tx);
+      })
+    );
+
+    // TODO: Verify with policy team - getDuplicates never executes in old mobile app
+    // return isSameTxn$.pipe(
+    //   switchMap((isSameTxn) => {
+    //     return iif(() => isSameTxn, this.getDuplicates(), this.checkForDuplicates());
+    //   })
+    // );
+
+    return this.checkForDuplicates();
+  }
+
+  setupDuplicateDetection() {
+    this.duplicates$ = this.fg.valueChanges.pipe(
+      debounceTime(1000),
+      distinctUntilChanged((a, b) => isEqual(a, b)),
+      switchMap(() => {
+        return this.getPossibleDuplicates();
+      })
+    );
   }
 
   goToPrev() {
@@ -169,6 +251,24 @@ export class AddEditPerDiemPage implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
+  }
+
+  checkIfInvalidPaymentMode() {
+    return this.etxn$.pipe(
+      map(etxn => {
+        const paymentAccount = this.fg.value.paymentMode;
+        const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
+        let isPaymentModeInvalid = false;
+        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+          if (paymentAccount.acc.id !== originalSourceAccountId) {
+            isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < (this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount);
+          } else {
+            isPaymentModeInvalid = (paymentAccount.acc.tentative_balance_amount + etxn.tx.amount) < (this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount);
+          }
+        }
+        return isPaymentModeInvalid;
+      })
+    );
   }
 
   getTransactionFields() {
@@ -385,6 +485,31 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    const today = new Date();
+    this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
+    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+
+    this.fg = this.fb.group({
+      currencyObj: [{
+        value: null,
+        disabled: true
+      }],
+      paymentMode: [, Validators.required],
+      project: [],
+      sub_category: [],
+      per_diem_rate: [, Validators.required],
+      purpose: [],
+      num_days: [, Validators.required],
+      report: [],
+      from_dt: [],
+      to_dt: [],
+      custom_inputs: new FormArray([]),
+      add_to_new_report: [],
+      duplicate_detection_reason: [],
+      billable: [],
+      costCenter: []
+    });
+
     this.title = 'Add Expense';
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
     this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
@@ -1261,15 +1386,62 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   savePerDiem() {
-    if (this.fg.valid) {
-      if (this.mode === 'add') {
-        this.addExpense().subscribe(noop);
+    let that = this;
+
+    that.checkIfInvalidPaymentMode().pipe(
+      take(1)
+    ).subscribe(invalidPaymentMode => {
+      if (that.fg.valid && !invalidPaymentMode) {
+        if (that.mode === 'add') {
+          that.addExpense().subscribe(noop);
+        } else {
+          // to do edit
+          that.editExpense().subscribe(noop);
+        }
       } else {
-        this.editExpense().subscribe(noop);
+        that.fg.markAllAsTouched();
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
       }
-    } else {
-      this.fg.markAllAsTouched();
-    }
+    });
+  }
+
+  reloadCurrentRoute() {
+    let currentUrl = this.router.url;
+    this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl]);
+    });
+  }
+
+  saveAndNewExpense() {
+    let that = this;
+
+    that.checkIfInvalidPaymentMode().pipe(
+      take(1)
+    ).subscribe(invalidPaymentMode => {
+      if (that.fg.valid && !invalidPaymentMode) {
+        if (that.mode === 'add') {
+          that.addExpense().subscribe(() => {
+            this.reloadCurrentRoute();
+          });
+        } else {
+          // to do edit
+          that.editExpense().subscribe(noop);
+        }
+      } else {
+        that.fg.markAllAsTouched();
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
+      }
+    });
   }
 
   saveExpenseAndGotoNext() {

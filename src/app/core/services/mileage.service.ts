@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LocationService } from './location.service';
-import { from } from 'rxjs';
+import { from, of } from 'rxjs';
 import { concatMap, reduce } from 'rxjs/operators';
 
 
@@ -29,11 +29,15 @@ export class MileageService {
       }
     }
 
-    return from(chunks).pipe(
-      concatMap(chunk => {
-        return this.getDistanceInternal(chunk[0], chunk[1]);
-      }),
-      reduce((dist1, dist2) => dist1 + dist2)
-    );
+    if (chunks.length === 0) {
+      return of(null);
+    } else {
+      return from(chunks).pipe(
+        concatMap(chunk => {
+          return this.getDistanceInternal(chunk[0], chunk[1]);
+        }),
+        reduce((dist1, dist2) => dist1 + dist2)
+      );
+    }
   }
 }

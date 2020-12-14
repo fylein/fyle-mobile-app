@@ -48,7 +48,6 @@ export class AddEditMileagePage implements OnInit {
   filteredCategories$: Observable<any>;
   transactionMandatoyFields$: Observable<any>;
   etxn$: Observable<any>;
-  paymentModeInvalid$: Observable<boolean>;
   isIndividualProjectsEnabled$: Observable<boolean>;
   individualProjectIds$: Observable<string[]>;
   isProjectsEnabled$: Observable<boolean>;
@@ -68,6 +67,7 @@ export class AddEditMileagePage implements OnInit {
   isConnected$: Observable<boolean>;
 
   formInitializedFlag = false;
+  invalidPaymentMode = false;
 
   constructor(
     private router: Router,
@@ -95,58 +95,6 @@ export class AddEditMileagePage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.fg = this.fb.group({
-      mileage_vehicle_type: [],
-      dateOfSpend: [],
-      mileage_locations: new FormArray([]),
-      distance: [],
-      round_trip: [],
-      paymentMode: [, Validators.required],
-      purpose: [],
-      project: [],
-      billable: [],
-      sub_category: [],
-      custom_inputs: new FormArray([]),
-      costCenter: [],
-      add_to_new_report: [],
-      report: [],
-      duplicate_detection_reason: []
-    });
-
-    this.fg.controls.mileage_locations.valueChanges.pipe(
-      switchMap((locations) => {
-        return this.mileageService.getDistance(locations);
-      }),
-      switchMap((distance) => {
-        return this.etxn$.pipe(map(etxn => {
-          const distanceInKm = distance / 1000;
-          const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
-          return finalDistance;
-        }));
-      })
-    ).subscribe(finalDistance => {
-      if (this.formInitializedFlag) {
-        if (this.fg.value.round_trip) {
-          this.fg.controls.distance.setValue((finalDistance * 2).toFixed(2));
-        } else {
-          this.fg.controls.distance.setValue(finalDistance.toFixed(2));
-        }
-      }
-    });
-
-    this.fg.controls.round_trip.valueChanges.subscribe(roundTrip => {
-      if (this.formInitializedFlag) {
-        if (this.fg.value.distance) {
-          if (roundTrip) {
-            this.fg.controls.distance.setValue((+this.fg.value.distance * 2).toFixed(2));
-          } else {
-            this.fg.controls.distance.setValue((+this.fg.value.distance / 2).toFixed(2));
-          }
-        }
-      }
-    });
-
-    this.setupDuplicateDetection();
   }
 
   get mileage_locations() {
@@ -572,6 +520,38 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.fg = this.fb.group({
+      mileage_vehicle_type: [],
+      dateOfSpend: [],
+      mileage_locations: new FormArray([]),
+      distance: [],
+      round_trip: [],
+      paymentMode: [, Validators.required],
+      purpose: [],
+      project: [],
+      billable: [],
+      sub_category: [],
+      custom_inputs: new FormArray([]),
+      costCenter: [],
+      add_to_new_report: [],
+      report: [],
+      duplicate_detection_reason: []
+    });
+
+    this.fg.controls.round_trip.valueChanges.subscribe(roundTrip => {
+      if (this.formInitializedFlag) {
+        if (this.fg.value.distance) {
+          if (roundTrip) {
+            this.fg.controls.distance.setValue((+this.fg.value.distance * 2).toFixed(2));
+          } else {
+            this.fg.controls.distance.setValue((+this.fg.value.distance / 2).toFixed(2));
+          }
+        }
+      }
+    });
+
+    this.setupDuplicateDetection();
+
     this.fg.reset();
     this.title = 'Add Mileage';
 
@@ -627,6 +607,27 @@ export class AddEditMileagePage implements OnInit {
 
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
+
+    this.fg.controls.mileage_locations.valueChanges.pipe(
+      switchMap((locations) => {
+        return this.mileageService.getDistance(locations);
+      }),
+      switchMap((distance) => {
+        return this.etxn$.pipe(map(etxn => {
+          const distanceInKm = distance / 1000;
+          const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
+          return finalDistance;
+        }));
+      })
+    ).subscribe(finalDistance => {
+      if (this.formInitializedFlag) {
+        if (this.fg.value.round_trip) {
+          this.fg.controls.distance.setValue((finalDistance * 2).toFixed(2));
+        } else {
+          this.fg.controls.distance.setValue(finalDistance.toFixed(2));
+        }
+      }
+    });
 
     this.isAmountDisabled$ = this.etxn$.pipe(
       map(
@@ -897,20 +898,6 @@ export class AddEditMileagePage implements OnInit {
         this.formInitializedFlag = true;
       }, 1000);
     });
-
-    this.paymentModeInvalid$ = iif(() => this.activatedRoute.snapshot.params.id, this.etxn$, of(null)).pipe(
-      map(etxn => {
-        if (this.fg.value.paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
-          if (etxn && etxn.id && this.fg.value.paymentMode.acc.id === etxn.source_account_id && etxn.state !== 'DRAFT') {
-            return (this.fg.value.paymentMode.acc.tentative_balance_amount + etxn.amount) < this.fg.value.currencyObj.amount;
-          } else {
-            return this.fg.value.paymentMode.acc.tentative_balance_amount < this.fg.value.currencyObj.amount;
-          }
-        } else {
-          return false;
-        }
-      })
-    );
   }
 
   addMileageLocation() {
@@ -934,18 +921,84 @@ export class AddEditMileagePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
+  checkIfInvalidPaymentMode() {
+    return forkJoin({
+      amount: this.amount$.pipe(take(1)),
+      etxn: this.etxn$
+    }).pipe(
+      map(({etxn, amount}) => {
+        const paymentAccount = this.fg.value.paymentMode;
+        const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
+        let isPaymentModeInvalid = false;
+        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+          if (paymentAccount.acc.id !== originalSourceAccountId) {
+            isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < amount;
+          } else {
+            isPaymentModeInvalid = (paymentAccount.acc.tentative_balance_amount + etxn.tx.amount) < amount;
+          }
+        }
+        return isPaymentModeInvalid;
+      })
+    );
+  }
 
   saveExpense() {
-    if (this.fg.valid) {
-      if (this.mode === 'add') {
-        this.addExpense().subscribe(noop);
+    let that = this;
+
+    that.checkIfInvalidPaymentMode().pipe(
+      take(1)
+    ).subscribe(invalidPaymentMode => {
+      if (that.fg.valid && !invalidPaymentMode) {
+        if (that.mode === 'add') {
+          that.addExpense().subscribe(noop);
+        } else {
+          // to do edit
+          that.editExpense().subscribe(noop);
+        }
       } else {
-        // to do edit
-        this.editExpense().subscribe(noop);
+        that.fg.markAllAsTouched();
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
       }
-    } else {
-      this.fg.markAllAsTouched();
-    }
+    });
+  }
+
+  reloadCurrentRoute() {
+    let currentUrl = this.router.url;
+    this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true}).then(() => {
+        this.router.navigate([currentUrl]);
+    });
+  }
+
+  saveAndNewExpense() {
+    let that = this;
+
+    that.checkIfInvalidPaymentMode().pipe(
+      take(1)
+    ).subscribe(invalidPaymentMode => {
+      if (that.fg.valid && !invalidPaymentMode) {
+        if (that.mode === 'add') {
+          that.addExpense().subscribe(()=> {
+            this.reloadCurrentRoute();
+          });
+        } else {
+          // to do edit
+          that.editExpense().subscribe(noop);
+        }
+      } else {
+        that.fg.markAllAsTouched();
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
+      }
+    });
   }
 
   saveExpenseAndGotoNext() {
@@ -1334,17 +1387,25 @@ export class AddEditMileagePage implements OnInit {
           if (isConnected) {
             return this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
               switchMap((distance) => {
-                return this.etxn$.pipe(map(etxn => {
-                  const distanceInKm = distance / 1000;
-                  const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
-                  return finalDistance;
-                }));
+                if (distance) {
+                  return this.etxn$.pipe(map(etxn => {
+                    const distanceInKm = distance / 1000;
+                    const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
+                    return finalDistance;
+                  }));
+                } else {
+                  return of(null);
+                }
               }),
               map(finalDistance => {
-                if (this.fg.value.round_trip) {
-                  return (finalDistance * 2).toFixed(2);
+                if (finalDistance) {
+                  if (this.fg.value.round_trip) {
+                    return (finalDistance * 2).toFixed(2);
+                  } else {
+                    return (finalDistance).toFixed(2);
+                  }
                 } else {
-                  return (finalDistance).toFixed(2);
+                  return null;
                 }
               })
             );
@@ -1352,7 +1413,7 @@ export class AddEditMileagePage implements OnInit {
             return of(null);
           }
         }),
-        shareReplay()
+        shareReplay(1)
       );
 
     return from(this.loaderService.showLoader())
@@ -1482,10 +1543,14 @@ export class AddEditMileagePage implements OnInit {
                   };
                 }
                 if (entry) {
-                  return from(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
+                  return from(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)).pipe(
+                    map(() => etxn)
+                  );
                 }
                 else {
-                  return of(this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null));
+                  return of(this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null)).pipe(
+                    map(()=> etxn)
+                  );
                 }
 
               })

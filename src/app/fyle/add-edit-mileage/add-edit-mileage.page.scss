@@ -26,7 +26,6 @@
     align-items: center;
   }
 
-
   &--receipt {
     align-items: center;
     text-align: center;
@@ -259,7 +258,7 @@
     background-color: #999;
     opacity: 0.8;
     &__disabled {
-      opacity: .2;
+      opacity: 0.2;
     }
   }
 
@@ -275,7 +274,16 @@
     background-color: #999;
     opacity: 0.8;
     &__disabled {
-      opacity: .2;
+      opacity: 0.2;
     }
+  }
+
+  &--error-message-block {
+    position: sticky;
+    width: 100%;
+    bottom: 0;
+    background: rgba(221, 0, 0, 0.7);
+    color: #fff;
+    padding: 16px;
   }
 }

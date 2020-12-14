@@ -39,7 +39,7 @@
       </button>
     </div>
     <ng-container *ngIf="etxn$|async as etxn">
-
+        <ng-container *ngIf="fg">
       <form [formGroup]="fg" class="add-edit-mileage--form">
         <!-- <div ng-click="vm.scrollTo('comments')" *ngIf="etxn.tx.policy_flag && vm.comments">
             <enterprise-fy-policy-violation-info estatuses="vm.comments">
@@ -395,12 +395,7 @@
             <app-comments objectType="transactions" [objectId]="etxn.tx.id" mode="edit" text="Comments"></app-comments>
           </div>
 
-          <!-- <div class="element-container delete-block" *ngIf="etxn && vm.mode === 'edit'">
-            <div class="element-block m-0 no-border" ng-click="vm.deleteTxn()">
-              <i class="icon ion-trash-b"></i>
-              <p class="delete-text">Delete mileage</p>
-            </div>
-          </div> -->
+
           <!-- <app-fy-alert
             *ngIf="!vm.isOffline && vm.mandatorymileageFields.project && vm.isProjectsEnabled && (vm.isIndividualProjectsEnabled && vm.allowedProjectIds.length === 0)"
             type="warning"
@@ -409,22 +404,23 @@
 
 
 
-        <ng-container *ngIf="etxn$|async as etxn">
-          <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
-            class="add-edit-mileage--delete" matRipple (click)="deleteExpense()">
-            <mat-icon class="add-edit-mileage--delete-icon">
-              delete
-            </mat-icon>
-            <div class="add-edit-mileage--delete-msg">
-              Delete Expense
+          <ng-container *ngIf="etxn$|async as etxn">
+            <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
+              class="add-edit-mileage--delete" matRipple (click)="deleteExpense()">
+              <mat-icon class="add-edit-mileage--delete-icon">
+                delete
+              </mat-icon>
+              <div class="add-edit-mileage--delete-msg">
+                Delete Expense
+              </div>
             </div>
-          </div>
+          </ng-container>
         </ng-container>
-        </ng-container>
-
-        
-        
       </form>
+      </ng-container>
+      <div class="add-edit-mileage--error-message-block" *ngIf="invalidPaymentMode">
+        Expense greater than balance in selected Payment Mode. Please choose a different Payment Mode.
+      </div>
     </ng-container>
   </div>
 </ion-content>
@@ -434,7 +430,7 @@
       <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
         Save
       </ion-button>
-      <ion-button class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
+      <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
         Save & New
       </ion-button>
     </ion-buttons>
