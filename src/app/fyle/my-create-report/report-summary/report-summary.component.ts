@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 
 @Component({
@@ -7,6 +7,11 @@ import { ModalController, PopoverController } from '@ionic/angular';
   styleUrls: ['./report-summary.component.scss'],
 })
 export class ReportSummaryComponent implements OnInit {
+  @Input() selectedTotalAmount;
+  @Input() selectedTotalTxns;
+  @Input() homeCurrency;
+  @Input() purpose;
+  @Input() action;
 
   constructor(
     private popoverController: PopoverController
@@ -22,6 +27,5 @@ export class ReportSummaryComponent implements OnInit {
     this.popoverController.dismiss();
   }
 
-  ngOnInit() {}
-
+  ngOnInit() { }
 }

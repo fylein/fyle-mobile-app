@@ -348,6 +348,14 @@ export class TripRequestsService {
     );
   }
 
+  addApproverETripRequests(tripRequestId, approverEmail, comment) {
+    const data = {
+      approver_email: approverEmail,
+      comment: comment
+    };
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
+  }
+
   findMyUnreportedRequests() {
     const data = {
       params: {
@@ -356,5 +364,27 @@ export class TripRequestsService {
     };
 
     return this.apiService.get('/trip_requests', data);
+  }
+
+  action (action, tripRequestId) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/' + action)
+      // self.deleteCache();
+      // return result;
+  }
+
+  approve(tripRequestId) {
+    return this.action('approve', tripRequestId);
+  }
+
+  inquire(tripRequestId, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/inquire', addStatusPayload);
+      // self.deleteCache();
+      // return req;
+  }
+
+  reject = function (tripRequestId, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/reject', addStatusPayload);
+      // self.deleteCache();
+      // return req;
   }
 }

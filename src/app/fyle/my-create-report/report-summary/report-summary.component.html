@@ -6,7 +6,9 @@
           <div class="report-summary--title">Review</div>
         </ion-col>
         <ion-col size="4">
-          <div class="report-summary--back" (click)="close()">Back</div>
+          <div class="report-summary--back" (click)="close()">
+            Cancel
+          </div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -16,17 +18,17 @@
     <div class="report-summary--card">
       <p class="report-summary--currency-amount-container">
         <span class="report-summary--currency">
-    
-          {{homeCurrency$ | async}}
+          {{homeCurrency}}
         </span>
         <span class="report-summary--amount">{{selectedTotalAmount}}</span>
       </p>
       <p class="report-summary--purpose">{{purpose}}</p>
-        <p class="report-summary--info-text">Contains {{selectedTotalTxns}} expenses</p>
+      <p class="report-summary--info-text">Contains {{selectedTotalTxns}} expenses</p>
     </div>
 
     <div class="report-summary--warning-text">
-      <span *ngIf="action === 'draft'">This action will save a draft report and will not be submitted to your approvers directly. <strong> You need to explicitly submit a draft report. </strong></span>
+      <span *ngIf="action === 'draft'">This action will save a draft report and will not be submitted to your approvers
+        directly. <strong> You need to explicitly submit a draft report. </strong></span>
       <span *ngIf="action === 'submit'">Your approvers will be automatically notified</span>
     </div>
   </div>

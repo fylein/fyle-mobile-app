@@ -15,6 +15,7 @@ import { toBase64String } from '@angular/compiler/src/output/source_map';
 import { PopoverController } from '@ionic/angular';
 import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-popup/gallery-upload-success-popup.component';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -32,12 +33,12 @@ export class CameraOverlayPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private currencyService: CurrencyService,
     private transactionsOutboxService: TransactionsOutboxService,
     private loaderService: LoaderService,
     private router: Router,
     private imagePicker: ImagePicker,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private offlineService: OfflineService
   ) { }
 
   setUpAndStartCamera() {
@@ -192,7 +193,7 @@ export class CameraOverlayPage implements OnInit {
     this.setUpAndStartCamera();
     this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
 
-    this.currencyService.getHomeCurrency().subscribe(res => {
+    this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
     });
   }

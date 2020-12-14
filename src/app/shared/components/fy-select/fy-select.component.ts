@@ -4,6 +4,7 @@ import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 
 @Component({
@@ -26,6 +27,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() mandatory = false;
   @Input() selectionElement: TemplateRef<any>;
   @Input() nullOption = true;
+  @Input() cacheName = '';
 
   private innerValue;
   displayValue;
@@ -43,7 +45,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
   constructor(
     private modalController: ModalController,
-    private injector: Injector
+    private injector: Injector,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) { }
 
   ngOnInit() {
@@ -66,6 +69,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
           this.displayValue = selectedOption && selectedOption.label;
         } else if (typeof this.innerValue === 'string'){
           this.displayValue = this.innerValue;
+        } else {
+          this.displayValue = '';
         }
       }
 
@@ -80,13 +85,16 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         options: this.options,
         currentSelection: this.value,
         selectionElement: this.selectionElement,
-        nullOption: this.nullOption
+        nullOption: this.nullOption,
+        cacheName: this.cacheName
       }
     });
 
     await selectionModal.present();
 
     const { data } = await selectionModal.onWillDismiss();
+
+    console.log(data);
 
     if (data) {
       this.value = data.value;
@@ -106,6 +114,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
           this.displayValue = selectedOption.label;
         } else if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
+        } else {
+          this.displayValue = '';
         }
       }
     }

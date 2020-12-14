@@ -28,6 +28,7 @@ export class MyAdvancesPage implements OnInit {
   ) { }
 
   ionViewWillEnter() {
+    this.currentPageNumber = 1;
     this.myAdvancerequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
@@ -87,15 +88,13 @@ export class MyAdvancesPage implements OnInit {
   }
 
   onAdvanceClick(clickedAdvance: any) {
-    const id = clickedAdvance.advanceRequest?.areq_advance_id ? clickedAdvance.advanceRequest.areq_advance_id : clickedAdvance.advanceRequest.areq_id;
+    const id = clickedAdvance.advanceRequest.areq_advance_id ? clickedAdvance.advanceRequest.areq_advance_id : clickedAdvance.advanceRequest.areq_id;
     let route = clickedAdvance.advanceRequest.areq_advance_id ? 'my_view_advance' : 'my_view_advance_request';
 
     if ((['draft', 'pulledBack', 'inquiry']).indexOf(clickedAdvance.internalState.state) > -1) {
       route = 'add_edit_advance_request';
     }
 
-    //Todo: Redirect to page later.
-    console.log(id, route);
     this.router.navigate(['/', 'enterprise', route, { id }]);
   }
 

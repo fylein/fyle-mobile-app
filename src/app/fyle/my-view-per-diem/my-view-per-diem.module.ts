@@ -8,6 +8,7 @@ import { MyViewPerDiemPageRoutingModule } from './my-view-per-diem-routing.modul
 
 import { MyViewPerDiemPage } from './my-view-per-diem.page';
 import { MatIconModule } from '@angular/material/icon';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import { MatIconModule } from '@angular/material/icon';
     FormsModule,
     IonicModule,
     MyViewPerDiemPageRoutingModule,
-    MatIconModule
+    MatIconModule,
+    SharedModule
   ],
   declarations: [MyViewPerDiemPage]
 })

@@ -43,5 +43,15 @@ $list-element-color: #333;
   &--container {
     display: flex;
     flex-direction: column;
+    padding: 0 10px;
+  }
+
+  &--sub-title {
+    color: #ababab;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-bottom: 1px solid #ddd;
+    margin-top: 20px;
   }
 }

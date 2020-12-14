@@ -26,6 +26,8 @@ export class TransactionsOutboxService {
   dataExtractionQueue = [];
   tempQueue;
 
+  ROOT_ENDPOINT: string;
+
   constructor(
     private storageService: StorageService,
     private dateService: DateService,
@@ -37,7 +39,12 @@ export class TransactionsOutboxService {
     private reportService: ReportService,
     private offlineService: OfflineService
   ) {
+    this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
+  }
+
+  setRoot(rootUrl: string) {
+    this.ROOT_ENDPOINT = rootUrl;
   }
 
   async saveQueue() {
@@ -356,7 +363,7 @@ export class TransactionsOutboxService {
   }
 
   parseReceipt(data): Promise<ParsedReceipt> {
-    const url = environment.ROOT_URL + '/data_extraction/extract';
+    const url = this.ROOT_ENDPOINT + '/data_extraction/extract';
     let suggestedCurrency = null;
     // res = {
     //   amount: 100,

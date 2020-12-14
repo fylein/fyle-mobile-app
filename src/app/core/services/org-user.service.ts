@@ -94,7 +94,14 @@ export class OrgUserService {
       return status.indexOf(eou.ou.status) === -1;
     });
     return eousFiltered;
+  }
 
+  filterByRoles(eous: ExtendedOrgUser[], role: string) {
+    const eousFiltered = eous.filter((eou) => {
+      return eou.ou.roles.indexOf(role);
+    });
+
+    return eousFiltered;
   }
 
   filterByRoles(eous: ExtendedOrgUser[], role) {

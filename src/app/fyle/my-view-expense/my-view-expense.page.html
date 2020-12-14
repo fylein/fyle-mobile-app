@@ -170,8 +170,7 @@
 
     <div class="view-expense--card">
       <div class="view-expense--card-action">
-        <mat-icon class="view-expense--card-action-icon">chat_bubble</mat-icon>
-        <div class="view-expense--card-action-text view-expense--card-action-text__comment">Comments</div>
+        <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments"></app-comments>
       </div>
     </div>
   </div>

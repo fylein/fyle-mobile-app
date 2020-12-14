@@ -181,16 +181,17 @@
         </div>
       </div>
 
-      <div class="trip-request--card" (click)="openApproverDialog()">
-        <div class="trip-request--card-action">
-          <mat-icon class="trip-request--card-action-icon">add_circle</mat-icon>
-          <div class="trip-request--card-action-text trip-request--card-action-text__comment">Add Approvers</div>
-        </div>
-      </div>
+      <app-fy-apporver 
+        [approverList]="tripRequest.approvers" 
+        [id]="tripRequest.trp_id" 
+        [from]="'TRIP_REQUEST'" 
+        [title]="'Add Approvers'" 
+        (notify)='onUpdateApprover($event)'>
+      </app-fy-apporver>
+
       <div class="trip-request--card">
         <div class="trip-request--card-action">
-          <mat-icon class="trip-request--card-action-icon">chat_bubble</mat-icon>
-          <div class="trip-request--card-action-text trip-request--card-action-text__comment">Comments</div>
+          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>
         </div>
       </div>
     </div>
@@ -199,7 +200,7 @@
 
 <ion-footer>
   <ion-toolbar>
-    <ion-button class="trip-request--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+    <ion-button (click)="openActionBlock()" class="trip-request--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
       Trip Action
     </ion-button>
   </ion-toolbar>

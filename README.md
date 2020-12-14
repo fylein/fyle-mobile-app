@@ -9,6 +9,14 @@ New version of Fyle mobile app. This project is under active development and may
  - put the environment files corresponding to the build you want in the environment folder
  - ionic serve -c `env_name`
 
+# IMPORTANT
+## before making any changes
+
+ - go to .git/hooks
+ - run in the shell - chmod +x pre-commit 
+
+This is to prevent keys from accidentally leaking
+
 ## For setting environment variables
 
  - Ping @tarun for environment files

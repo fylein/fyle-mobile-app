@@ -24,8 +24,8 @@
         <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMMM dd, yyyy'}}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
-            Approver<span *ngIf="reportApprovals.length === 1"> is </span><span *ngIf="reportApprovals.length > 1">s
-              are</span>
+            <p> <strong> Approver<span *ngIf="reportApprovals.length === 1"> is </span><span *ngIf="reportApprovals.length > 1">s
+              are </span> </strong> </p>
             <span *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
               <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
                 {{ap.state | reportState}}
@@ -117,13 +117,6 @@
       <app-comments objectType="reports" [objectId]="erpt.rp_id" mode="edit" text="Comments"></app-comments>
     </div>
 
-    <!-- TODO: View Comments -->
-    <!-- <div class="element-container" *ngIf="erpt && !isZeroExpenseReport">
-      <enterprise-fy-comments class="element-block m-0 comments-block" object-type="reports"
-        object-id="{{ erpt.rp_id }}" mode="edit" text="Comments" show-comments-count="false" dont-load-comments="true">
-      </enterprise-fy-comments>
-    </div> -->
-
     <div class="view-reports--card view-reports--card__block-action" *ngIf="canDelete$ | async" (click)="deleteReport()"
       matRipple>
       <mat-icon class="view-reports--block-action-icon">delete</mat-icon>
@@ -134,12 +127,10 @@
 
 <ion-footer *ngIf="((erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)">
   <ion-toolbar>
-    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
+    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block" *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
       Resubmit Report
     </ion-button>
-    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
+    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"  *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
       (click)="showSubmitReportSummaryPopover($event)">
       Submit Report
     </ion-button>

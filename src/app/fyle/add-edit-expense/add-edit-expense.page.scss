@@ -48,7 +48,7 @@
   }
 
   &--receipt-image-icon {
-    margin-top: 12px;
+    // margin-top: 12px;
   }
 
   &--receipt-background {
@@ -189,6 +189,12 @@
     font-weight: 500;
     color: #3a94f6;
     margin: 0 0 10px;
+  }
+
+  &--comment {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    margin-bottom: 10px;
   }
   
   &--delete {
