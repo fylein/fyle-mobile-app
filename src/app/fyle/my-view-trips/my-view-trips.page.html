@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar class="view-trip--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-button color="fyle-primary" fill="clear" *ngIf="canEdit$|async" [routerLink]="['/','enterprise','my_add_edit_trips']">
+      <ion-button color="fyle-primary" fill="clear" *ngIf="canEdit$|async" (click)="editTrip()">
         Edit
       </ion-button>
       <ion-button [routerLink]="['/','enterprise','my_trips']" routerLinkActive="router-link-active">

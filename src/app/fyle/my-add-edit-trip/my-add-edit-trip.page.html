@@ -205,19 +205,19 @@
       <div>
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
             Request Transportation
           </label>
         </div>
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
             Request Hotel
           </label>
         </div>
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit'" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
             Request Advance
           </label>
         </div>

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { from, Observable, noop, forkJoin, of, concat } from 'rxjs';
+import { from, Observable, noop, forkJoin, of, concat, combineLatest } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
-import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take } from 'rxjs/operators';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -17,6 +17,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { SavePopoverComponent } from './save-popover/save-popover.component';
+import { CustomField } from 'src/app/core/models/custom_field.model';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -176,19 +177,6 @@ export class MyAddEditTripPage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_trips']);
       })
     ).subscribe(noop);
-    // vm.criticalPromise = TripRequestsService.saveDraft(angular.copy(vm.tripRequest.trp)).then(function (tripRequest) {
-    //   var promises = submitTransportationAndHotelRequest(tripRequest);
-    //   if (vm.advanceRequests.length > 0) {
-    //     promises.advancesRequest = saveAdvancesRequests(tripRequest);
-    //   }
-    //   return $q.all(promises).then(function (res) {
-    //     $ionicLoading.hide();
-    //     TripRequestsService.triggerPolicyCheck(tripRequest.id);
-    //     res.tripRequest = tripRequest;
-    //     return res;
-    //   });
-    // });
-    // return vm.criticalPromise;
   }
 
   makeTrpfromFormFg(formValue) {
@@ -224,19 +212,6 @@ export class MyAddEditTripPage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_trips']);
       })
     ).subscribe(noop);
-    // vm.criticalPromise = this.tripRequestsService.submit(angular.copy(vm.tripRequest.trp)).then(function (tripRequest) {
-    //   var promises = submitTransportationAndHotelRequest(tripRequest);
-    //   if (vm.advanceRequests.length > 0) {
-    //     promises.advancesRequest = submitAdvancesRequests(tripRequest);
-    //   }
-    //   return $q.all(promises).then(function (res) {
-    //     $ionicLoading.hide();
-    //     TripRequestsService.triggerPolicyCheck(tripRequest.id);
-    //     res.tripRequest = tripRequest;
-    //     return res;
-    //   });
-    // });
-    // return vm.criticalPromise;
 
   }
 
@@ -250,7 +225,7 @@ export class MyAddEditTripPage implements OnInit {
 
   setDefaultStarrtDate() {
     this.today = new Date();
-    this.startDate.setValue(moment(this.today).format('y-MM-DD'));
+    this.startDate.setValue(moment(this.today).format('y-MM-DDD'));
   }
 
   get cities() {
@@ -313,6 +288,17 @@ export class MyAddEditTripPage implements OnInit {
     } else {
       this.fg.markAllAsTouched();
     }
+  }
+
+  modifyAdvanceRequestCustomFields(customFields): CustomField[] {
+    customFields = customFields.map(customField => {
+      if (customField.type === 'DATE' && customField.name) {
+        const updatedDate = new Date(customField.name);
+        customField.name = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
+      }
+      return {id: customField.id, name: customField.name, value: customField.name};
+    });
+    return customFields;
   }
 
   ngOnInit() {
@@ -386,8 +372,56 @@ export class MyAddEditTripPage implements OnInit {
     this.maxDate = this.fg.controls.endDate.value;
 
     if (id) {
-      // promises.tripRequest = TripRequestsService.getETripRequest(id);
       this.mode = 'edit';
+
+      
+
+      from(this.loaderService.showLoader('Getting trip details')).pipe(
+        switchMap(() => {
+          return combineLatest([
+            this.tripRequestsService.get(id),
+            this.tripRequestsService.getHotelRequests(id),
+            this.tripRequestsService.getTransportationRequests(id),
+            this.tripRequestsService.getAdvanceRequests(id),
+          ]);
+        }),
+        take(1),
+        tap(res => console.log('\n\n\n trip detials ->', res)),
+        map(([tripRequest, hotelRequest, transportRequest, advanceRequest]) => {
+          tripRequest.traveller_details.map(traveller => {
+            this.setTripRequestObject(traveller.name, traveller.phone_number);
+          });
+          this.fg.get('tripType').setValue(tripRequest.trip_type);
+          this.fg.get('startDate').setValue(moment(tripRequest.start_date).format('y-MM-DD'));
+          this.fg.get('endDate').setValue(moment(tripRequest.end_date).format('y-MM-DD'));
+          this.fg.get('purpose').setValue(tripRequest.purpose);
+          this.fg.get('project').setValue(tripRequest.project);
+          this.fg.get('travelAgent').setValue(tripRequest.travel_agent);
+          this.fg.get('notes').setValue(tripRequest.notes);
+
+          this.cities.clear();
+          tripRequest.trip_cities.map(tripCity => {
+            const intialCity = this.formBuilder.group({
+              from_city: [tripCity.from_city, Validators.required],
+              to_city: [tripCity.to_city, Validators.required],
+              depart_date: [moment(tripCity.onward_dt).format('y-MM-DD'), Validators.required]
+            });
+
+            if (this.fg.controls.tripType.value === 'ROUND') {
+              intialCity.addControl('returnDate', new FormControl(moment(tripCity.return_dt).format('y-MM-DD'), Validators.required));
+            }
+            this.cities.push(intialCity);
+          });
+
+          this.fg.get('custom_field_values').setValue(this.modifyAdvanceRequestCustomFields(tripRequest.custom_field_values));
+
+          this.fg.get('transportationRequest').setValue(transportRequest.length > 0 ? true : false);
+          this.fg.get('hotelRequest').setValue(hotelRequest.length > 0 ? true : false);
+          this.fg.get('advanceRequest').setValue(advanceRequest.length > 0 ? true : false);
+        }),
+        tap(res => console.log('\n\n\n trip detials ->', res)),
+        finalize(() => this.loaderService.hideLoader())
+      ).subscribe(noop);
     } else {
       this.mode = 'add';
       this.tripActions = {
@@ -485,8 +519,11 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     this.fg.valueChanges.subscribe(formValue => {
+      console.log('\n\n\ formValue ->', formValue);
       if (formValue.tripType === 'MULTI_CITY') {
-        this.minDate = formValue.cities[formValue.cities.length - 2].depart_date;
+        if (formValue.cities.length > 1) {
+          this.minDate = formValue.cities[formValue.cities.length - 2].depart_date;
+        }
       }
     });
   }
