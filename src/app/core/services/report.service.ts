@@ -366,22 +366,22 @@ export class ReportService {
     );
   }
 
-  // addApprovers(erpts, approvers) {
-  //   const reportApprovalsMap = {};
+  addApprovers(erpts, approvers) {
+    const reportApprovalsMap = {};
 
-  //   approvers.forEach((approver) => {
-  //     if (reportApprovalsMap[approver.report_id]) {
-  //       reportApprovalsMap[approver.report_id].push(approver);
-  //     } else {
-  //       reportApprovalsMap[approver.report_id] = [approver];
-  //     }
-  //   });
+    approvers.forEach((approver) => {
+      if (reportApprovalsMap[approver.report_id]) {
+        reportApprovalsMap[approver.report_id].push(approver);
+      } else {
+        reportApprovalsMap[approver.report_id] = [approver];
+      }
+    });
 
-  //   return erpts.map((erpt) => {
-  //     erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
-  //     return erpt;
-  //   });
-  // }
+    return erpts.map((erpt) => {
+      erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
+      return erpt;
+    });
+  }
 
   getFilteredPendingReports(searchParams) {
     const params = this.searchParamsGenerator(searchParams);
