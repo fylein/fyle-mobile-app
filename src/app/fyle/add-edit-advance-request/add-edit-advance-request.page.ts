@@ -119,7 +119,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       this.loaderService.showLoader('Creating Advance Request...');
       return this.saveAndSubmit(event, advanceRequest).pipe(
         switchMap(res => {
-          return this.statusService.post('advance_requests', res.id, {comment: data.reason}, true);
+          return this.statusService.post('advance_requests', res.advanceReq.id, {comment: data.reason}, true);
         }),
         finalize(() => {
           this.fg.reset();

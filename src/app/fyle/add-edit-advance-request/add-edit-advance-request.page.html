@@ -75,9 +75,9 @@
     </div>
 
     <div class="add-edit-advance-request--primary-block" *ngIf="extendedAdvanceRequest$|async">
-      <div *ngFor="let customInput of customFields$ | async as customFields; index as i">
+      <div *ngFor="let customInput of customFields$ | async as customFields; index as i" class="add-edit-advance-request--custom-field-internal-block">
         <form [formGroup]="customInput.control">
-          <div class="add-edit-advance-request--text add-edit-advance-request--custom-field-internal-block"
+          <div class="add-edit-advance-request--text "
             *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
             <div class="add-edit-advance-request--text-label" [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.custom_field_values.controls[i].touched && !fg.controls.custom_field_values.controls[i].valid}">
               {{customInput.name | ellipsis: 20}}
@@ -95,7 +95,7 @@
               formControlName="value">
           </div>
 
-          <div class="add-edit-advance-request--checkbox add-edit-advance-request--custom-field-internal-block"
+          <div class="add-edit-advance-request--checkbox"
             *ngIf="customInput.type === 'BOOLEAN'">
             <label>
               <mat-checkbox color="primary" formControlName="value">
@@ -104,22 +104,22 @@
             </label>
           </div>
 
-          <div class="add-edit-advance-request--custom-field-internal-block" *ngIf="customInput.type === 'LOCATION'">
+          <div *ngIf="customInput.type === 'LOCATION'">
             <app-fy-location [label]="customInput.name" formControlName="value">
             </app-fy-location>
           </div>
 
-          <div class="add-edit-advance-request--custom-field-internal-block" *ngIf="customInput.type === 'SELECT'">
+          <div *ngIf="customInput.type === 'SELECT'">
             <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value">
             </app-fy-select>
           </div>
 
-          <div class="add-edit-advance-request--custom-field-internal-block" *ngIf="customInput.type === 'MULTI_SELECT'">
+          <div *ngIf="customInput.type === 'MULTI_SELECT'">
             <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value">
             </app-fy-multiselect>
           </div>
 
-          <div class="add-edit-advance-request--custom-field-internal-block" *ngIf="customInput.type === 'USER_LIST'">
+          <div *ngIf="customInput.type === 'USER_LIST'">
             <app-fy-userlist [label]="customInput.name" formControlName="value">
             </app-fy-userlist>
           </div>

@@ -106,6 +106,9 @@
     border: 0;
     line-height: 1;
     border-bottom: 1px solid #e0e0e0;
+    &:last-child {
+      border-bottom: 0;
+    }
   }
 
   &--text {
@@ -148,6 +151,7 @@
     line-height: 1.5;
     height: 24px;
     text-align: right;
+    background: transparent;
   }
 
   &--additional-notes-label {
@@ -166,4 +170,3 @@
     width: 100%;
   }
 }
-  
