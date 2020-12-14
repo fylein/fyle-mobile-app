@@ -28,7 +28,7 @@
       Critical Policy Violation
     </div>
 
-    <div matRipple class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!actionOpened" (click)="onGoToTransaction()" [ngClass]="{'my-expenses-card--body__disabled': isDraft && selectionMode && baseState !== 'draft'}">
+    <div matRipple class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!actionOpened" (click)="onGoToTransaction()" [ngClass]="{'my-expenses-card--body__disabled': isDraft && selectionMode && baseState !== 'draft', 'my-expenses-card--body__selected': isSelected}">
       <div class="my-expenses-card--body-internal">
         <div class="my-expenses-card--icon-container" *ngIf="!selectionMode">
           <app-fy-category-icon [category]="expense.tx_org_category"></app-fy-category-icon>
@@ -73,7 +73,7 @@
         </div>
       </div>
 
-      <div *ngIf="canOpenCard" (click)="actionOpened = true">
+      <div *ngIf="canOpenCard && !selectionMode" (click)="actionOpened = true">
         <mat-icon class="my-expenses-card--more">more_horiz</mat-icon>
       </div>
     </div>

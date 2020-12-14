@@ -1,6 +1,6 @@
-<ion-grid *ngIf="this.gridSize && this.gridSize > 0">
+<ion-grid class="dashboard-footer--grid" *ngIf="this.gridSize && this.gridSize > 0">
   <ion-row>
-    <ion-col *ngFor="let item of this.ctaList; index as $index;" size="{{this.gridSize}}">
+    <ion-col class="dashboard-footer--col" *ngFor="let item of this.ctaList; index as $index;" size="{{this.gridSize}}">
       <div class="dashboard-footer--block">
         <div (click)="this.actionFn(item)"> <!-- //for click -->
           <div class="text-center">
@@ -9,8 +9,6 @@
           <div class="dashboard-footer--icon-text text-center">{{item.name}}</div>
         </div>
       </div>
-        
     </ion-col>
-
   </ion-row>
 </ion-grid>
