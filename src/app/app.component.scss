@@ -80,6 +80,10 @@ $sidenav-bg: #161528;
       border-left: 3px solid #ff4d79;
       --background: #252841;
     }
+
+    &__disabled {
+      opacity: .2;
+    }
   }
 
   &--item {

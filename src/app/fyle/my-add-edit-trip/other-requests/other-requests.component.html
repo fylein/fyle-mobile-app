@@ -1,0 +1,414 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Trip Request</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <mat-icon>keyboard_backspace</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <form [formGroup]="otherDetailsForm" (ngSubmit)="onSubmit()">
+    <div class="other-details--container">
+      <mat-tab-group>
+        <!-- Hote Tab starts -->
+        <mat-tab *ngIf="otherRequests[0].hotel" label="Hotel">
+          <ng-container formArrayName="hotelDetails">
+            <div *ngFor="let item of hotelDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
+              <div class="other-details--wrapper-title">
+                <strong>
+                  <p *ngIf="!(fgValues.cities[i].to_city.city)">
+                      City {{i + 1}}
+                  </p>
+                  <p *ngIf="fgValues.cities[i].to_city.city">Hotel in 
+                    {{ fgValues.cities[i].to_city.city }}
+                    on 
+                    {{ fgValues.cities[i].depart_date | date: 'dd MMM yyyy' }}
+                    <span>
+                      to 
+                      {{ otherDetailsForm.value.hotelDetails[i].checkOutDt | date: 'dd MMM yyyy' }}
+                    </span>
+                  </p>
+                </strong>
+              </div>
+              <div class="other-details--element-container">
+                <div class="other-details--special-elements">
+                  <label>
+                    <mat-checkbox color="primary" class="other-details--need-checkbox" formControlName="needBooking"></mat-checkbox>
+                    Need Booking
+                  </label>
+                </div>
+                <div class="other-details--text">
+                  <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': item.controls.checkInDt.touched && !item.controls.checkInDt.valid}">
+                    check in date <span> *</span>
+                  </div>
+                  <input class="other-details--date-input" matInput type="date" formControlName="checkInDt" 
+                  (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': item.controls.checkOutDt.touched && !item.controls.checkOutDt.valid}">
+                    check out date <span> *</span>
+                  </div>
+                  <input class="other-details--date-input" matInput type="date" formControlName="checkOutDt" 
+                  (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+                </div>
+                
+                <div class="other-details--text">
+                  <app-fy-location
+                    [label]="'locality'"
+                    formControlName="location">
+                  </app-fy-location>
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Rooms
+                  </div>
+                  <input class="other-details--date-input" type="number" formControlName="rooms">
+                </div>
+    
+                <ng-container *ngIf="currencies$|async as currencies">
+                  <div class="other-details--text">
+                    <app-fy-select [mandatory]="true" [label]="'Select Currency'" formControlName="currency"
+                    [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
+                    <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
+                      <div>
+                        <div>
+                          {{display}}
+                        </div>
+                      </div>
+                      <mat-icon *ngIf="selected">
+                        check
+                      </mat-icon>
+                    </ng-template>
+                  </div>
+                </ng-container>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Amount
+                  </div>
+                  <input class="other-details--text-input" type="number" formControlName="amount">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Notes
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="notes">
+                </div>
+                <!-- Add Custom Fields here -->
+                <p class="other-details--special-elements">Additional Information</p>
+                <div *ngFor="let customInput of hotelRequestCustomFields$|async as customFields">
+                  <form [formGroup]="customInput.control">
+                    <!-- <button (click)="debug(customInput)">debug</button> -->
+                    <div class="other-details--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
+                      <div class="other-details--text-label">
+                        {{customInput.input_name | ellipsis: 20}}
+                        <span *ngIf="customInput.mandatory">
+                          *
+                        </span>
+                      </div>
+                      <input class="other-details--text-input" type="text" formControlName="value"
+                        *ngIf="customInput.input_type === 'TEXT'">
+          
+                      <input class="other-details--text-input" type="number" formControlName="value"
+                        *ngIf="customInput.input_type === 'NUMBER'">
+          
+                      <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
+                        formControlName="value">
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
+                      <div class="other-details--checkbox">
+                        <mat-checkbox color="primary" formControlName="value">
+                          {{customInput.input_name | ellipsis: 20 }}
+                        </mat-checkbox>
+                      </div>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
+                      <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'SELECT'">
+                      <app-fy-select [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-select>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
+                      <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'USER_LIST'">
+                      <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </mat-tab>
+        <!-- Hote Tab over -->
+        
+        <!-- Advance Tab starts -->
+        <mat-tab *ngIf="otherRequests[1].advance" label="Advance">
+          <ng-container formArrayName="advanceDetails">
+            <div *ngFor="let item of advanceDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
+              <div class="other-details--wrapper-title other-details--advance-count-action">
+                <div>
+                  <strong>
+                    <p>Advance {{i + 1}}</p>
+                  </strong>
+                </div>
+                <div>
+                  <mat-icon *ngIf="i !== 0" (click)="removeAdvance(i)" class="other-details--delete-traveller">delete</mat-icon>
+                </div>
+              </div>
+
+              <div class="other-details--element-container">
+                <ng-container *ngIf="currencies$|async as currencies">
+                  <div class="other-details--text">
+                    <app-fy-select [mandatory]="true" [label]="'Select Currency'" formControlName="currency"
+                    [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
+                    <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
+                      <div>
+                        <div>
+                          {{display}}
+                        </div>
+                      </div>
+                      <mat-icon *ngIf="selected">
+                        check
+                      </mat-icon>
+                    </ng-template>
+                  </div>
+                </ng-container>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': item.controls.amount.touched && !item.controls.amount.valid}">
+                    Amount <span> *</span>
+                  </div>
+                  <input class="other-details--text-input" type="number" formControlName="amount">
+                </div>
+
+                <div class="other-details--text">
+                  <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': item.controls.purpose.touched && !item.controls.purpose.valid}">
+                    purpose <span> *</span>
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="purpose">
+                </div>
+                  
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Notes
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="notes">
+                </div>
+
+                <p class="other-details--special-elements">Additional Information</p>
+                <div *ngFor="let customInput of advanceRequestCustomFields$|async as customFields">
+                  <form [formGroup]="customInput.control">
+                    <!-- <button (click)="debug(customInput)">debug</button> -->
+                    <div class="other-details--text" *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
+                      <div class="other-details--text-label">
+                        {{customInput.name | ellipsis: 20}}
+                        <span *ngIf="customInput.mandatory">
+                          *
+                        </span>
+                      </div>
+                      <input class="other-details--text-input" type="text" formControlName="value"
+                        *ngIf="customInput.type === 'TEXT'">
+          
+                      <input class="other-details--text-input" type="number" formControlName="value"
+                        *ngIf="customInput.type === 'NUMBER'">
+          
+                      <input class="other-details--date-input" *ngIf="customInput.type === 'DATE'" type="date"
+                        formControlName="value">
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.type === 'BOOLEAN'">
+                      <div class="other-details--checkbox">
+                        <mat-checkbox color="primary" formControlName="value">
+                          {{customInput.name | ellipsis: 20 }}
+                        </mat-checkbox>
+                      </div>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.type === 'LOCATION'">
+                      <app-fy-location [label]="customInput.name" formControlName="value"></app-fy-location>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.type === 'SELECT'">
+                      <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value"></app-fy-select>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.type === 'MULTI_SELECT'">
+                      <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.type === 'USER_LIST'">
+                      <app-fy-userlist [label]="customInput.name" formControlName="value"></app-fy-userlist>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+
+            <div (click)="addAdvance()" class="other-details--add-advance">
+              <mat-icon class="other-details--add-advance-add-icon">add_circle</mat-icon> Add Advance
+            </div>
+
+          </ng-container>
+        </mat-tab>
+        <!-- Advance Tab over -->
+        
+        <!-- Transportation Tab starts -->
+        <mat-tab *ngIf="otherRequests[2].transportation" label="Transportation">
+          <ng-container formArrayName="transportDetails">
+            <div *ngFor="let item of transportDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
+              <div class="other-details--wrapper-title">
+                <!-- Big Hack, no other option, please try this at your own risk -->
+                <strong>
+                  <span *ngIf="fgValues.tripType === 'ROUND'">
+                      <!-- otherDetailsForm.value -> {{otherDetailsForm.value | json}} -->
+                    <p>
+                      {{ otherDetailsForm.value.transportDetails[i].fromCity.city }}
+                      to 
+                      {{ otherDetailsForm.value.transportDetails[i].toCity.city }}
+                      on 
+                      <span *ngIf="i === 0">
+                        {{ fgValues.cities[i].depart_date | date: 'dd MMM yyyy' }}
+                      </span>
+                      <span *ngIf="i === 1">
+                        {{ fgValues.cities[0].return_date | date: 'dd MMM yyyy' }}
+                      </span>
+                    </p>
+                  </span>
+                  <span *ngIf="fgValues.tripType !== 'ROUND'">
+                    <p *ngIf="!(fgValues.cities[i].from_city.city && fgValues.cities[i].to_city.city)">
+                      City {{i + 1}}
+                    </p>
+                    <p *ngIf="fgValues.cities[i].from_city.city && fgValues.cities[i].to_city.city">
+                      {{ fgValues.cities[i].from_city.city }}
+                      to 
+                      {{ fgValues.cities[i].to_city.city }}
+                      on 
+                      {{ fgValues.cities[i].departDate | date: 'dd MMM yyyy' }}
+                    </p>
+                  </span>
+                </strong>
+                <!-- Big Hack over, please try this at your own risk -->
+              </div>
+              <div class="other-details--element-container">
+                <div class="other-details--special-elements">
+                  <label>
+                    <mat-checkbox color="primary" class="other-details--need-checkbox" formControlName="needBooking"></mat-checkbox>
+                    Need Booking
+                  </label>
+                </div>
+                
+                <div class="other-details--text">
+                  <app-fy-select [mandatory]="true" [label]="'Select Transportation Mode'" formControlName="transportMode" 
+                  [options]="transportationMode$|async" [nullOption]="false"></app-fy-select>
+                </div>
+    
+                <div class="other-details--text">
+                  <app-fy-select [label]="'Select Preferred Timing'" formControlName="transportTiming" 
+                  [options]="preferredTransportationTiming$|async" [nullOption]="false"></app-fy-select>
+                </div>
+  
+                <ng-container *ngIf="currencies$|async as currencies">
+                  <div class="other-details--text">
+                    <app-fy-select [mandatory]="true" [label]="'Select Currency'" formControlName="currency"
+                    [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
+                    <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
+                      <div>
+                        <div>
+                          {{display}}
+                        </div>
+                      </div>
+                      <mat-icon *ngIf="selected">
+                        check
+                      </mat-icon>
+                    </ng-template>
+                  </div>
+                </ng-container>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Amount
+                  </div>
+                  <input class="other-details--text-input" type="number" formControlName="amount">
+                </div>
+    
+                <div class="other-details--text">
+                  <div class="other-details--text-label">
+                    Notes
+                  </div>
+                  <input class="other-details--text-input" type="text" formControlName="notes">
+                </div>
+
+                <!-- Add Custom Fields here -->
+                <p class="other-details--special-elements">Additional Information</p>
+                <div *ngFor="let customInput of transportRequestCustomFields$|async as customFields">
+                  <form [formGroup]="customInput.control">
+                    <!-- <button (click)="debug(customInput)">debug</button> -->
+                    <div class="other-details--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
+                      <div class="other-details--text-label">
+                        {{customInput.input_name | ellipsis: 20}}
+                        <span *ngIf="customInput.mandatory">
+                          *
+                        </span>
+                      </div>
+                      <input class="other-details--text-input" type="text" formControlName="value"
+                        *ngIf="customInput.input_type === 'TEXT'">
+          
+                      <input class="other-details--text-input" type="number" formControlName="value"
+                        *ngIf="customInput.input_type === 'NUMBER'">
+          
+                      <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
+                        formControlName="value">
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
+                      <div class="other-details--checkbox">
+                        <mat-checkbox color="primary" formControlName="value">
+                          {{customInput.input_name | ellipsis: 20 }}
+                        </mat-checkbox>
+                      </div>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
+                      <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'SELECT'">
+                      <app-fy-select [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-select>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
+                      <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
+                    </div>
+      
+                    <div class="other-details--text" *ngIf="customInput.input_type === 'USER_LIST'">
+                      <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </mat-tab>
+        <!-- Transportation Tab over -->
+      </mat-tab-group>
+    </div>
+    <div class="other-details--cta-block">
+      <div class="other-details--cta-container">
+        <ion-button (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button type="submit" class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
+      </div>
+    </div>
+  </form>
+</ion-content>

@@ -1,0 +1,241 @@
+<ion-header>
+  <ion-toolbar class="add-edit-trip--toolbar">
+    <ion-buttons mode="md" slot="end" (click)="goBack()">
+      <mat-icon>close</mat-icon>
+    </ion-buttons>
+    <ion-title mode="md">
+      <span>{{ mode === 'edit' ? 'Edit Trip Request' : 'Request Trip' }}</span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <form [formGroup]="fg" (ngSubmit)="onSubmit()">
+      <div class="add-edit-trip--container">
+      <!-- Traveller details block start -->
+      <div class="add-edit-trip--elements-wrapper">
+        <div class="add-edit-trip--wrapper-title">
+          Traveller Details
+        </div>
+        <div class="add-edit-trip--element-container">
+          <ng-container formArrayName="travellerDetails">
+            <div *ngFor="let control of travellerDetails.controls; index as i" [formGroupName]="i">
+              <div class="add-edit-trip--traveller-detail-block">
+                  <div class="add-edit-trip--traveller-count-action">
+                    <div>Traveller {{i+1}}</div>
+                    <div>
+                      <mat-icon *ngIf="i !== 0" (click)="removeTraveller(i)" class="add-edit-trip--delete-traveller">delete</mat-icon>
+                    </div>
+                  </div>
+                  <div class="add-edit-trip--text">
+                    <div class="add-edit-trip--text-label">Name</div>
+                    <input class="add-edit-trip--text-input" type="text"  formControlName="name">
+                  </div>
+                  <div class="add-edit-trip--text">
+                    <div class="add-edit-trip--text-label">Contact</div>
+                    <input class="add-edit-trip--text-input" type="text" formControlName="contact">
+                  </div>
+              </div>
+            </div>
+      
+            <div (click)="addNewTraveller()" class="add-edit-trip--add-traveller">
+              <mat-icon class="add-edit-trip--add-traveller-add-icon">add_circle</mat-icon> Add Traveller
+            </div>
+            </ng-container>
+        </div>
+      </div>
+      <!-- Traveller details block ends -->
+
+      <!-- Trip information block starts -->
+      <div class="add-edit-trip--elements-wrapper">
+        <div class="add-edit-trip--wrapper-title">
+          Trip Information
+        </div>
+        
+        <div class="add-edit-trip--element-container">
+          <div class="add-edit-trip--text">
+            <app-fy-select [mandatory]="true" [label]="'Select Trip Type'" formControlName="tripType"
+            [options]="tripTypes" [nullOption]="false" ></app-fy-select>
+          </div>
+  
+          <div class="add-edit-trip--text">
+            <div class="add-edit-trip--text-label">
+              Start date <span>*</span> <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+            </div>
+            <input class="add-edit-trip--date-input" matInput type="date" formControlName="startDate"
+            (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+          </div>
+
+          <div class="add-edit-trip--text">
+            <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': (fg.controls.endDate.touched && !fg.controls.endDate.valid) || !(fg.controls.endDate.value >= fg.controls.startDate.value)}">
+              End date <span>*</span> <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+            </div>
+            <input class="add-edit-trip--date-input" matInput type="date" formControlName="endDate"
+            (keydown)="$event.preventDefault()" [min]="fg.controls.startDate.value" [max]="maxDate">
+          </div>
+          
+          <div class="add-edit-trip--text">
+            <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
+              Purpose <span>*</span>
+            </div>
+            <input class="add-edit-trip--text-input" type="text" formControlName="purpose">
+          </div>
+
+          <ng-container formArrayName="cities">
+            <div *ngFor="let control of cities.controls; index as i" [formGroupName]="i">
+              <div class="add-edit-trip--traveller-detail-block">
+                  <div class="add-edit-trip--traveller-count-action">
+                    <div>City {{i+1}}</div>
+                    <div>
+                      <mat-icon *ngIf="isTripTypeMultiCity$ && i > 1" (click)="removeCity(i)" class="add-edit-trip--delete-traveller">delete</mat-icon>
+                    </div>
+                  </div>
+                  <div class="add-edit-trip--text">
+                    <app-fy-location
+                      [mandatory]="true"
+                      [label]="'From City'"
+                      formControlName="from_city">
+                    </app-fy-location>
+                  </div>
+                  <div class="add-edit-trip--text">
+                      <app-fy-location
+                      [mandatory]="true"
+                      [label]="'To City'"
+                      formControlName="to_city">
+                    </app-fy-location>
+                  </div>
+
+                  <div class="add-edit-trip--text">
+                    <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.depart_date.touched && !control.controls.depart_date.valid}">
+                      Select Depart Date <span>*</span>
+                    </div>
+                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="depart_date"
+                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="fg.controls.endDate.value">
+                  </div>
+
+                  <div class="add-edit-trip--text" *ngIf="fg.controls.tripType.value === 'ROUND'">
+                    <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.return_date.touched && !control.controls.return_date.valid}">
+                      Select Return Date <span>*</span>
+                    </div>
+                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="return_date"
+                    (keydown)="$event.preventDefault()" [min]="control.controls.depart_date.value" [max]="fg.controls.endDate.value">
+                  </div>
+              </div>
+            </div>
+    
+            <div (click)="addNewCity()" *ngIf="isTripTypeMultiCity$|async" class="add-edit-trip--add-traveller">
+              <mat-icon class="add-edit-trip--add-traveller-add-icon">add_circle</mat-icon> Add City
+            </div>
+          </ng-container>
+          <!-- show if projects .length > 0 -->
+          <div class="add-edit-trip--text" *ngIf="(projects$|async)?.length > 0">
+            <app-fy-select-project [label]="'Select Project'" formControlName="project"></app-fy-select-project>
+          </div>
+
+          <!-- show if travel agent length > 0 -->
+          <div class="add-edit-trip--text" *ngIf="(travelAgents$|async)?.length > 0">
+            <app-fy-select [mandatory]="true" [label]="'Select Agent'" formControlName="travelAgent"
+            [options]="travelAgents$|async" [nullOption]="false"></app-fy-select>
+          </div>
+
+          <div class="add-edit-trip--text">
+            <div class="add-edit-trip--text-label">
+              Notes
+            </div>
+            <input class="add-edit-trip--text-input" type="text" formControlName="notes">
+          </div>
+        </div>
+      </div>
+      <!-- Trip information block ends -->
+
+      <!-- Aditional information block starts -->
+      <div class="add-edit-trip--elements-wrapper">
+        <div class="add-edit-trip--wrapper-title">
+          Aditional information
+        </div>
+        <div class="add-edit-trip--element-container">
+          <div *ngFor="let customInput of customFields$ | async as customFields">
+            <form [formGroup]="customInput.control">
+              <!-- <button (click)="debug(customInput)">debug</button> -->
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
+                <div class="add-edit-trip--text-label">
+                  {{customInput.input_name | ellipsis: 20}}
+                  <span *ngIf="customInput.mandatory">
+                    *
+                  </span>
+                </div>
+                <input class="add-edit-trip--text-input" type="text" formControlName="value"
+                  *ngIf="customInput.input_type === 'TEXT'">
+    
+                <input class="add-edit-trip--text-input" type="number" formControlName="value"
+                  *ngIf="customInput.input_type === 'NUMBER'">
+    
+                <input class="add-edit-trip--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
+                  formControlName="value">
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'BOOLEAN'">
+                <div class="add-edit-trip--checkbox">
+                  <mat-checkbox color="primary" formControlName="value">
+                    {{customInput.input_name | ellipsis: 20 }}
+                  </mat-checkbox>
+                </div>
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'LOCATION'">
+                <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'SELECT'">
+                <app-fy-select [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-select>
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
+                <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
+              </div>
+
+              <div class="add-edit-trip--text" *ngIf="customInput.input_type === 'USER_LIST'">
+                <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Aditional information block ends -->
+      <div>
+        <div class="add-edit-trip--other-requests">
+          <label>
+            <mat-checkbox color="primary" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
+            Request Transportation
+          </label>
+        </div>
+        <div class="add-edit-trip--other-requests">
+          <label>
+            <mat-checkbox color="primary" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
+            Request Hotel
+          </label>
+        </div>
+        <div class="add-edit-trip--other-requests">
+          <label>
+            <mat-checkbox color="primary" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
+            Request Advance
+          </label>
+        </div>
+      </div>
+    </div>
+  </form>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="add-edit-trip--cta-block">
+      <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
+        <ion-button (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button (click)="onSubmit()" class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
+      </div>
+      <div *ngIf="((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" class="add-edit-trip--cta-container">
+        <ion-button class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="openModal()">Continue</ion-button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-footer>

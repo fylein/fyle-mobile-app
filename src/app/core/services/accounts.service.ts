@@ -3,6 +3,7 @@ import { map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
+import { CurrencyPipe } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ export class AccountsService {
 
   constructor(
     private apiService: ApiService,
-    private dataTransformService: DataTransformService
+    private dataTransformService: DataTransformService,
+    private currencyPipe: CurrencyPipe
   ) { }
 
   getEMyAccounts(filters?) {
@@ -43,6 +45,7 @@ export class AccountsService {
   }
 
   constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?) {
+    const that = this;
     const accountsMap = {
       PERSONAL_ACCOUNT(account) {
         account.acc.displayName = 'Paid by Me';
@@ -59,8 +62,8 @@ export class AccountsService {
           balance = (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
           currency = account.orig.currency;
         }
-        // TODO: Add iso currency
-        account.acc.displayName = 'Paid from Advance (Balance: ' + balance + ')';
+
+        account.acc.displayName = 'Paid from Advance (Balance: ' + that.currencyPipe.transform(balance, currency) + ')';
 
         account.acc.isReimbursable = false;
         return account;

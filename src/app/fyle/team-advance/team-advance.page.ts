@@ -3,7 +3,7 @@ import { Observable, Subject, from, noop } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { concatMap, switchMap, finalize, map, scan, shareReplay } from 'rxjs/operators';
+import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { Router } from '@angular/router';
 
@@ -15,10 +15,11 @@ import { Router } from '@angular/router';
 export class TeamAdvancePage implements OnInit {
 
   teamAdvancerequests$: Observable<any[]>;
-  loadData$: Subject<number> = new Subject();
+  loadData$: Subject<{ pageNumber: number, state: string }> = new Subject();
   count$: Observable<number>;
   currentPageNumber = 1;
   isInfiniteScrollRequired$: Observable<boolean>;
+  state = 'PENDING';
 
   constructor(
     private offlineService: OfflineService,
@@ -28,18 +29,29 @@ export class TeamAdvancePage implements OnInit {
   ) { }
 
   ngOnInit() {
+
+  }
+
+  ionViewWillEnter() {
+    this.currentPageNumber = 1;
     this.teamAdvancerequests$ = this.loadData$.pipe(
-      concatMap(pageNumber => {
+      concatMap(({ pageNumber, state }) => {
+        const extraParams = state === 'PENDING'? { 
+          areq_state: ['eq.APPROVAL_PENDING'],
+          areq_trip_request_id: ['is.null'],
+          or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+
+        }: { };
+
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
             return this.advanceRequestService.getTeamadvanceRequests({
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
-                areq_state: ['eq.APPROVAL_PENDING'],
-                areq_trip_request_id: ['is.null'],
-                or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-              }
+                ...extraParams
+              },
+              filter: state
             });
           }),
           finalize(() => {
@@ -54,22 +66,33 @@ export class TeamAdvancePage implements OnInit {
         }
         return acc.concat(curr);
       }, [] as ExtendedAdvanceRequest[]),
-      shareReplay()
+      shareReplay(1)
     );
 
-    this.count$ = this.advanceRequestService.getTeamAdvanceRequestsCount(
-      {
-        areq_state: ['eq.APPROVAL_PENDING'],
-        areq_trip_request_id: ['is.null'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-      }
-    ).pipe(
-      shareReplay()
+    this.count$ = this.loadData$.pipe(
+      switchMap(({ state })=> {
+        const extraParams = state === 'PENDING'? { 
+          areq_state: ['eq.APPROVAL_PENDING'],
+          areq_trip_request_id: ['is.null'],
+          or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+
+        }: { };
+
+        return this.advanceRequestService.getTeamAdvanceRequestsCount(
+          {
+            ...extraParams
+          },
+          state
+        );
+      }),
+      shareReplay(1)
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
       concatMap(teamAdvancerequests => {
-        return this.count$.pipe(map(count => {
+        return this.count$.pipe(
+          take(1),
+          map(count => {
           return count > teamAdvancerequests.length;
         }));
       })
@@ -79,23 +102,29 @@ export class TeamAdvancePage implements OnInit {
     this.teamAdvancerequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    this.loadData$.next(this.currentPageNumber);
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
   }
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
-    this.loadData$.next(this.currentPageNumber);
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
     event.target.complete();
   }
 
   doRefresh(event) {
     this.currentPageNumber = 1;
-    this.loadData$.next(this.currentPageNumber);
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
     event.target.complete();
   }
 
   onAdvanceClick(areq: ExtendedAdvanceRequest) {
     this.router.navigate(['/', 'enterprise', 'view_team_advance', { id: areq.areq_id }]);
+  }
+
+  changeState(state) {
+    this.currentPageNumber = 1;
+    this.state = state;
+    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
   }
 
 }

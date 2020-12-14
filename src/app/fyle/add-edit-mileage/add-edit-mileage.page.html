@@ -240,15 +240,18 @@
             </ng-container>
           </ng-container>
 
-          <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-            <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
-              <div class="add-edit-mileage--internal-block">
-                <app-fy-select-project [label]="etxn.tx.project_id ? 'Project' : 'Select Project'"
-                  [mandatory]="transactionMandatoyFields.project" formControlName="project"
-                  [categoryIds]="projectCategoryIds"></app-fy-select-project>
-              </div>
+          <ng-container *ngIf="isConnected$|async">
+            <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+              <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
+                <div class="add-edit-mileage--internal-block">
+                  <app-fy-select-project [label]="etxn.tx.project_id ? 'Project' : 'Select Project'"
+                    [mandatory]="transactionMandatoyFields.project" formControlName="project"
+                    [categoryIds]="projectCategoryIds"></app-fy-select-project>
+                </div>
+              </ng-container>
             </ng-container>
           </ng-container>
+
 
           <div class="add-edit-mileage--internal-block" *ngIf="fg.controls.project.value">
             <mat-checkbox color="primary" formControlName="billable">
@@ -342,45 +345,49 @@
             </ng-container>
           </ng-container>
 
-          <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
-          <ng-container *ngIf="reports$|async as reports">
-            <div class="add-edit-mileage--internal-block">
-              <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                formControlName="report" [options]="reports"></app-fy-select>
-              <ion-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                Add to New Report
-              </ion-checkbox>
-            </div>
+          <ng-container *ngIf="isConnected$|async">
+            <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
+            <ng-container *ngIf="reports$|async as reports">
+              <div class="add-edit-mileage--internal-block">
+                <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                  formControlName="report" [options]="reports"></app-fy-select>
+                <ion-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                  Add to New Report
+                </ion-checkbox>
+              </div>
+            </ng-container>
           </ng-container>
 
-          <ng-container *ngIf="duplicates$|async as duplicates">
-            <ng-container *ngIf="duplicates.length > 0">
-              <div class="add-edit-expense--duplicates-box add-edit-expense--primary-block">
-                <div class="add-edit-expense--duplicate-header">
-                  <mat-icon>
-                    warning
-                  </mat-icon>
-                  <div>
-                    {{duplicates.length}} Duplicates Detected
+          <ng-container *ngIf="isConnected$|async">
+            <ng-container *ngIf="duplicates$|async as duplicates">
+              <ng-container *ngIf="duplicates.length > 0">
+                <div class="add-edit-expense--duplicates-box add-edit-expense--primary-block">
+                  <div class="add-edit-expense--duplicate-header">
+                    <mat-icon>
+                      warning
+                    </mat-icon>
+                    <div>
+                      {{duplicates.length}} Duplicates Detected
+                    </div>
+                    <div *ngIf="duplicateBoxOpen" (click)="duplicateBoxOpen = false">
+                      Collapse
+                    </div>
+                    <div *ngIf="!duplicateBoxOpen" (click)="duplicateBoxOpen = true">
+                      Expand
+                    </div>
                   </div>
-                  <div *ngIf="duplicateBoxOpen" (click)="duplicateBoxOpen = false">
-                    Collapse
-                  </div>
-                  <div *ngIf="!duplicateBoxOpen" (click)="duplicateBoxOpen = true">
-                    Expand
+                  <div class="add-edit-expense--duplicate-sub-box" *ngIf="duplicateBoxOpen">
+                    <div class="add-edit-expense--duplicate-reason" *ngFor="let duplicate of duplicates">
+                      {{duplicate.reason}}
+                    </div>
+                    <div class="add-edit-expense--duplicate-reason-select">
+                      <app-fy-select [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
+                        [options]="[]">
+                      </app-fy-select>
+                    </div>
                   </div>
                 </div>
-                <div class="add-edit-expense--duplicate-sub-box" *ngIf="duplicateBoxOpen">
-                  <div class="add-edit-expense--duplicate-reason" *ngFor="let duplicate of duplicates">
-                    {{duplicate.reason}}
-                  </div>
-                  <div class="add-edit-expense--duplicate-reason-select">
-                    <app-fy-select [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
-                      [options]="[]">
-                    </app-fy-select>
-                  </div>
-                </div>
-              </div>
+              </ng-container>
             </ng-container>
           </ng-container>
         </div>
@@ -402,6 +409,19 @@
             message="'There are no projects assigned to you, so this mileage will be saved as a draft. Please contact admin for further help.'">
           </app-fy-alert> -->
 
+
+
+        <ng-container *ngIf="etxn$|async as etxn">
+          <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
+            class="add-edit-mileage--delete" matRipple (click)="deleteExpense()">
+            <mat-icon class="add-edit-mileage--delete-icon">
+              delete
+            </mat-icon>
+            <div class="add-edit-mileage--delete-msg">
+              Delete Expense
+            </div>
+          </div>
+        </ng-container>
         </ng-container>
 
         
@@ -421,7 +441,8 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="reviewList">
-      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
+      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid"
+        color="fyle-primary">
         Save & Next
       </ion-button>
     </ion-buttons>

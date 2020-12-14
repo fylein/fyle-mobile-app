@@ -1,23 +1,51 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="advance-request--toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-menu-button class="advance-request--menubutton" auto-hide="false"></ion-menu-button>
     </ion-buttons>
     <ion-title mode="md" class="advance-request--title text-capitalize">
       Team Advances
     </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <button mat-button class="advance-request--option" [matMenuTriggerFor]="menu">Filter</button>
+    </ion-buttons>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="changeState('PENDING')">
+          <div class="advance-request--select-state">
+            <ion-checkbox class="advance-request--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'PENDING'" slot="start"></ion-checkbox>
+            <ion-label>Pending</ion-label>
+          </div>
+      </button>
+      <button mat-menu-item (click)="changeState('APPROVED')">          
+        <div class="advance-request--select-state">
+          <ion-checkbox class="advance-request--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'APPROVED'" slot="start"></ion-checkbox>
+          <ion-label>Approved</ion-label>
+        </div>
+      </button>
+    </mat-menu>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div>
-    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-      <ion-refresher-content></ion-refresher-content>
-    </ion-refresher>
+    <div *ngIf="count$|async; else zeroState">
+      <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
 
-    <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async">
-      <app-team-adv-card [advanceRequest]=teamAdvancerequest (gotoAdvance)="onAdvanceClick($event)"></app-team-adv-card>
+      <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async">
+        <app-team-adv-card [advanceRequest]=teamAdvancerequest (gotoAdvance)="onAdvanceClick($event)">
+        </app-team-adv-card>
+      </div>
     </div>
+
+    <ng-template #zeroState>
+      <div class="advance-request--zero-state">
+        <app-fy-zero-state [image]="'../../../assets/images/zero-states/coffee.svg'"
+          [header]="'Nothing here, grab a coffee maybe?'"
+          [message]="'Advances that need your approval will show up here.'"></app-fy-zero-state>
+      </div>
+    </ng-template>
 
     <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
       <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">

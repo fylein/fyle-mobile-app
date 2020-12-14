@@ -18,6 +18,13 @@ $toolbar-border: #ababab6b;
     max-width: 80%;
     margin: 8px;
     font-size: 12px;
+
+    &-icon {
+      width: 16px;
+      margin-right: 10px;
+      color: #aaa;
+      padding-top: 8px;
+    }
   }
 
   &--filters {
@@ -35,6 +42,11 @@ $toolbar-border: #ababab6b;
   &--filter-button {
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     border-radius: 4px;
+    margin-left: 9px;
+
+    &-icon {
+      fill: #1978f7;
+    }
   }
 
   &--primary-cta {
@@ -42,76 +54,6 @@ $toolbar-border: #ababab6b;
   }
 
   &--zero-state {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    align-items: center;
-    text-align: center;
-
-    &-img {
-      margin: 32px;
-    }
-
-    &-header {
-      margin: 12px;
-      font-size: 16px;
-      display: block;
-      margin-bottom: 16px;
-      color: #4a4a4a;
-      line-height: 1.5;
-      font-weight: 500;
-    }
-
-    &-subheader {
-      color: #ababab;
-      display: block;
-      font-size: 16px;
-      font-weight: 300;
-      line-height: 1.5;
-      margin-bottom: 24px;
-      padding: 0 8px;
-    }
-
-    &-action-button-container {
-      margin-top: auto;
-    }
-
-    &-action-button {
-      padding: 24px 16px;
-      border-radius: 6px;
-      color: #f36;
-      font-size: 18px;
-      font-weight: 500;
-      width: 275px;
-      margin: 0 auto 20px;
-      position: relative;
-      background: white;
-      border: 1px solid #f36;
-
-      &:after,
-      &:before {
-        top: 100%;
-        left: 50%;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
-        position: absolute;
-        pointer-events: none;
-      }
-
-      &:after {
-        border-color: rgba(255, 255, 255, 0);
-        border-top-color: white;
-        border-width: 20px;
-        margin-left: -20px;
-      }
-      &:before {
-        border-color: rgba(255, 51, 102, 0);
-        border-top-color: #f36;
-        border-width: 21px;
-        margin-left: -21px;
-      }
-    }
+    padding-top: 80px;
   }
 }

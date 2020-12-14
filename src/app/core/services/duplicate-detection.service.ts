@@ -12,22 +12,30 @@ import { environment } from 'src/environments/environment';
 })
 export class DuplicateDetectionService {
 
+  ROOT_ENDPOINT: string;
+
   constructor(
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private httpClient: HttpClient
-  ) { }
+  ) {
+    this.ROOT_ENDPOINT = environment.ROOT_URL;
+  }
+
+  setRoot(rootUrl: string) {
+    this.ROOT_ENDPOINT = rootUrl;
+  }
 
   getDuplicateReasons() {
     return ['Different expense', 'Other'];
   }
 
   get(url, config?) {
-    return this.httpClient.get(environment.ROOT_URL + '/property_evaluator' + url, config);
+    return this.httpClient.get(this.ROOT_ENDPOINT + '/property_evaluator' + url, config);
   }
 
   post(url, data, config?) {
-    return this.httpClient.post(environment.ROOT_URL + '/property_evaluator' + url, data, config);
+    return this.httpClient.post(this.ROOT_ENDPOINT + '/property_evaluator' + url, data, config);
   }
 
   getPossibleDuplicates(transaction) {

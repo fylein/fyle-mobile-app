@@ -281,16 +281,16 @@ export class ReportService {
     // Example: dateRange.from = 'Jan 1, 2015', dateRange.to = 'Dec 31, 2017'
 
     if (search.dateRange && !isEqual(search.dateRange, {})) {
-      // TODO: Fix before 2020
+      // TODO: Fix before 2025
       let fromDate = new Date('Jan 1, 1970');
-      let toDate = new Date('Dec 31, 2020');
+      let toDate = new Date('Dec 31, 2025');
 
       // Set fromDate to Jan 1, 1970 if none specified
       if (search.dateRange.from) {
         fromDate = new Date(search.dateRange.from);
       }
 
-      // Set toDate to Dec 31, 2020 if none specified
+      // Set toDate to Dec 31, 2025 if none specified
       if (search.dateRange.to) {
         // Setting time to the end of the day
         toDate = new Date(new Date(search.dateRange.to).setHours(23, 59, 59, 999));
@@ -327,6 +327,19 @@ export class ReportService {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(
       map(res => {
         return res.purpose;
+      })
+    );
+  }
+
+  getERpt(rptId) {
+    return this.apiService.get('/erpts/' + rptId).pipe(
+      map(data => {
+        let erpt = this.dataTransformService.unflatten(data);
+        this.dateService.fixDates(erpt.rp);
+        if (erpt && erpt.rp && erpt.rp.created_at) {
+          erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
+        }
+        return erpt;
       })
     );
   }
@@ -427,4 +440,31 @@ export class ReportService {
     return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy);
   }
 
+  submit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/submit');
+  };
+
+  resubmit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/resubmit')
+  }
+
+  inquire(rptId, addStatusPayload) {
+    return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
+  };
+
+  approve(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/approve');
+  }
+
+  addApprover(rptId, approverEmail, comment) {
+    var data = {
+      approver_email: approverEmail,
+      comment: comment
+    };
+    return this.apiService.post('/reports/' + rptId + '/approvals', data);
+  }
+
+  removeApprover(rptId, approvalId) {
+    return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
+  }
 }

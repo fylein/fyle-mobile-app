@@ -1,0 +1,24 @@
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { IonicModule } from '@ionic/angular';
+
+import { ResubmitReportPopoverComponent } from './resubmit-report-popover.component';
+
+describe('ResubmitReportPopoverComponent', () => {
+  let component: ResubmitReportPopoverComponent;
+  let fixture: ComponentFixture<ResubmitReportPopoverComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ ResubmitReportPopoverComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ResubmitReportPopoverComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

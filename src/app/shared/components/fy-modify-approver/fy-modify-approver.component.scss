@@ -1,0 +1,28 @@
+.approver {
+  &--card {
+    border: 1px solid #e5e5e5;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    margin: 20px 0;
+    padding: 16px;
+    border-radius: 4px;
+  }
+
+  &--card-action {
+    display: flex;
+    align-items: center;
+  }
+
+  &--card-action-icon {
+    color: #ababab;
+    margin-right: 12px;
+  }
+
+  &--card-action-text {
+    &__comment {
+      color: #0077ee;
+    }
+    &__delete {
+      color: #f00;
+    }
+  }
+}

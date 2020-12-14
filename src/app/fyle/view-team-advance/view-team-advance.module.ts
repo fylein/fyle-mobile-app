@@ -8,6 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { SharedModule } from '../../shared/shared.module';
+import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';
+import { RejectAdvanceComponent } from './reject-advance/reject-advance.component';
+import { ApproveAdvanceComponent } from './approve-advance/approve-advance.component';
+import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.component';
 
 @NgModule({
   imports: [
@@ -20,6 +24,12 @@ import { SharedModule } from '../../shared/shared.module';
     MatRippleModule,
     SharedModule
   ],
-  declarations: [ViewTeamAdvancePage]
+  declarations: [
+    ViewTeamAdvancePage,
+    AdvanceActionsComponent,
+    ApproveAdvanceComponent,
+    RejectAdvanceComponent,
+    SendBackAdvanceComponent
+  ]
 })
 export class ViewTeamAdvancePageModule {}

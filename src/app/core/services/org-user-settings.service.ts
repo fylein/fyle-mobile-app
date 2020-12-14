@@ -358,12 +358,6 @@ export class OrgUserSettingsService {
     cacheBusterNotifier: orgUserSettingsCacheBuster$
   })
   post(data) {
-    // Todo: fix timezone issue later
-    console.log('data ->', data);
-    return this.apiService.post('/org_user_settings', data).pipe(
-      finalize(async () => {
-        // Todo: Remove cache
-      })
-    );
+    return this.apiService.post('/org_user_settings', data);
   }
 }
