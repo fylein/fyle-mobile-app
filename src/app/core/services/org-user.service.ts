@@ -96,7 +96,7 @@ export class OrgUserService {
     return eousFiltered;
   }
 
-  filterByRoles(eous: ExtendedOrgUser[], role: string) {
+  filterByRole(eous: ExtendedOrgUser[], role: string) {
     const eousFiltered = eous.filter((eou) => {
       return eou.ou.roles.indexOf(role);
     });
