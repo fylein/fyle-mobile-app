@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { from, Observable } from 'rxjs';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { from, Observable, noop } from 'rxjs';
+import { switchMap, map, tap, concatMap } from 'rxjs/operators';
 import { ExtendedTripRequest } from '../models/extended_trip_request.model';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
@@ -10,6 +10,7 @@ import { TripDatesService } from './trip-dates.service';
 import { Approval } from '../models/approval.model';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -321,12 +322,37 @@ export class TripRequestsService {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
   }
 
+  triggerPolicyCheck(tripRequestId) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/trigger_policy_check');
+  }
+
+  saveDraft(tripRequest) {
+    return from(this.authService.getEou()).pipe(
+      map(eou => {
+        return tripRequest.org_user_id = eou.ou.id;
+      }),
+      concatMap(() => {
+        return this.apiService.post('/trip_requests/save', tripRequest);
+      })
+    );
+  }
+
+  submit(tripRequest) {
+    return from(this.authService.getEou()).pipe(
+      map(eou => {
+        return tripRequest.org_user_id = eou.ou.id;
+      }),
+      concatMap(() => {
+        return this.apiService.post('/trip_requests/submit', tripRequest);
+      })
+    );
+  }
+
   addApproverETripRequests(tripRequestId, approverEmail, comment) {
     const data = {
       approver_email: approverEmail,
       comment: comment
     };
-
     return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
   }
 

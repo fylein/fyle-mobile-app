@@ -1,19 +1,31 @@
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransportationRequestsService {
 
-  constructor() { }
+  constructor(
+    private apiService: ApiService
+  ) { }
 
   getTransportationPreferredTiming() {
     return [
-      { id: 'NO_PREFERENCE', name: 'Any time' },
-      { id: 'MIDNIGHT_TO_SIX_AM', name: 'Before 6 am' },
-      { id: 'SIX_AM_TO_NOON', name: '6 am to 12 pm' },
-      { id: 'NOON_TO_SIX_PM', name: '12 pm to 6 pm' },
-      { id: 'SIX_PM_TO_MIDNIGHT', name: 'After 6 pm' }
+      { value: 'NO_PREFERENCE', label: 'Any time' },
+      { value: 'MvalueNIGHT_TO_SIX_AM', label: 'Before 6 am' },
+      { value: 'SIX_AM_TO_NOON', label: '6 am to 12 pm' },
+      { value: 'NOON_TO_SIX_PM', label: '12 pm to 6 pm' },
+      { value: 'SIX_PM_TO_MIDNIGHT', label: 'After 6 pm' }
+    ];
+  }
+
+  getTransportationModes() {
+    return [
+      {value: 'FLIGHT', label: 'FLIGHT'},
+      {value: 'TRAIN', label: 'TRAIN'},
+      {value: 'BUS', label: 'BUS'},
+      {value: 'TAXI', label: 'TAXI'}
     ];
   }
 
@@ -47,5 +59,12 @@ export class TransportationRequestsService {
       transportationRequest.internalStateDisplayName = 'No Booking Needed';
     }
     return transportationRequest;
+  }
+
+  upsert(transportationRequest) {
+    // TripDatesService.convertToDateFormat(transportationRequest);
+    return this.apiService.post('/transportation_requests', transportationRequest)
+      // self.deleteCache();
+      // return fixDates(req);
   }
 }

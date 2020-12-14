@@ -116,7 +116,11 @@ const routes: Routes = [
   },
   {
     path: 'my_edit_report',
-    loadChildren: () => import('./my-edit-report/my-edit-report.module').then(m => m.MyEditReportPageModule)
+    loadChildren: () => import('./my-edit-report/my-edit-report.module').then( m => m.MyEditReportPageModule)
+  },
+  {
+    path: 'my_add_edit_trip',
+    loadChildren: () => import('./my-add-edit-trip/my-add-edit-trip.module').then( m => m.MyAddEditTripPageModule)
   },
   {
     path: 'add_edit_per_diem',

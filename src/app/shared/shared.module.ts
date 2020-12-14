@@ -87,6 +87,7 @@ import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
     CommonModule,
     IonicModule,
     FormsModule,
+    ReactiveFormsModule,
     MatInputModule,
     MatFormFieldModule,
     MatIconModule,
