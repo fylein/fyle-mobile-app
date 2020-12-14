@@ -126,7 +126,7 @@
 
       <div class="my-profile--cards-content my-profile--toggle-container">
         <div class="my-profile--toggle-label"> Scan paper receipts to automatically create expenses. </div>
-        <ion-toggle class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.insta_fyle_settings.enabled"
+        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.insta_fyle_settings.enabled"
           (ionChange)="toggleAutoExtraction()"></ion-toggle>
       </div>
     </div>
@@ -137,7 +137,7 @@
         <div class="my-profile--card-title">Bulkfyle</div>
         <div class="my-profile--card-content my-profile--toggle-container">
           <span class="my-profile--toggle-label"> Submit multiple paper receipts in one go. </span>
-          <ion-toggle class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled"
+          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled"
             (ionChange)="toggleBulkMode()"></ion-toggle>
         </div>
       </div>
@@ -148,7 +148,7 @@
         <div class="my-profile--card-title">One Click Action</div>
         <div class="my-profile--card-content my-profile--toggle-container">
           <span class="my-profile--toggle-label"> Create expense from camera in one go. </span>
-          <ion-toggle class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.one_click_action_settings.enabled"
+          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.one_click_action_settings.enabled"
             (ionChange)="toggleOneClickActionMode()">
           </ion-toggle>
         </div>
@@ -168,7 +168,7 @@
         <div class="my-profile--toggle-label">
           Use the daily messaging app to track your expenses on the go.
         </div>
-        <ion-toggle class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.whatsapp_fyle_settings.enabled"
+        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.whatsapp_fyle_settings.enabled"
           (ionChange)="toggleWhatsappSettings()"></ion-toggle>
       </div>
       <div>
@@ -178,27 +178,18 @@
   </div>
 
   <!-- Currency preference card start -->
-  <div class="my-profile--cards" *ngIf="orgSettings?.org_currency_settings?.enabled">
-    <div class="my-profile--cards-header">
-      <div class="my-profile--cards-title">Currency Preference</div>
+  <div class="my-profile--card" *ngIf="orgSettings?.org_currency_settings?.enabled">
+    <div class="my-profile--card-title">Currency Preference</div>
+    <div class="my-profile--card-content my-profile--toggle-container">
+      <div class="my-profile--toggle-label"> Currency Info </div>
+      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.currency_settings.enabled"
+        (ionChange)="toggleCurrencySettings()"></ion-toggle>
     </div>
-
-    <div class="my-profile--cards-content">
-      <div>
-        <span class="my-profile--toggle-label"> Currency Info </span>
-        <div>
-          <ion-toggle class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.currency_settings.enabled"
-            (ionChange)="toggleCurrencySettings()"></ion-toggle>
-        </div>
-      </div>
-      <div>
-        <div>
-          Item
-        </div>
-        <div (click)="openCurrenySelectionModal()">
-          <div *ngIf="preferredCurrency$|async as preferredCurrency">
-            {{preferredCurrency.id}} - {{preferredCurrency.value}}
-          </div>
+    <div>
+      Select Currency
+      <div (click)="openCurrenySelectionModal()">
+        <div *ngIf="preferredCurrency$|async as preferredCurrency">
+          {{preferredCurrency.id}} - {{preferredCurrency.value}}
         </div>
       </div>
     </div>
@@ -211,7 +202,7 @@
 
     <div class="my-profile--cards-content">
       <span class="my-profile--toggle-label">One SMS to track and turn receipts into expenses</span>
-      <ion-toggle class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled"
+      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled"
         (ionChange)="toggleSmsSettings()"></ion-toggle>
     </div>
   </div>

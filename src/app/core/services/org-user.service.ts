@@ -104,17 +104,17 @@ export class OrgUserService {
     return eousFiltered;
   }
 
-  filterByRoles(eous: ExtendedOrgUser[], role) {
-    const filteredEous = eous.filter(eou => {
-      return role.some(userRole => {
-        if (eou.ou.roles.indexOf(userRole) > -1) {
-          return true;
-        }
-      });
-    });
+  // filterByRoles(eous: ExtendedOrgUser[], role) {
+  //   const filteredEous = eous.filter(eou => {
+  //     return role.some(userRole => {
+  //       if (eou.ou.roles.indexOf(userRole) > -1) {
+  //         return true;
+  //       }
+  //     });
+  //   });
 
-    return filteredEous;
-  }
+  //   return filteredEous;
+  // }
 
   switchToDelegator(orgUser) {
     return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
