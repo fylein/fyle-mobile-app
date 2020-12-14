@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef, Input } from '@angular/core';
 import { AgmGeocoder } from '@agm/core';
 import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize } from 'rxjs/operators';
 import { Plugins } from '@capacitor/core';
@@ -16,9 +16,12 @@ const { Geolocation } = Plugins;
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
+  @Input() currentSelection: any;
+  @Input() header = '';
+
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  filteredList$: Observable<string[]>;
+  filteredList$: Observable<any[]>;
 
   constructor(
     private agmGeocode: AgmGeocoder,
@@ -29,7 +32,15 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     private loaderService: LoaderService
   ) { }
 
-  ngAfterViewInit(): void {
+  ngOnInit() {
+  }
+
+  ngAfterViewInit() {
+    if (this.currentSelection && this.currentSelection.display) {
+      const inputElement = this.searchBarRef.nativeElement as HTMLInputElement;
+      inputElement.value = this.currentSelection.display;
+    }
+
     this.filteredList$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       debounceTime(300),
@@ -37,7 +48,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       switchMap((searchText) => {
         return forkJoin({
           eou: this.authService.getEou(),
-          currentLocation: from(Geolocation.getCurrentPosition())
+          currentLocation: from(Geolocation.getCurrentPosition({
+            timeout: 10000,
+            enableHighAccuracy: true
+          }))
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
             return from(this.loaderService.showLoader()).pipe(
@@ -55,7 +69,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   onDoneClick() {
-    this.modalController.dismiss();
+    this.modalController.dismiss({
+      selection: this.currentSelection
+    });
   }
 
   onElementSelect(location) {
@@ -100,8 +116,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation() {
-
-
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return Geolocation.getCurrentPosition();
@@ -121,9 +135,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         selection
       });
     });
-  }
-
-  ngOnInit() {
   }
 
 }

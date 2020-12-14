@@ -158,16 +158,21 @@ export class AdvanceRequestService {
     );
   }
 
-  getTeamadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+  getTeamadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any, filter: any }> = {
     offset: 0,
     limit: 10,
-    queryParams: {}
+    queryParams: {},
+    filter: 'PENDING'
   }) {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
 
         const defaultParams = {};
-        defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_PENDING'];
+        if (config.filter === 'APPROVED') {
+          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_DONE'];
+        } else {
+          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_PENDING'];
+        }
 
         return this.apiv2Service.get('/advance_requests', {
           params: {
@@ -217,11 +222,12 @@ export class AdvanceRequestService {
     );
   }
 
-  getTeamAdvanceRequestsCount(queryParams: {}) {
+  getTeamAdvanceRequestsCount(queryParams: {}, filter: any) {
     return this.getTeamadvanceRequests({
       offset: 0,
       limit: 1,
-      queryParams
+      queryParams,
+      filter
     }).pipe(
       map(advanceRequest => advanceRequest.count)
     );
@@ -305,7 +311,7 @@ export class AdvanceRequestService {
     const data = {
       advance_request_id: advanceRequestId,
       approver_email: approverEmail,
-      comment: comment
+      comment
     };
 
     return this.apiService.post('/advance_requests/add_approver', data);
@@ -336,9 +342,17 @@ export class AdvanceRequestService {
             obj.advance_request_id = advanceReq.id;
             return this.fileService.post(obj);
           });
-          return forkJoin(newFileObjs);
+          return forkJoin(newFileObjs).pipe(
+            map(() => {
+              return res;
+            })
+          );
         } else  {
-          return of(null);
+          return of(null).pipe(
+            map(() => {
+              return res;
+            })
+          );
         }
       })
     );
@@ -357,12 +371,32 @@ export class AdvanceRequestService {
             obj.advance_request_id = advanceReq.id;
             return this.fileService.post(obj);
           });
-          return forkJoin(newFileObjs);
+          return forkJoin(newFileObjs).pipe(
+            map(() => {
+              return res;
+            })
+          );
         } else  {
-          return of(null);
+          return of(null).pipe(
+            map(() => {
+              return res;
+            })
+          );
         }
       })
     );
   }
 
+  approve(advanceRequestId) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/approve');
+  }
+
+
+  sendBack(advanceRequestId, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/inquire', addStatusPayload);
+  }
+
+  reject(advanceRequestId, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/reject', addStatusPayload);
+  };
 }

@@ -30,11 +30,8 @@
     padding: 19px;
   }
 
-  &--icon {
+  &--icon-container {
     padding: 8px;
-    color: #ababab;
-    border: 1px solid #ababab75;
-    border-radius: 50%;
     margin: 12px;
   }
 
@@ -62,6 +59,21 @@
     color: #ababab;
   }
 
+  &--non-reimbursable {
+    text-decoration: line-through;
+
+    &-amount {
+      color: #ababab;
+    }
+  }
+
+
+  &--more {
+    color: #686872;
+    font-size: 34px;
+    margin-right: 20px;
+  }
+
   &--decorator {
     margin: 0 12px;
     background: #ababab;
@@ -73,8 +85,12 @@
     &__policy-violation {
       background-color: #ff9900;
     }
+    &__critical-policy-violation {
+      background-color: #f00;
+    }
   }
 }
+
 
 .my-expenses-card-menu {
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;

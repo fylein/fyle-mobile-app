@@ -1,0 +1,22 @@
+<div class="advance-action">
+  <div class="advance-action--action" matRipple (click)="openAnotherPopover('approveAdvance')" *ngIf="actions.can_approve">
+    <div class="advance-action--action-content">
+      <p class="advance-action--action-head">Approve Advance</p>
+      <div class="advance-action--action-info">Approve this advance request</div>
+    </div>
+  </div>
+
+  <div class="advance-action--action" matRipple (click)="openAnotherPopover('sendBackAdvance')" *ngIf="actions.can_inquire">
+    <div class="advance-action--action-content">
+      <p class="advance-action--action-head">Send Back Advance</p>
+      <div class="advance-action--action-info">Send back advance request</div>
+    </div>
+  </div>
+
+  <div class="advance-action--action" matRipple (click)="openAnotherPopover('rejectAdvance')" *ngIf="actions.can_reject">
+    <div class="advance-action--action-content">
+      <p class="advance-action--action-head">Reject Advance</p>
+      <div class="advance-action--action-info">Reject this advance request</div>
+    </div>
+  </div>
+</div>

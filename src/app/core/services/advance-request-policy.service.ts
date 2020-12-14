@@ -7,9 +7,17 @@ import { environment } from 'src/environments/environment';
 })
 export class AdvanceRequestPolicyService {
 
+  ROOT_ENDPOINT: string;
+
   constructor(
     private httpClient: HttpClient
-  ) { }
+  ) {
+    this.ROOT_ENDPOINT = environment.ROOT_URL;
+  }
+
+  setRoot(rootUrl: string) {
+    this.ROOT_ENDPOINT = rootUrl;
+  }
 
   getPolicyRules(result) {
     return result.advance_request_policy_rule_desired_states.filter((desiredState) =>  {
@@ -20,7 +28,7 @@ export class AdvanceRequestPolicyService {
   }
 
   servicePost(url, data, config) {
-    return this.httpClient.post(environment.ROOT_URL + '/policy/advance_requests' + url, data);
+    return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/advance_requests' + url, data);
   }
 
 

@@ -18,6 +18,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
+import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -34,6 +35,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   customFields$: Observable<any>;
   attachmentUploadInProgress: boolean;
   dataUrls: any[];
+  customFieldValues: any[];
 
   constructor(
     private offlineService: OfflineService,
@@ -117,7 +119,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       this.loaderService.showLoader('Creating Advance Request...');
       return this.saveAndSubmit(event, advanceRequest).pipe(
         switchMap(res => {
-          return this.statusService.post('advance_requests', res.id, {comment: data.reason}, true);
+          return this.statusService.post('advance_requests', res.advanceReq.id, {comment: data.reason}, true);
         }),
         finalize(() => {
           this.fg.reset();
@@ -188,6 +190,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   modifyAdvanceRequestCustomFields(customFields): CustomField[] {
+    customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
     customFields = customFields.map(customField => {
       if (customField.type === 'DATE' && customField.value) {
         const updatedDate = new Date(customField.value);
@@ -195,7 +198,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
       }
       return {id: customField.id, name: customField.name, value: customField.value};
     });
-    return customFields;
+    this.customFieldValues = customFields;
+    return this.customFieldValues;
   }
 
   fileAttachments() {
@@ -235,6 +239,32 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
     }
 
+  }
+
+  async viewAttachments() {
+
+    let attachments = this.dataUrls;
+
+    attachments = attachments.map(attachment => {
+      if (!attachment.id) {
+        attachment.type = attachment.type === 'application/pdf' ? 'pdf' : 'image';
+      }
+      return attachment;
+    });
+    const attachmentsModal = await this.modalController.create({
+      component: ViewAttachmentsComponent,
+      componentProps: {
+        attachments
+      }
+    });
+
+    await attachmentsModal.present();
+
+    const { data } = await attachmentsModal.onWillDismiss();
+
+    if (data) {
+      this.dataUrls = data.attachments;
+    }
   }
 
   getReceiptExtension(name) {
@@ -297,6 +327,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
+    this.customFieldValues = [];
 
     const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {
@@ -319,9 +350,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         }
 
         if (res.areq.custom_field_values) {
-          this.fg.patchValue({
-            custom_field_values: this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values)
-          });
+          this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values);
         }
         this.getAttachedReceipts(this.activatedRoute.snapshot.params.id).subscribe(files => {
           this.dataUrls = files;
@@ -361,12 +390,19 @@ export class AddEditAdvanceRequestPage implements OnInit {
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
+        customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
         for (const customField of customFields) {
+          let value;
+          this.customFieldValues.filter(customFieldValue => {
+            if (customFieldValue.id === customField.id) {
+              value = customFieldValue.value;
+            }
+          });
           customFieldsFormArray.push(
             this.formBuilder.group({
               id: customField.id,
               name: customField.name,
-              value: [, customField.mandatory && Validators.required]
+              value: [value, customField.mandatory && Validators.required]
             })
           );
         }

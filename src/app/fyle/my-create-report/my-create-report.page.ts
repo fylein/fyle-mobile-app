@@ -57,12 +57,14 @@ export class MyCreateReportPage implements OnInit {
   }
 
   async showReportSummaryPopover(action) {
+    const homeCurrency = await this.homeCurrency$.toPromise();
+
     const reportSummaryPopover = await this.popoverController.create({
       component: ReportSummaryComponent,
       componentProps: {
         selectedTotalAmount: this.selectedTotalAmount,
         selectedTotalTxns: this.selectedTotalTxns,
-        homeCurrency$: this.homeCurrency$,
+        homeCurrency: homeCurrency,
         purpose: this.reportTitle,
         action
       },

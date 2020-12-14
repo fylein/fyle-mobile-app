@@ -124,10 +124,8 @@ export class NotificationsPage implements OnInit {
     this.orgUserSettings.notification_settings.push.unsubscribed_events = [];
     this.orgUserSettings.notification_settings.push.unsubscribed_events = unsubscribedPushEvents;
 
-    console.log('this.orgUserSettings.notification_settings', this.orgUserSettings);
     from(this.loaderService.showLoader('Saving')).pipe(
       switchMap(() => {
-        console.log('commingngggg');
         return this.orgUserSettingsService.post(this.orgUserSettings);
       }),
       finalize(() => from(this.loaderService.hideLoader()))

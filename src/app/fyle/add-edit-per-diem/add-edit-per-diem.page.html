@@ -224,22 +224,23 @@
                   </ng-container>
                 </ng-container>
 
-                <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-                  <ng-container
-                    *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (allowedProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
-                    <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
-                      <div class="add-edit-per-diem--internal-block">
-                        <app-fy-select-project [label]="etxn?.tx?.project_id ? 'Project' : 'Select Project'"
-                          [mandatory]="transactionMandatoyFields?.project" formControlName="project"
-                          [categoryIds]="projectCategoryIds">
-                        </app-fy-select-project>
-                      </div>
-                      <div class="add-edit-per-diem--error"
-                        *ngIf="fg.controls.project.touched && !fg.controls.project.valid">
-                        Please select a project.
-                      </div>
+                <ng-container *ngIf="isConnected$|async">
+                  <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+                    <ng-container
+                      *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (allowedProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
+                      <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
+                        <div class="add-edit-per-diem--internal-block">
+                          <app-fy-select-project [label]="etxn?.tx?.project_id ? 'Project' : 'Select Project'"
+                            [mandatory]="transactionMandatoyFields?.project" formControlName="project"
+                            [categoryIds]="projectCategoryIds">
+                          </app-fy-select-project>
+                        </div>
+                        <div class="add-edit-per-diem--error"
+                          *ngIf="fg.controls.project.touched && !fg.controls.project.valid">
+                          Please select a project.
+                        </div>
+                      </ng-container>
                     </ng-container>
-
                   </ng-container>
                 </ng-container>
 
@@ -251,18 +252,20 @@
                   </mat-checkbox>
                 </div>
 
-                <ng-container *ngIf="filteredCategories$|async as subCategories">
-                  <ng-container *ngIf="subCategories.length > 0">
-                    <div class="add-edit-per-diem--internal-block">
-                      <app-fy-select formControlName="sub_category"
-                        [label]="etxn?.tx?.org_category_id ? 'Sub Category' : 'Select Sub Category'" [mandatory]="true"
-                        [options]="subCategories">
-                      </app-fy-select>
-                    </div>
-                    <div class="add-edit-per-diem--error"
-                      *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid">
-                      Please select a Sub Category.
-                    </div>
+                <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
+                  <ng-container *ngIf="filteredCategories$|async as subCategories">
+                    <ng-container *ngIf="subCategories.length > 0">
+                      <div class="add-edit-per-diem--internal-block">
+                        <app-fy-select formControlName="sub_category"
+                          [label]="etxn?.tx?.org_category_id ? 'Sub Category' : 'Select Sub Category'"
+                          [mandatory]="true" [options]="subCategories">
+                        </app-fy-select>
+                      </div>
+                      <div class="add-edit-per-diem--error"
+                        *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid">
+                        Please select a Sub Category.
+                      </div>
+                    </ng-container>
                   </ng-container>
                 </ng-container>
 
@@ -333,15 +336,16 @@
                   </ng-container>
                 </ng-container>
 
-
-                <ng-container *ngIf="reports$|async as reports">
-                  <div class="add-edit-per-diem--internal-block">
-                    <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                      formControlName="report" [options]="reports"></app-fy-select>
-                    <ion-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                      Add to New Report
-                    </ion-checkbox>
-                  </div>
+                <ng-container *ngIf="isConnected$|async">
+                  <ng-container *ngIf="reports$|async as reports">
+                    <div class="add-edit-per-diem--internal-block">
+                      <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                        formControlName="report" [options]="reports"></app-fy-select>
+                      <ion-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                        Add to New Report
+                      </ion-checkbox>
+                    </div>
+                  </ng-container>
                 </ng-container>
 
 
@@ -357,18 +361,22 @@
                         <div class="delete-text">Delete Expense</div>
                       </div>
                     </div> -->
-
-                <ng-container *ngIf="transactionMandatoyFields$|async as mandatoryExpenseFields">
-                  <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
-                    <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                      <app-fy-alert
-                        *ngIf="mandatoryExpenseFields.project && isProjectsEnabled && ((isIndividualProjectsEnabled$|async) && individualProjectIds.length === 0)"
-                        [type]="'warning'"
-                        [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
-                      </app-fy-alert>
+                <ng-container *ngIf="isConnected$|async">
+                  <ng-container *ngIf="transactionMandatoyFields$|async as mandatoryExpenseFields">
+                    <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
+                      <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
+                        <app-fy-alert
+                          *ngIf="mandatoryExpenseFields.project && isProjectsEnabled && ((isIndividualProjectsEnabled$|async) && individualProjectIds.length === 0)"
+                          [type]="'warning'"
+                          [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
+                        </app-fy-alert>
+                      </ng-container>
                     </ng-container>
                   </ng-container>
+
                 </ng-container>
+
+
 
                 <!-- This is very helpful for debugging - Angular will remove this when compiling so lets have this here -->
                 <!-- <ion-button (click)="getFormValidationErrors()">
@@ -377,6 +385,19 @@
               </div>
             </div>
           </ng-container>
+
+          <ng-container *ngIf="etxn$|async as etxn">
+            <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
+              class="add-edit-per-diem--delete" matRipple (click)="deleteExpense()">
+              <mat-icon class="add-edit-per-diem--delete-icon">
+                delete
+              </mat-icon>
+              <div class="add-edit-per-diem--delete-msg">
+                Delete Expense
+              </div>
+            </div>
+          </ng-container>
+
         </ng-container>
         <ng-template #AdminKoBoloPerDiemAssignKare>
           You have not been assigned with any per diem rates. Please contact your <strong>Fyle-Administrator</strong> to
@@ -398,7 +419,8 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="reviewList">
-      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-per-diem--primary-cta" fill="solid" color="fyle-primary">
+      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-per-diem--primary-cta" fill="solid"
+        color="fyle-primary">
         Save & Next
       </ion-button>
     </ion-buttons>

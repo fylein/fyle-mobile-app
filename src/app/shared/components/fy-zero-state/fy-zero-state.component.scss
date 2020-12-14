@@ -1,0 +1,31 @@
+.zero-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  &--image {
+    margin: 12px;
+    max-height: 128px;
+    max-width: 128px;
+  }
+
+  &--header {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 16px;
+    color: #4a4a4a;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  &--description {
+    color: #ababab;
+    display: block;
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    padding: 0 8px;
+    text-align: center;
+  }
+}

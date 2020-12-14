@@ -136,6 +136,25 @@
     border-radius: 4px;
   }
 
+  &--delete {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+  }
+
+  &--delete-icon {
+    font-size: 24px;
+    color: #ababab;
+  }
+
+  &--delete-msg {
+    font-size: 16px;
+    margin: 4px 0 0 16px;
+    color: #f00;
+  }
+
   &--conversion-amount {
     line-height: 1.5;
     font-size: 16px;

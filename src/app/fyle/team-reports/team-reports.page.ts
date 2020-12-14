@@ -4,13 +4,14 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, AlertController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay } from 'rxjs/operators';
 import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/team-reports-search-filter.component';
 import { TeamReportsSortFilterComponent } from './team-reports-sort-filter/team-reports-sort-filter.component';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -53,9 +54,9 @@ export class TeamReportsPage implements OnInit {
     private reportService: ReportService,
     private modalController: ModalController,
     private dateService: DateService,
-    public alertController: AlertController,
     private router: Router,
     private currencyService: CurrencyService,
+    private popupService: PopupService
   ) { }
 
   ngOnInit() {
@@ -68,8 +69,6 @@ export class TeamReportsPage implements OnInit {
       queryParams: {
         rp_approval_state: 'in.(APPROVAL_PENDING)',
         rp_state: 'in.(APPROVER_PENDING)',
-        // TODO verify with Vaishnavi to check wether to send true in both condition
-        // sequential_approval_turn: res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
         sequential_approval_turn: 'in.(true)',
       }
     });
@@ -311,58 +310,41 @@ export class TeamReportsPage implements OnInit {
 
   async onDeleteReportClick(erpt: ExtendedReport) {
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
-      const alert = await this.alertController.create({
+      await this.popupService.showPopup({
         header: 'Cannot Delete Report',
         message: 'Report cannot be deleted',
-        buttons: [
-          {
-            text: 'Close',
-            role: 'cancel',
-            handler: noop
-          }
-        ]
+        primaryCta: {
+          text: 'Close'
+        }
       });
-
-      await alert.present();
     } else {
-      const message = `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>"My Expenses"</strong> list.
-        </p>
-        <p class="mb-0">
-          Are you sure, you want to delete this report?
-        </p>
-      `;
-
-      const alert = await this.alertController.create({
+      const popupResult = await this.popupService.showPopup({
         header: 'Delete Report?',
-        message,
-        buttons: [
-          {
-            text: 'Close',
-            role: 'cancel',
-            handler: noop
-          },
-          {
-            text: 'Delete',
-            handler: async () => {
-              from(this.loaderService.showLoader()).pipe(
-                switchMap(() => {
-                  return this.reportService.delete(erpt.rp_id);
-                }),
-                finalize(async () => {
-                  await this.loaderService.hideLoader();
-                  this.doRefresh();
-                })
-              ).subscribe(noop);
-
-            }
-          }
-        ]
+        message: `
+          <p class="highlight-info">
+            On deleting this report, all the associated expenses will be moved to <strong>"My Expenses"</strong> list.
+          </p>
+          <p class="mb-0">
+            Are you sure, you want to delete this report?
+          </p>
+        `,
+        primaryCta: {
+          text: 'Delete'
+        }
       });
-      await alert.present();
-    }
 
+      if (popupResult === 'primary') {
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.reportService.delete(erpt.rp_id);
+          }),
+          finalize(async () => {
+            await this.loaderService.hideLoader();
+            this.doRefresh();
+          })
+        ).subscribe(noop);
+      }
+    }
   }
 
   onViewCommentsClick(event) {

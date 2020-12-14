@@ -10,6 +10,9 @@ import { TransportationRequestComponent } from '../view-team-trip/transportation
 import { AdvanceRequestComponent } from '../view-team-trip/advance-request/advance-request.component';
 import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-request.component';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { ActionPopoverComponent } from './action-popover/action-popover.component';
+import { MatRippleModule } from '@angular/material/core';
+import { ActionConfirmationPopoverComponent } from './action-confirmation-popover/action-confirmation-popover.component';
 
 
 @NgModule({
@@ -20,13 +23,16 @@ import { SharedModule } from 'src/app/shared/shared.module';
     ViewTeamTripPageRoutingModule,
     MatIconModule,
     MatButtonModule,
-    SharedModule
+    SharedModule,
+    MatRippleModule
   ],
   declarations: [
     ViewTeamTripPage,
     TransportationRequestComponent,
     AdvanceRequestComponent,
-    HotelRequestComponent
+    HotelRequestComponent,
+    ActionPopoverComponent,
+    ActionConfirmationPopoverComponent
   ]
 })
 export class ViewTeamTripPageModule {}

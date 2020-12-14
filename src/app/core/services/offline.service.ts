@@ -18,6 +18,7 @@ import { from, forkJoin } from 'rxjs';
 import { PermissionsService } from './permissions.service';
 import { Org } from '../models/org.model';
 import { Cacheable } from 'ts-cacheable';
+import { OrgUserService } from './org-user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +40,8 @@ export class OfflineService {
     private transactionFieldConfigurationsService: TransactionFieldConfigurationsService,
     private currencyService: CurrencyService,
     private storageService: StorageService,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
+    private orgUserService: OrgUserService
   ) { }
 
   load() {
@@ -54,8 +56,9 @@ export class OfflineService {
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const transactionFieldConfigurationsMap$ = this.getTransactionFieldConfigurationsMap();
-    const currencies$ = this.currencyService.getAll();
+    const currencies$ = this.getCurrencies();
     const homeCurrency$ = this.getHomeCurrency();
+    const delegatedAccounts$ = this.getDelegatedAccounts();
 
     this.appVersionService.load();
 
@@ -72,8 +75,47 @@ export class OfflineService {
       accounts$,
       transactionFieldConfigurationsMap$,
       currencies$,
-      homeCurrency$
+      homeCurrency$,
+      delegatedAccounts$
     ]);
+  }
+
+  @Cacheable()
+  getDelegatedAccounts() {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.orgUserService.findDelegatedAccounts().pipe(
+              tap((orgSettings) => {
+                this.storageService.set('delegatedAccounts', orgSettings);
+              })
+            );
+          } else {
+            return from(this.storageService.get('delegatedAccounts'));
+          }
+        }
+      )
+    );
+  }
+
+  @Cacheable()
+  getCurrencies() {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.currencyService.getAll().pipe(
+              tap((orgSettings) => {
+                this.storageService.set('cachedCurrencies', orgSettings);
+              })
+            );
+          } else {
+            return from(this.storageService.get('cachedCurrencies'));
+          }
+        }
+      )
+    );
   }
 
   @Cacheable()

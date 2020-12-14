@@ -1,10 +1,11 @@
-import { Component, OnInit, forwardRef, Input, ContentChild, TemplateRef, ElementRef, OnDestroy, Injector } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, ContentChild, TemplateRef, ElementRef, OnDestroy, Injector, Output } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, FormControl, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+
 
 @Component({
   selector: 'app-fy-select',
@@ -68,6 +69,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
           this.displayValue = selectedOption && selectedOption.label;
         } else if (typeof this.innerValue === 'string'){
           this.displayValue = this.innerValue;
+        } else {
+          this.displayValue = '';
         }
       }
 
@@ -91,6 +94,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
     const { data } = await selectionModal.onWillDismiss();
 
+    console.log(data);
+
     if (data) {
       this.value = data.value;
     }
@@ -109,6 +114,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
           this.displayValue = selectedOption.label;
         } else if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
+        } else {
+          this.displayValue = '';
         }
       }
     }
