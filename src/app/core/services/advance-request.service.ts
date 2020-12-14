@@ -311,7 +311,7 @@ export class AdvanceRequestService {
     const data = {
       advance_request_id: advanceRequestId,
       approver_email: approverEmail,
-      comment: comment
+      comment
     };
 
     return this.apiService.post('/advance_requests/add_approver', data);
@@ -342,9 +342,17 @@ export class AdvanceRequestService {
             obj.advance_request_id = advanceReq.id;
             return this.fileService.post(obj);
           });
-          return forkJoin(newFileObjs);
+          return forkJoin(newFileObjs).pipe(
+            map(() => {
+              return res;
+            })
+          );
         } else  {
-          return of(null);
+          return of(null).pipe(
+            map(() => {
+              return res;
+            })
+          );
         }
       })
     );
@@ -363,9 +371,17 @@ export class AdvanceRequestService {
             obj.advance_request_id = advanceReq.id;
             return this.fileService.post(obj);
           });
-          return forkJoin(newFileObjs);
+          return forkJoin(newFileObjs).pipe(
+            map(() => {
+              return res;
+            })
+          );
         } else  {
-          return of(null);
+          return of(null).pipe(
+            map(() => {
+              return res;
+            })
+          );
         }
       })
     );

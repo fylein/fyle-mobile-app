@@ -19,6 +19,10 @@ import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-s
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+
 
 @NgModule({
   imports: [
@@ -32,6 +36,8 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
     MatInputModule,
     SharedModule,
     MatCheckboxModule,
+    PinchZoomModule,
+    PdfViewerModule
   ],
   declarations: [
     AddEditAdvanceRequestPage,
@@ -41,7 +47,8 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
     FySelectProjectComponent,
     FySelectModalComponent,
     PolicyViolationDialogComponent,
-    CameraOptionsPopupComponent
+    CameraOptionsPopupComponent,
+    ViewAttachmentsComponent
   ]
 })
 export class AddEditAdvanceRequestPageModule {}
