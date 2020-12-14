@@ -28,6 +28,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() selectionElement: TemplateRef<any>;
   @Input() nullOption = true;
   @Input() cacheName = '';
+  @Input() customInput = false;
 
   private innerValue;
   displayValue;
@@ -86,7 +87,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         currentSelection: this.value,
         selectionElement: this.selectionElement,
         nullOption: this.nullOption,
-        cacheName: this.cacheName
+        cacheName: this.cacheName,
+        customInput: this.customInput
       }
     });
 

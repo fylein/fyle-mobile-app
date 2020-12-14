@@ -17,6 +17,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
   @Input() currentCurrency;
   @Input() newCurrency;
   @Input() txnDt;
+  @Input() exchangeRate;
 
   fg: FormGroup;
 
@@ -33,25 +34,32 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.fg = this.formBuilder.group({
       newCurrencyAmount: [, Validators.compose([Validators.required])],
       exchangeRate: [, Validators.compose([Validators.required])],
       homeCurrencyAmount: [, Validators.compose([Validators.required])]
     });
 
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date());
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe((exchangeRate) => {
+    if (this.exchangeRate) {
       this.fg.setValue({
         newCurrencyAmount: this.amount,
-        exchangeRate,
-        homeCurrencyAmount: this.toFixed((exchangeRate * this.amount), 2)
+        exchangeRate: this.exchangeRate,
+        homeCurrencyAmount: this.toFixed((this.exchangeRate * this.amount), 2)
       });
-    });
+    } else {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date());
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe((exchangeRate) => {
+        this.fg.setValue({
+          newCurrencyAmount: this.amount,
+          exchangeRate,
+          homeCurrencyAmount: this.toFixed((exchangeRate * this.amount), 2)
+        });
+      });
+    }
 
     this.fg.controls.newCurrencyAmount.valueChanges.pipe(
       distinctUntilChanged()

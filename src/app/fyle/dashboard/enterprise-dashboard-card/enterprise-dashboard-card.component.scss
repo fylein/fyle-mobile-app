@@ -84,6 +84,8 @@ $chevron-fill: #757575;
     align-items: flex-end;
     flex-direction: row;
     margin-top: 8px;
+    left: 6px;
+    position: relative;
   }
 
   &--need-attention-text {
@@ -93,6 +95,7 @@ $chevron-fill: #757575;
     display: flex;
     justify-content: center;
     height: 20px;
+    border-radius: 0 0 4px 0;
   }
 
   &--icon-dashboard {

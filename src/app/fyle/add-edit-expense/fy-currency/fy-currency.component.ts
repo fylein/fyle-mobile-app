@@ -68,9 +68,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
       if (formValue.currency !== this.homeCurrency) {
         value.currency = this.homeCurrency;
-
         value.orig_amount = +formValue.amount;
         value.orig_currency = formValue.currency;
+        value.amount = +formValue.homeCurrencyAmount;
         if (value.orig_currency === this.value.orig_currency) {
           value.amount = value.orig_amount * (this.value.amount / this.value.orig_amount);
         } else {
@@ -149,6 +149,45 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     this.onTouchedCallback = fn;
   }
 
+  async setExchangeRate(shortCode?) {
+    const exchangeRateModal = await this.modalController.create({
+      component: FyCurrencyExchangeRateComponent,
+      componentProps: {
+        amount: this.fg.controls.amount.value,
+        currentCurrency: this.homeCurrency,
+        newCurrency: shortCode || this.fg.controls.currency.value,
+        txnDt: this.txnDt,
+        exchangeRate: (this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) ? (this.fg.value.homeCurrencyAmount / this.fg.value.amount): null 
+      }
+    });
+    await exchangeRateModal.present();
+    const { data } = await exchangeRateModal.onWillDismiss();
+    if (data) {
+      if (shortCode) {
+        this.fg.setValue({
+          currency: shortCode,
+          amount: data.amount,
+          homeCurrencyAmount: data.homeCurrencyAmount
+        });
+      } else {
+        this.fg.setValue({
+          currency: this.fg.controls.currency.value,
+          amount: data.amount,
+          homeCurrencyAmount: data.homeCurrencyAmount
+        }, {
+          emitEvent: false
+        });
+
+        this.value = {
+          currency:this.homeCurrency,
+          orig_amount:+data.amount,
+          orig_currency: this.fg.controls.currency.value,
+          amount:+data.homeCurrencyAmount
+        };
+      }
+    }
+  }
+
   async openCurrencyModal() {
     const currencyModal = await this.modalController.create({
       component: FyCurrencyChooseCurrencyComponent,
@@ -165,25 +204,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       if (shortCode === this.homeCurrency) {
         this.fg.controls.currency.setValue(shortCode);
       } else {
-        const exchangeRateModal = await this.modalController.create({
-          component: FyCurrencyExchangeRateComponent,
-          componentProps: {
-            amount: this.fg.controls.amount.value,
-            currentCurrency: this.homeCurrency,
-            newCurrency: shortCode,
-            txnDt: this.txnDt
-          }
-        });
-
-        await exchangeRateModal.present();
-
-        const { data } = await exchangeRateModal.onWillDismiss();
-        if (data) {
-          this.fg.setValue({
-            currency: shortCode,
-            amount: data.amount,
-            homeCurrencyAmount: data.homeCurrencyAmount
-          });
+        if (shortCode !== this.value.orig_currency) {
+          await this.setExchangeRate(shortCode);
+        } else {
+          await this.setExchangeRate();
         }
       }
     }

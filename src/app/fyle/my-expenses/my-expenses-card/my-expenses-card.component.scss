@@ -12,6 +12,10 @@
     &__disabled {
       opacity: .4;
     }
+
+    &__selected {
+      border: 1px solid #0077ee;
+    }
   }
 
   &--body-internal {

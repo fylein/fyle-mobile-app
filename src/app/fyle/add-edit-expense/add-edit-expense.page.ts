@@ -488,6 +488,8 @@ export class AddEditExpensePage implements OnInit {
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
+
+
     const instaFyleSettings$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings.insta_fyle_settings),
       map(instaFyleSettings => ({
@@ -549,6 +551,11 @@ export class AddEditExpensePage implements OnInit {
               etxn.tx.num_files = etxn.dataUrls ? 1 : 0;
             }
           }
+
+          if (orgUserSettings.preferences.default_project_id) {
+            etxn.tx.project_id = orgUserSettings.preferences.default_project_id;
+          }
+
         } else {
           etxn = {
             tx: {
@@ -1575,11 +1582,11 @@ export class AddEditExpensePage implements OnInit {
           return this.generateEtxnFromFg(this.etxn$, customFields$);
         }),
         switchMap(etxn => {
-          return this.isConnected$.pipe(switchMap(isConnected => {
+          return this.isConnected$.pipe(
+            switchMap(isConnected => {
             if (isConnected) {
               const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
               return policyViolations$.pipe(
-
                 map(this.policyService.getCriticalPolicyRules),
                 switchMap(criticalPolicyViolations => {
                   if (criticalPolicyViolations.length > 0) {
@@ -1591,9 +1598,10 @@ export class AddEditExpensePage implements OnInit {
                 }),
                 map((policyViolations: any) =>
                   [this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                  policyViolations.transaction_desired_state &&
-                  policyViolations.transaction_desired_state.action_description]),
+                    policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description]
+                  ),
                 switchMap(([policyViolations, policyActionDescription]) => {
                   if (policyViolations.length > 0) {
                     return throwError({

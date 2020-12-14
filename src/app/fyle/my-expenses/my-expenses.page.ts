@@ -4,7 +4,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, take } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
@@ -69,6 +69,7 @@ export class MyExpensesPage implements OnInit {
     private popoverController: PopoverController,
     private router: Router,
     private transactionOutboxService: TransactionsOutboxService,
+    private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
     private popupService: PopupService
   ) { }
@@ -132,6 +133,9 @@ export class MyExpensesPage implements OnInit {
     });
 
     this.baseState = 'all';
+    if (this.activatedRoute.snapshot.params.state === 'needsReview') {
+      this.baseState = 'draft';
+    }
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
@@ -299,7 +303,22 @@ export class MyExpensesPage implements OnInit {
     this.myExpenses$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    this.clearFilters();
+    if (this.activatedRoute.snapshot.params.state) {
+      let filters = {};
+      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
+        filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
+        filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
+        filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
+      }
+      this.filters = Object.assign({}, this.filters, filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else {
+      this.clearFilters();
+    }
   }
 
   setupNetworkWatcher() {

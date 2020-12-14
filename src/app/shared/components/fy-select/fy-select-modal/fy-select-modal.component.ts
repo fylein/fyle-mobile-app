@@ -18,6 +18,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() nullOption = true;
   @Input() cacheName;
+  @Input() customInput: boolean = false;
+
   recentrecentlyUsedItems$: Observable<any[]>;
 
   constructor(
@@ -38,6 +40,10 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
         if (this.nullOption) {
           initial.push({ label: 'None', value: null });
+        }
+
+        if (this.customInput) {
+          initial.push({ label: searchText, value: searchText });
         }
 
         return initial.concat(this.options
