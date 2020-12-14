@@ -111,27 +111,6 @@ export class ModifyApproverDialogComponent implements OnInit {
 
   ngOnInit() {
 
-    // this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-    //   map((event: any) => event.srcElement.value),
-    //   startWith(''),
-    //   distinctUntilChanged(),
-    //   map((searchText) => {
-    //     const initial = [];
-
-    //     if (this.nullOption) {
-    //       initial.push({ label: 'None', value: null });
-    //     }
-
-    //     return initial.concat(this.options
-    //       .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
-    //       .map(option => {
-    //         option.selected = isEqual(option.value, this.currentSelection);
-    //         return option;
-    //       }));
-    //   }
-    //   )
-    // );
-
     this.approverList$ = from(this.loaderService.showLoader('Loading Approvers', 10000)).pipe(
       switchMap(() => {
         return this.orgUserService.getAllCompanyEouc();
@@ -154,11 +133,9 @@ export class ModifyApproverDialogComponent implements OnInit {
         eouc = eouc.filter(approver => !this.selectedApprovers.includes(approver));
         return this.selectedApprovers.concat(eouc);
       }),
-      tap(() => {
+      finalize(() => {
         this.intialSelectedApprovers = [...this.selectedApprovers];
         this.equals = this.checkDifference(this.intialSelectedApprovers, this.selectedApprovers);
-      }),
-      finalize(() => {
         from(this.loaderService.hideLoader());
       })
     );
