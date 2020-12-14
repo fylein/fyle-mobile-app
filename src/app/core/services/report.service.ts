@@ -331,6 +331,19 @@ export class ReportService {
     );
   }
 
+  getERpt(rptId) {
+    return this.apiService.get('/erpts/' + rptId).pipe(
+      map(data => {
+        let erpt = this.dataTransformService.unflatten(data);
+        this.dateService.fixDates(erpt.rp);
+        if (erpt && erpt.rp && erpt.rp.created_at) {
+          erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
+        }
+        return erpt;
+      })
+    );
+  }
+
   getApproversInBulk(rptIds) {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
@@ -353,22 +366,22 @@ export class ReportService {
     );
   }
 
-  addApprovers(erpts, approvers) {
-    const reportApprovalsMap = {};
+  // addApprovers(erpts, approvers) {
+  //   const reportApprovalsMap = {};
 
-    approvers.forEach((approver) => {
-      if (reportApprovalsMap[approver.report_id]) {
-        reportApprovalsMap[approver.report_id].push(approver);
-      } else {
-        reportApprovalsMap[approver.report_id] = [approver];
-      }
-    });
+  //   approvers.forEach((approver) => {
+  //     if (reportApprovalsMap[approver.report_id]) {
+  //       reportApprovalsMap[approver.report_id].push(approver);
+  //     } else {
+  //       reportApprovalsMap[approver.report_id] = [approver];
+  //     }
+  //   });
 
-    return erpts.map((erpt) => {
-      erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
-      return erpt;
-    });
-  }
+  //   return erpts.map((erpt) => {
+  //     erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
+  //     return erpt;
+  //   });
+  // }
 
   getFilteredPendingReports(searchParams) {
     const params = this.searchParamsGenerator(searchParams);
@@ -441,5 +454,17 @@ export class ReportService {
 
   approve(rptId) {
     return this.apiService.post('/reports/' + rptId + '/approve');
+  }
+
+  addApprover(rptId, approverEmail, comment) {
+    var data = {
+      approver_email: approverEmail,
+      comment: comment
+    };
+    return this.apiService.post('/reports/' + rptId + '/approvals', data);
+  }
+
+  removeApprover(rptId, approvalId) {
+    return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
   }
 }
