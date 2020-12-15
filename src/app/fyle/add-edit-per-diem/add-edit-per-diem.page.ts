@@ -20,7 +20,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -92,11 +92,30 @@ export class AddEditPerDiemPage implements OnInit {
     private statusService: StatusService,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private duplicateDetectionService: DuplicateDetectionService
+    private duplicateDetectionService: DuplicateDetectionService,
+    private navController: NavController
   ) { }
 
   ngOnInit() {
   }
+
+  goBack() {
+    if (this.mode === 'add') {
+      this.router.navigate(['/','enterprise','my_expenses']);
+    } else {
+      if (!this.reviewList || this.reviewList.length === 0) {
+        this.navController.back();
+      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
+        if (+this.activeIndex === 0) {
+          this.router.navigate(['/','enterprise','my_expenses']);
+        } else {
+          this.goToPrev();
+        }
+      } else {
+        this.router.navigate(['/','enterprise','my_expenses']);
+      }
+    }
+  };
 
   canGetDuplicates() {
     // TODO: Verify for per diem

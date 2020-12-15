@@ -20,7 +20,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
@@ -91,7 +91,8 @@ export class AddEditMileagePage implements OnInit {
     private duplicateDetectionService: DuplicateDetectionService,
     private modalController: ModalController,
     private networkService: NetworkService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private navController: NavController
   ) { }
 
   ngOnInit() {
@@ -920,6 +921,24 @@ export class AddEditMileagePage implements OnInit {
   close() {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
+
+  goBack() {
+    if (this.mode === 'add') {
+      this.router.navigate(['/','enterprise','my_expenses']);
+    } else {
+      if (!this.reviewList || this.reviewList.length === 0) {
+        this.navController.back();
+      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
+        if (+this.activeIndex === 0) {
+          this.router.navigate(['/','enterprise','my_expenses']);
+        } else {
+          this.goToPrev();
+        }
+      } else {
+        this.router.navigate(['/','enterprise','my_expenses']);
+      }
+    }
+  };
 
   checkIfInvalidPaymentMode() {
     return forkJoin({

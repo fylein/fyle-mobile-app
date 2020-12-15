@@ -26,7 +26,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import * as _ from 'lodash';
 import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, NavController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -118,8 +118,27 @@ export class AddEditExpensePage implements OnInit {
     private popoverController: PopoverController,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private navController: NavController
   ) { }
+
+  goBack() {
+    if (this.mode === 'add') {
+      this.router.navigate(['/','enterprise','my_expenses']);
+    } else {
+      if (!this.reviewList || this.reviewList.length === 0) {
+        this.navController.back();
+      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
+        if (+this.activeIndex === 0) {
+          this.router.navigate(['/','enterprise','my_expenses']);
+        } else {
+          this.goToPrev();
+        }
+      } else {
+        this.router.navigate(['/','enterprise','my_expenses']);
+      }
+    }
+  };
 
   merchantValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.display_name) {
@@ -244,6 +263,10 @@ export class AddEditExpensePage implements OnInit {
         return this.getPossibleDuplicates();
       })
     );
+
+    this.duplicates$.subscribe((res) => {
+      console.log(res);
+    });
   }
 
   openSplitExpenseModal(splitType) {
@@ -541,7 +564,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
-          if (orgUserSettings.preferences.default_project_id) {
+          if (orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
             etxn.tx.project_id = orgUserSettings.preferences.default_project_id;
           }
 
@@ -1039,6 +1062,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    const currentNavigation = this.router.getCurrentNavigation();
+    const prevNavigation = currentNavigation && currentNavigation.previousNavigation;
+    console.log(prevNavigation);
+
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
       paymentMode: [, Validators.required],
