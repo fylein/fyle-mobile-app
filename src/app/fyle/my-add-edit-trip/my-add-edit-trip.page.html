@@ -33,7 +33,7 @@
                   </div>
                   <div class="add-edit-trip--text">
                     <div class="add-edit-trip--text-label">Contact</div>
-                    <input class="add-edit-trip--text-input" type="text" formControlName="contact">
+                    <input class="add-edit-trip--text-input" type="text" formControlName="phone_number">
                   </div>
               </div>
             </div>
@@ -106,11 +106,11 @@
                   </div>
 
                   <div class="add-edit-trip--text">
-                    <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.depart_date.touched && !control.controls.depart_date.valid}">
+                    <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.onward_dt.touched && !control.controls.onward_dt.valid}">
                       Select Depart Date <span>*</span>
                     </div>
-                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="depart_date"
-                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="fg.controls.endDate.value">
+                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="onward_dt"
+                    (keydown)="$event.preventDefault()" [min]="fg.controls.startDate.value" [max]="fg.controls.endDate.value">
                   </div>
 
                   <div class="add-edit-trip--text" *ngIf="fg.controls.tripType.value === 'ROUND'">
@@ -118,7 +118,7 @@
                       Select Return Date <span>*</span>
                     </div>
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="return_date"
-                    (keydown)="$event.preventDefault()" [min]="control.controls.depart_date.value" [max]="fg.controls.endDate.value">
+                    (keydown)="$event.preventDefault()" [min]="control.controls.onward_dt.value" [max]="fg.controls.endDate.value">
                   </div>
               </div>
             </div>
@@ -134,7 +134,7 @@
 
           <!-- show if travel agent length > 0 -->
           <div class="add-edit-trip--text" *ngIf="(travelAgents$|async)?.length > 0">
-            <app-fy-select [mandatory]="true" [label]="'Select Agent'" formControlName="travelAgent"
+            <app-fy-select [label]="'Select Agent'" formControlName="travelAgent"
             [options]="travelAgents$|async" [nullOption]="false"></app-fy-select>
           </div>
 

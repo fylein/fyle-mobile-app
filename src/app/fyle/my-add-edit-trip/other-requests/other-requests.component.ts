@@ -4,7 +4,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { map, concatMap, finalize, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { map, concatMap, finalize, shareReplay, switchMap, tap, take } from 'rxjs/operators';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { HotelRequestService } from 'src/app/core/services/hotel-request.service';
 import { SavePopoverComponent } from '../save-popover/save-popover.component';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-other-requests',
@@ -24,6 +25,7 @@ export class OtherRequestsComponent implements OnInit {
 
   @Input() otherRequests;
   @Input() fgValues;
+  @Input() id;
 
   isTransportationRequested$: Observable<any>;
   isHotelRequested$: Observable<any>;
@@ -38,6 +40,9 @@ export class OtherRequestsComponent implements OnInit {
   hotelRequestCustomFields$: Observable<any>;
   advanceRequestCustomFields$: Observable<any>;
   currencies$: Observable<any>;
+  hotelRequest$: Observable<any>;
+  transportationRequest$: Observable<any>;
+  advanceRequest$: Observable<any>;
   minDate;
   maxDate;
 
@@ -204,12 +209,14 @@ export class OtherRequestsComponent implements OnInit {
       cssClass: 'dialog-popover'
     });
 
-    if (this.otherDetailsForm.valid) {
+    if (this.otherDetailsForm.valid && (!this.fgValues.hotelRequest || !this.fgValues.transportationRequest)) {
       await addExpensePopover.present();
       const { data } = await addExpensePopover.onDidDismiss();
       if (data && data.continue) {
         this.submitOtherRequests(this.otherDetailsForm.value, 'SUBMIT');
       }
+    } else if (this.otherDetailsForm.valid) {
+      this.submitOtherRequests(this.otherDetailsForm.value, 'SUBMIT');
     } else {
       this.otherDetailsForm.markAllAsTouched();
     }
@@ -408,12 +415,12 @@ export class OtherRequestsComponent implements OnInit {
           this.fgValues.cities.forEach((city, index) => {
 
             // tslint:disable-next-line: max-line-length
-            const checkOutDate = this.fgValues.cities.length > 1 && this.fgValues.cities[index + 1] ? this.fgValues.cities[index + 1].depart_date : null;
+            const checkOutDate = this.fgValues.cities.length > 1 && this.fgValues.cities[index + 1] ? this.fgValues.cities[index + 1].onward_dt : null;
 
             const details = this.formBuilder.group({
               assignedAt: [new Date()],
               assignedTo: [this.fgValues.travelAgent],
-              checkInDt: [city.depart_date, Validators.required],
+              checkInDt: [city.onward_dt, Validators.required],
               checkOutDt: [checkOutDate, Validators.required],
               city: [city.to_city],
               currency: [res.preferredCurrency || res.homeCurrency],
@@ -433,7 +440,7 @@ export class OtherRequestsComponent implements OnInit {
         if (this.otherRequests[2].transportation) {
           this.fgValues.cities.forEach((city, index) => {
 
-            const onwardDt = this.fgValues.cities[index].depart_date;
+            const onwardDt = this.fgValues.cities[index].onward_dt;
 
             const details = this.formBuilder.group({
               assignedAt: [new Date()],
@@ -495,7 +502,92 @@ export class OtherRequestsComponent implements OnInit {
       advanceDetails: new FormArray([]),
     });
 
-    this.otherDetailsForm.valueChanges.subscribe(res => console.log('res ->', res));
+    console.log('this.id ->', this.id);
+    if (this.id) {
+      this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id);
+      this.transportationRequest$ = this.tripRequestsService.getTransportationRequests(this.id);
+      this.advanceRequest$ = this.tripRequestsService.getAdvanceRequests(this.id);
+
+      from(this.loaderService.showLoader('Getting trip details')).pipe(
+        switchMap(() => {
+          return combineLatest([
+            this.hotelRequest$,
+            this.transportationRequest$,
+            this.advanceRequest$
+          ]);
+        }),
+        take(1),
+      ).subscribe(([hotelRequest, transportationRequest, advanceRequest]) => {
+
+        console.log('\n\n\n\ hotelRequest->', hotelRequest);
+        console.log('\n\n\n\ transportationRequest->', transportationRequest);
+        console.log('\n\n\n\ advanceRequest->', advanceRequest);
+
+
+        if (this.otherRequests[0].hotel) {
+          this.hotelDetails.clear();
+
+          hotelRequest.forEach((request, index) => {
+            const details = this.formBuilder.group({
+              assignedAt: [moment(request.hr.created_at).format('y-MM-DD')],
+              assignedTo: [request.hr.assigned_to],
+              checkInDt: [moment(request.hr.check_in_dt).format('y-MM-DD'), Validators.required],
+              checkOutDt: [moment(request.hr.check_out_dt).format('y-MM-DD'), Validators.required],
+              city: [request.hr.city],
+              currency: [request.hr.currency],
+              amount: [request.hr.amount],
+              custom_field_values: new FormArray([]),
+              location: [request.hr.location],
+              needBooking: [request.hr.need_booking],
+              travellerDetails: [this.fgValues.travellerDetails],
+              rooms: [request.hr.rooms],
+              notes: [request.hr.notes]
+            });
+            this.hotelDetails.push(details);
+          });
+        }
+
+        if (this.otherRequests[1].advance) {
+          this.advanceDetails.clear();
+          advanceRequest.forEach((request, index) => {
+            const details = this.formBuilder.group({
+              amount: [request.amount, Validators.required],
+              currency: [request.currency],
+              purpose: [request.purpose, Validators.required],
+              custom_field_values: new FormArray([]),
+              notes: [request.notes]
+            });
+            this.advanceDetails.push(details);
+          });
+        }
+
+        if (this.otherRequests[2].transportation) {
+          this.transportDetails.clear();
+
+          transportationRequest.forEach((request, index) => {
+            // const onwardDt = this.fgValues.cities[index].onward_dt;
+            const details = this.formBuilder.group({
+              assignedAt: [request.tr.created_at],
+              currency: [request.tr.currency],
+              amount: [request.tr.amount],
+              custom_field_values: new FormArray([]),
+              fromCity: [request.tr.from_city],
+              needBooking: [request.tr.need_booking],
+              onwardDt: [request.tr.onward_dt],
+              toCity: [request.tr.to_city],
+              transportMode: [request.tr.transport_mode, Validators.required],
+              transportTiming: [request.tr.preferred_timing],
+              travellerDetails: [this.fgValues.travellerDetails],
+              notes: [request.tr.notes]
+            });
+            this.transportDetails.push(details);
+            // this.addCustomFields('transport', index);
+          });
+        }
+      });
+    }
+
+    // this.otherDetailsForm.valueChanges.subscribe(res => console.log('res ->', res));
   }
 
 }
