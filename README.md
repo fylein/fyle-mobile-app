@@ -48,10 +48,15 @@ Note: Do not make any changes to environment.ts file - it is to be a template fo
 To make google login work in your physical device you need to do some extra activity
 
 **Android**
-  - Get you SHA-1 key by running this command
-    `keytool -exportcert -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore`, password: android
+  - Two way to get the SHA-1
+    - 1. Get you SHA-1 key by running this command
+      `keytool -exportcert -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore`, password: android
+    - 2. open android studio
+      - top right below profile icon you can see Gradle(with Elephant icon), click on this
+      - android -> Tasks -> android -> (signing report)
+      - This will give you sha1, sha256, md5 in android studio terminal.
   - Ping @tarun to add this sha1 key to firebase console and get `google-services.json` file from him.
-  - Open your code editor, not android studio and add thsi file inside `android/app` directory.
+  - Open your code editor, not android studio and add this file inside `android/app` directory.
 
 **iOS**
   - Get `GoogleService-Info.plist` from @tarun
@@ -69,3 +74,10 @@ To make google login work in your physical device you need to do some extra acti
     - add(CameraPreview.class); (After this line -> // Ex: add(TotallyAwesomePlugin.class);)
   - Add these lines in AndroidManifest.xml 
     - android:usesCleartextTraffic="true" (After this line -> android:theme="@style/AppTheme")
+
+## Imagepicker issue
+  - If you get issue in the file `MultiImageChooserActivaty.java` something like `android.support.v7.app.ActionBar`, please do the following
+    - npx jetify
+    - npx cap sync
+    - npx cap copy
+

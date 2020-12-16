@@ -7,7 +7,7 @@
       *
     </span>
   </div>
-  <input class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+  <input class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()" [disabled]="disabled">
   <mat-icon>
     chevron_right
   </mat-icon>

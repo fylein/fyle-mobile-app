@@ -33,7 +33,7 @@
                   </div>
                   <div class="add-edit-trip--text">
                     <div class="add-edit-trip--text-label">Contact</div>
-                    <input class="add-edit-trip--text-input" type="text" formControlName="contact">
+                    <input class="add-edit-trip--text-input" type="text" formControlName="phone_number">
                   </div>
               </div>
             </div>
@@ -54,7 +54,7 @@
         
         <div class="add-edit-trip--element-container">
           <div class="add-edit-trip--text">
-            <app-fy-select [mandatory]="true" [label]="'Select Trip Type'" formControlName="tripType"
+            <app-fy-select [mandatory]="true" [label]="'Select Trip Type'" formControlName="tripType" [disabled]="mode === 'edit'"
             [options]="tripTypes" [nullOption]="false" ></app-fy-select>
           </div>
   
@@ -106,11 +106,11 @@
                   </div>
 
                   <div class="add-edit-trip--text">
-                    <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.depart_date.touched && !control.controls.depart_date.valid}">
+                    <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.onward_dt.touched && !control.controls.onward_dt.valid}">
                       Select Depart Date <span>*</span>
                     </div>
-                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="depart_date"
-                    (keydown)="$event.preventDefault()" [min]="minDate" [max]="fg.controls.endDate.value">
+                    <input class="add-edit-trip--date-input" matInput type="date" formControlName="onward_dt"
+                    (keydown)="$event.preventDefault()" [min]="fg.controls.startDate.value" [max]="fg.controls.endDate.value">
                   </div>
 
                   <div class="add-edit-trip--text" *ngIf="fg.controls.tripType.value === 'ROUND'">
@@ -118,7 +118,7 @@
                       Select Return Date <span>*</span>
                     </div>
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="return_date"
-                    (keydown)="$event.preventDefault()" [min]="control.controls.depart_date.value" [max]="fg.controls.endDate.value">
+                    (keydown)="$event.preventDefault()" [min]="control.controls.onward_dt.value" [max]="fg.controls.endDate.value">
                   </div>
               </div>
             </div>
@@ -134,7 +134,7 @@
 
           <!-- show if travel agent length > 0 -->
           <div class="add-edit-trip--text" *ngIf="(travelAgents$|async)?.length > 0">
-            <app-fy-select [mandatory]="true" [label]="'Select Agent'" formControlName="travelAgent"
+            <app-fy-select [label]="'Select Agent'" formControlName="travelAgent"
             [options]="travelAgents$|async" [nullOption]="false"></app-fy-select>
           </div>
 
@@ -154,7 +154,7 @@
           Aditional information
         </div>
         <div class="add-edit-trip--element-container">
-          <div *ngFor="let customInput of customFields$ | async as customFields">
+          <div *ngFor="let customInput of customFields$|async as customFields">
             <form [formGroup]="customInput.control">
               <!-- <button (click)="debug(customInput)">debug</button> -->
               <div class="add-edit-trip--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
@@ -205,19 +205,19 @@
       <div>
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
             Request Transportation
           </label>
         </div>
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
             Request Hotel
           </label>
         </div>
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit'" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
             Request Advance
           </label>
         </div>
@@ -230,7 +230,7 @@
   <ion-toolbar>
     <div class="add-edit-trip--cta-block">
       <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
-        <ion-button (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button *ngIf="mode !== 'edit'" (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
         <ion-button (click)="onSubmit()" class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
       </div>
       <div *ngIf="((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" class="add-edit-trip--cta-container">
