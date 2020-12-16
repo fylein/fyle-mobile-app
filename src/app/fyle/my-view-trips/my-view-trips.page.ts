@@ -206,6 +206,10 @@ export class MyViewTripsPage implements OnInit {
     );
   }
 
+  editTrip() {
+    this.router.navigate(['/','enterprise','my_add_edit_trip', {id: this.activatedRoute.snapshot.params.id}]);
+  }
+
   async pullBack() {
     const pullBackPopover = await this.popoverController.create({
       component: PullBackTripComponent,

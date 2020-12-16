@@ -24,7 +24,7 @@
                   <p *ngIf="fgValues.cities[i].to_city.city">Hotel in 
                     {{ fgValues.cities[i].to_city.city }}
                     on 
-                    {{ fgValues.cities[i].depart_date | date: 'dd MMM yyyy' }}
+                    {{ fgValues.cities[i].onward_dt | date: 'dd MMM yyyy' }}
                     <span>
                       to 
                       {{ otherDetailsForm.value.hotelDetails[i].checkOutDt | date: 'dd MMM yyyy' }}
@@ -279,7 +279,7 @@
                       {{ otherDetailsForm.value.transportDetails[i].toCity.city }}
                       on 
                       <span *ngIf="i === 0">
-                        {{ fgValues.cities[i].depart_date | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[i].onward_dt | date: 'dd MMM yyyy' }}
                       </span>
                       <span *ngIf="i === 1">
                         {{ fgValues.cities[0].return_date | date: 'dd MMM yyyy' }}
@@ -295,7 +295,7 @@
                       to 
                       {{ fgValues.cities[i].to_city.city }}
                       on 
-                      {{ fgValues.cities[i].departDate | date: 'dd MMM yyyy' }}
+                      {{ fgValues.cities[i].onward_dt | date: 'dd MMM yyyy' }}
                     </p>
                   </span>
                 </strong>
@@ -406,7 +406,7 @@
     </div>
     <div class="other-details--cta-block">
       <div class="other-details--cta-container">
-        <ion-button (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button *ngIf="!id" (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
         <ion-button type="submit" class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
       </div>
     </div>
