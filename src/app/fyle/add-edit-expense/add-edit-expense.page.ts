@@ -343,16 +343,16 @@ export class AddEditExpensePage implements OnInit {
   ngOnInit() {
   }
 
-  getFormValidationErrors() {
-    Object.keys(this.fg.controls).forEach(key => {
-      const controlErrors: ValidationErrors = this.fg.get(key).errors;
-      if (controlErrors != null) {
-        Object.keys(controlErrors).forEach(keyError => {
-          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-        });
-      }
-    });
-  }
+  // getFormValidationErrors() {
+  //   Object.keys(this.fg.controls).forEach(key => {
+  //     const controlErrors: ValidationErrors = this.fg.get(key).errors;
+  //     if (controlErrors != null) {
+  //       Object.keys(controlErrors).forEach(keyError => {
+  //         console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+  //       });
+  //     }
+  //   });
+  // }
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -389,8 +389,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.transactionMandatoyFields$
       .pipe(
-        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
-        tap(console.log)
+        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
       )
       .subscribe((transactionMandatoyFields: any) => {
         if (transactionMandatoyFields.project) {
@@ -547,6 +546,7 @@ export class AddEditExpensePage implements OnInit {
       map((dependencies) => {
         const { orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData } = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn;
+        const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
         if (!bankTxn) {
           etxn = {
@@ -585,7 +585,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
-          if (orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
+          if (projectEnabled && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
             etxn.tx.project_id = orgUserSettings.preferences.default_project_id;
           }
 
@@ -702,13 +702,11 @@ export class AddEditExpensePage implements OnInit {
       ), of(null));
     }));
     const selectedCostCenter$ = this.etxn$.pipe(
-      tap(etxn => console.log(etxn.tx.cost_center_id)),
       switchMap(etxn => {
         return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
           .map(res => res.value)
           .find(costCenter => costCenter.id === etxn.tx.cost_center_id))), of(null));
-      }),
-      tap(res => console.log(res))
+      })
     );
 
     const selectedCustomInputs$ = this.etxn$.pipe(
@@ -744,7 +742,6 @@ export class AddEditExpensePage implements OnInit {
         });
 
       if (etxn.tx.amount && etxn.tx.currency) {
-        console.log(etxn.tx);
         this.fg.patchValue({
           currencyObj: {
             amount: etxn.tx.amount,
@@ -842,7 +839,6 @@ export class AddEditExpensePage implements OnInit {
             return customField;
           });
         }),
-        tap(console.log),
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
             map(isConnected => {
@@ -870,7 +866,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupTfc() {
-    this.txnFields$ = this.fg.valueChanges.pipe(
+    const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) => {
         return this.offlineService.getTransactionFieldConfigurationsMap().pipe(switchMap(tfcMap => {
@@ -883,7 +879,9 @@ export class AddEditExpensePage implements OnInit {
               formValue.project
             );
         }));
-      }),
+      }));
+
+    this.txnFields$ = txnFieldsMap$.pipe(
       map((tfcMap: any) => {
         if (tfcMap) {
           for (const tfc of Object.keys(tfcMap)) {
@@ -894,8 +892,8 @@ export class AddEditExpensePage implements OnInit {
         }
         return tfcMap;
       }),
-      tap(console.log),
-      shareReplay());
+      shareReplay())
+      ;
 
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
@@ -931,7 +929,7 @@ export class AddEditExpensePage implements OnInit {
         control.clearValidators();
         control.updateValueAndValidity();
       }
-
+      // setup validations
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
         if (txnFields[txnFieldKey].mandatory) {
@@ -966,6 +964,42 @@ export class AddEditExpensePage implements OnInit {
         control.updateValueAndValidity();
       }
       this.fg.updateValueAndValidity();
+    });
+
+    txnFieldsMap$.pipe(
+      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields)),
+      tap(console.log)
+    ).subscribe((defaultValues) => {
+      const keyToControlMap: {
+        [id: string]: AbstractControl;
+      } = {
+        purpose: this.fg.controls.purpose,
+        txn_dt: this.fg.controls.dateOfSpend,
+        vendor_id: this.fg.controls.merchant,
+        cost_center_id: this.fg.controls.costCenter,
+        from_dt: this.fg.controls.from_dt,
+        to_dt: this.fg.controls.to_dt,
+        location1: this.fg.controls.location_1,
+        location2: this.fg.controls.location_2,
+        distance: this.fg.controls.distance,
+        distance_unit: this.fg.controls.distance_unit,
+        flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
+        flight_return_travel_class: this.fg.controls.flight_return_travel_class,
+        train_travel_class: this.fg.controls.train_travel_class,
+        bus_travel_class: this.fg.controls.bus_travel_class
+      };
+
+
+      for (var defaultValueColumn in defaultValues) {
+        if (defaultValues.hasOwnProperty(defaultValueColumn)) {
+          const control = keyToControlMap[defaultValueColumn];
+          if (defaultValueColumn !== 'vendor_id' && !control.value) {
+            control.patchValue(defaultValues[defaultValueColumn]);
+          } else if (defaultValueColumn === 'vendor_id' && !control.value) {
+            control.patchValue(defaultValues[defaultValueColumn]);
+          }
+        }
+      }
     });
   }
 
@@ -1088,10 +1122,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    const currentNavigation = this.router.getCurrentNavigation();
-    const prevNavigation = currentNavigation && currentNavigation.previousNavigation;
-    console.log(prevNavigation);
-
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
       paymentMode: [, Validators.required],
@@ -1119,6 +1149,8 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: []
     });
+
+    this.fg.valueChanges.subscribe(console.log);
 
     this.setupDuplicateDetection();
     this.setUpTaxCalculations();
@@ -1279,7 +1311,7 @@ export class AddEditExpensePage implements OnInit {
           tx: {
             ...etxn.tx,
             billable: this.fg.value.billable,
-            skip_reimbursement: this.fg.value.paymentMode && this.fg.value.paymentMode.acc.isReimbursable,
+            skip_reimbursement: this.fg.value.paymentMode && this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable,
             txn_dt: this.fg.value.dateOfSpend && new Date(this.fg.value.dateOfSpend),
             currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,
             amount: this.fg.value.currencyObj && this.fg.value.currencyObj.amount,

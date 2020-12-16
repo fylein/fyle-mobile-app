@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { from, fromEvent, Observable } from 'rxjs';
-import { map, startWith, distinctUntilChanged } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { isEqual, tap } from 'lodash';
+import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
@@ -19,6 +19,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() nullOption = true;
   @Input() cacheName;
   @Input() customInput: boolean = false;
+  value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
 
@@ -35,6 +36,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
+      tap(console.log),
       map((searchText) => {
         const initial = [];
 

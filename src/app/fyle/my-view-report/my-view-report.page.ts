@@ -145,10 +145,7 @@ export class MyViewReportPage implements OnInit {
       </p>
       `,
       primaryCta: {
-        text: 'Okay'
-      },
-      secondaryCta: {
-        text: 'Cancel'
+        text: 'Delete Report'
       }
     });
 

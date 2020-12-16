@@ -80,10 +80,7 @@ export class MyViewTripsPage implements OnInit {
       header: 'Confirm',
       message: 'Are you sure you want to delete this trip',
       primaryCta: {
-        text: 'Okay'
-      },
-      secondaryCta: {
-        text: 'Cancel'
+        text: 'Delete Trip'
       }
     });
 
@@ -250,10 +247,7 @@ export class MyViewTripsPage implements OnInit {
       header: 'Close Trip',
       message: 'Are you sure you want to close this trip?',
       primaryCta: {
-        text: 'Okay'
-      },
-      secondaryCta: {
-        text: 'Cancel'
+        text: 'Close Trip'
       }
     });
 

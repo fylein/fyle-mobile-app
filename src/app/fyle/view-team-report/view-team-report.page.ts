@@ -148,10 +148,7 @@ export class ViewTeamReportPage implements OnInit {
         </p>
       `,
       primaryCta: {
-        text: 'Okay'
-      },
-      secondaryCta: {
-        text: 'Cancel'
+        text: 'Delete Report'
       }
     });
 
