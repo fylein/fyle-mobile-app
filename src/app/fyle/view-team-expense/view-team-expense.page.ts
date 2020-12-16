@@ -3,10 +3,10 @@ import { Observable, from, forkJoin } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { switchMap, shareReplay, concatMap, map, finalize } from 'rxjs/operators';
+import { switchMap, shareReplay, concatMap, map, finalize, tap } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 
@@ -27,6 +27,7 @@ export class ViewTeamExpensePage implements OnInit {
   canFlagOrUnflag$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   orgSettings: any;
+  reportId;
 
   currencyOptions;
 
@@ -37,15 +38,20 @@ export class ViewTeamExpensePage implements OnInit {
     private reportService: ReportService,
     private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private router: Router
   ) { }
 
   isNumber(val) {
     return typeof val === 'number';
   }
 
+  goBackToReport() {
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}])
+  }
+
   isPolicyComment(estatus) {
-    return estatus.st.org_user_id === 'POLICY';
+    return estatus.st_org_user_id === 'POLICY';
   }
 
   scrollToComments() {
@@ -65,6 +71,9 @@ export class ViewTeamExpensePage implements OnInit {
     this.etxnWithoutCustomProperties$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return this.transactionService.getEtxn(txId);
+      }),
+      tap(res => {
+        this.reportId = res.tx_report_id;
       }),
       shareReplay()
     );

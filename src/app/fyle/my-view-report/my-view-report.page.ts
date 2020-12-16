@@ -229,17 +229,17 @@ export class MyViewReportPage implements OnInit {
     if (category === 'mileage') {
       route = '/enterprise/my_view_mileage';
       if (canEdit) {
-        route = '/enterprise/my_add_edit_mileage';
+        route = '/enterprise/add_edit_mileage';
       }
     } else if (category === 'per diem') {
       route = '/enterprise/my_view_per_diem';
       if (canEdit) {
-        route = '/enterprise/my_add_edit_per_diem';
+        route = '/enterprise/add_edit_per_diem';
       }
     } else {
       route = '/enterprise/my_view_expense';
       if (canEdit) {
-        route = '/enterprise/my_add_edit_expense';
+        route = '/enterprise/add_edit_expense';
       }
     }
 
