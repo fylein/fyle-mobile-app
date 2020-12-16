@@ -4,7 +4,6 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgCont
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
-import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 
 @Component({
   selector: 'app-fy-currency',
@@ -25,9 +24,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   private innerValue: {
     amount: number,
-    currency: string,
-    orig_amount: number,
-    orig_currency: string
+    currency: string
   };
 
   private onTouchedCallback: () => void = noop;
@@ -54,31 +51,16 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     this.fg = this.fb.group({
       currency: [], // currency which is currently shown
       amount: [], // amount which is currently shown
-      homeCurrencyAmount: [] // Amount converted to home currency
     });
 
     this.fg.valueChanges.subscribe(formValue => {
       const value = {
         amount: null,
-        currency: null,
-        orig_amount: null,
-        orig_currency: null
+        currency: null
       };
 
-      if (formValue.currency !== this.homeCurrency) {
-        value.currency = this.homeCurrency;
-
-        value.orig_amount = +formValue.amount;
-        value.orig_currency = formValue.currency;
-        if (value.orig_currency === this.value.orig_currency) {
-          value.amount = value.orig_amount * (this.value.amount / this.value.orig_amount);
-        } else {
-          value.amount = +formValue.homeCurrencyAmount;
-        }
-      } else {
-        value.currency = this.homeCurrency;
-        value.amount = formValue.amount && +formValue.amount;
-      }
+      value.amount = +formValue.amount;
+      value.currency = formValue.currency;
 
       if (!this.checkIfSameValue(value, this.innerValue)) {
         this.value = value;
@@ -88,29 +70,19 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   checkIfSameValue(amount1, amount2) {
     return amount1 && amount2 && amount1.amount === amount2.amount &&
-      amount1.currency === amount2.currency &&
-      amount1.orig_amount === amount2.orig_amount &&
-      amount1.orig_currency === amount2.orig_currency;
+      amount1.currency === amount2.currency;
   }
 
   convertInnerValueToFormValue(innerVal) {
-    if (innerVal && innerVal.orig_currency && innerVal.orig_currency !== this.homeCurrency) {
-      return {
-        amount: innerVal.orig_amount,
-        currency: innerVal.orig_currency,
-        homeCurrencyAmount: innerVal.amount
-      };
-    } else if (innerVal) {
+    if (innerVal) {
       return {
         amount: innerVal.amount,
-        currency: innerVal.currency,
-        homeCurrencyAmount: null
+        currency: innerVal.currency
       };
     } else {
       return {
         amount: null,
-        currency: this.homeCurrency,
-        homeCurrencyAmount: null
+        currency: this.homeCurrency
       };
     }
   }
@@ -161,30 +133,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     const { data } = await currencyModal.onWillDismiss();
     if (data) {
       const shortCode = data.currency.shortCode;
-      if (shortCode === this.homeCurrency) {
-        this.fg.controls.currency.setValue(shortCode);
-      } else {
-        const exchangeRateModal = await this.modalController.create({
-          component: FyCurrencyExchangeRateComponent,
-          componentProps: {
-            amount: this.fg.controls.amount.value,
-            currentCurrency: this.homeCurrency,
-            newCurrency: shortCode,
-            txnDt: this.txnDt
-          }
-        });
-
-        await exchangeRateModal.present();
-
-        const { data } = await exchangeRateModal.onWillDismiss();
-        if (data) {
-          this.fg.setValue({
-            currency: shortCode,
-            amount: data.amount,
-            homeCurrencyAmount: data.homeCurrencyAmount
-          });
-        }
-      }
+      this.fg.controls.currency.setValue(shortCode);
     }
   }
 }
