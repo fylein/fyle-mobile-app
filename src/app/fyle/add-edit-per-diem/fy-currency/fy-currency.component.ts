@@ -195,7 +195,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   }
 
   setDisabledState(isDisabled: boolean) {
-    console.log(isDisabled);
     if (isDisabled) {
       this.fg.disable();
     } else {

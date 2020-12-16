@@ -672,7 +672,6 @@ export class OtherRequestsComponent implements OnInit {
       advanceDetails: new FormArray([]),
     });
 
-    console.log('this.id ->', this.id);
     if (this.id) {
       this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id).pipe(shareReplay());
       this.transportationRequest$ = this.tripRequestsService.getTransportationRequests(this.id).pipe(shareReplay());
@@ -688,12 +687,6 @@ export class OtherRequestsComponent implements OnInit {
         }),
         take(1),
       ).subscribe(([hotelRequest, transportationRequest, advanceRequest]) => {
-
-        console.log('\n\n\n\ hotelRequest->', hotelRequest);
-        console.log('\n\n\n\ transportationRequest->', transportationRequest);
-        console.log('\n\n\n\ advanceRequest->', advanceRequest);
-
-
         if (this.otherRequests[0].hotel) {
           this.hotelDetails.clear();
 

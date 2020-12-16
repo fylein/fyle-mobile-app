@@ -46,7 +46,6 @@ export class ViewAttachmentsComponent implements OnInit {
   }
 
   async deleteAttachment() {
-    // console.log();
     const activeIndex = await this.imageSlides.getActiveIndex();
     const alert = await this.alertController.create({
       header: 'Confirm',

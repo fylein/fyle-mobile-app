@@ -39,7 +39,6 @@ export class DuplicateDetectionService {
   }
 
   getPossibleDuplicates(transaction) {
-    console.log('getPossibleDuplicates');
     return this.orgUserSettingsService.get().pipe(
       switchMap(orgUserSettings => {
         const localeOffset = orgUserSettings.locale.offset;
@@ -65,12 +64,12 @@ export class DuplicateDetectionService {
           transactionCopy.from_dt.setMilliseconds(0);
           transactionCopy.from_dt = this.timezoneService.convertToUtc(transactionCopy.from_dt, localeOffset);
         }
-        return this.post('/duplicate/test', transactionCopy).pipe(tap(console.log));
+        return this.post('/duplicate/test', transactionCopy);
       })
     );
   }
 
   getDuplicates(transactionId: string) {
-    return this.get('/duplicate/violating_txns/' + transactionId).pipe(tap(console.log));
+    return this.get('/duplicate/violating_txns/' + transactionId);
   }
 }
