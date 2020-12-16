@@ -271,7 +271,7 @@ export class AddEditExpensePage implements OnInit {
       take(1)
     ).subscribe((res) => {
       this.pointToDuplicates = true;
-      setTimeout(()=> {
+      setTimeout(() => {
         this.pointToDuplicates = false;
       }, 3000);
     });
@@ -282,7 +282,7 @@ export class AddEditExpensePage implements OnInit {
     if (duplicateInputContainer) {
       duplicateInputContainer.scrollIntoView({
         behavior: 'smooth',
-        block: 'nearest', 
+        block: 'nearest',
         inline: 'start'
       });
 
@@ -701,11 +701,15 @@ export class AddEditExpensePage implements OnInit {
           .find(paymentMode => paymentMode.acc.id === etxn.tx.source_account_id))
       ), of(null));
     }));
-    const selectedCostCenter$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
-        .map(res => res.value)
-        .find(costCenter => costCenter.id === etxn.tx.cost_center_id))), of(null));
-    }));
+    const selectedCostCenter$ = this.etxn$.pipe(
+      tap(etxn => console.log(etxn.tx.cost_center_id)),
+      switchMap(etxn => {
+        return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
+          .map(res => res.value)
+          .find(costCenter => costCenter.id === etxn.tx.cost_center_id))), of(null));
+      }),
+      tap(res => console.log(res))
+    );
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap(etxn => {
@@ -927,6 +931,7 @@ export class AddEditExpensePage implements OnInit {
         control.clearValidators();
         control.updateValueAndValidity();
       }
+
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
         if (txnFields[txnFieldKey].mandatory) {
@@ -1408,7 +1413,7 @@ export class AddEditExpensePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(()=> {
+          that.addExpense().subscribe(() => {
             that.goBack();
           });
         } else {
