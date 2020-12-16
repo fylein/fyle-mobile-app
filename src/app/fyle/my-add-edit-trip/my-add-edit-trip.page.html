@@ -154,7 +154,7 @@
           Aditional information
         </div>
         <div class="add-edit-trip--element-container">
-          <div *ngFor="let customInput of customFields$ | async as customFields">
+          <div *ngFor="let customInput of customFields$|async as customFields">
             <form [formGroup]="customInput.control">
               <!-- <button (click)="debug(customInput)">debug</button> -->
               <div class="add-edit-trip--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
@@ -230,7 +230,7 @@
   <ion-toolbar>
     <div class="add-edit-trip--cta-block">
       <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
-        <ion-button (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button *ngIf="mode !== 'edit'" (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
         <ion-button (click)="onSubmit()" class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
       </div>
       <div *ngIf="((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" class="add-edit-trip--cta-container">

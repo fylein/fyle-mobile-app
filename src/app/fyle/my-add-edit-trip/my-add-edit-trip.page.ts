@@ -47,6 +47,7 @@ export class MyAddEditTripPage implements OnInit {
   isProjectsEnabled$: Observable<boolean>;
   projects$: Observable<[]>;
   tripRequest$: Observable<any>;
+  customFieldValues;
 
   constructor(
     private router: Router,
@@ -165,7 +166,7 @@ export class MyAddEditTripPage implements OnInit {
 
   saveAsDraft(formValue) {
     from(this.loaderService.showLoader('Saving as draft')).pipe(
-      map(() => {
+      switchMap(() => {
         return this.makeTrpfromFormFg(formValue);
       }),
       switchMap(res => {
@@ -183,24 +184,49 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   makeTrpfromFormFg(formValue) {
-    const trp = {
-      custom_field_values: formValue.custom_field_values,
-      end_dt: formValue.endDate,
-      notes: formValue.notes,
-      project_id: formValue.project.project_id,
-      purpose: formValue.purpose,
-      source: 'MOBILE',
-      start_dt: formValue.startDate,
-      traveller_details: formValue.travellerDetails,
-      trip_cities: formValue.cities,
-      trip_type: formValue.tripType
-    };
-    return trp;
+    if (this.mode === 'edit') {
+      return forkJoin({
+        tripRequest: this.tripRequest$
+      }).pipe(
+        map(res => {
+          const tripRequest: any = res.tripRequest;
+  
+          const trp = {
+            ...tripRequest,
+            custom_field_values: formValue.custom_field_values,
+            end_dt: formValue.endDate,
+            notes: formValue.notes,
+            project_id: formValue.project && formValue.project.project_id || null,
+            purpose: formValue.purpose,
+            source: formValue.source,
+            start_dt: formValue.startDate,
+            traveller_details: formValue.travellerDetails,
+            trip_cities: formValue.cities,
+            trip_type: formValue.tripType
+          };
+          return trp;
+        })
+      );
+    } else {
+      const trp = {
+        custom_field_values: formValue.custom_field_values,
+        end_dt: formValue.endDate,
+        notes: formValue.notes,
+        project_id: formValue.project && formValue.project.project_id || null,
+        purpose: formValue.purpose,
+        source: formValue.source,
+        start_dt: formValue.startDate,
+        traveller_details: formValue.travellerDetails,
+        trip_cities: formValue.cities,
+        trip_type: formValue.tripType
+      };
+      return of(trp);
+    }
   }
 
   submitTripRequest(formValue) {
     from(this.loaderService.showLoader('Submitting Trip Request')).pipe(
-      map(() => {
+      switchMap(() => {
         return this.makeTrpfromFormFg(formValue);
       }),
       switchMap(res => {
@@ -228,7 +254,7 @@ export class MyAddEditTripPage implements OnInit {
 
   setDefaultStarrtDate() {
     this.today = new Date();
-    this.startDate.setValue(moment(this.today).format('y-MM-DDD'));
+    this.startDate.setValue(moment(this.today).format('y-MM-DD'));
   }
 
   get cities() {
@@ -294,42 +320,24 @@ export class MyAddEditTripPage implements OnInit {
     }
   }
 
-  modifyTripRequestCustomFields() {
-    this.tripRequestCustomFieldsService.getAll().pipe(
-      map((customFields: any[]) => {
-        customFields = customFields.filter(field => {
-          return field.request_type === 'TRIP_REQUEST';
-        });
-        const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
-        customFieldsFormArray.clear();
-        for (const customField of customFields) {
-          customFieldsFormArray.push(
-            this.formBuilder.group({
-              id: customField.id,
-              name: customField.input_name,
-              value: [, customField.mandatory && Validators.required]
-            })
-          );
-        }
-
-        return customFields.map((customField, i) => {
-          customField.control = customFieldsFormArray.at(i);
-
-          if (customField.options) {
-            customField.options = customField.options.map(option => {
-              return { label: option, value: option };
-            });
-          }
-          return customField;
-        });
-      })
-    );
+  modifyTripRequestCustomFields(customFields): CustomField[] {
+    customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
+    customFields = customFields.map(customField => {
+      if (customField.type === 'DATE' && customField.value) {
+        const updatedDate = new Date(customField.value);
+        customField.value = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
+      }
+      return {id: customField.id, name: customField.name, value: customField.value};
+    });
+    this.customFieldValues = customFields;
+    return this.customFieldValues;
   }
 
   ngOnInit() {
 
     const id = this.activatedRoute.snapshot.params.id;
     const orgSettings$ = this.offlineService.getOrgSettings();
+    this.customFieldValues = [];
 
     this.tripTypes = [
       {
@@ -346,7 +354,6 @@ export class MyAddEditTripPage implements OnInit {
 
     // TODO use formBuilder.group
     this.minDate = moment(new Date()).format('y-MM-DD');
-    console.log('\n\n\n\n ajab gajab', this.minDate);
 
     this.fg = new FormGroup({
       travellerDetails: new FormArray([]),
@@ -361,6 +368,7 @@ export class MyAddEditTripPage implements OnInit {
       transportationRequest: new FormControl('', []),
       hotelRequest: new FormControl('', []),
       advanceRequest: new FormControl('', []),
+      source: new FormControl('MOBILE', []),
       custom_field_values: new FormArray([])
     });
 
@@ -368,17 +376,25 @@ export class MyAddEditTripPage implements OnInit {
 
     this.customFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
       map((customFields: any[]) => {
+        const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
+        customFieldsFormArray.clear();
+        customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
         customFields = customFields.filter(field => {
           return field.request_type === 'TRIP_REQUEST';
         });
-        const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
-        customFieldsFormArray.clear();
+
         for (const customField of customFields) {
+          let value;
+          this.customFieldValues.filter(customFieldValue => {
+            if (customFieldValue.id === customField.id) {
+              value = customFieldValue.value;
+            }
+          });
           customFieldsFormArray.push(
             this.formBuilder.group({
               id: customField.id,
               name: customField.input_name,
-              value: [, customField.mandatory && Validators.required]
+              value: [value, customField.mandatory && Validators.required]
             })
           );
         }
@@ -386,8 +402,8 @@ export class MyAddEditTripPage implements OnInit {
         return customFields.map((customField, i) => {
           customField.control = customFieldsFormArray.at(i);
 
-          if (customField.options) {
-            customField.options = customField.options.map(option => {
+          if (customField.input_options) {
+            customField.options = customField.input_options.map(option => {
               return { label: option, value: option };
             });
           }
@@ -432,6 +448,9 @@ export class MyAddEditTripPage implements OnInit {
           this.fg.get('project').setValue(selectedProject);
           this.fg.get('travelAgent').setValue((transportRequest[0] && transportRequest[0].tr.assigned_to) || null);
           this.fg.get('notes').setValue(tripRequest.notes);
+          this.fg.get('source').setValue(tripRequest.source);
+
+          this.fg.get('custom_field_values').setValue(this.modifyTripRequestCustomFields(tripRequest.custom_field_values));
 
           this.cities.clear();
           tripRequest.trip_cities.map(tripCity => {
@@ -446,8 +465,6 @@ export class MyAddEditTripPage implements OnInit {
             }
             this.cities.push(intialCity);
           });
-
-          // this.fg.get('custom_field_values').setValue(this.modifyTripRequestCustomFields());
 
           this.fg.get('transportationRequest').setValue(transportRequest.length > 0 ? true : false);
           this.fg.get('hotelRequest').setValue(hotelRequest.length > 0 ? true : false);
