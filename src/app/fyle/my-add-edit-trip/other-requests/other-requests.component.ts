@@ -739,7 +739,7 @@ export class OtherRequestsComponent implements OnInit {
             });
             let custom = details.get('custom_field_values') as FormArray;
             let renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
-            renderedCustomFeild.map(field => {
+            renderedCustomFeild.forEach(field => {
               let customFields = this.formBuilder.group({
                 id: [field.id],
                 name: [field.name],
@@ -772,7 +772,7 @@ export class OtherRequestsComponent implements OnInit {
             });
             let custom = details.get('custom_field_values') as FormArray;
             let renderedCustomFeild = this.modifyOtherRequestCustomFields(request.tr.custom_field_values, 'TRANSPORT');
-            renderedCustomFeild.map(field => {
+            renderedCustomFeild.forEach(field => {
               let customFields = this.formBuilder.group({
                 id: [field.id],
                 name: [field.name],

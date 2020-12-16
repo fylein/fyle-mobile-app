@@ -442,7 +442,7 @@ export class MyAddEditTripPage implements OnInit {
         take(1),
         map(([tripRequest, selectedProject, hotelRequest, transportRequest, advanceRequest]) => {
 
-          tripRequest.traveller_details.map(traveller => {
+          tripRequest.traveller_details.forEach(traveller => {
             this.setTripRequestObject(traveller.name, traveller.phone_number);
           });
           this.fg.get('tripType').setValue(tripRequest.trip_type);
@@ -468,7 +468,7 @@ export class MyAddEditTripPage implements OnInit {
 
 
           this.cities.clear();
-          tripRequest.trip_cities.map(tripCity => {
+          tripRequest.trip_cities.forEach(tripCity => {
             const intialCity = this.formBuilder.group({
               from_city: [tripCity.from_city, Validators.required],
               to_city: [tripCity.to_city, Validators.required],
