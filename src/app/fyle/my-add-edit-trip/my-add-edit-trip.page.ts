@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { from, Observable, noop, forkJoin, of, concat, combineLatest, iif } from 'rxjs';
+import { from, Observable, noop, forkJoin, of, concat, combineLatest, iif, Subject } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
-import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take } from 'rxjs/operators';
+import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take, concatMapTo } from 'rxjs/operators';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -48,6 +48,7 @@ export class MyAddEditTripPage implements OnInit {
   projects$: Observable<[]>;
   tripRequest$: Observable<any>;
   customFieldValues;
+  refreshTrips$ = new Subject();
 
   constructor(
     private router: Router,
@@ -374,13 +375,16 @@ export class MyAddEditTripPage implements OnInit {
 
     this.maxDate = this.fg.controls.endDate.value;
 
-    this.customFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
+    this.customFields$ = this.refreshTrips$.pipe(
+      concatMap(() => {
+        return this.tripRequestCustomFieldsService.getAll()
+      }),
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
         customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
         customFields = customFields.filter(field => {
-          return field.request_type === 'TRIP_REQUEST';
+          return field.request_type === 'TRIP_REQUEST' && field.trip_type.indexOf(this.fg.get('tripType').value) > -1;
         });
 
         for (const customField of customFields) {
@@ -411,6 +415,7 @@ export class MyAddEditTripPage implements OnInit {
         });
       })
     );
+      
 
     this.intializeDefaults();
 
@@ -450,7 +455,18 @@ export class MyAddEditTripPage implements OnInit {
           this.fg.get('notes').setValue(tripRequest.notes);
           this.fg.get('source').setValue(tripRequest.source);
 
-          this.fg.get('custom_field_values').setValue(this.modifyTripRequestCustomFields(tripRequest.custom_field_values));
+          // this.fg.get('custom_field_values').setValue(this.modifyTripRequestCustomFields(tripRequest.custom_field_values));
+          let custom = this.fg.get('custom_field_values') as FormArray;
+          let renderedCustomFeild = this.modifyTripRequestCustomFields(tripRequest.custom_field_values);
+          renderedCustomFeild.forEach(field => {
+            let customFields = this.formBuilder.group({
+              id: [field.id],
+              name: [field.name],
+              value: [field.value]
+            });
+            custom.push(customFields);
+          });
+
 
           this.cities.clear();
           tripRequest.trip_cities.map(tripCity => {
@@ -571,6 +587,7 @@ export class MyAddEditTripPage implements OnInit {
 
     this.fg.valueChanges.subscribe(formValue => {
       console.log('\n\n\ formValue ->', formValue);
+      this.refreshTrips$.next();
       if (formValue.tripType === 'MULTI_CITY') {
         if (formValue.cities.length > 1) {
           this.minDate = formValue.cities[formValue.cities.length - 2].onward_dt;

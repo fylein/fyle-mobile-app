@@ -54,7 +54,7 @@
         
         <div class="add-edit-trip--element-container">
           <div class="add-edit-trip--text">
-            <app-fy-select [mandatory]="true" [label]="'Select Trip Type'" formControlName="tripType"
+            <app-fy-select [mandatory]="true" [label]="'Select Trip Type'" formControlName="tripType" [disabled]="mode === 'edit'"
             [options]="tripTypes" [nullOption]="false" ></app-fy-select>
           </div>
   
