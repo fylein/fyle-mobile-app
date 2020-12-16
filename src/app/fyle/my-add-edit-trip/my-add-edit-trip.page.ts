@@ -440,7 +440,6 @@ export class MyAddEditTripPage implements OnInit {
           ]);
         }),
         take(1),
-        // tap(res => console.log('\n\n\n trip detials ->', res)),
         map(([tripRequest, selectedProject, hotelRequest, transportRequest, advanceRequest]) => {
 
           tripRequest.traveller_details.map(traveller => {
@@ -486,7 +485,6 @@ export class MyAddEditTripPage implements OnInit {
           this.fg.get('hotelRequest').setValue(hotelRequest.length > 0 ? true : false);
           this.fg.get('advanceRequest').setValue(advanceRequest.length > 0 ? true : false);
         }),
-        tap(res => console.log('\n\n\n trip detials ->', res)),
         finalize(() => this.loaderService.hideLoader())
       ).subscribe(noop);
     } else {
@@ -586,7 +584,6 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     this.fg.valueChanges.subscribe(formValue => {
-      console.log('\n\n\ formValue ->', formValue);
       this.refreshTrips$.next();
       if (formValue.tripType === 'MULTI_CITY') {
         if (formValue.cities.length > 1) {
