@@ -236,7 +236,7 @@ export class MyViewReportPage implements OnInit {
     } else {
       route = '/enterprise/my_view_expense';
       if (canEdit) {
-        route = '/enterprise/my_add_edit_expense';
+        route = '/enterprise/add_edit_expense';
       }
     }
 

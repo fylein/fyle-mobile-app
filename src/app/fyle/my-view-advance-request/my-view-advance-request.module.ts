@@ -12,7 +12,10 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
+import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
   imports: [
@@ -24,11 +27,14 @@ import {MatButtonModule} from '@angular/material/button';
     SharedModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    PinchZoomModule,
+    PdfViewerModule
   ],
   declarations: [
     MyViewAdvanceRequestPage,
-    PullBackAdvanceRequestComponent 
+    PullBackAdvanceRequestComponent,
+    ViewAttachmentComponent
   ]
 })
-export class MyViewAdvanceRequestPageModule {}
+export class MyViewAdvanceRequestPageModule { }
