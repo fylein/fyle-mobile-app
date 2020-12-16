@@ -1,0 +1,43 @@
+<div class="otp-popover">
+  <div class="otp-popover--header">
+    <div class="otp-popover--header-text">
+      Send Back
+    </div>
+    <div class="otp-popover--header-cancel" (click)="cancel()">
+      Cancel
+    </div>
+  </div>
+
+  <div class="otp-popover--body">
+    <div>
+      An OTP was send to {{phoneNumber}}
+    </div>
+    <div>
+      <mat-form-field class="mat-form-field-no-padding otp-popover--input" appearance="outline">
+        <input matInput required [(ngModel)]="otp" type="number" #otpNumber="ngModel">
+      </mat-form-field>
+    </div>
+  </div>
+  <div [class]="otpInfoClass">
+    {{otpInfoMessage}}
+  </div>
+
+  <div class="otp-popover--buttons">
+    <button mat-flat-button color="accent" class="otp-popover--button" (click)="resendOtp($event)"
+      [disabled]="!canRequestResendOTP">
+      <ng-container *ngIf="canRequestResendOTP; else waitMessage">
+        Resend Otp
+      </ng-container>
+      <ng-template #waitMessage>
+        Please wait
+      </ng-template>
+    </button>
+  </div>
+
+  <div class="otp-popover--buttons">
+    <button mat-flat-button color="primary" class="otp-popover--button"
+      [disabled]="!otpNumber.valid || isApiCallInProgress" (click)="verifyOtp($event)">
+      Verify Otp
+    </button>
+  </div>
+</div>

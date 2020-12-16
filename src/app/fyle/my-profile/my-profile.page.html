@@ -14,7 +14,7 @@
     <span class="my-profile--blocks-header">
       About You
     </span>
-    <ng-container *ngIf="eou$|async as eou">
+    <div *ngIf="eou$|async as eou">
       <div class="my-profile--card">
         <div class="my-profile--name my-profile--card-item">
           <div class="my-profile--name-label">
@@ -37,9 +37,12 @@
         <div class="my-profile--mobile my-profile--card-item">
           <div class="my-profile--mobile-label">
             Mobile
+            <span *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged">(unverified)</span>
+            <span *ngIf="isMobileCountryCodeNotPresent">with country code</span>
           </div>
           <div class="my-profile--mobile-value">
-            {{eou.ou.mobile}}
+            <input class="my-profile--mobile-value-input" [(ngModel)]="mobileNumber" type="tel" matInput
+              placeholder="e.g +91 91XX XX XXX" (ngModelChange)="onMobileNumberChanged(eou)">
           </div>
         </div>
 
@@ -52,8 +55,19 @@
           </div>
         </div>
       </div>
-    </ng-container>
+
+      <ion-button *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged" class="my-profile--primary-cta"
+        fill="solid" color="fyle-primary" (click)="openOtpPopover()">
+        VERIFY MOBILE
+      </ion-button>
+      <ion-button *ngIf="isMobileChanged" class="my-profile--primary-cta" fill="solid" color="fyle-primary"
+        (click)="saveUserProfile(eou)">
+        SAVE
+      </ion-button>
+    </div>
   </div>
+
+
 
   <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Notifications</span>
@@ -126,8 +140,8 @@
 
       <div class="my-profile--cards-content my-profile--toggle-container">
         <div class="my-profile--toggle-label"> Scan paper receipts to automatically create expenses. </div>
-        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.insta_fyle_settings.enabled"
-          (ionChange)="toggleAutoExtraction()"></ion-toggle>
+        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+          [(ngModel)]="orgUserSettings.insta_fyle_settings.enabled" (ionChange)="toggleAutoExtraction()"></ion-toggle>
       </div>
     </div>
 
@@ -137,8 +151,8 @@
         <div class="my-profile--card-title">Bulkfyle</div>
         <div class="my-profile--card-content my-profile--toggle-container">
           <span class="my-profile--toggle-label"> Submit multiple paper receipts in one go. </span>
-          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled"
-            (ionChange)="toggleBulkMode()"></ion-toggle>
+          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+            [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled" (ionChange)="toggleBulkMode()"></ion-toggle>
         </div>
       </div>
     </div>
@@ -148,8 +162,8 @@
         <div class="my-profile--card-title">One Click Action</div>
         <div class="my-profile--card-content my-profile--toggle-container">
           <span class="my-profile--toggle-label"> Create expense from camera in one go. </span>
-          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.one_click_action_settings.enabled"
-            (ionChange)="toggleOneClickActionMode()">
+          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+            [(ngModel)]="orgUserSettings.one_click_action_settings.enabled" (ionChange)="toggleOneClickActionMode()">
           </ion-toggle>
         </div>
         <div>
@@ -168,8 +182,9 @@
         <div class="my-profile--toggle-label">
           Use the daily messaging app to track your expenses on the go.
         </div>
-        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.whatsapp_fyle_settings.enabled"
-          (ionChange)="toggleWhatsappSettings()"></ion-toggle>
+        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+          [(ngModel)]="orgUserSettings.whatsapp_fyle_settings.enabled" (ionChange)="toggleWhatsappSettings()">
+        </ion-toggle>
       </div>
       <div>
         Read More
@@ -182,8 +197,8 @@
     <div class="my-profile--card-title">Currency Preference</div>
     <div class="my-profile--card-content my-profile--toggle-container">
       <div class="my-profile--toggle-label"> Currency Info </div>
-      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.currency_settings.enabled"
-        (ionChange)="toggleCurrencySettings()"></ion-toggle>
+      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+        [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
     </div>
     <div>
       Select Currency
@@ -202,10 +217,25 @@
 
     <div class="my-profile--cards-content">
       <span class="my-profile--toggle-label">One SMS to track and turn receipts into expenses</span>
-      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success" [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled"
-        (ionChange)="toggleSmsSettings()"></ion-toggle>
+      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+        [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled" (ionChange)="toggleSmsSettings()"></ion-toggle>
     </div>
   </div>
+
+  <ng-container *ngIf="eou$|async as eou">
+    <ng-container *ngIf="org$|async as org">
+      <div class="my-profile--card" *ngIf="!org.lite && eou.ou.roles.indexOf('ADMIN') > -1">
+        <div class="my-profile--cards-header">
+          Mileage Logs
+        </div>
+        <div class="my-profile--cards-content">
+          Please login to the web application at <a (click)="openWebAppLink('app')">https://in1.fylehq.com</a> to
+          change mileage settings.
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
 
   <div class="my-profile--card my-profile--card-item" (click)="logOut()" matRipple>
     <mat-icon svgIcon="ionic-log-out-outline"></mat-icon>

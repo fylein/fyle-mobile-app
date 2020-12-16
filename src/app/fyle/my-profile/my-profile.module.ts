@@ -8,6 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from '../../shared/shared.module';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
+import { OtpPopoverComponent } from './otp-popover/otp-popover.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -17,11 +19,13 @@ import { SelectCurrencyComponent } from './select-currency/select-currency.compo
     MyProfilePageRoutingModule,
     MatFormFieldModule,
     MatInputModule,
-    SharedModule
+    SharedModule,
+    MatButtonModule
   ],
   declarations: [
     MyProfilePage,
-    SelectCurrencyComponent
+    SelectCurrencyComponent,
+    OtpPopoverComponent
   ]
 })
 export class MyProfilePageModule {}

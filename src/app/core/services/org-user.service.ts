@@ -5,10 +5,11 @@ import { ApiService } from './api.service';
 import { User } from '../models/user.model';
 import { switchMap, expand, reduce, tap, concatMap, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { range, of, Observable } from 'rxjs';
+import { range, of, Observable, from } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { DataTransformService } from './data-transform.service';
 import { Cacheable } from 'ts-cacheable';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,11 +21,16 @@ export class OrgUserService {
     private tokenService: TokenService,
     private apiService: ApiService,
     private authService: AuthService,
-    private dataTransformService: DataTransformService
+    private dataTransformService: DataTransformService,
+    private storageService: StorageService
   ) { }
 
   postUser(user: User) {
     return this.apiService.post('/users', user);
+  }
+
+  postOrgUser(orgUser) {
+    return this.apiService.post('/orgusers', orgUser);
   }
 
   markActive() {
@@ -137,4 +143,11 @@ export class OrgUserService {
     return !!accessToken.proxy_org_user_id;
   }
 
+  verifyMobile() {
+    return this.apiService.post('/orgusers/verify_mobile');
+  };
+
+  checkMobileVerificationCode(otp) {
+    return this.apiService.post('/orgusers/check_mobile_verification_code', otp);
+  };
 }

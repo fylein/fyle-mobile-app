@@ -176,4 +176,13 @@ $background-color: #fff;
   &--toggle-label {
     width: 80%;
   }
+
+  &--primary-cta {
+    margin: 0 16px;
+    width: 90%;
+  }
+
+  &--mobile-value-input {
+    border: 0;
+  }
 }
