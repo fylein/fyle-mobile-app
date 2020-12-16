@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, iif, of, combineLatest, from, throwError, noop, concat } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -68,6 +68,9 @@ export class AddEditPerDiemPage implements OnInit {
   invalidPaymentMode = false;
   duplicates$: Observable<any>;
   duplicateBoxOpen = false;
+  pointToDuplicates = false;
+
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -216,6 +219,30 @@ export class AddEditPerDiemPage implements OnInit {
         return this.getPossibleDuplicates();
       })
     );
+
+    this.duplicates$.pipe(
+      filter(duplicates => duplicates && duplicates.length),
+      take(1)
+    ).subscribe((res) => {
+      this.pointToDuplicates = true;
+      setTimeout(()=> {
+        this.pointToDuplicates = false;
+      }, 3000);
+    });
+  }
+
+
+  showDuplicates() {
+    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
+    if (duplicateInputContainer) {
+      duplicateInputContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest', 
+        inline: 'start'
+      });
+
+      this.pointToDuplicates = false;
+    }
   }
 
   goToPrev() {
@@ -1412,7 +1439,9 @@ export class AddEditPerDiemPage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(noop);
+          that.addExpense().subscribe(()=> {
+            that.goBack();
+          });
         } else {
           // to do edit
           that.editExpense().subscribe(noop);

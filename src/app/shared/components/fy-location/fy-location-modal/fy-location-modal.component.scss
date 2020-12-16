@@ -10,6 +10,12 @@ $list-element-color: #333;
     border-bottom: 1px solid $header-border;
     font-size: 16px;
     color: $list-element-color;
+    display: flex;
+    align-items: center;
+  }
+
+  &--list-element-icon {
+    margin-right: 12px;
   }
 
   &--title {
@@ -35,5 +41,18 @@ $list-element-color: #333;
 
   &--form-field-container {
     text-align: center;
+  }
+
+  &--spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  &--primary-cta {
+    width: 100%;
+    padding: 0 12px;
   }
 }

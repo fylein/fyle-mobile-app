@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, EventEmitter, ElementRef, ViewChild } from '@angular/core';
 import { Observable, of, iif, forkJoin, from, combineLatest, throwError, noop, concat } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -90,7 +90,9 @@ export class AddEditExpensePage implements OnInit {
   focusState = false;
   isConnected$: Observable<boolean>;
   invalidPaymentMode: boolean = false;
+  pointToDuplicates = false;
 
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -124,18 +126,18 @@ export class AddEditExpensePage implements OnInit {
 
   goBack() {
     if (this.mode === 'add') {
-      this.router.navigate(['/','enterprise','my_expenses']);
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     } else {
       if (!this.reviewList || this.reviewList.length === 0) {
         this.navController.back();
       } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
         if (+this.activeIndex === 0) {
-          this.router.navigate(['/','enterprise','my_expenses']);
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
         } else {
           this.goToPrev();
         }
       } else {
-        this.router.navigate(['/','enterprise','my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
   };
@@ -264,9 +266,28 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    this.duplicates$.subscribe((res) => {
-      console.log(res);
+    this.duplicates$.pipe(
+      filter(duplicates => duplicates && duplicates.length),
+      take(1)
+    ).subscribe((res) => {
+      this.pointToDuplicates = true;
+      setTimeout(()=> {
+        this.pointToDuplicates = false;
+      }, 3000);
     });
+  }
+
+  showDuplicates() {
+    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
+    if (duplicateInputContainer) {
+      duplicateInputContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest', 
+        inline: 'start'
+      });
+
+      this.pointToDuplicates = false;
+    }
   }
 
   openSplitExpenseModal(splitType) {
@@ -1374,8 +1395,8 @@ export class AddEditExpensePage implements OnInit {
 
   reloadCurrentRoute() {
     let currentUrl = this.router.url;
-    this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true}).then(() => {
-        this.router.navigate([currentUrl]);
+    this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl]);
     });
   }
 
@@ -1387,7 +1408,9 @@ export class AddEditExpensePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(noop);
+          that.addExpense().subscribe(()=> {
+            that.goBack();
+          });
         } else {
           // to do edit
           that.editExpense().subscribe(noop);
@@ -1412,7 +1435,7 @@ export class AddEditExpensePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(()=> {
+          that.addExpense().subscribe(() => {
             this.reloadCurrentRoute();
           });
         } else {

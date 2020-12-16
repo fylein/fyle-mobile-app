@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, FormControl } from '@angular/forms';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -65,6 +65,9 @@ export class AddEditMileagePage implements OnInit {
   duplicates$: Observable<any>;
   duplicateBoxOpen = false;
   isConnected$: Observable<boolean>;
+  pointToDuplicates = false;
+
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
 
   formInitializedFlag = false;
   invalidPaymentMode = false;
@@ -180,8 +183,7 @@ export class AddEditMileagePage implements OnInit {
     return this.offlineService.getOrgSettings().pipe(
       map(orgSettings => {
         const isAmountCurrencyTxnDtPresent =
-          isNumber(this.fg.value.currencyObj && this.fg.value.currencyObj.amount) && !!this.fg.value.dateOfSpend
-          && !!(this.fg.value.currencyObj && this.fg.value.currencyObj.currency);
+        this.fg.value.distance && !!this.fg.value.dateOfSpend && (this.fg.value.mileage_locations && this.fg.value.mileage_locations.filter(l => !!l).length);
         return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
       })
     );
@@ -249,6 +251,29 @@ export class AddEditMileagePage implements OnInit {
         return this.getPossibleDuplicates();
       })
     );
+
+    this.duplicates$.pipe(
+      filter(duplicates => duplicates && duplicates.length),
+      take(1)
+    ).subscribe((res) => {
+      this.pointToDuplicates = true;
+      setTimeout(()=> {
+        this.pointToDuplicates = false;
+      }, 3000);
+    });
+  }
+
+  showDuplicates() {
+    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
+    if (duplicateInputContainer) {
+      duplicateInputContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest', 
+        inline: 'start'
+      });
+
+      this.pointToDuplicates = false;
+    }
   }
 
   setupFilteredCategories(activeCategories$: Observable<any>) {
@@ -969,7 +994,9 @@ export class AddEditMileagePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(noop);
+          that.addExpense().subscribe(()=>{
+            that.goBack();
+          });
         } else {
           // to do edit
           that.editExpense().subscribe(noop);

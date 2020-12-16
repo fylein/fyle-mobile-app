@@ -58,6 +58,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
       const selectedOption = this.innerValue;
       if (selectedOption) {
         this.displayValue = selectedOption.display;
+      } else {
+        this.displayValue = '';
       }
 
       this.onChangeCallback(v);
@@ -92,6 +94,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
       const selectedOption = this.innerValue;
       if (selectedOption) {
         this.displayValue = selectedOption.display;
+      } else {
+        this.displayValue = '';
       }
     }
   }

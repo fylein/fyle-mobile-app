@@ -13,7 +13,10 @@
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
-      <input #searchBar id="selection-modal--search-input" matInput placeholder="Search">
+      <input #searchBar id="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value">
+      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+        <mat-icon>close</mat-icon>
+      </button>
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
@@ -23,10 +26,35 @@
     {{header | lowercase}}
   </div>
   <div matRipple class="selection-modal--list-element" (click)="getCurrentLocation()">
-    Select Current Location
+    <mat-icon class="selection-modal--list-element-icon">
+      my_location
+    </mat-icon>
+    <div>
+      Select Current Location
+    </div>
   </div>
+  <ng-container *ngIf="loader">
+    <div class="selection-modal--spinner">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  </ng-container>
   <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredList$ | async as list"
     (click)="onElementSelect(filteredListItem)">
-    {{filteredListItem.description}}
+    <mat-icon class="selection-modal--list-element-icon">
+      place
+    </mat-icon>
+    <div>
+      {{filteredListItem.description}}
+    </div>
   </div>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons>
+      <ion-button (click)="deleteLocation()" class="selection-modal--primary-cta" fill="solid" color="fyle-primary">
+        Remove Selected Location
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

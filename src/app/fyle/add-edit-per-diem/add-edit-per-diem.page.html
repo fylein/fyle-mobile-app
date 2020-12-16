@@ -38,6 +38,18 @@
     </button>
   </div>
   <div>
+    <div class="add-edit-per-diem--duplicate-pointer-container">
+      <div class="add-edit-per-diem--duplicate-pointer" (click)="showDuplicates()" *ngIf="pointToDuplicates">
+        <div class="add-edit-per-diem--duplicate-pointer-text">
+          Possible Duplicates Detected !
+        </div>
+        <div class="add-edit-per-diem--duplicate-pointer-icon">
+          <mat-icon class="add-edit-per-diem--duplicate-pointer-icon-internal">
+            expand_more
+          </mat-icon>
+        </div>
+      </div>
+    </div>
     <ng-container *ngIf="fg">
       <form class="add-edit-per-diem--form" [formGroup]="fg">
         <ng-container *ngIf="(canCreatePerDiem$|async); else NothingToSee">
@@ -384,34 +396,36 @@
             </ng-container>
 
             <ng-container *ngIf="duplicates$|async as duplicates">
-                <ng-container *ngIf="duplicates.length > 0">
-                  <div class="add-edit-per-diem--duplicates-box add-edit-per-diem--primary-block">
-                    <div class="add-edit-per-diem--duplicate-header">
-                      <mat-icon>
-                        warning
-                      </mat-icon>
-                      <div>
-                        {{duplicates.length}} Duplicates Detected
-                      </div>
-                      <div *ngIf="duplicateBoxOpen" (click)="duplicateBoxOpen = false">
-                        Collapse
-                      </div>
-                      <div *ngIf="!duplicateBoxOpen" (click)="duplicateBoxOpen = true">
-                        Expand
-                      </div>
+              <ng-container *ngIf="duplicates.length > 0">
+                <div #duplicateInputContainer
+                  class="add-edit-per-diem--duplicates-box add-edit-per-diem--primary-block">
+                  <div class="add-edit-per-diem--duplicate-header">
+                    <mat-icon>
+                      warning
+                    </mat-icon>
+                    <div>
+                      {{duplicates.length}} Duplicates Detected
                     </div>
-                    <div class="add-edit-per-diem--duplicate-sub-box" *ngIf="duplicateBoxOpen">
-                      <div class="add-edit-per-diem--duplicate-reason" *ngFor="let duplicate of duplicates">
-                        {{duplicate.reason}}
-                      </div>
-                      <div class="add-edit-per-diem--duplicate-reason-select">
-                        <app-fy-select [label]="'Select your Reason'" formControlName="duplicate_detection_reason" [options]="[]">
-                        </app-fy-select>
-                      </div>
+                    <div *ngIf="duplicateBoxOpen" (click)="duplicateBoxOpen = false">
+                      Collapse
+                    </div>
+                    <div *ngIf="!duplicateBoxOpen" (click)="duplicateBoxOpen = true">
+                      Expand
                     </div>
                   </div>
-                </ng-container>
+                  <div class="add-edit-per-diem--duplicate-sub-box" *ngIf="duplicateBoxOpen">
+                    <div class="add-edit-per-diem--duplicate-reason" *ngFor="let duplicate of duplicates">
+                      {{duplicate.reason}}
+                    </div>
+                    <div class="add-edit-per-diem--duplicate-reason-select">
+                      <app-fy-select [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
+                        [options]="[]">
+                      </app-fy-select>
+                    </div>
+                  </div>
+                </div>
               </ng-container>
+            </ng-container>
 
             <ng-container *ngIf="etxn$|async as etxn">
               <div *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"

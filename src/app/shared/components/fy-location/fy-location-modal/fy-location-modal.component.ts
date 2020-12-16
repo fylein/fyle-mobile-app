@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef, Input } from '@angular/core';
 import { AgmGeocoder } from '@agm/core';
-import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize, catchError } from 'rxjs/operators';
 import { Plugins } from '@capacitor/core';
 import { ModalController } from '@ionic/angular';
-import { Observable, fromEvent, of, from, forkJoin } from 'rxjs';
+import { Observable, fromEvent, of, from, forkJoin, noop } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -18,6 +18,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelection: any;
   @Input() header = '';
+  loader = false;
+  value = '';
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
@@ -36,42 +38,54 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (this.currentSelection && this.currentSelection.display) {
-      const inputElement = this.searchBarRef.nativeElement as HTMLInputElement;
-      inputElement.value = this.currentSelection.display;
+    const that = this;
+    if (that.currentSelection && that.currentSelection.display) {
+      this.value = that.currentSelection.display
     }
 
-    this.filteredList$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+    that.filteredList$ = fromEvent(that.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((searchText) => {
+        that.loader = true;
         return forkJoin({
-          eou: this.authService.getEou(),
+          eou: that.authService.getEou(),
           currentLocation: from(Geolocation.getCurrentPosition({
             timeout: 10000,
             enableHighAccuracy: true
           }))
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
-            return from(this.loaderService.showLoader()).pipe(
-              switchMap(() => {
-                return this.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
-              }),
-              finalize(() => from(this.loaderService.hideLoader()))
-            );
+            return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`)
+          }),
+          map((res) => {
+            that.loader = false
+            return res;
+          }),
+          catchError(() => {
+            that.loader = false
+            return [];
           })
         );
-      })
+      }),
     );
 
-    this.cdr.detectChanges();
+    that.filteredList$.subscribe(noop);
+
+    that.cdr.detectChanges();
   }
 
   onDoneClick() {
-    this.modalController.dismiss({
-      selection: this.currentSelection
-    });
+    if (this.currentSelection && this.value && this.value === '') {
+      this.modalController.dismiss({
+        selection: null
+      });
+    } else {
+      this.modalController.dismiss({
+        selection: this.currentSelection
+      });
+    }
   }
 
   onElementSelect(location) {
@@ -82,6 +96,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     });
   }
 
+  deleteLocation() {
+    this.modalController.dismiss({
+      selection: null
+    });
+  }
 
   formatGeocodeResponse(geocodeResponse) {
     const currentLocation = geocodeResponse && geocodeResponse.length > 0 && geocodeResponse[0];
