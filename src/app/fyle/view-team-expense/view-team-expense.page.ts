@@ -32,7 +32,6 @@ export class ViewTeamExpensePage implements OnInit {
   orgSettings: any;
   reportId;
   attachments$: Observable<any>;
-  reportId;
   currencyOptions;
   updateFlag$ = new Subject();
 
@@ -44,7 +43,6 @@ export class ViewTeamExpensePage implements OnInit {
     private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
-    private router: Router,
     private fileService: FileService,
     private modalController: ModalController,
     private router: Router
