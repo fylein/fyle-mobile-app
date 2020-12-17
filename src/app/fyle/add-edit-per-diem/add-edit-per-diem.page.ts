@@ -104,18 +104,18 @@ export class AddEditPerDiemPage implements OnInit {
 
   goBack() {
     if (this.mode === 'add') {
-      this.router.navigate(['/','enterprise','my_expenses']);
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     } else {
       if (!this.reviewList || this.reviewList.length === 0) {
         this.navController.back();
       } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
         if (+this.activeIndex === 0) {
-          this.router.navigate(['/','enterprise','my_expenses']);
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
         } else {
           this.goToPrev();
         }
       } else {
-        this.router.navigate(['/','enterprise','my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
   };
@@ -225,7 +225,7 @@ export class AddEditPerDiemPage implements OnInit {
       take(1)
     ).subscribe((res) => {
       this.pointToDuplicates = true;
-      setTimeout(()=> {
+      setTimeout(() => {
         this.pointToDuplicates = false;
       }, 3000);
     });
@@ -237,7 +237,7 @@ export class AddEditPerDiemPage implements OnInit {
     if (duplicateInputContainer) {
       duplicateInputContainer.scrollIntoView({
         behavior: 'smooth',
-        block: 'nearest', 
+        block: 'nearest',
         inline: 'start'
       });
 
@@ -347,6 +347,46 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       shareReplay()
     );
+  }
+
+  setupTfcDefaultValues() {
+    const tfcValues$ = this.fg.valueChanges.pipe(
+      startWith({}),
+      switchMap((formValue) => {
+        return forkJoin({
+          tfcMap: this.offlineService.getTransactionFieldConfigurationsMap(),
+          perDiemCategoriesContainer: this.getPerDiemCategories()
+        }).pipe(
+          switchMap(({ tfcMap, perDiemCategoriesContainer }) => {
+            const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
+            return this.transactionFieldConfigurationService
+              .filterByOrgCategoryIdProjectId(
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory, formValue.project
+              );
+          })
+        );
+      }),
+      map(tfc => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(tfc))
+    );
+
+    tfcValues$.subscribe(defaultValues => {
+      const keyToControlMap: { [id: string]: AbstractControl; } = {
+        purpose: this.fg.controls.purpose,
+        cost_center_id: this.fg.controls.costCenter,
+        from_dt: this.fg.controls.from_dt,
+        to_dt: this.fg.controls.to_dt,
+        num_days: this.fg.controls.num_days
+      };
+
+      for (var defaultValueColumn in defaultValues) {
+        if (defaultValues.hasOwnProperty(defaultValueColumn)) {
+          const control = keyToControlMap[defaultValueColumn];
+          if (!control.value) {
+            control.patchValue(defaultValues[defaultValueColumn]);
+          }
+        }
+      }
+    });
   }
 
   getPaymentModes() {
@@ -650,7 +690,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
-    // TODO: Put this in per diem
     this.transactionMandatoyFields$
       .pipe(
         filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
@@ -737,6 +776,9 @@ export class AddEditPerDiemPage implements OnInit {
 
       this.fg.updateValueAndValidity();
     });
+
+
+    this.setupTfcDefaultValues();
 
     this.isAmountCapped$ = this.etxn$.pipe(
       map(
@@ -1439,7 +1481,7 @@ export class AddEditPerDiemPage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(()=> {
+          that.addExpense().subscribe(() => {
             that.goBack();
           });
         } else {

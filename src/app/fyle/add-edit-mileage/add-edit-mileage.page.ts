@@ -362,6 +362,45 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  setupTfcDefaultValues() {
+    const tfcValues$ = this.fg.valueChanges.pipe(
+      startWith({}),
+      switchMap((formValue) => {
+        return forkJoin({
+          tfcMap: this.offlineService.getTransactionFieldConfigurationsMap(),
+          mileageCategoriesContainer: this.getMileageCategories()
+        }).pipe(
+          switchMap(({ tfcMap, mileageCategoriesContainer }) => {
+            const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
+            return this.transactionFieldConfigurationService
+              .filterByOrgCategoryIdProjectId(
+                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory, formValue.project
+              );
+          })
+        );
+      }),
+      map(tfc => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(tfc))
+    );
+
+    tfcValues$.subscribe(defaultValues => {
+      const keyToControlMap: { [id: string]: AbstractControl; } = {
+        purpose: this.fg.controls.purpose,
+        cost_center_id: this.fg.controls.costCenter,
+        txn_dt: this.fg.controls.dateOfSpend,
+        distance: this.fg.controls.distance
+      };
+
+      for (var defaultValueColumn in defaultValues) {
+        if (defaultValues.hasOwnProperty(defaultValueColumn)) {
+          const control = keyToControlMap[defaultValueColumn];
+          if (!control.value) {
+            control.patchValue(defaultValues[defaultValueColumn]);
+          }
+        }
+      }
+    });
+  }
+
   getPaymentModes() {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const accounts$ = this.offlineService.getAccounts();
