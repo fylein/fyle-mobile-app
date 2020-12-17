@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
-import { Platform, MenuController } from '@ionic/angular';
+import { Platform, MenuController, AlertController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { pipe, forkJoin, from, iif, of, concat, Observable } from 'rxjs';
@@ -22,6 +22,8 @@ import { GlobalCacheConfig, globalCacheBusterNotifier } from 'ts-cacheable';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NetworkService } from './core/services/network.service';
+import { Plugins } from '@capacitor/core';
+const { App } = Plugins;
 
 @Component({
   selector: 'app-root',
@@ -52,7 +54,8 @@ export class AppComponent implements OnInit {
     private routerAuthService: RouterAuthService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private alertController: AlertController
 
   ) {
     this.initializeApp();
@@ -60,9 +63,31 @@ export class AppComponent implements OnInit {
     this.matIconRegistry.addSvgIcon('add-advance', this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/svg/add-advance'));
   }
 
+  async showAppCloseAlert() {
+    const alert = await this.alertController.create({
+      header: 'Exit Fyle App',
+      message: 'Are you sure you want to exit the app?',
+      buttons: [
+        {
+          text: 'Cancel',
+        }, {
+          text: 'Okay',
+          handler: () => {
+            App.exitApp();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(10, () => {
       // Todo close app when back button pressed on dashboard
+      if (this.router.url.includes('my_dashboard')) {
+        this.showAppCloseAlert();
+      }
     });
   }
 
