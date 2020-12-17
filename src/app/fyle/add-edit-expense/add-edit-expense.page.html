@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <form [formGroup]="fg" class="add-edit-expense--form">
+    <form [formGroup]="fg" class="add-edit-expense--form" #formContainer>
       <div>
         <div *ngIf="instaFyleCancelled">
           Instafyle is taking longer than expected due to a bad network, please add the details manually

@@ -24,8 +24,9 @@
         <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMMM dd, yyyy'}}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
-            <p> <strong> Approver<span *ngIf="reportApprovals.length === 1"> is </span><span *ngIf="reportApprovals.length > 1">s
-              are </span> </strong> </p>
+            <p> <strong> Approver<span *ngIf="reportApprovals.length === 1"> is </span><span
+                  *ngIf="reportApprovals.length > 1">s
+                  are </span> </strong> </p>
             <span *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
               <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
                 {{ap.state | reportState}}
@@ -74,9 +75,14 @@
           </div>
 
           <div *ngIf="!hideAllExpenses">
-            <app-my-view-report-etxn-card *ngFor="let etxn of etxns$|async as etxns; let i = index;" [etxn]="etxn"
-              [prevDate]="etxns[i-1]?.tx_txn_dt" (goToTransaciton)="goToTransaction($event)">
-            </app-my-view-report-etxn-card>
+            <ng-container *ngIf="etxns$|async;else ExpensesLoader">
+              <app-my-view-report-etxn-card *ngFor="let etxn of etxns$|async as etxns; let i = index;" [etxn]="etxn"
+                [prevDate]="etxns[i-1]?.tx_txn_dt" (goToTransaciton)="goToTransaction($event)">
+              </app-my-view-report-etxn-card>
+            </ng-container>
+            <ng-template #ExpensesLoader>
+              <ion-spinner name="crescent"></ion-spinner>
+            </ng-template>
           </div>
         </div>
       </div>
@@ -125,12 +131,15 @@
   </div>
 </ion-content>
 
-<ion-footer *ngIf="((erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)">
+<ion-footer
+  *ngIf="((erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)">
   <ion-toolbar>
-    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block" *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
+    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+      *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
       Resubmit Report
     </ion-button>
-    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"  *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
+    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+      *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
       (click)="showSubmitReportSummaryPopover($event)">
       Submit Report
     </ion-button>
