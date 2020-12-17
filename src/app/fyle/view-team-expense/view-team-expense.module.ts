@@ -5,6 +5,9 @@ import { IonicModule } from '@ionic/angular';
 import { ViewTeamExpensePageRoutingModule } from './view-team-expense-routing.module';
 import { ViewTeamExpensePage } from './view-team-expense.page';
 import { SharedModule } from '../../shared/shared.module';
+import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
 
 @NgModule({
   imports: [
@@ -12,8 +15,13 @@ import { SharedModule } from '../../shared/shared.module';
     FormsModule,
     IonicModule,
     ViewTeamExpensePageRoutingModule,
-    SharedModule
+    SharedModule,
+    PinchZoomModule,
+    PdfViewerModule
   ],
-  declarations: [ViewTeamExpensePage]
+  declarations: [
+    ViewTeamExpensePage,
+    ViewAttachmentComponent
+  ]
 })
 export class ViewTeamExpensePageModule {}

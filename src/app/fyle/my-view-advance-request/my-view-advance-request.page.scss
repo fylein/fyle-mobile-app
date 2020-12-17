@@ -36,9 +36,8 @@
   }
 
   &--receipt-thumbnails {
-    height: 100%;
-    width: 100%;
-    background-size: cover;
+    width: 72px;
+    height: 88px;
     border-radius: 6px;
     border: 1px solid #d8d8d8;
   }
@@ -174,6 +173,13 @@
 
   &--primary-cta {
     margin: 12px;
+  }
+
+  &--card {
+    padding: 12px;
+    margin: 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
   }
 
 }

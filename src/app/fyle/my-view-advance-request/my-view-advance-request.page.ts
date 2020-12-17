@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { from, noop, Observable, of } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { Approval } from 'src/app/core/models/approval.model';
@@ -12,6 +12,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -32,7 +33,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private fileService: FileService,
     private router: Router,
     private popoverController: PopoverController,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private modalController: ModalController
   ) { }
 
   ionViewWillEnter() {
@@ -65,6 +67,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
         return acc.concat(curr);
       }, [] as File[])
     );
+
+    this.attachedFiles$.subscribe(console.log);
 
     this.advanceRequestCustomFields$ = this.advanceRequest$.pipe(
       map(res => {
@@ -122,10 +126,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
       header: 'Confirm',
       message: 'Are you sure you want to delete this Advance Request',
       primaryCta: {
-        text: 'Okay'
-      },
-      secondaryCta: {
-        text: 'Cancel'
+        text: 'Delete Advance Request'
       }
     });
 
@@ -134,6 +135,17 @@ export class MyViewAdvanceRequestPage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_advances']);
       });
     }
+  }
+
+  async viewAttachments(attachments) {
+    const attachmentsModal = await this.modalController.create({
+      component: ViewAttachmentComponent,
+      componentProps: {
+        attachments
+      }
+    });
+
+    await attachmentsModal.present();
   }
 
   ngOnInit() {

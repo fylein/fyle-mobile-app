@@ -19,6 +19,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -36,6 +37,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   attachmentUploadInProgress: boolean;
   dataUrls: any[];
   customFieldValues: any[];
+  actions$: Observable<any>;
+  id: string;
 
   constructor(
     private offlineService: OfflineService,
@@ -52,7 +55,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private projectService: ProjectsService,
     private popoverController: PopoverController,
     private transactionsOutboxService: TransactionsOutboxService,
-    private fileService: FileService
+    private fileService: FileService,
+    private popupService: PopupService
   ) { }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -320,6 +324,24 @@ export class AddEditAdvanceRequestPage implements OnInit {
     )
   }
 
+  async delete() {
+    const id = this.activatedRoute.snapshot.params.id;
+
+    const popupResults = await this.popupService.showPopup({
+      header: 'Confirm',
+      message: 'Are you sure you want to delete this Advance Request',
+      primaryCta: {
+        text: 'Delete'
+      }
+    });
+
+    if (popupResults === 'primary') {
+      this.advanceRequestService.delete(id).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_advances']);
+      });
+    }
+  }
+
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -328,6 +350,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
     this.customFieldValues = [];
+    this.actions$ = this.advanceRequestService.getActions(this.activatedRoute.snapshot.params.id).pipe(
+      shareReplay()
+    );
+    this.id = this.activatedRoute.snapshot.params.id;
 
     const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {

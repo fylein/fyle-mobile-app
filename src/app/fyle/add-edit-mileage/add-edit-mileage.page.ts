@@ -564,6 +564,7 @@ export class AddEditMileagePage implements OnInit {
       duplicate_detection_reason: []
     });
 
+
     this.fg.controls.round_trip.valueChanges.subscribe(roundTrip => {
       if (this.formInitializedFlag) {
         if (this.fg.value.distance) {
@@ -852,16 +853,13 @@ export class AddEditMileagePage implements OnInit {
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
+      tap(etxn => console.log(etxn.tx.cost_center_id)),
       switchMap(etxn => {
-        return iif(() => etxn.tx.cost_center_id,
-          this.costCenters$.pipe(
-            map(costCenters => costCenters
-              .map(res => res.value)
-              .find(costCenter => costCenter.id === etxn.tx.cost_center_id))
-          ),
-          of(null)
-        );
-      })
+        return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
+          .map(res => res.value)
+          .find(costCenter => costCenter.id === etxn.tx.cost_center_id))), of(null));
+      }),
+      tap(res => console.log(res))
     );
 
     const selectedCustomInputs$ = this.etxn$.pipe(
@@ -910,7 +908,7 @@ export class AddEditMileagePage implements OnInit {
         project,
         billable: etxn.tx.billable,
         sub_category: subCategory,
-        cost_center: costCenter
+        costCenter
       });
 
       if (etxn.tx.locations) {
@@ -1613,10 +1611,7 @@ export class AddEditMileagePage implements OnInit {
       header: 'Confirm',
       message: 'Are you sure you want to delete this Expense?',
       primaryCta: {
-        text: 'Okay'
-      },
-      secondaryCta: {
-        text: 'Cancel'
+        text: 'Delete'
       }
     });
 

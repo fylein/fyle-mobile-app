@@ -388,7 +388,6 @@ export class TransactionService {
               reduce((acc, curr) => {
                 return acc.concat([curr]);
               }, []),
-              tap(console.log),
               map(() => transaction)
             );
           })

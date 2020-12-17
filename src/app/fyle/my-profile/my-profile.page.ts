@@ -149,13 +149,7 @@ export class MyProfilePage implements OnInit {
   }
 
   toggleCurrencySettings() {
-    return this.orgUserSettingsService.post(this.orgUserSettings)
-      .pipe(
-        map((res) => {
-          console.log(res);
-        })
-      )
-      .subscribe();
+    return this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
   }
 
   onSelectCurrency(currency) {

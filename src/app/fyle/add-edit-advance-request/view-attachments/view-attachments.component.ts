@@ -4,6 +4,7 @@ import { noop, from, iif, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { switchMap, finalize } from 'rxjs/operators';
 import { FileService } from 'src/app/core/services/file.service';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-view-attachments',
@@ -22,7 +23,8 @@ export class ViewAttachmentsComponent implements OnInit {
     private modalController: ModalController,
     private alertController: AlertController,
     private loaderService: LoaderService,
-    private fileService: FileService
+    private fileService: FileService,
+    private popupService: PopupService
   ) { }
 
   ngOnInit() {
@@ -46,45 +48,37 @@ export class ViewAttachmentsComponent implements OnInit {
   }
 
   async deleteAttachment() {
-    // console.log();
     const activeIndex = await this.imageSlides.getActiveIndex();
-    const alert = await this.alertController.create({
+    const popupResult = await this.popupService.showPopup({
       header: 'Confirm',
-      message: 'Are you sure you want to delete this Expense?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            from(this.loaderService.showLoader()).pipe(
-              switchMap(() => {
-                if (this.attachments[activeIndex].id) {
-                  return this.fileService.delete(this.attachments[activeIndex].id);
-                } else {
-                  return of(null);
-                }
-              }),
-              finalize(() => from(this.loaderService.hideLoader()))
-            ).subscribe(() => {
-              this.attachments.splice(activeIndex, 1);
-              if (this.attachments.length === 0) {
-                this.modalController.dismiss({ attachments: this.attachments });
-              } else {
-                if (activeIndex > 0) {
-                  this.goToPrevSlide();
-                } else {
-                  this.goToNextSlide();
-                }
-              }
-            });
-          }
-        }
-      ]
+      message: 'Are you sure you want to delete this attachment?',
+      primaryCta: {
+        text: 'DELETE'
+      }
     });
 
-    await alert.present();
+    if (popupResult === 'primary') {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          if (this.attachments[activeIndex].id) {
+            return this.fileService.delete(this.attachments[activeIndex].id);
+          } else {
+            return of(null);
+          }
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(() => {
+        this.attachments.splice(activeIndex, 1);
+        if (this.attachments.length === 0) {
+          this.modalController.dismiss({ attachments: this.attachments });
+        } else {
+          if (activeIndex > 0) {
+            this.goToPrevSlide();
+          } else {
+            this.goToNextSlide();
+          }
+        }
+      });
+    }
   }
 }

@@ -1541,10 +1541,7 @@ export class AddEditPerDiemPage implements OnInit {
       header: 'Confirm',
       message: 'Are you sure you want to delete this Expense?',
       primaryCta: {
-        text: 'Okay'
-      },
-      secondaryCta: {
-        text: 'Cancel'
+        text: 'Delete Expense'
       }
     });
 

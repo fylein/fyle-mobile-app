@@ -39,17 +39,17 @@
       </button>
     </div>
     <div class="add-edit-mileage--duplicate-pointer-container">
-        <div class="add-edit-mileage--duplicate-pointer" (click)="showDuplicates()" *ngIf="pointToDuplicates">
-          <div class="add-edit-mileage--duplicate-pointer-text">
-            Possible Duplicates Detected !
-          </div>
-          <div class="add-edit-mileage--duplicate-pointer-icon">
-            <mat-icon class="add-edit-mileage--duplicate-pointer-icon-internal">
-              expand_more
-            </mat-icon>
-          </div>
+      <div class="add-edit-mileage--duplicate-pointer" (click)="showDuplicates()" *ngIf="pointToDuplicates">
+        <div class="add-edit-mileage--duplicate-pointer-text">
+          Possible Duplicates Detected !
+        </div>
+        <div class="add-edit-mileage--duplicate-pointer-icon">
+          <mat-icon class="add-edit-mileage--duplicate-pointer-icon-internal">
+            expand_more
+          </mat-icon>
         </div>
       </div>
+    </div>
     <ng-container *ngIf="etxn$|async as etxn">
       <ng-container *ngIf="fg">
         <form [formGroup]="fg" class="add-edit-mileage--form">
@@ -191,8 +191,9 @@
             <ng-container *ngIf="paymentModes$|async as paymentModes">
               <div *ngIf="paymentModes.length > 1"
                 class="add-edit-mileage--payment-modes add-edit-mileage--internal-block">
-                <app-fy-select [mandatory]="true" [label]="'Select Payment Mode'" formControlName="paymentMode"
-                  [options]="paymentModes" [selectionElement]="paymentMode" [nullOption]="false">
+                <app-fy-select [mandatory]="true" [label]="fg.value.paymentMode? 'Payment Mode' : 'Select Payemnt Mode'"
+                  formControlName="paymentMode" [options]="paymentModes" [selectionElement]="paymentMode"
+                  [nullOption]="false">
                 </app-fy-select>
                 <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                   <div>
@@ -230,7 +231,7 @@
                   <div class="add-edit-mileage--text-label"
                     [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                     <div>
-                      {{ ((etxn$|async)?.tx?.purpose ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title)| slice: 0:15 }}
+                      {{ fg.value.purpose ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title| slice: 0:15 }}
                     </div>
                     <div *ngIf="txnFields.purpose?.mandatory">
                       *
@@ -244,7 +245,7 @@
                 <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-mileage--internal-block">
                   <app-fy-select formControlName="purpose" [options]="txnFields.purpose?.values"
                     [mandatory]="txnFields.purpose?.mandatory"
-                    [label]="(etxn$|async)?.tx?.purpose ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
+                    [label]="fg.value.purpose ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
                     [disabled]="!txnFields.purpose?.canEdit">
                   </app-fy-select>
                 </div>
@@ -255,7 +256,7 @@
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                 <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                   <div class="add-edit-mileage--internal-block">
-                    <app-fy-select-project [label]="etxn.tx.project_id ? 'Project' : 'Select Project'"
+                    <app-fy-select-project [label]="fg.value.project ? 'Project' : 'Select Project'"
                       [mandatory]="transactionMandatoyFields.project" formControlName="project"
                       [categoryIds]="projectCategoryIds"></app-fy-select-project>
                   </div>
@@ -321,18 +322,20 @@
                   </div>
 
                   <div *ngIf="customInput.type === 'LOCATION'">
-                    <app-fy-location [mandatory]="customInput.mandatory" [label]="customInput.name" formControlName="value">
+                    <app-fy-location [mandatory]="customInput.mandatory" [label]="customInput.name"
+                      formControlName="value">
                     </app-fy-location>
                   </div>
 
                   <div *ngIf="customInput.type === 'SELECT'">
-                    <app-fy-select [mandatory]="customInput.mandatory" [label]="customInput.name" [options]="customInput.options" formControlName="value">
+                    <app-fy-select [mandatory]="customInput.mandatory" [label]="customInput.name"
+                      [options]="customInput.options" formControlName="value">
                     </app-fy-select>
                   </div>
 
                   <div *ngIf="customInput.type === 'MULTI_SELECT'">
-                    <app-fy-multiselect [mandatory]="customInput.mandatory" [label]="customInput.name" [options]="customInput.options"
-                      formControlName="value">
+                    <app-fy-multiselect [mandatory]="customInput.mandatory" [label]="customInput.name"
+                      [options]="customInput.options" formControlName="value">
                     </app-fy-multiselect>
                   </div>
                 </form>
@@ -345,7 +348,7 @@
                 <div class="add-edit-mileage--internal-block"
                   *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
                   <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id.mandatory"
-                    [label]="(etxn$|async)?.tx?.cost_center_id ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title"
+                    [label]="fg.value.costCenter ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title"
                     [options]="costCenters">
                   </app-fy-select>
                 </div>

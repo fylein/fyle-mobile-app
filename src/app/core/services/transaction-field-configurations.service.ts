@@ -67,67 +67,80 @@ export class TransactionFieldConfigurationsService {
     const orgCategoryId = orgCategory && orgCategory.id;
     const projectId = project && project.project_id;
     return of(fields).pipe(
-        map(fields => fields.map(field => {
-          const configurations = tfcMap[field];
-          let filteredField;
+      map(fields => fields.map(field => {
+        const configurations = tfcMap[field];
+        let filteredField;
 
-          if (configurations && configurations.length > 0) {
-            configurations.some((configuration) => {
-              if (orgCategoryId && projectId) {
-                if (configuration.org_category_ids.indexOf(orgCategoryId) > -1 && configuration.project_ids.indexOf(projectId) > -1) {
-                  filteredField = configuration;
-
-                  return true;
-                }
-              } else if (orgCategoryId) {
-                if (configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
-                  filteredField = configuration;
-
-                  return true;
-                }
-              } else if (projectId) {
-                if (configuration.project_ids.indexOf(projectId) > -1) {
-                  filteredField = configuration;
-
-                  return true;
-                }
-              } else if (['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'].indexOf(field) > -1) {
+        if (configurations && configurations.length > 0) {
+          configurations.some((configuration) => {
+            if (orgCategoryId && projectId) {
+              if (configuration.org_category_ids.indexOf(orgCategoryId) > -1 && configuration.project_ids.indexOf(projectId) > -1) {
                 filteredField = configuration;
 
                 return true;
               }
-            });
-          }
-          if (filteredField) {
-            filteredField.field = field;
+            } else if (orgCategoryId) {
+              if (configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
+                filteredField = configuration;
 
-          }
+                return true;
+              }
+            } else if (projectId) {
+              if (configuration.project_ids.indexOf(projectId) > -1) {
+                filteredField = configuration;
 
-          return filteredField;
-        })
-          .filter(filteredField => !!filteredField)
-        ),
-        switchMap(fields => {
-          return from(fields);
-        }),
-        concatMap(field => {
-          return forkJoin({
-            canView: this.canView(field.roles_visible),
-            canEdit: this.canEdit(field.roles_editable)
-          }).pipe(
-            map(
-              (res) => ({
-                ...field,
-                ...res
-              })
-            )
-          );
-        }),
-        reduce((acc, curr) => {
-          acc[curr.field] = curr;
-          return acc;
-        }, {})
-      );
+                return true;
+              }
+            } else if (['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'].indexOf(field) > -1) {
+              filteredField = configuration;
+
+              return true;
+            }
+          });
+        }
+        if (filteredField) {
+          filteredField.field = field;
+
+        }
+
+        return filteredField;
+      })
+        .filter(filteredField => !!filteredField)
+      ),
+      switchMap(fields => {
+        return from(fields);
+      }),
+      concatMap(field => {
+        return forkJoin({
+          canView: this.canView(field.roles_visible),
+          canEdit: this.canEdit(field.roles_editable)
+        }).pipe(
+          map(
+            (res) => ({
+              ...field,
+              ...res
+            })
+          )
+        );
+      }),
+      reduce((acc, curr) => {
+        acc[curr.field] = curr;
+        return acc;
+      }, {})
+    );
   }
+
+  getDefaultTxnFieldValues(txnFields) {
+    var defaultValues = {};
+    for (var configurationColumn in txnFields) {
+      if (txnFields.hasOwnProperty(configurationColumn)) {
+        if (txnFields[configurationColumn].default_value) {
+          defaultValues[configurationColumn] = txnFields[configurationColumn].default_value;
+        }
+      }
+    }
+
+    return defaultValues;
+  };
 
 }
