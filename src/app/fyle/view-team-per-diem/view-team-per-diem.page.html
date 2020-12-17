@@ -1,7 +1,9 @@
 <ion-header>
   <ion-toolbar class="view-per-diem--toolbar">
-    <ion-buttons slot="end" mode="md">
-      <ion-back-button icon="close"></ion-back-button>
+    <ion-buttons mode="md" slot="end">
+      <ion-button (click)="goBack()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title mode="md">View Per Diem</ion-title>
   </ion-toolbar>
@@ -93,12 +95,8 @@
       </div>
     </div>
 
-    <!-- TODO: check logic for flag un flag and apply -->
     <div class="view-per-diem--card" *ngIf="canFlagOrUnflag$|async">
-      <div class="view-per-diem--card-action">
-        <mat-icon class="view-per-diem--card-action-icon">flag</mat-icon>
-        <div class="view-per-diem--card-action-text view-per-diem--card-action-text__comment">Flag</div>
-      </div>
+      <app-fy-flag-expense [etxn]="extendedPerDiem" (notify)='onUpdateFlag($event)'></app-fy-flag-expense>
     </div>
 
     <div class="view-per-diem--card" *ngIf="canDelete$|async">

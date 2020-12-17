@@ -1,0 +1,26 @@
+.confirmation {
+  &--title {
+    line-height: 1.3;
+    color: #000;
+    font-weight: 700;
+  }
+
+  &--cancel {
+    color: #0077ee;
+    margin-right: 10px;
+  }
+
+  &--container {
+    padding: 20px;
+  }
+
+  &--message-box {
+    height: 80px;
+    width: 100%;
+    border-radius: 4px;
+  }
+
+  &--save {
+    margin: 12px;
+  }
+}

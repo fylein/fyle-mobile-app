@@ -46,6 +46,8 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
+import { FyFlagExpenseComponent } from './components/fy-flag-expense/fy-flag-expense.component';
+import { FlagUnflagConfirmationComponent } from './components/fy-flag-expense/flag-unflag-confirmation/flag-unflag-confirmation.component';
 
 @NgModule({
   declarations: [
@@ -81,7 +83,9 @@ import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
     ConfirmationCommentPopoverComponent,
     FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
-    ModifyApproverConfirmationPopoverComponent
+    ModifyApproverConfirmationPopoverComponent,
+    FyFlagExpenseComponent,
+    FlagUnflagConfirmationComponent
   ],
   imports: [
     CommonModule,
@@ -125,7 +129,9 @@ import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
     ConfirmationCommentPopoverComponent,
     FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
-    ModifyApproverConfirmationPopoverComponent
+    ModifyApproverConfirmationPopoverComponent,
+    FyFlagExpenseComponent,
+    FlagUnflagConfirmationComponent
   ],
   providers: [
     DecimalPipe,

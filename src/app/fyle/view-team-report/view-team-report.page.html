@@ -76,20 +76,19 @@
           </div>
 
           <div *ngIf="!hideAllExpenses">
+            <ng-container *ngIf="etxns$|async; else loadExpenses"></ng-container>
             <app-view-team-report-etxn-card *ngFor="let etxn of etxns$|async as etxns; let i = index;" [etxn]="etxn"
               [prevDate]="etxns[i-1]?.tx_txn_dt" (goToTransaciton)="goToTransaction($event)">
             </app-view-team-report-etxn-card>
+            <ng-template #loadExpenses>
+              <ion-spinner name="crescent"></ion-spinner>
+            </ng-template>
           </div>
         </div>
       </div>
 
-      <app-fy-modify-approver
-        [approverList]="erpt.approved_by" 
-        [object]="erpt"
-        [id]="erpt.rp_id" 
-        [from]="'TEAM_REPORTS'" 
-        [title]="'Add Approvers'" 
-        (notify)='onUpdateApprover($event)'>
+      <app-fy-modify-approver [approverList]="erpt.approved_by" [object]="erpt" [id]="erpt.rp_id"
+        [from]="'TEAM_REPORTS'" [title]="'Add Approvers'" (notify)='onUpdateApprover($event)'>
       </app-fy-modify-approver>
 
     </div>
