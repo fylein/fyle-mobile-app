@@ -98,6 +98,12 @@ export class ViewTeamAdvancePage implements OnInit {
   edit() {
   }
 
+  getApproverEmails(activeApprovals) {
+    return activeApprovals.map(approver => {
+      return approver.approver_email;
+    });
+  }
+
   onUpdateApprover(message: string) {
     if (message) {
       this.refreshApprovers$.next();

@@ -127,9 +127,15 @@
     </ng-container>
 
 
-    <app-fy-apporver [approverList]="advanceRequest.areq_approvers_ids" [id]="advanceRequest.areq_id"
-      [from]="'ADVANCE_REQUEST'" [title]="'Add Approvers'" (notify)='onUpdateApprover($event)'>
-    </app-fy-apporver>
+    <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
+      <app-fy-apporver 
+        [approverList]="getApproverEmails(activeApprovals)" 
+        [id]="advanceRequest.areq_id"
+        [from]="'ADVANCE_REQUEST'" 
+        [title]="'Add Approvers'" 
+        (notify)='onUpdateApprover($event)'>
+      </app-fy-apporver>
+    </ng-container>
 
     <div class="view-advances--card">
       <div class="view-advances--common-action-block">

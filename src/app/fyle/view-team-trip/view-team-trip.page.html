@@ -181,13 +181,15 @@
         </div>
       </div>
 
-      <app-fy-apporver 
-        [approverList]="tripRequest.approvers" 
-        [id]="tripRequest.trp_id" 
-        [from]="'TRIP_REQUEST'" 
-        [title]="'Add Approvers'" 
-        (notify)='onUpdateApprover($event)'>
-      </app-fy-apporver>
+      <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
+          <app-fy-apporver 
+          [approverList]="getApproverEmails(activeApprovals)" 
+          [id]="tripRequest.trp_id"
+          [from]="'TRIP_REQUEST'" 
+          [title]="'Add Approvers'" 
+          (notify)='onUpdateApprover($event)'>
+        </app-fy-apporver>
+      </ng-container>
 
       <div class="trip-request--card">
         <div class="trip-request--card-action">

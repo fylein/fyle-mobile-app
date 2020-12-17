@@ -119,7 +119,7 @@ export class ActionPopoverComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('\n\n\n actions -> ', this.actions);
+
   }
 
 }
