@@ -26,7 +26,7 @@ export class ViewCommentComponent implements OnInit {
   newComment: string;
   refreshEstatuses$: Subject<void> = new Subject();
   isCommentAdded: boolean;
-  
+
   constructor(
     private statusService: StatusService,
     private authService: AuthService,
