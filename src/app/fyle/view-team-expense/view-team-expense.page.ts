@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, from, forkJoin } from 'rxjs';
+import { Observable, from, forkJoin, Subject } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { switchMap, shareReplay, concatMap, map, finalize, reduce } from 'rxjs/operators';
+import { switchMap, shareReplay, concatMap, map, finalize, reduce, tap } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -31,8 +31,9 @@ export class ViewTeamExpensePage implements OnInit {
   canDelete$: Observable<boolean>;
   orgSettings: any;
   attachments$: Observable<any>;
-
+  reportId;
   currencyOptions;
+  updateFlag$ = new Subject();
 
   constructor(
     private loaderService: LoaderService,
@@ -43,7 +44,8 @@ export class ViewTeamExpensePage implements OnInit {
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private router: Router
   ) { }
 
   isNumber(val) {
@@ -62,15 +64,29 @@ export class ViewTeamExpensePage implements OnInit {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
   }
 
+  onUpdateFlag(event) {
+    if (event) {
+      this.updateFlag$.next();
+    }
+  }
+
+  goBack() {
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}])
+  }
+
   ngOnInit() {
     const txId = this.activatedRoute.snapshot.params.id;
     this.currencyOptions = {
       disabled: true
     };
 
-    this.etxnWithoutCustomProperties$ = from(this.loaderService.showLoader()).pipe(
+    this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
+      map(() => from(this.loaderService.showLoader())),
       switchMap(() => {
         return this.transactionService.getEtxn(txId);
+      }),
+      tap(res => {
+        this.reportId = res.tx_report_id;
       }),
       shareReplay()
     );
