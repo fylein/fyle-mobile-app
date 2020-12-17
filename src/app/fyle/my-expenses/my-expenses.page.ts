@@ -57,6 +57,7 @@ export class MyExpensesPage implements OnInit {
   selectedElements: string[];
   syncing = false;
   simpleSearchText = '';
+  allExpenseCountHeader$: Observable<number>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -265,17 +266,39 @@ export class MyExpensesPage implements OnInit {
     );
 
     this.allExpensesCount$ = this.loadData$.pipe(
-      switchMap(() => {
+      switchMap((params) => {
+        const queryParams = params.queryParams || {};
+
+        let defaultState;
+        if (this.baseState === 'all') {
+          defaultState = 'in.(COMPLETE,DRAFT)';
+        } else if (this.baseState === 'draft') {
+          defaultState = 'in.(DRAFT)';
+        }
+
+        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+        queryParams.tx_state = queryParams.tx_state || defaultState;
+
         return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)'
+          ...queryParams
         }).pipe(
           map(stats => {
             const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
             return count && count.function_value;
           })
         );
+      })
+    );
+
+    this.allExpenseCountHeader$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      scalar: true,
+      tx_state: 'in.(COMPLETE,DRAFT)',
+      tx_report_id: 'is.null'
+    }).pipe(
+      map(stats => {
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        return count && count.function_value;
       })
     );
 
@@ -290,11 +313,25 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.expensesAmountStats$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_report_id: 'is.null',
-      tx_state: 'in.(COMPLETE,DRAFT)'
-    }).pipe(
+    this.expensesAmountStats$ = this.loadData$.pipe(
+      switchMap(params => {
+        const queryParams = params.queryParams || {};
+
+        let defaultState;
+        if (this.baseState === 'all') {
+          defaultState = 'in.(COMPLETE,DRAFT)';
+        } else if (this.baseState === 'draft') {
+          defaultState = 'in.(DRAFT)';
+        }
+
+        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+        queryParams.tx_state = queryParams.tx_state || defaultState;
+
+        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          ...queryParams
+        })
+      }),
       map(stats => {
         const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
         return (sum && sum.function_value) || 0;

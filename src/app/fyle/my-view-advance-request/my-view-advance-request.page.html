@@ -143,7 +143,7 @@
     </div>
 
     <div class="view-advance-request--card" *ngIf="(actions$|async)?.can_delete">
-      <div class="view-advance-request--common-action-block" (click)=delete()>
+      <div class="view-advance-request--common-action-block view-advance-request--common-action-block__delete" (click)=delete()>
         <mat-icon>delete</mat-icon>
         <p>Delete Advance</p>
       </div>
