@@ -93,6 +93,7 @@ export class AddEditExpensePage implements OnInit {
   pointToDuplicates = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1453,6 +1454,14 @@ export class AddEditExpensePage implements OnInit {
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1480,6 +1489,13 @@ export class AddEditExpensePage implements OnInit {
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1513,6 +1529,13 @@ export class AddEditExpensePage implements OnInit {
       }
     } else {
       that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
