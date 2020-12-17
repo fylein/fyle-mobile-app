@@ -1,7 +1,9 @@
 <ion-header>
   <ion-toolbar class="view-expense--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-back-button icon="close"></ion-back-button>
+      <ion-button (click)="goBack()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title mode="md">Team Expense</ion-title>
   </ion-toolbar>
@@ -167,12 +169,8 @@
       </div>
     </div>
 
-    <!-- TODO: check logic for flag un flag and apply -->
     <div class="view-expense--card" *ngIf="canFlagOrUnflag$|async">
-      <div class="view-expense--card-action">
-        <mat-icon class="view-expense--card-action-icon">flag</mat-icon>
-        <div class="view-expense--card-action-text view-expense--card-action-text__comment">Flag</div>
-      </div>
+      <app-fy-flag-expense [etxn]="etxn" (notify)='onUpdateFlag($event)'></app-fy-flag-expense>
     </div>
 
     <div class="view-expense--card" *ngIf="canDelete$|async">
