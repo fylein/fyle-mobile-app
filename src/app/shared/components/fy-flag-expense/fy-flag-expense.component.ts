@@ -36,7 +36,7 @@ export class FyFlagExpenseComponent implements OnInit {
     confirmationPopup.present();
 
     const { data } = await confirmationPopup.onDidDismiss();
-    if (data.message) {
+    if (data && data.message) {
       from(this.loaderService.showLoader('Please wait')).pipe(
         switchMap(() => {
           const comment = {

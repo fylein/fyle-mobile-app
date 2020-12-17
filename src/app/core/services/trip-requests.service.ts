@@ -65,12 +65,13 @@ export class TripRequestsService {
     }).pipe(
       map(
         res => {
-          const modifiedTrip = this.fixDates(res.data[0]) as ExtendedTripRequest;
+          let modifiedTrip = this.fixDates(res.data[0]) as ExtendedTripRequest;
           // try catch is failsafe against bad data
           try {
             modifiedTrip.trp_custom_field_values = JSON.parse(modifiedTrip.trp_custom_field_values);
           } catch (error) {
           }
+          modifiedTrip = this.setInternalStateAndDisplayName(modifiedTrip);
           return modifiedTrip;
         }
       )
@@ -166,6 +167,53 @@ export class TripRequestsService {
       map(res => res as Approval[])
     );
   }
+
+  setInternalStateAndDisplayName(tripRequest) {
+    if (tripRequest.trp_state === 'DRAFT') {
+      if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
+        tripRequest.internalState = 'draft';
+        tripRequest.internalStateDisplayName = 'Draft';
+      } else if (tripRequest.trp_is_pulled_back) {
+        tripRequest.internalState = 'pulledBack';
+        tripRequest.internalStateDisplayName = 'Pulled Back';
+      } else if (tripRequest.trp_is_sent_back) {
+        tripRequest.internalState = 'inquiry';
+        tripRequest.internalStateDisplayName = 'Inquiry';
+      }
+    } else if (tripRequest.trp_state === 'APPROVAL_PENDING') {
+      tripRequest.internalState = 'pendingApproval';
+      tripRequest.internalStateDisplayName = 'Pending Approval';
+    } else if (tripRequest.trp_state === 'APPROVED') {
+      if (!tripRequest.trp_is_to_close) {
+        if (tripRequest.trp_is_booked === null && tripRequest.trp_is_requested_cancellation === null) {
+          tripRequest.internalState = 'approved';
+          tripRequest.internalStateDisplayName = 'Approved';
+        } else if (tripRequest.trp_is_booked === false && tripRequest.trp_is_requested_cancellation === null) {
+          tripRequest.internalState = 'pendingBooking';
+          tripRequest.internalStateDisplayName = 'Pending Booking';
+        } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === null) {
+          tripRequest.internalState = 'booked';
+          tripRequest.internalStateDisplayName = 'Booked';
+        } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === true) {
+          tripRequest.internalState = 'pendingCancellation';
+          tripRequest.internalStateDisplayName = 'Pending Cancellation';
+        } else if (tripRequest.trp_is_requested_cancellation === false) {
+          tripRequest.internalState = 'cancelled';
+          tripRequest.internalStateDisplayName = 'Cancelled';
+        }
+      } else {
+        tripRequest.internalState = 'pendingClosure';
+        tripRequest.internalStateDisplayName = 'Pending Closure';
+      }
+    } else if (tripRequest.trp_state === 'CLOSED') {
+      tripRequest.internalState = 'closed';
+      tripRequest.internalStateDisplayName = 'Closed';
+    } else if (tripRequest.trp_state === 'REJECTED') {
+      tripRequest.internalState = 'rejected';
+      tripRequest.internalStateDisplayName = 'Rejected';
+    }
+    return tripRequest;
+  };
 
   fixDates(datum: ExtendedTripRequest) {
     datum.trp_created_at = new Date(datum.trp_created_at);
