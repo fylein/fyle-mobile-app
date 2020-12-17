@@ -131,7 +131,6 @@
         Additional Information
       </div>
       <div class="view-trip--card">
-        <button (click)="onClick(tripRequest.trp_custom_field_values)">debug</button>
         <div *ngFor="let customField of tripRequest.trp_custom_field_values" class="view-trip--element">
           <div class="view-trip--element-label">
             {{customField.name}}

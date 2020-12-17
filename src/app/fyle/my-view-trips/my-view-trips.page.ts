@@ -261,10 +261,6 @@ export class MyViewTripsPage implements OnInit {
     }
   }
 
-  onClick(field) {
-    console.log('\n\n\n field', field);
-  }
-
   ionViewWillEnter() {
 
     const id = this.activatedRoute.snapshot.params.id;
