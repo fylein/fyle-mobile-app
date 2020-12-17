@@ -56,6 +56,7 @@ export class MyExpensesPage implements OnInit {
   selectionMode = false;
   selectedElements: string[];
   syncing = false;
+  simpleSearchText = '';
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -107,6 +108,7 @@ export class MyExpensesPage implements OnInit {
 
   ionViewWillEnter() {
     this.acc = [];
+    this.simpleSearchText = '';
 
     this.currentPageNumber = 1;
     this.loadData$ = new BehaviorSubject({

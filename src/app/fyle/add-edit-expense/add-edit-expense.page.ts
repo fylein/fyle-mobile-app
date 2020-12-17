@@ -699,7 +699,13 @@ export class AddEditExpensePage implements OnInit {
       return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
         map(paymentModes => paymentModes
           .map(res => res.value)
-          .find(paymentMode => paymentMode.acc.id === etxn.tx.source_account_id))
+          .find(paymentMode => {
+            if (paymentMode.acc.displayName === 'Paid by Me') {
+              return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+            } else {
+              return paymentMode.acc.id === etxn.tx.source_account_id;
+            }
+          }))
       ), of(null));
     }));
     const selectedCostCenter$ = this.etxn$.pipe(

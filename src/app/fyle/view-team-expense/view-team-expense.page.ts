@@ -30,8 +30,8 @@ export class ViewTeamExpensePage implements OnInit {
   canFlagOrUnflag$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   orgSettings: any;
-  attachments$: Observable<any>;
   reportId;
+  attachments$: Observable<any>;
   currencyOptions;
   updateFlag$ = new Subject();
 
@@ -52,8 +52,12 @@ export class ViewTeamExpensePage implements OnInit {
     return typeof val === 'number';
   }
 
+  goBackToReport() {
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}])
+  }
+
   isPolicyComment(estatus) {
-    return estatus && estatus.st && estatus.st.org_user_id === 'POLICY';
+    return estatus.st_org_user_id === 'POLICY';
   }
 
   scrollToComments() {

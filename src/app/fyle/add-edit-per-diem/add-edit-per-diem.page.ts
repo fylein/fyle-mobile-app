@@ -71,6 +71,7 @@ export class AddEditPerDiemPage implements OnInit {
   pointToDuplicates = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -898,7 +899,13 @@ export class AddEditPerDiemPage implements OnInit {
         return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
           map(paymentModes => paymentModes
             .map(res => res.value)
-            .find(paymentMode => paymentMode.acc.id === etxn.tx.source_account_id))
+            .find(paymentMode => {
+              if (paymentMode.acc.displayName === 'Paid by Me') {
+                return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+              } else {
+                return paymentMode.acc.id === etxn.tx.source_account_id;
+              }
+            }))
         ), of(null));
       })
     );
@@ -1005,7 +1012,7 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
       setTimeout(() => {
-        this.fg.controls.custom_inputs.setValue(customInputValues);
+        this.fg.controls.custom_inputs.patchValue(customInputValues);
       }, 1000);
     });
 
@@ -1490,6 +1497,14 @@ export class AddEditPerDiemPage implements OnInit {
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1524,6 +1539,13 @@ export class AddEditPerDiemPage implements OnInit {
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1557,6 +1579,13 @@ export class AddEditPerDiemPage implements OnInit {
       }
     } else {
       that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
