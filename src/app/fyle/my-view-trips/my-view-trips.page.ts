@@ -78,9 +78,9 @@ export class MyViewTripsPage implements OnInit {
 
     const popupResults = await this.popupService.showPopup({
       header: 'Confirm',
-      message: 'Are you sure you want to delete this trip',
+      message: 'Are you sure you want to delete this trip request?',
       primaryCta: {
-        text: 'Delete Trip'
+        text: 'OK'
       }
     });
 
@@ -204,7 +204,7 @@ export class MyViewTripsPage implements OnInit {
   }
 
   editTrip() {
-    this.router.navigate(['/','enterprise','my_add_edit_trip', {id: this.activatedRoute.snapshot.params.id}]);
+    this.router.navigate(['/', 'enterprise', 'my_add_edit_trip', {id: this.activatedRoute.snapshot.params.id}]);
   }
 
   async pullBack() {
