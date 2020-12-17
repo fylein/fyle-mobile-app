@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-per-diem--toolbar">
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="goBack()">
@@ -100,7 +100,7 @@
     </div>
 
     <div class="view-per-diem--card" *ngIf="canDelete$|async">
-      <div class="view-per-diem--card-action">
+      <div class="view-per-diem--card-action" (click)="removeExpenseFromReport()">
         <mat-icon class="view-per-diem--card-action-icon">delete</mat-icon>
         <div class="view-per-diem--card-action-text__comment">
           <div class="view-per-diem--card-action-text view-per-diem--card-action-text__delete">Remove</div>

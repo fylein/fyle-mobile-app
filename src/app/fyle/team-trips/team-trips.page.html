@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="trip--toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-menu-button class="trip--menubutton" auto-hide="false"></ion-menu-button>
@@ -11,14 +11,16 @@
     </ion-buttons>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="changeState('PENDING')">
-          <div class="trip--select-state">
-            <ion-checkbox class="trip--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'PENDING'" slot="start"></ion-checkbox>
-            <ion-label>Pending</ion-label>
-          </div>
-      </button>
-      <button mat-menu-item (click)="changeState('ALL')">          
         <div class="trip--select-state">
-          <ion-checkbox class="trip--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'ALL'" slot="start"></ion-checkbox>
+          <ion-checkbox class="trip--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'PENDING'"
+            slot="start"></ion-checkbox>
+          <ion-label>Pending</ion-label>
+        </div>
+      </button>
+      <button mat-menu-item (click)="changeState('ALL')">
+        <div class="trip--select-state">
+          <ion-checkbox class="trip--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'ALL'"
+            slot="start"></ion-checkbox>
           <ion-label>ALL</ion-label>
         </div>
       </button>

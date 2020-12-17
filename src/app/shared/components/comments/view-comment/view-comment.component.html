@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md">
   <ion-toolbar class="view-comment--toolbar">
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="closeCommentModal()">
@@ -6,15 +6,16 @@
       </ion-button>
     </ion-buttons>
     <ion-title mode="md">
-      Comment 
+      Comment
       <span *ngIf="totalCommentsCount$|async as totalCommentsCount">({{totalCommentsCount}})</span>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="view-comment--container">
-  <div  *ngFor="let estatus of estatuses$|async as estatuses">
-    <ion-grid class="view-comment--card" *ngIf="!(estatus.isBotComment) || showBotComments" [ngClass]="{'view-comment--bot-comment': estatus.isBotComment, 'view-comment--self-comment': estatus.isSelfComment}">
+  <div *ngFor="let estatus of estatuses$|async as estatuses">
+    <ion-grid class="view-comment--card" *ngIf="!(estatus.isBotComment) || showBotComments"
+      [ngClass]="{'view-comment--bot-comment': estatus.isBotComment, 'view-comment--self-comment': estatus.isSelfComment}">
       <ion-row>
         <ion-col size="2">
           <span class="view-comment--profile" *ngIf="estatus.us_full_name">{{estatus.us_full_name | initials}}</span>
@@ -23,19 +24,22 @@
           </span>
         </ion-col>
         <ion-col size="10">
-            <span class="view-comment--commenter-name">{{ estatus.us_full_name ? estatus.us_full_name: 'Fyle Bot'}}</span>
-            <p class="comment-timestamp">{{estatus.st_created_at | date:'MMM d @ h:mm a'}}</p>
+          <span class="view-comment--commenter-name">{{ estatus.us_full_name ? estatus.us_full_name: 'Fyle Bot'}}</span>
+          <p class="comment-timestamp">{{estatus.st_created_at | date:'MMM d @ h:mm a'}}</p>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <p *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)" class="comment-detail">{{ estatus.st_comment }}</p>
-          <p *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)" class="comment-detail">{{ vm.comment }}</p>
-          <a *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)" (click)="openViewExpense()">{{ vm.expenseNumber }} </a>
+          <p *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+            class="comment-detail">{{ estatus.st_comment }}</p>
+          <p *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+            class="comment-detail">{{ vm.comment }}</p>
+          <a *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+            (click)="openViewExpense()">{{ vm.expenseNumber }} </a>
         </ion-col>
       </ion-row>
     </ion-grid>
-   
+
   </div>
 
 </ion-content>
@@ -43,13 +47,15 @@
 <ion-footer class="ion-no-border">
   <ion-toolbar>
     <!-- Todo: Improve this flow -->
-   <div class="view-comment--showbot-container" (click)="changeBotComments()">
-      <ion-checkbox mode="ios" class="view-comment--showbot-checkbox" color="danger" checked="{{showBotComments}}" ></ion-checkbox>
+    <div class="view-comment--showbot-container" (click)="changeBotComments()">
+      <ion-checkbox mode="ios" class="view-comment--showbot-checkbox" color="danger" checked="{{showBotComments}}">
+      </ion-checkbox>
       <ion-label class="view-comment--showbot-text">Check Audit Trail</ion-label>
     </div>
 
     <div class="view-comment--type-comment-block" *ngIf="mode === 'edit'">
-      <textarea class="view-comment--text-area" rows="1" matInput placeholder="Enter reason" [(ngModel)]="newComment"></textarea>
+      <textarea class="view-comment--text-area" rows="1" matInput placeholder="Enter reason"
+        [(ngModel)]="newComment"></textarea>
       <mat-icon class="view-comment--send-icon" (click)="addComment()">send</mat-icon>
     </div>
   </ion-toolbar>
