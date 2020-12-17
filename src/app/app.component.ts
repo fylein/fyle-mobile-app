@@ -56,7 +56,14 @@ export class AppComponent implements OnInit {
 
   ) {
     this.initializeApp();
+    this.registerBackButtonAction();
     this.matIconRegistry.addSvgIcon('add-advance', this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/svg/add-advance'));
+  }
+
+  registerBackButtonAction() {
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      // Todo close app when back button pressed on dashboard
+    });
   }
 
   initializeApp() {
