@@ -45,6 +45,10 @@ $header-input-interior: #eeeeee;
   --ion-color-tint: var(--ion-color-fyle-primary-tint);
 }
 
+input:focus, textarea:focus{
+  outline: none !important;
+}
+
 .error-popover {
   .popover-wrapper {
     .popover-content {
