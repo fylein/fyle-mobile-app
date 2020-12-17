@@ -23,6 +23,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NetworkService } from './core/services/network.service';
 import { Plugins } from '@capacitor/core';
+import { FreshChatService } from './core/services/fresh-chat.service';
 const { App } = Plugins;
 
 @Component({
@@ -55,8 +56,8 @@ export class AppComponent implements OnInit {
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     private networkService: NetworkService,
-    private alertController: AlertController
-
+    private alertController: AlertController,
+    private freshchatService: FreshChatService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -99,6 +100,10 @@ export class AppComponent implements OnInit {
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
     });
+  }
+
+  openHelp() {
+    this.freshchatService.openLiveChatSupport();
   }
 
   redirect(route) {
@@ -275,6 +280,12 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'team_advance']
           },
           {
+            title: 'Live Chat',
+            isVisible: true,
+            icon: 'fy-chat',
+            openHelp: true
+          },
+          {
             title: 'Help',
             isVisible: true,
             icon: 'fy-help-new',
@@ -381,6 +392,13 @@ export class AppComponent implements OnInit {
             disabled: true
           },
           {
+            title: 'Live Chat',
+            isVisible: true,
+            icon: 'fy-chat',
+            openHelp: true,
+            disabled: true
+          },
+          {
             title: 'Help',
             isVisible: true,
             icon: 'fy-help-new',
@@ -398,7 +416,6 @@ export class AppComponent implements OnInit {
       }
     });
   }
-
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
