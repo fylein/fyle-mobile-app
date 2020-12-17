@@ -12,7 +12,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="view-comment--container" #title>
+<ion-content class="view-comment--container">
   <div  *ngFor="let estatus of estatuses$|async as estatuses">
     <ion-grid class="view-comment--card" *ngIf="!(estatus.isBotComment) || showBotComments" [ngClass]="{'view-comment--bot-comment': estatus.isBotComment, 'view-comment--self-comment': estatus.isSelfComment}">
       <ion-row>
@@ -44,7 +44,7 @@
   <ion-toolbar>
     <!-- Todo: Improve this flow -->
    <div class="view-comment--showbot-container" (click)="changeBotComments()">
-      <ion-checkbox class="view-comment--showbot-checkbox" color="danger" checked="{{showBotComments}}" ></ion-checkbox>
+      <ion-checkbox mode="ios" class="view-comment--showbot-checkbox" color="danger" checked="{{showBotComments}}" ></ion-checkbox>
       <ion-label class="view-comment--showbot-text">Check Audit Trail</ion-label>
     </div>
 
