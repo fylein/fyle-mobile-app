@@ -166,8 +166,11 @@
             </div>
           </ng-container>
 
-          <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'info'"
-            [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
+          <ng-container *ngIf="isAdvancesEnabled$">
+            <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'info'"
+              [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
+          </ng-container>
+
 
           <!-- <div *ngIf="(isCCCAccountSelected$|async) && !isCreatedFromCCC">
           <div (click)="openMatchingTransactions()">

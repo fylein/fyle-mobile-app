@@ -69,6 +69,7 @@ export class AddEditPerDiemPage implements OnInit {
   duplicates$: Observable<any>;
   duplicateBoxOpen = false;
   pointToDuplicates = false;
+  isAdvancesEnabled$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -609,6 +610,11 @@ export class AddEditPerDiemPage implements OnInit {
     const perDiemRates$ = this.offlineService.getPerDiemRates();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
+    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => {
+      return (orgSettings.advances && orgSettings.advances.enabled) ||
+      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+    }));
+
     this.setupNetworkWatcher();
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
@@ -880,7 +886,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return this.offlineService.getAccounts().pipe(
             map(accounts => {
-              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT').length > 0;
+              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' && account.acc.tentative_balance_amount > 0).length > 0;
             })
           );
         }
@@ -1493,7 +1499,9 @@ export class AddEditPerDiemPage implements OnInit {
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe(() => {
+            that.goBack();
+          });
         }
       } else {
         that.fg.markAllAsTouched();
@@ -1535,7 +1543,9 @@ export class AddEditPerDiemPage implements OnInit {
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe(() => {
+            that.goBack();
+          });
         }
       } else {
         that.fg.markAllAsTouched();

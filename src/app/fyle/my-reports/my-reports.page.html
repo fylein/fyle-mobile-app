@@ -17,7 +17,7 @@
         <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
           <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-sort-descending"></mat-icon>
         </button>
-        <button mat-icon-button class="my-reports--filter-button" (click)="openFilters()">
+        <button mat-icon-button class="my-reports--filter-button" [ngClass]="{'my-reports--filter-button__applied': filters?.state || filters?.date}" (click)="openFilters()">
           <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-filter"></mat-icon>
         </button>
       </ion-buttons>

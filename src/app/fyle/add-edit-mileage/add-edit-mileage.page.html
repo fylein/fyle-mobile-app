@@ -221,8 +221,11 @@
               </div>
             </ng-container>
 
-            <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)" [type]="'info'"
-              [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
+            <ng-container *ngIf="isAdvancesEnabled$">
+              <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)" [type]="'info'"
+                [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
+            </ng-container>
+
 
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="txnFields.purpose?.canView">
@@ -365,7 +368,8 @@
                 <div class="add-edit-mileage--internal-block add-edit-mileage--new-report-block">
                   <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                     formControlName="report" [options]="reports"></app-fy-select>
-                  <ion-checkbox mode="md" color="fyle-primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                  <ion-checkbox mode="md" color="fyle-primary" *ngIf="reports.length === 0"
+                    formControlName="add_to_new_report">
                   </ion-checkbox>
                   <ion-label *ngIf="reports.length === 0">
                     <span class="add-edit-mileage--text-label">Add to New Report</span>
