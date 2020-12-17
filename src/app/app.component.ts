@@ -84,7 +84,6 @@ export class AppComponent implements OnInit {
 
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(10, () => {
-      // Todo close app when back button pressed on dashboard
       if (this.router.url.includes('my_dashboard')) {
         this.showAppCloseAlert();
       }
