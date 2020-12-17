@@ -99,6 +99,10 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
+  manualUnflag(txnId) {
+    return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
+  }
+
   getUserTransactionParams(state: string) {
     const stateMap = {
       draft: {

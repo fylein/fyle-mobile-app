@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, from, Subject } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, tap } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 
 @Component({
@@ -26,6 +26,8 @@ export class ViewTeamMileagePage implements OnInit {
   policyViloations$: Observable<any>;
   canFlagOrUnflag$: Observable<boolean>;
   canDelete$: Observable<boolean>;
+  updateFlag$ = new Subject();
+  reportId;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -34,7 +36,8 @@ export class ViewTeamMileagePage implements OnInit {
     private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private router: Router
   ) { }
 
   isNumber(val) {
@@ -45,16 +48,34 @@ export class ViewTeamMileagePage implements OnInit {
     document.getElementById('commentsSection').scrollIntoView();
   }
 
+  goBack() {
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
+  }
+
+  onUpdateFlag(event) {
+    if (event) {
+      this.updateFlag$.next();
+    }
+  }
+
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    this.extendedMileage$ = from(this.loaderService.showLoader()).pipe(
+    this.extendedMileage$ = this.updateFlag$.pipe(
       switchMap(() => {
-        return this.transactionService.getExpenseV2(id);
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.transactionService.getExpenseV2(id);
+          })
+        );
       }),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay()
     );
+
+    this.extendedMileage$.subscribe(res => {
+      this.reportId = res.tx_report_id;
+    });
 
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay()
@@ -103,6 +124,8 @@ export class ViewTeamMileagePage implements OnInit {
         return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount);
       })
     );
+
+    this.updateFlag$.next();
 
   }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, from, forkJoin, Subject } from 'rxjs';
+import { Observable, from, forkJoin, Subject, combineLatest } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -71,25 +71,32 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}])
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ionViewWillEnter() {
     const txId = this.activatedRoute.snapshot.params.id;
     this.currencyOptions = {
       disabled: true
     };
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
-      map(() => from(this.loaderService.showLoader())),
       switchMap(() => {
-        return this.transactionService.getEtxn(txId);
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.transactionService.getEtxn(txId);
+          })
+        );
       }),
-      tap(res => {
-        this.reportId = res.tx_report_id;
-      }),
+      finalize(() => this.loaderService.hideLoader()),
       shareReplay()
     );
+
+    this.etxnWithoutCustomProperties$.subscribe(res => {
+      this.reportId = res.tx_report_id;
+    });
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap(etxn => {
@@ -98,7 +105,7 @@ export class ViewTeamExpensePage implements OnInit {
       shareReplay()
     );
 
-    this.etxn$ = forkJoin(
+    this.etxn$ = combineLatest(
       [
         this.etxnWithoutCustomProperties$,
         this.customProperties$
@@ -171,7 +178,7 @@ export class ViewTeamExpensePage implements OnInit {
     );
 
     this.attachments$ = editExpenseAttachments;
-
+    this.updateFlag$.next();
     this.attachments$.subscribe(console.log);
   }
 
