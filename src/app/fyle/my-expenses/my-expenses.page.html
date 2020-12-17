@@ -4,7 +4,12 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>
-      My Expenses
+      <ng-container *ngIf="baseState=== 'all'">
+        My Expenses
+      </ng-container>
+      <ng-container *ngIf="baseState=== 'draft'">
+        Review Expenses
+      </ng-container>
     </ion-title>
     <ion-buttons mode="md" slot="end">
       <ion-button color="primary" (click)="switchSelectionMode()">
@@ -39,7 +44,7 @@
     <div class="my-expenses--toolbar">
       <mat-form-field class="mat-form-field-no-padding my-expenses--simple-search" appearance="outline">
         <mat-icon matPrefix svgIcon="search" class="my-expenses--simple-search-icon"></mat-icon>
-        <input #simpleSearchInput matInput placeholder="Search">
+        <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="simpleSearchText">
       </mat-form-field>
 
       <ion-buttons mode="md" slot="end">
@@ -104,10 +109,8 @@
   </div>
 
   <div *ngFor="let expense of pendingTransactions as list; let i = index">
-    <app-my-expenses-card 
-      [canOpenCard]="false"
-      [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
-      [skipDate]="true" (deleteTransaction)="onDeleteExpenseClick($event)"
+    <app-my-expenses-card [canOpenCard]="false" [expense]="expense" [prevExpense]="list[i-1]"
+      [dateComparatorProp]="'tx_txn_dt'" [skipDate]="true" (deleteTransaction)="onDeleteExpenseClick($event)"
       (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
       (addTransactionToReport)="onAddTransactionToReport($event)">
     </app-my-expenses-card>
