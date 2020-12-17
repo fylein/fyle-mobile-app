@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, from, forkJoin } from 'rxjs';
+import { Observable, from, forkJoin, Subject, combineLatest } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { switchMap, shareReplay, concatMap, map, finalize, reduce } from 'rxjs/operators';
+import { switchMap, shareReplay, concatMap, map, finalize, reduce, tap } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -30,9 +30,10 @@ export class ViewTeamExpensePage implements OnInit {
   canFlagOrUnflag$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   orgSettings: any;
+  reportId;
   attachments$: Observable<any>;
-
   currencyOptions;
+  updateFlag$ = new Subject();
 
   constructor(
     private loaderService: LoaderService,
@@ -43,15 +44,20 @@ export class ViewTeamExpensePage implements OnInit {
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private router: Router
   ) { }
 
   isNumber(val) {
     return typeof val === 'number';
   }
 
+  goBackToReport() {
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}])
+  }
+
   isPolicyComment(estatus) {
-    return estatus && estatus.st && estatus.st.org_user_id === 'POLICY';
+    return estatus.st_org_user_id === 'POLICY';
   }
 
   scrollToComments() {
@@ -62,18 +68,39 @@ export class ViewTeamExpensePage implements OnInit {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
   }
 
-  ngOnInit() {
+  onUpdateFlag(event) {
+    if (event) {
+      this.updateFlag$.next();
+    }
+  }
+
+  goBack() {
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
+  }
+
+  ngOnInit() {}
+
+  ionViewWillEnter() {
     const txId = this.activatedRoute.snapshot.params.id;
     this.currencyOptions = {
       disabled: true
     };
 
-    this.etxnWithoutCustomProperties$ = from(this.loaderService.showLoader()).pipe(
+    this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() => {
-        return this.transactionService.getEtxn(txId);
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.transactionService.getEtxn(txId);
+          })
+        );
       }),
+      finalize(() => this.loaderService.hideLoader()),
       shareReplay()
     );
+
+    this.etxnWithoutCustomProperties$.subscribe(res => {
+      this.reportId = res.tx_report_id;
+    });
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap(etxn => {
@@ -82,7 +109,7 @@ export class ViewTeamExpensePage implements OnInit {
       shareReplay()
     );
 
-    this.etxn$ = forkJoin(
+    this.etxn$ = combineLatest(
       [
         this.etxnWithoutCustomProperties$,
         this.customProperties$
@@ -155,7 +182,7 @@ export class ViewTeamExpensePage implements OnInit {
     );
 
     this.attachments$ = editExpenseAttachments;
-
+    this.updateFlag$.next();
     this.attachments$.subscribe(console.log);
   }
 
