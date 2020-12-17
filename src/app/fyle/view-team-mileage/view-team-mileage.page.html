@@ -1,8 +1,10 @@
 <ion-header>
   <ion-toolbar class="view-mileage--toolbar">
-    <ion-buttons mode="md" slot="end">
-      <ion-back-button icon="close"></ion-back-button>
-    </ion-buttons>
+      <ion-buttons mode="md" slot="end">
+        <ion-button (click)="goBack()">
+          <mat-icon>close</mat-icon>
+        </ion-button>
+      </ion-buttons>
     <ion-title mode="md">View Mileage</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -130,12 +132,8 @@
       </div>
     </div>
 
-    <!-- TODO: check logic for flag un flag and apply -->
     <div class="view-mileage--card" *ngIf="canFlagOrUnflag$|async">
-      <div class="view-mileage--card-action">
-        <mat-icon class="view-mileage--card-action-icon">flag</mat-icon>
-        <div class="view-mileage--card-action-text view-mileage--card-action-text__comment">Flag</div>
-      </div>
+      <app-fy-flag-expense [etxn]="extendedMileage" (notify)='onUpdateFlag($event)'></app-fy-flag-expense>
     </div>
 
     <div class="view-mileage--card" *ngIf="canDelete$|async">

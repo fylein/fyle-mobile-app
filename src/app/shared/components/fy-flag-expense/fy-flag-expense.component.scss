@@ -1,0 +1,28 @@
+.flag {
+  &--card-action {
+    display: flex;
+    align-items: center;
+  }
+
+  &--card-action-icon {
+    color: #ababab;
+    margin-right: 12px;
+  }
+
+  &--card-action-text {
+    
+    &__comment {
+      color: #0077ee;
+      display: inline-block;
+    }
+    &__delete {
+      color: #f00;
+    }
+    &__helper-comment {
+      vertical-align: bottom;
+      font-weight: 400;
+      font-size: 12px;
+      color: #ababab;
+    }
+  }
+}
