@@ -12,7 +12,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="view-comment--container" #title>
+<ion-content class="view-comment--container">
   <div  *ngFor="let estatus of estatuses$|async as estatuses">
     <ion-grid class="view-comment--card" *ngIf="!(estatus.isBotComment) || showBotComments" [ngClass]="{'view-comment--bot-comment': estatus.isBotComment, 'view-comment--self-comment': estatus.isSelfComment}">
       <ion-row>
