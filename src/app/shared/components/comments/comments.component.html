@@ -3,7 +3,7 @@
   <div class="comments-component--common">
     <mat-icon *ngIf="hideIcon !== 'true'" class="comments-component--icon">chat</mat-icon>
     <p class="comments-component--heading">{{text}}
-      <!-- <span *ngIf="false">(60)</span> Show Comments Count -->
+      <span *ngIf="showCommentsCount">({{noOfComments$ | async}})</span>
     </p>
   </div>
   
