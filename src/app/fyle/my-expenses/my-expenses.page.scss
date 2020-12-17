@@ -92,6 +92,15 @@
       fill: #1978f7;
     }
     
+    &__applied {
+      ::after {
+        content: "•";
+        font-size: 48px;
+        position: absolute;
+        top: -8px;
+        color: #f36;
+      }
+    }
   }
 
   &--primary-cta {

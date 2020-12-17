@@ -51,7 +51,7 @@
         <button mat-icon-button class="my-expenses--filter-button" (click)="openSort()">
           <mat-icon class="my-expenses--filter-button-icon" svgIcon="fy-sort-descending"></mat-icon>
         </button>
-        <button mat-icon-button class="my-expenses--filter-button" (click)="openFilters()">
+        <button mat-icon-button class="my-expenses--filter-button" [ngClass]="{'my-expenses--filter-button__applied': filters?.state || filters?.date}" (click)="openFilters()">
           <mat-icon class="my-expenses--filter-button-icon" svgIcon="fy-filter"></mat-icon>
         </button>
       </ion-buttons>
