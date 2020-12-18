@@ -15,7 +15,7 @@ export class CommentsComponent implements OnInit {
   @Input() objectType: string;
   @Input() objectId: string;
   @Input() mode: string;
-  @Input() hideIcon =  false;
+  @Input() hideIcon: boolean;
   @Input() text: string;
   @Input() showCommentsCount?: boolean;
   @Input() dontLoadComments?: boolean;
