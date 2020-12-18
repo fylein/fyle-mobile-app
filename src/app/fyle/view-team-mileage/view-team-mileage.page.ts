@@ -10,6 +10,8 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap, tap } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
+import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
+import { PopoverController } from '@ionic/angular';
 
 @Component({
   selector: 'app-view-team-mileage',
@@ -37,6 +39,7 @@ export class ViewTeamMileagePage implements OnInit {
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
     private reportService: ReportService,
+    private popoverController: PopoverController,
     private router: Router
   ) { }
 
@@ -55,6 +58,25 @@ export class ViewTeamMileagePage implements OnInit {
   onUpdateFlag(event) {
     if (event) {
       this.updateFlag$.next();
+    }
+  }
+
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const popover = await this.popoverController.create({
+      component: RemoveExpenseReportComponent,
+      componentProps: {
+        etxn
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id}]);
     }
   }
 
@@ -126,7 +148,6 @@ export class ViewTeamMileagePage implements OnInit {
     );
 
     this.updateFlag$.next();
-
   }
 
 

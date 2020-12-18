@@ -98,13 +98,13 @@ export class ApproverDialogComponent implements OnInit {
       map(eouc => {
         if (this.from === 'TRIP_REQUEST') {
           return eouc.filter(approver => {
-            return this.approverList.indexOf(approver.ou.id) < 0;
+            return this.approverList.indexOf(approver.us.email) < 0;
           });
         }
 
         if (this.from === 'ADVANCE_REQUEST') {
           return eouc.filter(approver => {
-            return this.approverList.indexOf(approver.ou.id) < 0;
+            return this.approverList.indexOf(approver.us.email) < 0;
           });
         }
       }),

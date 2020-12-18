@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
       <button mat-icon-button [routerLink]="['/','enterprise','team_reports']">
@@ -28,14 +28,14 @@
             <p><strong>Approver<span *ngIf="reportApprovals.length === 1"> is </span><span
                   *ngIf="reportApprovals.length > 1">s
                   are</span> </strong></p>
-            <span *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
+            <div *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
               <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
                 {{ap.state | reportState}}
                 <span class="view-reports--card-body__highlight"
                   *ngIf="ap.approved_at">,{{ ap.approved_at | date: 'MMM dd, yyyy' }}</span>
               </span>
               ){{last ? '' : ', '}}
-            </span>
+            </div>
           </span>
         </div>
         <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
@@ -87,9 +87,12 @@
         </div>
       </div>
 
-      <app-fy-modify-approver [approverList]="erpt.approved_by" [object]="erpt" [id]="erpt.rp_id"
-        [from]="'TEAM_REPORTS'" [title]="'Add Approvers'" (notify)='onUpdateApprover($event)'>
-      </app-fy-modify-approver>
+
+      <ng-container *ngIf="(reportApprovals$|async) as reportApprovals">
+          <app-fy-modify-approver [approverList]="getApproverEmails(reportApprovals)" [object]="erpt" [id]="erpt.rp_id"
+          [from]="'TEAM_REPORTS'" [title]="'Modify Approvers'" (notify)='onUpdateApprover($event)'>
+        </app-fy-modify-approver>
+      </ng-container>
 
     </div>
 

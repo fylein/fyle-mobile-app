@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md">
   <ion-toolbar class="view-expense--toolbar">
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="goBack()">
@@ -12,7 +12,6 @@
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
     <div *ngIf="etxn && policyViloations$|async as policyViloations">
-      <!-- TODO: on click scroll to comment section -->
       <div class="view-expense--policy-container" *ngIf="policyViloations.length > 0 && etxn.tx_policy_flag"
         (click)="scrollToComments()">
         <span>
@@ -33,8 +32,8 @@
 
     <div class="view-expense--attachment-currency-block">
       <div class="view-expense--attachment-block">
-        <ng-container *ngIf="attachments$|async as attachments">
-          <div class="view-expense--no-attachment" *ngIf="attachments.length === 0">
+        <ng-container *ngIf="attachments$|async as attachments; else NoAttachmentYet">
+          <div class="view-expense--no-attachment" *ngIf="!attachments?.length">
             <p>No Receipt</p>
           </div>
 
@@ -47,6 +46,11 @@
             </div>
           </div>
         </ng-container>
+        <ng-template #NoAttachmentYet>
+          <div class="view-expense--no-attachment">
+            <p>No Receipt</p>
+          </div>
+        </ng-template>
       </div>
 
       <div class="view-expense--currency-block">
@@ -174,7 +178,7 @@
     </div>
 
     <div class="view-expense--card" *ngIf="canDelete$|async">
-      <div class="view-expense--card-action">
+      <div class="view-expense--card-action" (click)="removeExpenseFromReport()">
         <mat-icon class="view-expense--card-action-icon">delete</mat-icon>
         <div class="view-expense--card-action-text__comment">
           <div class="view-expense--card-action-text view-expense--card-action-text__delete">Remove</div>

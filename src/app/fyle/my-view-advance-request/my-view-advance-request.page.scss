@@ -148,14 +148,21 @@
 
   &--common-action-block {
     display: flex;
-    padding: 4px 0;
+    align-items: center;
     
     p {
       display: inline-block;
       vertical-align: middle;
       font-size: 16px;
       margin: 0 0 0 16px;
+    }
+
+    &__comment {
       color: #0077ee;
+    }
+
+    &__delete {
+      color: #f00;
     }
 
     mat-icon {
@@ -163,6 +170,12 @@
       color: #ababab;
       display: inline-block;
       vertical-align: middle;
+    }
+
+    &__delete {
+      p {
+        color: red;
+      }
     }
   }
 
