@@ -393,7 +393,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Live Chat',
-            isVisible: true,
+            isVisible: orgUserSettings && orgUserSettings.in_app_chat_settings && orgUserSettings.in_app_chat_settings.allowed && orgUserSettings.in_app_chat_settings.enabled,
             icon: 'fy-chat',
             openHelp: true,
             disabled: true
