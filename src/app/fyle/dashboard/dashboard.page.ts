@@ -34,6 +34,10 @@ export class DashboardPage implements OnInit {
   }
 
   backButtonClick() {
+    this.dashboardCardCollapsed();
+  }
+
+  dashboardCardCollapsed() {
     this.dashboardList = this.dashboardList.map((item) => {
       item.isCollapsed = true;
       return item;
@@ -91,7 +95,7 @@ export class DashboardPage implements OnInit {
         icon: 'fy-trips',
         subTitle: 'Trip Request'
       }];
-    })
+    });
 
   }
 
@@ -110,6 +114,10 @@ export class DashboardPage implements OnInit {
 
     this.mobileEventService.onDashboardCardExpanded().subscribe(() => {
       this.dashboardCardExpanded();
+    });
+
+    this.mobileEventService.onDashboardCardCollapsed().subscribe(() => {
+      this.dashboardCardCollapsed();
     });
 
   }
