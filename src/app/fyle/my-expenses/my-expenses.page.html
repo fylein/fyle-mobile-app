@@ -15,7 +15,7 @@
       </ng-container>
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <ion-button color="primary" (click)="switchSelectionMode()">
+      <ion-button color="primary" (click)="switchSelectionMode()" class="text-capitalize">
         <span *ngIf="selectionMode; else setSelectionMode">
           Cancel
         </span>
@@ -191,11 +191,11 @@
     </ion-button>
   </ion-toolbar>
   <ion-toolbar *ngIf="baseState === 'all' && selectionMode && selectedElements.length > 0">
-    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary"
+    <ion-button class="my-expenses--primary-cta my-expenses--selected-expense-primary-cta flat-button" fill="solid" color="fyle-primary"
       (click)="openCreateReportWithSelectedIds()">
       CREATE REPORT
     </ion-button>
-    <ion-button class="my-expenses--primary-cta flat-button" fill="outline" color="fyle-primary"
+    <ion-button class="my-expenses--primary-cta my-expenses--selected-expense-primary-cta flat-button" fill="outline" color="fyle-primary"
       (click)="openReviewExpenses()">
       START REVIEW
     </ion-button>

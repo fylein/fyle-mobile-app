@@ -108,6 +108,10 @@
       </div>
     </div>
 
+    <div class="view-reports--card view-reports--card__block-action" matRipple>
+      <app-comments objectType="reports" [objectId]="erpt.rp_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
+    </div>
+
     <div class="view-reports--card view-reports--card__block-action" *ngIf="canDelete$ | async" (click)="deleteReport()"
       matRipple>
       <mat-icon class="view-reports--block-action-icon">delete</mat-icon>

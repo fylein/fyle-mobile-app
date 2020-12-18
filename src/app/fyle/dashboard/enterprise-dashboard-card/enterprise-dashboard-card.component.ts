@@ -6,7 +6,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
-import { pipe, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Router } from '@angular/router';
@@ -41,7 +41,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private dashboardService: DashboardService,
     private mobileEventService: MobileEventService,
     private loaderService: LoaderService,
-    private popupService: PopupService,
     private router: Router
   ) { }
 
@@ -134,7 +133,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         res.approvedStats.title = 'Approved';
         res.approvedStats.state = 'APPROVED';
 
-        let stats = [res.draftStats, res.inquiryStats, res.reportedStats, res.approvedStats];
+        const stats = [res.draftStats, res.inquiryStats, res.reportedStats, res.approvedStats];
         return stats;
       })
     );
@@ -225,7 +224,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     title = title.replace(' ', '_');
     const expandedCardDetailsMap = {
       expenses: this.getExpensesExpandedDetails,
-      reports: this.getReportsExpandedDetails, //change this later
+      reports: this.getReportsExpandedDetails,
       advances: this.getAdvancesExpandedDetails,
       trips: this.getTripsExpandedDetails,
       corporate_cards: this.getCCCEExpandedDetails
@@ -318,14 +317,14 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       if (this.dashboardList[this.index].title === 'corporate cards') {
         this.needsAttentionStats.count = stats && stats.total_count;
       } else {
-        let countMap = {
+        const countMap = {
           expenses: this.getExpenseNeedAttentionStats(),
           reports: this.getReportNeedAttentionStats(),
           advances: this.getAdvanceNeedAttentionStats(),
           trips: this.getTripNeedAttentionStats()
         };
 
-        let count$ = countMap[this.dashboardList[this.index].title];
+        const count$ = countMap[this.dashboardList[this.index].title];
 
         count$.subscribe((res) => {
           if (this.dashboardList[this.index].title === 'expenses') {
@@ -333,10 +332,10 @@ export class EnterpriseDashboardCardComponent implements OnInit {
           } else {
             this.needsAttentionStats.count = res.count;
           }
-        })
+        });
       }
     }
-  };
+  }
 
   async getStats() {
     if (this.dashboardList && this.dashboardList[this.index]) {
@@ -350,7 +349,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         advances: this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('pending')),
         trips: this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('submitted')),
         corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' })
-      }
+      };
 
       const stats$ = statsMap[title].pipe(
         finalize(async () => {
