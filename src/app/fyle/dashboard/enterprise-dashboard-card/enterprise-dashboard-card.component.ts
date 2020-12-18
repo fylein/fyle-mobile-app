@@ -29,7 +29,6 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   needsAttentionStats: any = {
     count: 0
   };
-  showAllCards: boolean;
   constructor(
     private transactionService: TransactionService,
     private reportService: ReportService,
@@ -255,32 +254,25 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   }
 
   async expandCard() {
+    await this.loaderService.showLoader();
+    this.expandedCard = this.item && this.item.title ? this.item.title : '';
+    this.dashboardList = this.dashboardList.map((dashboardItem) => {
+      dashboardItem.isCollapsed = true;
+      return dashboardItem;
+    });
 
-    if (!this.showAllCards) {
-      this.showAllCards = true;
-      this.mobileEventService.dashboardCardCollapsed();
-    } else {
-      this.showAllCards = false;
-      await this.loaderService.showLoader();
-      this.expandedCard = this.item && this.item.title ? this.item.title : '';
-      this.dashboardList = this.dashboardList.map((dashboardItem) => {
-        dashboardItem.isCollapsed = true;
-        return dashboardItem;
+    this.item.isCollapsed = false;
+    if (this.item && this.item.title) {
+      const expandedDetails$ = this.getExpandedDetails(this.item.title).pipe(
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      );
+      expandedDetails$.subscribe((res) => {
+        this.detailedStats = res;
+        this.mobileEventService.dashboardCardExpanded();
+        this.dashboardService.setDashBoardState(this.item.title);
       });
-
-      this.item.isCollapsed = false;
-      if (this.item && this.item.title) {
-        const expandedDetails$ = this.getExpandedDetails(this.item.title).pipe(
-          finalize(async () => {
-            await this.loaderService.hideLoader();
-          })
-        );
-        expandedDetails$.subscribe((res) => {
-          this.detailedStats = res;
-          this.mobileEventService.dashboardCardExpanded();
-          this.dashboardService.setDashBoardState(this.item.title);
-        });
-      }
     }
   }
 
@@ -367,6 +359,5 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   ngOnInit() {
     this.item = this.dashboardList[this.index];
     this.getStats();
-    this.showAllCards = true;
   }
 }

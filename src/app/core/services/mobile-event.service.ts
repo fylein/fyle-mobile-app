@@ -6,7 +6,6 @@ import { Subject } from 'rxjs';
 })
 export class MobileEventService {
   cardExpandedSubject = new Subject();
-  cardCollapsedSubject = new Subject();
 
   constructor() { }
 
@@ -16,13 +15,5 @@ export class MobileEventService {
 
   dashboardCardExpanded() {
     return this.cardExpandedSubject.next();
-  }
-
-  onDashboardCardCollapsed() {
-    return this.cardCollapsedSubject.asObservable();
-  }
-
-  dashboardCardCollapsed() {
-    return this.cardCollapsedSubject.next();
   }
 }
