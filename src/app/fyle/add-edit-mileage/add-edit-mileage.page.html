@@ -74,13 +74,13 @@
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
             <div class="add-edit-mileage--amount-box">
               <div class="add-edit-mileage--amount">
-                <p>Amount</p>
-                <p class="add-edit-mileage--amount-value">
+                <p class="mb-0">Amount</p>
+                <p class="add-edit-mileage--amount-value mb-0">
                   {{amount$|async | currency: homeCurrency}}
                 </p>
               </div>
               <div class="add-edit-mileage--rate">
-                <p>
+                <p class="mb-0">
                   Rate /
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
                     <span>{{ etxn.tx.distance_unit }}</span>
@@ -92,7 +92,7 @@
                     </ng-container>
                   </ng-template>
                 </p>
-                <p class="add-edit-mileage--rate-value">
+                <p class="add-edit-mileage--rate-value mb-0 text-right">
                   {{rate$|async | currency: homeCurrency}}
                 </p>
               </div>
@@ -123,8 +123,35 @@
               <ng-container formArrayName="mileage_locations">
                 <div class="add-edit-mileage--internal-block"
                   *ngFor="let _ of mileage_locations.controls; index as i; first as isFirst;last as isLast">
+                  <!-- {{mileage_locations?.value[i]?.display}} -->
                   <app-fy-location
-                    [label]="mileage_locations.controls.length > 2 ? (isFirst ? 'Start Location': (isLast ? 'End Location': 'Stop ' + (i))): (isFirst ? 'From': 'To')"
+                    [label]="mileage_locations.controls.length > 2 ? 
+                              (isFirst ?
+                                (mileage_locations?.value[i]?.display ? 
+                                  'Start' : 
+                                  'Select Start Location'
+                                ) : 
+                                (isLast ?
+                                  (mileage_locations?.value[i]?.display ? 
+                                    'End Location' : 
+                                    'Select End Location'
+                                  ) : 
+                                  (mileage_locations?.value[i]?.display ? 
+                                    'Stop ' + (i) : 
+                                    'Select Stop ' + (i) + ' Location'
+                                  )
+                                )
+                              ) :
+                              (isFirst ? 
+                                (mileage_locations?.value[i]?.display ? 
+                                  'From' : 
+                                  'Select From Location'
+                                ) :
+                                (mileage_locations?.value[i]?.display ? 
+                                  'To' : 
+                                  'Select To Location'
+                                )
+                              )"
                     [formControlName]="i">
                     <span *ngIf="i >= 2">
                       <mat-icon class="add-edit-mileage--remove-stop" (click)="removeMileageLocation(i)">
@@ -153,21 +180,21 @@
                 <div class="add-edit-mileage--text add-edit-mileage--internal-block">
                   <div class="add-edit-mileage--text-label"
                     [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}">
-                    {{ etxn.tx.distance ? txnFields?.distance.title : 'Enter ' + txnFields?.distance.title }}
-                    (
-                    <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                      <span>{{ etxn.tx.distance_unit }}</span>
-                    </ng-container>
-
-                    <ng-template #defaultDistanceUnit>
-                      <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                        <span>{{ mileageConfig.unit }}</span>
+                    <span>
+                      {{ (etxn.tx.distance || fg.controls.distance.value) ? txnFields?.distance.title : 'Enter ' + txnFields?.distance.title }}
+                      <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
+                        <span class="small">({{ etxn.tx.distance_unit }})</span>
                       </ng-container>
-                    </ng-template>
-                    )
-                    <div>
-                      *
-                    </div>
+  
+                      <ng-template #defaultDistanceUnit>
+                        <ng-container *ngIf="mileageConfig$|async as mileageConfig">
+                          <span class="small">({{ mileageConfig.unit }})</span>
+                        </ng-container>
+                      </ng-template>
+                      <span>
+                        *
+                      </span>
+                    </span>
                   </div>
                   <input class="add-edit-mileage--text-input" type="number" formControlName="distance" [min]="0"
                     [disabled]="(isAmountDisabled$|async) || !txnFields?.distance.can_edit">
