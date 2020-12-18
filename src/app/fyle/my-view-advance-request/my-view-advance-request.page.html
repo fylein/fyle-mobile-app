@@ -138,14 +138,14 @@
     <div class="view-advance-request--card" *ngIf="(actions$|async)?.can_edit">
       <div class="view-advance-request--common-action-block" (click)=edit()>
         <mat-icon>edit</mat-icon>
-        <p>Edit Advance</p>
+        <p class="view-advance-request--common-action-block__comment">Edit Advance</p>
       </div>
     </div>
 
     <div class="view-advance-request--card" *ngIf="(actions$|async)?.can_delete">
       <div class="view-advance-request--common-action-block view-advance-request--common-action-block__delete" (click)=delete()>
         <mat-icon>delete</mat-icon>
-        <p>Delete Advance</p>
+        <p class="view-advance-request--common-action-block__delete">Delete Advance</p>
       </div>
     </div>
 

@@ -31,7 +31,7 @@ export class ActionConfirmationPopoverComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('type ->', this.type);
+
   }
 
 }
