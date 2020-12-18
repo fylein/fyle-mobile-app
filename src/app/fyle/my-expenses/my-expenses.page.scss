@@ -92,6 +92,15 @@
       fill: #1978f7;
     }
     
+    &__applied {
+      ::after {
+        content: "•";
+        font-size: 48px;
+        position: absolute;
+        top: -8px;
+        color: #f36;
+      }
+    }
   }
 
   &--primary-cta {
@@ -212,5 +221,9 @@
         margin-left: -21px;
       }
     }
+  }
+
+  &--simple-search-icon {
+    height: 16px;
   }
 }

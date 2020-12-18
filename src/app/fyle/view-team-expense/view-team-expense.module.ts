@@ -8,6 +8,8 @@ import { SharedModule } from '../../shared/shared.module';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -17,11 +19,13 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
     ViewTeamExpensePageRoutingModule,
     SharedModule,
     PinchZoomModule,
-    PdfViewerModule
+    PdfViewerModule,
+    MatButtonModule
   ],
   declarations: [
     ViewTeamExpensePage,
-    ViewAttachmentComponent
+    ViewAttachmentComponent,
+    RemoveExpenseReportComponent
   ]
 })
 export class ViewTeamExpensePageModule {}

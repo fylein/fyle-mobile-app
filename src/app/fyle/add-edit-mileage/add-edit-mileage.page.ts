@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, FormControl } from '@angular/forms';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { from, forkJoin, iif, of, combineLatest, Observable, noop, throwError, concat } from 'rxjs';
+import { from, forkJoin, iif, of, combineLatest, Observable, throwError, concat } from 'rxjs';
 import { switchMap, finalize, map, filter, distinctUntilChanged, take, startWith, shareReplay, tap, concatMap, catchError, debounceTime } from 'rxjs/operators';
 import { isEqual, isNumber, cloneDeep } from 'lodash';
 import * as moment from 'moment';
@@ -66,8 +66,10 @@ export class AddEditMileagePage implements OnInit {
   duplicateBoxOpen = false;
   isConnected$: Observable<boolean>;
   pointToDuplicates = false;
+  isAdvancesEnabled$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   formInitializedFlag = false;
   invalidPaymentMode = false;
@@ -183,7 +185,7 @@ export class AddEditMileagePage implements OnInit {
     return this.offlineService.getOrgSettings().pipe(
       map(orgSettings => {
         const isAmountCurrencyTxnDtPresent =
-        this.fg.value.distance && !!this.fg.value.dateOfSpend && (this.fg.value.mileage_locations && this.fg.value.mileage_locations.filter(l => !!l).length);
+          this.fg.value.distance && !!this.fg.value.dateOfSpend && (this.fg.value.mileage_locations && this.fg.value.mileage_locations.filter(l => !!l).length);
         return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
       })
     );
@@ -257,7 +259,7 @@ export class AddEditMileagePage implements OnInit {
       take(1)
     ).subscribe((res) => {
       this.pointToDuplicates = true;
-      setTimeout(()=> {
+      setTimeout(() => {
         this.pointToDuplicates = false;
       }, 3000);
     });
@@ -268,7 +270,7 @@ export class AddEditMileagePage implements OnInit {
     if (duplicateInputContainer) {
       duplicateInputContainer.scrollIntoView({
         behavior: 'smooth',
-        block: 'nearest', 
+        block: 'nearest',
         inline: 'start'
       });
 
@@ -589,7 +591,7 @@ export class AddEditMileagePage implements OnInit {
       mileage_vehicle_type: [],
       dateOfSpend: [],
       mileage_locations: new FormArray([]),
-      distance: [],
+      distance: [, Validators.required],
       round_trip: [],
       paymentMode: [, Validators.required],
       purpose: [],
@@ -631,6 +633,11 @@ export class AddEditMileagePage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+
+    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => {
+      return (orgSettings.advances && orgSettings.advances.enabled) ||
+      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+    }));
 
     this.setupNetworkWatcher();
 
@@ -796,7 +803,7 @@ export class AddEditMileagePage implements OnInit {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return this.offlineService.getAccounts().pipe(
             map(accounts => {
-              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT').length > 0;
+              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' && account.acc.tentative_balance_amount > 0).length > 0 ;
             })
           );
         }
@@ -860,7 +867,13 @@ export class AddEditMileagePage implements OnInit {
         return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
           map(paymentModes => paymentModes
             .map(res => res.value)
-            .find(paymentMode => paymentMode.acc.id === etxn.tx.source_account_id))
+            .find(paymentMode => {
+              if (paymentMode.acc.displayName === 'Paid by Me') {
+                return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+              } else {
+                return paymentMode.acc.id === etxn.tx.source_account_id;
+              }
+            }))
         ), of(null));
       })
     );
@@ -986,18 +999,18 @@ export class AddEditMileagePage implements OnInit {
 
   goBack() {
     if (this.mode === 'add') {
-      this.router.navigate(['/','enterprise','my_expenses']);
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     } else {
       if (!this.reviewList || this.reviewList.length === 0) {
         this.navController.back();
       } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
         if (+this.activeIndex === 0) {
-          this.router.navigate(['/','enterprise','my_expenses']);
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
         } else {
           this.goToPrev();
         }
       } else {
-        this.router.navigate(['/','enterprise','my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
   };
@@ -1007,7 +1020,7 @@ export class AddEditMileagePage implements OnInit {
       amount: this.amount$.pipe(take(1)),
       etxn: this.etxn$
     }).pipe(
-      map(({etxn, amount}) => {
+      map(({ etxn, amount }) => {
         const paymentAccount = this.fg.value.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
@@ -1031,15 +1044,24 @@ export class AddEditMileagePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(()=>{
+          that.addExpense().subscribe(() => {
             that.goBack();
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe(() => {
+            that.goBack();
+          });
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1052,8 +1074,8 @@ export class AddEditMileagePage implements OnInit {
 
   reloadCurrentRoute() {
     let currentUrl = this.router.url;
-    this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true}).then(() => {
-        this.router.navigate([currentUrl]);
+    this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl]);
     });
   }
 
@@ -1065,15 +1087,24 @@ export class AddEditMileagePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(()=> {
+          that.addExpense().subscribe(() => {
             this.reloadCurrentRoute();
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe(() => {
+            that.goBack();
+          });
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1107,6 +1138,13 @@ export class AddEditMileagePage implements OnInit {
       }
     } else {
       that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -1632,7 +1670,7 @@ export class AddEditMileagePage implements OnInit {
                 }
                 else {
                   return of(this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null)).pipe(
-                    map(()=> etxn)
+                    map(() => etxn)
                   );
                 }
 

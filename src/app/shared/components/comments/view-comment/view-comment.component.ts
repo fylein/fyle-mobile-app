@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { IonContent, ModalController } from '@ionic/angular';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -18,7 +18,7 @@ export class ViewCommentComponent implements OnInit {
   @Input() objectId: any;
   @Input() mode: string;
 
-  @ViewChild('title') title: ElementRef;
+  @ViewChild(IonContent, { static: false }) content: IonContent;
 
   estatuses$: Observable<ExtendedStatus[]>;
   totalCommentsCount$: Observable<number>;
@@ -26,7 +26,7 @@ export class ViewCommentComponent implements OnInit {
   newComment: string;
   refreshEstatuses$: Subject<void> = new Subject();
   isCommentAdded: boolean;
-  
+
   constructor(
     private statusService: StatusService,
     private authService: AuthService,
@@ -39,16 +39,16 @@ export class ViewCommentComponent implements OnInit {
 
   addComment() {
 
-    if(this.newComment) {
+    if (this.newComment) {
       const data = {
         comment: this.newComment
-      }
+      };
 
       this.newComment = null;
       this.isCommentAdded = true;
 
       this.statusService.post(this.objectType, this.objectId, data).pipe(
-      ).subscribe(res=> {
+      ).subscribe(res => {
         this.refreshEstatuses$.next();
       });
 
@@ -91,9 +91,7 @@ export class ViewCommentComponent implements OnInit {
           }),
           finalize(() => {
             setTimeout(() => {
-              if (this.title.nativeElement) {
-                this.title.nativeElement.scrollToBottom();
-              }
+              this.content.scrollToBottom(500);
             }, 500);
           })
         );

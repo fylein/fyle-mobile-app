@@ -53,6 +53,7 @@ export class ViewTeamTripPage implements OnInit {
   approvers$: Observable<ExtendedOrgUser[]>;
   eou$: Observable<any>;
   refreshApprovers$ = new Subject();
+  canDoAction$: Observable<boolean>;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -272,7 +273,11 @@ export class ViewTeamTripPage implements OnInit {
     this.actions$ = this.tripRequestsService.getActions(id);
     this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay());
     this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay());
-    
+
+    this.canDoAction$ = this.actions$.pipe(
+      map(actions => actions.can_approve || actions.can_inquire || actions.can_reject)
+    );
+
     const currentApproval$ = forkJoin([this.eou$, this.tripRequest$]).pipe(
       map(([eou, tripRequest]) => {
         return tripRequest.approvals[eou.ou.id].state;

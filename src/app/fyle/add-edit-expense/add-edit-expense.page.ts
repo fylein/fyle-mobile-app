@@ -91,6 +91,7 @@ export class AddEditExpensePage implements OnInit {
   isConnected$: Observable<boolean>;
   invalidPaymentMode: boolean = false;
   pointToDuplicates = false;
+  isAdvancesEnabled$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -413,7 +414,7 @@ export class AddEditExpensePage implements OnInit {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return accounts$.pipe(
             map(accounts => {
-              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT').length > 0;
+              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' && account.acc.tentative_balance_amount > 0).length > 0;
             })
           );
         }
@@ -699,7 +700,13 @@ export class AddEditExpensePage implements OnInit {
       return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
         map(paymentModes => paymentModes
           .map(res => res.value)
-          .find(paymentMode => paymentMode.acc.id === etxn.tx.source_account_id))
+          .find(paymentMode => {
+            if (paymentMode.acc.displayName === 'Paid by Me') {
+              return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+            } else {
+              return paymentMode.acc.id === etxn.tx.source_account_id;
+            }
+          }))
       ), of(null));
     }));
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1161,6 +1168,11 @@ export class AddEditExpensePage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
+    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => {
+      return (orgSettings.advances && orgSettings.advances.enabled) ||
+      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+    }));
+
     this.setupNetworkWatcher();
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
@@ -1450,7 +1462,9 @@ export class AddEditExpensePage implements OnInit {
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe(() => {
+            that.goBack();
+          });
         }
       } else {
         that.fg.markAllAsTouched();
@@ -1484,8 +1498,9 @@ export class AddEditExpensePage implements OnInit {
             this.reloadCurrentRoute();
           });
         } else {
-          // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe(() => {
+            that.goBack();
+          });
         }
       } else {
         that.fg.markAllAsTouched();

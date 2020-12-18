@@ -61,4 +61,5 @@ export interface ExtendedTripRequest {
   trp_visa_request?: any;
   us_email: string;
   us_full_name: string;
+  internalStateDisplayName?: string;
 }

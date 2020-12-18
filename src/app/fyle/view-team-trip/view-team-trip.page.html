@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar>
     <ion-buttons slot="end" mode="md">
       <ion-button mode="md" class="trip-request--header_close-button" [routerLink]="['/','enterprise','team_trips']"
@@ -145,41 +145,53 @@
 
         </div>
       </div>
+      <ng-container *ngIf="transportationRequests$|async as transportationRequests">
+        <ng-container *ngIf="transportationRequests.length">
+          <div class="trip-request--card" matRipple>
+            <div class="trip-request--element trip-request--element__single"
+              (click)="openTransportationRequests(transportationRequests)">
+              <div class="trip-request--element-label">
+                Transportation
+              </div>
+              <div class="trip-request--element-value">
+                {{transportationRequests.length}} Request
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
 
-      <div class="trip-request--card" matRipple *ngIf="transportationRequests$|async as transportationRequests">
-        <div class="trip-request--element trip-request--element__single"
-          (click)="openTransportationRequests(transportationRequests)">
-          <div class="trip-request--element-label">
-            Transportation
+      <ng-container *ngIf="hotelRequests$|async as hotelRequests">
+        <ng-container *ngIf="hotelRequests.length">
+          <div class="trip-request--card" matRipple>
+            <div class="trip-request--element trip-request--element__single" (click)="openHotelRequests(hotelRequests)">
+              <div class="trip-request--element-label">
+                Hotel
+              </div>
+              <div class="trip-request--element-value">
+                {{hotelRequests.length}} Request
+              </div>
+            </div>
           </div>
-          <div class="trip-request--element-value">
-            {{transportationRequests.length}} Request
-          </div>
-        </div>
-      </div>
+        </ng-container>
+      </ng-container>
 
-      <div class="trip-request--card" matRipple *ngIf="hotelRequests$|async as hotelRequests">
-        <div class="trip-request--element trip-request--element__single" (click)="openHotelRequests(hotelRequests)">
-          <div class="trip-request--element-label">
-            Hotel
+      <ng-container *ngIf="transformedAdvanceRequests$|async as advanceRequests">
+        <ng-container *ngIf="advanceRequests.length">
+          <div class="trip-request--card" matRipple>
+            <div class="trip-request--element trip-request--element__single"
+              (click)="openAdvanceRequests(advanceRequests)">
+              <div class="trip-request--element-label">
+                Advance
+              </div>
+              <div class="trip-request--element-value">
+                {{advanceRequests.length}} Request
+              </div>
+            </div>
           </div>
-          <div class="trip-request--element-value">
-            {{hotelRequests.length}} Request
-          </div>
-        </div>
-      </div>
+        </ng-container>
+      </ng-container>
 
-      <div class="trip-request--card" matRipple>
-        <div class="trip-request--element trip-request--element__single"
-          *ngIf="transformedAdvanceRequests$|async as advanceRequests" (click)="openAdvanceRequests(advanceRequests)">
-          <div class="trip-request--element-label">
-            Advance
-          </div>
-          <div class="trip-request--element-value">
-            {{advanceRequests.length}} Request
-          </div>
-        </div>
-      </div>
 
       <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
           <app-fy-apporver 
@@ -193,16 +205,18 @@
 
       <div class="trip-request--card">
         <div class="trip-request--card-action">
-          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>
+          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments">
+          </app-comments>
         </div>
       </div>
     </div>
   </div>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="canDoAction$|async">
   <ion-toolbar>
-    <ion-button (click)="openActionBlock()" class="trip-request--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+    <ion-button (click)="openActionBlock()" class="trip-request--primary-cta flat-button" fill="solid"
+      color="fyle-primary" expand="block">
       Trip Action
     </ion-button>
   </ion-toolbar>

@@ -59,6 +59,8 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
       const selectedOption = this.innerValue;
       if (selectedOption) {
         this.displayValue = selectedOption.projectv2_name;
+      } else {
+        this.displayValue = '';
       }
 
       this.onChangeCallback(v);

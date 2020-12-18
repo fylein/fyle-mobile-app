@@ -11,6 +11,8 @@ import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
+import { PopoverController } from '@ionic/angular';
+import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 
 @Component({
   selector: 'app-view-team-per-diem',
@@ -40,7 +42,8 @@ export class ViewTeamPerDiemPage implements OnInit {
     private perDiemService: PerDiemService,
     private policyService: PolicyService,
     private reportService: ReportService,
-    private router: Router
+    private router: Router,
+    private popoverController: PopoverController,
   ) { }
 
   isNumber(val) {
@@ -48,7 +51,7 @@ export class ViewTeamPerDiemPage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
+    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
   }
 
   onUpdateFlag(event) {
@@ -136,7 +139,25 @@ export class ViewTeamPerDiemPage implements OnInit {
     );
 
     this.updateFlag$.next();
+  }
 
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const popover = await this.popoverController.create({
+      component: RemoveExpenseReportComponent,
+      componentProps: {
+        etxn
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
+    }
   }
 
   ngOnInit() {

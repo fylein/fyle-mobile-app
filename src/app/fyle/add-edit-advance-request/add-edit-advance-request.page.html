@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar>
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="goBack()">
@@ -64,7 +64,7 @@
       </div>
 
       <div class="add-edit-advance-request--internal-block" *ngIf="(projects$|async)?.length > 0">
-        <app-fy-select-project [label]="fg.controls.project.value ? 'Project *' : 'Select Project *'"
+        <app-fy-select-project [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
           formControlName="project"></app-fy-select-project>
       </div>
 

@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-advances--toolbar">
     <ion-title mode="md">
       View Advance
@@ -118,7 +118,7 @@
 
     </div>
     <ng-container *ngIf="actions$|async as actions">
-      <div class="view-advances--card" *ngIf="actions.can_edit">
+      <div class="view-advances--card view-advances--card__modified-padding" *ngIf="actions.can_edit">
         <div class="view-advances--common-action-block" (click)=edit()>
           <mat-icon>edit</mat-icon>
           <p>Edit Advance</p>
@@ -137,7 +137,7 @@
       </app-fy-apporver>
     </ng-container>
 
-    <div class="view-advances--card">
+    <div class="view-advances--card view-advances--card__modified-padding">
       <div class="view-advances--common-action-block">
         <app-comments objectType="advance_requests" [objectId]="advanceRequest.areq_id" mode="edit" text="Comments">
         </app-comments>

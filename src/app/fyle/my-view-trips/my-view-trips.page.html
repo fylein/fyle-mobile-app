@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-trip--toolbar">
     <ion-buttons mode="md" slot="end">
       <ion-button color="fyle-primary" fill="clear" *ngIf="canEdit$|async" (click)="editTrip()">
@@ -32,7 +32,7 @@
             State
           </div>
           <div class="view-trip--element-value">
-            {{tripRequest.trp_state}}
+            {{tripRequest.internalStateDisplayName}}
             <!--TODO: Add proper formatting -->
           </div>
         </div>

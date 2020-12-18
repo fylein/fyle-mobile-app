@@ -94,8 +94,8 @@ export class ViewTeamAdvancePage implements OnInit {
     );
   }
 
-  // Todo: Redirect to edit advance page
   edit() {
+    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   getApproverEmails(activeApprovals) {

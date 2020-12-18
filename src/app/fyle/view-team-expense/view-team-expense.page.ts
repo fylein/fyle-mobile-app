@@ -10,8 +10,9 @@ import { switchMap, shareReplay, concatMap, map, finalize, reduce, tap } from 'r
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
+import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 
 @Component({
   selector: 'app-view-team-expense',
@@ -45,7 +46,8 @@ export class ViewTeamExpensePage implements OnInit {
     private statusService: StatusService,
     private fileService: FileService,
     private modalController: ModalController,
-    private router: Router
+    private router: Router,
+    private popoverController: PopoverController
   ) { }
 
   isNumber(val) {
@@ -217,6 +219,25 @@ export class ViewTeamExpensePage implements OnInit {
     }
 
     return res;
+  }
+
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const popover = await this.popoverController.create({
+      component: RemoveExpenseReportComponent,
+      componentProps: {
+        etxn
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id}]);
+    }
   }
 
   viewAttachments() {

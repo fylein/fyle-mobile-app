@@ -38,7 +38,7 @@ export class FyApporverComponent implements OnInit {
     await approversListModal.present();
 
     const { data } = await approversListModal.onWillDismiss();
-    if (data.reload) {
+    if (data && data.reload) {
       if (this.from === 'TRIP_REQUEST') {
         this.notify.emit(true);
       }
