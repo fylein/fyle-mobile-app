@@ -157,7 +157,7 @@
 </ion-content>
 
 <ion-footer *ngIf="(actions$|async)?.can_pull_back">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="view-advance-request--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
       (click)="pullBack()">
       Pull Back

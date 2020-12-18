@@ -226,7 +226,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <div class="add-edit-trip--cta-block">
       <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
         <ion-button *ngIf="mode !== 'edit'" (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>

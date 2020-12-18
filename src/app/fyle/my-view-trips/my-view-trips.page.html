@@ -206,7 +206,7 @@
 
 
 <ion-footer *ngIf="(canCloseTrip$|async)||(canPullBack$|async)">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="view-trip--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block" *ngIf="canPullBack$|async" (click)="pullBack()">
       Pull Back
     </ion-button>

@@ -21,6 +21,11 @@
     margin-top: 0;
   }
 
+  &--reset {
+    color:#1978f7;
+    font-size: 16px;
+  }
+
   &--radio-group {
     display: flex;
     flex-direction: column;
@@ -54,4 +59,3 @@
     flex-grow: 1;
   }
 }
-  

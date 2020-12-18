@@ -55,7 +55,38 @@
   }
 
   &--primary-cta {
+    height: 48px;
+    display: block;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #fff;
+    background: #FF3366;
+    border-radius: 8px;
+    margin: 14px;
+  }
+
+  &--stats {
     margin: 12px;
+    position: relative;
+    top: 8px;
+  }
+
+  &--amount {
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  &--homeCurrency {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  &--count {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ababab;
+    margin-bottom: 16px;
   }
 
   &--zero-state {
