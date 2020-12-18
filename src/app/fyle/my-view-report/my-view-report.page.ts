@@ -4,7 +4,7 @@ import { Observable, from, noop } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import { map, tap, switchMap, finalize, shareReplay } from 'rxjs/operators';
+import { map, switchMap, finalize, shareReplay } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -32,6 +32,7 @@ export class MyViewReportPage implements OnInit {
   canEdit$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   canResubmitReport$: Observable<boolean>;
+  navigateBack = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -71,12 +72,15 @@ export class MyViewReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.erpt$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
+    this.sharedWith$ = this.reportService
+        .getExports(this.activatedRoute.snapshot.params.id)
+        .pipe(
       map(pdfExports => {
         return pdfExports.results.sort((a, b) => {
           return (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0);
@@ -129,7 +133,6 @@ export class MyViewReportPage implements OnInit {
   }
 
   goToEditReport() {
-    // TODO
     this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
@@ -152,12 +155,12 @@ export class MyViewReportPage implements OnInit {
     if (popupResults === 'primary') {
       from(this.loaderService.showLoader()).pipe(
         switchMap(() => {
-          return this.reportService.delete(this.activatedRoute.snapshot.params.id)
+          return this.reportService.delete(this.activatedRoute.snapshot.params.id);
         }),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_reports']);
-      })
+      });
     }
   }
 
@@ -239,8 +242,6 @@ export class MyViewReportPage implements OnInit {
         route = '/enterprise/add_edit_expense';
       }
     }
-
-    // TODO: also need to send scroll position
     this.router.navigate([route, { id: etxn.tx_id }]);
   }
 
@@ -254,7 +255,7 @@ export class MyViewReportPage implements OnInit {
 
     const { data } = await popover.onWillDismiss();
 
-    if (data.email) {
+    if (data && data.email) {
       const params = {
         report_ids: [this.activatedRoute.snapshot.params.id],
         email: data.email

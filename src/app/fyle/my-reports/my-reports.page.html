@@ -1,7 +1,10 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="my-reports--toolbar-header">
-    <ion-buttons mode="md" slot="start">
+    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <ion-title mode="md">
       My Reports
@@ -11,7 +14,10 @@
     <div class="my-reports--toolbar">
       <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
         <mat-icon matPrefix svgIcon="search" class="my-reports--simple-search-icon"></mat-icon>
-        <input #simpleSearchInput matInput placeholder="Search">
+        <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="searchText">
+        <button mat-button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" (click)="clearText()">
+          <mat-icon>close</mat-icon>
+        </button>
       </mat-form-field>
       <ion-buttons mode="md" slot="end">
         <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
@@ -27,7 +33,7 @@
       <div>Filtered by
         <span [ngSwitch]="filters?.state">
           <span *ngSwitchCase="'DRAFT'">Draft</span>
-          <span *ngSwitchCase="'APPROVER_PENDING'">Approver Pending</span>          
+          <span *ngSwitchCase="'APPROVER_PENDING'">Approver Pending</span>
           <span *ngSwitchCase="'APPROVER_INQUIRY'">Approver Inquiry</span>
           <span *ngSwitchCase="'APPROVED'">Approved</span>
           <span *ngSwitchCase="'PAYMENT_PENDING'">Payment Pending</span>
@@ -54,7 +60,6 @@
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-
   <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
     <img class="my-reports--zero-state-img" src="../../../assets/images/zero-states/reports.svg"
       alt="Create First Reports">

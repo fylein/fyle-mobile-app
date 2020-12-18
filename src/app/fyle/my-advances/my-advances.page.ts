@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
 import { concatMap, finalize, map, scan, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
@@ -19,15 +19,17 @@ export class MyAdvancesPage implements OnInit {
   count$: Observable<number>;
   currentPageNumber = 1;
   isInfiniteScrollRequired$: Observable<boolean>;
+  navigateBack = false;
 
   constructor(
-    private offlineService: OfflineService,
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
+    private activatedRoute: ActivatedRoute,
     private router: Router
   ) { }
 
   ionViewWillEnter() {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.currentPageNumber = 1;
     this.myAdvancerequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {

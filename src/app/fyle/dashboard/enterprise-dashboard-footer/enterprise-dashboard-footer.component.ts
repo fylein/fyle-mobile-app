@@ -11,8 +11,7 @@ import { Router } from '@angular/router';
 export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
 
   @Input() dashboardList: any[];
-  @Input() orgUserSettings: any;
-  @Input() orgSettings: any;
+
   ctaList: any[];
   canCreateExpense: boolean; // no idea why this variable is used
   gridSize: number;
@@ -24,20 +23,22 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
   ) { }
   
 
-  setIconList() {
-    const isInstaFyleEnabled = this.orgUserSettings ? this.orgUserSettings.insta_fyle_settings.enabled : false;
-    const isBulkFyleEnabled = this.orgUserSettings ? this.orgUserSettings.bulk_fyle_settings.enabled : false;
+  async setIconList() {
+    const orgSettings = await this.offlineService.getOrgSettings().toPromise();
+    const orgUserSettings = await this.offlineService.getOrgUserSettings().toPromise();
+    const isInstaFyleEnabled = orgUserSettings ? orgUserSettings.insta_fyle_settings.enabled : false;
+    const isBulkFyleEnabled = orgUserSettings ? orgUserSettings.bulk_fyle_settings.enabled : false;
     this.ctaList = [];
 
     if (this.canCreateExpense) {
       let isPerDiemEnabled = false;
       let isMileageEnabled = false;
-      if (this.orgSettings && this.orgSettings.per_diem && this.orgSettings.per_diem.enabled) {
+      if (orgSettings && orgSettings.per_diem && orgSettings.per_diem.enabled) {
         isPerDiemEnabled = true;
       }
 
       // Org Settings related
-      if (this.orgSettings && this.orgSettings.mileage && this.orgSettings.mileage.enabled) {
+      if (orgSettings && orgSettings.mileage && orgSettings.mileage.enabled) {
         isMileageEnabled = true;
       }
 
@@ -133,6 +134,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
         return (!element.isCollapsed && (element.title === 'expenses' || element.title === 'corporate cards'));
       }
     });
+
     this.setIconList();
   }
 
