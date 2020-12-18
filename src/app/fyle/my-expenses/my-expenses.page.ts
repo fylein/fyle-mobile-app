@@ -58,6 +58,7 @@ export class MyExpensesPage implements OnInit {
   syncing = false;
   simpleSearchText = '';
   allExpenseCountHeader$: Observable<number>;
+  navigateBack = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -108,6 +109,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
     this.simpleSearchText = '';
 

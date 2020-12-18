@@ -1,7 +1,10 @@
-<ion-header mode="md" >
+<ion-header mode="md">
   <ion-toolbar mode="md" class="my-expenses--toolbar-header">
-    <ion-buttons mode="md" slot="start">
+    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <ion-title>
       <ng-container *ngIf="baseState=== 'all'">
@@ -161,7 +164,8 @@
   <ion-toolbar *ngIf="baseState === 'all' && (allExpensesCount$|async) > 0">
     <div class="my-expenses--stats">
       <div class="my-expenses--amount">
-        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span> {{(expensesAmountStats$|async|number:'1.2')}}
+        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span>
+        {{(expensesAmountStats$|async|number:'1.2')}}
       </div>
       <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
         across {{allExpensesCount}} unreported expenses
