@@ -125,4 +125,9 @@ $background-color: #fff;
     color: #4a4a4a;
     border: 0;
   }
+
+  &--non-reimbursable {
+    text-decoration: line-through;
+    color: #ababab;
+  }
 }
