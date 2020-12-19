@@ -142,7 +142,7 @@
       </div>
     </div>
 
-    <div class="add-edit-advance-request--primary-block">
+    <div class="add-edit-advance-request--primary-block" *ngIf="mode === 'edit'">
       <div class="add-edit-advance-request--card add-edit-advance-request--internal-block"
         *ngIf="(actions$|async)?.can_delete">
         <div class="add-edit-advance-request--common-action-block" (click)=delete()>
