@@ -3,16 +3,19 @@
     <ion-buttons mode="md" slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title mode="md">
-      My Reports
+    <ion-title class="page-title" mode="md">
+      Reports
     </ion-title>
   </ion-toolbar>
   <ion-toolbar mode="md">
     <div class="my-reports--toolbar">
       <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
-        <mat-icon matPrefix svgIcon="search" class="my-reports--simple-search-icon"></mat-icon>
-        <input #simpleSearchInput matInput placeholder="Search">
-      </mat-form-field>
+        <div class="my-reports--simple-search-block">
+          <mat-icon matPrefix svgIcon="search" class="my-reports--simple-search-icon"></mat-icon>
+          <input #simpleSearchInput matInput placeholder="Search">
+        </div>
+    </mat-form-field>
+  
       <ion-buttons mode="md" slot="end">
         <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
           <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-sort-descending"></mat-icon>
@@ -85,6 +88,14 @@
 
 <ion-footer>
   <ion-toolbar>
+    <!-- <div class="my-expenses--stats">
+      <div class="my-expenses--amount">
+        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span> {{(expensesAmountStats$|async|number:'1.2')}}
+      </div>
+      <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
+        across {{allExpensesCount}} unreported expenses
+      </div>
+    </div> -->
     <ion-button [routerLink]="['/', 'enterprise', 'my_create_report']" class="my-reports--primary-cta flat-button"
       fill="solid" color="fyle-primary" expand="block">
       CREATE REPORT

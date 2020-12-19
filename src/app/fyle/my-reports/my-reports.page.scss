@@ -6,19 +6,25 @@
   &--toolbar {
     display: flex;
     align-items: center;
+    margin: 8px;
   }
 
   &--simple-search {
     min-width: 65%;
     max-width: 80%;
     margin: 8px;
-    font-size: 12px;
+    font-size: 14px;
 
     &-icon {
-      width: 16px;
-      margin-right: 10px;
+      width: 14px;
+      margin-right: 6px;
       color: #aaa;
     }
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
   }
 
   &--filters {

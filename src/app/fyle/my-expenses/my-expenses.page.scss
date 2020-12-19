@@ -8,6 +8,13 @@
     align-items: center;
   }
 
+  &--title {
+    font-size: 24px;
+    font-weight: 700; 
+    padding-left: 0px;
+    line-height: 2;
+  }
+
   &--state {
     display: flex;
     justify-content: center;
@@ -62,13 +69,18 @@
     min-width: 65%;
     max-width: 80%;
     margin: 8px;
-    font-size: 12px;
+    font-size: 14px;
 
     &-icon {
-      width: 16px;
-      margin-right: 10px;
+      width: 14px;
+      margin-right: 6px;
       color: #aaa;
     }
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
   }
 
   &--filters {
@@ -104,6 +116,11 @@
   }
 
   &--primary-cta {
+    height: 48px;
+    display: block;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
     margin: 12px;
   }
 
@@ -222,8 +239,5 @@
       }
     }
   }
-
-  &--simple-search-icon {
-    height: 16px;
-  }
 }
+
