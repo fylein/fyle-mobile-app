@@ -1,6 +1,6 @@
 <ion-header mode="md" >
   <ion-toolbar class="add-edit-expense--toolbar">
-    <ion-title mode="md" *ngIf="mode">
+    <ion-title mode="md" *ngIf="mode" class="page-title">
       <div *ngIf="mode === 'add'">
         Add Expense
       </div>
@@ -103,7 +103,7 @@
               </mat-icon>
             </div>
 
-            <div (click)="viewAttachments($event)" class="add-edit-expense--receipt-image"
+            <div (click)="viewAttachments()" class="add-edit-expense--receipt-image"
               *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress">
               <mat-icon class="add-edit-expense--receipt-background" svgIcon="fy-attachment"></mat-icon>
               <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
@@ -125,7 +125,7 @@
         </div>
 
         <div *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1) && !isOffline">
-          <div class="add-edit-expense--split-expense-container" (click)="splitExpense($event)">
+          <div class="add-edit-expense--split-expense-container" (click)="splitExpense()">
             <mat-icon class="add-edit-expense--split-expense-icon" svgIcon="split-expense"></mat-icon>
             <div class="add-edit-expense--split-expense-title">Split Expense</div>
           </div>
@@ -269,14 +269,16 @@
         <ng-container *ngIf="isConnected$|async as isConnected">
           <div class="add-edit-expense--primary-block">
             <ng-container *ngIf="etxn$|async as etxn">
-              <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
+              <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
                 <ng-container *ngIf="reports$|async as reports">
-                  <div class="add-edit-expense--internal-block">
+                  <div  class="add-edit-expense--internal-block">
                     <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                       formControlName="report" [options]="reports"></app-fy-select>
-                    <ion-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                      Add to New Report
-                    </ion-checkbox>
+                    <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                      <span class="add-edit-expense--text-label">
+                        Add to New Report
+                      </span>
+                    </mat-checkbox>
                   </div>
                 </ng-container>
               </ng-container>
@@ -643,7 +645,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-buttons *ngIf="!reviewList">
       <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
         Save
@@ -653,9 +655,8 @@
         Save & New
       </ion-button>
     </ion-buttons>
-    <ion-buttons *ngIf="reviewList">
-      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid"
-        color="fyle-primary">
+    <ion-buttons *ngIf="reviewList && fg.controls.add_to_new_report.value">
+      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
         Save & Next
       </ion-button>
     </ion-buttons>

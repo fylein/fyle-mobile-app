@@ -8,7 +8,7 @@
       </button>
       <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
     </ion-buttons>
-    <ion-title mode="md">
+    <ion-title mode="md" class="page-title">
       View Report
     </ion-title>
     <ion-buttons mode="md" slot="end">
@@ -134,7 +134,7 @@
 
 <ion-footer
   *ngIf="((erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
       *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover()">
       Resubmit Report

@@ -35,6 +35,13 @@ export class MyExpensesSortFilterComponent implements OnInit {
     });
   }
 
+  reset() {
+    this.fg.setValue({
+      sortParam: 'tx_txn_dt',
+      sortDir: 'desc'
+    });
+  }
+
   save() {
     this.modalController.dismiss({
       sortOptions: this.fg.value

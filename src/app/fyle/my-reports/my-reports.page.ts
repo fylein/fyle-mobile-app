@@ -12,6 +12,7 @@ import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-re
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { TransactionService } from '../../core/services/transaction.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -44,6 +45,10 @@ export class MyReportsPage implements OnInit {
   homeCurrency$: Observable<string>;
   navigateBack = false;
   searchText = '';
+  expensesAmountStats$: Observable<{
+    sum: number,
+    count: number
+  }>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -56,7 +61,8 @@ export class MyReportsPage implements OnInit {
     private router: Router,
     private currencyService: CurrencyService,
     private activatedRoute: ActivatedRoute,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private transactionService: TransactionService
   ) { }
 
   ngOnInit() {
@@ -182,6 +188,23 @@ export class MyReportsPage implements OnInit {
         queryParams
       });
     });
+
+    this.expensesAmountStats$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      scalar: true,
+      tx_report_id: 'is.null',
+      tx_state: 'in.(COMPLETE)',
+      or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
+    }).pipe(
+      map(stats => {
+        const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        return {
+          sum: sum && sum.function_value || 0,
+          count: count && count.function_value || 0
+        };
+      })
+    );
+
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);

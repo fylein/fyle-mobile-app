@@ -186,6 +186,13 @@ input:focus, textarea:focus{
   font-size: 28px !important;
 }
 
+.page-title {
+  font-size: 24px;
+  font-weight: 700; 
+  padding: 14px 8px;
+  line-height: 2;
+}
+
 mat-checkbox {
   .mat-checkbox-layout {
     .mat-checkbox-inner-container {
@@ -200,4 +207,9 @@ mat-tab-group {
       display: flex;
     }
   }
+}
+
+.mat-form-field-appearance-outline .mat-form-field-infix {
+  padding-top: 0 !important;
+  padding-bottom: 6px !important;
 }

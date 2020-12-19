@@ -77,6 +77,13 @@ export class MyExpensesPage implements OnInit {
     private popupService: PopupService
   ) { }
 
+  clearText() {
+    this.simpleSearchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
+
   ngOnInit() {
     this.setupNetworkWatcher();
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(

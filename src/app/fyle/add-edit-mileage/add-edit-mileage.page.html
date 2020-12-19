@@ -395,12 +395,11 @@
                 <div class="add-edit-mileage--internal-block add-edit-mileage--new-report-block">
                   <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                     formControlName="report" [options]="reports"></app-fy-select>
-                  <ion-checkbox mode="md" color="fyle-primary" *ngIf="reports.length === 0"
-                    formControlName="add_to_new_report">
-                  </ion-checkbox>
-                  <ion-label *ngIf="reports.length === 0">
-                    <span class="add-edit-mileage--text-label">Add to New Report</span>
-                  </ion-label>
+                  <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                      <span class="add-edit-mileage--text-label">
+                        Add to New Report
+                      </span>
+                  </mat-checkbox>
                 </div>
               </ng-container>
             </ng-container>
@@ -476,7 +475,7 @@
   </div>
 </ion-content>
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-buttons *ngIf="!reviewList">
       <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
         Save
@@ -486,9 +485,8 @@
         Save & New
       </ion-button>
     </ion-buttons>
-    <ion-buttons *ngIf="reviewList">
-      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid"
-        color="fyle-primary">
+    <ion-buttons *ngIf="reviewList && fg.controls.add_to_new_report.value">
+      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
         Save & Next
       </ion-button>
     </ion-buttons>
