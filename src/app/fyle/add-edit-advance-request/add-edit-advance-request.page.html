@@ -1,5 +1,5 @@
 <ion-header mode="md" >
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="goBack()">
         <mat-icon>close</mat-icon>
@@ -136,7 +136,7 @@
     <div class="add-edit-advance-request--primary-block">
       <div class="add-edit-advance-request--card add-edit-advance-request--internal-block">
         <div class="vadd-edit-advance-request--common-action-block">
-          <app-comments objectType="advance_requests" [objectId]="id" mode="edit" text="Comments">
+          <app-comments objectType="advance_requests" [objectId]="id" mode="edit" text="Comments" [showCommentsCount]="true">
           </app-comments>
         </div>
       </div>
@@ -155,7 +155,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-buttons>
       <ion-button class="add-edit-advance-request--primary-cta" *ngIf="mode === 'add'" (click)="save('Draft')"
         class="add-edit-advance-request--primary-cta" fill="outline" color="fyle-primary">

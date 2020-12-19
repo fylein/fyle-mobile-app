@@ -1,6 +1,7 @@
 .view-comment{
   &--toolbar {
     text-align: center;
+    --background: #f8f8f8;
   }
 
   &--card {
@@ -53,12 +54,17 @@
   &--type-comment-block {
     height: 55px;
     display: flex;
-    padding: 0 10px;
+    background-color: #fff;
+    border: 1px solid #9E9E9E;
+    border-radius: 4px;
+    padding: 5px;
+    margin: 5px;
   }
 
   &--text-area {
     width: calc(100% - 40px);
     height: 45px;
+    border: none;
   }
 
   &--send-icon {

@@ -91,7 +91,7 @@ export class DashboardPage implements OnInit {
         icon: 'fy-trips',
         subTitle: 'Trip Request'
       }];
-    })
+    });
 
   }
 
@@ -111,7 +111,6 @@ export class DashboardPage implements OnInit {
     this.mobileEventService.onDashboardCardExpanded().subscribe(() => {
       this.dashboardCardExpanded();
     });
-
   }
 
   ngOnInit() {

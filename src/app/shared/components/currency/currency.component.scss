@@ -14,6 +14,27 @@ $link-color: #0077ee;
     height: 88px;
   }
 
+  &--conversion {
+    background: #f2f2f2;
+    border-radius: 4px;
+    margin-top: 16px;
+  }
+
+  &--converted-amount {
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 500;
+    color: #4a4a4a;
+    padding: 8px 8px 0 16px;
+  }
+
+  &--exchange-rate {
+    color: #ababab;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 0 8px 8px 16px;
+  }
+
   &--currency-input {
     border-right: 1px solid $border-light;
     float: left;

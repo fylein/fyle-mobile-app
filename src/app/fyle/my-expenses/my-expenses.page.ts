@@ -58,6 +58,7 @@ export class MyExpensesPage implements OnInit {
   syncing = false;
   simpleSearchText = '';
   allExpenseCountHeader$: Observable<number>;
+  navigateBack = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -75,6 +76,13 @@ export class MyExpensesPage implements OnInit {
     private offlineService: OfflineService,
     private popupService: PopupService
   ) { }
+
+  clearText() {
+    this.simpleSearchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
 
   ngOnInit() {
     this.setupNetworkWatcher();
@@ -108,6 +116,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
     this.simpleSearchText = '';
 

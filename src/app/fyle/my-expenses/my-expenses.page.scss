@@ -73,8 +73,14 @@
 
     &-icon {
       width: 14px;
+      font-size: 18px;
       margin-right: 6px;
       color: #aaa;
+    }
+
+    &-close {
+      margin: -10px;
+      font-size: 18px;
     }
   }
 
@@ -118,10 +124,11 @@
   &--primary-cta {
     height: 48px;
     display: block;
+    margin: 12px;
     font-size: 14px;
     text-transform: uppercase;
     font-weight: 700;
-    margin: 12px;
+    border-radius: 8px;
   }
 
   &--offline-header {

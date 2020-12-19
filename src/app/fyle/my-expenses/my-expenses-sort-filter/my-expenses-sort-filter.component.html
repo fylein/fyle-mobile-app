@@ -2,7 +2,12 @@
   <div class="sort-filter--body">
     <form [formGroup]="fg">
       <div class="sort-filter--header">
-        Sort By
+        <div class="sort-filter--header-text">
+          Sort By
+        </div>
+        <div class="sort-filter--reset" (click)="reset()">
+          Reset
+        </div>
       </div>
       <div class="sort-filter--filter">
         <mat-radio-group color="primary" class="sort-filter--radio-group" formControlName="sortParam">
@@ -13,7 +18,9 @@
         </mat-radio-group>
       </div>
       <div class="sort-filter--header">
-        Order By
+        <div class="sort-filter--header-text">
+          Order By
+        </div>
       </div>
       <div class="sort-filter--filter">
         <mat-radio-group color="primary" class="sort-filter--radio-group" formControlName="sortDir">
@@ -29,10 +36,8 @@
     <div class="sort-filter--cancel" (click)="cancel()">
       Cancel
     </div>
-    <div class="sort-filter--save">
-      <button [disabled]="!fg.valid" mat-button color="primary" (click)="save()">
-        Save
-      </button>
-    </div>
+    <button class="sort-filter--save" [disabled]="!fg.valid" mat-button color="primary" (click)="save()">
+      Apply
+    </button>
   </div>
 </ion-footer>

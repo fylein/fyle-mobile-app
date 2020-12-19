@@ -5,6 +5,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, finalize, catchError } from 'rxjs/operators';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -53,6 +54,7 @@ export class DelegatedAccountsPage implements OnInit {
           await this.loaderService.hideLoader();
         })
       ).subscribe(() => {
+        globalCacheBusterNotifier.next();
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       });
     } else {

@@ -80,7 +80,6 @@ export class OfflineService {
     ]);
   }
 
-  @Cacheable()
   getDelegatedAccounts() {
     return this.networkService.isOnline().pipe(
       switchMap(

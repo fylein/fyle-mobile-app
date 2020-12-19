@@ -89,7 +89,7 @@ export class AddEditExpensePage implements OnInit {
   newExpenseDataUrls = [];
   focusState = false;
   isConnected$: Observable<boolean>;
-  invalidPaymentMode: boolean = false;
+  invalidPaymentMode = false;
   pointToDuplicates = false;
   isAdvancesEnabled$: Observable<boolean>;
 
@@ -142,7 +142,7 @@ export class AddEditExpensePage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
-  };
+  }
 
   merchantValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.display_name) {
@@ -212,9 +212,13 @@ export class AddEditExpensePage implements OnInit {
         let isPaymentModeInvalid = false;
         if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
-            isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
+            isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < (
+              this.fg.value.currencyObj && this.fg.value.currencyObj.amount
+            );
           } else {
-            isPaymentModeInvalid = (paymentAccount.acc.tentative_balance_amount + etxn.tx.amount) < (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
+            isPaymentModeInvalid = (paymentAccount.acc.tentative_balance_amount + etxn.tx.amount) < (
+              this.fg.value.currencyObj && this.fg.value.currencyObj.amount
+            );
           }
         }
         return isPaymentModeInvalid;
@@ -339,7 +343,7 @@ export class AddEditExpensePage implements OnInit {
       if (data && data.type) {
         this.openSplitExpenseModal(data.type);
       }
-    })
+    });
   }
 
   ngOnInit() {
@@ -414,7 +418,12 @@ export class AddEditExpensePage implements OnInit {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return accounts$.pipe(
             map(accounts => {
-              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' && account.acc.tentative_balance_amount > 0).length > 0;
+              return accounts
+                .filter(account => account
+                  && account.acc
+                  && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'
+                  && account.acc.tentative_balance_amount > 0
+                ).length > 0;
             })
           );
         }
@@ -820,7 +829,7 @@ export class AddEditExpensePage implements OnInit {
               () => etxn.tx.org_category_id,
               this.offlineService.getAllCategories()
                 .pipe(
-                  map(categories => categories.find(category => category.id === etxn.tx.org_category_id))
+                  map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
                 ),
               of(null)
             );
@@ -997,7 +1006,7 @@ export class AddEditExpensePage implements OnInit {
         bus_travel_class: this.fg.controls.bus_travel_class
       };
 
-      for (var defaultValueColumn in defaultValues) {
+      for (let defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
           if (defaultValueColumn !== 'vendor_id' && !control.value) {
@@ -1443,7 +1452,7 @@ export class AddEditExpensePage implements OnInit {
   // }
 
   reloadCurrentRoute() {
-    let currentUrl = this.router.url;
+    const currentUrl = this.router.url;
     this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
       this.router.navigate([currentUrl]);
     });
@@ -1457,12 +1466,14 @@ export class AddEditExpensePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(() => {
+          that.addExpense().subscribe((a) => {
+            console.log(a);
             that.goBack();
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(() => {
+          that.editExpense().subscribe((a) => {
+            console.log(a);
             that.goBack();
           });
         }
@@ -1487,7 +1498,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   saveAndNewExpense() {
-    let that = this;
+    const that = this;
 
     that.checkIfInvalidPaymentMode().pipe(
       take(1)

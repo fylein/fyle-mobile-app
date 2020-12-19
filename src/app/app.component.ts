@@ -141,7 +141,7 @@ export class AppComponent implements OnInit {
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.offlineService.getDelegatedAccounts().pipe(
       map(res => {
-        return this.orgUserService.excludeByStatus(res, 'ACTIVE');
+        return this.orgUserService.excludeByStatus(res, 'DISABLED');
       })
     );
     const deviceInfo$ = this.deviceService.getDeviceInfo();
@@ -227,7 +227,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Delegated Accounts',
-            isVisible: isDelegatee,
+            isVisible: isDelegatee && !this.isSwitchedToDelegator,
             icon: 'fy-delegate-switch',
             route: ['/', 'enterprise', 'delegated_accounts']
           },
@@ -326,7 +326,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Delegated Accounts',
-            isVisible: isDelegatee,
+            isVisible: isDelegatee && !this.isSwitchedToDelegator,
             icon: 'fy-delegate-switch',
             route: ['/', 'enterprise', 'delegated_accounts'],
             disabled: true

@@ -1,19 +1,18 @@
 import { Component, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, iif, of } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime } from 'rxjs/operators';
-import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionService } from '../../core/services/transaction.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -44,7 +43,12 @@ export class MyReportsPage implements OnInit {
     sortDir: string;
   }>;
   homeCurrency$: Observable<string>;
-  expensesAmountStats$: Observable<number>;
+  navigateBack = false;
+  searchText = '';
+  expensesAmountStats$: Observable<{
+    sum: number,
+    count: number
+  }>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -65,7 +69,16 @@ export class MyReportsPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
+  clearText() {
+    this.searchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
+
   ionViewWillEnter() {
+    this.searchText = '';
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
 
     this.currentPageNumber = 1;
@@ -77,6 +90,7 @@ export class MyReportsPage implements OnInit {
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),
+        tap(console.log),
         distinctUntilChanged(),
         debounceTime(1000)
       ).subscribe((searchString) => {
@@ -85,6 +99,8 @@ export class MyReportsPage implements OnInit {
         this.currentPageNumber = 1;
         currentParams.pageNumber = this.currentPageNumber;
         this.loadData$.next(currentParams);
+        const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+        searchInput.focus();
       });
 
     const paginatedPipe = this.loadData$.pipe(
@@ -164,29 +180,40 @@ export class MyReportsPage implements OnInit {
       })
     );
 
-    // this.expensesAmountStats$ = this.loadData$.pipe(
-    //   switchMap(params => {
-    //     const queryParams = params.queryParams || {};
+    this.loadData$.subscribe(params => {
+      console.log(params);
+      const queryParams: Params = { filters: JSON.stringify(this.filters) };
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams
+      });
+    });
 
-    //     queryParams.tx_report_id = 'is.null';
-    //     queryParams.tx_state = queryParams.tx_state || 'in.(COMPLETE)';
+    this.expensesAmountStats$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      scalar: true,
+      tx_report_id: 'is.null',
+      tx_state: 'in.(COMPLETE)',
+      or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
+    }).pipe(
+      map(stats => {
+        const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
+        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        return {
+          sum: sum && sum.function_value || 0,
+          count: count && count.function_value || 0
+        };
+      })
+    );
 
-    //     return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-    //       scalar: true,
-    //       ...queryParams
-    //     });
-    //   }),
-    //   map(stats => {
-    //     const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
-    //     return (sum && sum.function_value) || 0;
-    //   })
-    // );
-
-    this.loadData$.subscribe(noop);
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    if (this.activatedRoute.snapshot.params.state) {
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else if (this.activatedRoute.snapshot.params.state) {
       const filters = {
         rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
         state: this.activatedRoute.snapshot.params.state.toUpperCase()};
@@ -317,7 +344,7 @@ export class MyReportsPage implements OnInit {
   }
 
   onReportClick(erpt: ExtendedReport) {
-    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id }]);
+    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id, navigateBack: true }]);
   }
 
   async onDeleteReportClick(erpt: ExtendedReport) {

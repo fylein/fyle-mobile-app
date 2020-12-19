@@ -1,17 +1,18 @@
 <ion-header mode="md" >
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
-      <button mat-icon-button [routerLink]="['/','enterprise','my_reports']">
+      <button *ngIf="!navigateBack" mat-icon-button [routerLink]="['/','enterprise','my_reports']">
         <mat-icon>
           keyboard_backspace
         </mat-icon>
       </button>
+      <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title">
       View Report
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button color="primary" (click)="goToEditReport()" *ngIf="canEdit$|async">Edit</button>
+      <button mat-button class="view-reports--edit" (click)="goToEditReport()" *ngIf="canEdit$|async">Edit</button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -24,12 +25,12 @@
         <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMMM dd, yyyy'}}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
-            <p> <strong> Approver<span *ngIf="reportApprovals.length === 1"> is </span><span
+            <span> Approver<span *ngIf="reportApprovals.length === 1"> is </span><span
                   *ngIf="reportApprovals.length > 1">s
-                  are </span> </strong> </p>
+                  are </span> </span>
             <span *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
-              <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}} text-capitalize">
-                {{ap.state | reportState}}
+              <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
+                {{ap.state | reportState | titlecase}}
                 <span class="view-reports--card-body__highlight"
                   *ngIf="ap.approved_at">,{{ ap.approved_at | date: 'MMM dd, yyyy' }}</span>
               </span>
@@ -38,7 +39,7 @@
           </span>
         </div>
         <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
-          {{erpt.rp_state | reportState}}
+          {{erpt.rp_state | reportState | uppercase}}
         </div>
       </div>
 
@@ -133,14 +134,14 @@
 
 <ion-footer
   *ngIf="((erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
+      *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover()">
       Resubmit Report
     </ion-button>
     <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
       *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
-      (click)="showSubmitReportSummaryPopover($event)">
+      (click)="showSubmitReportSummaryPopover()">
       Submit Report
     </ion-button>
   </ion-toolbar>

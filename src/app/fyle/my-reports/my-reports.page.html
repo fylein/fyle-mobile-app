@@ -1,10 +1,13 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="my-reports--toolbar-header">
-    <ion-buttons mode="md" slot="start">
+    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title class="page-title" mode="md">
       Reports
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
     </ion-title>
   </ion-toolbar>
   <ion-toolbar mode="md">
@@ -12,10 +15,12 @@
       <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
         <div class="my-reports--simple-search-block">
           <mat-icon matPrefix svgIcon="search" class="my-reports--simple-search-icon"></mat-icon>
-          <input #simpleSearchInput matInput placeholder="Search">
+          <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="searchText">
+          <button mat-button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" class="my-reports--simple-search-close" (click)="clearText()">
+            <mat-icon class="my-reports--simple-search-icon">close</mat-icon>
+          </button>
         </div>
-    </mat-form-field>
-  
+      </mat-form-field>
       <ion-buttons mode="md" slot="end">
         <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
           <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-sort-descending"></mat-icon>
@@ -30,7 +35,7 @@
       <div>Filtered by
         <span [ngSwitch]="filters?.state">
           <span *ngSwitchCase="'DRAFT'">Draft</span>
-          <span *ngSwitchCase="'APPROVER_PENDING'">Approver Pending</span>          
+          <span *ngSwitchCase="'APPROVER_PENDING'">Approver Pending</span>
           <span *ngSwitchCase="'APPROVER_INQUIRY'">Approver Inquiry</span>
           <span *ngSwitchCase="'APPROVED'">Approved</span>
           <span *ngSwitchCase="'PAYMENT_PENDING'">Payment Pending</span>
@@ -57,7 +62,6 @@
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-
   <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
     <img class="my-reports--zero-state-img" src="../../../assets/images/zero-states/reports.svg"
       alt="Create First Reports">
@@ -87,18 +91,24 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
-    <!-- <div class="my-expenses--stats">
-      <div class="my-expenses--amount">
-        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span> {{(expensesAmountStats$|async|number:'1.2')}}
+  <ng-container *ngIf="expensesAmountStats$|async as expensesAmountStats">
+    <ion-toolbar mode="md" *ngIf="expensesAmountStats.count > 0">
+      <div class="my-reports--stats">
+        <div class="my-reports--amount">
+          <span class="my-reports--homeCurrency">{{homeCurrency$ | async}}</span>
+          {{(expensesAmountStats.sum|number:'1.2')}}
+        </div>
+        <div class="my-reports--count">
+          across {{expensesAmountStats.count}} unreported expenses
+        </div>
       </div>
-      <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
-        across {{allExpensesCount}} unreported expenses
-      </div>
-    </div> -->
-    <ion-button [routerLink]="['/', 'enterprise', 'my_create_report']" class="my-reports--primary-cta flat-button"
+    </ion-toolbar>
+  </ng-container>
+
+  <ion-toolbar mode="md">
+    <ion-button mode="md" [routerLink]="['/', 'enterprise', 'my_create_report']" class="my-reports--primary-cta flat-button"
       fill="solid" color="fyle-primary" expand="block">
-      CREATE REPORT
+      CREATE NEW REPORT
     </ion-button>
   </ion-toolbar>
 </ion-footer>
