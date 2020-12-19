@@ -10,12 +10,12 @@
       <div class="fy-currency--exchange-rate-coverted-amount">
         {{value.currency}} {{ value.amount}}
       </div>
-      <div class="fy-currency--exchange-rate-coverted-rate">
+      <span class="fy-currency--exchange-rate-coverted-rate">
         at {{ (value.amount / value.orig_amount) }}
-      </div>
-      <div class="fy-currency--exchange-rate-currency-conversion">
+      </span>
+      <span class="fy-currency--exchange-rate-currency-conversion">
         {{value.currency}} / {{value.orig_currency}}
-      </div>
+      </span>
     </div>
     <div class="fy-currency--modify-exchange-rate" (click)="setExchangeRate()">
       <mat-icon class="fy-currency--modify-exchange-rate-icon">
