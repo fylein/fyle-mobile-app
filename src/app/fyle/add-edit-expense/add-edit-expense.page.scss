@@ -22,6 +22,8 @@
     border-radius: 8px;
     margin: 14px;
     width: 100%;
+    margin: 12px 8px;
+    --border-radius: 4px !important;
   }
 
   &--receipt-currency {

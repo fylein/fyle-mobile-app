@@ -16,7 +16,6 @@ const { Browser } =  Plugins;
 })
 export class HelpPage implements OnInit {
 
-  pageTitle = 'Help';
   orgAdmins;
 
   constructor(
