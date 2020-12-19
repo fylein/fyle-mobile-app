@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, noop} from 'rxjs';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Observable, from, noop, fromEvent} from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { switchMap, reduce, finalize, map, tap, mergeMap, concatMap } from 'rxjs/operators';
+import { switchMap, reduce, finalize, map, tap, mergeMap, concatMap, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModifyApproverConfirmationPopoverComponent } from './modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
 import { ReportService } from 'src/app/core/services/report.service';
 import { isEqual } from 'lodash';
@@ -13,7 +13,7 @@ import { isEqual } from 'lodash';
   templateUrl: './modify-approver-dialog.component.html',
   styleUrls: ['./modify-approver-dialog.component.scss'],
 })
-export class ModifyApproverDialogComponent implements OnInit {
+export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() approverList;
@@ -22,6 +22,7 @@ export class ModifyApproverDialogComponent implements OnInit {
   @Input() object;
 
   approverList$: Observable<any>;
+  searchedApprovers$: Observable<any>;
   selectedApprovers: any[] = [];
   intialSelectedApprovers: any[] = [];
   equals: boolean = false;
@@ -137,6 +138,21 @@ export class ModifyApproverDialogComponent implements OnInit {
         this.intialSelectedApprovers = [...this.selectedApprovers];
         this.equals = this.checkDifference(this.intialSelectedApprovers, this.selectedApprovers);
         from(this.loaderService.hideLoader());
+      })
+    );
+  }
+
+  ngAfterViewInit() {
+    this.searchedApprovers$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText: any) => {
+        return this.approverList$.pipe(map(filteredApprovers => {
+          return filteredApprovers.filter(filteredApprover => {
+            return !searchText || filteredApprover.us.email.indexOf(searchText) > -1;
+          });
+       }));
       })
     );
   }

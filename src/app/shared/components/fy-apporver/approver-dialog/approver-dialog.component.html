@@ -18,7 +18,7 @@
 
 <ion-content>
   <div>
-    <div class="approver-list--list-container" *ngFor="let approver of approverList$|async as approverList">
+    <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$|async as approverList">
       <div class="approver-list--list-element">
         <label>
           <mat-checkbox color="primary" (change)="onSelectApprover(approver, $event)"></mat-checkbox>

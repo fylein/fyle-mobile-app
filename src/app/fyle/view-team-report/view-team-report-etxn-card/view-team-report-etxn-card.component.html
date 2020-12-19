@@ -13,11 +13,11 @@
     </div>
     <div class="etxn-card--details">
       <div>
-        <span class="etxn-card--currency" [ngClass]="{'etxn-card--non-reimbursable': etxn.tx_skip_reimbursement || etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' || etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT' }">
+        <span class="etxn-card--currency" [ngClass]="{'etxn-card--non-reimbursable': etxn.tx_skip_reimbursement}">
           {{etxn.tx_currency}}
         </span>
         <span class="etxn-card--amount">
-          <span [ngClass]="{'etxn-card--non-reimbursable etxn-card--non-reimbursable-amount': etxn.tx_skip_reimbursement || etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' || etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT' }">
+          <span [ngClass]="{'etxn-card--non-reimbursable etxn-card--non-reimbursable-amount': etxn.tx_skip_reimbursement}">
             {{etxn.tx_amount | number:'1.2'}}
           </span>
         </span>

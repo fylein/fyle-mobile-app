@@ -7,6 +7,10 @@
     border-radius: 4px;
   }
 
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
   &--attachment-currency-container{
     margin: 12px;
     display: flex;

@@ -237,6 +237,14 @@ export class TransactionService {
     );
   }
 
+  getTotalNoCurrency(etxns) {
+    let total = 0;
+    etxns.forEach(etxn => {
+      total = total + etxn.tx_amount;
+    });
+    return total;
+  }
+
   getMyExpenses(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
     offset: 0,
     limit: 10,

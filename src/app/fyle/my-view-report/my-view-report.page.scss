@@ -48,7 +48,8 @@ $inquiry-color: #4848ad;
   }
 
   &--block-action {
-    margin-left: 4px;
+    margin-left: 16px;
+    font-size: 16px;
     &__comment {
       color: #0077ee;
     }
@@ -100,6 +101,9 @@ $inquiry-color: #4848ad;
     padding: 4px 8px;
     display: inline-block;
     border-radius: 4px;
+    text-transform: uppercase;
+    font-size: 12px;
+
     &__fyled {
       background-color: #f90;
     }
@@ -150,6 +154,7 @@ $inquiry-color: #4848ad;
     color: #ababab;
     font-weight: 300;
     line-height: 1;
+    margin-top: 8px;
     margin-bottom: 8px;
   }
 
