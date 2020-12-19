@@ -12,24 +12,29 @@
   </ion-toolbar>
   <ion-toolbar mode="md">
     <div class="my-reports--toolbar">
-      <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
-        <div class="my-reports--simple-search-block">
-          <mat-icon matPrefix svgIcon="search" class="my-reports--simple-search-icon"></mat-icon>
-          <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="searchText">
-          <button mat-button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" class="my-reports--simple-search-close" (click)="clearText()">
-            <mat-icon class="my-reports--simple-search-icon">close</mat-icon>
+      <div class="expense-report-search">
+        <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
+          <div class="my-reports--simple-search-block">
+            <mat-icon matPrefix svgIcon="search" class="my-reports--simple-search-icon"></mat-icon>
+            <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="searchText">
+            <button mat-button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" class="my-reports--simple-search-close" (click)="clearText()">
+              <mat-icon class="my-reports--simple-search-icon">close</mat-icon>
+            </button>
+          </div>
+        </mat-form-field>
+      </div>
+      <div>
+        <ion-buttons mode="md" slot="end">
+          <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
+            <mat-icon class="my-reports--filter-button-icon" *ngIf="filters?.sortDir === 'asc'" svgIcon="fy-sort-ascending"></mat-icon>
+            <mat-icon class="my-reports--filter-button-icon" *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'" svgIcon="fy-sort-descending"></mat-icon>
           </button>
-        </div>
-      </mat-form-field>
-      <ion-buttons mode="md" slot="end">
-        <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
-          <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-sort-descending"></mat-icon>
-        </button>
-        <button mat-icon-button class="my-reports--filter-button"
-          [ngClass]="{'my-reports--filter-button__applied': filters?.state || filters?.date}" (click)="openFilters()">
-          <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-filter"></mat-icon>
-        </button>
-      </ion-buttons>
+          <button mat-icon-button class="my-reports--filter-button"
+            [ngClass]="{'my-reports--filter-button__applied': filters?.state || filters?.date}" (click)="openFilters()">
+            <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-filter"></mat-icon>
+          </button>
+        </ion-buttons>
+      </div>
     </div>
     <div class="my-reports--filters" *ngIf="filters?.state || filters?.date">
       <div>Filtered by

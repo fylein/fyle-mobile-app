@@ -12,7 +12,7 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
-    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
+    <mat-form-field class="selection-modal--form-field" appearance="outline">
       <input #searchBar id="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value">
       <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
           <mat-icon>close</mat-icon>

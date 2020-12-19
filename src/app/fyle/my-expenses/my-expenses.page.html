@@ -45,28 +45,29 @@
   </ion-toolbar>
   <ion-toolbar mode="md">
     <div class="my-expenses--toolbar">
-      <mat-form-field class="mat-form-field-no-padding my-expenses--simple-search" appearance="outline">
-        <div class="my-expenses--simple-search-block">
-          <mat-icon matPrefix svgIcon="search" class="my-expenses--simple-search-icon"></mat-icon>
-          <input #simpleSearchInput matInput placeholder="Search" class="my-expenses--simple-search-input" [(ngModel)]="simpleSearchText">
-          <button mat-button *ngIf="simpleSearchText" matSuffix mat-icon-button aria-label="Clear" class="my-expenses--simple-search-close" (click)="clearText()">
-            <mat-icon class="my-expenses--simple-search-icon">close</mat-icon>
+      <div class="expense-report-search">
+        <mat-form-field class="mat-form-field-no-padding my-expenses--simple-search" appearance="outline">
+          <div class="my-expenses--simple-search-block">
+            <mat-icon matPrefix svgIcon="search" class="my-expenses--simple-search-icon"></mat-icon>
+            <input #simpleSearchInput matInput placeholder="Search" class="my-expenses--simple-search-input" [(ngModel)]="simpleSearchText">
+            <button mat-button *ngIf="simpleSearchText" matSuffix mat-icon-button aria-label="Clear" class="my-expenses--simple-search-close" (click)="clearText()">
+              <mat-icon class="my-expenses--simple-search-icon">close</mat-icon>
+            </button>
+          </div>
+        </mat-form-field>
+      </div>
+      <div>
+        <ion-buttons mode="md" slot="end">
+          <button mat-icon-button class="my-expenses--filter-button" (click)="openSort()">
+            <mat-icon class="my-expenses--filter-button-icon" *ngIf="filters?.sortDir === 'asc'" svgIcon="fy-sort-ascending"></mat-icon>
+            <mat-icon class="my-expenses--filter-button-icon" *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'" svgIcon="fy-sort-descending"></mat-icon>
           </button>
-        </div>
-        
-      </mat-form-field>
-
-      <ion-buttons mode="md" slot="end">
-          <!-- filters = {{filters|json}}; -->
-        <button mat-icon-button class="my-expenses--filter-button" (click)="openSort()">
-          <mat-icon class="my-expenses--filter-button-icon" *ngIf="filters?.sortDir === 'asc'" svgIcon="fy-sort-ascending"></mat-icon>
-          <mat-icon class="my-expenses--filter-button-icon" *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'" svgIcon="fy-sort-descending"></mat-icon>
-        </button>
-        <button mat-icon-button class="my-expenses--filter-button"
-          [ngClass]="{'my-expenses--filter-button__applied': filters?.state || filters?.date}" (click)="openFilters()">
-          <mat-icon class="my-expenses--filter-button-icon" svgIcon="fy-filter"></mat-icon>
-        </button>
+          <button mat-icon-button class="my-expenses--filter-button"
+            [ngClass]="{'my-expenses--filter-button__applied': filters?.state || filters?.date}" (click)="openFilters()">
+            <mat-icon class="my-expenses--filter-button-icon" svgIcon="fy-filter"></mat-icon>
+          </button>
       </ion-buttons>
+      </div>
     </div>
     <div class="my-expenses--filters" *ngIf="filters?.state || filters?.date">
       <div>Filtered by

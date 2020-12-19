@@ -4,15 +4,14 @@
   }
 
   &--toolbar {
-    display: flex;
     align-items: center;
-    margin: 8px;
+    display: inline-flex;
+    margin: 8px 16px;
+    width: 90%;
   }
 
   &--simple-search {
-    min-width: 65%;
-    max-width: 80%;
-    margin: 8px;
+    width: 100%;
     font-size: 14px;
 
     &-icon {
