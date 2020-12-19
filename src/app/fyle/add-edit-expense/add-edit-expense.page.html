@@ -449,10 +449,10 @@
         </ng-container>
       </ng-container>
       <ng-container *ngIf="isConnected$|async as isConnected">
-        <div *ngFor="let customInput of this.customInputs$ | async as customInputs">
-          <div class="add-edit-expense--primary-block">
+        <div class="add-edit-expense--primary-block">
+          <div *ngFor="let customInput of this.customInputs$ | async as customInputs" class="add-edit-expense--internal-block">
             <form [formGroup]="customInput.control">
-              <div class="add-edit-expense--text add-edit-expense--internal-block"
+              <div class="add-edit-expense--text "
                 *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
                 <div class="add-edit-expense--text-label"
                   [ngClass]="{'add-edit-expense--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
@@ -471,7 +471,7 @@
                   formControlName="value">
               </div>
 
-              <div class="add-edit-expense--checkbox add-edit-expense--internal-block"
+              <div class="add-edit-expense--checkbox"
                 *ngIf="customInput.type === 'BOOLEAN'">
                 <label>
                   <mat-checkbox color="primary" formControlName="value">
@@ -483,24 +483,24 @@
                 </label>
               </div>
 
-              <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'LOCATION'">
+              <div *ngIf="customInput.type === 'LOCATION'">
                 <app-fy-location [mandatory]="customInput.mandatory" [label]="customInput.name" formControlName="value">
                 </app-fy-location>
               </div>
 
-              <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'SELECT'">
+              <div *ngIf="customInput.type === 'SELECT'">
                 <app-fy-select [mandatory]="customInput.mandatory" [label]="customInput.name"
                   [options]="customInput.options" formControlName="value">
                 </app-fy-select>
               </div>
 
-              <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'MULTI_SELECT'">
+              <div *ngIf="customInput.type === 'MULTI_SELECT'">
                 <app-fy-multiselect [mandatory]="customInput.mandatory" [label]="customInput.name"
                   [options]="customInput.options" formControlName="value">
                 </app-fy-multiselect>
               </div>
 
-              <div class="add-edit-expense--internal-block" *ngIf="customInput.type === 'USER_LIST'">
+              <div *ngIf="customInput.type === 'USER_LIST'">
                 <app-fy-userlist [mandatory]="customInput.mandatory" [label]="customInput.name" formControlName="value">
                 </app-fy-userlist>
               </div>
