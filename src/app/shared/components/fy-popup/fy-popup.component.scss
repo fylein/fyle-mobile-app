@@ -6,8 +6,7 @@ $details-color: #ababab;
   height: 100%;
   justify-content: space-between;
   &--header {
-    padding: 0px 24px;
-    padding-top: 16px;
+    padding: 16px;
     display: flex;
     justify-content: space-between;
   }
@@ -39,6 +38,7 @@ $details-color: #ababab;
   &--button {
     width: 100%;
     margin: 8px 16px;
+    min-height: 45px;
   }
 
   &--primary-cta {
