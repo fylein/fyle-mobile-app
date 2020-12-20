@@ -29,18 +29,18 @@
       </div>
 
       <ng-container [formGroup]="splitExpenseForm">
-        <div *ngIf="splitType === 'categories'">
+        <div class="split-expense--internal-block" *ngIf="splitType === 'categories'">
           <div *ngIf="categories$|async as categories">
             <app-fy-select [label]="'Select Category'" formControlName="category" [options]="categories">
             </app-fy-select>
           </div>
         </div>
 
-        <div *ngIf="splitType === 'projects'">
+        <div class="split-expense--internal-block" *ngIf="splitType === 'projects'">
           <app-fy-select-project [label]="'Select Project'" formControlName="project"></app-fy-select-project>
         </div>
 
-        <div *ngIf="splitType === 'cost centers'">
+        <div class="split-expense--internal-block" *ngIf="splitType === 'cost centers'">
           <div *ngIf="costCenters$|async as costCenters">
             <app-fy-select [label]="'Select Cost Centers'" formControlName="cost_center" [options]="costCenters">
             </app-fy-select>

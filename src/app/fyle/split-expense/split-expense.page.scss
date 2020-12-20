@@ -26,6 +26,14 @@ $background-color: #fff;
     padding: 0 16px 16px;
   }
 
+  &--internal-block {
+    padding: 16px 0;
+    background: #fff;
+    border: 0;
+    line-height: 1;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
   &--message {
     font-size: 16px;
     color: #ababab;
@@ -74,10 +82,10 @@ $background-color: #fff;
 
   &--item {
     width: 48%;
-    border-bottom: 1px solid #e0e0e0;
     padding: 16px 0;
     background: #fff;
     border: 0;
+    border-bottom: 1px solid #e0e0e0;
     line-height: 1;
   }
 
