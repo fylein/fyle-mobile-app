@@ -475,6 +475,7 @@ export class AddEditMileagePage implements OnInit {
         }),
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
+            take(1),
             map(isConnected => {
               const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
               customFieldsFormArray.clear();
@@ -749,6 +750,7 @@ export class AddEditMileagePage implements OnInit {
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
         return this.isConnected$.pipe(
+          take(1),
           map(isConnected => ({
             isConnected,
             txnFields
@@ -897,7 +899,7 @@ export class AddEditMileagePage implements OnInit {
           this.reports$.pipe(
             map(reportOptions => reportOptions
               .map(res => res.value)
-              .find(reportOption => reportOption.id === etxn.tx.report_id))
+              .find(reportOption => reportOption.rp.id === etxn.tx.report_id))
           ),
           of(null)
         );
@@ -960,7 +962,8 @@ export class AddEditMileagePage implements OnInit {
         project,
         billable: etxn.tx.billable,
         sub_category: subCategory,
-        costCenter
+        costCenter,
+        report
       });
 
       if (etxn.tx.locations) {
@@ -1036,21 +1039,46 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  addToNewReport(txnId: string) {
+    const that = this;
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return this.transactionService.getEtxn(txnId);
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(etxn => {
+      const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
+      if (!criticalPolicyViolated) {
+        that.router.navigate(['/', 'enterprise' , 'my_create_report' , { txn_ids: JSON.stringify([txnId]) }]);
+      } else {
+        that.goBack();
+      }
+    });
+  }
+
   saveExpense() {
-    let that = this;
+    const that = this;
 
     that.checkIfInvalidPaymentMode().pipe(
       take(1)
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(() => {
-            that.goBack();
+          that.addExpense().subscribe((etxn) => {
+            if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id ) {
+              this.addToNewReport(etxn.tx.id);
+            } else {
+              that.goBack();
+            }
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(() => {
-            that.goBack();
+          that.editExpense().subscribe((etxn) => {
+            if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id ) {
+              this.addToNewReport(etxn.tx.id);
+            } else {
+              that.goBack();
+            }
           });
         }
       } else {
@@ -1327,7 +1355,9 @@ export class AddEditMileagePage implements OnInit {
           return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
         }),
         switchMap(etxn => {
-          return this.isConnected$.pipe(switchMap(isConnected => {
+          return this.isConnected$.pipe(
+            take(1),
+            switchMap(isConnected => {
             if (isConnected) {
               const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
               return policyViolations$.pipe(
@@ -1404,6 +1434,7 @@ export class AddEditMileagePage implements OnInit {
             return throwError(err);
           }
         }),
+        tap(etxnToBeSaved => console.log({etxnToBeSaved})),
         switchMap(({ etxn, comment }: any) => {
           return forkJoin({
             eou: from(this.authService.getEou()),
@@ -1428,20 +1459,21 @@ export class AddEditMileagePage implements OnInit {
                 }),
                 map(savedEtxn => savedEtxn && savedEtxn.tx),
                 switchMap((tx) => {
+                  const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
 
-                  if (!txnCopy.report_id && etxn.tx.report_id) {
-                    return this.reportService.addTransactions(etxn.tx.report_id, [tx.id]).pipe(map(() => tx));
+                  if (!txnCopy.tx.report_id && selectedReportId) {
+                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(map(() => tx));
                   }
 
-                  if (txnCopy.report_id && etxn.tx.report_id && etxn.tx.report_id !== etxn.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.report_id, tx.id).pipe(
-                      switchMap(() => this.reportService.addTransactions(etxn.tx.report_id, [tx.id])),
+                  if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       map(() => tx)
                     );
                   }
 
-                  if (txnCopy.report_id && !etxn.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.report_id, tx.id).pipe(map(() => tx));
+                  if (txnCopy.tx.report_id && !selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(map(() => tx));
                   }
 
                   return of(null).pipe(map(() => tx));
@@ -1504,6 +1536,7 @@ export class AddEditMileagePage implements OnInit {
 
     const calculatedDistance$ = this.isConnected$
       .pipe(
+        take(1),
         switchMap((isConnected) => {
           if (isConnected) {
             return this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
@@ -1544,6 +1577,7 @@ export class AddEditMileagePage implements OnInit {
         }),
         switchMap(etxn => {
           return this.isConnected$.pipe(
+            take(1),
             switchMap(isConnected => {
               if (isConnected) {
                 const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
