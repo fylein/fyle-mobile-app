@@ -135,27 +135,27 @@
           <ng-container *ngIf="paymentModes$|async as paymentModes">
             <div *ngIf="paymentModes.length > 1"
               class="add-edit-expense--payment-modes add-edit-expense--internal-block">
-              <app-fy-select [mandatory]="true"
+              <app-fy-select [mandatory]="true" [subheader]="'All Payment Modes'" [enableSearch]="false"
                 [label]="fg.controls.paymentMode.value?'Payment Mode':'Select Payment Mode'"
                 formControlName="paymentMode" [options]="paymentModes" [selectionElement]="paymentMode"
                 [nullOption]="false">
               </app-fy-select>
               <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                 <div>
-                  <div>
+                  <div class="add-edit-expense--payment-mode-header">
                     {{label}}
                   </div>
                   <ng-container *ngIf="paymentMode">
                     <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                      <div>
+                      <div class="add-edit-expense--payment-mode-purpose">
                         {{paymentMode.advance.purpose}}
                       </div>
                     </ng-container>
-                    <div *ngIf="paymentMode.acc.isReimbursible">
-                      Reimbursible
+                    <div class="add-edit-expense--payment-mode-type" *ngIf="paymentMode.acc.isReimbursible">
+                      (Reimbursible)
                     </div>
-                    <div *ngIf="!paymentMode.acc.isReimbursible">
-                      Non Reimbursible
+                    <div class="add-edit-expense--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursible">
+                      (Non Reimbursible)
                     </div>
                   </ng-container>
                 </div>
@@ -263,28 +263,25 @@
               </div>
             </ng-container>
           </ng-container>
-        </div>
-
-        <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
-        <ng-container *ngIf="isConnected$|async as isConnected">
-          <div class="add-edit-expense--primary-block">
-            <ng-container *ngIf="etxn$|async as etxn">
-              <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
-                <ng-container *ngIf="reports$|async as reports">
-                  <div  class="add-edit-expense--internal-block">
-                    <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                      formControlName="report" [options]="reports"></app-fy-select>
-                    <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
+          <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
+          <ng-container *ngIf="isConnected$|async as isConnected">
+              <ng-container *ngIf="etxn$|async as etxn">
+                <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
+                  <ng-container *ngIf="reports$|async as reports">
+                    <div  class="add-edit-expense--internal-block">
+                      <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                                     formControlName="report" [options]="reports"></app-fy-select>
+                      <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
                       <span class="add-edit-expense--text-label">
                         Add to New Report
                       </span>
-                    </mat-checkbox>
-                  </div>
+                      </mat-checkbox>
+                    </div>
+                  </ng-container>
                 </ng-container>
               </ng-container>
-            </ng-container>
-          </div>
-        </ng-container>
+          </ng-container>
+        </div>
       </div>
 
       <!-- <div *ngIf="!showSelectedTransaction && selectedCCCTransaction">

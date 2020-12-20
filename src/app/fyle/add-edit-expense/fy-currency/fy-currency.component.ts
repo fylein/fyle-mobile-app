@@ -23,6 +23,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   private ngControl: NgControl;
   @Input() txnDt: Date;
   @Input() homeCurrency: string;
+  exchangeRate = 1;
 
   private innerValue: {
     amount: number,
@@ -59,6 +60,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     });
 
     this.fg.valueChanges.subscribe(formValue => {
+
       const value = {
         amount: null,
         currency: null,
@@ -66,33 +68,41 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         orig_currency: null
       };
 
-      if (formValue.currency !== this.homeCurrency) {
-        value.currency = this.homeCurrency;
-        value.orig_amount = +formValue.amount;
-        value.orig_currency = formValue.currency;
-        value.amount = +formValue.homeCurrencyAmount;
-        if (value.orig_currency === this.value.orig_currency) {
-          value.amount = value.orig_amount * (this.value.amount / this.value.orig_amount);
+      if (formValue.amount === null) {
+        if (formValue.currency !== this.homeCurrency) {
+          value.currency = this.homeCurrency;
+          value.orig_currency = formValue.currency;
         } else {
-          value.amount = +formValue.homeCurrencyAmount;
+          value.currency = this.homeCurrency;
         }
       } else {
-        value.currency = this.homeCurrency;
-        value.amount = formValue.amount && +formValue.amount;
+        if (formValue.currency !== this.homeCurrency) {
+          if (this.value.amount && this.value.orig_amount) {
+            this.exchangeRate = (this.value.amount / this.value.orig_amount);
+          }
+          value.currency = this.homeCurrency;
+          value.orig_amount = +formValue.amount;
+          value.orig_currency = formValue.currency;
+          value.amount = +formValue.homeCurrencyAmount;
+          if (value.orig_currency === this.value.orig_currency) {
+            value.amount = value.orig_amount * this.exchangeRate;
+          } else {
+            value.amount = +formValue.homeCurrencyAmount;
+          }
+        } else {
+          this.exchangeRate = 1;
+          value.currency = this.homeCurrency;
+          value.amount = formValue.amount && +formValue.amount;
+        }
       }
+
+      console.log(formValue, value);
 
       if (!isEqual(value, this.innerValue)) {
         this.value = value;
       }
     });
   }
-
-  // checkIfSameValue(amount1, amount2) {
-  //   return amount1 && amount2 && amount1.amount === amount2.amount &&
-  //     amount1.currency === amount2.currency &&
-  //     amount1.orig_amount === amount2.orig_amount &&
-  //     amount1.orig_currency === amount2.orig_currency;
-  // }
 
   convertInnerValueToFormValue(innerVal) {
     if (innerVal && innerVal.orig_currency && innerVal.orig_currency !== this.homeCurrency) {
@@ -135,9 +145,11 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   }
 
   writeValue(value: any) {
-    if (value !== this.innerValue) {
-      this.innerValue = value;
-      this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
+    if (this.fg) {
+      if (value !== this.innerValue) {
+        this.innerValue = value;
+        this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
+      }
     }
   }
 
@@ -157,7 +169,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         currentCurrency: this.homeCurrency,
         newCurrency: shortCode || this.fg.controls.currency.value,
         txnDt: this.txnDt,
-        exchangeRate: (this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) ? (this.fg.value.homeCurrencyAmount / this.fg.value.amount): null 
+        exchangeRate: (this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) ? (this.fg.value.homeCurrencyAmount / this.fg.value.amount) : null
       }
     });
     await exchangeRateModal.present();
@@ -179,10 +191,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         });
 
         this.value = {
-          currency:this.homeCurrency,
-          orig_amount:+data.amount,
+          currency: this.homeCurrency,
+          orig_amount: +data.amount,
           orig_currency: this.fg.controls.currency.value,
-          amount:+data.homeCurrencyAmount
+          amount: +data.homeCurrencyAmount
         };
       }
     }

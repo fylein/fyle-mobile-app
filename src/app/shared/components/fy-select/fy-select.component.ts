@@ -29,6 +29,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() nullOption = true;
   @Input() cacheName = '';
   @Input() customInput = false;
+  @Input() subheader = 'All';
+  @Input() enableSearch = true;
 
   private innerValue;
   displayValue;
@@ -88,7 +90,9 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         selectionElement: this.selectionElement,
         nullOption: this.nullOption,
         cacheName: this.cacheName,
-        customInput: this.customInput
+        customInput: this.customInput,
+        subheader: this.subheader,
+        enableSearch: this.enableSearch
       }
     });
 
@@ -122,14 +126,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       }
     }
   }
-
-  // validate(fc: FormControl) {
-  //   if (this.mandatory && fc.value === null) {
-  //     return {
-  //       required: true
-  //     };
-  //   }
-  // }
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;
