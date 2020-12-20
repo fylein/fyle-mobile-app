@@ -105,7 +105,7 @@
                           </div>
                         </div>
                         <input type="date" class="add-edit-per-diem--date-input" formControlName="from_dt"
-                               [min]="minDate" [max]="maxDate"
+                               [min]="minDate"
                                [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit">
                       </div>
                       <div class="add-edit-per-diem--error"
@@ -125,7 +125,7 @@
                           </div>
                         </div>
                         <input type="date" class="add-edit-per-diem--date-input" name="toDate" formControlName="to_dt"
-                               [min]="fg.controls.from_dt.value" [max]="maxDate"
+                               [min]="fg.controls.from_dt.value"
                                [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit">
                       </div>
                       <div class="add-edit-per-diem--error"
