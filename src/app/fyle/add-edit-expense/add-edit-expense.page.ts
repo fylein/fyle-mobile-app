@@ -92,6 +92,7 @@ export class AddEditExpensePage implements OnInit {
   invalidPaymentMode = false;
   pointToDuplicates = false;
   isAdvancesEnabled$: Observable<boolean>;
+  comments$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1217,6 +1218,8 @@ export class AddEditExpensePage implements OnInit {
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
+
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
       map(orgSettings => {
