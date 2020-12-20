@@ -126,6 +126,20 @@ export class AddEditExpensePage implements OnInit {
     private navController: NavController
   ) { }
 
+  async showClosePopup() {
+    const closePopup = await this.popupService.showPopup({
+      header: 'Unsaved Changes',
+      message: 'Your changes will be lost if you do not save the expense',
+      primaryCta: {
+        text: this.mode === 'add' ? 'Discard Expense' : 'Discard Changes'
+      }
+    });
+
+    if (closePopup === 'primary') {
+      this.goBack();
+    }
+  }
+
   goBack() {
     if (this.mode === 'add') {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
