@@ -125,7 +125,7 @@
                   *ngFor="let _ of mileage_locations.controls; index as i; first as isFirst;last as isLast">
                   <!-- {{mileage_locations?.value[i]?.display}} -->
                   <app-fy-location
-                  [label]="mileage_locations.controls.length > 2 ? (isFirst ? 'Start Location': (isLast ? 'End Location': 'Stop ' + (i))): (isFirst ? 'From': 'To')"
+                    [label]="mileage_locations.controls.length > 2 ? (isFirst ? 'Start Location': (isLast ? 'End Location': 'Stop ' + (i))): (isFirst ? 'From': 'To')"
                     [formControlName]="i">
                     <span *ngIf="i >= 2">
                       <mat-icon class="add-edit-mileage--remove-stop" (click)="removeMileageLocation(i)">
