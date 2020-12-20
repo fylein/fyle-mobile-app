@@ -4,6 +4,8 @@ $details-color: #ababab;
   display: flex;
   flex-direction: column;
   height: 100%;
+  padding: 0 16px;
+
   &--element {
     display: flex;
     justify-content: flex-start;
@@ -32,5 +34,17 @@ $details-color: #ababab;
     font-size: 16px;
     color: #ababab;
     line-height: 1.5;
+  }
+
+  &--highlight {
+    font-size: 12px;
+    background: #ff9900;
+    padding: 3px 5px;
+    border-radius: 4px;
+    color: #fff;
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5px;
   }
 }

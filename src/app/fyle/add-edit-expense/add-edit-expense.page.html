@@ -167,7 +167,7 @@
           </ng-container>
 
           <ng-container *ngIf="isAdvancesEnabled$">
-            <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'info'"
+            <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'information'"
               [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
           </ng-container>
 
@@ -529,7 +529,7 @@
         </ng-container>
       </div>
 
-      <app-fy-alert *ngIf="isNotReimbursable$|async as isNotReimbursable" [type]="'info'"
+      <app-fy-alert *ngIf="isNotReimbursable$|async as isNotReimbursable" [type]="'information'"
         [message]="'This expense will not be reimbursed as it has already been paid by your company.'">
       </app-fy-alert>
 
