@@ -125,14 +125,14 @@
 
 
   <div class="my-expenses--offline-message" *ngIf="pendingTransactions.length > 0">
-    <span>
+    <div>
       <div class="my-expenses--offline-header">
         Offline Expenses
       </div>
       <div class="my-expenses--offline-sub-header">
-        Expenses willl be synced when connected to the internet
+        Expenses will be synced when connected to the internet
       </div>
-    </span>
+    </div>
   </div>
 
   <div *ngFor="let expense of pendingTransactions as list; let i = index">

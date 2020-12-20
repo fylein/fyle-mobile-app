@@ -11,7 +11,7 @@ import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { SplitExpenseService } from 'src/app/core/split-expense.service';
+import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { SplitExpenseStatusComponent } from './split-expense-status/split-expense-status.component';
 
 @Component({

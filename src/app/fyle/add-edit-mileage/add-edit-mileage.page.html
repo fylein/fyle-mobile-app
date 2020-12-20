@@ -170,7 +170,7 @@
                     </div>
                   </div>
                   <input class="add-edit-mileage--text-input" type="number" formControlName="distance" [min]="0"
-                    [disabled]="(isAmountDisabled$|async) || !txnFields?.distance.can_edit">
+                    [disabled]="(isAmountDisabled$|async) || !txnFields?.distance.canEdit">
                 </div>
                 <div class="add-edit-mileage--error"
                   *ngIf="fg.controls.distance.touched && !fg.controls.distance.valid">
@@ -447,21 +447,24 @@
     </ng-container>
   </div>
 </ion-content>
-<ion-footer>
-  <ion-toolbar mode="md">
-    <ion-buttons *ngIf="!reviewList">
-      <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
-        Save
-      </ion-button>
-      <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-mileage--primary-cta"
-        fill="solid" color="fyle-primary">
-        Save & New
-      </ion-button>
-    </ion-buttons>
-    <ion-buttons *ngIf="reviewList && fg.controls.add_to_new_report.value">
-      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
-        Save & Next
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-footer>
+<ng-container *ngIf="fg">
+  <ion-footer>
+    <ion-toolbar mode="md">
+      <ion-buttons *ngIf="!reviewList">
+        <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
+          Save
+        </ion-button>
+        <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-mileage--primary-cta"
+                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value">
+          Save & New
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons *ngIf="reviewList">
+        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
+          Save & Next
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>
+
