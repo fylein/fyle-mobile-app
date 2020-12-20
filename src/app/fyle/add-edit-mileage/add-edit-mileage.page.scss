@@ -203,14 +203,15 @@
 
   &--amount {
     width: calc(100% - 100px);
-    padding-right: 16px;
+    padding: 0 0 4px;
     border-right: 1px solid #e0e0e0;
     color: #ababab;
   }
 
   &--rate {
+    text-align: end;
     width: 100px;
-    padding-left: 16px;
+    padding: 0 0 4px;
     color: #ababab;
   }
 

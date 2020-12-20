@@ -1,6 +1,6 @@
 <ion-header mode="md" >
   <ion-toolbar class="add-edit-mileage--toolbar">
-    <ion-title mode="md" *ngIf="mode">
+    <ion-title mode="md" *ngIf="mode" class="page-title">
       <div *ngIf="mode === 'add'">
         Add Mileage
       </div>
@@ -74,27 +74,27 @@
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
             <div class="add-edit-mileage--amount-box">
               <div class="add-edit-mileage--amount">
-                <p>Amount</p>
-                <p class="add-edit-mileage--amount-value">
+                <div>Amount</div>
+                <div class="add-edit-mileage--amount-value">
                   {{amount$|async | currency: homeCurrency}}
-                </p>
+                </div>
               </div>
               <div class="add-edit-mileage--rate">
-                <p>
+                <div>
                   Rate /
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                    <span>{{ etxn.tx.distance_unit }}</span>
+                    <span class="text-capitalize">{{ etxn.tx.distance_unit }}</span>
                   </ng-container>
 
                   <ng-template #defaultDistanceUnit>
                     <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span>{{ mileageConfig.unit }}</span>
+                      <span class="text-capitalize">{{ mileageConfig.unit }}</span>
                     </ng-container>
                   </ng-template>
-                </p>
-                <p class="add-edit-mileage--rate-value">
+                </div>
+                <div class="add-edit-mileage--rate-value">
                   {{rate$|async | currency: homeCurrency}}
-                </p>
+                </div>
               </div>
             </div>
           </ng-container>
