@@ -171,9 +171,9 @@
 
   &--primary-cta {
     height: 48px;
-    width: 100%;
-    margin: 12px 8px;
-    --border-radius: 4px;
+    width: 90%;
+    // margin: 12px 8px;
+    --border-radius: 4px !important;
   }
 
   &--common-action-block {
@@ -195,5 +195,11 @@
       display: inline-block;
       vertical-align: middle;
     }
+  }
+
+  &--cta-container {
+    height: 80px;
+    padding: 16px;
+    justify-content: space-between;
   }
 }
