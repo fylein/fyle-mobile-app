@@ -156,15 +156,15 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-buttons>
-      <ion-button class="add-edit-advance-request--primary-cta" *ngIf="mode === 'add'" (click)="save('Draft')"
-        class="add-edit-advance-request--primary-cta" fill="outline" color="fyle-primary">
-        SAVE DRAFT
-      </ion-button>
-      <ion-button class="add-edit-advance-request--primary-cta" (click)="save('Submit')"
-        class="add-edit-advance-request--primary-cta" fill="solid" color="fyle-primary">
-        SUBMIT REQUEST
-      </ion-button>
-    </ion-buttons>
+    <div class="add-edit-advance-request--cta-container">
+      <ion-buttons>
+        <ion-button class="add-edit-advance-request--primary-cta" *ngIf="mode === 'add'" (click)="save('Draft')" fill="outline" color="fyle-primary">
+          SAVE DRAFT
+        </ion-button>
+        <ion-button class="add-edit-advance-request--primary-cta" (click)="save('Submit')" fill="solid" color="fyle-primary">
+          SUBMIT REQUEST
+        </ion-button>
+      </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-footer>

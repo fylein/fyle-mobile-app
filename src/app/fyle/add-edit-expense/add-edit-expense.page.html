@@ -136,27 +136,27 @@
           <ng-container *ngIf="paymentModes$|async as paymentModes">
             <div *ngIf="paymentModes.length > 1"
               class="add-edit-expense--payment-modes add-edit-expense--internal-block">
-              <app-fy-select [mandatory]="true"
+              <app-fy-select [mandatory]="true" [subheader]="'All Payment Modes'" [enableSearch]="false"
                 [label]="fg.controls.paymentMode.value?'Payment Mode':'Select Payment Mode'"
                 formControlName="paymentMode" [options]="paymentModes" [selectionElement]="paymentMode"
                 [nullOption]="false">
               </app-fy-select>
               <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                 <div>
-                  <div>
+                  <div class="add-edit-expense--payment-mode-header">
                     {{label}}
                   </div>
                   <ng-container *ngIf="paymentMode">
                     <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                      <div>
+                      <div class="add-edit-expense--payment-mode-purpose">
                         {{paymentMode.advance.purpose}}
                       </div>
                     </ng-container>
-                    <div *ngIf="paymentMode.acc.isReimbursible">
-                      Reimbursible
+                    <div class="add-edit-expense--payment-mode-type" *ngIf="paymentMode.acc.isReimbursible">
+                      (Reimbursible)
                     </div>
-                    <div *ngIf="!paymentMode.acc.isReimbursible">
-                      Non Reimbursible
+                    <div class="add-edit-expense--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursible">
+                      (Non Reimbursible)
                     </div>
                   </ng-container>
                 </div>
@@ -168,7 +168,7 @@
           </ng-container>
 
           <ng-container *ngIf="isAdvancesEnabled$">
-            <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'info'"
+            <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'information'"
               [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
           </ng-container>
 
@@ -264,28 +264,25 @@
               </div>
             </ng-container>
           </ng-container>
-        </div>
-
-        <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
-        <ng-container *ngIf="isConnected$|async as isConnected">
-          <div class="add-edit-expense--primary-block">
-            <ng-container *ngIf="etxn$|async as etxn">
-              <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
-                <ng-container *ngIf="reports$|async as reports">
-                  <div  class="add-edit-expense--internal-block">
-                    <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                      formControlName="report" [options]="reports"></app-fy-select>
-                    <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
+          <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
+          <ng-container *ngIf="isConnected$|async as isConnected">
+              <ng-container *ngIf="etxn$|async as etxn">
+                <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
+                  <ng-container *ngIf="reports$|async as reports">
+                    <div  class="add-edit-expense--internal-block">
+                      <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                                     formControlName="report" [options]="reports"></app-fy-select>
+                      <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
                       <span class="add-edit-expense--text-label">
                         Add to New Report
                       </span>
-                    </mat-checkbox>
-                  </div>
+                      </mat-checkbox>
+                    </div>
+                  </ng-container>
                 </ng-container>
               </ng-container>
-            </ng-container>
-          </div>
-        </ng-container>
+          </ng-container>
+        </div>
       </div>
 
       <!-- <div *ngIf="!showSelectedTransaction && selectedCCCTransaction">
@@ -533,7 +530,7 @@
         </ng-container>
       </div>
 
-      <app-fy-alert *ngIf="isNotReimbursable$|async as isNotReimbursable" [type]="'info'"
+      <app-fy-alert *ngIf="isNotReimbursable$|async as isNotReimbursable" [type]="'information'"
         [message]="'This expense will not be reimbursed as it has already been paid by your company.'">
       </app-fy-alert>
 
@@ -645,21 +642,24 @@
   </div>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar mode="md">
-    <ion-buttons *ngIf="!reviewList">
-      <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
-        Save
-      </ion-button>
-      <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-expense--primary-cta"
-        fill="solid" color="fyle-primary">
-        Save & New
-      </ion-button>
-    </ion-buttons>
-    <ion-buttons *ngIf="reviewList && fg.controls.add_to_new_report.value">
-      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
-        Save & Next
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-footer>
+<ng-container *ngIf="fg">
+  <ion-footer>
+    <ion-toolbar mode="md">
+      <ion-buttons *ngIf="!reviewList">
+        <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
+          Save
+        </ion-button>
+        <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-expense--primary-cta"
+                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value">
+          Save & New
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons *ngIf="reviewList">
+        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
+          Save & Next
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>
+

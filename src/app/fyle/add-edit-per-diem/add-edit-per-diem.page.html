@@ -108,7 +108,7 @@
                         </div>
                         <input type="date" class="add-edit-per-diem--date-input" formControlName="from_dt"
                                [min]="minDate" [max]="maxDate"
-                               [disabled]="isAmountDisabled || !txnFields?.from_dt.can_edit">
+                               [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit">
                       </div>
                       <div class="add-edit-per-diem--error"
                            *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid">
@@ -128,7 +128,7 @@
                         </div>
                         <input type="date" class="add-edit-per-diem--date-input" name="toDate" formControlName="to_dt"
                                [min]="fg.controls.from_dt.value" [max]="maxDate"
-                               [disabled]="isAmountDisabled || !txnFields?.to_dt.can_edit">
+                               [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit">
                       </div>
                       <div class="add-edit-per-diem--error"
                            *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid">
@@ -149,7 +149,7 @@
                           </div>
                         </div>
                         <input class="add-edit-per-diem--text-input" type="number" formControlName="num_days" [min]="0"
-                               [disabled]="isAmountDisabled || !txnFields?.num_days.can_edit">
+                               [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit">
                       </div>
                       <div class="add-edit-per-diem--error"
                            *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid">
@@ -219,6 +219,7 @@
 
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <ng-container *ngIf="txnFields?.purpose?.canView">
+
                       <div class="add-edit-per-diem--text add-edit-per-diem--internal-block"
                            *ngIf="txnFields?.purpose.type === 'TEXT'">
                         <div class="add-edit-per-diem--text-label"
@@ -227,13 +228,13 @@
                           <div *ngIf="txnFields?.purpose?.mandatory">*</div>
                         </div>
                         <input type="text" name="purpose" class="add-edit-per-diem--text-input"
-                               formControlName="purpose" [disabled]="!txnFields?.purpose.can_edit">
+                               formControlName="purpose" [disabled]="!txnFields?.purpose.canEdit">
                       </div>
                       <div class="add-edit-per-diem--internal-block" *ngIf="txnFields?.purpose.type === 'SELECT'">
                         <app-fy-select class="add-edit-per-diem--text-input"
                                        [label]="fg.controls.purpose.value ? txnFields?.purpose.title : 'Enter ' + txnFields?.purpose.title"
                                        formControlName="purpose" [options]="txnFields?.purpose?.values"
-                                       [disabled]="mode === 'edit' && !txnFields?.purpose.can_edit"></app-fy-select>
+                                       [disabled]="mode === 'edit' && !txnFields?.purpose.canEdit"></app-fy-select>
                       </div>
                       <div class="add-edit-per-diem--error"
                            *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid">
@@ -468,22 +469,26 @@
   </div>
 </ion-content>
 
-<ion-footer *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0">
-  <ion-toolbar mode="md">
-    <ion-buttons *ngIf="!reviewList">
-      <ion-button (click)="savePerDiem()" class="add-edit-per-diem--primary-cta" fill="solid" color="fyle-primary">
-        Save
-      </ion-button>
-      <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-per-diem--primary-cta"
-                  fill="solid" color="fyle-primary">
-        Save & New
-      </ion-button>
-    </ion-buttons>
-    <ion-buttons *ngIf="reviewList && fg.controls.add_to_new_report.value">
-      <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-per-diem--primary-cta" fill="solid"
-                  color="fyle-primary">
-        Save & Next
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-footer>
+<ng-container *ngIf="fg">
+  <ion-footer *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0">
+    <ion-toolbar mode="md">
+      <ion-buttons *ngIf="!reviewList">
+        <ion-button (click)="savePerDiem()" class="add-edit-per-diem--primary-cta" fill="solid" color="fyle-primary">
+          Save
+        </ion-button>
+        <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-per-diem--primary-cta"
+                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value">
+          Save & New
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons *ngIf="reviewList">
+        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-per-diem--primary-cta" fill="solid"
+                    color="fyle-primary">
+          Save & Next
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>
+
+
