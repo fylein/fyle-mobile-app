@@ -8,10 +8,10 @@
   <div class="fy-currency--exchange-rate">
     <div>
       <div class="fy-currency--exchange-rate-coverted-amount">
-        {{value.currency}} {{ value.amount}}
+        {{value.currency}} {{ value.amount | number: '1.0-2'}}
       </div>
       <span class="fy-currency--exchange-rate-coverted-rate">
-        at {{ (value.amount / value.orig_amount) }}
+        at {{ (value.amount / value.orig_amount) | number: '1.0-6' }}
       </span>
       <span class="fy-currency--exchange-rate-currency-conversion">
         {{value.currency}} / {{value.orig_currency}}

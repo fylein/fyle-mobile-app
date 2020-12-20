@@ -55,7 +55,7 @@ export class CurrencyService {
     return this.apiService.get('/currency/exchange', {
       params: queryParams
     }).pipe(
-      map((res) => this.getAmountDecimalsBasedOnValue(res.exchange_rate)),
+      map((res) => parseFloat(res.exchange_rate.toFixed(7))),
       catchError(() => of(1))
     );
   }
