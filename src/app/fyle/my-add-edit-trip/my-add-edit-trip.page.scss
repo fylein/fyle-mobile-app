@@ -33,7 +33,7 @@ $item-border-color: #e0e0e0;
   }
 
   &--add-traveller {
-    padding: 16px;
+    padding: 16px 0;
     color: #ff3366;
 
     &-add-icon {
@@ -59,7 +59,11 @@ $item-border-color: #e0e0e0;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #e0e0e0;
-    padding: 10px;
+    padding: 16px 0;
+
+    &__dynamic {
+      padding: 16px 0 16px 16px;
+    }
   }
 
   &--text-label {
