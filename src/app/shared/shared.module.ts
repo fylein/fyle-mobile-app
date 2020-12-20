@@ -138,7 +138,7 @@ import { FyPolicyViolationInfoComponent } from './components/fy-policy-violation
   ],
   providers: [
     DecimalPipe,
-    DatePipe,
+    DatePipe
   ]
 })
 export class SharedModule { }
