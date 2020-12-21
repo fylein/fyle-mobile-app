@@ -1,5 +1,5 @@
 <ion-header mode="md">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-buttons mode="md" slot="end">
       <ion-button class="confirmation--cancel" mode="md" (click)="closeConfirmationPopup()">
         Cancel
@@ -18,7 +18,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="confirmation--save" [disabled]="!(message.trim().length > 0)" color="fyle-primary" expand="full"
       (click)="flagUnflag()">
       {{title}}

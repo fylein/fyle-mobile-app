@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
-import { from, fromEvent, Observable } from 'rxjs';
+import {from, fromEvent, Observable, of} from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -18,7 +18,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() nullOption = true;
   @Input() cacheName;
-  @Input() customInput: boolean = false;
+  @Input() customInput = false;
+  @Input() subheader;
+  @Input() enableSearch;
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -31,32 +33,57 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() { }
 
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
+
   ngAfterViewInit() {
-    this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
-      startWith(''),
-      distinctUntilChanged(),
-      tap(console.log),
-      map((searchText) => {
-        const initial = [];
+    if (this.searchBarRef && this.searchBarRef.nativeElement) {
+      this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+        map((event: any) => event.srcElement.value),
+        startWith(''),
+        distinctUntilChanged(),
+        tap(console.log),
+        map((searchText) => {
+            const initial = [];
 
-        if (this.nullOption) {
-          initial.push({ label: 'None', value: null });
-        }
+            if (this.nullOption) {
+              initial.push({ label: 'None', value: null });
+            }
 
-        if (this.customInput) {
-          initial.push({ label: searchText, value: searchText });
-        }
+            if (this.customInput) {
+              initial.push({ label: searchText, value: searchText });
+            }
 
-        return initial.concat(this.options
-          .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
-          .map(option => {
-            option.selected = isEqual(option.value, this.currentSelection);
-            return option;
-          }));
+            return initial.concat(this.options
+              .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
+              .map(option => {
+                option.selected = isEqual(option.value, this.currentSelection);
+                return option;
+              }));
+          }
+        )
+      );
+    } else {
+      const initial = [];
+
+      if (this.nullOption) {
+        initial.push({ label: 'None', value: null });
       }
-      )
-    );
+
+      this.filteredOptions$ = of(
+          initial.concat(this.options
+            .map(option => {
+              option.selected = isEqual(option.value, this.currentSelection);
+              return option;
+            })
+          )
+        );
+    }
+
     this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
       map((options: any) => {
         options.map(option => {

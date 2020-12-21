@@ -1,11 +1,14 @@
-<ion-header mode="md" >
+<ion-header mode="md">
   <ion-toolbar class="my-trips--toolbar">
-    <ion-buttons mode="md" slot="start">
+    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title mode="md">
+    <ion-title mode="md" class="page-title">
       Trips
     </ion-title>
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>     
   </ion-toolbar>
 </ion-header>
 
@@ -39,8 +42,9 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
-    <ion-button class="my-trips--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block" [routerLink]="['/', 'enterprise', 'my_add_edit_trip']" routerLinkActive="router-link-active" >
+  <ion-toolbar mode="md">
+    <ion-button class="my-trips--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+      [routerLink]="['/', 'enterprise', 'my_add_edit_trip']" routerLinkActive="router-link-active">
       REQUEST NEW TRIP
     </ion-button>
   </ion-toolbar>

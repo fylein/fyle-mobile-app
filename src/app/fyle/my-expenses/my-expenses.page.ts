@@ -4,7 +4,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, take } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
@@ -58,6 +58,7 @@ export class MyExpensesPage implements OnInit {
   syncing = false;
   simpleSearchText = '';
   allExpenseCountHeader$: Observable<number>;
+  navigateBack = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -75,6 +76,13 @@ export class MyExpensesPage implements OnInit {
     private offlineService: OfflineService,
     private popupService: PopupService
   ) { }
+
+  clearText() {
+    this.simpleSearchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
 
   ngOnInit() {
     this.setupNetworkWatcher();
@@ -108,6 +116,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
     this.simpleSearchText = '';
 
@@ -330,7 +339,7 @@ export class MyExpensesPage implements OnInit {
         return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
           ...queryParams
-        })
+        });
       }),
       map(stats => {
         const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
@@ -338,11 +347,24 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.loadData$.subscribe(noop);
+    this.loadData$.subscribe(params => {
+      console.log(params);
+      const queryParams: Params = { filters: JSON.stringify(this.filters) };
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams
+      });
+    });
+
     this.myExpenses$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    if (this.activatedRoute.snapshot.params.state) {
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
       if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
         filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
@@ -647,7 +669,7 @@ export class MyExpensesPage implements OnInit {
         if (inital.tx.org_category) {
           category = inital.tx.org_category.toLowerCase();
         }
-        //TODO: Leave for later
+        // TODO: Leave for later
         // if (category === 'activity') {
         //   showCannotEditActivityDialog();
 
@@ -690,9 +712,5 @@ export class MyExpensesPage implements OnInit {
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
     }
-  }
-
-  onViewCommentsClick(event) {
-    // TODO: Add when view comments is done
   }
 }

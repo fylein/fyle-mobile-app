@@ -5,7 +5,7 @@
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md">Team Expense</ion-title>
+    <ion-title mode="md" class="page-title">Team Expense</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -34,12 +34,13 @@
       <div class="view-expense--attachment-block">
         <ng-container *ngIf="attachments$|async as attachments; else NoAttachmentYet">
           <div class="view-expense--no-attachment" *ngIf="!attachments?.length">
-            <p>No Receipt</p>
+            <div>No</div>
+            <div>Receipt</div>
           </div>
 
           <div *ngIf="attachments.length > 0" (click)="viewAttachments()">
             <div class="view-expense--receipt">
-              <img src="assets/svg/fy-attachment.svg">
+              <img src="assets/svg/fy-attachment.svg" alt="attachment">
             </div>
             <div class="view-expense--receipt-count">
               <span class="view-expense--receipt-count-number">{{ etxn.tx_num_files }}</span>
@@ -48,13 +49,14 @@
         </ng-container>
         <ng-template #NoAttachmentYet>
           <div class="view-expense--no-attachment">
-            <p>No Receipt</p>
+            <div>No</div>
+            <div>Receipt</div>
           </div>
         </ng-template>
       </div>
 
       <div class="view-expense--currency-block">
-        <app-currency [options]="currencyOptions" [currencyObj]="etxn"></app-currency>
+        <app-currency [options]="currencyOptions" [etxn]="etxn"></app-currency>
       </div>
     </div>
 
@@ -169,7 +171,7 @@
 
     <div class="view-expense--card">
       <div class="view-expense--card-action" id="commentsSection">
-        <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments"></app-comments>
+        <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
       </div>
     </div>
 

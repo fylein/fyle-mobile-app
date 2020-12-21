@@ -14,12 +14,13 @@ $advance_rejected_color: #d50000;
   &--header {
     color: #ababab;
     font-size: 16px;
-    margin: 1px 12px;
+    margin: 1px 16px;
   }
 
   &--body {
-    margin: 8px 12px;
-    padding: 12px;
+    margin: 8px 16px;
+    padding: 16px;
+    border-radius: 4px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 

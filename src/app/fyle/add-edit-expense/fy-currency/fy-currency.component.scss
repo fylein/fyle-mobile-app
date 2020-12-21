@@ -32,6 +32,9 @@
     font-size: 24px;
     font-weight: 500;
     border: 0;
+    &::placeholder {
+      color: #ababab;
+    }
   }
 
   &--exchange-rate {

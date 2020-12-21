@@ -1,5 +1,5 @@
 <ion-header mode="md" >
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-title>
       <h1 class="selection-modal--title">
         Select Items
@@ -11,10 +11,10 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar class="selection-modal--form-field-container">
-    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
+  <ion-toolbar class="selection-modal--form-field-container" *ngIf="enableSearch">
+    <mat-form-field class="selection-modal--form-field" appearance="outline">
       <input #searchBar id="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value">
-      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
           <mat-icon>close</mat-icon>
         </button>
     </mat-form-field>
@@ -41,7 +41,9 @@
     </div>
 
     <div *ngIf="(filteredOptions$|async)?.length > 0">
-      <div class="selection-modal--sub-title">All</div>
+      <div class="selection-modal--sub-title">
+        {{subheader}}
+      </div>
       <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
         <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
           <div>

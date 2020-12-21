@@ -5,7 +5,7 @@
           <mat-icon>close</mat-icon>
         </ion-button>
       </ion-buttons>
-    <ion-title mode="md">View Mileage</ion-title>
+    <ion-title mode="md" class="page-title">View Mileage</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -127,7 +127,7 @@
 
     <div class="view-mileage--card">
       <div class="view-mileage--card-action" id="commentsSection">
-        <app-comments objectType="transactions" [objectId]="extendedMileage.tx_id" mode="edit" text="Comments">
+        <app-comments objectType="transactions" [objectId]="extendedMileage.tx_id" mode="edit" text="Comments" [showCommentsCount]="true">
         </app-comments>
       </div>
     </div>

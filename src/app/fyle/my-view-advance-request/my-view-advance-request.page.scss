@@ -7,6 +7,10 @@
     border-radius: 4px;
   }
 
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
   &--attachment-currency-container{
     margin: 12px;
     display: flex;
@@ -155,7 +159,14 @@
       vertical-align: middle;
       font-size: 16px;
       margin: 0 0 0 16px;
+    }
+
+    &__comment {
       color: #0077ee;
+    }
+
+    &__delete {
+      color: #f00;
     }
 
     mat-icon {

@@ -20,12 +20,13 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { DateService } from 'src/app/core/services/date.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -97,14 +98,21 @@ export class AddEditMileagePage implements OnInit {
     private modalController: ModalController,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private navController: NavController
+    private navController: NavController,
+    private dateService: DateService,
   ) { }
 
   ngOnInit() {
   }
 
+
+
   get mileage_locations() {
     return this.fg.controls.mileage_locations as FormArray;
+  }
+
+  debug(data) {
+    console.log('\n\n\n data ->', data);
   }
 
   goToPrev() {
@@ -475,6 +483,7 @@ export class AddEditMileagePage implements OnInit {
         }),
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
+            take(1),
             map(isConnected => {
               const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
               customFieldsFormArray.clear();
@@ -604,6 +613,9 @@ export class AddEditMileagePage implements OnInit {
       report: [],
       duplicate_detection_reason: []
     });
+
+    const today = new Date();
+    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
 
 
     this.fg.controls.round_trip.valueChanges.subscribe(roundTrip => {
@@ -749,6 +761,7 @@ export class AddEditMileagePage implements OnInit {
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
         return this.isConnected$.pipe(
+          take(1),
           map(isConnected => ({
             isConnected,
             txnFields
@@ -897,7 +910,7 @@ export class AddEditMileagePage implements OnInit {
           this.reports$.pipe(
             map(reportOptions => reportOptions
               .map(res => res.value)
-              .find(reportOption => reportOption.id === etxn.tx.report_id))
+              .find(reportOption => reportOption.rp.id === etxn.tx.report_id))
           ),
           of(null)
         );
@@ -960,7 +973,8 @@ export class AddEditMileagePage implements OnInit {
         project,
         billable: etxn.tx.billable,
         sub_category: subCategory,
-        costCenter
+        costCenter,
+        report
       });
 
       if (etxn.tx.locations) {
@@ -997,23 +1011,33 @@ export class AddEditMileagePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  goBack() {
-    if (this.mode === 'add') {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    } else {
-      if (!this.reviewList || this.reviewList.length === 0) {
-        this.navController.back();
-      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
-        if (+this.activeIndex === 0) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
-          this.goToPrev();
-        }
-      } else {
+  async goBack() {
+    const popupResults = await this.popupService.showPopup({
+      header: 'Unsaved Changes',
+      message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
+      primaryCta: {
+        text: 'Discard Changes'
+      }
+    });
+
+    if (popupResults === 'primary') {
+      if (this.mode === 'add') {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      } else {
+        if (!this.reviewList || this.reviewList.length === 0) {
+          this.navController.back();
+        } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
+          if (+this.activeIndex === 0) {
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          } else {
+            this.goToPrev();
+          }
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        }
       }
     }
-  };
+  }
 
   checkIfInvalidPaymentMode() {
     return forkJoin({
@@ -1036,21 +1060,46 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  addToNewReport(txnId: string) {
+    const that = this;
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return this.transactionService.getEtxn(txnId);
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(etxn => {
+      const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
+      if (!criticalPolicyViolated) {
+        that.router.navigate(['/', 'enterprise' , 'my_create_report' , { txn_ids: JSON.stringify([txnId]) }]);
+      } else {
+        that.goBack();
+      }
+    });
+  }
+
   saveExpense() {
-    let that = this;
+    const that = this;
 
     that.checkIfInvalidPaymentMode().pipe(
       take(1)
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(() => {
-            that.goBack();
+          that.addExpense().subscribe((etxn) => {
+            if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id ) {
+              this.addToNewReport(etxn.tx.id);
+            } else {
+              that.goBack();
+            }
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(() => {
-            that.goBack();
+          that.editExpense().subscribe((etxn) => {
+            if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id ) {
+              this.addToNewReport(etxn.tx.id);
+            } else {
+              that.goBack();
+            }
           });
         }
       } else {
@@ -1327,7 +1376,9 @@ export class AddEditMileagePage implements OnInit {
           return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
         }),
         switchMap(etxn => {
-          return this.isConnected$.pipe(switchMap(isConnected => {
+          return this.isConnected$.pipe(
+            take(1),
+            switchMap(isConnected => {
             if (isConnected) {
               const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
               return policyViolations$.pipe(
@@ -1404,6 +1455,7 @@ export class AddEditMileagePage implements OnInit {
             return throwError(err);
           }
         }),
+        tap(etxnToBeSaved => console.log({etxnToBeSaved})),
         switchMap(({ etxn, comment }: any) => {
           return forkJoin({
             eou: from(this.authService.getEou()),
@@ -1428,20 +1480,21 @@ export class AddEditMileagePage implements OnInit {
                 }),
                 map(savedEtxn => savedEtxn && savedEtxn.tx),
                 switchMap((tx) => {
+                  const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
 
-                  if (!txnCopy.report_id && etxn.tx.report_id) {
-                    return this.reportService.addTransactions(etxn.tx.report_id, [tx.id]).pipe(map(() => tx));
+                  if (!txnCopy.tx.report_id && selectedReportId) {
+                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(map(() => tx));
                   }
 
-                  if (txnCopy.report_id && etxn.tx.report_id && etxn.tx.report_id !== etxn.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.report_id, tx.id).pipe(
-                      switchMap(() => this.reportService.addTransactions(etxn.tx.report_id, [tx.id])),
+                  if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       map(() => tx)
                     );
                   }
 
-                  if (txnCopy.report_id && !etxn.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.report_id, tx.id).pipe(map(() => tx));
+                  if (txnCopy.tx.report_id && !selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(map(() => tx));
                   }
 
                   return of(null).pipe(map(() => tx));
@@ -1504,6 +1557,7 @@ export class AddEditMileagePage implements OnInit {
 
     const calculatedDistance$ = this.isConnected$
       .pipe(
+        take(1),
         switchMap((isConnected) => {
           if (isConnected) {
             return this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
@@ -1544,6 +1598,7 @@ export class AddEditMileagePage implements OnInit {
         }),
         switchMap(etxn => {
           return this.isConnected$.pipe(
+            take(1),
             switchMap(isConnected => {
               if (isConnected) {
                 const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());

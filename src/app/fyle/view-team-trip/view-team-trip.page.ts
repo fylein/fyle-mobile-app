@@ -250,6 +250,12 @@ export class ViewTeamTripPage implements OnInit {
     }
   }
 
+  getApproverEmails(activeApprovals) {
+    return activeApprovals.map(approver => {
+      return approver.approver_email;
+    });
+  }
+
   ionViewWillEnter() {
 
     const id = this.activatedRoute.snapshot.params.id;

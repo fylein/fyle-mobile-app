@@ -14,7 +14,7 @@ $chevron-fill: #757575;
 .dashboard-card {
   &--details {
     margin: 16px;
-    padding: 12px 0 0 16px;
+    padding: 0 0 0 4px;
     border-radius: 4px;
     box-shadow: 0 4px 8px 0 $shadow !important;
     background-color: $background-color;
@@ -43,6 +43,7 @@ $chevron-fill: #757575;
     margin: 0 0 10px;
     color: $dashboard-count-text-color;
     white-space: nowrap;
+    font-size: 12px;
   }
 
   &--card-amount {
@@ -61,7 +62,6 @@ $chevron-fill: #757575;
     display: flex;
     align-items: flex-end;
     flex-direction: column;
-    margin-top: 8px;
   }
 
   &--icon-curve {
@@ -83,7 +83,7 @@ $chevron-fill: #757575;
     display: flex;
     align-items: flex-end;
     flex-direction: row;
-    margin-top: 8px;
+    top: 5px;
     left: 6px;
     position: relative;
   }

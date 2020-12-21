@@ -1,12 +1,12 @@
 <ion-header mode="md" >
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-buttons slot="end" mode="md">
       <ion-button mode="md" class="trip-request--header_close-button" [routerLink]="['/','enterprise','team_trips']"
         routerLinkActive="router-link-active">
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="trip-request--header-title text-capitalize">View Trip Request</ion-title>
+    <ion-title mode="md" class="page-title">View Trip Request</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -193,9 +193,15 @@
       </ng-container>
 
 
-      <app-fy-apporver [approverList]="tripRequest.approvers" [id]="tripRequest.trp_id" [from]="'TRIP_REQUEST'"
-        [title]="'Add Approvers'" (notify)='onUpdateApprover($event)'>
-      </app-fy-apporver>
+      <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
+          <app-fy-apporver 
+          [approverList]="getApproverEmails(activeApprovals)" 
+          [id]="tripRequest.trp_id"
+          [from]="'TRIP_REQUEST'" 
+          [title]="'Add Approvers'" 
+          (notify)='onUpdateApprover($event)'>
+        </app-fy-apporver>
+      </ng-container>
 
       <div class="trip-request--card">
         <div class="trip-request--card-action">
@@ -208,7 +214,7 @@
 </ion-content>
 
 <ion-footer *ngIf="canDoAction$|async">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button (click)="openActionBlock()" class="trip-request--primary-cta flat-button" fill="solid"
       color="fyle-primary" expand="block">
       Trip Action

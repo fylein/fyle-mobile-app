@@ -1,6 +1,6 @@
 <ion-header mode="md" >
   <ion-toolbar class="view-advances--toolbar">
-    <ion-title mode="md">
+    <ion-title mode="md" class="page-title">
       View Advance
     </ion-title>
     <ion-buttons mode="md" slot="end">
@@ -126,13 +126,20 @@
       </div>
     </ng-container>
 
-    <app-fy-apporver [approverList]="advanceRequest.areq_approvers_ids" [id]="advanceRequest.areq_id"
-      [from]="'ADVANCE_REQUEST'" [title]="'Add Approvers'" (notify)='onUpdateApprover($event)'>
-    </app-fy-apporver>
+
+    <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
+      <app-fy-apporver 
+        [approverList]="getApproverEmails(activeApprovals)" 
+        [id]="advanceRequest.areq_id"
+        [from]="'ADVANCE_REQUEST'" 
+        [title]="'Add Approvers'" 
+        (notify)='onUpdateApprover($event)'>
+      </app-fy-apporver>
+    </ng-container>
 
     <div class="view-advances--card view-advances--card__modified-padding">
       <div class="view-advances--common-action-block">
-        <app-comments objectType="advance_requests" [objectId]="advanceRequest.areq_id" mode="edit" text="Comments">
+        <app-comments objectType="advance_requests" [objectId]="advanceRequest.areq_id" mode="edit" text="Comments" [showCommentsCount]="true">
         </app-comments>
       </div>
     </div>
@@ -142,7 +149,7 @@
 </ion-content>
 
 <ion-footer *ngIf="showAdvanceActions$|async">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="view-advances--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
       (click)="openAdvanceActionsPopover()">
       Advance Actions

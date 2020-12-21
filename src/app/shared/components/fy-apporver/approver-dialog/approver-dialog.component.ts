@@ -1,8 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Observable, from, noop } from 'rxjs';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { switchMap, map, finalize, concatMap, reduce } from 'rxjs/operators';
+import { switchMap, map, finalize, concatMap, reduce, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { ConfirmationCommentPopoverComponent } from './confirmation-comment-popover/confirmation-comment-popover.component';
@@ -14,14 +14,18 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
   templateUrl: './approver-dialog.component.html',
   styleUrls: ['./approver-dialog.component.scss']
 })
-export class ApproverDialogComponent implements OnInit {
+export class ApproverDialogComponent implements OnInit, AfterViewInit {
+
+  @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() approverList;
   @Input() id;
   @Input() from;
 
   approverList$: Observable<any>;
+  searchedApprovers$: Observable<any>;
   selectedApprovers: any[] = [];
+  searchTerm;
 
   constructor(
     private loaderService: LoaderService,
@@ -98,17 +102,32 @@ export class ApproverDialogComponent implements OnInit {
       map(eouc => {
         if (this.from === 'TRIP_REQUEST') {
           return eouc.filter(approver => {
-            return this.approverList.indexOf(approver.ou.id) < 0;
+            return this.approverList.indexOf(approver.us.email) < 0;
           });
         }
 
         if (this.from === 'ADVANCE_REQUEST') {
           return eouc.filter(approver => {
-            return this.approverList.indexOf(approver.ou.id) < 0;
+            return this.approverList.indexOf(approver.us.email) < 0;
           });
         }
       }),
       finalize(() => from(this.loaderService.hideLoader()))
+    );
+  }
+
+  ngAfterViewInit() {
+    this.searchedApprovers$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText: any) => {
+        return this.approverList$.pipe(map(filteredApprovers => {
+          return filteredApprovers.filter(filteredApprover => {
+            return !searchText || filteredApprover.us.email.indexOf(searchText) > -1;
+          });
+       }));
+      })
     );
   }
 }

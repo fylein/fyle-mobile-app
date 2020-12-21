@@ -64,6 +64,12 @@ export class ViewTeamReportPage implements OnInit {
     return vendorName;
   }
 
+  getApproverEmails(reportApprovals) {
+    return reportApprovals.map(approver => {
+      return approver.approver_email;
+    });
+  }
+
   getShowViolation(etxn) {
     return etxn.tx_id &&
       (etxn.tx_manual_flag ||
@@ -73,13 +79,21 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.erpt$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id)),
-      tap(res => {
-        this.isReportReported = ['APPROVER_PENDING'].indexOf(res.rp_state) > -1;
+    this.erpt$ = this.refreshApprovals$.pipe(
+      switchMap(() => {
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id);
+          })
+        );
       }),
+      shareReplay(),
       finalize(() => from(this.loaderService.hideLoader()))
     );
+
+    this.erpt$.subscribe(res => {
+      this.isReportReported = ['APPROVER_PENDING'].indexOf(res.rp_state) > -1;
+    });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map(pdfExports => {
@@ -96,7 +110,7 @@ export class ViewTeamReportPage implements OnInit {
     this.reportApprovals$ = this.refreshApprovals$.pipe(
       startWith(true),
       switchMap(() => {
-        return this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)  
+        return this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)
       }),
       map(reportApprovals => {
         return reportApprovals.filter((approval) => {
@@ -134,6 +148,8 @@ export class ViewTeamReportPage implements OnInit {
     this.canResubmitReport$ = actions$.pipe(map(actions => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
+
+    this.refreshApprovals$.next();
   }
 
   async deleteReport() {

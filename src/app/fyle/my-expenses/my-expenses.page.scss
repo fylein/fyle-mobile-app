@@ -4,8 +4,17 @@
   }
 
   &--toolbar {
-    display: flex;
     align-items: center;
+    display: inline-flex;
+    margin: 8px 16px;
+    width: 90%;
+  }
+
+  &--title {
+    font-size: 24px;
+    font-weight: 700; 
+    padding-left: 0px;
+    line-height: 2;
   }
 
   &--state {
@@ -37,6 +46,10 @@
     margin-bottom: 16px;
   }
 
+  &--cta-container {
+    display: flex;
+  }
+
   &--state-pill {
     width: 47%;
     border: 1px solid #0077ee;
@@ -54,21 +67,30 @@
 
     &__selected {
       background-color: #0077ee;
-      color: #e6e6e6;
+      color: white;
     }
   }
 
   &--simple-search {
-    min-width: 65%;
-    max-width: 80%;
-    margin: 8px;
-    font-size: 12px;
+    width: 100%;
+    font-size: 14px;
 
     &-icon {
-      width: 16px;
-      margin-right: 10px;
+      width: 14px;
+      font-size: 18px;
+      margin-right: 6px;
       color: #aaa;
     }
+
+    &-close {
+      margin: -10px;
+      font-size: 18px;
+    }
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
   }
 
   &--filters {
@@ -104,7 +126,13 @@
   }
 
   &--primary-cta {
+    height: 48px;
+    display: block;
     margin: 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 8px;
   }
 
   &--offline-header {
@@ -222,8 +250,5 @@
       }
     }
   }
-
-  &--simple-search-icon {
-    height: 16px;
-  }
 }
+

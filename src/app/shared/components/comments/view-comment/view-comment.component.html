@@ -6,8 +6,8 @@
       </ion-button>
     </ion-buttons>
     <ion-title mode="md">
-      Comment
-      <span *ngIf="totalCommentsCount$|async as totalCommentsCount">({{totalCommentsCount}})</span>
+      Comments
+      <span>({{totalCommentsCount$|async}})</span>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -39,13 +39,11 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-
   </div>
-
 </ion-content>
 
 <ion-footer class="ion-no-border">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <!-- Todo: Improve this flow -->
     <div class="view-comment--showbot-container" (click)="changeBotComments()">
       <ion-checkbox mode="ios" class="view-comment--showbot-checkbox" color="danger" checked="{{showBotComments}}">
@@ -54,7 +52,7 @@
     </div>
 
     <div class="view-comment--type-comment-block" *ngIf="mode === 'edit'">
-      <textarea class="view-comment--text-area" rows="1" matInput placeholder="Enter reason"
+      <textarea class="view-comment--text-area" rows="1" matInput placeholder="Type in your comment here..."
         [(ngModel)]="newComment"></textarea>
       <mat-icon class="view-comment--send-icon" (click)="addComment()">send</mat-icon>
     </div>

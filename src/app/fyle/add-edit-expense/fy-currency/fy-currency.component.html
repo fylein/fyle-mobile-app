@@ -4,7 +4,7 @@
     <input class="fy-currency--amount" formControlName="amount" (blur)="onBlur()" type="number" placeholder="Amount">
   </form>
 </div>
-<ng-container *ngIf="value?.orig_currency">
+<ng-container *ngIf="value?.amount && value?.currency && value?.orig_currency">
   <div class="fy-currency--exchange-rate">
     <div>
       <div class="fy-currency--exchange-rate-coverted-amount">

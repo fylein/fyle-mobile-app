@@ -18,8 +18,6 @@ export class FyModifyApproverComponent implements OnInit {
 
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
-  approverList$: Observable<any>;
-
   constructor(
     private modalController: ModalController
   ) { }
@@ -46,5 +44,6 @@ export class FyModifyApproverComponent implements OnInit {
 
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+  }
 }
