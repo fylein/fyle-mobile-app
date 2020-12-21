@@ -47,9 +47,9 @@ export class FreshChatService {
 
   private async initFreshChat() {
     const that = this;
-    var eou = await that.authService.getEou();
-    var inAppChatRestoreId = await that.storageService.get('inAppChatRestoreId');
-    var device = '';
+    const eou = await that.authService.getEou();
+    const inAppChatRestoreId = await that.storageService.get('inAppChatRestoreId');
+    let device = '';
 
     const info = await Device.getInfo();
 
@@ -59,49 +59,49 @@ export class FreshChatService {
       device = 'ANDROID';
     }
 
-    (<any>window).fcWidget.init({
+    (window as any).fcWidget.init({
       token: environment.FRESHCHAT_TOKEN,
       host: 'https://wchat.in.freshchat.com',
       externalId: eou.ou.id,
       restoreId: inAppChatRestoreId                            // that id is used to restore chat for the user
     });
 
-    (<any>window).fcWidget.on('widget:loaded', function () {
+    (window as any).fcWidget.on('widget:loaded', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'none';
       }
     });
-    (<any>window).fcWidget.on('widget:closed', function () {
+    (window as any).fcWidget.on('widget:closed', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'none';
       }
     });
-    (<any>window).fcWidget.on('widget:opened', function () {
+    (window as any).fcWidget.on('widget:opened', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'flex';
       }
     });
 
-    (<any>window).fcWidget.user.get(function (resp) {                  // Freshchat here calls an API to check if there is any user with the above externalId
-      var status = resp && resp.status;
-      var data = resp && resp.data;
+    (window as any).fcWidget.user.get((resp) => {                  // Freshchat here calls an API to check if there is any user with the above externalId
+      const status = resp && resp.status;
+      const data = resp && resp.data;
       if (status !== 200) {                                     // If there is no user with the above externalId; then set the below properties
-        (<any>window).fcWidget.user.setProperties({
+        (window as any).fcWidget.user.setProperties({
           firstName: eou.us.full_name,                          // user's first name
           email: eou.us.email,                                  // user's email address
           orgName: eou.ou.org_name,                             // user's org name
           orgId: eou.ou.org_id,                                 // user's org id
           userId: eou.us.id,                                    // user's user id
-          device: device                                        // storing users device
+          device                                        // storing users device
         });
-        (<any>window).fcWidget.on('user:created', async function (resp) {    // When that new user tries to initiate a chat Freshchat creates a users with above properties
-          var status = resp && resp.status;
-          var data = resp && resp.data;
+        (window as any).fcWidget.on('user:created', async (resp) => {    // When that new user tries to initiate a chat Freshchat creates a users with above properties
+          const status = resp && resp.status;
+          const data = resp && resp.data;
           if (status === 200 && data.restoreId) {               // To preserve chat history across devices and platforms, freshchat creates a unique restoreId for each user
             const orgUserSettings = await that.getOrgUserSettings();
 
             orgUserSettings.in_app_chat_settings.restore_id = data.restoreId;   // that restoreId is stored in our db here
-            await that.orgUserSettingsService.post(orgUserSettings)
+            await that.orgUserSettingsService.post(orgUserSettings);
 
             await that.storageService.set('inAppChatRestoreId', data.restoreId);  // For easier access storing it in localStorage too
           }
@@ -121,6 +121,6 @@ export class FreshChatService {
   }
 
   openLiveChatSupport() {
-    return (<any>window) && (<any>window).fcWidget && (<any>window).fcWidget.open();
+    return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
   }
 }
