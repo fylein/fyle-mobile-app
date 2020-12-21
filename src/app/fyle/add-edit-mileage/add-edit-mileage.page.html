@@ -94,7 +94,7 @@
                 </p>
                 <p class="add-edit-mileage--rate-value mb-0 text-right">
                   {{rate$|async | currency: homeCurrency}}
-                </div>
+                </p>
               </div>
             </div>
           </ng-container>
@@ -153,21 +153,14 @@
                 <div class="add-edit-mileage--text add-edit-mileage--internal-block">
                   <div class="add-edit-mileage--text-label"
                     [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}">
-                    <span>
-                      {{ (etxn.tx.distance || fg.controls.distance.value) ? txnFields?.distance.title : 'Enter ' + txnFields?.distance.title }}
-                      <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                        <span class="small">({{ etxn.tx.distance_unit }})</span>
-                      </ng-container>
-  
-                      <ng-template #defaultDistanceUnit>
-                        <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                          <span class="small">({{ mileageConfig.unit }})</span>
-                        </ng-container>
-                      </ng-template>
-                      <span>
-                        *
-                      </span>
-                    </span>
+                    {{ fg.controls.distance.value > 0 ? 'Distance ' : 'Enter Distance ' }} 
+                    <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
+                      <span class="add-edit-mileage--text-label__unit"> ({{ etxn.tx.distance_unit }})</span>
+                    </ng-container>
+
+                    <ng-template #defaultDistanceUnit>
+                      <ng-container *ngIf="mileageConfig$|async as mileageConfig">
+                        <span class="add-edit-mileage--text-label__unit"> ({{ mileageConfig.unit }})</span>
                   </div>
                   <input class="add-edit-mileage--text-input" type="number" formControlName="distance" [min]="0"
                     [disabled]="(isAmountDisabled$|async) || !txnFields?.distance.canEdit">
