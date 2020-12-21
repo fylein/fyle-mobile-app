@@ -200,13 +200,15 @@
     </ion-button>
   </ion-toolbar>
   <ion-toolbar mode="md" *ngIf="baseState === 'all' && selectionMode && selectedElements.length > 0">
-    <ion-button mode="md" class="my-expenses--primary-cta my-expenses--selected-expense-primary-cta flat-button" fill="solid" color="fyle-primary"
-      (click)="openCreateReportWithSelectedIds()">
-      CREATE REPORT
-    </ion-button>
-    <ion-button mode="md" class="my-expenses--primary-cta" fill="outline" color="fyle-primary"
-      (click)="openReviewExpenses()">
-      START REVIEW
-    </ion-button>
+    <div class="my-expenses--cta-container">
+      <ion-button mode="md" class="my-expenses--primary-cta my-expenses--selected-expense-primary-cta flat-button" fill="solid" color="fyle-primary"
+        (click)="openCreateReportWithSelectedIds()">
+        CREATE REPORT
+      </ion-button>
+      <ion-button mode="md" class="my-expenses--primary-cta" fill="outline" color="fyle-primary"
+        (click)="openReviewExpenses()">
+        START REVIEW
+      </ion-button>
+    </div>
   </ion-toolbar>
 </ion-footer>
