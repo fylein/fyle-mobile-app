@@ -1,11 +1,17 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { ModalController } from '@ionic/angular';
+import { AppDateAdapter, APP_DATE_FORMATS } from 'src/app/shared/format-datepicker/format-datepicker';
 
 @Component({
   selector: 'app-team-reports-search-filter',
   templateUrl: './team-reports-search-filter.component.html',
   styleUrls: ['./team-reports-search-filter.component.scss'],
+  providers: [
+    {provide: DateAdapter, useClass: AppDateAdapter},
+    {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
+  ]
 })
 export class TeamReportsSearchFilterComponent implements OnInit {
 

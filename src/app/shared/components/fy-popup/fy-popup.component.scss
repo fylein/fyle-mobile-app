@@ -39,6 +39,7 @@ $details-color: #ababab;
 
   &--button {
     width: 100%;
+    min-height: 45px;
     height: 48px;
     // margin: 8px 16px;
     font-weight: 700;
@@ -56,4 +57,5 @@ $details-color: #ababab;
   &--redirect {
     text-decoration: none;
   }
+
 }

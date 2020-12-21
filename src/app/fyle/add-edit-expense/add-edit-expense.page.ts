@@ -92,6 +92,7 @@ export class AddEditExpensePage implements OnInit {
   invalidPaymentMode = false;
   pointToDuplicates = false;
   isAdvancesEnabled$: Observable<boolean>;
+  comments$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -125,6 +126,20 @@ export class AddEditExpensePage implements OnInit {
     private popupService: PopupService,
     private navController: NavController
   ) { }
+
+  async showClosePopup() {
+    const closePopup = await this.popupService.showPopup({
+      header: 'Unsaved Changes',
+      message: 'Your changes will be lost if you do not save the expense',
+      primaryCta: {
+        text: this.mode === 'add' ? 'Discard Expense' : 'Discard Changes'
+      }
+    });
+
+    if (closePopup === 'primary') {
+      this.goBack();
+    }
+  }
 
   goBack() {
     if (this.mode === 'add') {
@@ -1206,6 +1221,8 @@ export class AddEditExpensePage implements OnInit {
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
+
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
       map(orgSettings => {
