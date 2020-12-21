@@ -77,15 +77,18 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   onDoneClick() {
-    if (this.currentSelection && this.value && this.value === '') {
-      this.modalController.dismiss({
-        selection: null
-      });
+    let value;
+    if (this.currentSelection) {
+      value = this.currentSelection
+    } else if (this.value && this.value !== '') {
+      value = {display: this.value}
     } else {
-      this.modalController.dismiss({
-        selection: this.currentSelection
-      });
+      value = null;
     }
+
+    this.modalController.dismiss({
+      selection: value
+    });
   }
 
   onElementSelect(location) {

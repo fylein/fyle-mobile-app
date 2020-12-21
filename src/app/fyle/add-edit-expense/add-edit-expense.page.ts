@@ -92,6 +92,7 @@ export class AddEditExpensePage implements OnInit {
   invalidPaymentMode = false;
   pointToDuplicates = false;
   isAdvancesEnabled$: Observable<boolean>;
+  comments$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -125,6 +126,20 @@ export class AddEditExpensePage implements OnInit {
     private popupService: PopupService,
     private navController: NavController
   ) { }
+
+  async showClosePopup() {
+    const closePopup = await this.popupService.showPopup({
+      header: 'Unsaved Changes',
+      message: 'Your changes will be lost if you do not save the expense',
+      primaryCta: {
+        text: this.mode === 'add' ? 'Discard Expense' : 'Discard Changes'
+      }
+    });
+
+    if (closePopup === 'primary') {
+      this.goBack();
+    }
+  }
 
   goBack() {
     if (this.mode === 'add') {
@@ -706,7 +721,6 @@ export class AddEditExpensePage implements OnInit {
         of(null));
     }));
 
-    // TODO: Handle the case of Paid by Company
     const selectedPaymentMode$ = this.etxn$.pipe(switchMap(etxn => {
       return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
         map(paymentModes => paymentModes
@@ -720,6 +734,14 @@ export class AddEditExpensePage implements OnInit {
           }))
       ), of(null));
     }));
+
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map(paymentModes => paymentModes
+        .map(res => res.value)
+        .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
+      )
+    );
+
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
@@ -746,11 +768,13 @@ export class AddEditExpensePage implements OnInit {
           category: selectedCategory$,
           report: selectedReport$,
           costCenter: selectedCostCenter$,
-          customInputs: selectedCustomInputs$
+          customInputs: selectedCustomInputs$,
+          homeCurrency: this.offlineService.getHomeCurrency(),
+          defaultPaymentMode: defaultPaymentMode$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({ etxn, paymentMode, project, category, report, costCenter, customInputs }) => {
+    ).subscribe(({ etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode }) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -769,6 +793,15 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: etxn.tx.orig_currency,
           }
         });
+      } else if (etxn.tx.currency) {
+        this.fg.patchValue({
+          currencyObj: {
+            amount: null,
+            currency: homeCurrency,
+            orig_amount: null,
+            orig_currency: etxn.tx.currency,
+          }
+        });
       } else if (etxn.tx.user_amount) {
         this.fg.patchValue({
           currencyObj: {
@@ -781,7 +814,7 @@ export class AddEditExpensePage implements OnInit {
       }
 
       this.fg.patchValue({
-        paymentMode,
+        paymentMode: paymentMode || defaultPaymentMode,
         project,
         category,
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
@@ -822,20 +855,28 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupCustomFields() {
+    let initialFetch = true;
     this.customInputs$ = this.fg.controls.category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
-          const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-            return iif(
-              () => etxn.tx.org_category_id,
-              this.offlineService.getAllCategories()
-                .pipe(
-                  map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
-                ),
-              of(null)
-            );
-          }));
+          let selectedCategory$;
+          if (initialFetch) {
+            selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+              return iif(
+                () => etxn.tx.org_category_id,
+                this.offlineService.getAllCategories()
+                  .pipe(
+                    map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
+                  ),
+                of(null)
+              );
+            }));
+            initialFetch = false;
+          } else {
+            selectedCategory$ = of(category);
+          }
+
           return iif(() => this.mode === 'add', of(category), selectedCategory$);
         }),
         switchMap((category) => {
@@ -987,8 +1028,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     txnFieldsMap$.pipe(
-      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields)),
-      tap(console.log)
+      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields))
     ).subscribe((defaultValues) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
@@ -1207,6 +1247,8 @@ export class AddEditExpensePage implements OnInit {
       map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
 
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
+
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
       map(orgSettings => {
         return orgSettings.expense_settings.split_expense_settings.enabled;
@@ -1347,7 +1389,7 @@ export class AddEditExpensePage implements OnInit {
             policy_amount: null,
             vendor: this.fg.value.merchant && this.fg.value.merchant.display_name,
             purpose: this.fg.value.purpose,
-            locations,
+            locations: locations || [],
             custom_properties: customProperties || [],
             num_files: this.activatedRoute.snapshot.params.dataUrl ? 1 : 0,
             org_user_id: etxn.tx.org_user_id,

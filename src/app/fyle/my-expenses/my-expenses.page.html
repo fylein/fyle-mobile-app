@@ -170,43 +170,47 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar mode="md" *ngIf="baseState === 'all' && (allExpensesCount$|async) > 0">
-    <div class="my-expenses--stats">
-      <div class="my-expenses--amount">
-        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span>
-        {{(expensesAmountStats$|async|number:'1.2')}}
-      </div>
-      <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
-        across {{allExpensesCount}} unreported expenses
+  <div class="my-expenses--footer-container">
+    <div *ngIf="baseState === 'all' && (allExpensesCount$|async) > 0">
+      <div class="my-expenses--stats">
+        <div class="my-expenses--amount">
+          <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span>
+          {{(expensesAmountStats$|async|number:'1.2')}}
+        </div>
+        <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
+          across {{allExpensesCount}} unreported expenses
+        </div>
       </div>
     </div>
-  </ion-toolbar>
-  <ion-toolbar mode="md" *ngIf="baseState === 'all' && !selectionMode">
-    <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      (click)="addNewExpense()">
-      ADD NEW EXPENSE
-    </ion-button>
-  </ion-toolbar>
-  <ion-toolbar mode="md" *ngIf="baseState === 'draft'">
-    <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      (click)="openReviewExpenses()">
-      START REVIEW
-    </ion-button>
-  </ion-toolbar>
-  <ion-toolbar mode="md" *ngIf="baseState === 'all' && selectionMode && selectedElements.length === 0"
-    (click)="openCreateReport()">
-    <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
-      CREATE REPORT
-    </ion-button>
-  </ion-toolbar>
-  <ion-toolbar mode="md" *ngIf="baseState === 'all' && selectionMode && selectedElements.length > 0">
-    <ion-button mode="md" class="my-expenses--primary-cta my-expenses--selected-expense-primary-cta flat-button" fill="solid" color="fyle-primary"
-      (click)="openCreateReportWithSelectedIds()">
-      CREATE REPORT
-    </ion-button>
-    <ion-button mode="md" class="my-expenses--primary-cta" fill="outline" color="fyle-primary"
-      (click)="openReviewExpenses()">
-      START REVIEW
-    </ion-button>
-  </ion-toolbar>
+    <ion-toolbar mode="md" *ngIf="baseState === 'all' && !selectionMode">
+      <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+        (click)="addNewExpense()">
+        ADD NEW EXPENSE
+      </ion-button>
+    </ion-toolbar>
+    <ion-toolbar mode="md" *ngIf="baseState === 'draft'">
+      <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+        (click)="openReviewExpenses()">
+        START REVIEW
+      </ion-button>
+    </ion-toolbar>
+    <ion-toolbar mode="md" *ngIf="baseState === 'all' && selectionMode && selectedElements.length === 0"
+      (click)="openCreateReport()">
+      <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+        CREATE REPORT
+      </ion-button>
+    </ion-toolbar>
+    <ion-toolbar mode="md" *ngIf="baseState === 'all' && selectionMode && selectedElements.length > 0">
+      <div class="my-expenses--cta-container">
+        <ion-button mode="md" class="my-expenses--primary-cta my-expenses--selected-expense-primary-cta flat-button" fill="solid" color="fyle-primary"
+          (click)="openCreateReportWithSelectedIds()">
+          CREATE REPORT
+        </ion-button>
+        <ion-button mode="md" class="my-expenses--primary-cta" fill="outline" color="fyle-primary"
+          (click)="openReviewExpenses()">
+          START REVIEW
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </div>
 </ion-footer>

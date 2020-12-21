@@ -17,6 +17,10 @@ $list-element-color: #333;
 
   &--title {
     margin: 0;
+    font-size: 19px;
+    height: 100%;
+    line-height: 1.3;
+    font-weight: 600;
   }
 
   &--header {
@@ -46,12 +50,15 @@ $list-element-color: #333;
     padding: 0 10px;
   }
 
+  &--recently-used-block {
+    margin-bottom: 20px;
+  }
+
   &--sub-title {
     color: #ababab;
     font-size: 14px;
     font-weight: 700;
     padding: 5px 14px;
     border-bottom: 1px solid #ddd;
-    margin-top: 20px;
   }
 }

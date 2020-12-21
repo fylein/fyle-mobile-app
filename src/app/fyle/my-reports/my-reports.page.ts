@@ -78,7 +78,8 @@ export class MyReportsPage implements OnInit {
 
   ionViewWillEnter() {
     this.searchText = '';
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    // this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    console.log(this.navigateBack);
     this.acc = [];
 
     this.currentPageNumber = 1;
@@ -181,7 +182,6 @@ export class MyReportsPage implements OnInit {
     );
 
     this.loadData$.subscribe(params => {
-      console.log(params);
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -208,6 +208,7 @@ export class MyReportsPage implements OnInit {
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
+
     if (this.activatedRoute.snapshot.queryParams.filters) {
       this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
       this.currentPageNumber = 1;

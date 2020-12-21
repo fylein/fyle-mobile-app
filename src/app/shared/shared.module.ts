@@ -48,6 +48,9 @@ import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.c
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
 import { FyFlagExpenseComponent } from './components/fy-flag-expense/fy-flag-expense.component';
 import { FlagUnflagConfirmationComponent } from './components/fy-flag-expense/flag-unflag-confirmation/flag-unflag-confirmation.component';
+import { FyPolicyViolationInfoComponent } from './components/fy-policy-violation-info/fy-policy-violation-info.component';
+import {FyAddToReportComponent} from './components/fy-add-to-report/fy-add-to-report.component';
+import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
 
 @NgModule({
   declarations: [
@@ -85,7 +88,10 @@ import { FlagUnflagConfirmationComponent } from './components/fy-flag-expense/fl
     FyCategoryIconComponent,
     ModifyApproverConfirmationPopoverComponent,
     FyFlagExpenseComponent,
-    FlagUnflagConfirmationComponent
+    FlagUnflagConfirmationComponent,
+    FyPolicyViolationInfoComponent,
+    FyAddToReportComponent,
+    FyAddToReportModalComponent
   ],
   imports: [
     CommonModule,
@@ -131,11 +137,13 @@ import { FlagUnflagConfirmationComponent } from './components/fy-flag-expense/fl
     FyCategoryIconComponent,
     ModifyApproverConfirmationPopoverComponent,
     FyFlagExpenseComponent,
-    FlagUnflagConfirmationComponent
+    FlagUnflagConfirmationComponent,
+    FyPolicyViolationInfoComponent,
+    FyAddToReportComponent
   ],
   providers: [
     DecimalPipe,
-    DatePipe,
+    DatePipe
   ]
 })
 export class SharedModule { }

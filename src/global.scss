@@ -154,6 +154,10 @@ input:focus, textarea:focus{
   white-space: nowrap;
 }
 
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
 .full-width {
   width: 100% !important;
 }
@@ -184,7 +188,7 @@ input:focus, textarea:focus{
 
 .page-title {
   font-size: 24px;
-  font-weight: 700; 
+  font-weight: 700;
   padding: 14px;
   line-height: 2;
 }

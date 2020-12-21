@@ -1,0 +1,21 @@
+.policy-violation-info {
+
+  &--container {
+    border-radius: 6px;
+    background: #f2f2f2;
+    padding: 8px 16px;
+    margin-bottom: 8px;
+    margin-top: 8px;
+  }
+
+  &--icon {
+    font-size: 16px;
+    color: #ababab;
+  }
+
+  &--text {
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+
+}

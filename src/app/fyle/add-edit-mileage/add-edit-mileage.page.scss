@@ -14,14 +14,19 @@
     justify-content: space-around;
   }
 
+  &--cta-container {
+    padding: 16px;
+    justify-content: space-between;
+  }
+
   &--primary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: uppercase;
     font-weight: 700;
-    border-radius: 8px;
-    margin: 14px;
+    --border-radius: 4px !important;
     width: 100%;
+    margin: 0 4px;
   }
 
   &--receipt-currency {
@@ -48,7 +53,7 @@
   }
 
   &--form {
-    padding: 0 16px;
+    padding: 0 16px 16px 16px;
   }
 
   &--date {
@@ -94,8 +99,14 @@
     line-height: 2;
     white-space: nowrap;
     display: flex;
+
     &__invalid {
       color: red;
+    }
+
+    &__unit {
+      font-size: 12px;
+      margin-top: 4px;
     }
   }
 
@@ -190,6 +201,7 @@
     background: #f2f2f2;
     padding: 8px 16px;
     margin-bottom: 16px;
+    margin-top: 8px;
   }
 
   &--amount-box {
@@ -203,14 +215,15 @@
 
   &--amount {
     width: calc(100% - 100px);
-    padding-right: 16px;
+    padding: 0 0 4px;
     border-right: 1px solid #e0e0e0;
     color: #ababab;
   }
 
   &--rate {
+    text-align: end;
     width: 100px;
-    padding-left: 16px;
+    padding: 0 0 4px;
     color: #ababab;
   }
 
@@ -344,5 +357,21 @@
   &--new-report-block {
     display: flex;
     align-items: center;
+  }
+
+  &--payment-mode-header {
+    font-weight: 500;
+    font-size: 16px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-purpose {
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-type {
+    color: #ababab;
+    font-size: 12px;
   }
 }

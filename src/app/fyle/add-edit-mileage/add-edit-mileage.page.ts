@@ -20,12 +20,13 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { DateService } from 'src/app/core/services/date.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -67,6 +68,7 @@ export class AddEditMileagePage implements OnInit {
   isConnected$: Observable<boolean>;
   pointToDuplicates = false;
   isAdvancesEnabled$: Observable<boolean>;
+  comments$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -97,14 +99,21 @@ export class AddEditMileagePage implements OnInit {
     private modalController: ModalController,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private navController: NavController
+    private navController: NavController,
+    private dateService: DateService,
   ) { }
 
   ngOnInit() {
   }
 
+
+
   get mileage_locations() {
     return this.fg.controls.mileage_locations as FormArray;
+  }
+
+  debug(data) {
+    console.log('\n\n\n data ->', data);
   }
 
   goToPrev() {
@@ -286,7 +295,7 @@ export class AddEditMileagePage implements OnInit {
           map(activeCategories =>
             this.projectService.getAllowedOrgCategoryIds(project, activeCategories)));
       }),
-      map(categories => categories.map(category => ({ label: category.displayName, value: category }))));
+      map(categories => categories.map(category => ({ label: category.sub_category, value: category }))));
 
     this.filteredCategories$.subscribe(categories => {
       if (this.fg.value.sub_category
@@ -439,17 +448,25 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getCustomInputs() {
+    let initialFetch = true;
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
-          const selectedCategory$ = this.etxn$.pipe(
-            switchMap(etxn => {
-              return iif(() => etxn.tx.org_category_id,
-                this.offlineService.getAllCategories().pipe(
-                  map(categories => categories
-                    .find(category => category.id === etxn.tx.org_category_id))), of(null));
-            }));
+          let selectedCategory$;
+          if (initialFetch) {
+            selectedCategory$ = this.etxn$.pipe(
+              switchMap(etxn => {
+                return iif(() => etxn.tx.org_category_id,
+                  this.offlineService.getAllCategories().pipe(
+                    map(categories => categories
+                      .find(category => category.id === etxn.tx.org_category_id))), of(null));
+              }));
+            initialFetch = false;
+          } else {
+            selectedCategory$ = of(category);
+          }
+
           return iif(() => this.mode === 'add', of(category), selectedCategory$);
         }),
         switchMap((category) => {
@@ -606,6 +623,9 @@ export class AddEditMileagePage implements OnInit {
       duplicate_detection_reason: []
     });
 
+    const today = new Date();
+    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+
 
     this.fg.controls.round_trip.valueChanges.subscribe(roundTrip => {
       if (this.formInitializedFlag) {
@@ -648,6 +668,7 @@ export class AddEditMileagePage implements OnInit {
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.filteredCategories$.subscribe(subCategories => {
       if (!subCategories.length) {
@@ -880,6 +901,13 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map(paymentModes => paymentModes
+        .map(res => res.value)
+        .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
+      )
+    );
+
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap(etxn => {
         return iif(() => etxn.tx.org_category_id,
@@ -919,7 +947,6 @@ export class AddEditMileagePage implements OnInit {
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap(etxn => {
         return this.offlineService.getCustomInputs().pipe(map(customFields => {
-          // TODO: Convert custom properties to get generated from formValue
           return this.customFieldsService
             .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
         }));
@@ -937,12 +964,13 @@ export class AddEditMileagePage implements OnInit {
           selectedReport$,
           selectedCostCenter$,
           selectedCustomInputs$,
-          this.mileageConfig$
+          this.mileageConfig$,
+          defaultPaymentMode$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -957,7 +985,7 @@ export class AddEditMileagePage implements OnInit {
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
         distance: etxn.tx.distance,
         round_trip: etxn.tx.mileage_is_round_trip,
-        paymentMode,
+        paymentMode: paymentMode || defaultPaymentMode,
         purpose: etxn.tx.purpose,
         project,
         billable: etxn.tx.billable,
@@ -1000,23 +1028,33 @@ export class AddEditMileagePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  goBack() {
-    if (this.mode === 'add') {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    } else {
-      if (!this.reviewList || this.reviewList.length === 0) {
-        this.navController.back();
-      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
-        if (+this.activeIndex === 0) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
-          this.goToPrev();
-        }
-      } else {
+  async goBack() {
+    const popupResults = await this.popupService.showPopup({
+      header: 'Unsaved Changes',
+      message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
+      primaryCta: {
+        text: 'Discard Changes'
+      }
+    });
+
+    if (popupResults === 'primary') {
+      if (this.mode === 'add') {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      } else {
+        if (!this.reviewList || this.reviewList.length === 0) {
+          this.navController.back();
+        } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
+          if (+this.activeIndex === 0) {
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          } else {
+            this.goToPrev();
+          }
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        }
       }
     }
-  };
+  }
 
   checkIfInvalidPaymentMode() {
     return forkJoin({
@@ -1445,7 +1483,7 @@ export class AddEditMileagePage implements OnInit {
               // if (!isEqual(etxn.tx, txnCopy)) {
               //   // only if the form is edited
               //   TrackingService.editExpense
-              // ({Asset: 'Mobile', Type: 'Receipt', Amount: vm.etxn.tx.amount, Currency: vm.etxn.tx.currency, 
+              // ({Asset: 'Mobile', Type: 'Receipt', Amount: vm.etxn.tx.amount, Currency: vm.etxn.tx.currency,
               // Category: vm.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
               // } else {
               //   // tracking expense closed without editing
@@ -1667,7 +1705,7 @@ export class AddEditMileagePage implements OnInit {
                 //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
                 // } else {
                 //   TrackingService.createExpense
-                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
+                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount,
                 // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
                 // }
                 // if (this.saveAndCreate) {

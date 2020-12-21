@@ -24,7 +24,7 @@
   }
 
   &--stats {
-    margin: 12px;
+    color: black;
     position: relative;
     top: 8px;
   }
@@ -43,7 +43,12 @@
     font-size: 16px;
     font-weight: 500;
     color: #ababab;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+  }
+
+  &--cta-container {
+    justify-content: space-between;
+    display: flex;
   }
 
   &--state-pill {
@@ -89,6 +94,11 @@
     vertical-align: baseline;
   }
 
+  &--footer-container {
+    background: white;
+    padding: 16px;
+  }
+
   &--filters {
     margin: 0 8px;
     padding: 8px;
@@ -124,11 +134,11 @@
   &--primary-cta {
     height: 48px;
     display: block;
-    margin: 12px;
     font-size: 14px;
     text-transform: uppercase;
     font-weight: 700;
     border-radius: 8px;
+    width: 100%;
   }
 
   &--offline-header {

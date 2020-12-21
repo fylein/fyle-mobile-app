@@ -26,6 +26,14 @@ $background-color: #fff;
     padding: 0 16px 16px;
   }
 
+  &--internal-block {
+    padding: 16px 0;
+    background: #fff;
+    border: 0;
+    line-height: 1;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
   &--message {
     font-size: 16px;
     color: #ababab;
@@ -74,10 +82,10 @@ $background-color: #fff;
 
   &--item {
     width: 48%;
-    border-bottom: 1px solid #e0e0e0;
     padding: 16px 0;
     background: #fff;
     border: 0;
+    border-bottom: 1px solid #e0e0e0;
     line-height: 1;
   }
 
@@ -130,10 +138,11 @@ $background-color: #fff;
 
   &--add-more-button {
     transition: opacity 0.1s;
-    padding: 0 6px;
+    padding: 0 6px 10px 6px;
     min-width: initial;
     border-color: transparent;
     background: none;
+    color: #ff3366;
   }
 
   &--add-more-label {
@@ -144,8 +153,39 @@ $background-color: #fff;
 
   &--primary-cta {
     width: 100%;
+    height:48px;
+    --border-width: 1px;
   }
 
+  &--sub-footer {
+    display: flex;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1) !important;
+    border-top: 1px solid #e8e8e8;
+    &__total {
+      width: 47%;
+      margin-left: 15px;
+      color: #4a4a4a;
+      font-weight: 500;
+    }
 
+    &__remaining {
+      text-align: right;
+      width: 45%;
+      color: #4a4a4a;
+      font-weight: 500;
+    }
+  }
 
+  &--split-amount {
+    color: #ababab;
+    font-weight: normal;
+  }
+
+  &--cta-container {
+    border-top: 1px solid #e8e8e8;
+    background-color: #fff;
+    box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1) !important;
+  }
 }

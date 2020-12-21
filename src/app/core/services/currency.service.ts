@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { from, of } from 'rxjs';
 import * as moment from 'moment';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,7 @@ export class CurrencyService {
     return decimalAmount;
   }
 
+  @Cacheable()
   getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?) {
     const txnDt = moment(dt).format('y-MM-D');
     const queryParams = {
@@ -55,7 +57,7 @@ export class CurrencyService {
     return this.apiService.get('/currency/exchange', {
       params: queryParams
     }).pipe(
-      map((res) => this.getAmountDecimalsBasedOnValue(res.exchange_rate)),
+      map((res) => parseFloat(res.exchange_rate.toFixed(7))),
       catchError(() => of(1))
     );
   }

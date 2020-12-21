@@ -37,7 +37,7 @@
           <app-fy-category-icon [category]="expense.tx_org_category"></app-fy-category-icon>
         </div>
         <div class="my-expenses-card--selection-icon" *ngIf="selectionMode && !isSelected">
-          <ion-checkbox mode="ios" checked="false"></ion-checkbox>
+          <ion-checkbox mode="ios" checked="false" [disabled]="isDraft && selectionMode && baseState !== 'draft'"></ion-checkbox>
         </div>
         <div class="my-expenses-card--selection-icon my-expenses-card--selection-icon__selected"
           *ngIf="selectionMode && isSelected">
@@ -49,9 +49,8 @@
               [ngClass]="{'my-expenses-card--non-reimbursable': expense.tx_skip_reimbursement}">
               {{expense.tx_currency || expense?.tx_extracted_data?.currency}}
             </div>
-            <div class="my-expenses-card--amount"
-              [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement }">
-              <div *ngIf="amountIsNumber || extractedAmountIsNumber">
+            <div class="my-expenses-card--amount">
+              <div *ngIf="amountIsNumber || extractedAmountIsNumber" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement }">
                 {{(expense.tx_amount || expense?.tx_extracted_data?.amount) | number:'1.2'}}
               </div>
               <div *ngIf="!amountIsNumber && !extractedAmountIsNumber">
@@ -66,9 +65,9 @@
             </div>
           </div>
           <div class="my-expenses-card--conversion"
-            *ngIf="expense.tx_orig_currency && expense.tx_orig_amount && !selectionMode">
-            ({{ expense.tx_orig_amount| currency: expense.tx_orig_currency }} at
-            {{ (expense.tx_amount / expense.tx_orig_amount) | currency: expense.tx_currency}})
+            *ngIf="expense.tx_orig_currency && expense.tx_orig_amount && !selectionMode" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement }">
+            <strong>({{ expense.tx_orig_amount | currency: expense.tx_orig_currency }} at
+            {{ (expense.tx_amount / expense.tx_orig_amount) | currency: expense.tx_currency}})</strong>
           </div>
           <div class="my-expenses-card--vendor" *ngIf="!selectionMode">
             {{vendorDetails}}
