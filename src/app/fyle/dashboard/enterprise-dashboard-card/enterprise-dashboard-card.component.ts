@@ -250,7 +250,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       const navigateToMap = {
         trips: ['/', 'enterprise', 'my_trips'],
         advances: ['/', 'enterprise', 'my_advances'],
-        corporate_cards: ['/', 'enterprise', 'corporate_card_expenses']git
+        corporate_cards: ['/', 'enterprise', 'corporate_card_expenses']
       };
       this.router.navigate([...navigateToMap[type], {navigateBack: true}]);
     }
