@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { from, Observable } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -33,7 +34,8 @@ export class MyViewPerDiemPage implements OnInit {
     private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private perDiemService: PerDiemService,
-    private policyService: PolicyService
+    private policyService: PolicyService,
+    private navController: NavController
   ) { }
 
   isNumber(val) {
@@ -41,7 +43,7 @@ export class MyViewPerDiemPage implements OnInit {
   }
 
   goBack() {
-    // Todo: All logic of redirect to previous page
+    this.navController.back();
   }
 
   ionViewWillEnter() { 
