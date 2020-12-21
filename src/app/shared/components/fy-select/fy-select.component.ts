@@ -94,9 +94,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         customInput: this.customInput,
         subheader: this.subheader,
         enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader,
-        searchPlaceholder: this.searchPlaceholder
-
+        selectModalHeader: this.selectModalHeader
       }
     });
 
