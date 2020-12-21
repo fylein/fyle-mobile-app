@@ -81,3 +81,11 @@ To make google login work in your physical device you need to do some extra acti
     - npx cap sync
     - npx cap copy
 
+## For android icons
+  - Open android studio
+  - On Left side app -> res (Right Click) -> new -> Image Asset
+  - On path choose $pwd/app_icons/android_icon.png
+  - Trim (yes)
+  - Reduce the resize to accordingly(approx 75%)
+  - Next -> Finish
+
