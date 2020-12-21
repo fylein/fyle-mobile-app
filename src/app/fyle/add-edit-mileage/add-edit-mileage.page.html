@@ -1,6 +1,6 @@
 <ion-header mode="md" >
   <ion-toolbar class="add-edit-mileage--toolbar">
-    <ion-title mode="md" *ngIf="mode">
+    <ion-title mode="md" *ngIf="mode" class="page-title">
       <div *ngIf="mode === 'add'">
         Add Mileage
       </div>
@@ -65,7 +65,7 @@
                 This mileage has violated a critical policy. You cannot create a report with this mileage.
               </ng-container>
               <ng-template #justAmountCapped>
-                Claimed amount {{etxn.tx.user_amount}} was capped to {{etxn.tx.amount}} due to policy <span
+                Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency}} was capped to {{etxn.tx.amount | currency: etxn.tx.currency}} due to policy <span
                   *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
               </ng-template>
             </div>
@@ -83,18 +83,18 @@
                 <p class="mb-0">
                   Rate /
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                    <span>{{ etxn.tx.distance_unit }}</span>
+                    <span class="text-capitalize">{{ etxn.tx.distance_unit }}</span>
                   </ng-container>
 
                   <ng-template #defaultDistanceUnit>
                     <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span>{{ mileageConfig.unit }}</span>
+                      <span class="text-capitalize">{{ mileageConfig.unit }}</span>
                     </ng-container>
                   </ng-template>
                 </p>
                 <p class="add-edit-mileage--rate-value mb-0 text-right">
                   {{rate$|async | currency: homeCurrency}}
-                </p>
+                </div>
               </div>
             </div>
           </ng-container>
@@ -111,7 +111,7 @@
               <div class="add-edit-mileage--date add-edit-mileage--internal-block" *ngIf="txnFields?.txn_dt?.canView">
                 <div class="add-edit-mileage--date-label"
                   [ngClass]="{'add-edit-mileage--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}">
-                  Date of Travel
+                  Start Date
                   <span ng-if="txnFields?.txn_dt?.mandatory">*</span>
                 </div>
                 <input class="add-edit-mileage--date-input" matInput type="date" formControlName="dateOfSpend" disabled
@@ -122,10 +122,9 @@
             <ng-container *ngIf="mileageConfig$|async as mileageConfig">
               <ng-container formArrayName="mileage_locations">
                 <div class="add-edit-mileage--internal-block"
-                  *ngFor="let _ of mileage_locations.controls; index as i; first as isFirst;last as isLast">
-                  <!-- {{mileage_locations?.value[i]?.display}} -->
+                  *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
                   <app-fy-location
-                    [label]="mileage_locations.controls.length > 2 ? (isFirst ? 'Start Location': (isLast ? 'End Location': 'Stop ' + (i))): (isFirst ? 'From': 'To')"
+                    [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Select Stop' + (i) + 'Location'))): (isFirst ? (control.value ? 'Start' : 'Select Start Location'): (control.value ? 'End' :'Select End Location'))"
                     [formControlName]="i">
                     <span *ngIf="i >= 2">
                       <mat-icon class="add-edit-mileage--remove-stop" (click)="removeMileageLocation(i)">
@@ -192,7 +191,7 @@
             <ng-container *ngIf="paymentModes$|async as paymentModes">
               <div *ngIf="paymentModes.length > 1"
                 class="add-edit-mileage--payment-modes add-edit-mileage--internal-block">
-                <app-fy-select [mandatory]="true" [label]="fg.value.paymentMode? 'Payment Mode' : 'Select Payemnt Mode'"
+                <app-fy-select [mandatory]="true" [label]="fg.value.paymentMode? 'Payment Mode' : 'Select Payment Mode'"
                   formControlName="paymentMode" [options]="paymentModes" [selectionElement]="paymentMode"
                   [nullOption]="false">
                 </app-fy-select>
@@ -352,7 +351,7 @@
                 <div class="add-edit-mileage--internal-block"
                   *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
                   <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id.mandatory"
-                    [label]="fg.value.costCenter ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title"
+                    [label]="fg.controls.costCenter.value ? 'Cost Center' : 'Select Cost Center'"
                     [options]="costCenters">
                   </app-fy-select>
                 </div>
@@ -451,20 +450,25 @@
 <ng-container *ngIf="fg">
   <ion-footer>
     <ion-toolbar mode="md">
-      <ion-buttons *ngIf="!reviewList">
-        <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
-          Save
-        </ion-button>
-        <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-mileage--primary-cta"
-                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value">
-          Save & New
-        </ion-button>
-      </ion-buttons>
-      <ion-buttons *ngIf="reviewList">
-        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
-          Save & Next
-        </ion-button>
-      </ion-buttons>
+      <div class="add-edit-mileage--cta-container" *ngIf="!reviewList">
+        <ion-buttons>
+          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
+            Save
+          </ion-button>
+          <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-mileage--primary-cta"
+                      fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value">
+            Save & New
+          </ion-button>
+        </ion-buttons>
+      </div>
+
+      <div class="add-edit-mileage--cta-container" *ngIf="reviewList">
+        <ion-buttons >
+          <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" fill="solid" color="fyle-primary">
+            Save & Next
+          </ion-button>
+        </ion-buttons>
+      </div>
     </ion-toolbar>
   </ion-footer>
 </ng-container>

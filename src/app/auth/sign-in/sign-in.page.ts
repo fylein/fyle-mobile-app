@@ -131,7 +131,7 @@ export class SignInPage implements OnInit {
       componentProps: {
         header
       },
-      cssClass: 'error-popover'
+      cssClass: 'dialog-popover'
     });
 
     await errorPopover.present();

@@ -20,12 +20,13 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { DateService } from 'src/app/core/services/date.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -98,14 +99,21 @@ export class AddEditMileagePage implements OnInit {
     private modalController: ModalController,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private navController: NavController
+    private navController: NavController,
+    private dateService: DateService,
   ) { }
 
   ngOnInit() {
   }
 
+
+
   get mileage_locations() {
     return this.fg.controls.mileage_locations as FormArray;
+  }
+
+  debug(data) {
+    console.log('\n\n\n data ->', data);
   }
 
   goToPrev() {
@@ -607,6 +615,9 @@ export class AddEditMileagePage implements OnInit {
       duplicate_detection_reason: []
     });
 
+    const today = new Date();
+    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+
 
     this.fg.controls.round_trip.valueChanges.subscribe(roundTrip => {
       if (this.formInitializedFlag) {
@@ -1002,23 +1013,33 @@ export class AddEditMileagePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  goBack() {
-    if (this.mode === 'add') {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    } else {
-      if (!this.reviewList || this.reviewList.length === 0) {
-        this.navController.back();
-      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
-        if (+this.activeIndex === 0) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
-          this.goToPrev();
-        }
-      } else {
+  async goBack() {
+    const popupResults = await this.popupService.showPopup({
+      header: 'Unsaved Changes',
+      message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
+      primaryCta: {
+        text: 'Discard Changes'
+      }
+    });
+
+    if (popupResults === 'primary') {
+      if (this.mode === 'add') {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      } else {
+        if (!this.reviewList || this.reviewList.length === 0) {
+          this.navController.back();
+        } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
+          if (+this.activeIndex === 0) {
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          } else {
+            this.goToPrev();
+          }
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        }
       }
     }
-  };
+  }
 
   checkIfInvalidPaymentMode() {
     return forkJoin({
