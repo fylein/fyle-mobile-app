@@ -16,14 +16,23 @@
 
   &--primary-cta {
     height: 48px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 8px;
+    margin: 14px;
     width: 100%;
-    margin: 12px 8px;
-    --border-radius: 4px;
   }
 
   &--receipt-currency {
     display: flex;
     align-items: center;
+  }
+
+  &--comment {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    margin-bottom: 10px;
   }
 
   &--delete {
@@ -64,7 +73,7 @@
   }
 
   &--form {
-    padding: 0 16px;
+    padding: 0 16px 16px 16px;
   }
 
   &--date {
@@ -82,6 +91,10 @@
     white-space: nowrap;
     &__invalid {
       color: red;
+    }
+
+    div {
+      display: inline;
     }
   }
 
@@ -286,5 +299,21 @@
     position: relative;
     top: 4px;
     font-size: 20px;
+  }
+
+  &--payment-mode-header {
+    font-weight: 500;
+    font-size: 16px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-purpose {
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-type {
+    color: #ababab;
+    font-size: 12px;
   }
 }

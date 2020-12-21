@@ -6,7 +6,12 @@ $toolbar-border: #ababab6b;
   }
 
   &--primary-cta {
-    margin: 12px;
+    height: 48px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 8px;
+    margin: 14px;
   }
 
   &--zero-state {

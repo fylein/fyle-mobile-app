@@ -69,8 +69,11 @@ export class AddEditPerDiemPage implements OnInit {
   duplicates$: Observable<any>;
   duplicateBoxOpen = false;
   pointToDuplicates = false;
+  isAdvancesEnabled$: Observable<boolean>;
+  comments$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -271,7 +274,7 @@ export class AddEditPerDiemPage implements OnInit {
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
     }
-    //TODO: Leave for later
+    // TODO: Leave for later
     // if (category === 'activity') {
     //   showCannotEditActivityDialog();
 
@@ -516,16 +519,24 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getCustomInputs() {
+    let initialFetch = true;
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
-          const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-            return iif(() => etxn.tx.org_category_id,
-              this.offlineService.getAllCategories().pipe(
-                map(categories => categories
-                  .find(category => category.id === etxn.tx.org_category_id))), of(null));
-          }));
+          let selectedCategory$;
+          if (initialFetch) {
+            selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+              return iif(() => etxn.tx.org_category_id,
+                this.offlineService.getAllCategories().pipe(
+                  map(categories => categories
+                    .find(category => category.id === etxn.tx.org_category_id))), of(null));
+            }));
+            initialFetch = false;
+          } else {
+            selectedCategory$ = of(category);
+          }
+
           return iif(() => this.mode === 'add', of(category), selectedCategory$);
         }),
         switchMap((category) => {
@@ -551,6 +562,7 @@ export class AddEditPerDiemPage implements OnInit {
         }),
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
+            take(1),
             map(isConnected => {
               const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
               customFieldsFormArray.clear();
@@ -608,6 +620,11 @@ export class AddEditPerDiemPage implements OnInit {
     const perDiemRates$ = this.offlineService.getPerDiemRates();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
+    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => {
+      return (orgSettings.advances && orgSettings.advances.enabled) ||
+      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+    }));
+
     this.setupNetworkWatcher();
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
@@ -662,6 +679,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.setupFilteredCategories(this.subCategories$);
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.filteredCategories$.subscribe(subCategories => {
       if (!subCategories.length) {
@@ -745,6 +763,7 @@ export class AddEditPerDiemPage implements OnInit {
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
         return this.isConnected$.pipe(
+          take(1),
           map(isConnected => ({
             isConnected,
             txnFields
@@ -879,7 +898,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return this.offlineService.getAccounts().pipe(
             map(accounts => {
-              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT').length > 0;
+              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' && account.acc.tentative_balance_amount > 0).length > 0;
             })
           );
         }
@@ -898,9 +917,22 @@ export class AddEditPerDiemPage implements OnInit {
         return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
           map(paymentModes => paymentModes
             .map(res => res.value)
-            .find(paymentMode => paymentMode.acc.id === etxn.tx.source_account_id))
+            .find(paymentMode => {
+              if (paymentMode.acc.displayName === 'Paid by Me') {
+                return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+              } else {
+                return paymentMode.acc.id === etxn.tx.source_account_id;
+              }
+            }))
         ), of(null));
       })
+    );
+
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map(paymentModes => paymentModes
+        .map(res => res.value)
+        .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
+      )
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
@@ -934,7 +966,7 @@ export class AddEditPerDiemPage implements OnInit {
           this.reports$.pipe(
             map(reportOptions => reportOptions
               .map(res => res.value)
-              .find(reportOption => reportOption.id === etxn.tx.report_id))
+              .find(reportOption => reportOption.rp.id === etxn.tx.report_id))
           ),
           of(null)
         );
@@ -976,11 +1008,12 @@ export class AddEditPerDiemPage implements OnInit {
           selectedReport$,
           selectedCostCenter$,
           selectedCustomInputs$,
+          defaultPaymentMode$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -991,7 +1024,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
 
       this.fg.patchValue({
-        paymentMode,
+        paymentMode: paymentMode || defaultPaymentMode,
         project,
         sub_category: subCategory,
         per_diem_rate: perDiemRate,
@@ -1005,7 +1038,7 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
       setTimeout(() => {
-        this.fg.controls.custom_inputs.setValue(customInputValues);
+        this.fg.controls.custom_inputs.patchValue(customInputValues);
       }, 1000);
     });
 
@@ -1186,7 +1219,9 @@ export class AddEditPerDiemPage implements OnInit {
           return this.generateEtxnFromFg(this.etxn$, customFields$);
         }),
         switchMap(etxn => {
-          return this.isConnected$.pipe(switchMap(isConnected => {
+          return this.isConnected$.pipe(
+            take(1),
+            switchMap(isConnected => {
             if (isConnected) {
               const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
               return policyViolations$.pipe(
@@ -1273,7 +1308,7 @@ export class AddEditPerDiemPage implements OnInit {
                 //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
                 // } else {
                 //   TrackingService.createExpense
-                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
+                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount,
                 // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
                 // }
                 // if (this.saveAndCreate) {
@@ -1422,20 +1457,21 @@ export class AddEditPerDiemPage implements OnInit {
                 }),
                 map(savedEtxn => savedEtxn && savedEtxn.tx),
                 switchMap((tx) => {
+                  const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
 
-                  if (!txnCopy.report_id && etxn.tx.report_id) {
-                    return this.reportService.addTransactions(etxn.tx.report_id, [tx.id]).pipe(map(() => tx));
+                  if (!txnCopy.tx.report_id && selectedReportId) {
+                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(map(() => tx));
                   }
 
-                  if (txnCopy.report_id && etxn.tx.report_id && etxn.tx.report_id !== etxn.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.report_id, tx.id).pipe(
-                      switchMap(() => this.reportService.addTransactions(etxn.tx.report_id, [tx.id])),
+                  if (txnCopy.tx.report_id && selectedReportId && selectedReportId !== txnCopy.tx.report_id) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       map(() => tx)
                     );
                   }
 
-                  if (txnCopy.report_id && !etxn.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.report_id, tx.id).pipe(map(() => tx));
+                  if (txnCopy.tx.report_id && !selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(map(() => tx));
                   }
 
                   return of(null).pipe(map(() => tx));
@@ -1473,23 +1509,58 @@ export class AddEditPerDiemPage implements OnInit {
       );
   }
 
+  addToNewReport(txnId: string) {
+    const that = this;
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return this.transactionService.getEtxn(txnId);
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(etxn => {
+      const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
+      if (!criticalPolicyViolated) {
+        that.router.navigate(['/', 'enterprise' , 'my_create_report' , { txn_ids: JSON.stringify([txnId]) }]);
+      } else {
+        that.goBack();
+      }
+    });
+  }
+
   savePerDiem() {
-    let that = this;
+    const that = this;
 
     that.checkIfInvalidPaymentMode().pipe(
       take(1)
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(() => {
-            that.goBack();
+          that.addExpense().subscribe((res: any) => {
+            if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
+              this.addToNewReport(res.transaction.id);
+            } else {
+              that.goBack();
+            }
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe((res) => {
+            if (that.fg.controls.add_to_new_report.value && res && res.id ) {
+              this.addToNewReport(res.id);
+            } else {
+              that.goBack();
+            }
+          });
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1520,10 +1591,19 @@ export class AddEditPerDiemPage implements OnInit {
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe(() => {
+            that.goBack();
+          });
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1557,6 +1637,13 @@ export class AddEditPerDiemPage implements OnInit {
       }
     } else {
       that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 

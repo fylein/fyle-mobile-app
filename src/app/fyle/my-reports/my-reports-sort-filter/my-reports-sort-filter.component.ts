@@ -36,6 +36,13 @@ export class MyReportsSortFilterComponent implements OnInit {
     });
   }
 
+  reset() {
+    this.fg.setValue({
+      sortParam: 'rp_created_at',
+      sortDir: 'desc'
+    });
+  }
+
   save() {
     this.modalController.dismiss({
       sortOptions: this.fg.value

@@ -13,7 +13,7 @@
       {{expense.tx_created_at | date: 'dd MMMM yyyy'}}
     </div>
   </div>
-  <div class="my-expenses-card">
+  <div class="my-expenses-card" [ngClass]="{'my-expenses-card--non-selectable': (selectionMode && ((isDraft && baseState !== 'draft') || isCriticalPolicyViolated))}">
     <div class="my-expenses-card--decorator" *ngIf="expense.tx_state === 'DRAFT'">
       Draft
     </div>
@@ -24,29 +24,33 @@
       *ngIf="expense.tx_id && isPolicyViolated && !isCriticalPolicyViolated">
       Policy Violation
     </div>
-    <div class="my-expenses-card--decorator my-expenses-card--decorator__critical-policy-violation" *ngIf="expense.tx_id && isCriticalPolicyViolated">
+    <div class="my-expenses-card--decorator my-expenses-card--decorator__critical-policy-violation"
+      *ngIf="expense.tx_id && isCriticalPolicyViolated">
       Critical Policy Violation
     </div>
 
-    <div matRipple class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!actionOpened" (click)="onGoToTransaction()" [ngClass]="{'my-expenses-card--body__disabled': isDraft && selectionMode && baseState !== 'draft', 'my-expenses-card--body__selected': isSelected}">
+    <div matRipple class="my-expenses-card--body my-expenses-card--body__closed" *ngIf="!actionOpened"
+      (click)="onGoToTransaction()"
+      [ngClass]="{'my-expenses-card--body__disabled': isDraft && selectionMode && baseState !== 'draft', 'my-expenses-card--body__selected': isSelected}">
       <div class="my-expenses-card--body-internal">
         <div class="my-expenses-card--icon-container" *ngIf="!selectionMode">
           <app-fy-category-icon [category]="expense.tx_org_category"></app-fy-category-icon>
         </div>
         <div class="my-expenses-card--selection-icon" *ngIf="selectionMode && !isSelected">
-          <ion-checkbox mode="ios" checked="false" disabled="true"></ion-checkbox>
+          <ion-checkbox mode="ios" checked="false" [disabled]="isDraft && selectionMode && baseState !== 'draft'"></ion-checkbox>
         </div>
         <div class="my-expenses-card--selection-icon my-expenses-card--selection-icon__selected"
           *ngIf="selectionMode && isSelected">
-          <ion-checkbox mode="ios" checked="true" disabled="true"></ion-checkbox>
+          <ion-checkbox mode="ios" checked="true"></ion-checkbox>
         </div>
         <div class="my-expenses-card--details">
           <div class="my-expenses-card--amount-details">
-            <div class="my-expenses-card--currency" [ngClass]="{'my-expenses-card--non-reimbursable': expense.tx_skip_reimbursement || expense.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' || expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT' }">
+            <div class="my-expenses-card--currency"
+              [ngClass]="{'my-expenses-card--non-reimbursable': expense.tx_skip_reimbursement}">
               {{expense.tx_currency || expense?.tx_extracted_data?.currency}}
             </div>
-            <div class="my-expenses-card--amount" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement || expense.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' || expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT' }">
-              <div *ngIf="amountIsNumber || extractedAmountIsNumber">
+            <div class="my-expenses-card--amount">
+              <div *ngIf="amountIsNumber || extractedAmountIsNumber" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement }">
                 {{(expense.tx_amount || expense?.tx_extracted_data?.amount) | number:'1.2'}}
               </div>
               <div *ngIf="!amountIsNumber && !extractedAmountIsNumber">
@@ -58,11 +62,12 @@
                   flash
                 </mat-icon>
               </div>
-              <div class="my-expenses-card--conversion" *ngIf="expense.tx_orig_currency && expense.tx_orig_amount && !selectionMode">
-                ({{ expense.tx_orig_amount| currency: expense.tx_orig_currency }} at
-                {{ (expense.tx_amount / expense.tx_orig_amount) | currency: expense.tx_currency}})
-              </div>
             </div>
+          </div>
+          <div class="my-expenses-card--conversion"
+            *ngIf="expense.tx_orig_currency && expense.tx_orig_amount && !selectionMode" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement }">
+            <strong>({{ expense.tx_orig_amount | currency: expense.tx_orig_currency }} at
+            {{ (expense.tx_amount / expense.tx_orig_amount) | currency: expense.tx_currency}})</strong>
           </div>
           <div class="my-expenses-card--vendor" *ngIf="!selectionMode">
             {{vendorDetails}}

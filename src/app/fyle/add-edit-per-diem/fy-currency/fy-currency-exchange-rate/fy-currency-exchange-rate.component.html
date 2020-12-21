@@ -1,5 +1,5 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header mode="md" >
+  <ion-toolbar mode="md">
     <ion-title mode="md">
       Currency
     </ion-title>
@@ -41,9 +41,11 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
-    <ion-button class="exchange-rate-modal--save" [disabled]="!fg.valid" fill="solid" color="fyle-primary" expand="full" (click)="save()">
-      Save
-    </ion-button>
+  <ion-toolbar mode="md">
+    <div class="exchange-rate-modal--cta-container">
+      <ion-button class="exchange-rate-modal--save" [disabled]="!fg.valid" fill="solid" color="fyle-primary" expand="full" (click)="save()">
+        Save
+      </ion-button>
+    </div>
   </ion-toolbar>
 </ion-footer>

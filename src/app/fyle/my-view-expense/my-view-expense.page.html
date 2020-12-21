@@ -1,7 +1,7 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-expense--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-button [routerLink]="['/','enterprise','my_expenses']" routerLinkActive="router-link-active">
+      <ion-button (click)="goBack()">
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
@@ -58,7 +58,7 @@
       </div>
 
       <div class="view-expense--currency-block">
-        <app-currency [options]="currencyOptions" [currencyObj]="etxn"></app-currency>
+        <app-currency [options]="currencyOptions" [etxn]="etxn"></app-currency>
       </div>
     </div>
 

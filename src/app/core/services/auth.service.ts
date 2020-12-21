@@ -52,8 +52,8 @@ export class AuthService {
         return that.apiService.post('/auth/access_token', {
           refresh_token: token
         }).pipe(
-          tap(async (res) => {
-            await that.tokenService.setAccessToken(res.access_token);
+          switchMap((res) => {
+            return from(that.tokenService.setAccessToken(res.access_token));
           }),
           switchMap(() => {
             return that.refreshEou();

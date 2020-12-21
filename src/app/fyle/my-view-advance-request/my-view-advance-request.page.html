@@ -1,11 +1,11 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-advance-request--toolbar">
     <ion-buttons mode="md" slot="end">
       <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md">View Advance Request</ion-title>
+    <ion-title mode="md" class="page-title">View Advance Request</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -48,7 +48,7 @@
           Created On
         </div>
         <div class="view-advance-request--element-value">
-          {{advanceRequest.areq_created_at | date: 'dd, MMM yyyy'}}
+          {{advanceRequest.areq_created_at | date: 'MMM dd, yyyy'}}
         </div>
       </div>
 
@@ -57,7 +57,7 @@
           Approved On
         </div>
         <div class="view-advance-request--element-value">
-          {{advanceRequest.areq_approved_at | date: 'dd, MMM yyyy'}}
+          {{advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'}}
         </div>
       </div>
 
@@ -130,7 +130,7 @@
 
     <div class="view-advance-request--card">
       <div class="view-advance-request--common-action-block">
-        <app-comments objectType="advance_requests" [objectId]="advanceRequest.areq_id" mode="edit" text="Comments">
+        <app-comments objectType="advance_requests" [objectId]="advanceRequest.areq_id" mode="edit" text="Comments" [showCommentsCount]="true">
         </app-comments>
       </div>
     </div>
@@ -138,14 +138,14 @@
     <div class="view-advance-request--card" *ngIf="(actions$|async)?.can_edit">
       <div class="view-advance-request--common-action-block" (click)=edit()>
         <mat-icon>edit</mat-icon>
-        <p>Edit Advance</p>
+        <p class="view-advance-request--common-action-block__comment">Edit Advance</p>
       </div>
     </div>
 
     <div class="view-advance-request--card" *ngIf="(actions$|async)?.can_delete">
-      <div class="view-advance-request--common-action-block" (click)=delete()>
+      <div class="view-advance-request--common-action-block view-advance-request--common-action-block__delete" (click)=delete()>
         <mat-icon>delete</mat-icon>
-        <p>Delete Advance</p>
+        <p class="view-advance-request--common-action-block__delete">Delete Advance</p>
       </div>
     </div>
 
@@ -157,7 +157,7 @@
 </ion-content>
 
 <ion-footer *ngIf="(actions$|async)?.can_pull_back">
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="view-advance-request--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
       (click)="pullBack()">
       Pull Back

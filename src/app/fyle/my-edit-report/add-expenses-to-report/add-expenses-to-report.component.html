@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="add-expenses-to-report--toolbar">
     <ion-buttons mode="md" slot="end" (click)="close()">
       <mat-icon>close</mat-icon>
@@ -36,7 +36,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <div class="add-expenses-to-report--footer">
       <div>
         <span class="add-expenses-to-report--footer-currency">{{homeCurrency$ | async}}</span> 

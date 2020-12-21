@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, from, Subject } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, tap } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
+import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
+import { PopoverController } from '@ionic/angular';
 
 @Component({
   selector: 'app-view-team-mileage',
@@ -26,6 +28,8 @@ export class ViewTeamMileagePage implements OnInit {
   policyViloations$: Observable<any>;
   canFlagOrUnflag$: Observable<boolean>;
   canDelete$: Observable<boolean>;
+  updateFlag$ = new Subject();
+  reportId;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -34,7 +38,9 @@ export class ViewTeamMileagePage implements OnInit {
     private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private popoverController: PopoverController,
+    private router: Router
   ) { }
 
   isNumber(val) {
@@ -45,16 +51,53 @@ export class ViewTeamMileagePage implements OnInit {
     document.getElementById('commentsSection').scrollIntoView();
   }
 
+  goBack() {
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
+  }
+
+  onUpdateFlag(event) {
+    if (event) {
+      this.updateFlag$.next();
+    }
+  }
+
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const popover = await this.popoverController.create({
+      component: RemoveExpenseReportComponent,
+      componentProps: {
+        etxn
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id}]);
+    }
+  }
+
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    this.extendedMileage$ = from(this.loaderService.showLoader()).pipe(
+    this.extendedMileage$ = this.updateFlag$.pipe(
       switchMap(() => {
-        return this.transactionService.getExpenseV2(id);
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.transactionService.getExpenseV2(id);
+          })
+        );
       }),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay()
     );
+
+    this.extendedMileage$.subscribe(res => {
+      this.reportId = res.tx_report_id;
+    });
 
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay()
@@ -104,6 +147,7 @@ export class ViewTeamMileagePage implements OnInit {
       })
     );
 
+    this.updateFlag$.next();
   }
 
 

@@ -22,24 +22,25 @@ $completed: #25ae88;
     font-size: 18px;
     margin: 0 0 10px;
     position: relative;
-    &::before {
-      color: $uncompleted;
-      content: '∙';
+
+    &__uncomplete {
+      color: #f90 !important;
       position: absolute;
-      font-size: 90px;
+      font-size: 16px;
+      height: 14px;
+      width: 14px;
       left: -24px;
       top: -2px;
     }
 
     &__completed {
-      &::before {
-        color: $completed;
-        content: '∙';
-        position: absolute;
-        font-size: 90px;
-        left: -24px;
-        top: -2px;
-      }
+      color: #25ae88 !important;
+      position: absolute;
+      font-size: 16px;
+      height: 14px;
+      width: 14px;
+      left: -24px;
+      top: -2px;
     }
   }
 
@@ -54,12 +55,13 @@ $completed: #25ae88;
   }
 
   &--checkbox-internal {
+    height: 22px;
+    width: 24px;
     margin-right: 8px;
   }
 
   &--form-label {
     margin-top: 14px;
-    margin-left: 20px;
     display: block;
     margin-bottom: 8px;
     font-size: 14px;
@@ -96,7 +98,7 @@ $completed: #25ae88;
   &--header {
     display: flex;
     align-items: center;
-    margin: 24px 0;
+    margin: 24px 20px;
   }
 
   &--close {
@@ -104,8 +106,11 @@ $completed: #25ae88;
   }
 
   &--save {
+    height: 48px;
     margin-top: 24px;
     width: 100%;
+    letter-spacing: 1.6px;
+
     &__disabled {
       opacity: 0.2;
     }

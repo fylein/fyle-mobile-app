@@ -8,7 +8,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
@@ -41,11 +41,16 @@ export class MyViewExpensePage implements OnInit {
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private navController: NavController
   ) { }
 
   isNumber(val) {
     return typeof val === 'number';
+  }
+
+  goBack() {
+    this.navController.back();
   }
 
   getDisplayValue(customProperties) {

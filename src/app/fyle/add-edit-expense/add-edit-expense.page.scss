@@ -16,9 +16,14 @@
 
   &--primary-cta {
     height: 48px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 8px;
+    margin: 14px;
     width: 100%;
     margin: 12px 8px;
-    --border-radius: 4px;
+    --border-radius: 4px !important;
   }
 
   &--receipt-currency {
@@ -35,7 +40,7 @@
     border-radius: 4px;
     color: #ababab;
     margin-left: 0;
-    margin-top: 18px;
+    margin-top: 12px;
   }
 
   &--receipt-image {
@@ -43,7 +48,7 @@
     min-width: 64px;
     min-height: 76px;
     max-width: 64px;
-    max-height: 76px;
+    max-height: 88px;
     border-radius: 4px;
     position: relative;
   }
@@ -61,20 +66,21 @@
     width: auto;
     background-color: rgba(34, 0, 51, 0.4);
     color: black;
-    padding: 7px 0px;
+    padding: 7px 0px 16px 0px;
     border-radius: 4px;
   }
 
   &--receipt-text {
     position: relative;
-    padding-top: 16px;
+    padding-top: 20px;
+    padding-bottom: 6px;
     &__count {
       color: #fff;
       font-size: 42px;
       font-weight: 400;
       text-align: center;
       padding-top: 32px;
-      padding-bottom: 6px;
+      padding-bottom: 10px;
     }
   }
 
@@ -91,7 +97,7 @@
   }
 
   &--form {
-    padding: 0 16px;
+    padding: 0 16px 16px 16px;
   }
 
   &--date {
@@ -350,5 +356,21 @@
     position: relative;
     top: 4px;
     font-size: 20px;
+  }
+
+  &--payment-mode-header {
+    font-weight: 500;
+    font-size: 16px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-purpose {
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-type {
+    color: #ababab;
+    font-size: 12px;
   }
 }

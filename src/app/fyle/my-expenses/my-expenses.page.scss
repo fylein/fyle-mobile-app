@@ -4,8 +4,17 @@
   }
 
   &--toolbar {
-    display: flex;
     align-items: center;
+    display: inline-flex;
+    margin: 8px 16px;
+    width: 90%;
+  }
+
+  &--title {
+    font-size: 24px;
+    font-weight: 700; 
+    padding-left: 0px;
+    line-height: 2;
   }
 
   &--state {
@@ -15,7 +24,7 @@
   }
 
   &--stats {
-    margin: 12px;
+    color: black;
     position: relative;
     top: 8px;
   }
@@ -34,7 +43,12 @@
     font-size: 16px;
     font-weight: 500;
     color: #ababab;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+  }
+
+  &--cta-container {
+    justify-content: space-between;
+    display: flex;
   }
 
   &--state-pill {
@@ -54,21 +68,35 @@
 
     &__selected {
       background-color: #0077ee;
-      color: #e6e6e6;
+      color: white;
     }
   }
 
   &--simple-search {
-    min-width: 65%;
-    max-width: 80%;
-    margin: 8px;
-    font-size: 12px;
+    width: 100%;
+    font-size: 14px;
 
     &-icon {
-      width: 16px;
-      margin-right: 10px;
+      width: 14px;
+      font-size: 18px;
+      margin-right: 6px;
       color: #aaa;
     }
+
+    &-close {
+      margin: -10px;
+      font-size: 18px;
+    }
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
+  }
+
+  &--footer-container {
+    background: white;
+    padding: 16px;
   }
 
   &--filters {
@@ -92,10 +120,25 @@
       fill: #1978f7;
     }
     
+    &__applied {
+      ::after {
+        content: "•";
+        font-size: 48px;
+        position: absolute;
+        top: -8px;
+        color: #f36;
+      }
+    }
   }
 
   &--primary-cta {
-    margin: 12px;
+    height: 48px;
+    display: block;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 8px;
+    width: 100%;
   }
 
   &--offline-header {
@@ -214,3 +257,4 @@
     }
   }
 }
+

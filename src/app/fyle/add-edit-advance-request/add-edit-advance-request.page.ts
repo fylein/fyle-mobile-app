@@ -69,6 +69,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ngOnInit() {
+    this.id = this.activatedRoute.snapshot.params.id;
     // Todo: Support to add receipts to advance request
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
@@ -353,7 +354,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.actions$ = this.advanceRequestService.getActions(this.activatedRoute.snapshot.params.id).pipe(
       shareReplay()
     );
-    this.id = this.activatedRoute.snapshot.params.id;
+
 
     const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {

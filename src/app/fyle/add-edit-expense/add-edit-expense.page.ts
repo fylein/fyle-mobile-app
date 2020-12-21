@@ -89,10 +89,13 @@ export class AddEditExpensePage implements OnInit {
   newExpenseDataUrls = [];
   focusState = false;
   isConnected$: Observable<boolean>;
-  invalidPaymentMode: boolean = false;
+  invalidPaymentMode = false;
   pointToDuplicates = false;
+  isAdvancesEnabled$: Observable<boolean>;
+  comments$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -124,6 +127,20 @@ export class AddEditExpensePage implements OnInit {
     private navController: NavController
   ) { }
 
+  async showClosePopup() {
+    const closePopup = await this.popupService.showPopup({
+      header: 'Unsaved Changes',
+      message: 'Your changes will be lost if you do not save the expense',
+      primaryCta: {
+        text: this.mode === 'add' ? 'Discard Expense' : 'Discard Changes'
+      }
+    });
+
+    if (closePopup === 'primary') {
+      this.goBack();
+    }
+  }
+
   goBack() {
     if (this.mode === 'add') {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
@@ -140,7 +157,7 @@ export class AddEditExpensePage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
-  };
+  }
 
   merchantValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.display_name) {
@@ -210,9 +227,13 @@ export class AddEditExpensePage implements OnInit {
         let isPaymentModeInvalid = false;
         if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
-            isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
+            isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < (
+              this.fg.value.currencyObj && this.fg.value.currencyObj.amount
+            );
           } else {
-            isPaymentModeInvalid = (paymentAccount.acc.tentative_balance_amount + etxn.tx.amount) < (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
+            isPaymentModeInvalid = (paymentAccount.acc.tentative_balance_amount + etxn.tx.amount) < (
+              this.fg.value.currencyObj && this.fg.value.currencyObj.amount
+            );
           }
         }
         return isPaymentModeInvalid;
@@ -337,7 +358,7 @@ export class AddEditExpensePage implements OnInit {
       if (data && data.type) {
         this.openSplitExpenseModal(data.type);
       }
-    })
+    });
   }
 
   ngOnInit() {
@@ -412,7 +433,12 @@ export class AddEditExpensePage implements OnInit {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return accounts$.pipe(
             map(accounts => {
-              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT').length > 0;
+              return accounts
+                .filter(account => account
+                  && account.acc
+                  && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'
+                  && account.acc.tentative_balance_amount > 0
+                ).length > 0;
             })
           );
         }
@@ -688,19 +714,34 @@ export class AddEditExpensePage implements OnInit {
             .find(category => category.id === etxn.tx.org_category_id))), of(null));
     }));
     const selectedReport$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.report_id, this.reports$.pipe(map(reportOptions => reportOptions
+      return iif(() => etxn.tx.report_id, this.reports$.pipe(
+        map(reportOptions => reportOptions
         .map(res => res.value)
-        .find(reportOption => reportOption.id === etxn.tx.report_id))), of(null));
+        .find(reportOption => reportOption.rp.id === etxn.tx.report_id))),
+        of(null));
     }));
 
-    // TODO: Handle the case of Paid by Company
     const selectedPaymentMode$ = this.etxn$.pipe(switchMap(etxn => {
       return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
         map(paymentModes => paymentModes
           .map(res => res.value)
-          .find(paymentMode => paymentMode.acc.id === etxn.tx.source_account_id))
+          .find(paymentMode => {
+            if (paymentMode.acc.displayName === 'Paid by Me') {
+              return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+            } else {
+              return paymentMode.acc.id === etxn.tx.source_account_id;
+            }
+          }))
       ), of(null));
     }));
+
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map(paymentModes => paymentModes
+        .map(res => res.value)
+        .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
+      )
+    );
+
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
@@ -727,11 +768,13 @@ export class AddEditExpensePage implements OnInit {
           category: selectedCategory$,
           report: selectedReport$,
           costCenter: selectedCostCenter$,
-          customInputs: selectedCustomInputs$
+          customInputs: selectedCustomInputs$,
+          homeCurrency: this.offlineService.getHomeCurrency(),
+          defaultPaymentMode: defaultPaymentMode$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({ etxn, paymentMode, project, category, report, costCenter, customInputs }) => {
+    ).subscribe(({ etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode }) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -750,6 +793,15 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: etxn.tx.orig_currency,
           }
         });
+      } else if (etxn.tx.currency) {
+        this.fg.patchValue({
+          currencyObj: {
+            amount: null,
+            currency: homeCurrency,
+            orig_amount: null,
+            orig_currency: etxn.tx.currency,
+          }
+        });
       } else if (etxn.tx.user_amount) {
         this.fg.patchValue({
           currencyObj: {
@@ -762,7 +814,7 @@ export class AddEditExpensePage implements OnInit {
       }
 
       this.fg.patchValue({
-        paymentMode,
+        paymentMode: paymentMode || defaultPaymentMode,
         project,
         category,
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
@@ -803,20 +855,28 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupCustomFields() {
+    let initialFetch = true;
     this.customInputs$ = this.fg.controls.category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
-          const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-            return iif(
-              () => etxn.tx.org_category_id,
-              this.offlineService.getAllCategories()
-                .pipe(
-                  map(categories => categories.find(category => category.id === etxn.tx.org_category_id))
-                ),
-              of(null)
-            );
-          }));
+          let selectedCategory$;
+          if (initialFetch) {
+            selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+              return iif(
+                () => etxn.tx.org_category_id,
+                this.offlineService.getAllCategories()
+                  .pipe(
+                    map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
+                  ),
+                of(null)
+              );
+            }));
+            initialFetch = false;
+          } else {
+            selectedCategory$ = of(category);
+          }
+
           return iif(() => this.mode === 'add', of(category), selectedCategory$);
         }),
         switchMap((category) => {
@@ -841,6 +901,7 @@ export class AddEditExpensePage implements OnInit {
         }),
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
+            take(1),
             map(isConnected => {
               const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
               customFieldsFormArray.clear();
@@ -879,7 +940,8 @@ export class AddEditExpensePage implements OnInit {
               formValue.project
             );
         }));
-      }));
+      })
+    );
 
     this.txnFields$ = txnFieldsMap$.pipe(
       map((tfcMap: any) => {
@@ -891,14 +953,13 @@ export class AddEditExpensePage implements OnInit {
           }
         }
         return tfcMap;
-      }),
-      shareReplay())
-      ;
+      })
+    );
 
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
-        return forkJoin({ isConnected: this.isConnected$, orgSettings: this.offlineService.getOrgSettings() }).pipe(
+        return forkJoin({ isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings() }).pipe(
           map(({ isConnected, orgSettings }) => ({
             isConnected,
             txnFields,
@@ -967,8 +1028,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     txnFieldsMap$.pipe(
-      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields)),
-      tap(console.log)
+      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields))
     ).subscribe((defaultValues) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
@@ -989,7 +1049,7 @@ export class AddEditExpensePage implements OnInit {
         bus_travel_class: this.fg.controls.bus_travel_class
       };
 
-      for (var defaultValueColumn in defaultValues) {
+      for (let defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
           if (defaultValueColumn !== 'vendor_id' && !control.value) {
@@ -1098,7 +1158,7 @@ export class AddEditExpensePage implements OnInit {
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
     }
-    //TODO: Leave for later
+    // TODO: Leave for later
     // if (category === 'activity') {
     //   showCannotEditActivityDialog();
 
@@ -1160,6 +1220,11 @@ export class AddEditExpensePage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
+    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => {
+      return (orgSettings.advances && orgSettings.advances.enabled) ||
+      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+    }));
+
     this.setupNetworkWatcher();
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
@@ -1181,6 +1246,8 @@ export class AddEditExpensePage implements OnInit {
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
+
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
       map(orgSettings => {
@@ -1322,7 +1389,7 @@ export class AddEditExpensePage implements OnInit {
             policy_amount: null,
             vendor: this.fg.value.merchant && this.fg.value.merchant.display_name,
             purpose: this.fg.value.purpose,
-            locations,
+            locations: locations || [],
             custom_properties: customProperties || [],
             num_files: this.activatedRoute.snapshot.params.dataUrl ? 1 : 0,
             org_user_id: etxn.tx.org_user_id,
@@ -1333,8 +1400,7 @@ export class AddEditExpensePage implements OnInit {
             train_travel_class: this.fg.value.train_travel_class,
             bus_travel_class: this.fg.value.bus_travel_class,
             distance: this.fg.value.distance,
-            distance_unit: this.fg.value.distance_unit,
-            report_id: this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id
+            distance_unit: this.fg.value.distance_unit
           },
           ou: etxn.ou,
           dataUrls: [].concat(this.newExpenseDataUrls)
@@ -1415,14 +1481,14 @@ export class AddEditExpensePage implements OnInit {
   // public findInvalidControlsRecursive(formToInvestigate:FormGroup|FormArray):string[] {
   //   var invalidControls:string[] = [];
   //   let recursiveFunc = (form:FormGroup|FormArray) => {
-  //     Object.keys(form.controls).forEach(field => { 
+  //     Object.keys(form.controls).forEach(field => {
   //       const control = form.get(field);
   //       if (control.invalid) invalidControls.push(field);
   //       if (control instanceof FormGroup) {
   //         recursiveFunc(control);
   //       } else if (control instanceof FormArray) {
   //         recursiveFunc(control);
-  //       }        
+  //       }
   //     });
   //   }
   //   recursiveFunc(formToInvestigate);
@@ -1430,9 +1496,26 @@ export class AddEditExpensePage implements OnInit {
   // }
 
   reloadCurrentRoute() {
-    let currentUrl = this.router.url;
+    const currentUrl = this.router.url;
     this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
       this.router.navigate([currentUrl]);
+    });
+  }
+
+  addToNewReport(txnId: string) {
+    const that = this;
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return this.transactionService.getEtxn(txnId);
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(etxn => {
+      const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
+      if (!criticalPolicyViolated) {
+        that.router.navigate(['/', 'enterprise' , 'my_create_report' , { txn_ids: JSON.stringify([txnId]) }]);
+      } else {
+        that.goBack();
+      }
     });
   }
 
@@ -1444,15 +1527,33 @@ export class AddEditExpensePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(() => {
-            that.goBack();
+          that.addExpense().subscribe((res: any) => {
+            if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
+              this.addToNewReport(res.transaction.id);
+            } else {
+              that.goBack();
+            }
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe((res) => {
+            if (that.fg.controls.add_to_new_report.value && res && res.id ) {
+              this.addToNewReport(res.id);
+            } else {
+              that.goBack();
+            }
+          });
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1464,7 +1565,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   saveAndNewExpense() {
-    let that = this;
+    const that = this;
 
     that.checkIfInvalidPaymentMode().pipe(
       take(1)
@@ -1475,11 +1576,19 @@ export class AddEditExpensePage implements OnInit {
             this.reloadCurrentRoute();
           });
         } else {
-          // to do edit
-          that.editExpense().subscribe(noop);
+          that.editExpense().subscribe(() => {
+            that.goBack();
+          });
         }
       } else {
         that.fg.markAllAsTouched();
+        const formContainer = that.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
           setTimeout(() => {
@@ -1513,6 +1622,13 @@ export class AddEditExpensePage implements OnInit {
       }
     } else {
       that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -1638,7 +1754,7 @@ export class AddEditExpensePage implements OnInit {
               // if (!isEqual(etxn.tx, txnCopy)) {
               //   // only if the form is edited
               //   TrackingService.editExpense
-              // ({Asset: 'Mobile', Type: 'Receipt', Amount: etxn.tx.amount, Currency: etxn.tx.currency, 
+              // ({Asset: 'Mobile', Type: 'Receipt', Amount: etxn.tx.amount, Currency: etxn.tx.currency,
               // Category: etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
               // } else {
               //   // tracking expense closed without editing
@@ -1652,20 +1768,20 @@ export class AddEditExpensePage implements OnInit {
                 }),
                 map(savedEtxn => savedEtxn && savedEtxn.tx),
                 switchMap((tx) => {
-
-                  if (!txnCopy.report_id && etxn.tx.report_id) {
-                    return this.reportService.addTransactions(etxn.tx.report_id, [tx.id]).pipe(map(() => tx));
+                  const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
+                  if (!txnCopy.tx.report_id && selectedReportId) {
+                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(map(() => tx));
                   }
 
-                  if (txnCopy.report_id && etxn.tx.report_id && etxn.tx.report_id !== etxn.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.report_id, tx.id).pipe(
-                      switchMap(() => this.reportService.addTransactions(etxn.tx.report_id, [tx.id])),
+                  if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       map(() => tx)
                     );
                   }
 
-                  if (txnCopy.report_id && !etxn.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.report_id, tx.id).pipe(map(() => tx));
+                  if (txnCopy.tx.report_id && !selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(map(() => tx));
                   }
 
                   return of(null).pipe(map(() => tx));
@@ -1733,6 +1849,7 @@ export class AddEditExpensePage implements OnInit {
         }),
         switchMap(etxn => {
           return this.isConnected$.pipe(
+            take(1),
             switchMap(isConnected => {
               if (isConnected) {
                 const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
@@ -1822,7 +1939,7 @@ export class AddEditExpensePage implements OnInit {
                 //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
                 // } else {
                 //   TrackingService.createExpense
-                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
+                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount,
                 // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
                 // }
                 // if (this.saveAndCreate) {

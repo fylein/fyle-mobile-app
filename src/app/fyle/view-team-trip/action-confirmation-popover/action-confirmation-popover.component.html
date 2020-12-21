@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar mode="md">
     <ion-buttons mode="md" slot="end">
       <ion-button class="action--cancel" (click)="close()">
@@ -25,7 +25,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="action--cta" fill="solid" color="fyle-primary" [disabled]="message.trim().length === 0" expand="full" (click)="action()">
       Send Back
     </ion-button>

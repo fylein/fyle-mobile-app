@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-per-diem--toolbar">
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="goBack()">
@@ -29,7 +29,7 @@
         <span class="view-per-diem--currency">{{extendedPerDiem.tx_currency}}</span>
       </div>
       <div class="view-per-diem--amount-block">
-        <span class="view-per-diem--amount">{{extendedPerDiem.tx_amount}}</span>
+        <span class="view-per-diem--amount">{{extendedPerDiem.tx_amount | number: '1.0-2'}}</span>
       </div>
     </div>
 

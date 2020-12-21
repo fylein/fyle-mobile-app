@@ -1,16 +1,17 @@
-<ion-header>
+<ion-header mode="md">
   <ion-toolbar class="view-expense--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-back-button icon="close"></ion-back-button>
+      <ion-button (click)="goBack()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title mode="md">Team Expense</ion-title>
+    <ion-title mode="md" class="page-title">Team Expense</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
     <div *ngIf="etxn && policyViloations$|async as policyViloations">
-      <!-- TODO: on click scroll to comment section -->
       <div class="view-expense--policy-container" *ngIf="policyViloations.length > 0 && etxn.tx_policy_flag"
         (click)="scrollToComments()">
         <span>
@@ -31,24 +32,31 @@
 
     <div class="view-expense--attachment-currency-block">
       <div class="view-expense--attachment-block">
-        <ng-container *ngIf="attachments$|async as attachments">
-          <div class="view-expense--no-attachment" *ngIf="attachments.length === 0">
-            <p>No Receipt</p>
+        <ng-container *ngIf="attachments$|async as attachments; else NoAttachmentYet">
+          <div class="view-expense--no-attachment" *ngIf="!attachments?.length">
+            <div>No</div>
+            <div>Receipt</div>
           </div>
 
           <div *ngIf="attachments.length > 0" (click)="viewAttachments()">
             <div class="view-expense--receipt">
-              <img src="assets/svg/fy-attachment.svg">
+              <img src="assets/svg/fy-attachment.svg" alt="attachment">
             </div>
             <div class="view-expense--receipt-count">
               <span class="view-expense--receipt-count-number">{{ etxn.tx_num_files }}</span>
             </div>
           </div>
         </ng-container>
+        <ng-template #NoAttachmentYet>
+          <div class="view-expense--no-attachment">
+            <div>No</div>
+            <div>Receipt</div>
+          </div>
+        </ng-template>
       </div>
 
       <div class="view-expense--currency-block">
-        <app-currency [options]="currencyOptions" [currencyObj]="etxn"></app-currency>
+        <app-currency [options]="currencyOptions" [etxn]="etxn"></app-currency>
       </div>
     </div>
 
@@ -163,20 +171,16 @@
 
     <div class="view-expense--card">
       <div class="view-expense--card-action" id="commentsSection">
-        <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments"></app-comments>
+        <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
       </div>
     </div>
 
-    <!-- TODO: check logic for flag un flag and apply -->
     <div class="view-expense--card" *ngIf="canFlagOrUnflag$|async">
-      <div class="view-expense--card-action">
-        <mat-icon class="view-expense--card-action-icon">flag</mat-icon>
-        <div class="view-expense--card-action-text view-expense--card-action-text__comment">Flag</div>
-      </div>
+      <app-fy-flag-expense [etxn]="etxn" (notify)='onUpdateFlag($event)'></app-fy-flag-expense>
     </div>
 
     <div class="view-expense--card" *ngIf="canDelete$|async">
-      <div class="view-expense--card-action">
+      <div class="view-expense--card-action" (click)="removeExpenseFromReport()">
         <mat-icon class="view-expense--card-action-icon">delete</mat-icon>
         <div class="view-expense--card-action-text__comment">
           <div class="view-expense--card-action-text view-expense--card-action-text__delete">Remove</div>

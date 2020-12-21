@@ -1,6 +1,6 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="approver-list--toolbar">
-    <ion-toolbar>
+    <ion-toolbar mode="md">
       <ion-buttons slot="end">
         <ion-button (click)="closeApproverModal()">
           <mat-icon>close</mat-icon>
@@ -18,7 +18,7 @@
 
 <ion-content>
   <div>
-    <div class="approver-list--list-container" *ngFor="let approver of approverList$|async as approverList">
+    <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$|async as approverList">
       <div class="approver-list--list-element">
         <label>
           <mat-checkbox color="primary" [checked]="approver.checked" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
@@ -32,7 +32,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <ion-button class="approver-list--save" fill="solid" [disabled]="equals || !(selectedApprovers.length > 0)" color="fyle-primary" expand="full" (click)="saveUpdatedApproveList()">
       Proceed
     </ion-button>

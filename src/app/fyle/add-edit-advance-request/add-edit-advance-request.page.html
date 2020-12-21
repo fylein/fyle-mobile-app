@@ -1,5 +1,5 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header mode="md" >
+  <ion-toolbar mode="md">
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="goBack()">
         <mat-icon>close</mat-icon>
@@ -64,7 +64,7 @@
       </div>
 
       <div class="add-edit-advance-request--internal-block" *ngIf="(projects$|async)?.length > 0">
-        <app-fy-select-project [label]="fg.controls.project.value ? 'Project *' : 'Select Project *'"
+        <app-fy-select-project [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
           formControlName="project"></app-fy-select-project>
       </div>
 
@@ -136,13 +136,13 @@
     <div class="add-edit-advance-request--primary-block">
       <div class="add-edit-advance-request--card add-edit-advance-request--internal-block">
         <div class="vadd-edit-advance-request--common-action-block">
-          <app-comments objectType="advance_requests" [objectId]="id" mode="edit" text="Comments">
+          <app-comments objectType="advance_requests" [objectId]="id" mode="edit" text="Comments" [showCommentsCount]="true">
           </app-comments>
         </div>
       </div>
     </div>
 
-    <div class="add-edit-advance-request--primary-block">
+    <div class="add-edit-advance-request--primary-block" *ngIf="mode === 'edit'">
       <div class="add-edit-advance-request--card add-edit-advance-request--internal-block"
         *ngIf="(actions$|async)?.can_delete">
         <div class="add-edit-advance-request--common-action-block" (click)=delete()>
@@ -155,16 +155,16 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
-    <ion-buttons>
-      <ion-button class="add-edit-advance-request--primary-cta" *ngIf="mode === 'add'" (click)="save('Draft')"
-        class="add-edit-advance-request--primary-cta" fill="outline" color="fyle-primary">
-        SAVE DRAFT
-      </ion-button>
-      <ion-button class="add-edit-advance-request--primary-cta" (click)="save('Submit')"
-        class="add-edit-advance-request--primary-cta" fill="solid" color="fyle-primary">
-        SUBMIT REQUEST
-      </ion-button>
-    </ion-buttons>
+  <ion-toolbar mode="md">
+    <div class="add-edit-advance-request--cta-container">
+      <ion-buttons>
+        <ion-button class="add-edit-advance-request--primary-cta" *ngIf="mode === 'add'" (click)="save('Draft')" fill="outline" color="fyle-primary">
+          SAVE DRAFT
+        </ion-button>
+        <ion-button class="add-edit-advance-request--primary-cta" (click)="save('Submit')" fill="solid" color="fyle-primary">
+          SUBMIT REQUEST
+        </ion-button>
+      </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-footer>

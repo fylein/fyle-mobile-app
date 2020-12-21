@@ -95,6 +95,14 @@ export class TransactionService {
     return count;
   }
 
+  manualFlag(txnId) {
+    return this.apiService.post('/transactions/' + txnId + '/manual_flag');
+  }
+
+  manualUnflag(txnId) {
+    return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
+  }
+
   getUserTransactionParams(state: string) {
     const stateMap = {
       draft: {
@@ -227,6 +235,14 @@ export class TransactionService {
     }).pipe(
       map(res => res.count)
     );
+  }
+
+  getTotalNoCurrency(etxns) {
+    let total = 0;
+    etxns.forEach(etxn => {
+      total = total + etxn.tx_amount;
+    });
+    return total;
   }
 
   getMyExpenses(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {

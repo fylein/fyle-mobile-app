@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { FileService } from './services/file.service';
-import { TransactionService } from './services/transaction.service';
+import { FileService } from './file.service';
+import { TransactionService } from './transaction.service';
 
 @Injectable({
   providedIn: 'root'

@@ -4,11 +4,14 @@
       {{currentUserEmail}}
     </div>
     <div class="sign-up-details-enterprise--form-header-container">
-      <div class="sign-up-details-enterprise--form-header"
-        [ngClass]="{'sign-up-details-enterprise--form-header__completed': currentState === PageStates.secondForm}">
+      <div class="sign-up-details-enterprise--form-header">
+        <mat-icon *ngIf="currentState === PageStates.secondForm" class="sign-up-details-enterprise--form-header__completed">check_circle</mat-icon>
+        <mat-icon *ngIf="currentState !== PageStates.secondForm" class="sign-up-details-enterprise--form-header__uncomplete">fiber_manual_record</mat-icon>
         What do you want to use Fyle for?
       </div>
       <div class="sign-up-details-enterprise--form-header" *ngIf="currentState === PageStates.secondForm">
+        <!-- <mat-icon *ngIf="currentState === PageStates.secondForm" class="sign-up-details-enterprise--form-header__completed">check_circle</mat-icon> -->
+        <mat-icon *ngIf="currentState === PageStates.secondForm" class="sign-up-details-enterprise--form-header__uncomplete">fiber_manual_record</mat-icon>
         Add your details
       </div>
       <div class="sign-up-details-enterprise--form-sub-header">

@@ -1,9 +1,9 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
-import { Platform, MenuController } from '@ionic/angular';
+import { Platform, MenuController, AlertController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { pipe, forkJoin, from, iif, of, concat, Observable } from 'rxjs';
-import { map, switchMap, shareReplay } from 'rxjs/operators';
+import {map, switchMap, shareReplay, tap} from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -22,6 +22,9 @@ import { GlobalCacheConfig, globalCacheBusterNotifier } from 'ts-cacheable';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NetworkService } from './core/services/network.service';
+import { Plugins } from '@capacitor/core';
+import { FreshChatService } from './core/services/fresh-chat.service';
+const { App } = Plugins;
 
 @Component({
   selector: 'app-root',
@@ -29,7 +32,7 @@ import { NetworkService } from './core/services/network.service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
-  eou: ExtendedOrgUser;
+  eou$: Observable<ExtendedOrgUser>;
   activeOrg: any;
   sideMenuList: any[];
   appVersion: string;
@@ -52,11 +55,40 @@ export class AppComponent implements OnInit {
     private routerAuthService: RouterAuthService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
-    private networkService: NetworkService
-
+    private networkService: NetworkService,
+    private alertController: AlertController,
+    private freshchatService: FreshChatService
   ) {
     this.initializeApp();
+    this.registerBackButtonAction();
     this.matIconRegistry.addSvgIcon('add-advance', this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/svg/add-advance'));
+  }
+
+  async showAppCloseAlert() {
+    const alert = await this.alertController.create({
+      header: 'Exit Fyle App',
+      message: 'Are you sure you want to exit the app?',
+      buttons: [
+        {
+          text: 'Cancel',
+        }, {
+          text: 'Okay',
+          handler: () => {
+            App.exitApp();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  registerBackButtonAction() {
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      if (this.router.url.includes('my_dashboard')) {
+        this.showAppCloseAlert();
+      }
+    });
   }
 
   initializeApp() {
@@ -68,6 +100,11 @@ export class AppComponent implements OnInit {
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
     });
+  }
+
+  openHelp() {
+    console.log('Here');
+    this.freshchatService.openLiveChatSupport();
   }
 
   redirect(route) {
@@ -101,7 +138,6 @@ export class AppComponent implements OnInit {
     if (!isLoggedIn) {
       return 0;
     }
-    const eou$ = from(this.authService.getEou());
     const orgs$ = this.offlineService.getOrgs();
     const currentOrg$ = this.offlineService.getCurrentOrg();
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
@@ -110,7 +146,7 @@ export class AppComponent implements OnInit {
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.offlineService.getDelegatedAccounts().pipe(
       map(res => {
-        return this.orgUserService.excludeByStatus(res, 'ACTIVE');
+        return this.orgUserService.excludeByStatus(res, 'DISABLED');
       })
     );
     const deviceInfo$ = this.deviceService.getDeviceInfo();
@@ -134,7 +170,6 @@ export class AppComponent implements OnInit {
     this.isConnected$.pipe(
       switchMap(isConnected => {
         return forkJoin({
-          eou: eou$,
           orgs: orgs$,
           currentOrg: currentOrg$,
           orgSettings: orgSettings$,
@@ -147,7 +182,6 @@ export class AppComponent implements OnInit {
         });
       })
     ).subscribe((res) => {
-      this.eou = res.eou;
       const orgs = res.orgs;
       this.activeOrg = res.currentOrg;
       const orgSettings = res.orgSettings;
@@ -196,7 +230,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Delegated Accounts',
-            isVisible: isDelegatee,
+            isVisible: isDelegatee && !this.isSwitchedToDelegator,
             icon: 'fy-delegate-switch',
             route: ['/', 'enterprise', 'delegated_accounts']
           },
@@ -242,6 +276,12 @@ export class AppComponent implements OnInit {
             isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
             icon: 'fy-team-advances-new',
             route: ['/', 'enterprise', 'team_advance']
+          },
+          {
+            title: 'Live Chat',
+            isVisible: orgUserSettings && orgUserSettings.in_app_chat_settings && orgUserSettings.in_app_chat_settings.allowed && orgUserSettings.in_app_chat_settings.enabled,
+            icon: 'fy-chat',
+            openHelp: true
           },
           {
             title: 'Help',
@@ -295,7 +335,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Delegated Accounts',
-            isVisible: isDelegatee,
+            isVisible: isDelegatee && !this.isSwitchedToDelegator,
             icon: 'fy-delegate-switch',
             route: ['/', 'enterprise', 'delegated_accounts'],
             disabled: true
@@ -350,6 +390,13 @@ export class AppComponent implements OnInit {
             disabled: true
           },
           {
+            title: 'Live Chat',
+            isVisible: orgUserSettings && orgUserSettings.in_app_chat_settings && orgUserSettings.in_app_chat_settings.allowed && orgUserSettings.in_app_chat_settings.enabled,
+            icon: 'fy-chat',
+            openHelp: true,
+            disabled: true
+          },
+          {
             title: 'Help',
             isVisible: true,
             icon: 'fy-help-new',
@@ -368,7 +415,6 @@ export class AppComponent implements OnInit {
     });
   }
 
-
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
@@ -376,8 +422,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.eou$ = from(this.authService.getEou());
     this.checkAppSupportedVersion();
-    // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
         this.showSideMenu();

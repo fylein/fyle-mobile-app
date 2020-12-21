@@ -1,9 +1,8 @@
 .reports-card {
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
   border-radius: 4px;
-  min-height: 160px;
-  margin: 12px;
-  padding: 12px;
+  margin: 16px;
+  padding: 16px;
 
   &__no-top-margin {
     margin-top: 0;
@@ -12,7 +11,7 @@
   &--date {
     color: #ababab;
     font-size: 16px;
-    margin: 0 12px;
+    margin: 0 16px 10px 16px;
   }
 
   &--more {
@@ -25,16 +24,18 @@
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid lightgray;
-    padding: 12px 0;
+    padding-bottom: 10px;
     font-size: 16px;
   }
 
   &--secondary-info {
     padding: 12px 0;
+    color: #ababab;
+    font-size: 16px;
   }
 
   &--policy-violation {
-    margin: 0 12px;
+    margin: 0 16px;
     background: #ababab;
     color: #fff;
     font-size: 16px;
@@ -51,10 +52,12 @@
     font-size: 18px;
     margin-left: 8px;
     font-weight: 700;
+    color: #4a4a4a;
   }
 
   &--purpose {
     line-height: 1.3;
+    color: #4a4a4a;
   }
 
   &--no-transactions {
@@ -71,6 +74,9 @@
     color: white;
     border-radius: 4px;
     padding: 2px 8px;
+    text-transform: uppercase;
+    font-size: 12px;
+
     &__fyled {
       background-color: #f90;
     }
@@ -132,6 +138,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    color: #ababab;
   }
 
   &--action {
@@ -141,9 +148,11 @@
     justify-content: center;
     width: 100%;
     text-align: center;
+    font-size: 16px;
     &__comments {
       color: #0077ee;
       border-bottom: 1px solid #ececec;
+      align-items: center;
     }
     &__delete {
       color: #f00;
