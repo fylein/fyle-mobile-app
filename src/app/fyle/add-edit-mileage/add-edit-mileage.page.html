@@ -161,6 +161,11 @@
                     <ng-template #defaultDistanceUnit>
                       <ng-container *ngIf="mileageConfig$|async as mileageConfig">
                         <span class="add-edit-mileage--text-label__unit"> ({{ mileageConfig.unit }})</span>
+                        </ng-container>
+                    </ng-template>
+                    <div>
+                      *
+                    </div>
                   </div>
                   <input class="add-edit-mileage--text-input" type="number" formControlName="distance" [min]="0"
                     [disabled]="(isAmountDisabled$|async) || !txnFields?.distance.canEdit">
