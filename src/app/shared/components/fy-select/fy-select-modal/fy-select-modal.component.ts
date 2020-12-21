@@ -21,6 +21,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() customInput = false;
   @Input() subheader;
   @Input() enableSearch;
+  @Input() selectModalHeader = '';
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;

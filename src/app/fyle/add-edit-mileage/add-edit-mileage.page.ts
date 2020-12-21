@@ -295,7 +295,7 @@ export class AddEditMileagePage implements OnInit {
           map(activeCategories =>
             this.projectService.getAllowedOrgCategoryIds(project, activeCategories)));
       }),
-      map(categories => categories.map(category => ({ label: category.displayName, value: category }))));
+      map(categories => categories.map(category => ({ label: category.sub_category, value: category }))));
 
     this.filteredCategories$.subscribe(categories => {
       if (this.fg.value.sub_category
