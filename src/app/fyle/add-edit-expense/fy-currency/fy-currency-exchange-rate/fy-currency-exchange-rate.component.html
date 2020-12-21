@@ -42,8 +42,10 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button class="exchange-rate-modal--save" [disabled]="!fg.valid" fill="solid" color="fyle-primary" expand="full" (click)="save()">
-      Save
-    </ion-button>
+    <div class="exchange-rate-modal--cta-container">
+      <ion-button class="exchange-rate-modal--save" [disabled]="!fg.valid" fill="solid" color="fyle-primary" expand="full" (click)="save()">
+        Save
+      </ion-button>
+    </div>
   </ion-toolbar>
 </ion-footer>
