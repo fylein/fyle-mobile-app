@@ -55,7 +55,7 @@
         <ng-container *ngIf="(canCreatePerDiem$|async); else NothingToSee">
           <ng-container *ngIf="(allowedPerDiemRateOptions$|async)?.length > 0; else AdminKoBoloPerDiemAssignKare">
             <ng-container *ngIf="etxn$|async as etxn">
-  
+
               <ng-container *ngIf="mode === 'edit'">
                 <ng-container *ngIf="comments$|async as comments">
                   <app-fy-policy-violation-info [estatuses]="comments"></app-fy-policy-violation-info>
@@ -174,27 +174,27 @@
 
                   <ng-container *ngIf="paymentModes$|async as paymentModes">
                     <div class="add-edit-per-diem--internal-block">
-                      <app-fy-select [mandatory]="true"
+                      <app-fy-select [mandatory]="true" [subheader]="'All Payment Modes'" [enableSearch]="false"
                                      [label]="fg.controls.paymentMode.value ? 'Payment Mode' : 'Select Payment Mode'"
-                                     formControlName="paymentMode" [options]="paymentModes" [mandatory]="true"
+                                     formControlName="paymentMode" [options]="paymentModes"
                                      [selectionElement]="paymentMode" [nullOption]="false">
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                         <div>
-                          <div>
+                          <div class="add-edit-per-diem--payment-mode-header">
                             {{label}}
                           </div>
                           <ng-container *ngIf="paymentMode">
-                            <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADiVANCE_ACCOUNT'">
-                              <div>
+                            <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
+                              <div class="add-edit-per-diem--payment-mode-purpose">
                                 {{paymentMode.advance.purpose}}
                               </div>
                             </ng-container>
-                            <div *ngIf="paymentMode.acc.isReimbursible">
-                              Reimbursible
+                            <div class="add-edit-per-diem--payment-mode-type" *ngIf="paymentMode.acc.isReimbursible">
+                              (Reimbursible)
                             </div>
-                            <div *ngIf="!paymentMode.acc.isReimbursible">
-                              Non Reimbursible
+                            <div class="add-edit-per-diem--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursible">
+                              (Non Reimbursible)
                             </div>
                           </ng-container>
                         </div>
@@ -359,9 +359,9 @@
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="reports$|async as reports">
                       <div class="add-edit-per-diem--internal-block">
-                        <app-fy-select *ngIf="reports.length > 0"
+                        <app-fy-add-to-report *ngIf="reports.length > 0"
                                        [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
-                                       formControlName="report" [options]="reports"></app-fy-select>
+                                       formControlName="report" [options]="reports"></app-fy-add-to-report>
                         <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
                           <span class="add-edit-per-diem--text-label">
                             Add to New Report
@@ -425,7 +425,7 @@
                       {{duplicate.reason}}
                     </div>
                     <div class="add-edit-per-diem--duplicate-reason-select">
-                      <app-fy-select [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
+                      <app-fy-select [customInput]="true" [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
                                      [options]="[]">
                       </app-fy-select>
                     </div>

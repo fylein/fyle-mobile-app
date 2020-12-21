@@ -3,7 +3,7 @@ import { Platform, MenuController, AlertController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { pipe, forkJoin, from, iif, of, concat, Observable } from 'rxjs';
-import { map, switchMap, shareReplay } from 'rxjs/operators';
+import {map, switchMap, shareReplay, tap} from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -32,7 +32,7 @@ const { App } = Plugins;
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
-  eou: ExtendedOrgUser;
+  eou$: Observable<ExtendedOrgUser>;
   activeOrg: any;
   sideMenuList: any[];
   appVersion: string;
@@ -138,7 +138,6 @@ export class AppComponent implements OnInit {
     if (!isLoggedIn) {
       return 0;
     }
-    const eou$ = from(this.authService.getEou());
     const orgs$ = this.offlineService.getOrgs();
     const currentOrg$ = this.offlineService.getCurrentOrg();
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
@@ -171,7 +170,6 @@ export class AppComponent implements OnInit {
     this.isConnected$.pipe(
       switchMap(isConnected => {
         return forkJoin({
-          eou: eou$,
           orgs: orgs$,
           currentOrg: currentOrg$,
           orgSettings: orgSettings$,
@@ -184,7 +182,6 @@ export class AppComponent implements OnInit {
         });
       })
     ).subscribe((res) => {
-      this.eou = res.eou;
       const orgs = res.orgs;
       this.activeOrg = res.currentOrg;
       const orgSettings = res.orgSettings;
@@ -425,8 +422,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.eou$ = from(this.authService.getEou());
     this.checkAppSupportedVersion();
-    // For local development replace this.userEventService.onSetToken() with this.showSideMenu()
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
         this.showSideMenu();

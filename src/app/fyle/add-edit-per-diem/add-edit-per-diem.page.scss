@@ -86,6 +86,10 @@
     &__invalid {
       color: red;
     }
+
+    div {
+      display: inline;
+    }
   }
 
   &--date-input {
@@ -289,5 +293,21 @@
     position: relative;
     top: 4px;
     font-size: 20px;
+  }
+
+  &--payment-mode-header {
+    font-weight: 500;
+    font-size: 16px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-purpose {
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-type {
+    color: #ababab;
+    font-size: 12px;
   }
 }
