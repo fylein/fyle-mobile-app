@@ -31,6 +31,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() customInput = false;
   @Input() subheader = 'All';
   @Input() enableSearch = true;
+  @Input() selectModalHeader = '';
 
   private innerValue;
   displayValue;
@@ -92,7 +93,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         cacheName: this.cacheName,
         customInput: this.customInput,
         subheader: this.subheader,
-        enableSearch: this.enableSearch
+        enableSearch: this.enableSearch,
+        selectModalHeader: this.selectModalHeader,
+        searchPlaceholder: this.searchPlaceholder
+
       }
     });
 
