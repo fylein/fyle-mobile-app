@@ -70,6 +70,7 @@ export class AddEditPerDiemPage implements OnInit {
   duplicateBoxOpen = false;
   pointToDuplicates = false;
   isAdvancesEnabled$: Observable<boolean>;
+  comments$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -670,6 +671,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.setupFilteredCategories(this.subCategories$);
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.filteredCategories$.subscribe(subCategories => {
       if (!subCategories.length) {
