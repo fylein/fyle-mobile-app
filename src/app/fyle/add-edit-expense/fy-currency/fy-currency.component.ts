@@ -1,11 +1,13 @@
 import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
+import {noop, of} from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { isEqual } from 'lodash';
+import {concatMap, map, switchMap} from 'rxjs/operators';
+import {CurrencyService} from '../../../core/services/currency.service';
 
 @Component({
   selector: 'app-fy-currency',
@@ -47,6 +49,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   constructor(
     private fb: FormBuilder,
     private modalController: ModalController,
+    private currencyService: CurrencyService,
     private injector: Injector
   ) { }
 
@@ -59,7 +62,21 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       homeCurrencyAmount: [] // Amount converted to home currency
     });
 
-    this.fg.valueChanges.subscribe(formValue => {
+    this.fg.valueChanges.pipe(
+      switchMap(formValue => {
+        if (!formValue.amount && !formValue.homeCurrencyAmount && formValue.currency !== this.homeCurrency) {
+          return this.currencyService.getExchangeRate(formValue.currency, this.homeCurrency, this.txnDt || new Date()).pipe(
+            map(exchangeRate => ({ formValue,  exchangeRate}))
+          );
+        } else {
+          return of({formValue, exchangeRate: null});
+        }
+      })
+    ).subscribe(({formValue, exchangeRate}) => {
+
+      if (exchangeRate) {
+        this.exchangeRate = exchangeRate;
+      }
 
       const value = {
         amount: null,

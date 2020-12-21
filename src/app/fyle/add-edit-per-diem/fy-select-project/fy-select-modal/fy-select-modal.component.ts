@@ -26,7 +26,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-
+  console.log('HEREEEEEE');
   }
 
   getProjects(searchNameText) {
@@ -58,7 +58,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
           ))
         );
       }),
-      map(projects => [{ label: 'None', value: null }].concat(projects.map(project => ({ label: project.projectv2_name, value: project }))))
+      map(projects => [{ label: 'None', value: null }].concat(projects.map(project => ({ label: project.projectv2_name, value: project })))),
+      tap(console.log)
     );
   }
 

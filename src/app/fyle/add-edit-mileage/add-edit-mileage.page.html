@@ -153,7 +153,7 @@
                 <div class="add-edit-mileage--text add-edit-mileage--internal-block">
                   <div class="add-edit-mileage--text-label"
                     [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}">
-                    {{ fg.controls.distance.value > 0 ? 'Distance ' : 'Enter Distance ' }} 
+                    {{ fg.controls.distance.value > 0 ? 'Distance ' : 'Enter Distance ' }}
                     <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
                       <span class="add-edit-mileage--text-label__unit"> ({{ etxn.tx.distance_unit }})</span>
                     </ng-container>
@@ -190,30 +190,33 @@
               <div *ngIf="paymentModes.length > 1"
                 class="add-edit-mileage--payment-modes add-edit-mileage--internal-block">
                 <app-fy-select 
+                  [subheader]="'All Payment Modes'" 
+                  [enableSearch]="false" 
                   [mandatory]="true" 
                   [label]="fg.value.paymentMode? 'Payment Mode' : 'Select Payment Mode'"
                   [options]="paymentModes" 
                   [selectionElement]="paymentMode"
                   [selectModalHeader]="'Choose Payment Mode'"
                   formControlName="paymentMode" 
+                  [subheader]="'All Payment Modes'"
                   [nullOption]="false">
                 </app-fy-select>
                 <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                   <div>
-                    <div>
+                    <div class="add-edit-mileage--payment-mode-header">
                       {{label}}
                     </div>
                     <ng-container *ngIf="paymentMode">
                       <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                        <div>
+                        <div class="add-edit-mileage--payment-mode-purpose">
                           {{paymentMode.advance.purpose}}
                         </div>
                       </ng-container>
-                      <div *ngIf="paymentMode.acc.isReimbursible">
-                        Reimbursible
+                      <div class="add-edit-mileage--payment-mode-type" *ngIf="paymentMode.acc.isReimbursible">
+                        (Reimbursible)
                       </div>
-                      <div *ngIf="!paymentMode.acc.isReimbursible">
-                        Non Reimbursible
+                      <div class="add-edit-mileage--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursible">
+                        (Non Reimbursible)
                       </div>
                     </ng-container>
                   </div>
@@ -374,10 +377,8 @@
               <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
               <ng-container *ngIf="reports$|async as reports">
                 <div class="add-edit-mileage--internal-block add-edit-mileage--new-report-block">
-                  <app-fy-select *ngIf="reports.length > 0" 
-                    [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                    [selectModalHeader]="'Select Report'"
-                    formControlName="report" [options]="reports"></app-fy-select>
+                  <app-fy-add-to-report *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                    formControlName="report" [options]="reports"></app-fy-add-to-report>
                   <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
                       <span class="add-edit-mileage--text-label">
                         Add to New Report
@@ -411,7 +412,10 @@
                         {{duplicate.reason}}
                       </div>
                       <div class="add-edit-expense--duplicate-reason-select">
-                        <app-fy-select [selectModalHeader]="'Select Reason'" [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
+                        <app-fy-select 
+                          formControlName="duplicate_detection_reason"
+                          [selectModalHeader]="'Select Reason'" 
+                          [label]="'Select your Reason'"
                           [options]="[]">
                         </app-fy-select>
                       </div>

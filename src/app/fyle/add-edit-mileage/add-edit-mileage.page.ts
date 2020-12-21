@@ -448,17 +448,25 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getCustomInputs() {
+    let initialFetch = true;
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
-          const selectedCategory$ = this.etxn$.pipe(
-            switchMap(etxn => {
-              return iif(() => etxn.tx.org_category_id,
-                this.offlineService.getAllCategories().pipe(
-                  map(categories => categories
-                    .find(category => category.id === etxn.tx.org_category_id))), of(null));
-            }));
+          let selectedCategory$;
+          if (initialFetch) {
+            selectedCategory$ = this.etxn$.pipe(
+              switchMap(etxn => {
+                return iif(() => etxn.tx.org_category_id,
+                  this.offlineService.getAllCategories().pipe(
+                    map(categories => categories
+                      .find(category => category.id === etxn.tx.org_category_id))), of(null));
+              }));
+            initialFetch = false;
+          } else {
+            selectedCategory$ = of(category);
+          }
+
           return iif(() => this.mode === 'add', of(category), selectedCategory$);
         }),
         switchMap((category) => {
@@ -893,6 +901,13 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map(paymentModes => paymentModes
+        .map(res => res.value)
+        .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
+      )
+    );
+
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap(etxn => {
         return iif(() => etxn.tx.org_category_id,
@@ -932,7 +947,6 @@ export class AddEditMileagePage implements OnInit {
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap(etxn => {
         return this.offlineService.getCustomInputs().pipe(map(customFields => {
-          // TODO: Convert custom properties to get generated from formValue
           return this.customFieldsService
             .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
         }));
@@ -950,12 +964,13 @@ export class AddEditMileagePage implements OnInit {
           selectedReport$,
           selectedCostCenter$,
           selectedCustomInputs$,
-          this.mileageConfig$
+          this.mileageConfig$,
+          defaultPaymentMode$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -970,7 +985,7 @@ export class AddEditMileagePage implements OnInit {
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
         distance: etxn.tx.distance,
         round_trip: etxn.tx.mileage_is_round_trip,
-        paymentMode,
+        paymentMode: paymentMode || defaultPaymentMode,
         purpose: etxn.tx.purpose,
         project,
         billable: etxn.tx.billable,
@@ -1468,7 +1483,7 @@ export class AddEditMileagePage implements OnInit {
               // if (!isEqual(etxn.tx, txnCopy)) {
               //   // only if the form is edited
               //   TrackingService.editExpense
-              // ({Asset: 'Mobile', Type: 'Receipt', Amount: vm.etxn.tx.amount, Currency: vm.etxn.tx.currency, 
+              // ({Asset: 'Mobile', Type: 'Receipt', Amount: vm.etxn.tx.amount, Currency: vm.etxn.tx.currency,
               // Category: vm.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
               // } else {
               //   // tracking expense closed without editing
@@ -1690,7 +1705,7 @@ export class AddEditMileagePage implements OnInit {
                 //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
                 // } else {
                 //   TrackingService.createExpense
-                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
+                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount,
                 // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
                 // }
                 // if (this.saveAndCreate) {

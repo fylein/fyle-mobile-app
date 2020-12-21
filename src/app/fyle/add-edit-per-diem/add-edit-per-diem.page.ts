@@ -519,16 +519,24 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getCustomInputs() {
+    let initialFetch = true;
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
-          const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-            return iif(() => etxn.tx.org_category_id,
-              this.offlineService.getAllCategories().pipe(
-                map(categories => categories
-                  .find(category => category.id === etxn.tx.org_category_id))), of(null));
-          }));
+          let selectedCategory$;
+          if (initialFetch) {
+            selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+              return iif(() => etxn.tx.org_category_id,
+                this.offlineService.getAllCategories().pipe(
+                  map(categories => categories
+                    .find(category => category.id === etxn.tx.org_category_id))), of(null));
+            }));
+            initialFetch = false;
+          } else {
+            selectedCategory$ = of(category);
+          }
+
           return iif(() => this.mode === 'add', of(category), selectedCategory$);
         }),
         switchMap((category) => {
@@ -920,6 +928,13 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map(paymentModes => paymentModes
+        .map(res => res.value)
+        .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
+      )
+    );
+
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap(etxn => {
         return iif(() => etxn.tx.org_category_id,
@@ -993,11 +1008,12 @@ export class AddEditPerDiemPage implements OnInit {
           selectedReport$,
           selectedCostCenter$,
           selectedCustomInputs$,
+          defaultPaymentMode$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1008,7 +1024,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
 
       this.fg.patchValue({
-        paymentMode,
+        paymentMode: paymentMode || defaultPaymentMode,
         project,
         sub_category: subCategory,
         per_diem_rate: perDiemRate,
@@ -1292,7 +1308,7 @@ export class AddEditPerDiemPage implements OnInit {
                 //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
                 // } else {
                 //   TrackingService.createExpense
-                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
+                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount,
                 // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
                 // }
                 // if (this.saveAndCreate) {

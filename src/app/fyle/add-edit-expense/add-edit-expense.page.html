@@ -285,8 +285,8 @@
                 <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
                   <ng-container *ngIf="reports$|async as reports">
                     <div  class="add-edit-expense--internal-block">
-                      <app-fy-select *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                                     formControlName="report" [options]="reports"></app-fy-select>
+                      <app-fy-add-to-report *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                                     formControlName="report" [options]="reports"></app-fy-add-to-report>
                       <mat-checkbox color="primary" *ngIf="reports.length === 0" formControlName="add_to_new_report">
                       <span class="add-edit-expense--text-label">
                         Add to New Report
@@ -601,7 +601,7 @@
                 {{duplicate.reason}}
               </div>
               <div class="add-edit-expense--duplicate-reason-select">
-                <app-fy-select [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
+                <app-fy-select [customInput]="true" [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
                   [options]="[]">
                 </app-fy-select>
               </div>
