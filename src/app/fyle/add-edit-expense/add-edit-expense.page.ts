@@ -556,7 +556,7 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map((dependencies) => {
         const { orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData } = dependencies;
-        const bankTxn = this.activatedRoute.snapshot.params.bankTxn;
+        const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
         if (!bankTxn) {
@@ -1439,14 +1439,14 @@ export class AddEditExpensePage implements OnInit {
   // public findInvalidControlsRecursive(formToInvestigate:FormGroup|FormArray):string[] {
   //   var invalidControls:string[] = [];
   //   let recursiveFunc = (form:FormGroup|FormArray) => {
-  //     Object.keys(form.controls).forEach(field => { 
+  //     Object.keys(form.controls).forEach(field => {
   //       const control = form.get(field);
   //       if (control.invalid) invalidControls.push(field);
   //       if (control instanceof FormGroup) {
   //         recursiveFunc(control);
   //       } else if (control instanceof FormArray) {
   //         recursiveFunc(control);
-  //       }        
+  //       }
   //     });
   //   }
   //   recursiveFunc(formToInvestigate);
@@ -1897,7 +1897,7 @@ export class AddEditExpensePage implements OnInit {
                 //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
                 // } else {
                 //   TrackingService.createExpense
-                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount, 
+                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount,
                 // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
                 // }
                 // if (this.saveAndCreate) {
