@@ -80,9 +80,10 @@
   </ion-refresher>
 
   <div *ngIf="(count$ | async) === 0" class="corporate-card-expenses--zero-state">
-    <img class="corporate-card-expenses--zero-state-img" src="../../../assets/images/zero-states/expenses.svg"
-         alt="Create First Expenses">
-    <app-fy-zero-state></app-fy-zero-state>
+    <app-fy-zero-state
+      [image]="'../../../assets/images/zero-states/expenses.svg'"
+      [header]="'Your card transactions will show up here'"
+    ></app-fy-zero-state>
   </div>
 
     <div *ngFor="let cardTransaction of cardTransactions$ | async as list; let i = index">
