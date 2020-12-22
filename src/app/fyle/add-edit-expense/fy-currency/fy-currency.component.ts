@@ -113,8 +113,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         }
       }
 
-      console.log(formValue, value);
-
       if (!isEqual(value, this.innerValue)) {
         this.value = value;
       }

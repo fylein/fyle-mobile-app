@@ -133,16 +133,27 @@
         </div>
 
         <div class="add-edit-expense--primary-block">
+          <ng-container *ngIf="txnFields$|async as txnFields">
+            <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt?.canView">
+              <div class="add-edit-expense--date-label">
+                Date of Spend
+                <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
+              </div>
+              <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
+                     (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+            </div>
+          </ng-container>
+
           <ng-container *ngIf="paymentModes$|async as paymentModes">
             <div *ngIf="paymentModes.length > 1"
-              class="add-edit-expense--payment-modes add-edit-expense--internal-block">
-              <app-fy-select 
-                [mandatory]="true" 
-                [subheader]="'All Payment Modes'" 
+                 class="add-edit-expense--payment-modes add-edit-expense--internal-block">
+              <app-fy-select
+                [mandatory]="true"
+                [subheader]="'All Payment Modes'"
                 [enableSearch]="false"
                 [label]="fg.controls.paymentMode.value?'Payment Mode':'Select Payment Mode'"
-                formControlName="paymentMode" 
-                [options]="paymentModes" 
+                formControlName="paymentMode"
+                [options]="paymentModes"
                 [selectionElement]="paymentMode"
                 [nullOption]="false"
                 [selectModalHeader]="'Choose Payment Mode'">
@@ -172,12 +183,78 @@
               </ng-template>
             </div>
           </ng-container>
-
           <ng-container *ngIf="isAdvancesEnabled$">
             <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC" [type]="'information'"
-              [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
+                          [message]="'You have outstanding balance in your advance account(s)'"></app-fy-alert>
           </ng-container>
+        </div>
 
+        <ng-container *ngIf="isCCCPaymentModeSelected$|async">
+          <div class="add-edit-expense--primary-block">
+            <div class="add-edit-expense--match-card-header">
+              <div class="add-edit-expense--match-card-header-title">
+                <mat-icon class="add-edit-expense--match-card-header-title-icon" svgIcon="fy-cards-new"></mat-icon>
+                <span *ngIf="!(this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && matchingCCCTransactions.length > 0) && !isCreatedFromCCC">
+                    Matching Card Transactions
+                  </span>
+                <span *ngIf="isCreatedFromCCC">
+                    Selected Card Transaction
+                  </span>
+                <span *ngIf="this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && (matchingCCCTransactions.length > 0) && !isCreatedFromCCC">
+                    Matching Card Transactions ({{matchingCCCTransactions.length}})
+                  </span>
+              </div>
+              <div class="add-edit-expense--match-card-button" (click)="openMatchingTransactions()" *ngIf="(matchingCCCTransactions.length > 0 || selectedCCCTransaction) && canChangeMatchingCCCTransaction && !isCreatedFromCCC">Change</div>
+            </div>
+            <div class="add-edit-expense--matched-card">
+                <div class="add-edit-expense--matched-card-zero-state" *ngIf="(!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && !selectedCCCTransaction">
+                  Enter date and amount above to search for matching card transactions
+                </div>
+              <div *ngIf="this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && !selectedCCCTransaction && !isLoadingSuggestions">
+                <div class="add-edit-expense--matched-card-zero-state">
+                  <div class="add-edit-expense--matched-card-zero-state-title" *ngIf="matchingCCCTransactions.length === 0">
+                    No matching transactions available
+                  </div>
+                  <div class="add-edit-expense--matched-card-zero-state-title" *ngIf="matchingCCCTransactions.length > 0">
+                    No transaction selected
+                  </div>
+                  This expense will be automatically matched when the card transactions arrive
+                </div>
+              </div>
+
+              <div *ngIf="selectedCCCTransaction && !isLoadingSuggestions" class="add-edit-expense--matched-expense">
+                <div class="add-edit-expense--matched-expense-value">
+                    <div class="add-edit-expense--matched-currency">
+                      {{selectedCCCTransaction.currency}}
+                    </div>
+                    <div class="add-edit-expense--matched-amount">
+                      {{selectedCCCTransaction.amount}}
+                    </div>
+                </div>
+                <div class="add-edit-expense--matched-expense-txn-dt">
+                  {{selectedCCCTransaction.txn_dt | date: 'MMM dd, yyyy'}}
+                </div>
+                <div class="add-edit-expense--matched-expense-vendor">
+                  {{(selectedCCCTransaction.vendor ||  selectedCCCTransaction.description) | ellipsis:20}}
+                </div>
+              </div>
+
+              <div *ngIf="isLoadingSuggestions && this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount">
+                <div>
+                  <ion-skeleton-text height="24" width="146"></ion-skeleton-text>
+                </div>
+                <div class="loader-middle">
+                  <ion-skeleton-text height="24" width="146"></ion-skeleton-text>
+                </div>
+                <div class="loader-bottom">
+                  <ion-skeleton-text height="24" width="146"></ion-skeleton-text>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <div class="add-edit-expense--primary-block">
 
           <!-- <div *ngIf="(isCCCAccountSelected$|async) && !isCreatedFromCCC">
           <div (click)="openMatchingTransactions()">
@@ -191,6 +268,7 @@
           </div>
         </div> -->
 
+
           <app-fy-alert
             *ngIf="(isCCCAccountSelected$|async) && !selectedCCCTransaction && canChangeMatchingCCCTransaction && !(transactionInReport$|async)"
             [type]="'warning'"
@@ -200,12 +278,14 @@
           <ng-container *ngIf="isConnected$|async">
             <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-                <div class="add-edit-expense--internal-block">
-                  <app-fy-select-project 
-                    [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
-                    [mandatory]="transactionMandatoyFields.project" 
-                    formControlName="project"></app-fy-select-project>
-                </div>
+                <ng-container *ngIf="isProjectsVisible$|async">
+                  <div class="add-edit-expense--internal-block">
+                    <app-fy-select-project
+                      [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
+                      [mandatory]="transactionMandatoyFields.project"
+                      formControlName="project"></app-fy-select-project>
+                  </div>
+                </ng-container>
               </ng-container>
             </ng-container>
           </ng-container>
@@ -215,10 +295,10 @@
             <ng-container *ngIf="filteredCategories$|async as categories">
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                 <div class="add-edit-expense--internal-block">
-                  <app-fy-select 
-                  formControlName="category" 
+                  <app-fy-select
+                  formControlName="category"
                     [label]="fg.controls.category.value? 'Category':'Select Category'"
-                    [mandatory]="transactionMandatoyFields.category" 
+                    [mandatory]="transactionMandatoyFields.category"
                     [options]="categories"
                     [cacheName]="'recentCategoryList'"
                     [selectModalHeader]="'Choose Category'">
@@ -226,17 +306,6 @@
                 </div>
               </ng-container>
             </ng-container>
-          </ng-container>
-
-          <ng-container *ngIf="txnFields$|async as txnFields">
-            <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt?.canView">
-              <div class="add-edit-expense--date-label">
-                Date of Spend
-                <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
-              </div>
-              <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
-                (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
-            </div>
           </ng-container>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
@@ -269,7 +338,7 @@
                   [disabled]="!txnFields.purpose?.canEdit">
               </div>
               <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block">
-                <app-fy-select formControlName="purpose" 
+                <app-fy-select formControlName="purpose"
                   [options]="txnFields.purpose?.values"
                   [mandatory]="txnFields.purpose?.mandatory"
                   [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
@@ -282,7 +351,7 @@
           <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
           <ng-container *ngIf="isConnected$|async as isConnected">
               <ng-container *ngIf="etxn$|async as etxn">
-                <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
+                <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length) && !isDraftExpense">
                   <ng-container *ngIf="reports$|async as reports">
                     <div  class="add-edit-expense--internal-block">
                       <app-fy-add-to-report *ngIf="reports.length > 0" [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
@@ -376,7 +445,7 @@
 
             <div class="add-edit-expense--date add-edit-expense--internal-block"
               *ngIf="txnFields.flight_journey_travel_class?.canView && txnFields.flight_journey_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
-              <app-fy-select 
+              <app-fy-select
                 *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
                 formControlName="flight_journey_travel_class"
                 [label]="fg.controls.flight_journey_travel_class.value ? txnFields.flight_journey_travel_class?.title : 'Select ' + txnFields.flight_journey_travel_class?.title"
@@ -390,7 +459,7 @@
               *ngIf="txnFields.flight_return_travel_class?.canView && txnFields.flight_return_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category) && !(isProjectsEnabled && isOffline)">
               <app-fy-select name="flightReturnClass"
                 *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                formControlName="flight_return_travel_class" 
+                formControlName="flight_return_travel_class"
                 [label]="fg.controls.flight_return_travel_class.value ? txnFields.flight_return_travel_class?.title : 'Select ' + txnFields.flight_return_travel_class?.title"
                 [options]="txnFields.flight_journey_travel_class?.values"
                 [disabled]="!txnFields.flight_return_travel_class?.canEdit"
@@ -433,7 +502,7 @@
                 (blur)="focusState = false">
               <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" formControlName="bus_travel_class"
                 [label]="fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
-                [mandatory]="txnFields.bus_travel_class?.mandatory" 
+                [mandatory]="txnFields.bus_travel_class?.mandatory"
                 [options]="txnFields.bus_travel_class?.values"
                 [selectModalHeader]="'Choose Travel Class'"
                 hide-none="true" [disabled]="!txnFields.bus_travel_class?.canEdit"></app-fy-select>
@@ -460,7 +529,7 @@
                 <app-fy-select
                   [label]="fg.controls.distance_unit.value ? txnFields.distance_unit.title : 'Select ' + txnFields.distance_unit.title"
                   [mandatory]="txnFields.distance_unit.mandatory" name="taxiDistanceUnit"
-                  formControlName="distance_unit" 
+                  formControlName="distance_unit"
                   [options]="txnFields.distance_unit.values"
                   title="Choose Unit"
                   sub-title="Units"></app-fy-select>

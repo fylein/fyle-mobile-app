@@ -7,6 +7,7 @@ import {from, range} from 'rxjs';
 import {ApiV2Service} from './api-v2.service';
 import {LoaderService} from './loader.service';
 import {AuthService} from './auth.service';
+import {DataTransformService} from './data-transform.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ export class CorporateCreditCardExpenseService {
     private storageService: StorageService,
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
-    private authService: AuthService
+    private authService: AuthService,
+    private dataTransformService: DataTransformService
   ) { }
 
   getPaginatedECorporateCreditCardExpenseStats(params) {
@@ -93,5 +95,17 @@ export class CorporateCreditCardExpenseService {
 
   undoDismissedCreditTransaction(corporateCreditCardExpenseId: string) {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/undo_ignore');
+  }
+
+  getEccceByGroupId(groupId: string) {
+    const data = {
+      params: {
+        group_id: groupId
+      }
+    };
+
+    return this.apiService.get('/extended_corporate_credit_card_expenses', data).pipe(
+      map(res => (res && res.length && res.map(elem => this.dataTransformService.unflatten(elem))) || [])
+    );
   }
 }
