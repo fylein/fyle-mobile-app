@@ -5,7 +5,7 @@ $menu-botton-color: #000;
 .dashboard {
   &--header {
     background-color: $background-color;
-    height: 80px !important;
+    // height: 80px !important;
     border-bottom: 1px solid $item-border-color;
 
     &-toolbar {
@@ -14,7 +14,7 @@ $menu-botton-color: #000;
   }
 
   &--menubutton {
-    height: 80px;
+    // height: 80px;
     color: $menu-botton-color;
   }
 
@@ -33,8 +33,8 @@ $menu-botton-color: #000;
   }
 
   &--footer {
-    height: 76px;
-    background-color: $background-color;
+    // height: 76px;
+    // background-color: $background-color;
 
     &-toolbar {
       border-top: 1px solid $item-border-color;
