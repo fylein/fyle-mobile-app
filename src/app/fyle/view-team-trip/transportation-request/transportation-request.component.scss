@@ -6,7 +6,7 @@ $toolbar-border: #ababab6b;
 .transportation-requests {
   &--header {
     background-color: $background-color;
-    height: 80px !important;
+    // height: 80px !important;
     border-bottom: 1px solid $item-border-color;
 
     &_close-button {
