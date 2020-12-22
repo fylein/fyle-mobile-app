@@ -1,0 +1,43 @@
+.match-transaction {
+  &--card {
+    border: 1px solid #e5e5e5;
+    margin: 20px;
+    display: block;
+    border-radius: 4px;
+    padding: 10px 16px;
+    min-height: 72px;
+  }
+
+  &--card-zero {
+    border: 1px solid #e5e5e5;
+    margin: 20px;
+    display: block;
+    border-radius: 4px;
+    padding: 10px 16px;
+  }
+
+  &--matched-currency {
+    font-size: 14px;
+    color: black;
+    line-height: 24px;
+  }
+
+  &--matched-amount {
+    font-weight: 500;
+    line-height: 24px;
+  }
+
+  &--txn-dt {
+
+  }
+
+  &--vendor {
+
+  }
+
+  &--card-footer {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+}

@@ -298,15 +298,18 @@ export class TransactionsOutboxService {
 
         that.removeEntry(entry);
 
-        // that would be on matching an expense for the first time
-        if (entry.transaction.matchCCCId) {
-          that.transactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId);
-        }
-
         if (entry.applyMagic) {
           that.addDataExtractionEntry(resp, entry.dataUrls);
         }
-        resolve(entry);
+
+        // that would be on matching an expense for the first time
+        if (entry.transaction.matchCCCId) {
+          that.transactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId).toPromise().then(() => {
+            resolve(entry);
+          });
+        } else {
+          resolve(entry);
+        }
       }, (err) => {
         // TrackingService.syncError({ Asset: 'Mobile', label: err });
 

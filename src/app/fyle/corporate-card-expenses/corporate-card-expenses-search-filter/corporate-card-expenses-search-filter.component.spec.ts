@@ -1,0 +1,24 @@
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { IonicModule } from '@ionic/angular';
+
+import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-expenses-search-filter.component';
+
+describe('CorporateCardExpensesSearchFilterComponent', () => {
+  let component: CorporateCardExpensesSearchFilterComponent;
+  let fixture: ComponentFixture<CorporateCardExpensesSearchFilterComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ CorporateCardExpensesSearchFilterComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(CorporateCardExpensesSearchFilterComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

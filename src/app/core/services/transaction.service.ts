@@ -498,7 +498,7 @@ export class TransactionService {
   removeTxnsFromRptInBulk(txnIds, comment?) {
     return range(0, txnIds.length / 50).pipe(
       concatMap(page => {
-        var data: any = {
+        let data: any = {
           ids: txnIds.slice((page - 1) * 50, page * 50)
         };
 
@@ -511,6 +511,24 @@ export class TransactionService {
       reduce((acc, curr) => {
         return acc.concat(curr);
       }, [] as any[])
-    )
+    );
+  }
+
+  getSplitExpenses(txnSplitGroupId: string) {
+    const data = {
+      tx_split_group_id: 'eq.' + txnSplitGroupId
+    };
+
+    return this.getAllETxnc(data);
+  }
+
+
+  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string) {
+    const data = {
+      transaction_id: txnId,
+      corporate_credit_card_expense_id: corporateCreditCardExpenseId
+    };
+
+    return this.apiService.post('/transactions/unmatch', data);
   }
 }

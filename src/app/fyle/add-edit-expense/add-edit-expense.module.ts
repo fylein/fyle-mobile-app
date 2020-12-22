@@ -28,6 +28,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 
 @NgModule({
   imports: [
@@ -61,7 +62,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     CriticalPolicyViolationComponent,
     PolicyViolationComponent,
     CameraOptionsPopupComponent,
-    ViewAttachmentsComponent
+    ViewAttachmentsComponent,
+    MatchTransactionComponent
   ]
 })
 export class AddEditExpensePageModule { }
