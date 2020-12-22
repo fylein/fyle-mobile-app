@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PopoverController, ToastController } from '@ionic/angular';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
-import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap } from 'rxjs/operators';
+import { forkJoin, iif, Observable, of } from 'rxjs';
+import { concatMap, map, switchMap} from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -42,23 +42,18 @@ export class SplitExpensePage implements OnInit {
     private offlineService: OfflineService,
     private categoriesService: CategoriesService,
     private dateService: DateService,
-    private toastController: ToastController,
     private splitExpenseService: SplitExpenseService,
     private popoverController: PopoverController,
     private transactionService: TransactionService,
     private fileService: FileService,
-    private router: Router
+    private navController: NavController
   ) { }
 
   ngOnInit() {
   }
 
   goBack() {
-    if (this.transaction.id) {
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: this.transaction.id }]);
-    } else {
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
-    }
+    this.navController.back();
   }
 
   onChangeAmount(splitExpenseForm) {
@@ -136,33 +131,26 @@ export class SplitExpensePage implements OnInit {
     }
 
     return forkJoin(splitExpense$).pipe(
-      // switchMap(data => {
-      //   return this.splitExpenseService.linkTxnWithFiles(data);
-      // }),
       switchMap((data: any) => {
         const txnIds = data.txns.map((txn) => {
           return txn.id;
         });
-        console.log(txnIds);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(
           map(() => {
             return txnIds;
           })
         )
-        //return txnIds;
       })
     )
 
   }
 
   async showSplitExpenseStatusPopup(isSplitSuccessful: boolean) {
-    //return of(null);
     const splitExpenseStatusPopup = await this.popoverController.create({
       component: SplitExpenseStatusComponent,
       componentProps: {
         isSplitSuccessful
       },
-      //cssClass: 'error-popover'
     });
 
     await splitExpenseStatusPopup.present();
