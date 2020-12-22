@@ -25,15 +25,15 @@
         </ion-col>
         <ion-col size="10">
           <span class="view-comment--commenter-name">{{ estatus.us_full_name ? estatus.us_full_name: 'Fyle Bot'}}</span>
-          <p class="comment-timestamp">{{estatus.st_created_at | date:'MMM d @ h:mm a' }}</p>
+          <p class="view-comment--comment-timestamp">{{estatus.st_created_at | date:'MMM d @ h:mm a' }}</p>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
           <p *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-            class="comment-detail">{{ estatus.st_comment }}</p>
+            class="view-comment--comment-detail">{{ estatus.st_comment }}</p>
           <p *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-            class="comment-detail">{{ vm.comment }}</p>
+            class="view-comment--comment-detail">{{ vm.comment }}</p>
           <a *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
             (click)="openViewExpense()">{{ vm.expenseNumber }} </a>
         </ion-col>
