@@ -20,10 +20,9 @@ export class StatusService {
 
   find(objectType, objectId) {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map((estatuses: ExtendedStatus[])=> {
+      map((estatuses: ExtendedStatus[]) => {
         return estatuses.map(estatus => {
           estatus.st_created_at = new Date(estatus.st_created_at);
-          estatus.st_created_at = this.dateService.getLocalDate(estatus.st_created_at);
           return estatus as ExtendedStatus;
         });
       })

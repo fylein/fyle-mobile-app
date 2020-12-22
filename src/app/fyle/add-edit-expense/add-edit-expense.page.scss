@@ -53,10 +53,6 @@
     position: relative;
   }
 
-  &--receipt-image-icon {
-    // margin-top: 12px;
-  }
-
   &--receipt-background {
     position: absolute;
     top: 0px;
@@ -89,6 +85,11 @@
     font-size: 40px;
     position: relative;
     left: -8px;
+  }
+
+  &--spinner-icon {
+    margin-top: 4px;
+    color: #f36;
   }
 
   &--currency {
