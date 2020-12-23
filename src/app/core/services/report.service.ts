@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { switchMap, tap, map, concatMap, reduce, shareReplay, finalize, mergeMap } from 'rxjs/operators';
-import { from, range, forkJoin, of } from 'rxjs';
+import { from, range, forkJoin, of, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
@@ -11,6 +11,9 @@ import { ExtendedReport } from '../models/report.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { isEqual } from 'lodash';
 import { DataTransformService } from './data-transform.service';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+
+const reportsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -304,6 +307,9 @@ export class ReportService {
     return Object.assign({}, params, searchParams, dateParams);
   }
 
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
   getPaginatedERptc(offset, limit, params) {
     const data = {
       params: {
@@ -331,6 +337,9 @@ export class ReportService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
   getERpt(rptId) {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map(data => {
@@ -409,16 +418,25 @@ export class ReportService {
     );
   }
 
-
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   addTransactions(rptId, txnIds) {
     return this.apiService.post('/reports/' + rptId + '/txns', {
       ids: txnIds
     });
   }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   createDraft(report) {
     return this.apiService.post('/reports', report);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   create(report, txnIds) {
     return this.createDraft(report).pipe(
       switchMap(newReport => {
@@ -431,6 +449,9 @@ export class ReportService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   removeTransaction(rptId, txnId, comment?) {
     const aspy = {
       status: {
@@ -440,22 +461,37 @@ export class ReportService {
     return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   submit(rptId) {
     return this.apiService.post('/reports/' + rptId + '/submit');
-  };
-
-  resubmit(rptId) {
-    return this.apiService.post('/reports/' + rptId + '/resubmit')
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  resubmit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/resubmit');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   inquire(rptId, addStatusPayload) {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
-  };
+  }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   approve(rptId) {
     return this.apiService.post('/reports/' + rptId + '/approve');
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   addApprover(rptId, approverEmail, comment) {
     var data = {
       approver_email: approverEmail,
@@ -464,6 +500,9 @@ export class ReportService {
     return this.apiService.post('/reports/' + rptId + '/approvals', data);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   removeApprover(rptId, approvalId) {
     return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
   }

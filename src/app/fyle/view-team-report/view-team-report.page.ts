@@ -8,7 +8,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController } from '@ionic/angular';
-import { switchMap, finalize, map, shareReplay, tap, startWith } from 'rxjs/operators';
+import {switchMap, finalize, map, shareReplay, tap, startWith, take} from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
@@ -87,7 +87,7 @@ export class ViewTeamReportPage implements OnInit {
           })
         );
       }),
-      shareReplay(),
+      shareReplay(1),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
@@ -181,7 +181,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   async approveReport() {
-    const erpt = await this.erpt$.toPromise();
+    const erpt = await this.erpt$.pipe(take(1)).toPromise();
     const etxns = await this.etxns$.toPromise();
 
     const popover = await this.popoverController.create({
@@ -262,7 +262,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   async sendBack() {
-    const erpt = await this.erpt$.toPromise();
+    const erpt = await this.erpt$.pipe(take(1)).toPromise();
     const etxns = await this.etxns$.toPromise();
 
     const popover = await this.popoverController.create({

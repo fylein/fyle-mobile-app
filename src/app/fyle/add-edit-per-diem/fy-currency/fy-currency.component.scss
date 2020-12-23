@@ -6,6 +6,11 @@
   height: 88px;
   background-color: #efefef;
   white-space: nowrap;
+
+  input {
+    background-color: #efefef;
+  }
+
   &__invalid {
     border: 1px solid red;
   }

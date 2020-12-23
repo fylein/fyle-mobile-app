@@ -83,9 +83,14 @@ $advance_rejected_color: #d50000;
   &--currency {
     color: #ababab;
   }
+
   &--amount {
     font-size: 18px;
     margin-left: 8px;
     font-weight: 700;
+  }
+
+  &--approval {
+    margin-bottom: 8px;
   }
 }

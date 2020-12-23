@@ -9,8 +9,8 @@
             </ion-col>
             <ion-col size="10">
               <div class="sidemenu--info-wrapper">
-                <ng-container *ngIf="eou$|async as eou">
-                  <p class="sidemenu--user-name" *ngIf="eou?.us?.full_name">{{ eou.us.full_name | ellipsis: 15 }}</p>
+                <ng-container *ngIf="eou">
+                  <p class="sidemenu--user-name" *ngIf="eou.us.full_name">{{ eou.us.full_name | ellipsis: 15 }}</p>
                 </ng-container>
                 <!-- Need to add characters pipe later -->
                 <p class="sidemenu--org-name" *ngIf="activeOrg?.name">{{  activeOrg.name | ellipsis: 20 }}</p>

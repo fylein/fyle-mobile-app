@@ -78,7 +78,7 @@ export class MyReportsPage implements OnInit {
 
   ionViewWillEnter() {
     this.searchText = '';
-    // this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     console.log(this.navigateBack);
     this.acc = [];
 

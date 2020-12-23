@@ -175,6 +175,12 @@ $inquiry-color: #4848ad;
   }
 
   &--primary-cta {
+    height: 48px;
+    display: block;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 8px;
     margin: 12px;
   }
 }

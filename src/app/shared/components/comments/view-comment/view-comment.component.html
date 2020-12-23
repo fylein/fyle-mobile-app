@@ -18,22 +18,22 @@
       [ngClass]="{'view-comment--bot-comment': estatus.isBotComment, 'view-comment--self-comment': estatus.isSelfComment}">
       <ion-row>
         <ion-col size="2">
-          <span class="view-comment--profile" *ngIf="estatus.us_full_name">{{estatus.us_full_name | initials}}</span>
+          <span class="view-comment--profile" *ngIf="estatus.us_full_name" [ngClass]="{'view-comment--profile__user-profile': estatus.us_full_name}">{{estatus.us_full_name | initials}}</span>
           <span class="view-comment--profile" *ngIf="!estatus.us_full_name">
             <mat-icon svgIcon="fy-bot"></mat-icon>
           </span>
         </ion-col>
         <ion-col size="10">
           <span class="view-comment--commenter-name">{{ estatus.us_full_name ? estatus.us_full_name: 'Fyle Bot'}}</span>
-          <p class="comment-timestamp">{{estatus.st_created_at | date:'MMM d @ h:mm a'}}</p>
+          <p class="view-comment--comment-timestamp">{{estatus.st_created_at | date:'MMM d @ h:mm a' }}</p>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
           <p *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-            class="comment-detail">{{ estatus.st_comment }}</p>
+            class="view-comment--comment-detail">{{ estatus.st_comment }}</p>
           <p *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-            class="comment-detail">{{ vm.comment }}</p>
+            class="view-comment--comment-detail">{{ vm.comment }}</p>
           <a *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
             (click)="openViewExpense()">{{ vm.expenseNumber }} </a>
         </ion-col>
@@ -43,18 +43,21 @@
 </ion-content>
 
 <ion-footer class="ion-no-border">
-  <ion-toolbar mode="md">
-    <!-- Todo: Improve this flow -->
-    <div class="view-comment--showbot-container" (click)="changeBotComments()">
-      <ion-checkbox mode="ios" class="view-comment--showbot-checkbox" color="danger" checked="{{showBotComments}}">
-      </ion-checkbox>
-      <ion-label class="view-comment--showbot-text">Check Audit Trail</ion-label>
-    </div>
-
-    <div class="view-comment--type-comment-block" *ngIf="mode === 'edit'">
-      <textarea class="view-comment--text-area" rows="1" matInput placeholder="Type in your comment here..."
-        [(ngModel)]="newComment"></textarea>
-      <mat-icon class="view-comment--send-icon" (click)="addComment()">send</mat-icon>
-    </div>
-  </ion-toolbar>
+  <div class="view-comment--add-comment-container">
+    <ion-toolbar mode="md">
+      <!-- Todo: Improve this flow -->
+      <div class="view-comment--audit-trails-container">
+        <label class="view-comment--showbot-container" (click)="changeBotComments()">
+          <ion-checkbox mode="ios" class="view-comment--showbot-checkbox" color="danger" checked="{{showBotComments}}"></ion-checkbox>
+          <ion-label class="view-comment--showbot-text">Check Audit Trail</ion-label>
+      </label>
+      </div>
+  
+      <div class="view-comment--type-comment-block" *ngIf="mode === 'edit'">
+        <textarea class="view-comment--text-area" rows="1" matInput placeholder="Type in your comment here..."
+          [(ngModel)]="newComment"></textarea>
+        <mat-icon class="view-comment--send-icon" (click)="addComment()">send</mat-icon>
+      </div>
+    </ion-toolbar>
+  </div>
 </ion-footer>

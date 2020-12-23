@@ -72,6 +72,8 @@
   }
 
   &--primary-cta {
-    margin: 12px;
+    height: 48px;
+    margin: 14px;
+    --border-radius: 4px !important;
   }
 }

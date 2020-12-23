@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { forkJoin, from, Observable, of } from 'rxjs';
+import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
@@ -17,6 +17,9 @@ import { CustomField } from '../models/custom_field.model';
 import { FileService } from './file.service';
 import { File} from '../models/file.model';
 import { TransactionsOutboxService } from './transactions-outbox.service';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+
+const advanceRequestsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -106,6 +109,9 @@ export class AdvanceRequestService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$
+  })
   getMyadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -136,6 +142,9 @@ export class AdvanceRequestService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$
+  })
   getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
     return this.apiv2Service.get('/advance_requests', {
       params: {
@@ -158,6 +167,9 @@ export class AdvanceRequestService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$
+  })
   getTeamadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any, filter: any }> = {
     offset: 0,
     limit: 10,
@@ -299,14 +311,23 @@ export class AdvanceRequestService {
     }
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
   delete(advanceRequestId: string) {
     return this.apiService.delete('/advance_requests/' + advanceRequestId);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
   pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
   addApprover(advanceRequestId, approverEmail, comment) {
     const data = {
       advance_request_id: advanceRequestId,
@@ -318,15 +339,19 @@ export class AdvanceRequestService {
       // self.deleteCache();
       // return fixDates(advance_request);
   }
-  
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
   submit(advanceRequest) {
     return this.apiService.post('/advance_requests/submit', advanceRequest);
-    // Todo: Fix dates and delete cache
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
   saveDraft(advanceRequest) {
     return this.apiService.post('/advance_requests/save', advanceRequest);
-    // Todo: Fix dates and delete cache
   }
 
   createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
@@ -387,16 +412,24 @@ export class AdvanceRequestService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
   approve(advanceRequestId) {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/approve');
   }
 
-
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
   sendBack(advanceRequestId, addStatusPayload) {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/inquire', addStatusPayload);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
   reject(advanceRequestId, addStatusPayload) {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/reject', addStatusPayload);
-  };
+  }
 }

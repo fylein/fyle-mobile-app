@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { shareReplay, map } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
+import { Cacheable } from 'ts-cacheable';
+import { Subject } from 'rxjs';
+
+const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +18,9 @@ export class CustomInputsService {
     private datePipe: DatePipe
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: customInputssCacheBuster$
+  })
   getAll(active: boolean) {
     return this.apiService.get('/custom_inputs/custom_properties', { params: { active } }).pipe(
       shareReplay()

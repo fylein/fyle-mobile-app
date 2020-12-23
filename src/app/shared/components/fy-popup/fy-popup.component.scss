@@ -13,8 +13,9 @@ $details-color: #ababab;
   }
 
   &--header-text {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 24px;
   }
 
   &--header-cancel {
@@ -41,8 +42,9 @@ $details-color: #ababab;
     width: 100%;
     min-height: 45px;
     height: 48px;
-    // margin: 8px 16px;
+    font-size: 16px;
     font-weight: 700;
+    letter-spacing: 1.8px;
   }
 
   &--primary-cta {

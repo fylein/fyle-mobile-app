@@ -13,11 +13,14 @@
   </div>
   <div class="share-report--form">
     <mat-form-field appearance="outline" class="share-report--form-input mat-form-field-no-padding">
-      <input matInput type="email" placeholder="Enter email" [(ngModel)]="email" />
+      <input matInput type="email" placeholder="Enter email" [(ngModel)]="email" email #emailInput="ngModel"/>
     </mat-form-field>
   </div>
+  <div class="share-report--validation" *ngIf="emailInput.touched && emailInput.invalid">
+    Please enter a valid email
+  </div>
   <div class="share-report--primary-cta">
-    <button [disabled]="email.trim().length === 0" mat-flat-button color="primary" (click)="shareReport()">
+    <button [disabled]="email.trim().length === 0" mat-flat-button color="primary" (click)="shareReport(emailInput)">
       Share Report
     </button>
   </div>

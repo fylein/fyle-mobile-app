@@ -32,12 +32,13 @@ const { App } = Plugins;
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
-  eou$: Observable<ExtendedOrgUser>;
+  eou$: Observable<any>;
   activeOrg: any;
   sideMenuList: any[];
   appVersion: string;
   isSwitchedToDelegator;
   isConnected$: Observable<boolean>;
+  eou;
 
   constructor(
     private platform: Platform,
@@ -178,7 +179,8 @@ export class AppComponent implements OnInit {
           allowedActions: allowedActions$,
           deviceInfo: deviceInfo$,
           isSwitchedToDelegator: isSwitchedToDelegator$,
-          isConnected: of(isConnected)
+          isConnected: of(isConnected),
+          eou: this.authService.getEou()
         });
       })
     ).subscribe((res) => {
@@ -193,6 +195,7 @@ export class AppComponent implements OnInit {
       const allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
       this.isSwitchedToDelegator = res.isSwitchedToDelegator;
       const isConnected = res.isConnected;
+      this.eou = res.eou;
 
       // TODO: remove nested subscribe - mini tech debt
       if (isConnected) {
@@ -235,10 +238,10 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'delegated_accounts']
           },
           {
-            title: 'Corporate Cards',
+            title: 'Cards',
             isVisible: orgSettings.corporate_credit_card_settings.enabled,
             icon: 'fy-cards-new',
-            route: ['/', 'enterprise', 'my_dashboard6']
+            route: ['/', 'enterprise', 'corporate_card_expenses']
           },
           {
             title: 'Receipts',
@@ -344,7 +347,7 @@ export class AppComponent implements OnInit {
             title: 'Corporate Cards',
             isVisible: orgSettings.corporate_credit_card_settings.enabled,
             icon: 'fy-cards-new',
-            route: ['/', 'enterprise', 'my_dashboard6'],
+            route: ['/', 'enterprise', 'corporate_card_expenses'],
             disabled: true
           },
           {
@@ -421,8 +424,11 @@ export class AppComponent implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
   }
 
+  fetchEou() {
+    return from(this.authService.getEou());
+  }
+
   ngOnInit() {
-    this.eou$ = from(this.authService.getEou());
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {

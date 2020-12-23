@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { from, Observable, noop } from 'rxjs';
+import { from, Observable, noop, Subject } from 'rxjs';
 import { switchMap, map, tap, concatMap } from 'rxjs/operators';
 import { ExtendedTripRequest } from '../models/extended_trip_request.model';
 import { ApiService } from './api.service';
@@ -10,7 +10,9 @@ import { TripDatesService } from './trip-dates.service';
 import { Approval } from '../models/approval.model';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { Cacheable } from 'ts-cacheable';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+
+const tripRequestsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +29,9 @@ export class TripRequestsService {
     private storageService: StorageService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -57,6 +62,9 @@ export class TripRequestsService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getTrip(id: string): Observable<ExtendedTripRequest> {
     return this.apiv2Service.get('/trip_requests', {
       params: {
@@ -78,18 +86,27 @@ export class TripRequestsService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   get(tripRequestId) {
-    return this.apiService.get('/trip_requests/' + tripRequestId)
+    return this.apiService.get('/trip_requests/' + tripRequestId);
   }
 
   getActions(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getAdvanceRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/advance_requests');
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getHotelRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
       map((reqs) => {
@@ -104,10 +121,16 @@ export class TripRequestsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   delete(tripRequestId: string) {
     return this.apiService.delete('/trip_requests/' + tripRequestId);
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getTransportationRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
       map((reqs) => reqs.map(req => {
@@ -131,6 +154,9 @@ export class TripRequestsService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getTeamTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -213,7 +239,7 @@ export class TripRequestsService {
       tripRequest.internalStateDisplayName = 'Rejected';
     }
     return tripRequest;
-  };
+  }
 
   fixDates(datum: ExtendedTripRequest) {
     datum.trp_created_at = new Date(datum.trp_created_at);
@@ -362,10 +388,16 @@ export class TripRequestsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   pullBackTrip(tripRequestId: string, addStatusPayload) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/pull_back', addStatusPayload);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   closeTrip(tripRequestId: string) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
   }
@@ -374,6 +406,9 @@ export class TripRequestsService {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/trigger_policy_check');
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   saveDraft(tripRequest) {
     return from(this.authService.getEou()).pipe(
       map(eou => {
@@ -385,6 +420,9 @@ export class TripRequestsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   submit(tripRequest) {
     return from(this.authService.getEou()).pipe(
       map(eou => {
@@ -396,6 +434,9 @@ export class TripRequestsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   addApproverETripRequests(tripRequestId, approverEmail, comment) {
     const data = {
       approver_email: approverEmail,
@@ -414,25 +455,31 @@ export class TripRequestsService {
     return this.apiService.get('/trip_requests', data);
   }
 
-  action (action, tripRequestId) {
-    return this.apiService.post('/trip_requests/' + tripRequestId + '/' + action)
-      // self.deleteCache();
-      // return result;
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  action(action, tripRequestId) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/' + action);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   approve(tripRequestId) {
     return this.action('approve', tripRequestId);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   inquire(tripRequestId, addStatusPayload) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/inquire', addStatusPayload);
-      // self.deleteCache();
-      // return req;
   }
 
-  reject = function (tripRequestId, addStatusPayload) {
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  reject(tripRequestId, addStatusPayload) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/reject', addStatusPayload);
-      // self.deleteCache();
-      // return req;
   }
 }

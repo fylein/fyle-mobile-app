@@ -250,7 +250,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       const navigateToMap = {
         trips: ['/', 'enterprise', 'my_trips'],
         advances: ['/', 'enterprise', 'my_advances'],
-        corporate_cards: ['/', 'enterprise', 'my_ccc'] //Todo: Yet to implement CCC
+        corporate_cards: ['/', 'enterprise', 'corporate_card_expenses']
       };
       this.router.navigate([...navigateToMap[type], {navigateBack: true}]);
     }
@@ -259,13 +259,13 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   async expandCard() {
     if (this.item.title !== this.expandedCard) {
       await this.loaderService.showLoader();
-    
+
       this.expandedCard = this.item && this.item.title ? this.item.title : '';
       this.dashboardList = this.dashboardList.map((dashboardItem) => {
         dashboardItem.isCollapsed = true;
         return dashboardItem;
       });
-  
+
       this.item.isCollapsed = false;
       if (this.item && this.item.title) {
         const expandedDetails$ = this.getExpandedDetails(this.item.title).pipe(
