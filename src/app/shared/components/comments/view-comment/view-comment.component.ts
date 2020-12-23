@@ -76,7 +76,7 @@ export class ViewCommentComponent implements OnInit {
         return eou$;
       }),
       switchMap(eou => {
-        return this.statusService.find(this.objectType, this.objectId).pipe(
+      return this.statusService.find(this.objectType, this.objectId).pipe(
           map(res => {
             return res.map(status => {
               status.isBotComment = status && (status.st_org_user_id === 'SYSTEM');

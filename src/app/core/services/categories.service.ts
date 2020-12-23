@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { Subject } from 'rxjs';
+
+const categoriesCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +66,9 @@ export class CategoriesService {
     });
   }
 
+  @Cacheable({
+    cacheBusterObserver: categoriesCacheBuster$
+  })
   getAll() {
     return this.apiService.get('/org_categories').pipe(
       map(this.sortCategories),

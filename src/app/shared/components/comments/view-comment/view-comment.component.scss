@@ -33,22 +33,33 @@
     font-size: 20px;
     text-align: center;
     line-height: 1.3;
+
+    &__user-profile {
+      border-color: #fff;
+    }
+  }
+
+  &--comment-timestamp {
+    font-size: 12px;
+  }
+
+  &--audit-trails-container {
+    padding: 16px;
   }
 
   &--showbot-container {
     display: flex;
-    height: 35px;
-    padding-left: 10px;
   }
 
   &--showbot-checkbox {
+    --border-color: #ec3c64;
     height: 30px;
     width: 30px;
   }
 
   &--showbot-text {
     font-size: 16px;
-    margin: 5px 10px;
+    margin: 6px 10px;
   }
 
   &--type-comment-block {
@@ -58,12 +69,11 @@
     border: 1px solid #9E9E9E;
     border-radius: 4px;
     padding: 5px;
-    margin: 5px;
   }
 
   &--text-area {
     width: calc(100% - 40px);
-    height: 45px;
+    height: 40px;
     border: none;
   }
 
@@ -72,6 +82,11 @@
     font-size: 35px;
     margin-left: 5px;
     color: #4cd964;
+    transform: rotate(-40deg);
+  }
+
+  &--add-comment-container {
+    padding: 10px;
   }
 
 }

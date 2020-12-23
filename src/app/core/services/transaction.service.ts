@@ -4,7 +4,7 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { from, Observable, range, concat, forkJoin } from 'rxjs';
+import { from, Observable, range, concat, forkJoin, Subject } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
@@ -14,9 +14,9 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
 
-
-
+const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({
   providedIn: 'root'
 })
@@ -37,6 +37,9 @@ export class TransactionService {
     private policyApiService: PolicyApiService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   get(txnId) {
     // TODO api v2
     return this.apiService.get('/transactions/' + txnId).pipe(
@@ -46,6 +49,9 @@ export class TransactionService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getEtxn(txnId) {
     // TODO api v2
     return this.apiService.get('/etxns/' + txnId).pipe(
@@ -95,10 +101,16 @@ export class TransactionService {
     return count;
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   manualFlag(txnId) {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   manualUnflag(txnId) {
     return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
   }
@@ -163,6 +175,9 @@ export class TransactionService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getMyETxnc(params: { offset: number, limit: number, tx_org_user_id: string }) {
     return this.apiV2Service.get('/expenses', {
       params
@@ -195,6 +210,9 @@ export class TransactionService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap(res => {
@@ -209,6 +227,9 @@ export class TransactionService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getAllMyETxnc() {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
@@ -245,6 +266,9 @@ export class TransactionService {
     return total;
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getMyExpenses(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -276,6 +300,9 @@ export class TransactionService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getAllExpenses(config: Partial<{ order: string, queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap(count => {
@@ -291,6 +318,9 @@ export class TransactionService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getTransactionStats(aggregates: string, queryParams = {}) {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
@@ -336,10 +366,16 @@ export class TransactionService {
     return data;
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   delete(txnId: string) {
     return this.apiService.delete('/transactions/' + txnId);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   upsert(transaction) {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
@@ -389,6 +425,9 @@ export class TransactionService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   createTxnWithFiles(txn, fileUploads$: Observable<any>) {
     return fileUploads$.pipe(
       switchMap((fileObjs: any[]) => {
@@ -449,6 +488,9 @@ export class TransactionService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getETxn(txnId) {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
@@ -495,6 +537,9 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   removeTxnsFromRptInBulk(txnIds, comment?) {
     return range(0, txnIds.length / 50).pipe(
       concatMap(page => {

@@ -5,11 +5,13 @@ import { ApiService } from './api.service';
 import { User } from '../models/user.model';
 import { switchMap, expand, reduce, tap, concatMap, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { range, of, Observable, from } from 'rxjs';
+import { range, of, Observable, from, Subject } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { DataTransformService } from './data-transform.service';
-import { Cacheable } from 'ts-cacheable';
 import { StorageService } from './storage.service';
+import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
+
+const orgUsersCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -25,11 +27,14 @@ export class OrgUserService {
     private storageService: StorageService
   ) { }
 
+
   postUser(user: User) {
+    globalCacheBusterNotifier.next();
     return this.apiService.post('/users', user);
   }
 
   postOrgUser(orgUser) {
+    globalCacheBusterNotifier.next();
     return this.apiService.post('/orgusers', orgUser);
   }
 
@@ -42,6 +47,9 @@ export class OrgUserService {
   }
 
   // TODO: move to v2
+  @Cacheable({
+    cacheBusterObserver: orgUsersCacheBuster$
+  })
   getCompanyEouc(params: { offset: number, limit: number }) {
     return this.apiService.get('/eous/company', {
       params
@@ -52,7 +60,6 @@ export class OrgUserService {
     );
   }
 
-  @Cacheable()
   getAllCompanyEouc() {
     return this.getCompanyEouCount().pipe(
       switchMap(res => {
@@ -87,7 +94,7 @@ export class OrgUserService {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map(delegatedAccounts => {
         delegatedAccounts = delegatedAccounts.map((delegatedAccount) => {
-          return this.dataTransformService.unflatten(delegatedAccount)
+          return this.dataTransformService.unflatten(delegatedAccount);
         });
 
         return delegatedAccounts;
@@ -145,9 +152,9 @@ export class OrgUserService {
 
   verifyMobile() {
     return this.apiService.post('/orgusers/verify_mobile');
-  };
+  }
 
   checkMobileVerificationCode(otp) {
     return this.apiService.post('/orgusers/check_mobile_verification_code', otp);
-  };
+  }
 }
