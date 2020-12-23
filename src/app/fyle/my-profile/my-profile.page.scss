@@ -40,9 +40,18 @@ $background-color: #fff;
     }
   }
 
+  &--select-currency {
+    display: flex;
+    justify-content: space-between;
+  }
+
   &--notifications-arrow {
     color: #ff3366;
     font-size: 32px;
+
+    &__lite {
+      color: #ababab;
+    }
   }
 
   &--card {
@@ -68,6 +77,10 @@ $background-color: #fff;
 
     &__using-fyle {
       margin-bottom: 16px;
+    }
+
+    &__lite {
+      color: #ababab;
     }
   }
 

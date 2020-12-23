@@ -1,8 +1,8 @@
 <ion-header mode="md" >
   <ion-toolbar class="view-trip--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-button color="fyle-primary" fill="clear" *ngIf="canEdit$|async" (click)="editTrip()">
-        Edit
+      <ion-button class="view-trip--edit" fill="clear" *ngIf="canEdit$|async" (click)="editTrip()">
+        EDIT
       </ion-button>
       <ion-button [routerLink]="['/','enterprise','my_trips']" routerLinkActive="router-link-active">
         <mat-icon>close</mat-icon>
@@ -141,7 +141,7 @@
           <div *ngIf="customField.type === 'BOOLEAN'" class="view-trip--element-value">
             {{customField.value ? 'Yes' : 'No'}}
           </div>
-          <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'">
+          <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'" class="view-trip--element-value">
             {{customField?.value?.display || customField.value || '-'}}
           </div>
 

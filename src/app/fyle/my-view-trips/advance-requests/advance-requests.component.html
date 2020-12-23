@@ -15,14 +15,16 @@
   <div *ngFor="let advanceRequest of advanceRequests">
     <div class="advance-requests--card">
       <div (click)="advanceRequest.isOpened = !advanceRequest.isOpened" matRipple class="advance-requests--header">
-        <div class="advance-requests--element-label">
-          Advance Details
+        <div class="advance-requests--advance-number">
+          Advance {{advanceRequest.advance_request_number}}
         </div>
-        <div class="advance-requests--element-value">
-          {{advanceRequest.advance_request_number}}
+        <div class="advance-requests--advance-amount">
+          <ng-container *ngIf="homeCurrency$|async as homeCurrency">
+            Amount:  {{advanceRequest.amount | currency:homeCurrency}}
+          </ng-container>
         </div>
       </div>
-      <div *ngIf="advanceRequest.isOpened">
+      <div class="advance-requests--content" *ngIf="advanceRequest.isOpened">
 
         <ng-container *ngIf="homeCurrency$|async as homeCurrency">
           <div class="advance-requests--element">

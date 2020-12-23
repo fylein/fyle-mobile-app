@@ -60,7 +60,7 @@
   
           <div class="add-edit-trip--text">
             <div class="add-edit-trip--text-label">
-              Start date <span>*</span> <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+              Start date<span>*</span> <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
             </div>
             <input class="add-edit-trip--date-input" matInput type="date" formControlName="startDate"
             (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
@@ -68,7 +68,7 @@
 
           <div class="add-edit-trip--text">
             <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': (fg.controls.endDate.touched && !fg.controls.endDate.valid) || !(fg.controls.endDate.value >= fg.controls.startDate.value)}">
-              {{ fg.controls.endDate.value ? 'End Date' : 'Select End Date' }}  <span>*</span> <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
+              {{ fg.controls.endDate.value ? 'End Date ' : 'Select End Date ' }}  <span>*</span> <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
             </div>
             <input class="add-edit-trip--date-input" matInput type="date" formControlName="endDate"
             (keydown)="$event.preventDefault()" [min]="fg.controls.startDate.value" [max]="maxDate">
@@ -76,7 +76,7 @@
           
           <div class="add-edit-trip--text">
             <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
-              {{ fg.controls.purpose.value ? 'Purpose' : 'Enter Purpose' }} <span>*</span>
+              {{ fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose ' }} <span>*</span>
             </div>
             <input class="add-edit-trip--text-input" type="text" formControlName="purpose">
           </div>
@@ -107,7 +107,7 @@
 
                   <div class="add-edit-trip--text add-edit-trip--text__dynamic">
                     <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.onward_dt.touched && !control.controls.onward_dt.valid}">
-                      {{control['controls'].onward_dt.value ? 'Depart Date' : 'Select Depart Date'}} <span>*</span>
+                      {{control['controls'].onward_dt.value ? 'Depart Date' : 'Select Depart Date'}}<span>*</span>
                     </div>
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="onward_dt"
                     (keydown)="$event.preventDefault()" [min]="fg.controls.startDate.value" [max]="fg.controls.endDate.value">
@@ -115,7 +115,7 @@
 
                   <div class="add-edit-trip--text add-edit-trip--text__dynamic" *ngIf="fg.controls.tripType.value === 'ROUND'">
                     <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.return_date.touched && !control.controls.return_date.valid}">
-                        {{control['controls'].return_date.value ? 'Return Date' : 'Select Return Date'}} <span>*</span>
+                        {{control['controls'].return_date.value ? 'Return Date' : 'Select Return Date'}}<span>*</span>
                     </div>
                     <input class="add-edit-trip--date-input" matInput type="date" formControlName="return_date"
                     (keydown)="$event.preventDefault()" [min]="control['controls'].onward_dt.value" [max]="fg.controls.endDate.value">

@@ -49,10 +49,6 @@ export class HelpPage implements OnInit {
     this.presentSupportModal('capture_email');
   }
 
-  openManageGoIbiboBookingsDialog() {
-    this.presentSupportModal('goibibo_support');
-  }
-
   async presentSupportModal(dialogType) {
     const modal = await this.modalController.create({
       component: SupportDialogPage,
