@@ -47,10 +47,8 @@
       </div>
 
       <div class="add-edit-advance-request--currency" *ngIf="extendedAdvanceRequest$|async as extendedAdvanceRequest">
-        <div *ngIf="homeCurrency$|async as homeCurrency">
-          <app-fy-currency formControlName="currencyObj" [txnDt]="extendedAdvanceRequest?.created_at"
-            [homeCurrency]="homeCurrency"></app-fy-currency>
-        </div>
+        <app-fy-currency formControlName="currencyObj" [txnDt]="extendedAdvanceRequest?.created_at"
+            [homeCurrency]="extendedAdvanceRequest.currency"></app-fy-currency>
       </div>
     </div>
 
