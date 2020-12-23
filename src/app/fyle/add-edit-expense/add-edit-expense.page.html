@@ -271,6 +271,7 @@
               <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block">
                 <app-fy-select formControlName="purpose" 
                   [options]="txnFields.purpose?.values"
+                  [nullOption]="false"
                   [mandatory]="txnFields.purpose?.mandatory"
                   [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
                   [disabled]="!txnFields.purpose?.canEdit"

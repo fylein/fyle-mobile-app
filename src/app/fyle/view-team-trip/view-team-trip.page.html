@@ -125,26 +125,29 @@
         </div>
       </div>
 
-      <div class="trip-request--content-header">
-        Additional Information
-      </div>
-      <div class="trip-request--card">
-        <div *ngFor="let customField of tripRequest.custom_field_values" class="trip-request--element">
-          <div class="trip-request--element-label">
-            {{customField.name}}
-          </div>
-          <div *ngIf="customField.type === 'DATE'" class="trip-request--element-value">
-            {{customField.value | date: 'dd, MMM yyyy'}}
-          </div>
-          <div *ngIf="customField.type === 'BOOLEAN'" class="trip-request--element-value">
-            {{customField.value ? 'Yes' : 'No'}}
-          </div>
-          <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'">
-            {{customField?.value?.display || customField.value || '-'}}
-          </div>
-
+      <ng-container *ngIf="tripRequest.custom_field_values.length > 0">
+        <div class="trip-request--content-header">
+          Additional Information
         </div>
-      </div>
+        <div class="trip-request--card">
+          <div *ngFor="let customField of tripRequest.custom_field_values" class="trip-request--element">
+            <div class="trip-request--element-label">
+              {{customField.name}}
+            </div>
+            <div *ngIf="customField.type === 'DATE'" class="trip-request--element-value">
+              {{customField.value | date: 'dd, MMM yyyy'}}
+            </div>
+            <div *ngIf="customField.type === 'BOOLEAN'" class="trip-request--element-value">
+              {{customField.value ? 'Yes' : 'No'}}
+            </div>
+            <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'">
+              {{customField?.value?.display || customField.value || '-'}}
+            </div>
+
+          </div>
+        </div>
+      </ng-container>
+
       <ng-container *ngIf="transportationRequests$|async as transportationRequests">
         <ng-container *ngIf="transportationRequests.length">
           <div class="trip-request--card" matRipple>
