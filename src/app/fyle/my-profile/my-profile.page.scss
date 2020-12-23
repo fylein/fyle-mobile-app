@@ -47,11 +47,14 @@ $background-color: #fff;
 
   &--card {
     margin: 16px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     margin-bottom: 24px;
     padding: 16px;
     border: 1px solid #e0e0e0;
+    
+    &__action {
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
   }
 
   &--cards-content {
@@ -62,6 +65,10 @@ $background-color: #fff;
     font-size: 16px;
     font-weight: 500;
     color: #4a4a4a;
+
+    &__using-fyle {
+      margin-bottom: 16px;
+    }
   }
 
   &--card-item {
@@ -91,6 +98,31 @@ $background-color: #fff;
       line-height: 1.5;
       height: 24px;
       border: 0;
+    }
+  }
+
+  &--see-more {
+    font-size: 16px;
+    text-decoration: none;
+    color: #0077ee;
+
+    &__decore {
+      text-decoration: underline;
+    }
+  }
+
+  &--logout-block {
+    color: #f00;
+    font-size: 16px;
+    font-weight: 500;
+    display: contents;
+
+    &_icon {
+      font-size: 24px;
+    }
+
+    &_text {
+      margin-left: 16px;
     }
   }
 
@@ -124,6 +156,11 @@ $background-color: #fff;
     background: #fff;
     border: 0;
     line-height: 1;
+    
+    &__validation {
+      font-size: 12px;
+    }
+
     &:not(:last-child) {
       border-bottom: 1px solid #e0e0e0;
     }
@@ -175,14 +212,42 @@ $background-color: #fff;
 
   &--toggle-label {
     width: 80%;
+    font-size: 16px;
+    color: #ababab;
+    overflow: auto;
+    white-space: pre-line;
+    padding-top: 0;
+    padding-bottom: 12px;
+    line-height: 1.5;
+
+    &__full {
+      width: 100%;
+    }
   }
 
   &--primary-cta {
     margin: 0 16px;
+    height: 48px;
     width: 90%;
   }
 
   &--mobile-value-input {
     border: 0;
+  }
+
+  &--much-more-block {
+    text-align: center !important;
+    padding: 16px 16px 0 16px;
+    margin: 24px 16px 0 16px;
+  }
+
+  &--settings-icon {
+    display: inline-block;
+    margin-bottom: 16px;
+
+    &_icon {
+      height: 60px;
+      width: 60px;
+    }
   }
 }

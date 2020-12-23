@@ -37,8 +37,10 @@
         <div class="my-profile--mobile my-profile--card-item">
           <div class="my-profile--mobile-label">
             Mobile
-            <span *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged">(unverified)</span>
-            <span *ngIf="isMobileCountryCodeNotPresent">with country code</span>
+            <div class="my-profile--mobile__validation">
+              <span *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged">(unverified)</span>
+              <span *ngIf="isMobileCountryCodeNotPresent">with country code</span>
+            </div>
           </div>
           <div class="my-profile--mobile-value">
             <input class="my-profile--mobile-value-input" [(ngModel)]="mobileNumber" type="tel" matInput
@@ -71,7 +73,7 @@
 
   <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Notifications</span>
-    <div class="my-profile--card my-profile--card-item my-profile--manage-notif"
+    <div class="my-profile--card my-profile--card__action my-profile--card-item my-profile--manage-notif"
       [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
       <div class="my-profile--card-title">
         Manage Notifications
@@ -85,10 +87,12 @@
   <ng-container *ngIf="myETxnc$|async as myETxnc">
     <div class="my-profile--blocks">
       <span class="my-profile--blocks-header">Usage</span>
-      <div class="my-profile--card">
+      <div class="my-profile--card my-profile--card__action">
         <ng-container *ngIf="eou$|async as eou">
           <div class="my-profile--card-title">
-            Using Fyle Since {{eou.ou.created_at | date: 'dd MMM, yyyy'}}
+            <div class="my-profile--card-title__using-fyle">
+              Using Fyle Since {{eou.ou.created_at | date: 'dd MMM, yyyy'}}
+            </div>
           </div>
         </ng-container>
         <div>
@@ -121,7 +125,7 @@
             </div>
           </div>
 
-          <a (click)="toggleUsageDetails()">
+          <a (click)="toggleUsageDetails()" class="my-profile--see-more">
             <span *ngIf="!toggleUsageDetailsTab">See More</span>
             <span *ngIf="toggleUsageDetailsTab">Hide</span>
           </a>
@@ -133,7 +137,7 @@
   <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Preferences</span>
     <!-- Instafyle card start -->
-    <div class="my-profile--card" *ngIf="orgUserSettings?.insta_fyle_settings?.allowed">
+    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.insta_fyle_settings?.allowed">
       <div class="my-profile--card-title">
         Instafyle
       </div>
@@ -147,9 +151,9 @@
 
     <!-- BulkFyle card start -->
     <div class="my-profile--cards" *ngIf="orgUserSettings?.bulk_fyle_settings?.allowed">
-      <div class="my-profile--card">
+      <div class="my-profile--card my-profile--card__action">
         <div class="my-profile--card-title">Bulkfyle</div>
-        <div class="my-profile--card-content my-profile--toggle-container">
+        <div class="my-profile--cards-content my-profile--toggle-container">
           <span class="my-profile--toggle-label"> Submit multiple paper receipts in one go. </span>
           <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
             [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled" (ionChange)="toggleBulkMode()"></ion-toggle>
@@ -158,9 +162,9 @@
     </div>
 
     <ng-container *ngIf="eou$|async as eou">
-      <div class="my-profile--card" *ngIf="eou.ou.is_primary && orgUserSettings?.one_click_action_settings?.allowed">
+      <div class="my-profile--card my-profile--card__action" *ngIf="eou.ou.is_primary && orgUserSettings?.one_click_action_settings?.allowed">
         <div class="my-profile--card-title">One Click Action</div>
-        <div class="my-profile--card-content my-profile--toggle-container">
+        <div class="my-profile--cards-content my-profile--toggle-container">
           <span class="my-profile--toggle-label"> Create expense from camera in one go. </span>
           <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
             [(ngModel)]="orgUserSettings.one_click_action_settings.enabled" (ionChange)="toggleOneClickActionMode()">
@@ -176,9 +180,9 @@
 
 
     <!-- Whatsapp card start -->
-    <div class="my-profile--card" *ngIf="orgUserSettings?.whatsapp_fyle_settings?.allowed">
+    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.whatsapp_fyle_settings?.allowed">
       <div class="my-profile--card-title">WhatsApp</div>
-      <div class="my-profile--card-content my-profile--toggle-container">
+      <div class="my-profile--cards-content my-profile--toggle-container">
         <div class="my-profile--toggle-label">
           Use the daily messaging app to track your expenses on the go.
         </div>
@@ -187,15 +191,15 @@
         </ion-toggle>
       </div>
       <div>
-        Read More
+        <a class="my-profile--see-more my-profile--see-more__decore">Read More</a>
       </div>
     </div>
   </div>
 
   <!-- Currency preference card start -->
-  <div class="my-profile--card" *ngIf="orgSettings?.org_currency_settings?.enabled">
+  <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_currency_settings?.enabled">
     <div class="my-profile--card-title">Currency Preference</div>
-    <div class="my-profile--card-content my-profile--toggle-container">
+    <div class="my-profile--cards-content my-profile--toggle-container">
       <div class="my-profile--toggle-label"> Currency Info </div>
       <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
         [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
@@ -224,21 +228,35 @@
 
   <ng-container *ngIf="eou$|async as eou">
     <ng-container *ngIf="org$|async as org">
-      <div class="my-profile--card" *ngIf="!org.lite && eou.ou.roles.indexOf('ADMIN') > -1">
-        <div class="my-profile--cards-header">
-          Mileage Logs
-        </div>
-        <div class="my-profile--cards-content">
-          Please login to the web application at <a (click)="openWebAppLink('app')">https://in1.fylehq.com</a> to
-          change mileage settings.
+      <div class="my-profile--card my-profile--card__action" *ngIf="!org.lite && eou.ou.roles.indexOf('ADMIN') > -1">
+        <div class="my-profile--card-title">Mileage Logs</div>
+        <div class="my-profile--cards-content  my-profile--toggle-container">
+          <div class="my-profile--toggle-label my-profile--toggle-label__full">
+            Please login to the web application at <a (click)="openWebAppLink('app')">https://in1.fylehq.com</a> to change mileage settings.
+          </div>
         </div>
       </div>
     </ng-container>
   </ng-container>
 
-
   <div class="my-profile--card my-profile--card-item" (click)="logOut()" matRipple>
-    <mat-icon svgIcon="ionic-log-out-outline"></mat-icon>
-    <div>Logout</div>
+    <div class="my-profile--logout-block">
+      <mat-icon svgIcon="ionic-log-out-outline" class="my-profile--logout-block_icon"></mat-icon>
+      <div class="my-profile--logout-block_text">Logout</div>
+    </div>
+  </div>
+
+  <div class="my-profile--much-more-block">
+    <div class="my-profile--settings-icon">
+      <mat-icon class="my-profile--settings-icon_icon" svgIcon="settings"></mat-icon>
+    </div>
+    <div>
+      <p class="my-profile--card-title">You can do so much more!</p>
+      <div class="my-profile--cards-content  my-profile--toggle-container">
+        <div class="my-profile--toggle-label my-profile--toggle-label__full">
+          Login to Fyle from your desktop <a ng-click="vm.openWebAppLink('app')">using our web app</a> to update your profile information, setup additional email IDs and much more.
+        </div>
+      </div>
+    </div>
   </div>
 </ion-content>
