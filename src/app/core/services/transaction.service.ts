@@ -16,7 +16,6 @@ import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 
-
 const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({
   providedIn: 'root'
@@ -38,6 +37,9 @@ export class TransactionService {
     private policyApiService: PolicyApiService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   get(txnId) {
     // TODO api v2
     return this.apiService.get('/transactions/' + txnId).pipe(
@@ -47,6 +49,9 @@ export class TransactionService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
   getEtxn(txnId) {
     // TODO api v2
     return this.apiService.get('/etxns/' + txnId).pipe(

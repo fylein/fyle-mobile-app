@@ -3,8 +3,10 @@ import { ApiService } from './api.service';
 import { tap, map, switchMap, catchError, concatMap } from 'rxjs/operators';
 import { Org } from '../models/org.model';
 import { AuthService } from './auth.service';
-import { forkJoin } from 'rxjs';
-import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { forkJoin, Subject } from 'rxjs';
+import { Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
+
+const orgsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +18,9 @@ export class OrgService {
     private authService: AuthService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: orgsCacheBuster$
+  })
   getCurrentOrg() {
     return this.apiService.get('/orgs', {
       params: {
@@ -39,6 +44,7 @@ export class OrgService {
   }
 
   updateOrg(org) {
+    globalCacheBusterNotifier.next();
     return this.apiService.post('/orgs', org);
   }
 
@@ -60,6 +66,9 @@ export class OrgService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: orgsCacheBuster$
+  })
   getOrgs() {
     return this.apiService.get('/orgs').pipe(
       map(res => res as Org[])
