@@ -653,16 +653,19 @@
         <ng-container *ngIf="duplicates.length > 0">
           <div #duplicateInputContainer class="add-edit-expense--duplicates-box add-edit-expense--primary-block">
             <div class="add-edit-expense--duplicate-header">
-              <mat-icon>
-                warning
-              </mat-icon>
-              <div>
-                {{duplicates.length}} Duplicates Detected
+              <div class="add-edit-expense--duplicate-info">
+                <mat-icon class="add-edit-expense--duplicate-warning-icon">
+                  warning
+                </mat-icon>
+                <div>
+                  {{duplicates.length}} Duplicates Detected
+                </div>
               </div>
-              <div *ngIf="duplicateBoxOpen" (click)="duplicateBoxOpen = false">
+
+              <div *ngIf="duplicateBoxOpen" class="add-edit-expense--duplicate-cta" (click)="duplicateBoxOpen = false">
                 Collapse
               </div>
-              <div *ngIf="!duplicateBoxOpen" (click)="duplicateBoxOpen = true">
+              <div *ngIf="!duplicateBoxOpen" class="add-edit-expense--duplicate-cta" (click)="duplicateBoxOpen = true">
                 Expand
               </div>
             </div>
