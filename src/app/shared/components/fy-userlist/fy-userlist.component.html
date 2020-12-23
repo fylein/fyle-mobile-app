@@ -1,4 +1,4 @@
-<label class="fy-select--label" *ngIf="eouc$|async">
+<label class="fy-select--label">
   <div class="fy-select--label-content">
     <span>
       {{label}}
@@ -7,7 +7,7 @@
       *
     </span>
   </div>
-  <input class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+  <input [disabled]="!(eouc$|async)" class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
   <mat-icon>
     chevron_right
   </mat-icon>

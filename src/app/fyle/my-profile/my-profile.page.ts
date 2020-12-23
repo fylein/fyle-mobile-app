@@ -1,4 +1,4 @@
-// TODO list: 
+// TODO list:
 // Lite account
 
 import { Component, OnInit } from '@angular/core';
@@ -149,7 +149,12 @@ export class MyProfilePage implements OnInit {
   }
 
   toggleCurrencySettings() {
-    return this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.orgUserSettingsService.post(this.orgUserSettings)),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(() => {
+      this.getPreferredCurrency();
+    });
   }
 
   onSelectCurrency(currency) {
@@ -157,7 +162,7 @@ export class MyProfilePage implements OnInit {
     this.toggleCurrencySettings();
   }
 
-  async openCurrenySelectionModal(event) {
+  async openCurrenySelectionModal() {
     const modal = await this.modalController.create({
       component: SelectCurrencyComponent
     });
@@ -262,11 +267,7 @@ export class MyProfilePage implements OnInit {
 
     this.org$ = this.offlineService.getCurrentOrg();
 
-    this.preferredCurrency$ = orgUserSettings$.pipe(
-      switchMap((orgUserSettings) => {
-        return this.currencyService.getAllCurrenciesInList().pipe(map(currencies => currencies.find(currency => currency.id === orgUserSettings.currency_settings.preferred_currency)));
-      })
-    )
+    this.getPreferredCurrency();
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.currencies$ = this.currencyService.getAllCurrenciesInList();
@@ -278,7 +279,7 @@ export class MyProfilePage implements OnInit {
           this.getOneClickActionSelectedModule(oneClickAction);
         }
       })
-    ).subscribe();
+    ).subscribe(noop);
 
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -295,6 +296,19 @@ export class MyProfilePage implements OnInit {
       this.oneClickActionOptions = this.oneClickActionService.getAllOneClickActionOptions();
       this.mobileNumber = res.eou.ou.mobile;
     });
+  }
+
+  getPreferredCurrency() {
+    this.preferredCurrency$ = this.offlineService.getOrgUserSettings().pipe(
+      switchMap((orgUserSettings) => this.currencyService
+        .getAllCurrenciesInList()
+        .pipe(
+          map(currencies => currencies
+            .find(currency => currency.id === orgUserSettings.currency_settings.preferred_currency)
+          )
+        )
+      )
+    );
   }
 
   openOtpPopover() {
@@ -335,8 +349,8 @@ export class MyProfilePage implements OnInit {
       finalize(() => that.isApiCallInProgress = false)
     ).subscribe(() => {
       that.reset();
-    })
-  };
+    });
+  }
 
   openWebAppLink(location) {
     let link;

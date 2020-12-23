@@ -238,10 +238,10 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'delegated_accounts']
           },
           {
-            title: 'Corporate Cards',
+            title: 'Cards',
             isVisible: orgSettings.corporate_credit_card_settings.enabled,
             icon: 'fy-cards-new',
-            route: ['/', 'enterprise', 'my_dashboard6']
+            route: ['/', 'enterprise', 'corporate_card_expenses']
           },
           {
             title: 'Receipts',
@@ -347,7 +347,7 @@ export class AppComponent implements OnInit {
             title: 'Corporate Cards',
             isVisible: orgSettings.corporate_credit_card_settings.enabled,
             icon: 'fy-cards-new',
-            route: ['/', 'enterprise', 'my_dashboard6'],
+            route: ['/', 'enterprise', 'corporate_card_expenses'],
             disabled: true
           },
           {

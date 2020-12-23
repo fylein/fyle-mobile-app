@@ -13,10 +13,10 @@
     </div>
 
     <div class="advance-card--status">
-      <div *ngIf="advanceRequest.areq_approved_at">Approved on {{advanceRequest.areq_approved_at | date: 'dd MMMM yyyy'}}</div>
+      <div *ngIf="advanceRequest.areq_approved_at" class="advance-card--approval">Approved on {{advanceRequest.areq_approved_at | date: 'dd MMMM yyyy'}}</div>
       <div class="advance-card--pill" [class]="'advance-card--pill__'+internalState.state">{{internalState.name}}</div>
     </div>
-    
+
   </div>
 
 </div>

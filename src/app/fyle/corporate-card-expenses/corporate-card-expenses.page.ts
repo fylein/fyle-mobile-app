@@ -1,0 +1,361 @@
+import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {NetworkService} from '../../core/services/network.service';
+import {LoaderService} from '../../core/services/loader.service';
+import {ModalController, PopoverController} from '@ionic/angular';
+import {DateService} from '../../core/services/date.service';
+import {CurrencyService} from '../../core/services/currency.service';
+import {ActivatedRoute, Params, Router} from '@angular/router';
+import {TransactionsOutboxService} from '../../core/services/transactions-outbox.service';
+import {OfflineService} from '../../core/services/offline.service';
+import {PopupService} from '../../core/services/popup.service';
+import {debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take} from 'rxjs/operators';
+import {BehaviorSubject, concat, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
+import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
+import {CorporateCardExpense} from '../../core/models/corporate-card-expense.model';
+import { CorporateCardExpensesSortFilterComponent } from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
+import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-expenses-search-filter/corporate-card-expenses-search-filter.component';
+
+@Component({
+  selector: 'app-corporate-card-expenses',
+  templateUrl: './corporate-card-expenses.page.html',
+  styleUrls: ['./corporate-card-expenses.page.scss'],
+})
+export class CorporateCardExpensesPage implements OnInit {
+
+  cardTransactions$: Observable<CorporateCardExpense[]>;
+  count$: Observable<number>;
+  isInfiniteScrollRequired$: Observable<boolean>;
+  loadData$: BehaviorSubject<Partial<{
+    pageNumber: number,
+    queryParams: any,
+    sortParam: string,
+    sortDir: string,
+    searchString: string
+  }>>;
+  currentPageNumber = 1;
+  acc = [];
+  homeCurrency$: Observable<string>;
+  filters: Partial<{
+    state: string;
+    date: string;
+    customDateStart: Date;
+    customDateEnd: Date;
+    sortParam: string;
+    sortDir: string;
+  }>;
+
+  isConnected$: Observable<boolean>;
+  unclassifiedExpensesCountHeader$: Observable<number>;
+  classifiedExpensesCountHeader$: Observable<number>;
+
+  navigateBack = false;
+  baseState = 'unclassified';
+  simpleSearchText = '';
+
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
+  constructor(
+    private networkService: NetworkService,
+    private loaderService: LoaderService,
+    private modalController: ModalController,
+    private dateService: DateService,
+    private currencyService: CurrencyService,
+    private popoverController: PopoverController,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private router: Router,
+    private transactionOutboxService: TransactionsOutboxService,
+    private activatedRoute: ActivatedRoute,
+    private popupService: PopupService
+  ) {
+  }
+
+  clearText() {
+    this.simpleSearchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
+
+  ngOnInit() {
+    this.setupNetworkWatcher();
+  }
+
+  ionViewWillEnter() {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.acc = [];
+    this.simpleSearchText = '';
+
+    this.currentPageNumber = 1;
+    this.loadData$ = new BehaviorSubject({
+      pageNumber: 1
+    });
+
+    this.baseState = 'unclassified';
+
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+
+    this.simpleSearchInput.nativeElement.value = '';
+
+    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+      .pipe(
+        map((event: any) => event.srcElement.value as string),
+        distinctUntilChanged(),
+        debounceTime(400)
+      ).subscribe((searchString) => {
+      const currentParams = this.loadData$.getValue();
+      currentParams.searchString = searchString;
+      this.currentPageNumber = 1;
+      currentParams.pageNumber = this.currentPageNumber;
+      this.loadData$.next(currentParams);
+    });
+
+    const paginatedPipe = this.loadData$.pipe(
+      switchMap((params) => {
+        let defaultState;
+        if (this.baseState === 'unclassified') {
+          defaultState = 'in.(INITIALIZED)';
+        } else if (this.baseState === 'classified') {
+          defaultState = 'in.(IN_PROGRESS,SETTLED)';
+        }
+
+        const queryParams = params.queryParams || {};
+        queryParams.state = queryParams.state || defaultState;
+
+        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        return from(this.loaderService.showLoader()).pipe(switchMap(() => {
+            return this.corporateCreditCardExpenseService.getv2CardTransactions({
+              offset: (params.pageNumber - 1) * 10,
+              limit: 10,
+              queryParams,
+              order: orderByParams
+            });
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+        );
+      }),
+      map(res => {
+        if (this.currentPageNumber === 1) {
+          this.acc = [];
+        }
+        this.acc = this.acc.concat(res.data);
+        return this.acc;
+      })
+    );
+
+    const simpleSearchAllDataPipe = this.loadData$.pipe(
+      switchMap(params => {
+        let defaultState;
+        if (this.baseState === 'unclassified') {
+          defaultState = 'in.(INITIALIZED)';
+        } else if (this.baseState === 'classified') {
+          defaultState = 'in.(IN_PROGRESS,SETTLED)';
+        }
+
+        const queryParams = params.queryParams || {};
+        queryParams.state = queryParams.state || defaultState;
+
+        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.corporateCreditCardExpenseService.getAllv2CardTransactions({
+              queryParams,
+              order: orderByParams
+            }).pipe(
+              map(expenses => expenses.filter(expense => {
+                return Object.values(expense)
+                  .map(value => value && value.toString().toLowerCase())
+                  .filter(value => !!value)
+                  .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
+              }))
+            );
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+        );
+      })
+    );
+
+    this.cardTransactions$ = this.loadData$.pipe(
+      switchMap(params => {
+        return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
+      }),
+      shareReplay()
+    );
+
+    this.count$ = this.loadData$.pipe(
+      switchMap(params => {
+        let defaultState;
+        if (this.baseState === 'unclassified') {
+          defaultState = 'in.(INITIALIZED)';
+        } else if (this.baseState === 'classified') {
+          defaultState = 'in.(IN_PROGRESS,SETTLED)';
+        }
+
+        const queryParams = params.queryParams || {};
+        queryParams.state = queryParams.state || defaultState;
+        return this.corporateCreditCardExpenseService.getv2CardTransactionsCount(queryParams);
+      }),
+      shareReplay()
+    );
+
+
+    this.unclassifiedExpensesCountHeader$ = this.corporateCreditCardExpenseService.getv2CardTransactionsCount({
+      state: 'in.(INITIALIZED)'
+    });
+
+    this.classifiedExpensesCountHeader$ = this.corporateCreditCardExpenseService.getv2CardTransactionsCount({
+      state: 'in.(IN_PROGRESS,SETTLED)'
+    });
+
+    const paginatedScroll$ = this.cardTransactions$.pipe(
+      switchMap(cardTxns => {
+        return this.count$.pipe(
+          map(count => {
+            return count > cardTxns.length;
+          }));
+      })
+    );
+
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(
+      switchMap(params => {
+        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
+      })
+    );
+
+    this.loadData$.subscribe(params => {
+      const queryParams: Params = {filters: JSON.stringify(this.filters)};
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams
+      });
+    });
+
+    this.cardTransactions$.subscribe(noop);
+    this.count$.subscribe(noop);
+    this.isInfiniteScrollRequired$.subscribe(noop);
+
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else {
+      this.clearFilters();
+    }
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+  }
+
+  loadData(event) {
+    this.currentPageNumber = this.currentPageNumber + 1;
+    const params = this.loadData$.getValue();
+    params.pageNumber = this.currentPageNumber;
+    this.loadData$.next(params);
+    event.target.complete();
+  }
+
+  doRefresh(event?) {
+    this.currentPageNumber = 1;
+    const params = this.loadData$.getValue();
+    params.pageNumber = this.currentPageNumber;
+    this.loadData$.next(params);
+    if (event) {
+      event.target.complete();
+    }
+  }
+
+  addNewFiltersToParams() {
+    const currentParams = this.loadData$.getValue();
+    currentParams.pageNumber = 1;
+    const newQueryParams: any = {};
+
+    if (this.filters.date) {
+      if (this.filters.date === 'THISMONTH') {
+        newQueryParams.and =
+          `(txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
+      } else if (this.filters.date === 'LASTMONTH') {
+        newQueryParams.and =
+          `(txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
+      } else if (this.filters.date === 'CUSTOMDATE') {
+        newQueryParams.and =
+          `(txn_dt.gte.${this.filters.customDateStart.toISOString()},txn_dt.lt.${this.filters.customDateEnd.toISOString()})`;
+      }
+    }
+
+    if (this.filters.sortParam && this.filters.sortDir) {
+      currentParams.sortParam = this.filters.sortParam;
+      currentParams.sortDir = this.filters.sortDir;
+    } else {
+      currentParams.sortParam = 'txn_dt';
+      currentParams.sortDir = 'desc';
+    }
+
+    currentParams.queryParams = newQueryParams;
+    return currentParams;
+  }
+
+
+  clearFilters() {
+    this.filters = {};
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
+  }
+
+
+  setState(state: string) {
+    this.baseState = state;
+    this.clearFilters();
+  }
+
+  async openFilters() {
+    const filterModal = await this.modalController.create({
+      component: CorporateCardExpensesSearchFilterComponent,
+      componentProps: {
+        filters: this.filters
+      }
+    });
+
+    await filterModal.present();
+
+    const {data} = await filterModal.onWillDismiss();
+    if (data) {
+      this.filters = Object.assign({}, this.filters, data.filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    }
+  }
+
+
+  async openSort() {
+    const sortModal = await this.modalController.create({
+      component: CorporateCardExpensesSortFilterComponent,
+      componentProps: {
+        filters: this.filters
+      }
+    });
+
+    await sortModal.present();
+
+    const {data} = await sortModal.onWillDismiss();
+    if (data) {
+      this.filters = Object.assign({}, this.filters, data.sortOptions);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    }
+  }
+
+  goToTransaction(cccTxn) {
+    if (this.baseState === 'unclassified') {
+      this.router.navigate(['/', 'enterprise', 'ccc_classify_actions', { cccTransactionId: cccTxn.id }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'ccc_classified_actions', { cccTransactionId: cccTxn.id }]);
+    }
+  }
+}

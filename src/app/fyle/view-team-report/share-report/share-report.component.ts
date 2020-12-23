@@ -17,10 +17,14 @@ export class ShareReportComponent implements OnInit {
     await this.popoverController.dismiss();
   }
 
-  shareReport() {
-    this.popoverController.dismiss({
-      email: this.email
-    });
+  shareReport(emailInput) {
+    if (emailInput.valid) {
+      this.popoverController.dismiss({
+        email: this.email
+      });
+    } else {
+      emailInput.control.markAllAsTouched();
+    }
   }
 
   ngOnInit() { }

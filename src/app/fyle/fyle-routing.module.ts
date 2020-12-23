@@ -137,6 +137,18 @@ const routes: Routes = [
   {
     path: 'split_expense',
     loadChildren: () => import('./split-expense/split-expense.module').then( m => m.SplitExpensePageModule)
+  },
+  {
+    path: 'corporate_card_expenses',
+    loadChildren: () => import('./corporate-card-expenses/corporate-card-expenses.module').then( m => m.CorporateCardExpensesPageModule)
+  },
+  {
+    path: 'ccc_classify_actions',
+    loadChildren: () => import('./ccc-classify-actions/ccc-classify-actions.module').then( m => m.CccClassifyActionsPageModule)
+  },
+  {
+    path: 'ccc_classified_actions',
+    loadChildren: () => import('./ccc-classified-actions/ccc-classified-actions.module').then( m => m.CccClassifiedActionsPageModule)
   }
 ];
 

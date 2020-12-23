@@ -45,4 +45,10 @@ $details-color: #ababab;
   &--redirect {
     text-decoration: none;
   }
+
+  &--validation {
+    color: red;
+    margin-left: 17px;
+    margin-top: 8px;
+  }
 }

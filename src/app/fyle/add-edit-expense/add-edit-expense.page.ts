@@ -1,5 +1,5 @@
-import { Component, OnInit, EventEmitter, ElementRef, ViewChild } from '@angular/core';
-import { Observable, of, iif, forkJoin, from, combineLatest, throwError, noop, concat } from 'rxjs';
+import {Component, OnInit, EventEmitter, ElementRef, ViewChild, Input} from '@angular/core';
+import {Observable, of, iif, forkJoin, from, combineLatest, throwError, noop, concat, merge, EMPTY} from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   concatMap, switchMap, map, startWith, shareReplay,
@@ -36,6 +36,9 @@ import { ViewAttachmentsComponent } from './view-attachments/view-attachments.co
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import {CorporateCreditCardExpenseSuggestionsService} from '../../core/services/corporate-credit-card-expense-suggestions.service';
+import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
+import {MatchTransactionComponent} from './match-transaction/match-transaction.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -93,6 +96,20 @@ export class AddEditExpensePage implements OnInit {
   pointToDuplicates = false;
   isAdvancesEnabled$: Observable<boolean>;
   comments$: Observable<any>;
+  isCCCPaymentModeSelected$: Observable<boolean>;
+  isLoadingSuggestions = false;
+  matchingCCCTransactions = [];
+  matchedCCCTransaction;
+  alreadyApprovedExpenses;
+  isSplitExpensesPresent: boolean;
+  canEditCCCMatchedSplitExpense: boolean;
+  cardEndingDigits: string;
+  selectedCCCTransactionInSuggestions: boolean;
+  isCCCTransactionAutoSelected: boolean;
+  isChangeCCCSuggestionClicked: boolean;
+  isDraftExpenseEnabled: boolean;
+  isDraftExpense: boolean;
+  isProjectsVisible$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -124,7 +141,9 @@ export class AddEditExpensePage implements OnInit {
     private currencyService: CurrencyService,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private navController: NavController
+    private navController: NavController,
+    private corporateCreditCardExpenseSuggestionService: CorporateCreditCardExpenseSuggestionsService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) { }
 
   async showClosePopup() {
@@ -239,6 +258,163 @@ export class AddEditExpensePage implements OnInit {
         return isPaymentModeInvalid;
       })
     );
+  }
+
+  async unmatchExpense(etxn) {
+    const message = this.isSplitExpensesPresent ?
+      'Unmatching the card transaction from this split expense will also unmatch it from the other splits associated with the expense.' :
+      'This will remove the mapping between corporate card expense and this expense.';
+    const confirmPopup = await this.popupService.showPopup({
+      header: 'Unmatch?',
+      message,
+      primaryCta: {
+        text: 'UNMATCH'
+      }
+    });
+
+    if (confirmPopup === 'primary') {
+      this.showSelectedTransaction = false;
+      if (this.isDraftExpenseEnabled) {
+        this.isDraftExpense = false;
+      } else {
+        this.isDraftExpense = true;
+      }
+
+      if (['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1) {
+        this.canChangeMatchingCCCTransaction = false;
+      }
+
+      if (this.isSplitExpensesPresent) {
+        this.canChangeMatchingCCCTransaction = this.alreadyApprovedExpenses.length < 1;
+      }
+
+      this.selectedCCCTransaction = null;
+    }
+  }
+
+  async openMatchingTransactions() {
+    this.isChangeCCCSuggestionClicked = true;
+    this.isCCCTransactionAutoSelected = false;
+    this.etxn$.subscribe(async (etxn) => {
+      const matchExpensesModal = await this.modalController.create({
+        component: MatchTransactionComponent,
+        componentProps: {
+          matchingCCCTransactions: this.matchingCCCTransactions,
+          mode: this.mode
+        }
+      });
+
+      await matchExpensesModal.present();
+
+      const { data } = await matchExpensesModal.onWillDismiss();
+
+      if (data) {
+
+        if (data.unMatchedExpense) {
+          await this.unmatchExpense(etxn);
+        } else {
+          this.isDraftExpense = false;
+          this.selectedCCCTransaction = data.selectedCCCExpense;
+          // corporate_credit_card_account_number will not be available in the new suggestions endpoint as it is not required
+          if (this.selectedCCCTransaction && this.selectedCCCTransaction.corporate_credit_card_account_number) {
+            this.cardEndingDigits =
+              (this.selectedCCCTransaction.corporate_credit_card_account_number ?
+                this.selectedCCCTransaction.corporate_credit_card_account_number :
+                this.selectedCCCTransaction.card_or_account_number).slice(-4);
+          }
+
+          this.canChangeMatchingCCCTransaction = true;
+
+          if (!etxn.tx.corporate_credit_card_expense_group_id || (this.selectedCCCTransaction.id !== etxn.tx.corporate_credit_card_expense_group_id)) {
+            this.showSelectedTransaction = true;
+          } else if (this.selectedCCCTransaction.id === etxn.tx.corporate_credit_card_expense_group_id) {
+            this.showSelectedTransaction = false;
+            await this.popupService.showPopup({
+              header: 'Already matched!',
+              message: 'The expense is already matched to this card transaction',
+              primaryCta: {
+                text: 'Close'
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+
+  setupExpenseSuggestions() {
+    const that = this;
+    that.isCCCPaymentModeSelected$.pipe(
+      switchMap((isCCCPaymentModeSelected) => {
+        if (isCCCPaymentModeSelected) {
+          return merge(
+            that.fg.controls.currencyObj.valueChanges,
+            that.fg.controls.dateOfSpend.valueChanges
+          ).pipe(
+            map(() => ({
+                currencyObj: that.fg.controls.currencyObj.value,
+                txnDt: that.fg.controls.dateOfSpend.value
+              })
+            ),
+            startWith({
+              currencyObj: that.fg.controls.currencyObj.value,
+              txnDt: that.fg.controls.dateOfSpend.value
+            })
+          );
+        } else {
+          return EMPTY;
+        }
+      }),
+      filter(({ currencyObj, txnDt }) => currencyObj && currencyObj.amount && txnDt),
+      switchMap(({ currencyObj, txnDt }) => {
+          this.isLoadingSuggestions = true;
+          return that.corporateCreditCardExpenseSuggestionService.getSuggestions({amount: currencyObj.amount, txn_dt: txnDt});
+        }
+      )
+    ).subscribe(matchingCCCTransactions => {
+      this.isLoadingSuggestions = false;
+      if (matchingCCCTransactions.length > 0) {
+        this.matchingCCCTransactions = matchingCCCTransactions;
+      } else {
+        this.matchingCCCTransactions = [];
+      }
+
+      if (this.selectedCCCTransaction) {
+        this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions
+          .some(cccTxn => cccTxn.id === this.selectedCCCTransaction.id);
+      }
+
+      this.etxn$.subscribe(etxn => {
+        if (typeof etxn.tx.corporate_credit_card_expense_group_id === 'undefined' || etxn.tx.corporate_credit_card_expense_group_id === null) {
+          if (this.selectedCCCTransaction &&
+            !this.selectedCCCTransactionInSuggestions &&
+            (!this.isCCCTransactionAutoSelected || this.isChangeCCCSuggestionClicked)
+          ) {
+            this.matchingCCCTransactions.push(this.selectedCCCTransaction);
+          }
+
+          if (this.selectedCCCTransaction &&
+            !this.selectedCCCTransactionInSuggestions &&
+            this.isCCCTransactionAutoSelected &&
+            !this.isChangeCCCSuggestionClicked) {
+            this.selectedCCCTransaction = null;
+            this.isCCCTransactionAutoSelected = false;
+          }
+
+          if (!this.selectedCCCTransaction &&
+            this.matchingCCCTransactions &&
+            this.matchingCCCTransactions.length > 0 &&
+            !this.isChangeCCCSuggestionClicked) {
+            this.selectedCCCTransaction = this.matchingCCCTransactions[0];
+            this.isCCCTransactionAutoSelected = true;
+          }
+        } else if (this.selectedCCCTransaction &&
+          !this.selectedCCCTransactionInSuggestions) {
+          this.matchingCCCTransactions.push(this.selectedCCCTransaction);
+        }
+      });
+    });
+
   }
 
   setupNetworkWatcher() {
@@ -408,14 +584,32 @@ export class AddEditExpensePage implements OnInit {
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
-    this.transactionMandatoyFields$
-      .pipe(
-        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
+    this.transactionMandatoyFields$.pipe(
+        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
+        switchMap((transactionMandatoyFields) => {
+          return forkJoin({
+            individualProjectIds: this.individualProjectIds$,
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
+          }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+            return {
+              transactionMandatoyFields,
+              individualProjectIds,
+              isIndividualProjectsEnabled
+            };
+          }));
+        })
       )
-      .subscribe((transactionMandatoyFields: any) => {
-        if (transactionMandatoyFields.project) {
-          this.fg.controls.project.setValidators(Validators.required);
-          this.fg.controls.project.updateValueAndValidity();
+      .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled}) => {
+        if (isIndividualProjectsEnabled) {
+          if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
+            this.fg.controls.project.setValidators(Validators.required);
+            this.fg.controls.project.updateValueAndValidity();
+          }
+        } else {
+          if (transactionMandatoyFields.project) {
+            this.fg.controls.project.setValidators(Validators.required);
+            this.fg.controls.project.updateValueAndValidity();
+          }
         }
 
         if (transactionMandatoyFields.category) {
@@ -571,7 +765,7 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map((dependencies) => {
         const { orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData } = dependencies;
-        const bankTxn = this.activatedRoute.snapshot.params.bankTxn;
+        const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
         if (!bankTxn) {
@@ -735,10 +929,30 @@ export class AddEditExpensePage implements OnInit {
       ), of(null));
     }));
 
-    const defaultPaymentMode$ = this.paymentModes$.pipe(
-      map(paymentModes => paymentModes
-        .map(res => res.value)
-        .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
+    const defaultPaymentMode$ = forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      paymentModes: this.paymentModes$
+    }).pipe(
+      map(({paymentModes, orgUserSettings}) => {
+          const hasCCCAccount = paymentModes.map(res => res.value).some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          if (hasCCCAccount &&
+            orgUserSettings.preferences &&
+            orgUserSettings.preferences.default_payment_mode &&
+            orgUserSettings.preferences.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          ) {
+            return paymentModes
+              .map(res => res.value)
+              .find(paymentMode => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          } else if (this.isCreatedFromCCC) {
+            return paymentModes
+              .map(res => res.value)
+              .find(paymentMode => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          } else {
+            return paymentModes
+              .map(res => res.value)
+              .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me');
+          }
+        }
       )
     );
 
@@ -814,7 +1028,6 @@ export class AddEditExpensePage implements OnInit {
       }
 
       this.fg.patchValue({
-        paymentMode: paymentMode || defaultPaymentMode,
         project,
         category,
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
@@ -843,8 +1056,12 @@ export class AddEditExpensePage implements OnInit {
       });
 
       setTimeout(() => {
+        this.fg.patchValue({
+          paymentMode: paymentMode || defaultPaymentMode
+        });
+
         this.fg.controls.custom_inputs.setValue(customInputValues);
-      }, 1000);
+      }, 400);
 
       this.attachedReceiptsCount = etxn.tx.num_files;
 
@@ -922,7 +1139,7 @@ export class AddEditExpensePage implements OnInit {
             })
           );
         }),
-        shareReplay()
+        shareReplay(1)
       );
   }
 
@@ -1049,7 +1266,7 @@ export class AddEditExpensePage implements OnInit {
         bus_travel_class: this.fg.controls.bus_travel_class
       };
 
-      for (let defaultValueColumn in defaultValues) {
+      for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
           if (defaultValueColumn !== 'vendor_id' && !control.value) {
@@ -1211,6 +1428,14 @@ export class AddEditExpensePage implements OnInit {
 
     this.fg.valueChanges.subscribe(console.log);
 
+    this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
+      map((paymentMode: any) => paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT')
+    );
+
+    this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
+
+    this.setupExpenseSuggestions();
+
     this.setupDuplicateDetection();
     this.setUpTaxCalculations();
 
@@ -1225,16 +1450,40 @@ export class AddEditExpensePage implements OnInit {
       (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
     }));
 
+    orgSettings$.subscribe(orgSettings => {
+      this.isDraftExpenseEnabled = orgSettings.ccc_draft_expense_settings && orgSettings.ccc_draft_expense_settings.allowed && orgSettings.ccc_draft_expense_settings.enabled;
+    });
+
     this.setupNetworkWatcher();
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
+
+    this.individualProjectIds$ = orgUserSettings$.pipe(
+      map((orgUserSettings: any) => orgUserSettings.project_ids || []),
+      shareReplay(1)
+    );
+
+    this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
+      map(orgSettings => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
+    );
+
+
+    this.isProjectsVisible$ = forkJoin({
+      individualProjectIds: this.individualProjectIds$,
+      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
+    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled})=> {
+      if (!isIndividualProjectsEnabled) {
+        return true;
+      } else {
+        return individualProjectIds.length > 0;
+      }
+    })
+  );
 
     this.setupCostCenters();
     this.setupTransactionMandatoryFields();
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
-
-    this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
 
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
     this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
@@ -1253,14 +1502,6 @@ export class AddEditExpensePage implements OnInit {
       map(orgSettings => {
         return orgSettings.expense_settings.split_expense_settings.enabled;
       })
-    );
-
-    this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
-      map(orgSettings => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
-    );
-
-    this.individualProjectIds$ = orgUserSettings$.pipe(
-      map((orgUserSettings: any) => orgUserSettings.project_ids || [])
     );
 
     this.setupBalanceFlag();
@@ -1307,7 +1548,70 @@ export class AddEditExpensePage implements OnInit {
 
     const editExpensePipe$ = this.getEditExpenseObservable();
 
-    this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$);
+    this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
+      shareReplay(1)
+    );
+
+    orgSettings$.pipe(
+      filter(orgSettings => orgSettings.corporate_credit_card_settings.enabled),
+      switchMap(() => {
+        return this.etxn$;
+      }),
+      tap(cccExp => console.log({ cccExp })),
+      filter(etxn => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
+      switchMap(etxn => {
+        return this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(map(splitExpenses => {
+          return {
+            etxn,
+            splitExpenses
+          };
+        }));
+      })
+    ).subscribe(({etxn, splitExpenses}) => {
+      if (splitExpenses && splitExpenses.length > 0) {
+        this.isSplitExpensesPresent = splitExpenses.length > 1;
+        if (this.isSplitExpensesPresent) {
+          this.alreadyApprovedExpenses = splitExpenses.filter((txn) => {
+            return ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1;
+          });
+
+          this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
+        }
+      }
+
+      forkJoin({
+        matchedExpense: this.corporateCreditCardExpenseService.getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id),
+        matchingTransactions: this.corporateCreditCardExpenseSuggestionService
+          .getSuggestions({ amount: etxn.tx.amount, txn_dt: etxn.tx.txn_dt })
+      }).subscribe(({matchedExpense, matchingTransactions}) => {
+        this.matchedCCCTransaction = matchedExpense[0].ccce;
+        this.matchingCCCTransactions = matchingTransactions;
+        this.selectedCCCTransaction = this.matchedCCCTransaction;
+        this.cardEndingDigits = (this.selectedCCCTransaction.corporate_credit_card_account_number ?
+          this.selectedCCCTransaction.corporate_credit_card_account_number
+          : this.selectedCCCTransaction.card_or_account_number).slice(-4);
+
+        etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+
+        const txnDt = moment(this.selectedCCCTransaction.txn_dt).format('MMM d, y');
+
+        this.selectedCCCTransaction.displayObject = txnDt +
+          ' - ' +
+          ( this.selectedCCCTransaction.vendor ?
+            this.selectedCCCTransaction.vendor : this.selectedCCCTransaction.description) +
+          this.selectedCCCTransaction.amount;
+
+
+        if (this.selectedCCCTransaction) {
+          this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions
+            .some(cccExpense => cccExpense.id === this.matchedCCCTransaction.id);
+        }
+
+        if (!this.selectedCCCTransactionInSuggestions) {
+          this.matchingCCCTransactions.push(this.matchedCCCTransaction);
+        }
+      });
+    });
 
     this.setupFilteredCategories(activeCategories$);
 
@@ -1377,7 +1681,9 @@ export class AddEditExpensePage implements OnInit {
           tx: {
             ...etxn.tx,
             billable: this.fg.value.billable,
-            skip_reimbursement: this.fg.value.paymentMode && this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable,
+            skip_reimbursement: this.fg.value.paymentMode &&
+              this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
+              !this.fg.value.paymentMode.acc.isReimbursable,
             txn_dt: this.fg.value.dateOfSpend && new Date(this.fg.value.dateOfSpend),
             currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,
             amount: this.fg.value.currencyObj && this.fg.value.currencyObj.amount,
@@ -1815,25 +2121,26 @@ export class AddEditExpensePage implements OnInit {
             }),
           );
         }),
-        map((transaction) => {
-          // if (transaction.corporate_credit_card_expense_group_id && selectedCCCTransaction && selectedCCCTransaction.id) {
-          //   if (transaction.corporate_credit_card_expense_group_id !== selectedCCCTransaction.id) {
-          //     this.transactionService.unmatchCCCExpense(transaction.id, matchedCCCTransaction.id).then(function () {
-          //       this.transactionService.matchCCCExpense(transaction.id, selectedCCCTransaction.id);
-          //     });
-          //   }
-          // }
+        switchMap((transaction) => {
+          if (transaction.corporate_credit_card_expense_group_id && this.selectedCCCTransaction && this.selectedCCCTransaction.id) {
+            if (transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id) {
+              return this.transactionService.unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id).pipe(
+                switchMap(() => this.transactionService.matchCCCExpense(transaction.id, this.selectedCCCTransaction.id))
+              );
+            }
+          }
 
-          // //Case is for unmatching a matched expense
-          // if (!selectedCCCTransaction && transaction.corporate_credit_card_expense_group_id) {
-          //   this.transactionService.unmatchCCCExpense(transaction.id, matchedCCCTransaction.id);
-          // }
+          // Case is for unmatching a matched expense
+          if (!this.selectedCCCTransaction && transaction.corporate_credit_card_expense_group_id) {
+            return this.transactionService.unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id);
+          }
 
-          // //Case is for matching a normal(unmatched) expense for the first time(edit)
-          // if (selectedCCCTransaction && !transaction.corporate_credit_card_expense_group_id) {
-          //   this.transactionService.matchCCCExpense(transaction.id, selectedCCCTransaction.id);
-          // }
-          return transaction;
+          // Case is for matching a normal(unmatched) expense for the first time(edit)
+          if (this.selectedCCCTransaction && !transaction.corporate_credit_card_expense_group_id) {
+            return this.transactionService.matchCCCExpense(transaction.id, this.selectedCCCTransaction.id);
+          }
+
+          return of(transaction);
         }),
         finalize(() => from(this.loaderService.hideLoader()))
       );
@@ -1949,10 +2256,9 @@ export class AddEditExpensePage implements OnInit {
                 if (comment) {
                   comments.push(comment);
                 }
-                // if (this.selectedCCCTransaction) {
-                //   this.etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
-                //   setSourceAccount('PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-                // }
+                if (this.selectedCCCTransaction) {
+                  etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+                }
 
                 let reportId;
                 if (this.fg.value.report
