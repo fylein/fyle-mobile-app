@@ -60,7 +60,7 @@
 
         <ng-container *ngIf="mode === 'edit'">
           <ng-container *ngIf="comments$|async as comments">
-            <app-fy-policy-violation-info [estatuses]="comments"></app-fy-policy-violation-info>
+            <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
           </ng-container>
         </ng-container>
 
@@ -135,7 +135,7 @@
         <div class="add-edit-expense--primary-block">
           <ng-container *ngIf="txnFields$|async as txnFields">
             <div class="add-edit-expense--date add-edit-expense--internal-block" *ngIf="txnFields.txn_dt?.canView">
-              <div class="add-edit-expense--date-label">
+              <div class="add-edit-expense--date-label" [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}">
                 Date of Spend
                 <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
               </div>
@@ -255,19 +255,6 @@
         </ng-container>
 
         <div class="add-edit-expense--primary-block">
-
-          <!-- <div *ngIf="(isCCCAccountSelected$|async) && !isCreatedFromCCC">
-          <div (click)="openMatchingTransactions()">
-            <div>
-              <mat-icon>card</mat-icon>
-              <div>
-                Found {{matchingCCCTransactions.length}}
-                matching transaction(s)
-              </div>
-            </div>
-          </div>
-        </div> -->
-
 
           <app-fy-alert
             *ngIf="(isCCCAccountSelected$|async) && !selectedCCCTransaction && canChangeMatchingCCCTransaction && !(transactionInReport$|async)"
@@ -509,8 +496,11 @@
             </div>
 
             <div class="add-edit-expense--internal-block" *ngIf="fg.value?.category?.fyle_category === 'Hotel'">
-              <ion-checkbox name="isBreakFastProvided" formControlName="hotel_is_breakfast_provided">Breakfast Provided
-              </ion-checkbox>
+              <mat-checkbox color="primary" formControlName="hotel_is_breakfast_provided">
+                <span class="add-edit-expense--text-label">
+                  Breakfast Provided
+                </span>
+              </mat-checkbox>
             </div>
 
             <ng-container
@@ -680,7 +670,7 @@
       </ng-container>
 
       <ng-container *ngIf="etxn$|async as etxn">
-        <div class="add-edit-expense--comment" *ngIf="etxn && mode === 'edit'">
+        <div #comments class="add-edit-expense--comment" *ngIf="etxn && mode === 'edit'">
           <app-comments objectType="transactions" [objectId]="etxn.tx.id" mode="edit" text="Comments"></app-comments>
         </div>
 

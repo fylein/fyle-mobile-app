@@ -196,6 +196,7 @@ export class AppComponent implements OnInit {
       this.isSwitchedToDelegator = res.isSwitchedToDelegator;
       const isConnected = res.isConnected;
       this.eou = res.eou;
+      this.freshchatService.setupNetworkWatcher();
 
       // TODO: remove nested subscribe - mini tech debt
       if (isConnected) {

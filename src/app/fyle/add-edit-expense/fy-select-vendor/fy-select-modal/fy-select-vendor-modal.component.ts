@@ -27,7 +27,6 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
-      startWith(''),
       distinctUntilChanged(),
       switchMap((searchText) => {
         return this.vendorService.get(searchText).pipe(
@@ -37,9 +36,11 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
           }))
           ),
           catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
-          map(vendors => [{ label: searchText, value: { display_name: searchText } }].concat(vendors))
+          map(vendors => [{ label: searchText, value: { display_name: searchText } }].concat(vendors)),
+          map(vendors => [{ label: 'None', value: null }].concat(vendors))
         );
       }),
+      startWith([{ label: 'None', value: null }]),
       map((vendors: any[]) => {
         return vendors.map(vendor => {
           if (isEqual(vendor.value, this.currentSelection)) {

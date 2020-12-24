@@ -171,14 +171,27 @@
 
 <ion-footer>
   <div class="my-expenses--footer-container">
-    <div *ngIf="baseState === 'all' && (allExpensesCount$|async) > 0">
-      <div class="my-expenses--stats">
-        <div class="my-expenses--amount">
-          <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span>
-          {{(expensesAmountStats$|async|number:'1.2')}}
+    <ng-container *ngIf="allExpensesCount$|async as allExpensesCount">
+      <div *ngIf="baseState === 'all' && allExpensesCount && filters?.state !== 'NEEDS_RECEIPT'">
+        <div class="my-expenses--stats">
+          <div class="my-expenses--amount">
+            <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span>
+            {{(expensesAmountStats$|async|number:'1.2')}}
+          </div>
+          <div class="my-expenses--count" *ngIf="allExpensesCount as allExpensesCount">
+            across {{allExpensesCount}} unreported expenses
+          </div>
         </div>
-        <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
-          across {{allExpensesCount}} unreported expenses
+      </div>
+    </ng-container>
+
+    <div *ngIf="filters?.state === 'NEEDS_RECEIPT'">
+      <div class="my-expenses--needs-receipt">
+        <div class="my-expenses--needs-receipt-header">
+          You have {{count$|async}} expense(s) without receipt
+        </div>
+        <div class="my-expenses--needs-receipt-sub-header">
+          Upload all reimbursable receipt here and we will classify and attach them with the associated transaction.
         </div>
       </div>
     </div>

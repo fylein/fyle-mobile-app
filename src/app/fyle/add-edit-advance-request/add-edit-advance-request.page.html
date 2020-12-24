@@ -34,7 +34,7 @@
           </mat-icon>
         </div>
 
-        <div (click)="viewAttachments($event)" *ngIf="(dataUrls && dataUrls.length > 0) && !attachmentUploadInProgress">
+        <div (click)="viewAttachments()" *ngIf="(dataUrls && dataUrls.length > 0) && !attachmentUploadInProgress">
           <mat-icon class="add-edit-advance-request--receipt-background" svgIcon="fy-attachment">
           </mat-icon>
           <div class="add-edit-advance-request--receipt-count-container">
@@ -63,10 +63,15 @@
         <input class="add-edit-advance-request--text-input" formControlName="purpose">
       </div>
 
-      <div class="add-edit-advance-request--internal-block" *ngIf="(projects$|async)?.length > 0">
-        <app-fy-select-project [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
-          formControlName="project"></app-fy-select-project>
-      </div>
+      <ng-container *ngIf="isProjectsVisible$|async">
+        <div class="add-edit-advance-request--internal-block">
+          <app-fy-select-project
+            [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
+            formControlName="project"
+          ></app-fy-select-project>
+        </div>
+      </ng-container>
+
 
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
         <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">

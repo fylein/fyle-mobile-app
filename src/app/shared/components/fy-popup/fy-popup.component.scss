@@ -34,7 +34,7 @@ $details-color: #ababab;
 
   &--buttons {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     padding: 16px;
   }
 
@@ -45,6 +45,7 @@ $details-color: #ababab;
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 1.8px;
+    max-width: 145px;
   }
 
   &--primary-cta {
@@ -55,6 +56,7 @@ $details-color: #ababab;
       min-height: 47px;
     }
   }
+
 
   &--redirect {
     text-decoration: none;

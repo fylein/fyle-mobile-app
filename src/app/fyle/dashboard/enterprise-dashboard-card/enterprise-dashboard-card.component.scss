@@ -52,6 +52,7 @@ $chevron-fill: #757575;
     margin: 4px 8px 4px;
     color: $text-dark;
     float: right;
+    white-space: nowrap;
   }
 
   &--needs-attention {
