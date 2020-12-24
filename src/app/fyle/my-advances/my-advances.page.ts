@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { range } from 'rxjs';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
-import { concatMap, finalize, map, reduce, scan, shareReplay, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, scan, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
@@ -22,6 +22,7 @@ export class MyAdvancesPage implements OnInit {
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
   navigateBack = false;
+  refreshAdvances$: Subject<void> = new Subject();
   
   advances$: Observable<any>;
 
@@ -50,7 +51,6 @@ export class MyAdvancesPage implements OnInit {
       reduce((acc, curr) => {
         return acc.concat(curr);
       }),
-      shareReplay()
     );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
@@ -68,56 +68,64 @@ export class MyAdvancesPage implements OnInit {
       reduce((acc, curr) => {
         return acc.concat(curr);
       }),
-      shareReplay()
     )
 
-    this.advances$ = from(this.loaderService.showLoader()).pipe(
+    this.advances$ = this.refreshAdvances$.pipe(
+      startWith(0),
       switchMap(() => {
-        return forkJoin({
-          myAdvancerequests$: this.myAdvancerequests$,
-          myAdvances$: this.myAdvances$
-        }).pipe(
-          map(res => {
-            let myAdvancerequests = res.myAdvancerequests$ || [];
-            let myAdvances = res.myAdvances$ || [];
-            myAdvancerequests = myAdvancerequests.map(data => {
-              return {
-                ...data,
-                type: 'request',
-                currency: data.areq_currency,
-                amount: data.areq_amount,
-                created_at: data.areq_created_at,
-                purpose: data.areq_purpose,
-                state: data.areq_state
-              }
-            });
-    
-            myAdvances = myAdvances.map(data => {
-              return {
-                ...data,
-                type: 'advance',
-                amount: data.adv_amount,
-                orig_amount: data.adv_orig_amount,
-                created_at: data.adv_created_at,
-                currency: data.adv_currency,
-                orig_currency: data.adv_orig_currency,
-                purpose: data.adv_purpose,
-              }
-            })
-            return myAdvances.concat(myAdvancerequests);
-          }),
-          map(res => {
-            return res.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1);
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return forkJoin({
+              myAdvancerequests$: this.myAdvancerequests$,
+              myAdvances$: this.myAdvances$
+            }).pipe(
+              map(res => {
+                let myAdvancerequests = res.myAdvancerequests$ || [];
+                let myAdvances = res.myAdvances$ || [];
+                myAdvancerequests = myAdvancerequests.map(data => {
+                  return {
+                    ...data,
+                    type: 'request',
+                    currency: data.areq_currency,
+                    amount: data.areq_amount,
+                    created_at: data.areq_created_at,
+                    purpose: data.areq_purpose,
+                    state: data.areq_state
+                  };
+                });
+
+                myAdvances = myAdvances.map(data => {
+                  return {
+                    ...data,
+                    type: 'advance',
+                    amount: data.adv_amount,
+                    orig_amount: data.adv_orig_amount,
+                    created_at: data.adv_created_at,
+                    currency: data.adv_currency,
+                    orig_currency: data.adv_orig_currency,
+                    purpose: data.adv_purpose,
+                  };
+                });
+                return myAdvances.concat(myAdvancerequests);
+              }),
+              map(res => {
+                return res.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1);
+              })
+            );
+          }), finalize(() => {
+            return from(this.loaderService.hideLoader());
           })
         );
-      }),finalize(() => {
-        return from(this.loaderService.hideLoader());
       })
+
     );
+    
   }
 
   doRefresh(event) {
     //this.advances$.next();
+    this.refreshAdvances$.next();
+    event.target.complete();
   }
 
   onAdvanceClick(clickedAdvance: any) {

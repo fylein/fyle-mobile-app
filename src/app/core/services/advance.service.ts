@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, Subject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { CacheBuster } from 'ts-cacheable';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { ExtendedAdvance } from '../models/extended_advance.model';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
@@ -30,8 +30,8 @@ export class AdvanceService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: advancesCacheBuster$
+  @Cacheable({
+    cacheBusterObserver: advancesCacheBuster$
   })
   getMyadvances(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
