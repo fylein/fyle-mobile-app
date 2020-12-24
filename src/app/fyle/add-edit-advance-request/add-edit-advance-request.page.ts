@@ -356,7 +356,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
       shareReplay()
     );
 
-
     const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {
         this.fg.patchValue({
