@@ -36,7 +36,7 @@ export class MyAdvancesPage implements OnInit {
 
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-    this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null' }).pipe(
+    this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null', areq_advance_id: 'is.null' }).pipe(
       switchMap(count => {
         return range(0, count / 10);
       }),
@@ -44,7 +44,7 @@ export class MyAdvancesPage implements OnInit {
         return this.advanceRequestService.getMyadvanceRequests({
           offset: 10 * count,
           limit: 10,
-          queryParams: { areq_trip_request_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
+          queryParams: { areq_trip_request_id: 'is.null', areq_advance_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
         });
       }),
       map(res => res.data),
@@ -123,9 +123,15 @@ export class MyAdvancesPage implements OnInit {
   }
 
   doRefresh(event) {
-    //this.advances$.next();
-    this.refreshAdvances$.next();
-    event.target.complete();
+    forkJoin({
+      destroyAdvanceRequestsCacheBuster: this.advanceRequestService.destroyAdvanceRequestsCacheBuster(),
+      destroyAdvancesCacheBuster: this.advanceService.destroyAdvancesCacheBuster()
+    }).pipe(
+      map(() => {
+        this.refreshAdvances$.next();
+        event.target.complete();
+      })
+    ).subscribe(noop);
   }
 
   onAdvanceClick(clickedAdvance: any) {

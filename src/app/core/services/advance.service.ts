@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, Subject } from 'rxjs';
+import { from, Observable, of, Subject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { ExtendedAdvance } from '../models/extended_advance.model';
@@ -80,5 +80,12 @@ export class AdvanceService {
       data.areq_approved_at = new Date(data.areq_approved_at);
     }
     return data;
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advancesCacheBuster$
+  })
+  destroyAdvancesCacheBuster() {
+    return of(null);
   }
 }
