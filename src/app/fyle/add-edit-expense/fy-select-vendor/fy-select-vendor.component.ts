@@ -13,22 +13,25 @@ import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectVendorComponent),
       multi: true
-    },
-    // {
-    //   provide: NG_VALIDATORS,
-    //   useExisting: FySelectVendorComponent,
-    //   multi: true
-    // }
+    }
   ]
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
-  // private ngControl: NgControl;
+  private ngControl: NgControl;
   @Input() options: any[];
   @Input() label = '';
   @Input() mandatory = false;
 
   private innerValue;
   displayValue;
+
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
+  }
 
   private onTouchedCallback: () => void = noop;
   private onChangeCallback: (_: any) => void = noop;
@@ -39,12 +42,10 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    // this.ngControl = this.injector.get(NgControl);
+    this.ngControl = this.injector.get(NgControl);
   }
 
   ngOnDestroy() {
-    // this.ngControl.control.clearValidators();
-    // this.ngControl.control.updateValueAndValidity();
   }
 
   get value(): any {

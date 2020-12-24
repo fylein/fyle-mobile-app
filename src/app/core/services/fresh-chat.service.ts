@@ -22,10 +22,9 @@ export class FreshChatService {
     private orgUserSettingsService: OrgUserSettingsService,
     private networkService: NetworkService
   ) {
-    this.setupNetworkWatcher();
   }
 
-  private setupNetworkWatcher() {
+  setupNetworkWatcher() {
     const that = this;
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);

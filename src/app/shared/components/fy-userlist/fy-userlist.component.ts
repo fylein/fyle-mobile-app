@@ -1,5 +1,5 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import {Component, OnInit, forwardRef, Input, Injector} from '@angular/core';
+import {NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
 import { noop, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -21,6 +21,8 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
   ]
 })
 export class FyUserlistComponent implements OnInit {
+  private ngControl: NgControl;
+
   eouc$: Observable<ExtendedOrgUser[]>;
   @Input() options: { label: string, value: any }[];
   @Input() disabled = false;
@@ -30,15 +32,26 @@ export class FyUserlistComponent implements OnInit {
   private innerValue;
   displayValue;
 
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
+  }
+
   private onTouchedCallback: () => void = noop;
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
     private modalController: ModalController,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private injector: Injector
   ) { }
 
   ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
+
     this.eouc$ = this.orgUserService.getAllCompanyEouc();
 
     this.eouc$.pipe(
