@@ -39,13 +39,12 @@ $details-color: #ababab;
   }
 
   &--button {
-    width: 100%;
     min-height: 45px;
     height: 48px;
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 1.8px;
-    max-width: 145px;
+    width: 100%;
   }
 
   &--primary-cta {
@@ -55,6 +54,10 @@ $details-color: #ababab;
       font-weight: 700;
       min-height: 47px;
     }
+  }
+
+  &--secondary-cta {
+    margin-right: 16px;
   }
 
 
