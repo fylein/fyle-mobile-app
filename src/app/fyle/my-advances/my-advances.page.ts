@@ -2,12 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { range } from 'rxjs';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
-import { concatMap, finalize, map, reduce, scan, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { concatMap, finalize, map, reduce, startWith, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-my-advances',
@@ -19,11 +17,8 @@ export class MyAdvancesPage implements OnInit {
   myAdvancerequests$: Observable<any[]>;
   myAdvances$: Observable<any>;
   loadData$: Subject<number> = new Subject();
-  count$: Observable<number>;
-  isInfiniteScrollRequired$: Observable<boolean>;
   navigateBack = false;
   refreshAdvances$: Subject<void> = new Subject();
-  
   advances$: Observable<any>;
 
   constructor(
@@ -119,7 +114,6 @@ export class MyAdvancesPage implements OnInit {
       })
 
     );
-    
   }
 
   doRefresh(event) {
