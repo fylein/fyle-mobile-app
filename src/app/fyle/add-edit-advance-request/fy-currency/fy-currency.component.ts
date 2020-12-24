@@ -59,7 +59,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         currency: null
       };
 
-      value.amount = +formValue.amount;
+      if (formValue.amount !== null) {
+        value.amount = +formValue.amount;
+      }
       value.currency = formValue.currency;
 
       if (!this.checkIfSameValue(value, this.innerValue)) {
