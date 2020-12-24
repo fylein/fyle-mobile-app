@@ -132,6 +132,7 @@ export class MyAddEditTripPage implements OnInit {
         await addExpensePopover.present();
         const { data } = await addExpensePopover.onDidDismiss();
         if (data && data.continue) {
+          console.log('this.fg.value ->', this.fg.value);
           this.submitTripRequest(this.fg.value);
         }
       }
@@ -191,7 +192,7 @@ export class MyAddEditTripPage implements OnInit {
       }).pipe(
         map(res => {
           const tripRequest: any = res.tripRequest;
-  
+
           const trp = {
             ...tripRequest,
             custom_field_values: formValue.custom_field_values,
@@ -379,14 +380,13 @@ export class MyAddEditTripPage implements OnInit {
 
     this.maxDate = this.fg.controls.endDate.value;
 
-    this.customFields$ = this.refreshTrips$.pipe(
-      concatMap(() => {
-        return this.tripRequestCustomFieldsService.getAll()
-      }),
+    this.customFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
+
         customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
+
         customFields = customFields.filter(field => {
           return field.request_type === 'TRIP_REQUEST' && field.trip_type.indexOf(this.fg.get('tripType').value) > -1;
         });
@@ -419,7 +419,6 @@ export class MyAddEditTripPage implements OnInit {
         });
       })
     );
-      
 
     this.intializeDefaults();
 
@@ -458,11 +457,12 @@ export class MyAddEditTripPage implements OnInit {
           this.fg.get('notes').setValue(tripRequest.notes);
           this.fg.get('source').setValue(tripRequest.source);
 
-          // this.fg.get('custom_field_values').setValue(this.modifyTripRequestCustomFields(tripRequest.custom_field_values));
-          let custom = this.fg.get('custom_field_values') as FormArray;
-          let renderedCustomFeild = this.modifyTripRequestCustomFields(tripRequest.custom_field_values);
+          this.fg.get('custom_field_values').setValue(this.modifyTripRequestCustomFields(tripRequest.custom_field_values));
+          const custom = this.fg.get('custom_field_values') as FormArray;
+          custom.clear();
+          const renderedCustomFeild = this.modifyTripRequestCustomFields(tripRequest.custom_field_values);
           renderedCustomFeild.forEach(field => {
-            let customFields = this.formBuilder.group({
+            const customFields = this.formBuilder.group({
               id: [field.id],
               name: [field.name],
               value: [field.value]
@@ -588,6 +588,7 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     this.fg.valueChanges.subscribe(formValue => {
+      console.log('something changed ->', formValue);
       this.refreshTrips$.next();
       if (formValue.tripType === 'MULTI_CITY') {
         if (formValue.cities.length > 1) {

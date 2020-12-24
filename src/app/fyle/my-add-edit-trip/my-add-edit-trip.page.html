@@ -155,6 +155,7 @@
         </div>
         <div class="add-edit-trip--element-container">
           <div *ngFor="let customInput of customFields$|async as customFields">
+            <!-- <button (click)="debug(customInput)">debug</button> -->
             <form [formGroup]="customInput.control">
               <div class="add-edit-trip--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
                 <div class="add-edit-trip--text-label">
