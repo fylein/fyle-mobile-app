@@ -132,8 +132,14 @@ export class MyAddEditTripPage implements OnInit {
         await addExpensePopover.present();
         const { data } = await addExpensePopover.onDidDismiss();
         if (data && data.continue) {
-          console.log('this.fg.value ->', this.fg.value);
-          this.submitTripRequest(this.fg.value);
+          this.customFields$.pipe(
+            take(1)
+          ).subscribe(customFields => {
+            this.fg.value.custom_field_values = customFields.map(field => {
+              return field.control.value;
+            });
+            this.submitTripRequest(this.fg.value);
+          });
         }
       }
     } else {
@@ -192,7 +198,6 @@ export class MyAddEditTripPage implements OnInit {
       }).pipe(
         map(res => {
           const tripRequest: any = res.tripRequest;
-
           const trp = {
             ...tripRequest,
             custom_field_values: formValue.custom_field_values,
@@ -335,10 +340,6 @@ export class MyAddEditTripPage implements OnInit {
     return this.customFieldValues;
   }
 
-  debug(data) {
-    console.log('\n\n\n data ->', data);
-  }
-
   ngOnInit() {
 
     const id = this.activatedRoute.snapshot.params.id;
@@ -417,7 +418,8 @@ export class MyAddEditTripPage implements OnInit {
           }
           return customField;
         });
-      })
+      }),
+      shareReplay(1)
     );
 
     this.intializeDefaults();
@@ -588,7 +590,6 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     this.fg.valueChanges.subscribe(formValue => {
-      console.log('something changed ->', formValue);
       this.refreshTrips$.next();
       if (formValue.tripType === 'MULTI_CITY') {
         if (formValue.cities.length > 1) {
