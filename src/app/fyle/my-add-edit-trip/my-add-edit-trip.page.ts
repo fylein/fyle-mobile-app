@@ -442,10 +442,13 @@ export class MyAddEditTripPage implements OnInit {
             this.tripRequestsService.getHotelRequests(id),
             this.tripRequestsService.getTransportationRequests(id),
             this.tripRequestsService.getAdvanceRequests(id),
+            this.tripRequestsService.getActions(id)
           ]);
         }),
         take(1),
-        map(([tripRequest, selectedProject, hotelRequest, transportRequest, advanceRequest]) => {
+        map(([tripRequest, selectedProject, hotelRequest, transportRequest, advanceRequest, actions]) => {
+
+          this.tripActions = actions;
 
           tripRequest.traveller_details.forEach(traveller => {
             this.setTripRequestObject(traveller.name, traveller.phone_number);

@@ -204,22 +204,25 @@
       <div>
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
-            Request Transportation
-          </label>
-        </div>
-        <div class="add-edit-trip--other-requests">
-          <label>
             <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
             Request Hotel
           </label>
         </div>
+
+        <div class="add-edit-trip--other-requests">
+          <label>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
+            Request Transportation
+          </label>
+        </div>
+
         <div class="add-edit-trip--other-requests">
           <label>
             <mat-checkbox color="primary" [disabled]="mode === 'edit'" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
             Request Advance
           </label>
         </div>
+
       </div>
     </div>
   </form>
@@ -229,7 +232,7 @@
   <ion-toolbar mode="md">
     <div class="add-edit-trip--cta-block">
       <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
-        <ion-button *ngIf="mode !== 'edit'" (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button *ngIf="tripActions?.can_save && !((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
         <ion-button (click)="onSubmit()" class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
       </div>
       <div *ngIf="((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" class="add-edit-trip--cta-container">

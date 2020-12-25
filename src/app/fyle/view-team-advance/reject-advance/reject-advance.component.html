@@ -37,8 +37,8 @@
   </div>
 
   <div class="reject--buttons">
-    <button [disabled]="textInput.valid" class="reject--button" mat-flat-button color="primary" (click)="reject($event)">
-      Reject
+    <button [disabled]="!(rejectReason.trim().length > 0)" class="reject--button" mat-flat-button color="primary" (click)="reject($event)">
+      Reject Advance
     </button>
   </div>
 </div>
