@@ -9,11 +9,13 @@
       line-height: 1.5;
       white-space: nowrap;
       min-width: 120px;
+      &__invalid {
+        color: red;
+      }
     }
-  
+
     &--label {
       display: flex;
       align-items: center;
     }
   }
-  

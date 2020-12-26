@@ -127,26 +127,29 @@
         </div>
       </div>
 
-      <div class="view-trip--header">
-        Additional Information
-      </div>
-      <div class="view-trip--card">
-        <div *ngFor="let customField of tripRequest.trp_custom_field_values" class="view-trip--element">
-          <div class="view-trip--element-label">
-            {{customField.name}}
-          </div>
-          <div *ngIf="customField.type === 'DATE'" class="view-trip--element-value">
-            {{customField.value | date: 'dd, MMM yyyy'}}
-          </div>
-          <div *ngIf="customField.type === 'BOOLEAN'" class="view-trip--element-value">
-            {{customField.value ? 'Yes' : 'No'}}
-          </div>
-          <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'" class="view-trip--element-value">
-            {{customField?.value?.display || customField.value || '-'}}
-          </div>
-
+      <ng-container *ngIf="tripRequest.trp_custom_field_values.length > 0">
+        <div class="view-trip--header">
+          Additional Information
         </div>
-      </div>
+        <div class="view-trip--card">
+          <div *ngFor="let customField of tripRequest.trp_custom_field_values" class="view-trip--element">
+            <div class="view-trip--element-label">
+              {{customField.name}}
+            </div>
+            <div *ngIf="customField.type === 'DATE'" class="view-trip--element-value">
+              {{customField.value | date: 'dd, MMM yyyy'}}
+            </div>
+            <div *ngIf="customField.type === 'BOOLEAN'" class="view-trip--element-value">
+              {{customField.value ? 'Yes' : 'No'}}
+            </div>
+            <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'" class="view-trip--element-value">
+              {{customField?.value?.display || customField.value || '-'}}
+            </div>
+
+          </div>
+        </div>
+      </ng-container>
+
 
       <div class="view-trip--card" matRipple *ngIf="transportationRequests$|async as transportationRequests">
         <div class="view-trip--element view-trip--element__single"

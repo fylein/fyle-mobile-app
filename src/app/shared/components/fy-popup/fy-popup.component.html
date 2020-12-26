@@ -11,7 +11,7 @@
     <span [innerHTML]="config.message"></span>
   </div>
   <div class="fy-popup--buttons">
-    <button class="fy-popup--button" *ngIf="config.secondaryCta" mat-flat-button color="accent"
+    <button class="fy-popup--button fy-popup--secondary-cta" *ngIf="config.secondaryCta" mat-flat-button color="accent"
       (click)="secondaryCtaClicked()">
       {{config.secondaryCta.text}}
     </button>

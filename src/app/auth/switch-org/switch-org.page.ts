@@ -12,6 +12,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
+import {FreshChatService} from '../../core/services/fresh-chat.service';
 
 @Component({
   selector: 'app-swicth-org',

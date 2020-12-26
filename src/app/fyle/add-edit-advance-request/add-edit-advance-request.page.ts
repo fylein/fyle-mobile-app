@@ -39,6 +39,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   customFieldValues: any[];
   actions$: Observable<any>;
   id: string;
+  isProjectsVisible$: Observable<boolean>;
 
   constructor(
     private offlineService: OfflineService,
@@ -355,7 +356,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
       shareReplay()
     );
 
-
     const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {
         this.fg.patchValue({
@@ -412,6 +412,18 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
     this.projects$ = this.offlineService.getProjects();
 
+    this.isProjectsVisible$ = this.offlineService.getOrgSettings().pipe(
+      switchMap((orgSettings) => {
+        return iif(
+          () => orgSettings.advanced_projects.enable_individual_projects,
+          this.offlineService.getOrgUserSettings().pipe(
+            map((orgUserSettings: any) => orgUserSettings.project_ids || [])
+          ),
+          this.projects$
+        );
+      }),
+      map(projects => projects.length > 0)
+    );
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
       map((customFields: any[]) => {

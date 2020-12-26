@@ -226,6 +226,8 @@
 
   &--duplicates-box {
     background-color: #f3f5f8;
+    border: 0;
+    padding: 0;
   }
 
   &--duplicate-header {
@@ -233,6 +235,22 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  &--duplicate-info {
+    display: flex;
+    font-weight: 500;
+  }
+
+  &--duplicate-warning-icon {
+    color: #ffb25c;
+    margin-right: 5px;
+  }
+
+  &--duplicate-cta {
+    color: #387ef5;
+    text-decoration: underline;
+    font-weight: bold;
   }
 
   &--duplicate-sub-box {
@@ -309,9 +327,10 @@
   }
 
   &--duplicate-pointer-container {
-    position: sticky;
-    top: 60vh;
-    height: 0;
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
   }
 
   &--duplicate-pointer {

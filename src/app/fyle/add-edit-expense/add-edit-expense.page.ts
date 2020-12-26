@@ -113,6 +113,7 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1031,9 +1032,9 @@ export class AddEditExpensePage implements OnInit {
         project,
         category,
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
-        merchant: {
+        merchant: etxn.tx.vendor ? {
           display_name: etxn.tx.vendor
-        },
+        } : null,
         purpose: etxn.tx.purpose,
         report,
         taxValue: etxn.tx.tax,
@@ -1050,7 +1051,8 @@ export class AddEditExpensePage implements OnInit {
         duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
         billable: etxn.tx.billable,
         custom_inputs: customInputValues,
-        costCenter
+        costCenter,
+        hotel_is_breakfast_provided: etxn.tx.hotel_is_breakfast_provided
       }, {
         emitEvent: false
       });
@@ -1139,6 +1141,7 @@ export class AddEditExpensePage implements OnInit {
             })
           );
         }),
+        tap(console.log),
         shareReplay(1)
       );
   }
@@ -1170,7 +1173,8 @@ export class AddEditExpensePage implements OnInit {
           }
         }
         return tfcMap;
-      })
+      }),
+      tap(console.log)
     );
 
     this.txnFields$.pipe(
@@ -1212,7 +1216,11 @@ export class AddEditExpensePage implements OnInit {
         const control = keyToControlMap[txnFieldKey];
         if (txnFields[txnFieldKey].mandatory) {
           if (txnFieldKey === 'vendor_id') {
-            control.setValidators(Validators.compose([isConnected ? Validators.required : null, this.merchantValidator]));
+            if (isConnected) {
+              control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
+            } else {
+              control.setValidators(Validators.compose([ this.merchantValidator]));
+            }
           } else if ([
             'location1',
             'location2',
@@ -1233,8 +1241,7 @@ export class AddEditExpensePage implements OnInit {
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
-        }
-        else {
+        } else {
           if (txnFieldKey === 'vendor_id') {
             control.setValidators(this.merchantValidator);
           }
@@ -1423,7 +1430,8 @@ export class AddEditExpensePage implements OnInit {
       add_to_new_report: [],
       duplicate_detection_reason: [],
       billable: [],
-      costCenter: []
+      costCenter: [],
+      hotel_is_breakfast_provided: []
     });
 
     this.fg.valueChanges.subscribe(console.log);
@@ -1471,7 +1479,7 @@ export class AddEditExpensePage implements OnInit {
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
       isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
-    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled})=> {
+    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
       if (!isIndividualProjectsEnabled) {
         return true;
       } else {
@@ -1557,7 +1565,6 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() => {
         return this.etxn$;
       }),
-      tap(cccExp => console.log({ cccExp })),
       filter(etxn => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
       switchMap(etxn => {
         return this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(map(splitExpenses => {
@@ -1675,6 +1682,18 @@ export class AddEditExpensePage implements OnInit {
             this.fg.value.location_1,
             this.fg.value.location_2
           ];
+        } else if (this.fg.value.location_1) {
+          locations = [
+            this.fg.value.location_1
+          ];
+        }
+
+        const costCenter: any = {};
+
+        if (this.fg.value.costCenter) {
+          costCenter.cost_center_id = this.fg.value.costCenter.id;
+          costCenter.cost_center_name = this.fg.value.costCenter.name;
+          costCenter.cost_center_code = this.fg.value.costCenter.code;
         }
 
         return {
@@ -1706,7 +1725,9 @@ export class AddEditExpensePage implements OnInit {
             train_travel_class: this.fg.value.train_travel_class,
             bus_travel_class: this.fg.value.bus_travel_class,
             distance: this.fg.value.distance,
-            distance_unit: this.fg.value.distance_unit
+            distance_unit: this.fg.value.distance_unit,
+            hotel_is_breakfast_provided: this.fg.value.hotel_is_breakfast_provided,
+            ...costCenter
           },
           ou: etxn.ou,
           dataUrls: [].concat(this.newExpenseDataUrls)
@@ -1780,7 +1801,8 @@ export class AddEditExpensePage implements OnInit {
             value: this.fg.value.custom_inputs[i].value
           };
         });
-      })
+      }),
+      tap(console.log)
     );
   }
 
@@ -2485,6 +2507,19 @@ export class AddEditExpensePage implements OnInit {
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
         }
       });
+    }
+  }
+
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
     }
   }
 }

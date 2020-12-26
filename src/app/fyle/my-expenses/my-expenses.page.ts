@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin } from 'rxjs';
+import {Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, EMPTY} from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, take } from 'rxjs/operators';
+import {map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, take, tap, catchError} from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
 import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
@@ -256,6 +256,7 @@ export class MyExpensesPage implements OnInit {
 
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
+      tap(count => console.log({ count })),
       shareReplay()
     );
 
@@ -292,6 +293,7 @@ export class MyExpensesPage implements OnInit {
           scalar: true,
           ...queryParams
         }).pipe(
+          catchError(err => EMPTY),
           map(stats => {
             const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
             return count && count.function_value;

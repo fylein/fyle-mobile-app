@@ -34,17 +34,17 @@ $details-color: #ababab;
 
   &--buttons {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     padding: 16px;
   }
 
   &--button {
-    width: 100%;
     min-height: 45px;
     height: 48px;
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 1.8px;
+    width: 100%;
   }
 
   &--primary-cta {
@@ -55,6 +55,11 @@ $details-color: #ababab;
       min-height: 47px;
     }
   }
+
+  &--secondary-cta {
+    margin-right: 16px;
+  }
+
 
   &--redirect {
     text-decoration: none;
