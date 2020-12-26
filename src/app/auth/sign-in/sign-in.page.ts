@@ -4,7 +4,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { throwError } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
-import { shareReplay, catchError, filter, finalize, tap, switchMap } from 'rxjs/operators';
+import { shareReplay, catchError, filter, finalize, switchMap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -159,7 +159,8 @@ export class SignInPage implements OnInit {
   }
 
   googleSignIn() {
-    this.googleAuthService.login().then(data => {
+    this.googleAuthService.login().then(async data => {
+      await this.loaderService.showLoader();
       const googleSignIn$ = this.routerAuthService.googleSignin(data.accessToken).pipe(
         catchError(err => {
           this.handleError(err);
@@ -167,6 +168,9 @@ export class SignInPage implements OnInit {
         }),
         switchMap((res) => {
           return this.authService.newRefreshToken(res.refresh_token);
+        }),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
         })
       );
 
