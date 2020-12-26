@@ -1,8 +1,8 @@
 .view-advance-request {
 
   &--card {
-    padding: 12px;
-    margin: 12px;
+    padding: 0 16px;
+    margin: 16px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
   }
@@ -12,7 +12,7 @@
   }
 
   &--attachment-currency-container{
-    margin: 12px;
+    margin: 12px 16px;
     display: flex;
   }
 
@@ -114,15 +114,15 @@
     font-size: 24px;
     font-weight: 500;
     border: 0;
+    background: transparent;
   }
 
 
 
   &--element {
     display: flex;
-    margin: 12px;
     border-bottom: 1px solid #e0e0e0;
-    padding: 10px 0;
+    padding: 16px 0;
 
     &:first-child {
       margin-top: 0;
@@ -148,9 +148,12 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
+    color: #444444;
+    overflow: auto;
   }
 
   &--common-action-block {
+    padding: 16px 0;
     display: flex;
     align-items: center;
     
@@ -190,13 +193,6 @@
 
   &--primary-cta {
     margin: 12px;
-  }
-
-  &--card {
-    padding: 12px;
-    margin: 12px;
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
   }
 
 }

@@ -62,9 +62,6 @@ export class TripRequestsService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: tripRequestsCacheBuster$
-  })
   getTrip(id: string): Observable<ExtendedTripRequest> {
     return this.apiv2Service.get('/trip_requests', {
       params: {
@@ -86,9 +83,7 @@ export class TripRequestsService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: tripRequestsCacheBuster$
-  })
+
   get(tripRequestId) {
     return this.apiService.get('/trip_requests/' + tripRequestId);
   }

@@ -200,16 +200,18 @@
   <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_currency_settings?.enabled">
     <div class="my-profile--card-title">Currency Preference</div>
     <div class="my-profile--cards-content my-profile--toggle-container">
-      <div class="my-profile--toggle-label"> Currency Info </div>
+      <div class="my-profile--toggle-label"> 
+        Choose your preferred currency for creating expenses, trips and advance requests.
+      </div>
       <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
         [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
     </div>
-    <div>
-      Select Currency
-      <div (click)="openCurrenySelectionModal()">
-        <div *ngIf="preferredCurrency$|async as preferredCurrency">
-          {{preferredCurrency.id}} - {{preferredCurrency.value}}
-        </div>
+    <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency">
+      <div class="my-profile--card-title my-profile--card-title__lite">
+        Select Currency
+      </div>
+      <div class="my-profile--notifications-arrow my-profile--notifications-arrow__lite">
+        <mat-icon>keyboard_arrow_right</mat-icon>
       </div>
     </div>
   </div>

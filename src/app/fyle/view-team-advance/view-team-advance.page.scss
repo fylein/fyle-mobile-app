@@ -8,26 +8,26 @@
   }
 
   &--card {
-    padding: 12px;
-    margin: 12px;
+    padding: 0 16px;
+    margin: 16px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
 
     &__modified-padding {
-      padding: 4px 12px;
+      padding: 0 16px;
     }
 
     &__edit {
-      padding: 8px 12px
+      padding: 8px 16px
     }
   }
 
   &--content-header {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   &--attachment-currency-container{
-    margin: 12px;
+    margin: 0 16px;
     display: flex;
   }
 
@@ -136,9 +136,8 @@
 
   &--element {
     display: flex;
-    margin: 12px;
     border-bottom: 1px solid #e0e0e0;
-    padding: 10px 0;
+    padding: 16px 0;
 
     &:first-child {
       margin-top: 0;
@@ -164,11 +163,12 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
+    color: #444444;
   }
 
   &--common-action-block {
     display: flex;
-    padding: 4px 0;
+    padding: 16px 0;
 
     p {
       display: inline-block;
@@ -192,5 +192,6 @@
 
   &--primary-cta {
     margin: 12px;
+    height: 48px;
   }
 }

@@ -126,8 +126,6 @@ export class OtherRequestsComponent implements OnInit {
       this.hotelRequestCustomFieldValues = customFields;
       return this.hotelRequestCustomFieldValues;
     }
-
-    
   }
 
   addCustomFields(requestType, index) {
@@ -543,6 +541,12 @@ export class OtherRequestsComponent implements OnInit {
     this.hotelRequestCustomFieldValues = [];
     this.transportRequestCustomFieldValues = [];
 
+    this.otherDetailsForm = new FormGroup({
+      hotelDetails: new FormArray([]),
+      transportDetails: new FormArray([]),
+      advanceDetails: new FormArray([]),
+    });
+
     this.minDate = this.fgValues.startDate;
     this.maxDate = this.fgValues.endDate;
 
@@ -666,12 +670,6 @@ export class OtherRequestsComponent implements OnInit {
 
     fork$.subscribe(noop);
 
-    this.otherDetailsForm = new FormGroup({
-      hotelDetails: new FormArray([]),
-      transportDetails: new FormArray([]),
-      advanceDetails: new FormArray([]),
-    });
-
     if (this.id) {
       this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id).pipe(shareReplay());
       this.transportationRequest$ = this.tripRequestsService.getTransportationRequests(this.id).pipe(shareReplay());
@@ -748,7 +746,6 @@ export class OtherRequestsComponent implements OnInit {
           this.transportDetails.clear();
 
           transportationRequest.forEach((request, index) => {
-            // const onwardDt = this.fgValues.cities[index].onward_dt;
             const details = this.formBuilder.group({
               assignedAt: [request.tr.created_at],
               currency: [request.tr.currency],
@@ -774,7 +771,6 @@ export class OtherRequestsComponent implements OnInit {
               custom.push(customFields);
             });
             this.transportDetails.push(details);
-            // this.addCustomFields('transport', index);
           });
         }
       });

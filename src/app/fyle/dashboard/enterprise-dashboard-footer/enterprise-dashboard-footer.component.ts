@@ -105,12 +105,14 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
         trips: {
           name: 'Request new trip',
           icon: 'add-trip',
-          type: 'trip'
+          type: 'trip',
+          route: ['/', 'enterprise', 'my_add_edit_trip']
         },
         advances: {
           name: 'Request new advance',
           icon: 'add-advance',
-          type: 'advance'
+          type: 'advance',
+          route: ['/', 'enterprise', 'add_edit_advance_request']
         }
       };
       this.ctaList = this.dashboardList.filter((element) => {

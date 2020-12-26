@@ -1,20 +1,25 @@
 .view-trip {
   &--toolbar {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #e0e0e0;
   }
 
   &--header {
     margin: 12px;
   }
 
+  &--edit {
+    color: #0077ee;
+  }
+
   &--card {
-    padding: 12px;
-    margin: 12px;
+    padding: 0 16px;
+    margin: 16px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
   }
 
   &--card-action {
+    padding: 16px 0;
     display: flex;
     align-items: center;
   }
@@ -35,7 +40,7 @@
 
   &--element {
     display: flex;
-    margin: 12px;
+    // margin: 12px;
     border-bottom: 1px solid #e0e0e0;
     padding: 16px 0;
 
@@ -69,6 +74,7 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
+    color: #444444;
   }
 
   &--primary-cta {
