@@ -432,4 +432,11 @@ export class AdvanceRequestService {
   reject(advanceRequestId, addStatusPayload) {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/reject', addStatusPayload);
   }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  destroyAdvanceRequestsCacheBuster() {
+    return of(null);
+  }
 }

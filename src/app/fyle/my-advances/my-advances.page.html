@@ -20,8 +20,8 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="myAdvancerequests$|async as myAdvancerequest">
-      <ng-container *ngIf="myAdvancerequest?.length === 0">
+    <ng-container *ngIf="advances$|async as advances">
+      <ng-container *ngIf="advances?.length === 0">
         <div class="my-advances--zero-state">
           <app-fy-zero-state [image]="'../../../assets/images/zero-states/expenses.svg'"
             [header]="'This is the home to all your Advance Requests'"
@@ -37,15 +37,10 @@
       </ng-container>
     </ng-container>
 
-    <div *ngFor="let myAdvancerequest of myAdvancerequests$ | async">
-      <app-my-advances-card [advanceRequest]=myAdvancerequest (advanceClick)="onAdvanceClick($event)">
+    <div *ngFor="let advances of advances$ | async">
+      <app-my-advances-card [advanceRequest]=advances (advanceClick)="onAdvanceClick($event)">
       </app-my-advances-card>
     </div>
-
-    <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
-      <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
-      </ion-infinite-scroll-content>
-    </ion-infinite-scroll>
 
   </div>
 </ion-content>
