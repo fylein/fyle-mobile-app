@@ -63,12 +63,12 @@ export class MyAdvancesPage implements OnInit {
       reduce((acc, curr) => {
         return acc.concat(curr);
       }),
-    )
+    );
 
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
       switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
+        return from(this.loaderService.showLoader('Retriving Advance')).pipe(
           switchMap(() => {
             return forkJoin({
               myAdvancerequests$: this.myAdvancerequests$,
@@ -136,11 +136,11 @@ export class MyAdvancesPage implements OnInit {
       route = 'my_view_advance';
     } else {
       id = clickedAdvance.advanceRequest.areq_id;
-      route = 'my_view_advance_request'
+      route = 'my_view_advance_request';
     }
 
     if ((['draft', 'pulledBack', 'inquiry']).indexOf(clickedAdvance.internalState.state) > -1) {
-      route = 'add_edit_advance_request';
+      route = 'my_view_advance_request';
     }
 
     this.router.navigate(['/', 'enterprise', route, { id }]);
