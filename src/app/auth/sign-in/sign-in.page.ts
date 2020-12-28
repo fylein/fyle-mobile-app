@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { throwError } from 'rxjs';
+import { from, throwError } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
-import { shareReplay, catchError, filter, finalize, switchMap } from 'rxjs/operators';
+import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -159,26 +159,33 @@ export class SignInPage implements OnInit {
   }
 
   googleSignIn() {
-    this.googleAuthService.login().then(async data => {
-      await this.loaderService.showLoader();
-      const googleSignIn$ = this.routerAuthService.googleSignin(data.accessToken).pipe(
-        catchError(err => {
-          this.handleError(err);
-          return throwError(err);
-        }),
-        switchMap((res) => {
-          return this.authService.newRefreshToken(res.refresh_token);
-        }),
-        finalize(async () => {
-          await this.loaderService.hideLoader();
-        })
-      );
-
-      googleSignIn$.subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch-org', { choose: true }]);
-      });
+    from(this.googleAuthService.login()).pipe(
+      concatMap((googleAuthResponse) => {
+        return from(this.loaderService.showLoader('Please wait...', 10000)).pipe(
+          map(() => {
+            return googleAuthResponse;
+          }
+        ));
+      }),
+      switchMap((googleAuthResponse) => {
+        return this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
+          catchError(err => {
+            this.handleError(err);
+            return throwError(err);
+          }),
+          switchMap((res) => {
+            return this.authService.newRefreshToken(res.refresh_token);
+          }),
+        )
+      }),
+      finalize(() => {
+        from(this.loaderService.hideLoader());
+      })
+    ).subscribe(() => {
+      this.router.navigate(['/', 'auth', 'switch-org', { choose: true }]);
     });
   }
+
 
   async ngOnInit() {
     const presentEmail = this.activatedRoute.snapshot.params.email;
