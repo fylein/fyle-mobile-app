@@ -1,6 +1,5 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Platform, MenuController, AlertController } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { pipe, forkJoin, from, iif, of, concat, Observable } from 'rxjs';
 import {map, switchMap, shareReplay, tap} from 'rxjs/operators';
@@ -25,6 +24,7 @@ import { NetworkService } from './core/services/network.service';
 import { Plugins } from '@capacitor/core';
 import { FreshChatService } from './core/services/fresh-chat.service';
 const { App } = Plugins;
+const { SplashScreen } = Plugins;
 
 @Component({
   selector: 'app-root',
@@ -42,7 +42,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     private platform: Platform,
-    private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private router: Router,
     private authService: AuthService,
@@ -95,7 +94,7 @@ export class AppComponent implements OnInit {
   initializeApp() {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
-      this.splashScreen.hide();
+      SplashScreen.hide();
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
