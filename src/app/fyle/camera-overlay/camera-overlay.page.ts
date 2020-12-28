@@ -30,6 +30,7 @@ export class CameraOverlayPage implements OnInit {
   lastImage: string;
   captureCount: number;
   homeCurrency: string;
+  activeFlashMode: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -54,7 +55,6 @@ export class CameraOverlayPage implements OnInit {
       };
 
       CameraPreview.start(cameraPreviewOptions);
-      
     }
   }
 
@@ -201,16 +201,41 @@ export class CameraOverlayPage implements OnInit {
     this.loaderService.hideLoader();
   }
 
+  toggleFlashMode() {
+    let nextActiveFlashMode = 'on';
+    if (this.activeFlashMode === 'on') {
+      nextActiveFlashMode = 'off';
+    }
+
+    CameraPreview.setFlashMode({flashMode: nextActiveFlashMode});
+    this.activeFlashMode = nextActiveFlashMode;
+  }
+
+  getFlashModes() {
+    CameraPreview.getSupportedFlashModes().then(flashModes => {
+      if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
+        this.activeFlashMode = 'off';
+        CameraPreview.setFlashMode({flashMode: this.activeFlashMode});
+      }
+    })
+  }
+
   ionViewWillEnter() {
     this.captureCount = 0;
     this.isBulkMode = false;
     this.isCameraShown = false;
     this.setUpAndStartCamera();
+    this.activeFlashMode = null;
     this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
 
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
     });
+
+    setTimeout(() => {
+      this.getFlashModes();
+    }, 500);
+
   }
 
   ngOnInit() {

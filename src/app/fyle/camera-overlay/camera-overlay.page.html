@@ -23,7 +23,7 @@
         <div class="camera-overlay--capture-btn" (click)="onCapture()"></div>
       </div>
 
-      <mat-icon class="camera-overlay--flash-active">flash_on</mat-icon>
+      <mat-icon class="camera-overlay--flash-active" *ngIf="activeFlashMode" (click)="toggleFlashMode()">{{(activeFlashMode === 'on') ? 'flash_on' : 'flash_off'}}</mat-icon>
   
       <div class="camera-overlay--finish">
         <span *ngIf="!isBulkMode" (click)="finishProcess()">Cancel</span>
