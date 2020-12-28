@@ -69,11 +69,13 @@ To make google login work in your physical device you need to do some extra acti
   - You can get REVERSED_CLIENT_ID value from GoogleService-Info.plist, this value is something like `com.googleusercontent.apps.somethingRandomHash`
 
 ## Camera Overlay
-  - Add these lines in MainActivity.java
+  - Add these lines in `MainActivity.java`
     - import com.ahm.capacitor.camera.preview.CameraPreview; (After line -> package com.fylehq.production;)
     - add(CameraPreview.class); (After this line -> // Ex: add(TotallyAwesomePlugin.class);)
-  - Add these lines in AndroidManifest.xml 
+  - Add these lines in `AndroidManifest.xml`
     - android:usesCleartextTraffic="true" (After this line -> android:theme="@style/AppTheme")
+  - Remove this line from `CameraPreview.java` file
+    - Manifest.permission.RECORD_AUDIO
 
 ## Imagepicker issue
   - If you get issue in the file `MultiImageChooserActivaty.java` something like `android.support.v7.app.ActionBar`, please do the following
@@ -101,4 +103,5 @@ To make google login work in your physical device you need to do some extra acti
 
   **iOS**
   - $cordova-res ios --skip-config --copy
+
 
