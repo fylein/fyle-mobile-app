@@ -1,25 +1,16 @@
 <div class="get-started-popup--container" *ngIf="gettingStartedImagesAndInfos$ | async as gettingStartedImagesAndInfos">
-
-
-<ion-slides>
-  <ion-slide *ngFor="let gettingStartedImagesAndInfo of gettingStartedImagesAndInfos">
-    <div>
-      <div class="banner-image">
-        <img [src]="gettingStartedImagesAndInfo.src" class="get-started-popup--image" />
-      </div>
-      <!-- <h4 class="gs-heading">{{gettingStartedImagesAndInfo.heading}}</h4>
-      <p class="gs-info">{{gettingStartedImagesAndInfo.info}}</p>
-      <div class="footer">
-        <button class="btn btn-primary btn-getting-started" ng-click="vm.getStartedModal.hide()">Let's Do This!</button>
-      </div> -->
+  <ion-slides>
+    <ion-slide *ngFor="let gettingStartedImagesAndInfo of gettingStartedImagesAndInfos">
       <div>
-        <div class="get-started-popup--heading">{{gettingStartedImagesAndInfo.heading}}</div>
-        <div class="get-started-popup--info">{{gettingStartedImagesAndInfo.info}}</div>
-        <button class="get-started-popup--button" (click)="close()">Let's Do This!</button>
+        <div class="banner-image">
+          <img [src]="gettingStartedImagesAndInfo.src" class="get-started-popup--image" />
+        </div>
+        <div>
+          <div class="get-started-popup--heading">{{gettingStartedImagesAndInfo.heading}}</div>
+          <div class="get-started-popup--info">{{gettingStartedImagesAndInfo.info}}</div>
+          <button class="get-started-popup--button" (click)="close()">Let's Do This!</button>
+        </div>
       </div>
-    </div> 
-    
-  </ion-slide>
-
-</ion-slides>
+    </ion-slide>
+  </ion-slides>
 </div>

@@ -3,12 +3,11 @@ import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { forkJoin, from, Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { shareReplay } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
-import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,8 +28,7 @@ export class DashboardPage implements OnInit {
     private offlineService: OfflineService,
     private transactionService: TransactionService,
     private storageService: StorageService,
-    private popoverController: PopoverController,
-    private authService: AuthService
+    private popoverController: PopoverController
   ) { }
 
 
