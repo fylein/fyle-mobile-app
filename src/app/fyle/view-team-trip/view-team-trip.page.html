@@ -208,8 +208,9 @@
 
       <div class="trip-request--card">
         <div class="trip-request--card-action">
-          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments">
-          </app-comments>
+          <div class="trip-request--element trip-request--element_action">
+            <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>
+          </div>
         </div>
       </div>
     </div>

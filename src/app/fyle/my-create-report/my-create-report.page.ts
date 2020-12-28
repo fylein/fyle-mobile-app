@@ -83,7 +83,7 @@ export class MyCreateReportPage implements OnInit {
       };
       const etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
       const txnIds = etxns.map(etxn => etxn.tx_id);
-      this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + obj.tx_amount, 0);
+      this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
 
       if (action === 'draft') {
         this.loaderService.showLoader('Saving Report...');
@@ -133,7 +133,7 @@ export class MyCreateReportPage implements OnInit {
   getReportTitle() {
     const etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
     const txnIds = etxns.map(etxn => etxn.tx_id);
-    this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + obj.tx_amount, 0);
+    this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
     this.selectedTotalTxns = txnIds.length;
 
     if (txnIds.length > 0) {
