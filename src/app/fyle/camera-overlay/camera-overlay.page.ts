@@ -160,7 +160,11 @@ export class CameraOverlayPage implements OnInit {
 
   finishProcess() {
     this.stopCamera();
-    this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    if (this.isBulkMode && this.captureCount > 0) {
+      this.showGalleryUploadSuccessPopup(this.captureCount);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    }
   }
 
   retake() {
