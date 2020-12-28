@@ -79,6 +79,7 @@ export class MyAddEditTripPage implements OnInit {
     await addExpensePopover.present();
     const { data } = await addExpensePopover.onDidDismiss();
     if (data && data.continue) {
+      this.fg.reset();
       this.router.navigate(['/', 'enterprise', 'my_trips']);
     }
   }
@@ -381,7 +382,11 @@ export class MyAddEditTripPage implements OnInit {
 
     this.maxDate = this.fg.controls.endDate.value;
 
-    this.customFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
+    this.customFields$ = this.refreshTrips$.pipe(
+      startWith(0),
+      concatMap(() => {
+        return this.tripRequestCustomFieldsService.getAll();
+      }),
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
@@ -502,6 +507,7 @@ export class MyAddEditTripPage implements OnInit {
         can_save: true,
         can_submit: true
       };
+      this.refreshTrips$.next();
     }
 
     this.eou$ = from(this.authService.getEou());
@@ -520,9 +526,7 @@ export class MyAddEditTripPage implements OnInit {
       })
     );
 
-    if (this.mode === 'edit') {
-
-    } else if (this.mode === 'add') {
+    if (this.mode === 'add') {
       this.eou$.subscribe(res => {
         this.setTripRequestObject(res.us.full_name, res.ou.mobile);
       });
@@ -546,12 +550,12 @@ export class MyAddEditTripPage implements OnInit {
       }
     });
 
-    this.isTripTypeOneWay$.subscribe(oneWay => {
-      if (oneWay) {
-        this.cities.clear();
-        this.addDefaultCity();
-      }
-    });
+    // this.isTripTypeOneWay$.subscribe(oneWay => {
+    //   if (oneWay) {
+    //     this.cities.clear();
+    //     this.addDefaultCity();
+    //   }
+    // });
 
     this.isTransportationRequested$ = this.fg.controls.transportationRequest.valueChanges.pipe(
       map(res => {
@@ -579,27 +583,40 @@ export class MyAddEditTripPage implements OnInit {
     this.projects$ = this.offlineService.getProjects();
 
     this.fg.controls.tripType.valueChanges.subscribe(res => {
+      this.refreshTrips$.next();
       if (res === 'ROUND') {
-        const firstCity = this.cities.at(0);
+        const firstCity = this.cities.value[0];
         this.cities.clear();
         const intialCity = this.formBuilder.group({
-          from_city: [firstCity.value.fromCity, Validators.required],
-          to_city: [firstCity.value.toCity, Validators.required],
-          onward_dt: [firstCity.value.onward_dt, Validators.required],
+          from_city: [firstCity.from_city, Validators.required],
+          to_city: [firstCity.to_city, Validators.required],
+          onward_dt: [firstCity.onward_dt, Validators.required],
           return_date: [null, Validators.required]
+        });
+        this.cities.push(intialCity);
+      }
+
+      if (res === 'ONE_WAY') {
+        const firstCity = this.cities.value[0];
+        this.cities.clear();
+        const intialCity = this.formBuilder.group({
+          from_city: [firstCity.from_city, Validators.required],
+          to_city: [firstCity.to_city, Validators.required],
+          onward_dt: [firstCity.onward_dt, Validators.required]
         });
         this.cities.push(intialCity);
       }
     });
 
     this.fg.valueChanges.subscribe(formValue => {
-      this.refreshTrips$.next();
       if (formValue.tripType === 'MULTI_CITY') {
         if (formValue.cities.length > 1) {
           this.minDate = formValue.cities[formValue.cities.length - 2].onward_dt;
         }
       }
     });
+
+    this.refreshTrips$.next();
   }
 
 }
