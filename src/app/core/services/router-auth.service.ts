@@ -135,15 +135,13 @@ export class RouterAuthService {
     }).pipe(
       switchMap(res => {
         return from(this.handleSignInResponse(res)).pipe(
-          map(()=> res)
-        )
+          map(() => res)
+        );
       })
     );
   }
 
   resetPassword(refreshToken: string, newPassword: string) {
-    console.log(refreshToken);
-    console.log(newPassword);
     return this.routerApiService.post('/auth/reset_password', {
       refresh_token: refreshToken,
       password: newPassword

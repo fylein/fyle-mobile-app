@@ -1,31 +1,29 @@
 import {Component, OnInit, EventEmitter, NgZone} from '@angular/core';
-import { Platform, MenuController, AlertController } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { pipe, forkJoin, from, iif, of, concat, Observable } from 'rxjs';
-import {map, switchMap, shareReplay, tap} from 'rxjs/operators';
-import {DefaultUrlSerializer, Router} from '@angular/router';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { UserEventService } from 'src/app/core/services/user-event.service';
-import { PermissionsService } from 'src/app/core/services/permissions.service';
-import { DeviceService } from 'src/app/core/services/device.service';
-import { AppVersionService } from './core/services/app-version.service';
+import {Platform, MenuController, AlertController} from '@ionic/angular';
+import {SplashScreen} from '@ionic-native/splash-screen/ngx';
+import {StatusBar} from '@ionic-native/status-bar/ngx';
+import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
+import {map, switchMap, shareReplay} from 'rxjs/operators';
+import { Router} from '@angular/router';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {OrgUserService} from 'src/app/core/services/org-user.service';
+import {UserEventService} from 'src/app/core/services/user-event.service';
+import {PermissionsService} from 'src/app/core/services/permissions.service';
+import {DeviceService} from 'src/app/core/services/device.service';
+import {AppVersionService} from './core/services/app-version.service';
 
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { Org } from 'src/app/core/models/org.model';
-import { environment } from 'src/environments/environment';
-import { RouterAuthService } from './core/services/router-auth.service';
-import { GlobalCacheConfig, globalCacheBusterNotifier } from 'ts-cacheable';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
-import { NetworkService } from './core/services/network.service';
-import { Plugins } from '@capacitor/core';
-import { FreshChatService } from './core/services/fresh-chat.service';
+import {environment} from 'src/environments/environment';
+import {RouterAuthService} from './core/services/router-auth.service';
+import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
+import {NetworkService} from './core/services/network.service';
+import {Plugins} from '@capacitor/core';
+import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
-const { App } = Plugins;
+
+const {App} = Plugins;
 
 @Component({
   selector: 'app-root',
@@ -96,18 +94,11 @@ export class AppComponent implements OnInit {
   }
 
   initializeApp() {
-    const url = 'https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p';
-    console.log();
-
     // tslint:disable-next-line:max-line-length
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
     App.addListener('appUrlOpen', (data) => {
       console.log(data);
       this.zone.run(() => {
-        // const slug = data.url.split('.app').pop();
-        // if (slug) {
-        //   this.router.navigateByUrl(slug);
-        // }
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
       });
     });
@@ -148,7 +139,7 @@ export class AppComponent implements OnInit {
       })
     ).subscribe((res: { message: string, supported: boolean }) => {
       if (!res.supported && environment.production) {
-        this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
+        this.router.navigate(['/', 'auth', 'app_version', {message: res.message}]);
       }
     });
   }
@@ -273,7 +264,7 @@ export class AppComponent implements OnInit {
             title: 'Switch to own account',
             isVisible: this.isSwitchedToDelegator,
             icon: 'fy-switch',
-            route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }]
+            route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}]
           },
           {
             title: 'Profile',
@@ -302,7 +293,10 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Live Chat',
-            isVisible: orgUserSettings && orgUserSettings.in_app_chat_settings && orgUserSettings.in_app_chat_settings.allowed && orgUserSettings.in_app_chat_settings.enabled,
+            isVisible: orgUserSettings &&
+              orgUserSettings.in_app_chat_settings &&
+              orgUserSettings.in_app_chat_settings.allowed &&
+              orgUserSettings.in_app_chat_settings.enabled,
             icon: 'fy-chat',
             openHelp: true
           },
@@ -316,7 +310,7 @@ export class AppComponent implements OnInit {
             title: 'Switch Accounts',
             isVisible: (orgs.length > 1),
             icon: 'fy-switch-new',
-            route: ['/', 'auth', 'switch_org', { choose: true }]
+            route: ['/', 'auth', 'switch_org', {choose: true}]
           },
         ];
       } else {
@@ -381,7 +375,7 @@ export class AppComponent implements OnInit {
             title: 'Switch to own account',
             isVisible: this.isSwitchedToDelegator,
             icon: 'fy-switch',
-            route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
+            route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}],
             disabled: true
           },
           {
@@ -414,7 +408,10 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Live Chat',
-            isVisible: orgUserSettings && orgUserSettings.in_app_chat_settings && orgUserSettings.in_app_chat_settings.allowed && orgUserSettings.in_app_chat_settings.enabled,
+            isVisible: orgUserSettings &&
+              orgUserSettings.in_app_chat_settings &&
+              orgUserSettings.in_app_chat_settings.allowed &&
+              orgUserSettings.in_app_chat_settings.enabled,
             icon: 'fy-chat',
             openHelp: true,
             disabled: true
@@ -430,7 +427,7 @@ export class AppComponent implements OnInit {
             title: 'Switch Accounts',
             isVisible: (orgs.length > 1),
             icon: 'fy-switch-new',
-            route: ['/', 'auth', 'switch_org', { choose: true }],
+            route: ['/', 'auth', 'switch_org', {choose: true}],
             disabled: true
           },
         ];
