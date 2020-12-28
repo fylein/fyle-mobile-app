@@ -149,7 +149,7 @@ export class TransactionService {
     return this.apiService.get('/etxns/stats', { params });
   }
 
-  getPaginatedETxncCount(params) {
+  getPaginatedETxncCount(params?) {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {

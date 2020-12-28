@@ -90,6 +90,17 @@ input:focus, textarea:focus{
   }
 }
 
+.get-started-popup {
+  .popover-wrapper {
+    .popover-content {
+      top: 25% !important;
+      left: 15% !important;
+      width: 280px;
+      background: #fff;
+    }
+  }
+}
+
 .split-expense-popover {
   .popover-wrapper {
     .popover-content {
