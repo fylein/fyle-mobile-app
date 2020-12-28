@@ -50,7 +50,7 @@ export class RouterAuthService {
   }
 
   async setClusterDomain(domain) {
-    
+
     this.apiService.setRoot(domain);
     this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
@@ -142,6 +142,8 @@ export class RouterAuthService {
   }
 
   resetPassword(refreshToken: string, newPassword: string) {
+    console.log(refreshToken);
+    console.log(newPassword);
     return this.routerApiService.post('/auth/reset_password', {
       refresh_token: refreshToken,
       password: newPassword

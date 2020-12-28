@@ -127,7 +127,7 @@
         </div>
       </div>
 
-      <ng-conatiner *ngIf="tripRequest.trp_custom_field_values.length > 0">
+      <ng-container *ngIf="tripRequest.trp_custom_field_values.length > 0">
         <div class="view-trip--header">
           Additional Information
         </div>
@@ -148,7 +148,7 @@
 
           </div>
         </div>
-      </ng-conatiner>
+      </ng-container>
 
 
       <div class="view-trip--card" matRipple *ngIf="transportationRequests$|async as transportationRequests">
@@ -185,13 +185,13 @@
           </div>
         </div>
       </div>
-      <!-- 
+      <!--
       <div class="element-container" ng-if="vm.actions.can_add_approver && vm.allApprovers.length">
         <enterprise-fy-approver-list name="tripsApproverList" class="element-block m-0" list="vm.allApprovers"
           on-selection="vm.selectedApprovers(email, comment)" required title="Choose Approvers" sub-title="approvers"
           from-source="trip"></enterprise-fy-approver-list>
       </div> -->
-    
+
       <div class="view-trip--card">
         <div class="view-trip--card-action">
           <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>

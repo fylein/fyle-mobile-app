@@ -1,10 +1,10 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import {Component, OnInit, EventEmitter, NgZone} from '@angular/core';
 import { Platform, MenuController, AlertController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { pipe, forkJoin, from, iif, of, concat, Observable } from 'rxjs';
 import {map, switchMap, shareReplay, tap} from 'rxjs/operators';
-import { Router } from '@angular/router';
+import {DefaultUrlSerializer, Router} from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -24,6 +24,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { NetworkService } from './core/services/network.service';
 import { Plugins } from '@capacitor/core';
 import { FreshChatService } from './core/services/fresh-chat.service';
+import {DeepLinkService} from './core/services/deep-link.service';
 const { App } = Plugins;
 
 @Component({
@@ -58,7 +59,9 @@ export class AppComponent implements OnInit {
     private domSanitizer: DomSanitizer,
     private networkService: NetworkService,
     private alertController: AlertController,
-    private freshchatService: FreshChatService
+    private freshchatService: FreshChatService,
+    private zone: NgZone,
+    private deepLinkService: DeepLinkService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -93,6 +96,22 @@ export class AppComponent implements OnInit {
   }
 
   initializeApp() {
+    const url = 'https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p';
+    console.log();
+
+    // tslint:disable-next-line:max-line-length
+    // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
+    App.addListener('appUrlOpen', (data) => {
+      console.log(data);
+      this.zone.run(() => {
+        // const slug = data.url.split('.app').pop();
+        // if (slug) {
+        //   this.router.navigateByUrl(slug);
+        // }
+        this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
+      });
+    });
+
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
@@ -110,7 +129,7 @@ export class AppComponent implements OnInit {
 
   redirect(route) {
     this.menuController.close();
-    if (route.indexOf('switch-org') > -1) {
+    if (route.indexOf('switch_org') > -1) {
       this.userEventService.clearCache();
       globalCacheBusterNotifier.next();
     }
@@ -297,7 +316,7 @@ export class AppComponent implements OnInit {
             title: 'Switch Accounts',
             isVisible: (orgs.length > 1),
             icon: 'fy-switch-new',
-            route: ['/', 'auth', 'switch-org', { choose: true }]
+            route: ['/', 'auth', 'switch_org', { choose: true }]
           },
         ];
       } else {
@@ -411,7 +430,7 @@ export class AppComponent implements OnInit {
             title: 'Switch Accounts',
             isVisible: (orgs.length > 1),
             icon: 'fy-switch-new',
-            route: ['/', 'auth', 'switch-org', { choose: true }],
+            route: ['/', 'auth', 'switch_org', { choose: true }],
             disabled: true
           },
         ];
@@ -444,7 +463,7 @@ export class AppComponent implements OnInit {
     });
 
     this.userEventService.onLogout(() => {
-      this.router.navigate(['/', 'auth', 'sign-in']);
+      this.router.navigate(['/', 'auth', 'sign_in']);
     });
 
     this.setupNetworkWatcher();
