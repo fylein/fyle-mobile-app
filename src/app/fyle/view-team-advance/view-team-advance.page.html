@@ -19,7 +19,6 @@
       <p class="view-advances--content-header">
         Advance Request
       </p>
-
     </div>
 
     <div class="view-advances--card">
@@ -37,7 +36,7 @@
           State
         </div>
         <div class="view-advances--element-value">
-          {{advanceRequest.areq_state}}
+          {{advanceRequest.areq_state | snakeCaseToSpaceCase}}
         </div>
       </div>
 
@@ -127,7 +126,7 @@
     </ng-container>
 
 
-    <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
+    <ng-container class="view-advances--card" *ngIf="activeApprovals$ | async as activeApprovals">
       <app-fy-apporver 
         [approverList]="getApproverEmails(activeApprovals)" 
         [id]="advanceRequest.areq_id"
