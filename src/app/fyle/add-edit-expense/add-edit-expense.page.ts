@@ -497,7 +497,7 @@ export class AddEditExpensePage implements OnInit {
         txn: JSON.stringify(res.tx),
         currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
         fileObjs: res.dataUrls, // Todo: Need to check passing array is enough or need to do JSON.stringify before
-        // selectedCCCTransaction: vm.selectedCCCTransaction
+        selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
       }]);
     });
 

@@ -35,6 +35,7 @@ export class SplitExpensePage implements OnInit {
   fileUrls: any[];
   maxDate: string;
   minDate: string;
+  selectedCCCTransaction: any;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -181,11 +182,19 @@ export class SplitExpensePage implements OnInit {
         concatMap(() => {
           return this.createAndLinkTxnsWithFiles(generatedSplitEtxn);
         }),
-        concatMap(() => {
-          return iif(
-            () => this.transaction.id,
-            this.transactionService.delete(this.transaction.id),
-            of(null));
+        concatMap((res) => {
+          let observables$ = [];
+          if (this.transaction.id) {
+            observables$.push(this.transactionService.delete(this.transaction.id))
+          }
+          if (this.transaction.corporate_credit_card_expense_group_id) {
+            observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id))
+          }
+
+          if (observables$.length === 0) {
+            observables$.push(of(true));
+          }
+          return forkJoin(observables$);
         }),
       ).subscribe(
         () => this.showSplitExpenseStatusPopup(true),
@@ -218,6 +227,7 @@ export class SplitExpensePage implements OnInit {
       this.splitType = this.activatedRoute.snapshot.params.splitType;
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
       this.fileUrls = this.activatedRoute.snapshot.params.fileObjs;
+      this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
 
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
