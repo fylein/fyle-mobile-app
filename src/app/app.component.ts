@@ -58,7 +58,8 @@ export class AppComponent implements OnInit {
     private alertController: AlertController,
     private freshchatService: FreshChatService,
     private zone: NgZone,
-    private deepLinkService: DeepLinkService
+    private deepLinkService: DeepLinkService,
+    private splashScreen: SplashScreen
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -104,7 +105,7 @@ export class AppComponent implements OnInit {
 
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
-      SplashScreen.hide();
+      this.splashScreen.hide();
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
