@@ -43,9 +43,8 @@
           </ion-col>
           <ion-col size ="9">
             <ion-row>
-              <span [ngClass]="{'my-create-report--non-reimbursable': etxn.tx_skip_reimbursement}"></span>
-              <span class="my-create-report--item-card-currency">{{etxn.tx_currency}}</span>
-              <span class="my-create-report--item-card-amount">{{etxn.tx_amount}}</span>
+              <span class="my-create-report--item-card-currency" [ngClass]="{'my-create-report--non-reimbursable': etxn.tx_skip_reimbursement}">{{etxn.tx_currency}}</span>
+              <span class="my-create-report--item-card-amount" [ngClass]="{'my-create-report--non-reimbursable': etxn.tx_skip_reimbursement}">{{etxn.tx_amount}}</span>
             </ion-row>
             <ion-row class="my-create-report--item-card-vendor">{{etxn.vendorDetails}}</ion-row>
             <ion-row class="my-create-report--item-card-category">{{etxn.tx_org_category}}</ion-row>
@@ -62,7 +61,7 @@
       <ion-row>
         <ion-col size="8">
           <div>
-            <span class="my-create-report--footer-currency">{{homeCurrency$ | async}}</span> 
+            <span class="my-create-report--footer-currency">{{homeCurrency$|async}}</span> 
             <span class="my-create-report--footer-amount"> {{selectedTotalAmount | number: '1.2'}} </span>
           </div>
           <div class="my-create-report--footer-summary">
