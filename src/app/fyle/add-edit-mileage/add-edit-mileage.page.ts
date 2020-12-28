@@ -112,10 +112,6 @@ export class AddEditMileagePage implements OnInit {
     return this.fg.controls.mileage_locations as FormArray;
   }
 
-  debug(data) {
-    console.log('\n\n\n data ->', data);
-  }
-
   goToPrev() {
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
 
@@ -142,7 +138,7 @@ export class AddEditMileagePage implements OnInit {
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
     }
-    //TODO: Leave for later
+    // TODO: Leave for later
     // if (category === 'activity') {
     //   showCannotEditActivityDialog();
 
@@ -401,7 +397,7 @@ export class AddEditMileagePage implements OnInit {
         distance: this.fg.controls.distance
       };
 
-      for (var defaultValueColumn in defaultValues) {
+      for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
           if (!control.value) {
@@ -467,8 +463,19 @@ export class AddEditMileagePage implements OnInit {
             selectedCategory$ = of(category);
           }
 
-          return iif(() => this.mode === 'add', of(category), selectedCategory$);
+          if (this.mode === 'add') {
+            if (category) {
+              return of(category);
+            } else {
+              return this.getMileageCategories().pipe(
+                map(mileageContainer => mileageContainer.defaultMileageCategory)
+              );
+            }
+          } else {
+            return selectedCategory$;
+          }
         }),
+        tap(console.log),
         switchMap((category) => {
           const formValue = this.fg.value;
           return this.offlineService.getCustomInputs().pipe(
@@ -594,13 +601,14 @@ export class AddEditMileagePage implements OnInit {
             custom_properties: []
           }
         };
-      })
+      }),
+      shareReplay(1)
     );
   }
 
   getEditExpense() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
-      shareReplay()
+      shareReplay(1)
     );
   }
 
@@ -615,7 +623,7 @@ export class AddEditMileagePage implements OnInit {
       purpose: [],
       project: [],
       billable: [],
-      sub_category: [],
+      sub_category: [, Validators.required],
       custom_inputs: new FormArray([]),
       costCenter: [],
       add_to_new_report: [],
@@ -671,10 +679,12 @@ export class AddEditMileagePage implements OnInit {
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.filteredCategories$.subscribe(subCategories => {
-      if (!subCategories.length) {
+      if (subCategories.length) {
+        this.fg.controls.sub_category.setValidators(Validators.required);
+      } else {
         this.fg.controls.sub_category.clearValidators();
-        this.fg.controls.sub_category.updateValueAndValidity();
       }
+      this.fg.controls.sub_category.updateValueAndValidity();
     });
 
     this.mileageConfig$ = this.offlineService.getOrgSettings().pipe(
@@ -913,6 +923,7 @@ export class AddEditMileagePage implements OnInit {
         return iif(() => etxn.tx.org_category_id,
           this.offlineService.getAllCategories().pipe(
             map(subCategories => subCategories
+              .filter(subCategory => subCategory.sub_category.toLowerCase() !== subCategory.name.toLowerCase())
               .find(subCategory => subCategory.id === etxn.tx.org_category_id)
             )
           ),
@@ -935,13 +946,11 @@ export class AddEditMileagePage implements OnInit {
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
-      tap(etxn => console.log(etxn.tx.cost_center_id)),
       switchMap(etxn => {
         return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
           .map(res => res.value)
           .find(costCenter => costCenter.id === etxn.tx.cost_center_id))), of(null));
-      }),
-      tap(res => console.log(res))
+      })
     );
 
     const selectedCustomInputs$ = this.etxn$.pipe(
@@ -1139,14 +1148,14 @@ export class AddEditMileagePage implements OnInit {
   }
 
   reloadCurrentRoute() {
-    let currentUrl = this.router.url;
+    const currentUrl = this.router.url;
     this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
       this.router.navigate([currentUrl]);
     });
   }
 
   saveAndNewExpense() {
-    let that = this;
+    const that = this;
 
     that.checkIfInvalidPaymentMode().pipe(
       take(1)
@@ -1472,7 +1481,6 @@ export class AddEditMileagePage implements OnInit {
             return throwError(err);
           }
         }),
-        tap(etxnToBeSaved => console.log({etxnToBeSaved})),
         switchMap(({ etxn, comment }: any) => {
           return forkJoin({
             eou: from(this.authService.getEou()),
