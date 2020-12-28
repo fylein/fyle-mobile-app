@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { from } from 'rxjs';
-import { StorageService } from './storage.service';
+import {Injectable} from '@angular/core';
+import {from} from 'rxjs';
+import {StorageService} from './storage.service';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,17 +10,25 @@ export class RecentLocalStorageItemsService {
 
   constructor(
     private storageService: StorageService
-  ) { }
+  ) {
+  }
 
-  get(cacheName) {
-    let recentItems =  [];
-    return this.storageService.get(cacheName).then(res => {
-      recentItems = res;
-      if (!recentItems) {
-        recentItems = [];
+  async get(cacheName) {
+    let recentItems = [];
+    const res = await this.storageService.get(cacheName);
+
+    if (res && res.updatedAt) {
+      if (moment(res.updatedAt).diff(moment.now(), 'minute') > 2) {
+        await this.storageService.delete(cacheName);
+        return [];
       }
-      return recentItems;
-    });
+    }
+
+    recentItems = res && res.recentItems;
+    if (!recentItems) {
+      recentItems = [];
+    }
+    return recentItems;
   }
 
   indexOfItem(recentItemsArray, item, property?) {
@@ -32,38 +41,36 @@ export class RecentLocalStorageItemsService {
     return -1;
   }
 
-  post(cacheName, item, property?) {
-    return this.get(cacheName).then(res => {
-      const recentItems = res;
-      const maxArrayLength = 3;
+  async post(cacheName, item, property?) {
+    const res = await this.get(cacheName);
+    const recentItems = res;
+    const maxArrayLength = 3;
 
-      // 1. Find the index of the item
-      let i;
-      if (property) {
-        i = this.indexOfItem(recentItems, item, property);
-      } else {
-        i = recentItems.indexOf(item);
+    // 1. Find the index of the item
+    let i;
+    if (property) {
+      i = this.indexOfItem(recentItems, item, property);
+    } else {
+      i = recentItems.indexOf(item);
+    }
+
+    if (i > -1) { // 2. If found in the array
+      // a. remove the object
+      recentItems.splice(i, 1);
+      // b. put it as first item
+      recentItems.unshift(item);
+    } else { // 3. If not found in the array
+      // a. check if array is full (5)
+      if (recentItems.length >= maxArrayLength) {
+        // b. yes - remove last item
+        recentItems.pop();
       }
+      // c. add to first item
+      recentItems.unshift(item);
+    }
 
-      if (i > -1) { // 2. If found in the array
-        // a. remove the object
-        recentItems.splice(i, 1);
-        // b. put it as first item
-        recentItems.unshift(item);
-      } else { // 3. If not found in the array
-        // a. check if array is full (5)
-        if (recentItems.length >= maxArrayLength) {
-          // b. yes - remove last item
-          recentItems.pop();
-        }
-        // c. add to first item
-        recentItems.unshift(item);
-      }
-
-      return this.storageService.set(cacheName, recentItems).then(() => {
-        return recentItems;
-      });
-    });
+    await this.storageService.set(cacheName, {recentItems, updatedAt: new Date()});
+    return recentItems;
   }
 
 }

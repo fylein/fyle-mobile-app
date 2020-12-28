@@ -356,7 +356,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
       shareReplay()
     );
 
-    const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
+    const editAdvanceRequestPipe$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id)),
       map(res => {
         this.fg.patchValue({
           currencyObj: {
@@ -384,6 +385,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
         return res.areq;
       }),
+      finalize(() => from(this.loaderService.hideLoader())),
       shareReplay()
     );
 

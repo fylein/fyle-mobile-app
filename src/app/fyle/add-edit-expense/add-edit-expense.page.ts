@@ -326,7 +326,8 @@ export class AddEditExpensePage implements OnInit {
 
           this.canChangeMatchingCCCTransaction = true;
 
-          if (!etxn.tx.corporate_credit_card_expense_group_id || (this.selectedCCCTransaction.id !== etxn.tx.corporate_credit_card_expense_group_id)) {
+          if (!etxn.tx.corporate_credit_card_expense_group_id ||
+            (this.selectedCCCTransaction.id !== etxn.tx.corporate_credit_card_expense_group_id)) {
             this.showSelectedTransaction = true;
           } else if (this.selectedCCCTransaction.id === etxn.tx.corporate_credit_card_expense_group_id) {
             this.showSelectedTransaction = false;
@@ -497,7 +498,7 @@ export class AddEditExpensePage implements OnInit {
         txn: JSON.stringify(res.tx),
         currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
         fileObjs: res.dataUrls, // Todo: Need to check passing array is enough or need to do JSON.stringify before
-        // selectedCCCTransaction: vm.selectedCCCTransaction
+        selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
       }]);
     });
 
@@ -944,6 +945,10 @@ export class AddEditExpensePage implements OnInit {
             return paymentModes
               .map(res => res.value)
               .find(paymentMode => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          } else if (orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT') {
+            return paymentModes
+              .map(res => res.value)
+              .find(paymentMode => paymentMode.acc.displayName === 'Paid by Company');
           } else if (this.isCreatedFromCCC) {
             return paymentModes
               .map(res => res.value)
@@ -1008,13 +1013,22 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: etxn.tx.orig_currency,
           }
         });
-      } else if (etxn.tx.currency) {
+      } else if (etxn.tx.currency !== homeCurrency) {
         this.fg.patchValue({
           currencyObj: {
             amount: null,
             currency: homeCurrency,
             orig_amount: null,
             orig_currency: etxn.tx.currency,
+          }
+        });
+      } else if (etxn.tx.currency === homeCurrency) {
+        this.fg.patchValue({
+          currencyObj: {
+            amount: null,
+            currency: etxn.tx.currency,
+            orig_amount: null,
+            orig_currency: null
           }
         });
       } else if (etxn.tx.user_amount) {
@@ -1141,7 +1155,6 @@ export class AddEditExpensePage implements OnInit {
             })
           );
         }),
-        tap(console.log),
         shareReplay(1)
       );
   }
@@ -1173,8 +1186,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
         return tfcMap;
-      }),
-      tap(console.log)
+      })
     );
 
     this.txnFields$.pipe(
@@ -1433,8 +1445,6 @@ export class AddEditExpensePage implements OnInit {
       costCenter: [],
       hotel_is_breakfast_provided: []
     });
-
-    this.fg.valueChanges.subscribe(console.log);
 
     this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
       map((paymentMode: any) => paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT')
@@ -1801,8 +1811,7 @@ export class AddEditExpensePage implements OnInit {
             value: this.fg.value.custom_inputs[i].value
           };
         });
-      }),
-      tap(console.log)
+      })
     );
   }
 

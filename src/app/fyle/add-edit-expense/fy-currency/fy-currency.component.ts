@@ -146,12 +146,14 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   }
 
   set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      this.fg.setValue(
-        this.convertInnerValueToFormValue(
-          this.innerValue));
-      this.onChangeCallback(v);
+    if (this.fg) {
+      if (v !== this.innerValue) {
+        this.innerValue = v;
+        this.fg.setValue(
+          this.convertInnerValueToFormValue(
+            this.innerValue));
+        this.onChangeCallback(v);
+      }
     }
   }
 

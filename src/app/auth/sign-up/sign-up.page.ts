@@ -37,7 +37,7 @@ export class SignUpPage implements OnInit {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
 
     if (isLoggedIn) {
-      this.router.navigate(['/', 'auth', 'switch-org', { choose: false }]);
+      this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
     }
   }
 
