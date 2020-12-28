@@ -19,6 +19,8 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { SavePopoverComponent } from './save-popover/save-popover.component';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ProjectsService } from 'src/app/core/services/projects.service';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
+import { TripRequestPolicyService } from 'src/app/core/services/trip-request-policy.service';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -63,7 +65,8 @@ export class MyAddEditTripPage implements OnInit {
     private tripRequestsService: TripRequestsService,
     private loaderService: LoaderService,
     private popoverController: PopoverController,
-    private projectsService: ProjectsService
+    private projectsService: ProjectsService,
+    private tripRequestPolicyService: TripRequestPolicyService
   ) { }
 
   fg: FormGroup;
@@ -148,6 +151,37 @@ export class MyAddEditTripPage implements OnInit {
     }
   }
 
+  policyViolationCheck() {
+    from(this.makeTrpFormFromFg(this.fg.value)).pipe(
+      concatMap((res) => {
+        const tripRequestObject = {
+          trip_request: res
+        };
+        return this.tripRequestPolicyService.testTripRequest(tripRequestObject);
+      }),
+      concatMap(res => {
+        return this.tripRequestPolicyService.getPolicyPopupRules(res);
+      }),
+      map(res => {
+        console.log('\n\n\n res outside ->', res);
+        if (res) {
+          console.log('\n\n\n res inside ->', res);
+          // let policyPopupRules = res;
+          // let policyActionDescription = res.trip_request_desired_state.action_description;
+          // const policyPopup = await this.modalController.create({
+          //   component: PolicyViolationComponent,
+          //   componentProps: {
+          //     data: 'test'
+          //   }
+          // });
+          // await policyPopup.present();
+        } else {
+          this.saveAsDraft(this.fg.value);
+        }
+      })
+    );
+  }
+
   async saveDraftModal() {
     const addExpensePopover = await this.popoverController.create({
       component: SavePopoverComponent,
@@ -165,7 +199,7 @@ export class MyAddEditTripPage implements OnInit {
         await addExpensePopover.present();
         const { data } = await addExpensePopover.onDidDismiss();
         if (data && data.continue) {
-          this.saveAsDraft(this.fg.value);
+          this.policyViolationCheck();
         }
       }
     } else {
@@ -176,7 +210,7 @@ export class MyAddEditTripPage implements OnInit {
   saveAsDraft(formValue) {
     from(this.loaderService.showLoader('Saving as draft')).pipe(
       switchMap(() => {
-        return this.makeTrpfromFormFg(formValue);
+        return this.makeTrpFormFromFg(formValue);
       }),
       switchMap(res => {
         return this.tripRequestsService.saveDraft(res);
@@ -192,7 +226,7 @@ export class MyAddEditTripPage implements OnInit {
     ).subscribe(noop);
   }
 
-  makeTrpfromFormFg(formValue) {
+  makeTrpFormFromFg(formValue) {
     if (this.mode === 'edit') {
       return forkJoin({
         tripRequest: this.tripRequest$
@@ -235,7 +269,7 @@ export class MyAddEditTripPage implements OnInit {
   submitTripRequest(formValue) {
     from(this.loaderService.showLoader('Submitting Trip Request')).pipe(
       switchMap(() => {
-        return this.makeTrpfromFormFg(formValue);
+        return this.makeTrpFormFromFg(formValue);
       }),
       switchMap(res => {
         return this.tripRequestsService.submit(res);
