@@ -27,22 +27,26 @@ export class TripRequestPolicyService {
   }
 
   testTripRequest(tripRequestObject) {
+
     this.tripDateService.convertToDateFormat(tripRequestObject.trip_request);
-    tripRequestObject.transportation_requests.forEach(transportationRequest => {
-      this.tripDateService.convertToDateFormat(transportationRequest);
-    });
-    tripRequestObject.hotel_requests.forEach(hotelRequest => {
-      this.tripDateService.convertToDateFormat(hotelRequest);
-    });
-    return this.postCall('/policy_check/test', tripRequestObject, {timeout: 5000}).pipe(
-      map(res => {
-        return res;
-      })
-    );
+
+    if (tripRequestObject.transportation_requests) {
+      tripRequestObject.transportation_requests.forEach(transportationRequest => {
+        this.tripDateService.convertToDateFormat(transportationRequest);
+      });
+    }
+
+    if (tripRequestObject.hotel_requests) {
+      tripRequestObject.hotel_requests.forEach(hotelRequest => {
+        this.tripDateService.convertToDateFormat(hotelRequest);
+      });
+    }
+
+    return this.postCall('/policy_check/test', tripRequestObject, {timeout: 5000});
   }
 
   getPolicyPopupRules(result) {
-    let popupRules = [];
+    const popupRules = [];
 
     result.trip_request_policy_rule_desired_states.forEach(desiredState => {
       if (desiredState.popup) {
