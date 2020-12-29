@@ -167,7 +167,7 @@
                       *
                     </div>
                   </div>
-                  <input class="add-edit-mileage--text-input" type="number" formControlName="distance" [min]="0"
+                  <input class="add-edit-mileage--text-input" inputmode="decimal" type="number" formControlName="distance" [min]="0"
                     [disabled]="(isAmountDisabled$|async) || !txnFields?.distance.canEdit">
                 </div>
                 <div class="add-edit-mileage--error"
@@ -317,7 +317,7 @@
                     <input class="add-edit-mileage--text-input" type="text" formControlName="value"
                       *ngIf="customInput.type === 'TEXT'">
 
-                    <input class="add-edit-mileage--text-input" type="number" formControlName="value"
+                    <input class="add-edit-mileage--text-input" inputmode="decimal" type="number" formControlName="value"
                       *ngIf="customInput.type === 'NUMBER'">
 
                     <input class="add-edit-mileage--date-input" *ngIf="customInput.type === 'DATE'" type="date"

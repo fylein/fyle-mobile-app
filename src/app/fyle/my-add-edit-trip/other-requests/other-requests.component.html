@@ -66,7 +66,7 @@
                   <div class="other-details--text-label">
                     Rooms
                   </div>
-                  <input class="other-details--date-input" type="number" formControlName="rooms">
+                  <input class="other-details--date-input" inputmode="decimal" type="number" formControlName="rooms">
                 </div>
     
                 <ng-container *ngIf="currencies$|async as currencies">
@@ -90,7 +90,7 @@
                   <div class="other-details--text-label">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}}
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
     
                 <div class="other-details--text">
@@ -114,7 +114,7 @@
                       <input class="other-details--text-input" type="text" formControlName="value"
                         *ngIf="customInput.input_type === 'TEXT'">
           
-                      <input class="other-details--text-input" type="number" formControlName="value"
+                      <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="value"
                         *ngIf="customInput.input_type === 'NUMBER'">
           
                       <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
@@ -228,7 +228,7 @@
                   <div class="other-details--text-label">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}}
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
     
                 <div class="other-details--text">
@@ -253,7 +253,7 @@
                       <input class="other-details--text-input" type="text" formControlName="value"
                         *ngIf="customInput.input_type === 'TEXT'">
           
-                      <input class="other-details--text-input" type="number" formControlName="value"
+                      <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="value"
                         *ngIf="customInput.input_type === 'NUMBER'">
           
                       <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
@@ -328,7 +328,7 @@
                   <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': control.controls.amount.touched && !control.controls.amount.valid}">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}} <span> *</span>
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
 
                 <div class="other-details--text">
@@ -359,7 +359,7 @@
                       <input class="other-details--text-input" type="text" formControlName="value"
                         *ngIf="customInput.type === 'TEXT'">
           
-                      <input class="other-details--text-input" type="number" formControlName="value"
+                      <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="value"
                         *ngIf="customInput.type === 'NUMBER'">
           
                       <input class="other-details--date-input" *ngIf="customInput.type === 'DATE'" type="date"
