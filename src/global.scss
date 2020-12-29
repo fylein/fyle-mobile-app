@@ -242,6 +242,10 @@ input[type="date"] {
   background: white;
 }
 
+textarea, input {
+  background-color: transparent;
+  }
+
 .expense-report-search {
   width: 100%;
 
