@@ -50,7 +50,7 @@ export class RouterAuthService {
   }
 
   async setClusterDomain(domain) {
-    
+
     this.apiService.setRoot(domain);
     this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
@@ -135,8 +135,8 @@ export class RouterAuthService {
     }).pipe(
       switchMap(res => {
         return from(this.handleSignInResponse(res)).pipe(
-          map(()=> res)
-        )
+          map(() => res)
+        );
       })
     );
   }

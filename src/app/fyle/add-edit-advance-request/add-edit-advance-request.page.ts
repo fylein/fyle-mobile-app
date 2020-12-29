@@ -40,6 +40,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   actions$: Observable<any>;
   id: string;
   isProjectsVisible$: Observable<boolean>;
+  advanceActions;
 
   constructor(
     private offlineService: OfflineService,
@@ -79,6 +80,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
       project: [],
       custom_field_values: new FormArray([]),
     });
+
+    if (!this.id) {
+      this.advanceActions = {
+        can_save: true,
+        can_submit: true
+      };
+    }
   }
 
   goBack() {
@@ -352,11 +360,18 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
     this.customFieldValues = [];
-    this.actions$ = this.advanceRequestService.getActions(this.activatedRoute.snapshot.params.id).pipe(
-      shareReplay()
-    );
+    if (this.mode === 'edit') {
+      this.actions$ = this.advanceRequestService.getActions(this.activatedRoute.snapshot.params.id).pipe(
+        shareReplay()
+      );
 
-    const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
+      this.actions$.subscribe(res => {
+        this.advanceActions = res;
+      });
+    }
+
+    const editAdvanceRequestPipe$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id)),
       map(res => {
         this.fg.patchValue({
           currencyObj: {
@@ -384,6 +399,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
         return res.areq;
       }),
+      finalize(() => from(this.loaderService.hideLoader())),
       shareReplay()
     );
 

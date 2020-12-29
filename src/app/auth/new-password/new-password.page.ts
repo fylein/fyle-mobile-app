@@ -95,7 +95,7 @@ export class NewPasswordPage implements OnInit {
           component: PopupComponent,
           componentProps: {
             header: 'Password changed successfully',
-            route: ['/', 'auth', 'switch-org']
+            route: ['/', 'auth', 'switch_org']
           },
           cssClass: 'error-popover'
         });
@@ -107,53 +107,13 @@ export class NewPasswordPage implements OnInit {
           component: PopupComponent,
           componentProps: {
             header: 'Setting new password failed. Please try again later.',
-            route: ['/', 'auth', 'sign-in']
+            route: ['/', 'auth', 'sign_in']
           },
           cssClass: 'error-popover'
         });
 
         await popup.present();
       });
-
-    // $ionicLoading.show({
-    //   template: "Setting new password...",
-    //   duration: 8000
-    // });
-
-    // RouterAuthService.resetPassword(vm.refreshToken, vm.newPassword).then(function (resp) {
-    //   AuthService.newRefreshToken(resp.refresh_token).then(function () {
-    //     var email = AuthService.getEou().us.email;
-    //     TrackingService.onSignin(email, {Asset: 'Mobile'});
-    //     TrackingService.resetPassword({Asset: 'Mobile'});
-    //     $ionicPopup.alert({
-    //       title: 'Password changed successfully',
-    //       cssClass: 'fy-confirm-popups heading-medium',
-    //       buttons: [
-    //         {},
-    //         {
-    //           text: 'Close',
-    //         }
-    //       ]
-    //     }).then(function(res) {
-    //       $state.go('switch_org');
-    //     });
-    //   });
-    // }, function (err) {
-    //   $ionicPopup.alert({
-    //     title: 'Setting new password failed. Please try again later.',
-    //     cssClass: 'fy-confirm-popups heading-medium',
-    //     buttons: [
-    //       {},
-    //       {
-    //         text: 'Close',
-    //       }
-    //     ]
-    //   }).then(function(res) {
-    //     $state.go('auth.signin');
-    //   });
-    // }).finally(function () {
-    //   $ionicLoading.hide();
-    // });
   }
 
 }

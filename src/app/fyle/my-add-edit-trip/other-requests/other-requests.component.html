@@ -100,7 +100,7 @@
                   <input class="other-details--text-input" type="text" formControlName="notes">
                 </div>
                 <!-- Add Custom Fields here -->
-                <p class="other-details--special-elements">Additional Information</p>
+                <p *ngIf="hotelRequestCustomFields$|async" class="other-details--special-elements">Additional Information</p>
                 <div *ngFor="let customInput of hotelRequestCustomFields$|async as customFields">
                   <form [formGroup]="customInput.control">
                     <!-- <button (click)="debug(customInput)">debug</button> -->
@@ -239,7 +239,7 @@
                 </div>
 
                 <!-- Add Custom Fields here -->
-                <p class="other-details--special-elements">Additional Information</p>
+                <p *ngIf="transportRequestCustomFields$|async" class="other-details--special-elements">Additional Information</p>
                 <div *ngFor="let customInput of transportRequestCustomFields$|async as customFields">
                   <form [formGroup]="customInput.control">
                     <!-- <button (click)="debug(customInput)">debug</button> -->
@@ -345,7 +345,7 @@
                   <input class="other-details--text-input" type="text" formControlName="notes">
                 </div>
 
-                <p class="other-details--special-elements">Additional Information</p>
+                <p *ngIf="advanceRequestCustomFields$|async" class="other-details--special-elements">Additional Information</p>
                 <div *ngFor="let customInput of advanceRequestCustomFields$|async as customFields">
                   <form [formGroup]="customInput.control">
                     <!-- <button (click)="debug(customInput)">debug</button> -->

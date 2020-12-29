@@ -46,7 +46,7 @@ export class SignInPage implements OnInit {
       const samlNewRefreshToken$ = this.authService.newRefreshToken(data.refresh_token);
 
       samlNewRefreshToken$.subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch-org']);
+        this.router.navigate(['/', 'auth', 'switch_org']);
       });
     }
   };
@@ -154,7 +154,7 @@ export class SignInPage implements OnInit {
     );
 
     basicSignIn$.subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch-org', { choose: true }]);
+      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
     });
   }
 
@@ -186,7 +186,6 @@ export class SignInPage implements OnInit {
     });
   }
 
-
   async ngOnInit() {
     const presentEmail = this.activatedRoute.snapshot.params.email;
     this.fg = this.formBuilder.group({
@@ -197,7 +196,7 @@ export class SignInPage implements OnInit {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
 
     if (isLoggedIn) {
-      this.router.navigate(['/', 'auth', 'switch-org', { choose: false }]);
+      this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
     }
   }
 }

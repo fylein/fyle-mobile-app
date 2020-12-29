@@ -1,25 +1,27 @@
-<div class="split-expense-popover split-expense-popover--{{class}}">
+<div class="split-expense-popover">
   <div class="split-expense-popover--header">
     <p class="split-expense-popover--header-content">How do you want to split?</p>
     <div (click)="close()">
       <mat-icon>close</mat-icon>
     </div>
   </div>
-  <div class="split-expense-popover--item split-expense-popover--item-stripe-background" (click)="openSplitExpense('categories')">
-    <div class="split-expense-popover--item-content">
-      <p class="split-expense-popover--item-head">Split by Category</p>
+  <div class="split-expense-popover--items-container">
+    <div class="split-expense-popover--item split-expense-popover--item-stripe-background" (click)="openSplitExpense('categories')">
+      <div class="split-expense-popover--item-content">
+        <p class="split-expense-popover--item-head">Split by Category</p>
+      </div>
     </div>
-  </div>
-
-  <div class="split-expense-popover--item" (click)="openSplitExpense('projects')" *ngIf="areProjectsAvailable">
-    <div class="split-expense-popover--item-content">
-      <p class="split-expense-popover--item-head">Split by Project</p>
+  
+    <div class="split-expense-popover--item" (click)="openSplitExpense('projects')" *ngIf="areProjectsAvailable">
+      <div class="split-expense-popover--item-content">
+        <p class="split-expense-popover--item-head">Split by Project</p>
+      </div>
     </div>
-  </div>
-
-  <div class="split-expense-popover--item" (click)="openSplitExpense('cost centers')" *ngIf="areCostCentersAvailable" [ngClass]="{'split-expense-popover--item-stripe-background': areProjectsAvailable}">
-    <div class="split-expense-popover--item-content">
-      <p class="split-expense-popover--item-head m-0">Split by Cost Center</p>
+  
+    <div class="split-expense-popover--item" (click)="openSplitExpense('cost centers')" *ngIf="areCostCentersAvailable" [ngClass]="{'split-expense-popover--item-stripe-background': areProjectsAvailable}">
+      <div class="split-expense-popover--item-content">
+        <p class="split-expense-popover--item-head m-0">Split by Cost Center</p>
+      </div>
     </div>
   </div>
 </div>

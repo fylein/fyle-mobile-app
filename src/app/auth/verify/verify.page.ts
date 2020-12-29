@@ -46,7 +46,7 @@ export class VerifyPage implements OnInit {
         return throwError(err);
       })
     ).subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch-org']);
+      this.router.navigate(['/', 'auth', 'switch_org']);
     });
   }
 

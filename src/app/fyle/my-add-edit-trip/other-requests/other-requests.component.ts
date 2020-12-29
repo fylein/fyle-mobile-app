@@ -136,7 +136,7 @@ export class OtherRequestsComponent implements OnInit {
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
           customFields = customFields.filter(field => {
-            return field.request_type === 'TRANSPORTATION_REQUEST';
+            return field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1;
           });
 
           for (const customField of customFields) {
@@ -177,7 +177,7 @@ export class OtherRequestsComponent implements OnInit {
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
           customFields = customFields.filter(field => {
-            return field.request_type === 'HOTEL_REQUEST';
+            return field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1;
           });
 
           for (const customField of customFields) {

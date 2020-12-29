@@ -2,8 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, from, Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { PopoverController } from '@ionic/angular';
+import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +25,10 @@ export class DashboardPage implements OnInit {
   constructor(
     private mobileEventService: MobileEventService,
     private dashboardService: DashboardService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private transactionService: TransactionService,
+    private storageService: StorageService,
+    private popoverController: PopoverController
   ) { }
 
 
@@ -95,6 +102,18 @@ export class DashboardPage implements OnInit {
 
   }
 
+  async showGetStartedPopup() {
+    const getStartedPopup = await this.popoverController.create({
+      component: GetStartedPopupComponent,
+      cssClass: 'get-started-popup'
+    });
+
+    await getStartedPopup.present();
+
+    const { data } = await getStartedPopup.onWillDismiss();
+    await this.storageService.set('getStartedPopupShown', true);
+  }
+
   ionViewWillEnter() {
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
      shareReplay(),
@@ -105,6 +124,16 @@ export class DashboardPage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency().pipe(
       shareReplay(),
     );
+
+    forkJoin({
+      isGetStartedPopupShown$: from(this.storageService.get('getStartedPopupShown')),
+      totalCount$: this.transactionService.getPaginatedETxncCount()
+    }).subscribe(res => {
+      if (!res.isGetStartedPopupShown$ && res.totalCount$.count === 0) {
+        this.showGetStartedPopup();
+      }
+    })
+
     this.dashboardList = [];
     this.reset();
 

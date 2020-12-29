@@ -26,7 +26,7 @@ export class SignUpErrorComponent implements OnInit {
 
   async goSignin() {
     await this.popoverController.dismiss();
-    this.router.navigate(['/', 'auth', 'sign-in', { email: this.email }]);
+    this.router.navigate(['/', 'auth', 'sign_in', { email: this.email }]);
   }
 
   async requestInvitation() {
