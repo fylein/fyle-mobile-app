@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content>
-    <form [formGroup]="fg" (ngSubmit)="onSubmit()">
+    <form [formGroup]="fg" (ngSubmit)="onSubmit()" #formContainer>
       <div class="add-edit-trip--container">
       <!-- Traveller details block start -->
       <div class="add-edit-trip--elements-wrapper">

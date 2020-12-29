@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { Observable, forkJoin, noop, of, from, zip, combineLatest } from 'rxjs';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
@@ -27,6 +27,7 @@ export class OtherRequestsComponent implements OnInit {
   @Input() otherRequests;
   @Input() fgValues;
   @Input() id;
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   isTransportationRequested$: Observable<any>;
   isHotelRequested$: Observable<any>;
@@ -276,6 +277,13 @@ export class OtherRequestsComponent implements OnInit {
       this.submitOtherRequests(this.otherDetailsForm.value, 'SUBMIT');
     } else {
       this.otherDetailsForm.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -384,7 +392,7 @@ export class OtherRequestsComponent implements OnInit {
       }).pipe(
         switchMap(res => {
           const advanceRequest: any = res.advanceRequest[index];
-  
+
           const advanceDetailObject = {
             ...advanceRequest,
             amount: advanceDetail.amount,
@@ -419,7 +427,7 @@ export class OtherRequestsComponent implements OnInit {
       }).pipe(
         switchMap(res => {
           const hotelRequest: any = res.hotelRequest[index].hr;
-  
+
           const hotelDetailObject = {
             ...hotelRequest,
             amount: 15,
@@ -470,8 +478,8 @@ export class OtherRequestsComponent implements OnInit {
       }).pipe(
         switchMap(res => {
           const transportationRequest: any = res.transportationRequest[index].tr;
-  
-          const transportDetailObject = {
+
+        const transportDetailObject = {
             ...transportationRequest,
             amount: transportDetail.amount,
             assigned_at: transportDetail.assignedAt,
@@ -525,6 +533,13 @@ export class OtherRequestsComponent implements OnInit {
 
     if (!this.otherDetailsForm.valid) {
       this.otherDetailsForm.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     } else {
       await addExpensePopover.present();
       const { data } = await addExpensePopover.onDidDismiss();

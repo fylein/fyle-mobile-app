@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { from, Observable, noop, forkJoin, of, concat, combineLatest, iif, Subject } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -49,6 +49,8 @@ export class MyAddEditTripPage implements OnInit {
   tripRequest$: Observable<any>;
   customFieldValues;
   refreshTrips$ = new Subject();
+
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   constructor(
     private router: Router,
@@ -128,6 +130,13 @@ export class MyAddEditTripPage implements OnInit {
     if (this.fg.valid) {
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
+        const formContainer = this.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         return;
       } else {
         await addExpensePopover.present();
@@ -145,6 +154,13 @@ export class MyAddEditTripPage implements OnInit {
       }
     } else {
       this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -160,6 +176,13 @@ export class MyAddEditTripPage implements OnInit {
     if (this.fg.valid) {
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
+        const formContainer = this.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         return;
       } else {
         await addExpensePopover.present();
@@ -170,6 +193,13 @@ export class MyAddEditTripPage implements OnInit {
       }
     } else {
       this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -319,12 +349,26 @@ export class MyAddEditTripPage implements OnInit {
     if (this.fg.valid) {
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
+        const formContainer = this.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         return;
       } else {
         return await modal.present();
       }
     } else {
       this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 

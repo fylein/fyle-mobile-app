@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <form [formGroup]="otherDetailsForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="otherDetailsForm" (ngSubmit)="onSubmit()" #formContainer>
     <div class="other-details--container">
       <mat-tab-group>
         <!-- Hote Tab starts -->
