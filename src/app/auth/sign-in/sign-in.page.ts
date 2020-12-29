@@ -182,7 +182,7 @@ export class SignInPage implements OnInit {
         from(this.loaderService.hideLoader());
       })
     ).subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch-org', { choose: true }]);
+      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
     });
   }
 
