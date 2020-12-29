@@ -10,7 +10,7 @@ import { PopupConfig } from './popup.model';
   styleUrls: ['./fy-popup.component.scss'],
 })
 export class FyPopupComponent implements OnInit {
-  @Input('') config: PopupConfig;
+  @Input() config: PopupConfig;
 
   constructor(
     private popoverController: PopoverController
@@ -18,7 +18,7 @@ export class FyPopupComponent implements OnInit {
 
   ngOnInit() {
     console.log(this.config);
-    if (!this.config.showCancelButton) {
+    if (this.config.showCancelButton === undefined) {
       this.config.showCancelButton = true;
     }
   }
