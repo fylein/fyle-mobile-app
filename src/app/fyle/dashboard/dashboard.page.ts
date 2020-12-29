@@ -111,7 +111,7 @@ export class DashboardPage implements OnInit {
     await getStartedPopup.present();
 
     const { data } = await getStartedPopup.onWillDismiss();
-    this.storageService.set('getStartedPopupShown', true);
+    await this.storageService.set('getStartedPopupShown', true);
   }
 
   ionViewWillEnter() {
