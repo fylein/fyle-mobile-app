@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -7,6 +7,9 @@ import { PopoverController } from '@ionic/angular';
   styleUrls: ['./split-expense-popover.component.scss'],
 })
 export class SplitExpensePopoverComponent implements OnInit {
+
+  @Input() areProjectsAvailable;
+  @Input() areCostCentersAvailable;
 
   constructor(
     private popoverController: PopoverController

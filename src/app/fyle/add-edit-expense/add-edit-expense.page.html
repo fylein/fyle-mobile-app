@@ -357,29 +357,6 @@
         </div>
       </div>
 
-      <!-- <div *ngIf="!showSelectedTransaction && selectedCCCTransaction">
-      <div>
-        <div>
-          <div>
-            <mat-icon>
-              food
-            </mat-icon>
-          </div>
-          <div>Matched to a transaction from card ending with {{ cardEndingDigits }}</div>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="showSelectedTransaction">
-      <div>
-        <div>
-          <mat-icon>
-            food
-          </mat-icon>
-          <div> Selected a transaction from card ending with {{ cardEndingDigits }}</div>
-        </div>
-      </div>
-    </div> -->
       <div class="add-edit-expense--primary-block" *ngIf="mode=='add'">
         <div class="add-edit-expense--internal-block" *ngIf="taxSettings$|async as taxSettings">
           <app-fy-select [label]="'Tax Group'" [options]="taxSettings" formControlName="tax"></app-fy-select>
@@ -614,27 +591,23 @@
         </ng-container>
       </div>
 
-      <app-fy-alert *ngIf="isNotReimbursable$|async as isNotReimbursable" [type]="'information'"
+      <app-fy-alert *ngIf="isNotReimbursable$|async" [type]="'information'"
         [message]="'This expense will not be reimbursed as it has already been paid by your company.'">
       </app-fy-alert>
 
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction">
-          <div>
-            <mat-icon>food</mat-icon>
-          </div>
-          <div>Automatically created from your company's card feed</div>
+          <app-fy-alert [type]="'information'"
+                        [message]="'Automatically created from your company\'s card feed'">
+          </app-fy-alert>
         </ng-container>
       </ng-container>
 
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="etxn.tx && etxn.tx.amount < 0 && !!etxn.tx.corporate_credit_card_expense_group_id">
-          <div>
-            <mat-icon>food</mat-icon>
-          </div>
-          <div>
-            Expense created due to reversal of card transaction.
-          </div>
+          <app-fy-alert [type]="'information'"
+                        [message]="'Expense created due to reversal of card transaction.'">
+          </app-fy-alert>
         </ng-container>
       </ng-container>
 
@@ -706,6 +679,8 @@
           </ng-container>
         </ng-container>
       </ng-container>
+
+
 
       <!-- <div>
       <div *ngIf="canChangeMatchingCCCTransaction">

@@ -4,15 +4,15 @@ import { AuthGuard } from '../core/guards/auth.guard';
 
 const routes: Routes = [
   {
-    path: 'sign-in',
+    path: 'sign_in',
     loadChildren: () => import('./sign-in/sign-in.module').then(m => m.SignInPageModule)
   },
   {
-    path: 'sign-up',
+    path: 'sign_up',
     loadChildren: () => import('./sign-up/sign-up.module').then(m => m.SignUpPageModule)
   },
   {
-    path: 'switch-org',
+    path: 'switch_org',
     loadChildren: () => import('./switch-org/switch-org.module').then(m => m.SwitchOrgPageModule),
     canActivate: [AuthGuard]
   },

@@ -576,6 +576,17 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  async showCannotEditActivityDialog() {
+    const popupResult = await this.popupService.showPopup({
+      header: 'Cannot Edit Activity Expense!',
+      message: 'To edit this activity expense, you need to login to web version of Fyle app at <a href=""https://in1.fylehq.com>https://in1.fylehq.com</a>',
+      primaryCta: {
+        text: 'Close'
+      },
+      showCancelButton: false
+    });
+  }
+
   goToTransaction(expense) {
     let category;
 
@@ -583,12 +594,10 @@ export class MyExpensesPage implements OnInit {
       category = expense.tx_org_category.toLowerCase();
     }
     // TODO: Leave for later
-    // if (category === 'activity') {
-    //   showCannotEditActivityDialog();
-
-    //   return;
-    // }
-
+    if (category === 'activity') {
+      this.showCannotEditActivityDialog();
+      return;
+    }
     if (category === 'mileage') {
       this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.tx_id }]);
     } else if (category === 'per diem') {
