@@ -511,23 +511,14 @@ export class AddEditExpensePage implements OnInit {
     }).subscribe(async res => {
       const areCostCentersAvailable = res.costCenters.length > 0;
       const areProjectsAvailable = res.projects.length > 0;
-      let popupTypeItemClass = '';
-      if (areProjectsAvailable || areCostCentersAvailable) {
-        popupTypeItemClass = 'two-items-list';
-
-        if (areProjectsAvailable && areCostCentersAvailable) {
-          popupTypeItemClass = 'three-items-list';
-        }
-      }
 
       const splitExpensePopover = await this.popoverController.create({
         component: SplitExpensePopoverComponent,
         componentProps: {
-          class: popupTypeItemClass,
           areProjectsAvailable,
           areCostCentersAvailable
         },
-        cssClass: 'split-expense-popover'
+        cssClass: 'dialog-popover'
       });
       await splitExpensePopover.present();
 
