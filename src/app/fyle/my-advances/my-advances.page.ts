@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { range } from 'rxjs';
+import {combineLatest, range, zip} from 'rxjs';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
-import { concatMap, finalize, map, reduce, startWith, switchMap } from 'rxjs/operators';
+import {concatMap, finalize, map, reduce, startWith, switchMap, tap} from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -13,7 +13,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
   styleUrls: ['./my-advances.page.scss'],
 })
 export class MyAdvancesPage implements OnInit {
-
   myAdvancerequests$: Observable<any[]>;
   myAdvances$: Observable<any>;
   loadData$: Subject<number> = new Subject();
@@ -31,6 +30,7 @@ export class MyAdvancesPage implements OnInit {
 
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+
     this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null', areq_advance_id: 'is.null' }).pipe(
       switchMap(count => {
         return range(0, count / 10);
@@ -46,12 +46,15 @@ export class MyAdvancesPage implements OnInit {
       reduce((acc, curr) => {
         return acc.concat(curr);
       }),
+      startWith([])
     );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
+      tap(beforeRange => console.log({ beforeRange })),
       switchMap(count => {
         return range(0, count / 10);
       }),
+      tap(afterRange => console.log({ afterRange })),
       concatMap(count => {
         return this.advanceService.getMyadvances({
           offset: 10 * count,
@@ -63,6 +66,7 @@ export class MyAdvancesPage implements OnInit {
       reduce((acc, curr) => {
         return acc.concat(curr);
       }),
+      startWith([])
     );
 
     this.advances$ = this.refreshAdvances$.pipe(
@@ -70,13 +74,14 @@ export class MyAdvancesPage implements OnInit {
       switchMap(() => {
         return from(this.loaderService.showLoader('Retriving Advance')).pipe(
           switchMap(() => {
-            return forkJoin({
-              myAdvancerequests$: this.myAdvancerequests$,
-              myAdvances$: this.myAdvances$
-            }).pipe(
+            return combineLatest([
+              this.myAdvancerequests$,
+              this.myAdvances$
+            ]).pipe(
               map(res => {
-                let myAdvancerequests = res.myAdvancerequests$ || [];
-                let myAdvances = res.myAdvances$ || [];
+                const [myAdvancerequestsRes,  myAdvancesRes] = res;
+                let myAdvancerequests = myAdvancerequestsRes || [];
+                let myAdvances = myAdvancesRes || [];
                 myAdvancerequests = myAdvancerequests.map(data => {
                   return {
                     ...data,
@@ -107,7 +112,8 @@ export class MyAdvancesPage implements OnInit {
                 return res.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1);
               })
             );
-          }), finalize(() => {
+          }),
+          finalize(() => {
             return from(this.loaderService.hideLoader());
           })
         );

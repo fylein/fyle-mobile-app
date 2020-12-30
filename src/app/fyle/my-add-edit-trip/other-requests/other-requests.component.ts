@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Observable, forkJoin, noop, of, from, zip, combineLatest } from 'rxjs';
+import {Observable, forkJoin, noop, of, from, zip, combineLatest, throwError} from 'rxjs';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -16,6 +16,9 @@ import { HotelRequestService } from 'src/app/core/services/hotel-request.service
 import { SavePopoverComponent } from '../save-popover/save-popover.component';
 import * as moment from 'moment';
 import { CustomField } from 'src/app/core/models/custom_field.model';
+import {TripRequestPolicyService} from '../../../core/services/trip-request-policy.service';
+import {PolicyViolationComponent} from '../policy-violation/policy-violation.component';
+import {StatusService} from '../../../core/services/status.service';
 
 @Component({
   selector: 'app-other-requests',
@@ -66,7 +69,9 @@ export class OtherRequestsComponent implements OnInit {
     private router: Router,
     private advanceRequestService: AdvanceRequestService,
     private hotelRequestService: HotelRequestService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private tripRequestPolicyService: TripRequestPolicyService,
+    private statusService: StatusService
   ) { }
 
   goBack() {
@@ -141,9 +146,9 @@ export class OtherRequestsComponent implements OnInit {
 
           for (const customField of customFields) {
             let value;
-            this.transportRequestCustomFieldValues.filter(customFieldValue => {
-              if (customFieldValue['id'] === customField.id) {
-                value = customFieldValue['value'];
+            this.transportRequestCustomFieldValues.filter((customFieldValue: any) => {
+              if (customFieldValue.id === customField.id) {
+                value = customFieldValue.value;
               }
             });
             customFieldsFormArray.push(
@@ -182,9 +187,9 @@ export class OtherRequestsComponent implements OnInit {
 
           for (const customField of customFields) {
             let value;
-            this.hotelRequestCustomFieldValues.filter(customFieldValue => {
-              if (customFieldValue['id'] === customField.id) {
-                value = customFieldValue['value'];
+            this.hotelRequestCustomFieldValues.filter((customFieldValue: any) => {
+              if (customFieldValue.id === customField.id) {
+                value = customFieldValue.value;
               }
             });
             customFieldsFormArray.push(
@@ -219,9 +224,9 @@ export class OtherRequestsComponent implements OnInit {
 
           for (const customField of customFields) {
             let value;
-            this.advanceRequestCustomFieldValues.filter(customFieldValue => {
-              if (customFieldValue['id'] === customField.id) {
-                value = customFieldValue['value'];
+            this.advanceRequestCustomFieldValues.filter((customFieldValue: any) => {
+              if (customFieldValue.id === customField.id) {
+                value = customFieldValue.value;
               }
             });
 
@@ -279,18 +284,101 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
+  async showPolicyViolationPopup(policyPopupRules: any [], policyActionDescription: string, tripReq) {
+    const latestComment = await this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).toPromise();
+
+    const policyViolationsModal = await this.modalController.create({
+      component: PolicyViolationComponent,
+      componentProps: {
+        policyViolationMessages: policyPopupRules,
+        policyActionDescription,
+        comment: latestComment
+      }
+    });
+
+    await policyViolationsModal.present();
+
+    const { data } = await policyViolationsModal.onWillDismiss();
+
+    if (data && data.comment) {
+      return {
+        status: 'proceed',
+        comment: data.comment
+      };
+    } else {
+      return {
+        status: 'stop'
+      };
+    }
+  }
+
   submitOtherRequests(formValue, mode) {
     let trpId;
     from(this.loaderService.showLoader('Submitting Request')).pipe(
       switchMap(() => {
         return this.makeTripRequestFromForm(this.fgValues);
       }),
-      concatMap(res => {
+      concatMap(tripReq => {
         if (mode === 'SUBMIT') {
-          return this.tripRequestsService.submit(res);
+          return this.tripRequestsService.submit(tripReq);
         }
         if (mode === 'DRAFT') {
-          return this.tripRequestsService.saveDraft(res);
+          return of(tripReq).pipe(
+            switchMap((tripReq) => {
+              const tripRequestObject = {
+                trip_request: tripReq
+              };
+              return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
+                switchMap((res) => {
+                  const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(res);
+                  if (policyPopupRules.length > 0) {
+                    const policyActionDescription = res.trip_request_desired_state.action_description;
+                    return from(this.showPolicyViolationPopup(
+                      policyPopupRules,
+                      policyActionDescription,
+                      tripReq
+                    )).pipe(
+                      map(policyModalRes => {
+                        if (policyModalRes.status === 'proceed') {
+                          return {
+                            tripReq,
+                            comment: policyModalRes.comment
+                          };
+                        } else {
+                          throwError({
+                            status: 'Policy Violated'
+                          });
+                        }
+                      })
+                    );
+                  } else {
+                    return of({tripReq});
+                  }
+                })
+              );
+            }),
+            switchMap(({ tripReq, comment }: any) => {
+              if (comment && tripReq.id) {
+                return this.tripRequestsService.saveDraft(tripReq).pipe(
+                  switchMap((res) => {
+                    return this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
+                      switchMap(result => {
+                        if (result === comment) {
+                          return this.statusService.post('trip_requests', tripReq.trp.id, {comment}, true).pipe(
+                            map(() => res)
+                          );
+                        } else {
+                          return of(res);
+                        }
+                      })
+                    );
+                  })
+                );
+              } else {
+                return this.tripRequestsService.saveDraft(tripReq);
+              }
+            }),
+          );
         }
       }),
       concatMap(res => {
@@ -303,11 +391,12 @@ export class OtherRequestsComponent implements OnInit {
       }),
       finalize(() => {
         this.loaderService.hideLoader();
-        this.otherDetailsForm.reset();
-        this.modalController.dismiss();
-        this.router.navigate(['/', 'enterprise', 'my_trips']);
       })
-    ).subscribe(noop);
+    ).subscribe(() => {
+      this.otherDetailsForm.reset();
+      this.modalController.dismiss();
+      this.router.navigate(['/', 'enterprise', 'my_trips']);
+    });
   }
 
   makeTripRequestFromForm(fgValues) {
@@ -317,7 +406,7 @@ export class OtherRequestsComponent implements OnInit {
       }).pipe(
         map(res => {
           const tripRequest: any = res.tripRequest;
-  
+
           const trp = {
             ...tripRequest,
             custom_field_values: fgValues.custom_field_values,
@@ -352,8 +441,7 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   createOtherRequestFormAndPost(formValue, trpId) {
-
-    let arr = [];
+    const arr = [];
 
     if (formValue.advanceDetails.length > 0) {
       formValue.advanceDetails.forEach((advanceDetail, index) => {
@@ -384,7 +472,7 @@ export class OtherRequestsComponent implements OnInit {
       }).pipe(
         switchMap(res => {
           const advanceRequest: any = res.advanceRequest[index];
-  
+
           const advanceDetailObject = {
             ...advanceRequest,
             amount: advanceDetail.amount,
@@ -419,7 +507,7 @@ export class OtherRequestsComponent implements OnInit {
       }).pipe(
         switchMap(res => {
           const hotelRequest: any = res.hotelRequest[index].hr;
-  
+
           const hotelDetailObject = {
             ...hotelRequest,
             amount: 15,
@@ -442,7 +530,7 @@ export class OtherRequestsComponent implements OnInit {
         })
       );
     } else {
-      let hotelDetailObject = {
+      const hotelDetailObject = {
         amount: 15,
         assigned_at: hotelDetail.assignedAt,
         assigned_to: hotelDetail.assignedTo,
@@ -470,7 +558,7 @@ export class OtherRequestsComponent implements OnInit {
       }).pipe(
         switchMap(res => {
           const transportationRequest: any = res.transportationRequest[index].tr;
-  
+
           const transportDetailObject = {
             ...transportationRequest,
             amount: transportDetail.amount,
@@ -493,7 +581,7 @@ export class OtherRequestsComponent implements OnInit {
         })
       );
     } else {
-      let transportDetailObject = {
+      const transportDetailObject = {
         amount: transportDetail.amount,
         assigned_at: transportDetail.assignedAt,
         assigned_to: this.fgValues.travelAgent || null,
@@ -704,10 +792,10 @@ export class OtherRequestsComponent implements OnInit {
               notes: [request.hr.notes],
               custom_field_values: new FormArray([])
             });
-            let custom = details.get('custom_field_values') as FormArray;
-            let renderedCustomFeild = this.modifyOtherRequestCustomFields(request.hr.custom_field_values, 'HOTEL');
+            const custom = details.get('custom_field_values') as FormArray;
+            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.hr.custom_field_values, 'HOTEL');
             renderedCustomFeild.forEach(field => {
-              let customFields = this.formBuilder.group({
+              const customFields = this.formBuilder.group({
                 id: [field.id],
                 name: [field.name],
                 value: [field.value]
@@ -728,10 +816,10 @@ export class OtherRequestsComponent implements OnInit {
               custom_field_values: new FormArray([]),
               notes: [request.notes]
             });
-            let custom = details.get('custom_field_values') as FormArray;
-            let renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
+            const custom = details.get('custom_field_values') as FormArray;
+            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
             renderedCustomFeild.forEach(field => {
-              let customFields = this.formBuilder.group({
+              const customFields = this.formBuilder.group({
                 id: [field.id],
                 name: [field.name],
                 value: [field.value]
@@ -760,10 +848,10 @@ export class OtherRequestsComponent implements OnInit {
               travellerDetails: [this.fgValues.travellerDetails],
               notes: [request.tr.notes]
             });
-            let custom = details.get('custom_field_values') as FormArray;
-            let renderedCustomFeild = this.modifyOtherRequestCustomFields(request.tr.custom_field_values, 'TRANSPORT');
+            const custom = details.get('custom_field_values') as FormArray;
+            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.tr.custom_field_values, 'TRANSPORT');
             renderedCustomFeild.forEach(field => {
-              let customFields = this.formBuilder.group({
+              const customFields = this.formBuilder.group({
                 id: [field.id],
                 name: [field.name],
                 value: [field.value]

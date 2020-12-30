@@ -1,26 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { from, Observable, noop, forkJoin, of, concat, combineLatest, iif, Subject } from 'rxjs';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { DateService } from 'src/app/core/services/date.service';
-import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
-import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take, concatMapTo } from 'rxjs/operators';
+import {Component, OnInit} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+import {from, Observable, noop, forkJoin, of, concat, combineLatest, iif, Subject, throwError} from 'rxjs';
+import {ExtendedOrgUser} from 'src/app/core/models/extended-org-user.model';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {DateService} from 'src/app/core/services/date.service';
+import {FormGroup, FormControl, FormArray, FormBuilder, Validators} from '@angular/forms';
+import {map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take, concatMapTo} from 'rxjs/operators';
 import * as moment from 'moment';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { OtherRequestsComponent } from './other-requests/other-requests.component';
-import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { SavePopoverComponent } from './save-popover/save-popover.component';
-import { CustomField } from 'src/app/core/models/custom_field.model';
-import { ProjectsService } from 'src/app/core/services/projects.service';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
-import { TripRequestPolicyService } from 'src/app/core/services/trip-request-policy.service';
+import {OrgUserService} from 'src/app/core/services/org-user.service';
+import {ModalController, PopoverController} from '@ionic/angular';
+import {OtherRequestsComponent} from './other-requests/other-requests.component';
+import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
+import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
+import {TripRequestCustomFieldsService} from 'src/app/core/services/trip-request-custom-fields.service';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {TripRequestsService} from 'src/app/core/services/trip-requests.service';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {SavePopoverComponent} from './save-popover/save-popover.component';
+import {CustomField} from 'src/app/core/models/custom_field.model';
+import {ProjectsService} from 'src/app/core/services/projects.service';
+import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
+import {TripRequestPolicyService} from 'src/app/core/services/trip-request-policy.service';
+import {StatusService} from '../../core/services/status.service';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -66,8 +67,10 @@ export class MyAddEditTripPage implements OnInit {
     private loaderService: LoaderService,
     private popoverController: PopoverController,
     private projectsService: ProjectsService,
-    private tripRequestPolicyService: TripRequestPolicyService
-  ) { }
+    private tripRequestPolicyService: TripRequestPolicyService,
+    private statusService: StatusService
+  ) {
+  }
 
   fg: FormGroup;
 
@@ -80,7 +83,7 @@ export class MyAddEditTripPage implements OnInit {
       cssClass: 'dialog-popover'
     });
     await addExpensePopover.present();
-    const { data } = await addExpensePopover.onDidDismiss();
+    const {data} = await addExpensePopover.onDidDismiss();
     if (data && data.continue) {
       this.fg.reset();
       this.router.navigate(['/', 'enterprise', 'my_trips']);
@@ -121,8 +124,8 @@ export class MyAddEditTripPage implements OnInit {
       componentProps: {
         saveMode: 'SUBMIT',
         otherRequests: [
-          { hotel: this.fg.get('hotelRequest').value || false },
-          { transportation: this.fg.get('transportationRequest').value || false }
+          {hotel: this.fg.get('hotelRequest').value || false},
+          {transportation: this.fg.get('transportationRequest').value || false}
         ]
       },
       cssClass: 'dialog-popover'
@@ -134,7 +137,7 @@ export class MyAddEditTripPage implements OnInit {
         return;
       } else {
         await addExpensePopover.present();
-        const { data } = await addExpensePopover.onDidDismiss();
+        const {data} = await addExpensePopover.onDidDismiss();
         if (data && data.continue) {
           this.customFields$.pipe(
             take(1)
@@ -151,36 +154,36 @@ export class MyAddEditTripPage implements OnInit {
     }
   }
 
-  policyViolationCheck() {
-    from(this.makeTrpFormFromFg(this.fg.value)).pipe(
-      concatMap((res) => {
-        const tripRequestObject = {
-          trip_request: res
-        };
-        return this.tripRequestPolicyService.testTripRequest(tripRequestObject);
-      }),
-      concatMap(res => {
-        return this.tripRequestPolicyService.getPolicyPopupRules(res);
-      }),
-      map(res => {
-        console.log('\n\n\n res outside ->', res);
-        if (res) {
-          console.log('\n\n\n res inside ->', res);
-          // let policyPopupRules = res;
-          // let policyActionDescription = res.trip_request_desired_state.action_description;
-          // const policyPopup = await this.modalController.create({
-          //   component: PolicyViolationComponent,
-          //   componentProps: {
-          //     data: 'test'
-          //   }
-          // });
-          // await policyPopup.present();
-        } else {
-          this.saveAsDraft(this.fg.value);
-        }
-      })
-    );
-  }
+  // policyViolationCheck() {
+  //   from(this.makeTrpFormFromFg(this.fg.value)).pipe(
+  //     concatMap((res) => {
+  //       const tripRequestObject = {
+  //         trip_request: res
+  //       };
+  //       return this.tripRequestPolicyService.testTripRequest(tripRequestObject);
+  //     }),
+  //     concatMap(res => {
+  //       return this.tripRequestPolicyService.getPolicyPopupRules(res);
+  //     }),
+  //     map(res => {
+  //       console.log('\n\n\n res outside ->', res);
+  //       if (res) {
+  //         console.log('\n\n\n res inside ->', res);
+  //         // let policyPopupRules = res;
+  //         // let policyActionDescription = res.trip_request_desired_state.action_description;
+  //         // const policyPopup = await this.modalController.create({
+  //         //   component: PolicyViolationComponent,
+  //         //   componentProps: {
+  //         //     data: 'test'
+  //         //   }
+  //         // });
+  //         // await policyPopup.present();
+  //       } else {
+  //         this.saveAsDraft(this.fg.value);
+  //       }
+  //     })
+  //   );
+  // }
 
   async saveDraftModal() {
     const addExpensePopover = await this.popoverController.create({
@@ -197,13 +200,41 @@ export class MyAddEditTripPage implements OnInit {
         return;
       } else {
         await addExpensePopover.present();
-        const { data } = await addExpensePopover.onDidDismiss();
+        const {data} = await addExpensePopover.onDidDismiss();
         if (data && data.continue) {
-          this.policyViolationCheck();
+          this.saveAsDraft(this.fg.value);
         }
       }
     } else {
       this.fg.markAllAsTouched();
+    }
+  }
+
+  async showPolicyViolationPopup(policyPopupRules: any [], policyActionDescription: string, tripReq) {
+    const latestComment = await this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).toPromise();
+
+    const policyViolationsModal = await this.modalController.create({
+      component: PolicyViolationComponent,
+      componentProps: {
+        policyViolationMessages: policyPopupRules,
+        policyActionDescription,
+        comment: latestComment
+      }
+    });
+
+    await policyViolationsModal.present();
+
+    const { data } = await policyViolationsModal.onWillDismiss();
+
+    if (data && data.comment) {
+      return {
+        status: 'proceed',
+        comment: data.comment
+      };
+    } else {
+      return {
+        status: 'stop'
+      };
     }
   }
 
@@ -212,18 +243,70 @@ export class MyAddEditTripPage implements OnInit {
       switchMap(() => {
         return this.makeTrpFormFromFg(formValue);
       }),
-      switchMap(res => {
-        return this.tripRequestsService.saveDraft(res);
+      switchMap((tripReq) => {
+        const tripRequestObject = {
+          trip_request: tripReq
+        };
+        return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
+          switchMap((res) => {
+            const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(res);
+            if (policyPopupRules.length > 0) {
+              const policyActionDescription = res.trip_request_desired_state.action_description;
+              return from(this.showPolicyViolationPopup(
+                policyPopupRules,
+                policyActionDescription,
+                tripReq
+              )).pipe(
+                map(policyModalRes => {
+                  if (policyModalRes.status === 'proceed') {
+                   return {
+                     tripReq,
+                     comment: policyModalRes.comment
+                   };
+                  } else {
+                    throwError({
+                      status: 'Policy Violated'
+                    });
+                  }
+                })
+              );
+            } else {
+              return of({tripReq});
+            }
+          })
+        );
+      }),
+      switchMap(({ tripReq, comment }: any) => {
+        if (comment && tripReq.id) {
+          return this.tripRequestsService.saveDraft(tripReq).pipe(
+            switchMap((res) => {
+              return this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
+                switchMap(result => {
+                  if (result === comment) {
+                    return this.statusService.post('trip_requests', tripReq.trp.id, {comment}, true).pipe(
+                      map(() => res)
+                    );
+                  } else {
+                    return of(res);
+                  }
+                })
+              );
+            })
+          );
+        } else {
+          return this.tripRequestsService.saveDraft(tripReq);
+        }
       }),
       switchMap(res => {
         return this.tripRequestsService.triggerPolicyCheck(res.id);
       }),
       finalize(() => {
         this.loaderService.hideLoader();
-        this.fg.reset();
-        this.router.navigate(['/', 'enterprise', 'my_trips']);
       })
-    ).subscribe(noop);
+    ).subscribe(() => {
+      this.fg.reset();
+      this.router.navigate(['/', 'enterprise', 'my_trips']);
+    });
   }
 
   makeTrpFormFromFg(formValue) {
@@ -279,11 +362,11 @@ export class MyAddEditTripPage implements OnInit {
       }),
       finalize(() => {
         this.loaderService.hideLoader();
-        this.fg.reset();
-        this.router.navigate(['/', 'enterprise', 'my_trips']);
       })
-    ).subscribe(noop);
-
+    ).subscribe(() => {
+      this.fg.reset();
+      this.router.navigate(['/', 'enterprise', 'my_trips']);
+    });
   }
 
   get startDate() {
@@ -341,9 +424,15 @@ export class MyAddEditTripPage implements OnInit {
       component: OtherRequestsComponent,
       componentProps: {
         otherRequests: [
-          { hotel: this.fg.get('hotelRequest').value || false },
-          { advance: this.fg.get('advanceRequest').value || false },
-          { transportation: this.fg.get('transportationRequest').value || false }
+          {
+            hotel: this.fg.get('hotelRequest').value || false
+          },
+          {
+            advance: this.fg.get('advanceRequest').value || false
+          },
+          {
+            transportation: this.fg.get('transportationRequest').value || false
+          }
         ],
         fgValues: this.fg.value,
         id: this.activatedRoute.snapshot.params.id || null
@@ -363,14 +452,19 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   modifyTripRequestCustomFields(customFields): CustomField[] {
-    customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
-    customFields = customFields.map(customField => {
-      if (customField.type === 'DATE' && customField.value) {
-        const updatedDate = new Date(customField.value);
-        customField.value = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
-      }
-      return {id: customField.id, name: customField.name, value: customField.value};
-    });
+    customFields = customFields
+      .sort((a, b) => (a.id > b.id) ? 1 : -1)
+      .map(customField => {
+        if (customField.type === 'DATE' && customField.value) {
+          const updatedDate = new Date(customField.value);
+          customField.value = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
+        }
+        return {
+          id: customField.id,
+          name: customField.name,
+          value: customField.value
+        };
+      });
     this.customFieldValues = customFields;
     return this.customFieldValues;
   }
@@ -452,7 +546,7 @@ export class MyAddEditTripPage implements OnInit {
 
           if (customField.input_options) {
             customField.options = customField.input_options.map(option => {
-              return { label: option, value: option };
+              return {label: option, value: option};
             });
           }
           return customField;
@@ -547,7 +641,7 @@ export class MyAddEditTripPage implements OnInit {
     this.eou$ = from(this.authService.getEou());
     this.travelAgents$ = this.orgUserService.getAllCompanyEouc().pipe(
       map(eous => {
-        let travelAgents = [];
+        const travelAgents = [];
         eous.filter(eou => {
           if (eou.ou.roles.indexOf('TRAVEL_AGENT') > -1) {
             travelAgents.push({
