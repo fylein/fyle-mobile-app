@@ -1,14 +1,5 @@
 .split-expense-popover {
-  height: 160px;
   padding: 0 16px;
-  
-  &--two-items-list {
-    height: 220px;
-  }
-
-  &--three-items-list {
-    height: 280px;
-  }
   
   &--header {
     padding: 28px 8px 8px;
@@ -22,6 +13,10 @@
     font-weight: 600;
     color: #4a4a4a;
     margin: 0 0 10px;
+  }
+
+  &--items-container {
+    margin: 16px 0;
   }
 
   &--item {

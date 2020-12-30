@@ -5,7 +5,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'auth/sign-up',
+    redirectTo: 'auth/sign_up',
     pathMatch: 'full'
   },
   {
@@ -25,6 +25,10 @@ const routes: Routes = [
     path: 'enterprise',
     loadChildren: () => import('./fyle/fyle-routing.module').then(m => m.FyleRoutingModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'deep_link_redirection',
+    loadChildren: () => import('./deep-link-redirection/deep-link-redirection.module').then( m => m.DeepLinkRedirectionPageModule)
   }
 ];
 

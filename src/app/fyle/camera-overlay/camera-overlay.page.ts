@@ -23,13 +23,14 @@ import { OfflineService } from 'src/app/core/services/offline.service';
   styleUrls: ['./camera-overlay.page.scss'],
 })
 export class CameraOverlayPage implements OnInit {
-  isCameraShown = true;
+  isCameraShown: boolean;
   recentImage: string;
   isBulkMode: boolean;
   isCameraOpenedInOneClick = false;
   lastImage: string;
   captureCount: number;
   homeCurrency: string;
+  activeFlashMode: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -42,25 +43,34 @@ export class CameraOverlayPage implements OnInit {
   ) { }
 
   setUpAndStartCamera() {
-    this.isCameraShown = true;
-    const cameraPreviewOptions: CameraPreviewOptions = {
-      position: 'rear',
-      x: 0,
-      y: 0,
-      width: window.screen.width,
-      height: window.innerHeight - 120,
-      parent: 'cameraPreview'
-    };
+    if (this.isCameraShown === false) {
+      this.isCameraShown = true;
+      const cameraPreviewOptions: CameraPreviewOptions = {
+        position: 'rear',
+        x: 0,
+        y: 0,
+        width: window.screen.width,
+        height: window.innerHeight - 120,
+        parent: 'cameraPreview'
+      };
 
-    CameraPreview.start(cameraPreviewOptions);
+      CameraPreview.start(cameraPreviewOptions);
+    }
+  }
+
+  async stopCamera() {
+    if (this.isCameraShown === true) {
+      await CameraPreview.stop();
+      this.isCameraShown = false;
+    }
   }
 
   switchMode() {
     this.isBulkMode = !this.isBulkMode;
   }
 
-  async uploadFiles() {
-    await CameraPreview.stop();
+  uploadFiles() {
+    this.stopCamera();
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
         const options = {
@@ -71,17 +81,23 @@ export class CameraOverlayPage implements OnInit {
         // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
 
         from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings) => {
-          this.loaderService.showLoader('Processing....');
-          imageBase64Strings.forEach((base64String, key) => {
-            const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-            this.addExpenseToQueue('GALLERY_UPLOAD', base64PictureData);
-            if (key === imageBase64Strings.length - 1) {
-              this.transactionsOutboxService.sync().then((res) => {
-                this.showGalleryUploadSuccessPopup(imageBase64Strings.length);
-              });
-            }
-          });
-          this.loaderService.hideLoader();
+
+          if (imageBase64Strings.length > 0) {
+            this.loaderService.showLoader('Processing....');
+            imageBase64Strings.forEach((base64String, key) => {
+              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
+              this.addExpenseToQueue('GALLERY_UPLOAD', base64PictureData);
+              if (key === imageBase64Strings.length - 1) {
+                this.transactionsOutboxService.sync().then((res) => {
+                  this.showGalleryUploadSuccessPopup(imageBase64Strings.length);
+                });
+              }
+            });
+            this.loaderService.hideLoader();
+          } else {
+            this.setUpAndStartCamera();
+          }
+
         });
 
       } else {
@@ -134,21 +150,24 @@ export class CameraOverlayPage implements OnInit {
     this.recentImage = '';
   }
 
-  async syncExpenseAndFinishProcess() {
+  syncExpenseAndFinishProcess() {
     if (this.isCameraOpenedInOneClick) {
       // Todo: Sync expense and redirect to close_app page
     } else {
-      await this.finishProcess();
+      this.finishProcess();
     }
   }
 
-  async finishProcess() {
-    await CameraPreview.stop();
-    this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+  finishProcess() {
+    this.stopCamera();
+    if (this.isBulkMode && this.captureCount > 0) {
+      this.showGalleryUploadSuccessPopup(this.captureCount);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    }
   }
 
   retake() {
-    this.isCameraShown = true;
     this.recentImage = '';
     this.setUpAndStartCamera();
   }
@@ -175,27 +194,52 @@ export class CameraOverlayPage implements OnInit {
 
   async onCapture() {
     this.loaderService.showLoader('Hold Still...');
-    this.isCameraShown = false;
     const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
       quality: 50
     };
 
     const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-    await CameraPreview.stop();
+    this.stopCamera();
     const base64PictureData = 'data:image/jpeg;base64,' + result.value;
     this.recentImage = base64PictureData;
     this.loaderService.hideLoader();
   }
 
+  toggleFlashMode() {
+    let nextActiveFlashMode = 'on';
+    if (this.activeFlashMode === 'on') {
+      nextActiveFlashMode = 'off';
+    }
+
+    CameraPreview.setFlashMode({flashMode: nextActiveFlashMode});
+    this.activeFlashMode = nextActiveFlashMode;
+  }
+
+  getFlashModes() {
+    CameraPreview.getSupportedFlashModes().then(flashModes => {
+      if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
+        this.activeFlashMode = 'off';
+        CameraPreview.setFlashMode({flashMode: this.activeFlashMode});
+      }
+    })
+  }
+
   ionViewWillEnter() {
     this.captureCount = 0;
     this.isBulkMode = false;
+    this.isCameraShown = false;
     this.setUpAndStartCamera();
+    this.activeFlashMode = null;
     this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
 
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
     });
+
+    setTimeout(() => {
+      this.getFlashModes();
+    }, 500);
+
   }
 
   ngOnInit() {

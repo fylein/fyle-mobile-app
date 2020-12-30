@@ -163,7 +163,7 @@
                         <span class="add-edit-mileage--text-label__unit"> ({{ mileageConfig.unit }})</span>
                       </ng-container>
                     </ng-template>
-                    <div>
+                    <div *ngIf="txnFields?.distance?.mandatory">
                       *
                     </div>
                   </div>
@@ -189,15 +189,15 @@
             <ng-container *ngIf="paymentModes$|async as paymentModes">
               <div *ngIf="paymentModes.length > 1"
                 class="add-edit-mileage--payment-modes add-edit-mileage--internal-block">
-                <app-fy-select 
-                  [subheader]="'All Payment Modes'" 
-                  [enableSearch]="false" 
-                  [mandatory]="true" 
+                <app-fy-select
+                  [subheader]="'All Payment Modes'"
+                  [enableSearch]="false"
+                  [mandatory]="true"
                   [label]="fg.value.paymentMode? 'Payment Mode' : 'Select Payment Mode'"
-                  [options]="paymentModes" 
+                  [options]="paymentModes"
                   [selectionElement]="paymentMode"
                   [selectModalHeader]="'Choose Payment Mode'"
-                  formControlName="paymentMode" 
+                  formControlName="paymentMode"
                   [subheader]="'All Payment Modes'"
                   [nullOption]="false">
                 </app-fy-select>
@@ -252,7 +252,7 @@
                     [disabled]="!txnFields.purpose?.canEdit">
                 </div>
                 <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-mileage--internal-block">
-                  <app-fy-select formControlName="purpose" 
+                  <app-fy-select formControlName="purpose"
                     [options]="txnFields.purpose?.values"
                     [mandatory]="txnFields.purpose?.mandatory"
                     [label]="fg.value.purpose ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
@@ -359,7 +359,7 @@
               <ng-container *ngIf="txnFields$|async as txnFields">
                 <div class="add-edit-mileage--internal-block"
                   *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
-                  <app-fy-select formControlName="costCenter" 
+                  <app-fy-select formControlName="costCenter"
                     [selectModalHeader]="'Select Cost Center'"
                     [mandatory]="txnFields.cost_center_id.mandatory"
                     [label]="fg.controls.costCenter.value ? 'Cost Center' : 'Select Cost Center'"
@@ -412,9 +412,9 @@
                         {{duplicate.reason}}
                       </div>
                       <div class="add-edit-expense--duplicate-reason-select">
-                        <app-fy-select 
+                        <app-fy-select
                           formControlName="duplicate_detection_reason"
-                          [selectModalHeader]="'Select Reason'" 
+                          [selectModalHeader]="'Select Reason'"
                           [label]="'Select your Reason'"
                           [options]="[]">
                         </app-fy-select>

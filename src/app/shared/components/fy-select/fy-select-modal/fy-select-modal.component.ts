@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeD
 import {from, fromEvent, Observable, of} from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { isEqual } from 'lodash';
+import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
@@ -87,10 +87,12 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
     this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
       map((options: any) => {
-        options.map(option => {
+        return options
+          .filter(option => this.options.map(op => op.label).includes(option.label))
+          .map(option => {
           option.selected = isEqual(option.value, this.currentSelection);
+          return option;
         });
-        return options;
       })
     );
     this.cdr.detectChanges();

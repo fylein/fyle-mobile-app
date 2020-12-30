@@ -121,7 +121,7 @@ export class AddEditPerDiemPage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
-  };
+  }
 
   canGetDuplicates() {
     // TODO: Verify for per diem
@@ -381,7 +381,7 @@ export class AddEditPerDiemPage implements OnInit {
         num_days: this.fg.controls.num_days
       };
 
-      for (var defaultValueColumn in defaultValues) {
+      for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
           if (!control.value) {
@@ -537,13 +537,22 @@ export class AddEditPerDiemPage implements OnInit {
             selectedCategory$ = of(category);
           }
 
-          return iif(() => this.mode === 'add', of(category), selectedCategory$);
+          if (this.mode === 'add') {
+            if (category) {
+              return of(category);
+            } else {
+              return this.getPerDiemCategories().pipe(
+                map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
+              );
+            }
+          } else {
+            return selectedCategory$;
+          }
         }),
-        switchMap((category) => {
+        switchMap((category: any) => {
           const formValue = this.fg.value;
           return this.offlineService.getCustomInputs().pipe(
-            map(customFields => {
-              // TODO: Convert custom properties to get generated from formValue
+            map((customFields: any) => {
               return this.customFieldsService
                 .standardizeCustomFields(
                   formValue.custom_inputs || [],
