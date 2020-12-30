@@ -77,6 +77,9 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
+    if (!this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}')) {
+      return;
+    }
     await this.loaderService.showLoader();
 
     const checkEmailExists$ = this.routerAuthService
@@ -138,6 +141,9 @@ export class SignInPage implements OnInit {
   }
 
   async signInUser() {
+    if (this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}') && this.fg.value.password.replace(/\s/g, '').length <= 0) {
+      return;
+    }
     await this.loaderService.showLoader();
 
     const basicSignIn$ = this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password).pipe(
