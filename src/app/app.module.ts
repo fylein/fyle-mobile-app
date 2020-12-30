@@ -19,6 +19,7 @@ import { environment } from 'src/environments/environment';
 import { SharedModule } from './shared/shared.module';
 import { CurrencyPipe } from '@angular/common';
 
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { CurrencyPipe } from '@angular/common';
     SplashScreen,
     GooglePlus,
     InAppBrowser,
+    ScreenOrientation,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true },
     CurrencyPipe
