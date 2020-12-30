@@ -52,6 +52,7 @@ export class MyAddEditTripPage implements OnInit {
   tripRequest$: Observable<any>;
   customFieldValues;
   refreshTrips$ = new Subject();
+  hasAppliedForOtherRequests: boolean;
 
   constructor(
     private router: Router,
@@ -626,6 +627,7 @@ export class MyAddEditTripPage implements OnInit {
           this.fg.get('transportationRequest').setValue(transportRequest.length > 0 ? true : false);
           this.fg.get('hotelRequest').setValue(hotelRequest.length > 0 ? true : false);
           this.fg.get('advanceRequest').setValue(advanceRequest.length > 0 ? true : false);
+          this.hasAppliedForOtherRequests = transportRequest.length > 0 || hotelRequest.length > 0 || advanceRequest.length > 0;
         }),
         finalize(() => this.loaderService.hideLoader())
       ).subscribe(noop);
