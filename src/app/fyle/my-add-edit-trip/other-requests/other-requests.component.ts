@@ -49,7 +49,7 @@ export class OtherRequestsComponent implements OnInit {
   advanceRequestCustomFieldValues: [];
   transportRequestCustomFieldValues: [];
   hotelRequestCustomFieldValues: [];
-  
+
 
   otherDetailsForm: FormGroup;
 
