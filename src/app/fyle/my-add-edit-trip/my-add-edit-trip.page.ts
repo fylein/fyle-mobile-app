@@ -246,10 +246,14 @@ export class MyAddEditTripPage implements OnInit {
       }),
       switchMap((tripReq) => {
         const tripRequestObject = {
-          trip_request: tripReq
+          trip_request: tripReq,
+          advance_requests: [],
+          transportation_requests: [],
+          hotel_requests: []
         };
         return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
           switchMap((res) => {
+            console.log('\n\n\n policy res ->', res);
             const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(res);
             if (policyPopupRules.length > 0) {
               const policyActionDescription = res.trip_request_desired_state.action_description;
