@@ -16,11 +16,22 @@
 
   &--approver-details {
     margin-left: 16px;
+    font-size: 16px;
+    font-weight: 500;
   }
 
   &--save {
     margin: 12px;
     --border-radius: 4px;
+    height: 48px;
+  }
+
+  &--all-approvers {
+    color: #ababab;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 8px 16px;
+    line-height: 1.7;
   }
 
   &--form-field {
@@ -34,5 +45,10 @@
 
   &--form-field-container {
     text-align: center;
+  }
+
+  &--search-input {
+    padding: 0 12px;
+    font-size: 16px;
   }
 }

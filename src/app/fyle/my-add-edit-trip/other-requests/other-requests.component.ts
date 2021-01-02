@@ -136,6 +136,7 @@ export class OtherRequestsComponent implements OnInit {
           const customFieldsFormArray = this.transportDetails.controls[index]['controls'].custom_field_values as FormArray;
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
+
           customFields = customFields.filter(field => {
             return field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1;
           });
@@ -159,8 +160,8 @@ export class OtherRequestsComponent implements OnInit {
           return customFields.map((customField, i) => {
             customField.control = customFieldsFormArray.at(i);
 
-            if (customField.options) {
-              customField.options = customField.options.map(option => {
+            if (customField.input_options) {
+              customField.input_options = customField.input_options.map(option => {
                 return { label: option, value: option };
               });
             }
@@ -289,7 +290,7 @@ export class OtherRequestsComponent implements OnInit {
 
   submitOtherRequests(formValue, mode) {
     let trpId;
-    from(this.loaderService.showLoader('Submitting Request')).pipe(
+    from(this.loaderService.showLoader('Saving as draft')).pipe(
       switchMap(() => {
         return this.makeTripRequestFromForm(this.fgValues);
       }),
@@ -426,32 +427,53 @@ export class OtherRequestsComponent implements OnInit {
         hotelRequest: this.hotelRequest$
       }).pipe(
         switchMap(res => {
-          const hotelRequest: any = res.hotelRequest[index].hr;
+          const hotelRequest: any = res.hotelRequest[index] && res.hotelRequest[index].hr;
 
-          const hotelDetailObject = {
-            ...hotelRequest,
-            amount: 15,
-            assigned_at: hotelDetail.assignedAt,
-            assigned_to: hotelDetail.assignedTo,
-            check_in_dt: hotelDetail.checkInDt,
-            check_out_dt: hotelDetail.checkOutDt,
-            city: hotelDetail.city,
-            currency: hotelDetail.currency,
-            custom_field_values: hotelDetail.custom_field_values,
-            location: hotelDetail.location,
-            need_booking: hotelDetail.needBooking,
-            notes: hotelDetail.notes,
-            rooms: hotelDetail.rooms,
-            source: 'MOBILE',
-            traveller_details: hotelDetail.travellerDetails,
-            trip_request_id: trpId
-          };
-          return this.hotelRequestService.upsert(hotelDetailObject);
+          if (hotelRequest) {
+            const hotelDetailObject = {
+              ...hotelRequest,
+              amount: hotelDetail.amount,
+              assigned_at: hotelDetail.assignedAt,
+              assigned_to: hotelDetail.assignedTo,
+              check_in_dt: hotelDetail.checkInDt,
+              check_out_dt: hotelDetail.checkOutDt,
+              city: hotelDetail.city,
+              currency: hotelDetail.currency,
+              custom_field_values: hotelDetail.custom_field_values,
+              location: hotelDetail.location,
+              need_booking: hotelDetail.needBooking,
+              notes: hotelDetail.notes,
+              rooms: hotelDetail.rooms,
+              source: 'MOBILE',
+              traveller_details: hotelDetail.travellerDetails,
+              trip_request_id: trpId
+            };
+            return this.hotelRequestService.upsert(hotelDetailObject);
+          } else {
+            let hotelDetailObject = {
+              amount: hotelDetail.amount,
+              assigned_at: hotelDetail.assignedAt,
+              assigned_to: hotelDetail.assignedTo,
+              check_in_dt: hotelDetail.checkInDt,
+              check_out_dt: hotelDetail.checkOutDt,
+              city: hotelDetail.city,
+              currency: hotelDetail.currency,
+              custom_field_values: hotelDetail.custom_field_values,
+              location: hotelDetail.location,
+              need_booking: hotelDetail.needBooking,
+              notes: hotelDetail.notes,
+              rooms: hotelDetail.rooms,
+              source: 'MOBILE',
+              traveller_details: hotelDetail.travellerDetails,
+              trip_request_id: trpId
+            };
+            return this.hotelRequestService.upsert(hotelDetailObject);
+          }
         })
       );
     } else {
       let hotelDetailObject = {
-        amount: 15,
+        amount: hotelDetail.amount,
         assigned_at: hotelDetail.assignedAt,
         assigned_to: hotelDetail.assignedTo,
         check_in_dt: hotelDetail.checkInDt,
@@ -477,31 +499,53 @@ export class OtherRequestsComponent implements OnInit {
         transportationRequest: this.transportationRequest$
       }).pipe(
         switchMap(res => {
-          const transportationRequest: any = res.transportationRequest[index].tr;
+          const transportationRequest: any = res.transportationRequest[index] && res.transportationRequest[index].tr;
 
-        const transportDetailObject = {
-            ...transportationRequest,
-            amount: transportDetail.amount,
-            assigned_at: transportDetail.assignedAt,
-            assigned_to: this.fgValues.travelAgent || null,
-            currency: transportDetail.currency,
-            custom_field_values: transportDetail.custom_field_values,
-            from_city: transportDetail.fromCity,
-            need_booking: transportDetail.needBooking,
-            notes: transportDetail.notes,
-            onward_dt: transportDetail.onwardDt,
-            preferred_timing: transportDetail.transportTiming,
-            source: 'MOBILE',
-            to_city: transportDetail.toCity,
-            transport_mode: transportDetail.transportMode,
-            traveller_details: transportDetail.travellerDetails,
-            trip_request_id: trpId
-          };
-          return this.transportationRequestsService.upsert(transportDetailObject);
+          if (transportationRequest) {
+            const transportDetailObject = {
+              ...transportationRequest,
+              amount: transportDetail.amount,
+              assigned_at: transportDetail.assignedAt,
+              assigned_to: this.fgValues.travelAgent || null,
+              currency: transportDetail.currency,
+              custom_field_values: transportDetail.custom_field_values,
+              from_city: transportDetail.fromCity,
+              need_booking: transportDetail.needBooking,
+              notes: transportDetail.notes,
+              onward_dt: transportDetail.onwardDt,
+              preferred_timing: transportDetail.transportTiming,
+              source: 'MOBILE',
+              to_city: transportDetail.toCity,
+              transport_mode: transportDetail.transportMode,
+              traveller_details: transportDetail.travellerDetails,
+              trip_request_id: trpId
+            };
+            return this.transportationRequestsService.upsert(transportDetailObject);
+          } else {
+            const transportDetailObject = {
+              amount: transportDetail.amount,
+              assigned_at: transportDetail.assignedAt,
+              assigned_to: this.fgValues.travelAgent || null,
+              currency: transportDetail.currency,
+              custom_field_values: transportDetail.custom_field_values,
+              from_city: transportDetail.fromCity,
+              need_booking: transportDetail.needBooking,
+              notes: transportDetail.notes,
+              onward_dt: transportDetail.onwardDt,
+              preferred_timing: transportDetail.transportTiming,
+              source: 'MOBILE',
+              to_city: transportDetail.toCity,
+              transport_mode: transportDetail.transportMode,
+              traveller_details: transportDetail.travellerDetails,
+              trip_request_id: trpId
+            };
+            return this.transportationRequestsService.upsert(transportDetailObject);
+          }
+
         })
       );
     } else {
-      let transportDetailObject = {
+      const transportDetailObject = {
         amount: transportDetail.amount,
         assigned_at: transportDetail.assignedAt,
         assigned_to: this.fgValues.travelAgent || null,
@@ -549,52 +593,7 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-
-    this.orgUserSettings$ = this.orgUserSettings.get();
-    this.advanceRequestCustomFieldValues = [];
-    this.hotelRequestCustomFieldValues = [];
-    this.transportRequestCustomFieldValues = [];
-
-    this.otherDetailsForm = new FormGroup({
-      hotelDetails: new FormArray([]),
-      transportDetails: new FormArray([]),
-      advanceDetails: new FormArray([]),
-    });
-
-    this.minDate = this.fgValues.startDate;
-    this.maxDate = this.fgValues.endDate;
-
-    this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
-      map(res => {
-        return res;
-      })
-    );
-
-    this.preferredCurrency$ = this.orgUserSettings$.pipe(
-      map(res => {
-        return  res.currency_settings.preferred_currency;
-      })
-    );
-
-    this.currencies$ = from(this.loaderService.showLoader()).pipe(
-      concatMap(() => {
-        return this.currencyService.getAll();
-      }),
-      map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({
-        value: shortCode,
-        label: shortCode,
-        displayValue: shortCode + ' - ' + currenciesObj[shortCode]
-      }))),
-      finalize(() => {
-        from(this.loaderService.hideLoader()).subscribe(noop);
-      }),
-      shareReplay()
-    );
-
-    this.transportationMode$ = of(this.transportationRequestsService.getTransportationModes());
-    this.preferredTransportationTiming$ = of (this.transportationRequestsService.getTransportationPreferredTiming());
-
+  initializeOtherRequests() {
     const fork$ = forkJoin({
       homeCurrency: this.homeCurrency$,
       preferredCurrency: this.preferredCurrency$
@@ -684,6 +683,55 @@ export class OtherRequestsComponent implements OnInit {
     );
 
     fork$.subscribe(noop);
+  }
+
+  ngOnInit() {
+
+    this.orgUserSettings$ = this.orgUserSettings.get();
+    this.advanceRequestCustomFieldValues = [];
+    this.hotelRequestCustomFieldValues = [];
+    this.transportRequestCustomFieldValues = [];
+
+    this.otherDetailsForm = new FormGroup({
+      hotelDetails: new FormArray([]),
+      transportDetails: new FormArray([]),
+      advanceDetails: new FormArray([]),
+    });
+
+    this.minDate = this.fgValues.startDate;
+    this.maxDate = this.fgValues.endDate;
+
+    this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
+      map(res => {
+        return res;
+      })
+    );
+
+    this.preferredCurrency$ = this.orgUserSettings$.pipe(
+      map(res => {
+        return  res.currency_settings.preferred_currency;
+      })
+    );
+
+    this.currencies$ = from(this.loaderService.showLoader()).pipe(
+      concatMap(() => {
+        return this.currencyService.getAll();
+      }),
+      map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({
+        value: shortCode,
+        label: shortCode,
+        displayValue: shortCode + ' - ' + currenciesObj[shortCode]
+      }))),
+      finalize(() => {
+        from(this.loaderService.hideLoader()).subscribe(noop);
+      }),
+      shareReplay()
+    );
+
+    this.transportationMode$ = of(this.transportationRequestsService.getTransportationModes());
+    this.preferredTransportationTiming$ = of (this.transportationRequestsService.getTransportationPreferredTiming());
+
+    this.initializeOtherRequests();
 
     if (this.id) {
       this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id).pipe(shareReplay());
@@ -787,6 +835,10 @@ export class OtherRequestsComponent implements OnInit {
             });
             this.transportDetails.push(details);
           });
+        }
+
+        if (hotelRequest.length === 0 && transportationRequest.length === 0 && advanceRequest.length === 0) {
+          this.initializeOtherRequests();
         }
       });
     }

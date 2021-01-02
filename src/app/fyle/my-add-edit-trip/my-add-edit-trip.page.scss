@@ -52,6 +52,8 @@ $item-border-color: #e0e0e0;
   &--delete-traveller {
     color: red;
     font-size: 16px;
+    height: 16px;
+    width: 16px;
   }
 
   &--text {
@@ -74,7 +76,8 @@ $item-border-color: #e0e0e0;
     line-height: 2;
     white-space: nowrap;
     display: flex;
-    min-width: 145px;
+    min-width: 120px;
+
     &__invalid {
       color: red;
     }
@@ -86,7 +89,7 @@ $item-border-color: #e0e0e0;
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
-    max-width: calc(100% - 145px);
+    max-width: calc(100% - 120px);
   }
 
   &--date-input {
@@ -95,7 +98,7 @@ $item-border-color: #e0e0e0;
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
-    text-align: right;
+    text-align: left;
   }
 
   &--element-container {

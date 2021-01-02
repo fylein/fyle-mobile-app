@@ -95,7 +95,7 @@ export class ViewTeamAdvancePage implements OnInit {
   }
 
   edit() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id }]);
+    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id, from: 'TEAM_ADVANCE' }]);
   }
 
   getApproverEmails(activeApprovals) {

@@ -46,6 +46,13 @@
           </div>
         </div>
 
+        <div class="advance-requests--element">
+          <div class="advance-requests--element-label">Notes</div>
+          <div class="advance-requests--element-value">
+            {{advanceRequest.notes || '-'}}
+          </div>
+        </div>
+
         <!-- TODO -->
         <div class="advance-requests--element" *ngFor="let customField of advanceRequest.custom_field_values">
           <div class="advance-requests--element-label">
@@ -67,29 +74,6 @@
           </div>
           <div class="advance-requests--element-value" *ngIf="customField.type === 'DATE'">
             {{customField.value? (customField.value | date: 'dd MMM yyyy') :'-'}}
-          </div>
-        </div>
-
-        <div class="advance-requests--element">
-          <div class="advance-requests--element-label">Notes</div>
-          <div class="advance-requests--element-value">
-            {{advanceRequest.notes || '-'}}
-          </div>
-        </div>
-
-        <div class="advance-requests--element" *ngFor="let customField of advanceRequest.custom_field_values">
-          <div class="advance-requests--element-label">
-            {{customField.name}}
-          </div>
-          <div class="advance-requests--element-value" *ngIf="customField.type === 'DATE'">
-            {{customField.value | date: 'dd, MMM yyyy'}}
-          </div>
-          <div class="advance-requests--element-value" *ngIf="customField.type === 'BOOLEAN'">
-            {{customField.value ? 'Yes' : 'No'}}
-          </div>
-          <div class="advance-requests--element-value"
-            *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'">
-            {{customField?.value?.display || customField.value || '-'}}
           </div>
         </div>
       </div>

@@ -6,7 +6,11 @@ $heading-shadow-color: #ababab;
   }
 
   &--container {
-    margin: 2px 18px;
+    margin: 0 16px;
+  }
+
+  &--element {
+    padding: 10px 10px 10px 20px;
   }
 
   &--notif-setting-header {
@@ -43,6 +47,7 @@ $heading-shadow-color: #ababab;
 
   &--primary-cta {
     margin: 12px 0;
+    height: 48px;
   }
 }
 

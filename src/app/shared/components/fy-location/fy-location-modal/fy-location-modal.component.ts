@@ -78,10 +78,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   onDoneClick() {
     let value;
-    if (this.currentSelection) {
-      value = this.currentSelection
+    if (this.currentSelection && (this.value === this.currentSelection)) {
+      value = this.currentSelection;
     } else if (this.value && this.value !== '') {
-      value = {display: this.value}
+      value = {display: this.value};
     } else {
       value = null;
     }

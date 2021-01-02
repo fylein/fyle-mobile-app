@@ -45,7 +45,8 @@
             <div class="transportation-requests--element">
               <div class="transportation-requests--element-label">Preferred timing</div>
               <div class="transportation-requests--element-value">
-                {{eTransportationRequest.tr.preferred_timing_formatted || '-'}}
+                <!-- {{eTransportationRequest.tr | json}} -->
+                {{ eTransportationRequest.tr && eTransportationRequest.tr.preferred_timing_formatted && eTransportationRequest.tr.preferred_timing_formatted.length > 0 ? eTransportationRequest.tr.preferred_timing_formatted[0].label : '-'}}
               </div>
             </div>
     
@@ -53,10 +54,7 @@
               <div class="transportation-requests--element-label">Budget</div>
               <td *ngIf="eTransportationRequest.tr.currency && eTransportationRequest.tr.amount">
                 <div class="transportation-requests--element-value">
-                  {{eTransportationRequest.tr.currency}}
-                </div>
-                <div>
-                  {{eTransportationRequest.tr.amount}}
+                  {{eTransportationRequest.tr.currency}} {{eTransportationRequest.tr.amount}}
                 </div>
               </td>
               <td *ngIf="!eTransportationRequest.tr.currency || !eTransportationRequest.tr.amount">
