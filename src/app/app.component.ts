@@ -22,6 +22,7 @@ import {NetworkService} from './core/services/network.service';
 import {Plugins} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 
 const {App} = Plugins;
 
@@ -59,7 +60,8 @@ export class AppComponent implements OnInit {
     private freshchatService: FreshChatService,
     private zone: NgZone,
     private deepLinkService: DeepLinkService,
-    private splashScreen: SplashScreen
+    private splashScreen: SplashScreen,
+    private screenOrientation: ScreenOrientation
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -111,6 +113,7 @@ export class AppComponent implements OnInit {
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
     });
+
   }
 
   openHelp() {
@@ -442,6 +445,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
