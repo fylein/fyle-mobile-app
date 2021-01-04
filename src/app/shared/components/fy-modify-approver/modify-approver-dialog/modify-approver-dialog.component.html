@@ -10,7 +10,7 @@
     </ion-toolbar>
     <ion-toolbar class="approver-list--form-field-container">
       <mat-form-field class="approver-list--form-field mat-form-field-no-padding" appearance="outline">
-        <input #searchBar id="approver-list--search-input" matInput placeholder="Search Approvers">
+        <input #searchBar id="approver-list--search-input" class="approver-list--search-input" matInput placeholder="Search Approvers">
       </mat-form-field>
     </ion-toolbar>
   </ion-toolbar>
@@ -18,6 +18,7 @@
 
 <ion-content>
   <div>
+    <p class="approver-list--all-approvers">All approvers</p>
     <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$|async as approverList">
       <div class="approver-list--list-element">
         <label>

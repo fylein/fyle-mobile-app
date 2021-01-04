@@ -150,7 +150,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
       switchMap((searchText: any) => {
         return this.approverList$.pipe(map(filteredApprovers => {
           return filteredApprovers.filter(filteredApprover => {
-            return !searchText || filteredApprover.us.email.indexOf(searchText) > -1;
+            return !searchText || filteredApprover.us.email.indexOf(searchText.toLowerCase()) > -1;
           });
        }));
       })

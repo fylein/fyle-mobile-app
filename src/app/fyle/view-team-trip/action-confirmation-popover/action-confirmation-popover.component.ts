@@ -16,14 +16,13 @@ export class ActionConfirmationPopoverComponent implements OnInit {
   ) { }
 
   action() {
-    if (this.type === 'SEND_BACK' && this.message.replace(/\s/g, "").length > 0) {
+    if (this.type === 'SEND_BACK' && this.message.replace(/\s/g, '').length > 0) {
       this.popoverController.dismiss({message: this.message});
     }
 
-    if (this.type === 'REJECT' && this.message.replace(/\s/g, "").length > 0) {
+    if (this.type === 'REJECT' && this.message.replace(/\s/g, '').length > 0) {
       this.popoverController.dismiss({message: this.message});
     }
-    
   }
 
   close() {

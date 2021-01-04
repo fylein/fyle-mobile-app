@@ -53,7 +53,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     saveApproverConfirmationPopover.present();
 
     const { data } = await saveApproverConfirmationPopover.onWillDismiss();
-    if (data.message) {
+    if (data && data.message) {
       if (this.from === 'TRIP_REQUEST') {
         from(this.loaderService.showLoader()).pipe(
           switchMap(() => from(this.selectedApprovers)),
@@ -124,7 +124,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       switchMap((searchText: any) => {
         return this.approverList$.pipe(map(filteredApprovers => {
           return filteredApprovers.filter(filteredApprover => {
-            return !searchText || filteredApprover.us.email.indexOf(searchText) > -1;
+            return !searchText || filteredApprover.us.email.indexOf(searchText.toLowerCase()) > -1;
           });
        }));
       })

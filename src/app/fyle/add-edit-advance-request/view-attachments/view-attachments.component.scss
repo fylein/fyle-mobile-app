@@ -1,6 +1,6 @@
 .view-attachments {
   &--container {
-    height: 80vh;
+    height: 72vh;
     width: 90vw;
     margin: 16px;
     border: 1px solid;
@@ -42,7 +42,14 @@
     color: white;
   }
 
+  &--cta-container {
+    padding: 16px;
+  }
+
   &--delete {
     padding: 0 8px;
+    height: 48px;
+    --border-radius: 4px !important;
+    letter-spacing: 0;
   }
 }

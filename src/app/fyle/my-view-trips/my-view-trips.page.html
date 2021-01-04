@@ -78,8 +78,8 @@
                 {{activeApproval.approver_name}}
               </span>
 
-              <span>
-                ({{activeApproval.state}})
+              <span class="text-capitalize">
+                ({{activeApproval.state | tripState}})
               </span>
 
             </span>
@@ -89,8 +89,8 @@
           <div class="view-trip--element-label">
             Trip Type
           </div>
-          <div class="view-trip--element-value">
-            {{tripRequest.trp_trip_type}}
+          <div class="view-trip--element-value text-capitalize">
+            {{tripRequest.trp_trip_type | lowercase | snakeCaseToSpaceCase}}
           </div>
         </div>
         <div class="view-trip--element">
@@ -194,7 +194,7 @@
 
       <div class="view-trip--card">
         <div class="view-trip--card-action">
-          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>
+          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
         </div>
       </div>
       <div class="view-trip--card" *ngIf="canDelete$|async" (click)="deleteTrip()">

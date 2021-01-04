@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content>
-    <form [formGroup]="fg" (ngSubmit)="onSubmit()">
+    <form [formGroup]="fg" (ngSubmit)="onSubmit()" #formContainer>
       <div class="add-edit-trip--container">
       <!-- Traveller details block start -->
       <div class="add-edit-trip--elements-wrapper">
@@ -28,11 +28,11 @@
                     </div>
                   </div>
                   <div class="add-edit-trip--text add-edit-trip--text__dynamic">
-                    <div class="add-edit-trip--text-label">Name</div>
+                    <div class="add-edit-trip--text-label">{{ control['controls'].name.value ? 'Name' : 'Enter Name' }}</div>
                     <input class="add-edit-trip--text-input" type="text"  formControlName="name">
                   </div>
                   <div class="add-edit-trip--text add-edit-trip--text__dynamic">
-                    <div class="add-edit-trip--text-label">Phone No</div>
+                    <div class="add-edit-trip--text-label">{{ control['controls'].phone_number.value ? 'Phone No' : 'Enter Phone No' }}</div>
                     <input class="add-edit-trip--text-input" type="text" formControlName="phone_number">
                   </div>
               </div>
@@ -149,15 +149,16 @@
       <!-- Trip information block ends -->
 
       <!-- Aditional information block starts -->
-      <div class="add-edit-trip--elements-wrapper">
+      <div class="add-edit-trip--elements-wrapper" *ngIf="customFields$|async as customFields">
         <div class="add-edit-trip--wrapper-title">
           Aditional information
         </div>
         <div class="add-edit-trip--element-container">
-          <div *ngFor="let customInput of customFields$|async as customFields">
+          <div *ngFor="let customInput of customFields">
             <form [formGroup]="customInput.control">
               <div class="add-edit-trip--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
-                <div class="add-edit-trip--text-label">
+                <div class="add-edit-trip--text-label"
+                [ngClass]="{'add-edit-trip--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                   {{customInput.input_name | ellipsis: 20}}
                   <span *ngIf="customInput.mandatory">
                     *
@@ -204,21 +205,21 @@
       <div>
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit' && hasOtherRequestDone" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
             Request Hotel
           </label>
         </div>
 
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" [disabled]="mode === 'edit'" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit' && hasOtherRequestDone" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
             Request Transportation
           </label>
         </div>
 
         <div class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox color="primary" [disabled]="mode === 'edit'" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
+            <mat-checkbox color="primary" [disabled]="mode === 'edit' && hasOtherRequestDone" id="advanceRequest" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest"></mat-checkbox>
             Request Advance
           </label>
         </div>
