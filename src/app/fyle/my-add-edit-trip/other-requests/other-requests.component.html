@@ -122,28 +122,6 @@
                         <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
-                      <input class="other-details--text-input" type="text" formControlName="value"
-                        *ngIf="customInput.input_type === 'TEXT'">
-          
-                      <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="value"
-                        *ngIf="customInput.input_type === 'NUMBER'">
-          
-                      <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
-                        formControlName="value">
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
-                      <div class="other-details--checkbox">
-                        <mat-checkbox color="primary" formControlName="value">
-                          {{customInput.input_name | ellipsis: 20 }}
-                        </mat-checkbox>
-        
-                      <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
-                        <div class="other-details--checkbox">
-                          <mat-checkbox color="primary" formControlName="value">
-                            {{customInput.input_name | ellipsis: 20 }}
-                          </mat-checkbox>
-                        </div>
-                      </div>
         
                       <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
                         <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
@@ -279,23 +257,6 @@
                         <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
-<<<<<<< HEAD
-                      <input class="other-details--text-input" type="text" formControlName="value"
-                        *ngIf="customInput.input_type === 'TEXT'">
-          
-                      <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="value"
-                        *ngIf="customInput.input_type === 'NUMBER'">
-          
-                      <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
-                        formControlName="value">
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
-                      <div class="other-details--checkbox">
-                        <mat-checkbox color="primary" formControlName="value">
-                          {{customInput.input_name | ellipsis: 20 }}
-                        </mat-checkbox>
-=======
         
                       <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
                         <div class="other-details--checkbox">
@@ -303,7 +264,6 @@
                             {{customInput.input_name | ellipsis: 20 }}
                           </mat-checkbox>
                         </div>
->>>>>>> master
                       </div>
         
                       <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
@@ -406,23 +366,6 @@
                         <input class="other-details--date-input" *ngIf="customInput.type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
-<<<<<<< HEAD
-                      <input class="other-details--text-input" type="text" formControlName="value"
-                        *ngIf="customInput.type === 'TEXT'">
-          
-                      <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="value"
-                        *ngIf="customInput.type === 'NUMBER'">
-          
-                      <input class="other-details--date-input" *ngIf="customInput.type === 'DATE'" type="date"
-                        formControlName="value">
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.type === 'BOOLEAN'">
-                      <div class="other-details--checkbox">
-                        <mat-checkbox color="primary" formControlName="value">
-                          {{customInput.name | ellipsis: 20 }}
-                        </mat-checkbox>
-=======
         
                       <div class="other-details--text" *ngIf="customInput.type === 'BOOLEAN'">
                         <div class="other-details--checkbox">
@@ -430,7 +373,6 @@
                             {{customInput.name | ellipsis: 20 }}
                           </mat-checkbox>
                         </div>
->>>>>>> master
                       </div>
         
                       <div class="other-details--text" *ngIf="customInput.type === 'LOCATION'">
