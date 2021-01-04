@@ -16,7 +16,6 @@ import {environment} from 'src/environments/environment';
 import {SharedModule} from './shared/shared.module';
 import {CurrencyPipe} from '@angular/common';
 import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
-import * as Sentry from 'sentry-cordova';
 import { SentryIonicErrorHandler } from './core/utils/sentry-error-handler';
 
 @NgModule({
@@ -55,9 +54,4 @@ import { SentryIonicErrorHandler } from './core/utils/sentry-error-handler';
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor() {
-    Sentry.init({
-      dsn: environment.SENTRY_DSN
-    });
-  }
 }
