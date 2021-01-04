@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { from, Observable, noop, forkJoin, of, concat, combineLatest, iif, Subject } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -49,6 +49,9 @@ export class MyAddEditTripPage implements OnInit {
   tripRequest$: Observable<any>;
   customFieldValues;
   refreshTrips$ = new Subject();
+  hasOtherRequestDone: boolean;
+
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   constructor(
     private router: Router,
@@ -128,6 +131,13 @@ export class MyAddEditTripPage implements OnInit {
     if (this.fg.valid) {
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
+        const formContainer = this.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         return;
       } else {
         await addExpensePopover.present();
@@ -145,6 +155,13 @@ export class MyAddEditTripPage implements OnInit {
       }
     } else {
       this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -160,6 +177,13 @@ export class MyAddEditTripPage implements OnInit {
     if (this.fg.valid) {
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
+        const formContainer = this.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         return;
       } else {
         await addExpensePopover.present();
@@ -170,6 +194,13 @@ export class MyAddEditTripPage implements OnInit {
       }
     } else {
       this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -283,7 +314,7 @@ export class MyAddEditTripPage implements OnInit {
     const intialCity = this.formBuilder.group({
       from_city: [toCity, Validators.required],
       to_city: [null, Validators.required],
-      onward_dt: [null, Validators.required]
+      onward_dt: [, Validators.required]
     });
 
     if (this.fg.controls.tripType.value === 'ROUND') {
@@ -319,17 +350,34 @@ export class MyAddEditTripPage implements OnInit {
     if (this.fg.valid) {
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
+        const formContainer = this.formContainer.nativeElement as HTMLElement;
+        if (formContainer) {
+          const invalidElement = formContainer.querySelector('.ng-invalid');
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
         return;
       } else {
         return await modal.present();
       }
     } else {
       this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
   modifyTripRequestCustomFields(customFields): CustomField[] {
-    customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
+    if (customFields.length === 0) {
+      return [];
+    }
+    customFields = customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
     customFields = customFields.map(customField => {
       if (customField.type === 'DATE' && customField.value) {
         const updatedDate = new Date(customField.value);
@@ -391,7 +439,7 @@ export class MyAddEditTripPage implements OnInit {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
 
-        customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
+        customFields = customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
         customFields = customFields.filter(field => {
           return field.request_type === 'TRIP_REQUEST' && field.trip_type.indexOf(this.fg.get('tripType').value) > -1;
@@ -467,7 +515,6 @@ export class MyAddEditTripPage implements OnInit {
           this.fg.get('notes').setValue(tripRequest.notes);
           this.fg.get('source').setValue(tripRequest.source);
 
-          this.fg.get('custom_field_values').setValue(this.modifyTripRequestCustomFields(tripRequest.custom_field_values));
           const custom = this.fg.get('custom_field_values') as FormArray;
           custom.clear();
           const renderedCustomFeild = this.modifyTripRequestCustomFields(tripRequest.custom_field_values);
@@ -486,7 +533,7 @@ export class MyAddEditTripPage implements OnInit {
             const intialCity = this.formBuilder.group({
               from_city: [tripCity.from_city, Validators.required],
               to_city: [tripCity.to_city, Validators.required],
-              onward_dt: [moment(tripCity.onward_dt).format('y-MM-DD'), Validators.required]
+              onward_dt: [tripCity.onward_dt ? moment(tripCity.onward_dt).format('y-MM-DD') : null, Validators.required]
             });
 
             if (this.fg.controls.tripType.value === 'ROUND') {
@@ -498,6 +545,8 @@ export class MyAddEditTripPage implements OnInit {
           this.fg.get('transportationRequest').setValue(transportRequest.length > 0 ? true : false);
           this.fg.get('hotelRequest').setValue(hotelRequest.length > 0 ? true : false);
           this.fg.get('advanceRequest').setValue(advanceRequest.length > 0 ? true : false);
+
+          this.hasOtherRequestDone = transportRequest.length > 0 || hotelRequest.length > 0 || advanceRequest.length > 0;
         }),
         finalize(() => this.loaderService.hideLoader())
       ).subscribe(noop);

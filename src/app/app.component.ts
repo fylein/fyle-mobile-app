@@ -444,12 +444,9 @@ export class AppComponent implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
   }
 
-  fetchEou() {
-    return from(this.authService.getEou());
-  }
-
   ngOnInit() {
     this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
+
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {

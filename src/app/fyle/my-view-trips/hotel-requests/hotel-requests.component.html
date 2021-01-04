@@ -46,8 +46,11 @@
 
         <div class="hotel-requests--element">
           <div class="hotel-requests--element-label">Budget</div>
-          <div class="hotel-requests--element-value">
+          <div class="hotel-requests--element-value" *ngIf="eHotelRequest.hr.currency && eHotelRequest.hr.amount">
             {{eHotelRequest.hr.currency}} {{eHotelRequest.hr.amount}}
+          </div>
+          <div *ngIf="!eHotelRequest.hr.currency && !eHotelRequest.hr.amount">
+            -
           </div>
         </div>
 

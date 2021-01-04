@@ -64,6 +64,11 @@ $text-light: #ababab;
         left: 8px;
       }
     }
+
+    &-count {
+      background: white;
+      margin-left: -8px;
+    }
   }
 
   &--pill {

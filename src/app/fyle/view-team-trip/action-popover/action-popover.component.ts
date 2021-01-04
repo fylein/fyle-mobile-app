@@ -101,7 +101,7 @@ export class ActionPopoverComponent implements OnInit {
       header: 'Approve Trip Request',
       message: 'Are you sure you want to approve this trip request?',
       primaryCta: {
-        text: 'Ok'
+        text: 'OK'
       }
     });
 

@@ -124,7 +124,7 @@
                 <div class="add-edit-mileage--internal-block"
                   *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
                   <app-fy-location
-                    [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Select Stop' + (i) + 'Location'))): (isFirst ? (control.value ? 'Start' : 'Select Start Location'): (control.value ? 'End' :'Select End Location'))"
+                    [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Select Stop ' + (i) + ' Location'))): (isFirst ? (control.value ? 'Start' : 'Select From Location'): (control.value ? 'End' :'Select To Location'))"
                     [formControlName]="i">
                     <span *ngIf="i >= 2">
                       <mat-icon class="add-edit-mileage--remove-stop" (click)="removeMileageLocation(i)">
@@ -212,10 +212,10 @@
                           {{paymentMode.advance.purpose}}
                         </div>
                       </ng-container>
-                      <div class="add-edit-mileage--payment-mode-type" *ngIf="paymentMode.acc.isReimbursible">
+                      <div class="add-edit-mileage--payment-mode-type" *ngIf="paymentMode.acc.isReimbursable">
                         (Reimbursible)
                       </div>
-                      <div class="add-edit-mileage--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursible">
+                      <div class="add-edit-mileage--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursable">
                         (Non Reimbursible)
                       </div>
                     </ng-container>

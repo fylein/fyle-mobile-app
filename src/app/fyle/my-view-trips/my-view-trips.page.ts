@@ -247,7 +247,7 @@ export class MyViewTripsPage implements OnInit {
       header: 'Close Trip',
       message: 'Are you sure you want to close this trip?',
       primaryCta: {
-        text: 'Close Trip'
+        text: 'OK'
       }
     });
 
@@ -257,7 +257,9 @@ export class MyViewTripsPage implements OnInit {
           return this.tripRequestsService.closeTrip(id);
         }),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(noop);
+      ).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      });
     }
   }
 
@@ -278,7 +280,7 @@ export class MyViewTripsPage implements OnInit {
     this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe(shareReplay());
     this.actions$ = this.tripRequestsService.getActions(id).pipe(shareReplay());
     this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay());
-    this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay());
+    this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll();
 
     this.activeApprovals$ = this.approvals$.pipe(
       map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
@@ -293,10 +295,11 @@ export class MyViewTripsPage implements OnInit {
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
-            return [location.from_city.city, location.to_city.city];
+            return [location.from_city.city ? location.from_city.city : location.from_city.display,
+              location.to_city.city ? location.to_city.city : location.to_city.display];
           }
 
-          return location.from_city.city;
+          return location.from_city.city ? location.from_city.city : location.from_city.display;
         }),
         travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details)
       })
