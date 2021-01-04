@@ -5,6 +5,12 @@ import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
+import * as Sentry from '@sentry/angular';
+
+Sentry.init({
+  dsn: environment.SENTRY_DSN,
+  tracesSampleRate: 1.0
+});
 
 if (environment.production) {
   enableProdMode();

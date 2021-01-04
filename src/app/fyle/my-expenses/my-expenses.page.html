@@ -169,7 +169,7 @@
   </ng-template>
 </ion-content>
 
-<ion-footer>
+<ion-footer mode="md">
   <div class="my-expenses--footer-container">
     <ng-container *ngIf="allExpensesCount$|async as allExpensesCount">
       <div *ngIf="baseState === 'all' && allExpensesCount && filters?.state !== 'NEEDS_RECEIPT'">

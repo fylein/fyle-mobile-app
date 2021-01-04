@@ -23,7 +23,7 @@ import {Plugins} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
-import * as Sentry from 'sentry-cordova';
+import * as Sentry from '@sentry/angular';
 
 const {App} = Plugins;
 
@@ -112,12 +112,6 @@ export class AppComponent implements OnInit {
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
-    });
-
-
-    Sentry.init({
-      // @ts-ignore
-      dsn: environment.SENTRY_DSN
     });
   }
 
@@ -214,7 +208,7 @@ export class AppComponent implements OnInit {
       this.isSwitchedToDelegator = res.isSwitchedToDelegator;
       const isConnected = res.isConnected;
       this.eou = res.eou;
-      // @ts-ignore
+
       Sentry.setUser({
         id: res.eou.us.email + ' - ' + res.eou.ou.id,
         email: res.eou.us.email,

@@ -210,7 +210,12 @@ export class MyExpensesPage implements OnInit {
         }
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
+
+        if (this.baseState === 'draft') {
+          queryParams.tx_state = defaultState;
+        } else {
+          queryParams.tx_state = queryParams.tx_state || defaultState;
+        }
 
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
@@ -471,7 +476,8 @@ export class MyExpensesPage implements OnInit {
     const filterModal = await this.modalController.create({
       component: MyExpensesSearchFilterComponent,
       componentProps: {
-        filters: this.filters
+        filters: this.filters,
+        draftMode: this.baseState === 'draft'
       }
     });
 
@@ -496,6 +502,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     await sortModal.present();
+
     const { data } = await sortModal.onWillDismiss();
     if (data) {
       this.filters = Object.assign({}, this.filters, data.sortOptions);
@@ -510,10 +517,6 @@ export class MyExpensesPage implements OnInit {
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
-  }
-
-  onReportClick(etxn: any) {
-    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: etxn.tx_id }]);
   }
 
   setState(state: string) {
@@ -613,7 +616,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   openCreateReportWithSelectedIds() {
-    // const transactionIds = JSON.stringify([transactionId]);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(this.selectedElements) }]);
   }
 
@@ -635,6 +637,7 @@ export class MyExpensesPage implements OnInit {
         }
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+
         queryParams.tx_state = queryParams.tx_state || defaultState;
 
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
