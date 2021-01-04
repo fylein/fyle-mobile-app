@@ -7,6 +7,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { ConfirmationCommentPopoverComponent } from './confirmation-comment-popover/confirmation-comment-popover.component';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import {ExtendedOrgUser} from '../../../../core/models/extended-org-user.model';
 
 
 @Component({
@@ -23,7 +24,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   @Input() from;
 
   approverList$: Observable<any>;
-  searchedApprovers$: Observable<any>;
+  searchedApprovers$: Observable<ExtendedOrgUser[]>;
   selectedApprovers: any[] = [];
   searchTerm;
 

@@ -19,6 +19,7 @@ export class SignUpPage implements OnInit {
   isValidEmail = false;
   isConnected$: Observable<boolean>;
   userEmail: string;
+  emailSet = false;
 
   constructor(
     private routerAuthService: RouterAuthService,

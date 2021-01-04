@@ -20,6 +20,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 export class SignInPage implements OnInit {
   fg: FormGroup;
   emailSet = false;
+  hide = true;
 
   constructor(
     private formBuilder: FormBuilder,
