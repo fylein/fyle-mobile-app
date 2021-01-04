@@ -96,7 +96,7 @@
             <input class="add-edit-advance-request--text-input" type="text" formControlName="value"
               *ngIf="customInput.type === 'TEXT'">
 
-            <input class="add-edit-advance-request--text-input" type="number" formControlName="value"
+            <input class="add-edit-advance-request--text-input" inputmode="decimal" type="number" formControlName="value"
               *ngIf="customInput.type === 'NUMBER'">
 
             <input class="add-edit-advance-request--date-input" *ngIf="customInput.type === 'DATE'" type="date"
@@ -136,7 +136,7 @@
   </form>
 
   <div class="add-edit-advance-request--actions">
-    <div class="add-edit-advance-request--primary-block">
+    <div class="add-edit-advance-request--primary-block" *ngIf="mode === 'edit'">
       <div class="add-edit-advance-request--card add-edit-advance-request--internal-block">
         <div class="vadd-edit-advance-request--common-action-block">
           <app-comments objectType="advance_requests" [objectId]="id" mode="edit" text="Comments" [showCommentsCount]="true">
@@ -145,12 +145,12 @@
       </div>
     </div>
 
-    <div class="add-edit-advance-request--primary-block" *ngIf="mode === 'edit'">
+    <div class="add-edit-advance-request--primary-block" *ngIf="mode === 'edit' && (actions$|async)?.can_delete">
       <div class="add-edit-advance-request--card add-edit-advance-request--internal-block"
         *ngIf="(actions$|async)?.can_delete">
         <div class="add-edit-advance-request--common-action-block" (click)=delete()>
           <mat-icon>delete</mat-icon>
-          <p>Delete Advance</p>
+          <p>Delete Advance Request</p>
         </div>
       </div>
     </div>

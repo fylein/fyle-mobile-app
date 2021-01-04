@@ -29,7 +29,7 @@ export class TripRequestCustomFieldsService {
     }).sort(this.sortCustomFieldsByType);
   }
 
-  @Cacheable()
+  // @Cacheable()
   getAll() {
     return this.apiService.get('/trip_request_custom_fields');
   }

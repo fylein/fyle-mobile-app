@@ -46,6 +46,11 @@
     border: 1px solid #d8d8d8;
   }
 
+  &--advance-state {
+    color: #666;
+    font-size: 14px;
+  }
+
   &--pdf-thumbnails {
     height: 100%;
     width: 100%;
@@ -192,6 +197,7 @@
 
   &--primary-cta {
     margin: 12px;
+    height: 48px;
   }
 
 }

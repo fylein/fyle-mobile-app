@@ -34,6 +34,8 @@ $header-input-interior: #eeeeee;
   --ion-color-fyle-primary-contrast-rgb: 255, 255, 255;
   --ion-color-fyle-primary-shade: #e02d5a;
   --ion-color-fyle-primary-tint: #ff4775;
+  --ion-font-family: "aktiv-grotesk", "Lato", sans-serif;
+
 }
 
 .ion-color-fyle-primary {
@@ -238,6 +240,10 @@ mat-tab-group {
 
 input[type="date"] {
   background: white;
+}
+
+textarea, input {
+  background-color: transparent;
 }
 
 .expense-report-search {

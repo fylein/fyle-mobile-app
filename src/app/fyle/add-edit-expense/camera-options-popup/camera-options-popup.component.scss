@@ -5,17 +5,19 @@ $details-color: #ababab;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  padding: 0 16px;
+
   &--element {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+
+    &-first {
+      border-bottom: 1px solid #dddddd;
+    }
   }
 
   &--icon {
     margin: 12px;
-  }
-
-  &--content {
-
   }
 }

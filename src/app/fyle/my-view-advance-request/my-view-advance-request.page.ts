@@ -123,10 +123,10 @@ export class MyViewAdvanceRequestPage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     const popupResults = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Advance Request',
+      header: 'Delete Advance Request',
+      message: 'Are you sure you want to delete this request ?',
       primaryCta: {
-        text: 'Delete Advance Request'
+        text: 'DELETE'
       }
     });
 

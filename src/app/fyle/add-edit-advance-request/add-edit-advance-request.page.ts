@@ -39,6 +39,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   customFieldValues: any[];
   actions$: Observable<any>;
   id: string;
+  from: string;
   isProjectsVisible$: Observable<boolean>;
   advanceActions;
 
@@ -72,6 +73,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   ngOnInit() {
     this.id = this.activatedRoute.snapshot.params.id;
+    this.from = this.activatedRoute.snapshot.params.from;
     // Todo: Support to add receipts to advance request
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
@@ -91,7 +93,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   goBack() {
     // Todo: Fix all redirecton cases here later
-    this.router.navigate(['/', 'enterprise', 'my_advances']);
+    if (this.from === 'TEAM_ADVANCE') {
+      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_advances']);
+    }
   }
 
   checkPolicyViolation(advanceRequest) {
@@ -138,7 +144,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
         finalize(() => {
           this.fg.reset();
           this.loaderService.hideLoader();
-          return this.router.navigate(['/', 'enterprise', 'my_advances']);
+          if (this.from === 'TEAM_ADVANCE') {
+            return this.router.navigate(['/', 'enterprise', 'team_advance']);
+          } else {
+            return this.router.navigate(['/', 'enterprise', 'my_advances']);
+          }
         })
       ).subscribe(noop);
     }
@@ -338,10 +348,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     const popupResults = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Advance Request',
+      header: 'Delete Advance Request',
+      message: 'Are you sure you want to delete this request ?',
       primaryCta: {
-        text: 'Delete'
+        text: 'DELETE'
       }
     });
 

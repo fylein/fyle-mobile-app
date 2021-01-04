@@ -8,7 +8,7 @@
              [disabled]="options.disabled" readonly>
     </div>
     <div class="currency-component--amount-input">
-      <input type="number" fy-decimal-keypad class="currency-component--amount-input-amount"
+      <input inputmode="decimal" type="number" class="currency-component--amount-input-amount"
              [(ngModel)]="etxn.tx_amount" name="amount" min="vm.minFylingValue" placeholder="Amount"
              [required]="options.required" [disabled]="options.disabled">
     </div>

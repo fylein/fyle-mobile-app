@@ -1,7 +1,7 @@
 <div class="fy-currency" [ngClass]="{'fy-currency__invalid': !valid}">
   <form [formGroup]="fg">
     <input class="fy-currency--currency" (click)="openCurrencyModal()" formControlName="currency" (blur)="onBlur()">
-    <input class="fy-currency--amount" formControlName="amount" (blur)="onBlur()" type="number" placeholder="Amount">
+    <input class="fy-currency--amount" formControlName="amount" (blur)="onBlur()" inputmode="decimal" type="number" placeholder="Amount">
   </form>
 </div>
 <ng-container *ngIf="value?.currency && value?.orig_currency">

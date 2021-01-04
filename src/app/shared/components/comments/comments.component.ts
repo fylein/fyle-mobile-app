@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, switchMap, startWith } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from './view-comment/view-comment.component';
 
@@ -21,6 +21,7 @@ export class CommentsComponent implements OnInit {
   @Input() dontLoadComments?: boolean;
 
   noOfComments$: Observable<number>;
+  refreshComments$ = new Subject();
 
   constructor(
     private modalController: ModalController,
@@ -36,17 +37,29 @@ export class CommentsComponent implements OnInit {
         mode: this.mode
       }
     });
-    return await modal.present();
+
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+    if (data && data.updated) {
+      this.refreshComments$.next();
+    }
   }
 
   ngOnInit() {
-    this.noOfComments$ = this.statusService.find(this.objectType, this.objectId).pipe(
-      map(res => {
-        return res.filter((estatus) => {
-          return estatus.st_org_user_id !== 'SYSTEM';
-        }).length;
-      }),
+    this.noOfComments$ = this.refreshComments$.pipe(
+      startWith(0),
+      switchMap(() => {
+        return this.statusService.find(this.objectType, this.objectId).pipe(
+          map(res => {
+            return res.filter((estatus) => {
+              return estatus.st_org_user_id !== 'SYSTEM';
+            }).length;
+          }),
+        );
+      })
     );
+    this.refreshComments$.next();
   }
 
 }
