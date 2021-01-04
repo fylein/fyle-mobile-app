@@ -88,4 +88,17 @@ $details-color: #ababab;
     color: #ababab;
     line-height: 1.5;
   }
+
+  &--date-container {
+    border-top: 1px solid #e0e0e0;
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  &--name-container {
+    line-height: 1.5;
+    color: #4a4a4a;
+    margin: 4px 0;
+    font-size: 16px;
+  }
 }
