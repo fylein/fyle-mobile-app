@@ -73,7 +73,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     this.attachedFiles$.subscribe(console.log);
 
-    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll()
+    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
 
     this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$,
