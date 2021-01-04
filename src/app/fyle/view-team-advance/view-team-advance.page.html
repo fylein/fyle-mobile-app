@@ -92,7 +92,7 @@
         <div class="view-advances--element-value">
           <div *ngFor="let activeApproval of activeApprovals$ | async as list">
             <span>{{activeApproval.approver_name}}</span>
-            <p>({{activeApproval.state | advanceState}})</p>
+            <div>({{activeApproval.state | advanceState}})</div>
           </div>
         </div>
       </div>
