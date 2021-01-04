@@ -7,7 +7,7 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { from, noop, Subject } from 'rxjs';
+import { from, Subject } from 'rxjs';
 import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, take } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { PopoverController } from '@ionic/angular';
@@ -15,6 +15,7 @@ import { AdvanceActionsComponent } from './advance-actions/advance-actions.compo
 import { ApproveAdvanceComponent } from './approve-advance/approve-advance.component';
 import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.component';
 import { RejectAdvanceComponent } from './reject-advance/reject-advance.component';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -38,7 +39,8 @@ export class ViewTeamAdvancePage implements OnInit {
     private fileService: FileService,
     private router: Router,
     private popupService: PopupService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private loaderService: LoaderService
   ) { }
 
   ionViewWillEnter() {
@@ -46,9 +48,13 @@ export class ViewTeamAdvancePage implements OnInit {
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() => {
-        return this.advanceRequestService.getAdvanceRequest(id);
-      })
-      // finalize(() => from(this.loaderService.hideLoader())),
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.advanceRequestService.getAdvanceRequest(id);
+          })
+        )
+      }),
+      finalize(() => from(this.loaderService.hideLoader())),
       // shareReplay()
     );
 
