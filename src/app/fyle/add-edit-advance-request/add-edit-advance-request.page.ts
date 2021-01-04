@@ -135,11 +135,15 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     const { data } = await policyViolationModal.onWillDismiss();
 
-    if (data && data.reason) {
+    if (data) {
       this.loaderService.showLoader('Creating Advance Request...');
       return this.saveAndSubmit(event, advanceRequest).pipe(
         switchMap(res => {
-          return this.statusService.post('advance_requests', res.advanceReq.id, {comment: data.reason}, true);
+          return iif(
+            () => data.reason,
+            this.statusService.post('advance_requests', res.advanceReq.id, {comment: data.reason}, true),
+            of(null)
+          );
         }),
         finalize(() => {
           this.fg.reset();
