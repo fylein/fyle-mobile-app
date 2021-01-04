@@ -23,7 +23,7 @@ import { SelectCurrencyComponent } from './select-currency/select-currency.compo
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OtpPopoverComponent } from './otp-popover/otp-popover.component';
 import { Plugins } from '@capacitor/core';
-import { environment } from 'src/environments/environment';
+import { TokenService } from 'src/app/core/services/token.service';
 
 const { Browser } = Plugins;
 
@@ -56,7 +56,7 @@ export class MyProfilePage implements OnInit {
   isApiCallInProgress = false;
   mobileNumber: string;
   org$: Observable<any>;
-  ROOT_ENDPOINT: string;
+  clusterDomain$: any;
 
   constructor(
     private authService: AuthService,
@@ -72,10 +72,9 @@ export class MyProfilePage implements OnInit {
     private loaderService: LoaderService,
     private toastController: ToastController,
     private orgUserService: OrgUserService,
-    private popoverController: PopoverController
-  ) {
-    this.ROOT_ENDPOINT = environment.ROOT_URL;
-  }
+    private popoverController: PopoverController,
+    private tokenService: TokenService
+  ) { }
 
   logOut() {
     this.userEventService.logout();
@@ -258,6 +257,7 @@ export class MyProfilePage implements OnInit {
 
   ionViewWillEnter() {
     this.reset();
+    this.clusterDomain$ = from(this.tokenService.getClusterDomain())
   }
 
   reset() {
@@ -356,10 +356,12 @@ export class MyProfilePage implements OnInit {
     });
   }
 
-  openWebAppLink(location) {
+  async openWebAppLink(location) {
     let link;
     if (location === 'app') {
-      link = this.ROOT_ENDPOINT || 'https://in1.fylehq.com/';
+      await this.clusterDomain$.subscribe(res => {
+        link = res;
+      });
     } else if (location === 'whatsapp') {
       link = 'https://www.fylehq.com/help/en/articles/3432961-create-expense-using-whatsapp';
     } else if (location === 'sms') {
