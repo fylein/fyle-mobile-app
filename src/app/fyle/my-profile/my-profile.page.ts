@@ -56,7 +56,7 @@ export class MyProfilePage implements OnInit {
   isApiCallInProgress = false;
   mobileNumber: string;
   org$: Observable<any>;
-  clusterDomain$: any;
+  clusterDomain: string;
 
   constructor(
     private authService: AuthService,
@@ -257,7 +257,9 @@ export class MyProfilePage implements OnInit {
 
   ionViewWillEnter() {
     this.reset();
-    this.clusterDomain$ = from(this.tokenService.getClusterDomain())
+    from(this.tokenService.getClusterDomain()).subscribe(res => {
+      this.clusterDomain = res;
+    });
   }
 
   reset() {
@@ -356,12 +358,10 @@ export class MyProfilePage implements OnInit {
     });
   }
 
-  async openWebAppLink(location) {
+  openWebAppLink(location) {
     let link;
     if (location === 'app') {
-      await this.clusterDomain$.subscribe(res => {
-        link = res;
-      });
+      link = this.clusterDomain;
     } else if (location === 'whatsapp') {
       link = 'https://www.fylehq.com/help/en/articles/3432961-create-expense-using-whatsapp';
     } else if (location === 'sms') {
