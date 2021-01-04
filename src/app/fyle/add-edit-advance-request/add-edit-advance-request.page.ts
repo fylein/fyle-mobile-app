@@ -123,39 +123,45 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   async showPolicyModal(violatedPolicyRules: string[], policyViolationActionDescription: string, event: string, advanceRequest) {
-    const policyViolationModal = await this.modalController.create({
-      component: PolicyViolationDialogComponent,
-      componentProps: {
-        violatedPolicyRules,
-        policyViolationActionDescription
+    return iif(
+      () => advanceRequest && advanceRequest.id && advanceRequest.org_user_id,
+      this.statusService.findLatestComment(advanceRequest.id, 'advance_requests', advanceRequest.org_user_id),
+      of(null)
+    ).subscribe(async latestComment => {
+      const policyViolationModal = await this.modalController.create({
+        component: PolicyViolationDialogComponent,
+        componentProps: {
+          latestComment,
+          violatedPolicyRules,
+          policyViolationActionDescription
+        }
+      });
+
+      await policyViolationModal.present();
+  
+      const { data } = await policyViolationModal.onWillDismiss();
+      if (data) {
+        this.loaderService.showLoader('Creating Advance Request...');
+        return this.saveAndSubmit(event, advanceRequest).pipe(
+          switchMap(res => {
+            return iif(
+              () => data.reason && data.reason !== latestComment,
+              this.statusService.post('advance_requests', res.advanceReq.id, {comment: data.reason}, true),
+              of(null)
+            );
+          }),
+          finalize(() => {
+            this.fg.reset();
+            this.loaderService.hideLoader();
+            if (this.from === 'TEAM_ADVANCE') {
+              return this.router.navigate(['/', 'enterprise', 'team_advance']);
+            } else {
+              return this.router.navigate(['/', 'enterprise', 'my_advances']);
+            }
+          })
+        ).subscribe(noop);
       }
     });
-
-    await policyViolationModal.present();
-
-    const { data } = await policyViolationModal.onWillDismiss();
-
-    if (data) {
-      this.loaderService.showLoader('Creating Advance Request...');
-      return this.saveAndSubmit(event, advanceRequest).pipe(
-        switchMap(res => {
-          return iif(
-            () => data.reason,
-            this.statusService.post('advance_requests', res.advanceReq.id, {comment: data.reason}, true),
-            of(null)
-          );
-        }),
-        finalize(() => {
-          this.fg.reset();
-          this.loaderService.hideLoader();
-          if (this.from === 'TEAM_ADVANCE') {
-            return this.router.navigate(['/', 'enterprise', 'team_advance']);
-          } else {
-            return this.router.navigate(['/', 'enterprise', 'my_advances']);
-          }
-        })
-      ).subscribe(noop);
-    }
   }
 
   save(event: string) {
