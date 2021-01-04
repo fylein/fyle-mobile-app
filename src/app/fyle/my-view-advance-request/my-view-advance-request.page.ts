@@ -110,7 +110,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     if (data) {
       const status = {
-        comment: data.comment
+        comment: data.reason
       };
 
       const addStatusPayload = {
