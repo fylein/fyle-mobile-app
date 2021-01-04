@@ -12,6 +12,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
+import * as Sentry from '@sentry/angular';
 
 @Component({
   selector: 'app-swicth-org',
@@ -110,14 +111,13 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
 
       const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
 
-      // TODO: Setup Sentry
-      //   if (eou) {
-      //     Raven.setUserContext({
-      //       id: eou.us.email + ' - ' + eou.ou.id,
-      //       email: eou.us.email,
-      //       orgUserId: eou.ou.id
-      //     });
-      //   }
+      if (eou) {
+        Sentry.setUser({
+          id: eou.us.email + ' - ' + eou.ou.id,
+          email: eou.us.email,
+          orgUserId: eou.ou.id
+        });
+      }
 
       let oneClickAction;
       if (eou.ou.is_primary) {
@@ -177,7 +177,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay())
+    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay());
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),

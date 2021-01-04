@@ -16,7 +16,7 @@ import {environment} from 'src/environments/environment';
 import {SharedModule} from './shared/shared.module';
 import {CurrencyPipe} from '@angular/common';
 import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
-import { SentryIonicErrorHandler } from './core/utils/sentry-error-handler';
+import * as Sentry from '@sentry/angular';
 
 @NgModule({
   declarations: [
@@ -47,7 +47,9 @@ import { SentryIonicErrorHandler } from './core/utils/sentry-error-handler';
       provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true
     },
     {
-      provide: ErrorHandler, useClass: SentryIonicErrorHandler
+      provide: ErrorHandler, useValue: Sentry.createErrorHandler({
+        showDialog: false,
+      })
     },
     CurrencyPipe
   ],

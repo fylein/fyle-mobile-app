@@ -37,7 +37,7 @@
                   </div>
               </div>
             </div>
-      
+
             <div (click)="addNewTraveller()" class="add-edit-trip--add-traveller">
               <mat-icon class="add-edit-trip--add-traveller-add-icon">add_circle</mat-icon> Add Traveller
             </div>
@@ -51,15 +51,15 @@
         <div class="add-edit-trip--wrapper-title">
           Trip Information
         </div>
-        
+
         <div class="add-edit-trip--element-container">
           <div class="add-edit-trip--text">
             <app-fy-select [mandatory]="true" [label]="'Trip Type'" formControlName="tripType" [disabled]="mode === 'edit'"
             [options]="tripTypes" [nullOption]="false" ></app-fy-select>
           </div>
-  
+
           <div class="add-edit-trip--text">
-            <div class="add-edit-trip--text-label">
+            <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': (fg.controls.startDate.touched && !fg.controls.startDate.valid)}">
               Start date<span>*</span> <!-- some condition to show trip type and Select Trip Type -> check the old app code -->
             </div>
             <input class="add-edit-trip--date-input" matInput type="date" formControlName="startDate"
@@ -73,7 +73,7 @@
             <input class="add-edit-trip--date-input" matInput type="date" formControlName="endDate"
             (keydown)="$event.preventDefault()" [min]="fg.controls.startDate.value" [max]="maxDate">
           </div>
-          
+
           <div class="add-edit-trip--text">
             <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
               {{ fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose ' }} <span>*</span>
@@ -122,7 +122,7 @@
                   </div>
               </div>
             </div>
-    
+
             <div (click)="addNewCity()" *ngIf="isTripTypeMultiCity$|async" class="add-edit-trip--add-traveller">
               <mat-icon class="add-edit-trip--add-traveller-add-icon">add_circle</mat-icon> Add City
             </div>
@@ -166,10 +166,10 @@
                 </div>
                 <input class="add-edit-trip--text-input" type="text" formControlName="value"
                   *ngIf="customInput.input_type === 'TEXT'">
-    
+
                 <input class="add-edit-trip--text-input" inputmode="decimal" type="number" formControlName="value"
                   *ngIf="customInput.input_type === 'NUMBER'">
-    
+
                 <input class="add-edit-trip--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
                   formControlName="value">
               </div>
