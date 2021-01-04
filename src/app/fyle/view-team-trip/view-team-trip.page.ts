@@ -312,10 +312,11 @@ export class ViewTeamTripPage implements OnInit {
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
-            return [location.from_city.city, location.to_city.city];
+            return [location.from_city.city ? location.from_city.city : location.from_city.display,
+              location.to_city.city ? location.to_city.city : location.to_city.display];
           }
 
-          return location.from_city.city;
+          return location.from_city.city ? location.from_city.city : location.from_city.display;
         }),
         travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details)
       })

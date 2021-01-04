@@ -28,11 +28,11 @@
                     </div>
                   </div>
                   <div class="add-edit-trip--text add-edit-trip--text__dynamic">
-                    <div class="add-edit-trip--text-label">Name</div>
+                    <div class="add-edit-trip--text-label">{{ control['controls'].name.value ? 'Name' : 'Enter Name' }}</div>
                     <input class="add-edit-trip--text-input" type="text"  formControlName="name">
                   </div>
                   <div class="add-edit-trip--text add-edit-trip--text__dynamic">
-                    <div class="add-edit-trip--text-label">Phone No</div>
+                    <div class="add-edit-trip--text-label">{{ control['controls'].phone_number.value ? 'Phone No' : 'Enter Phone No' }}</div>
                     <input class="add-edit-trip--text-input" type="text" formControlName="phone_number">
                   </div>
               </div>

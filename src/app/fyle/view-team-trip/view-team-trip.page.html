@@ -29,8 +29,8 @@
           <div class="trip-request--element-label">
             State
           </div>
-          <div class="trip-request--element-value">
-            {{tripRequest.trp_state}}
+          <div class="trip-request--element-value text-capitalize">
+            {{tripRequest.trp_state | snakeCaseToSpaceCase | lowercase}}
             <!--TODO: Add proper formatting -->
           </div>
         </div>
@@ -76,8 +76,8 @@
                 {{activeApproval.approver_name}}
               </span>
 
-              <span>
-                ({{activeApproval.state}})
+              <span class="text-capitalize">
+                ({{activeApproval.state | tripState}})
               </span>
 
             </span>
@@ -87,8 +87,8 @@
           <div class="trip-request--element-label">
             Trip Type
           </div>
-          <div class="trip-request--element-value">
-            {{tripRequest.trp_trip_type}}
+          <div class="trip-request--element-value text-capitalize">
+            {{tripRequest.trp_trip_type | snakeCaseToSpaceCase | lowercase}}
           </div>
         </div>
         <div class="trip-request--element">
