@@ -218,10 +218,10 @@ export class AdvanceRequestService {
           if (approver.state !== 'APPROVAL_DISABLED') {
             return approver;
           }
-        })
+        });
         return filteredApprovers;
       })
-    )
+    );
   }
 
   getMyAdvanceRequestsCount(queryParams = {}) {
@@ -256,8 +256,14 @@ export class AdvanceRequestService {
   }
 
   fixDates(data: ExtendedAdvanceRequest) {
-    data.areq_created_at = new Date(data.areq_created_at);
-    data.areq_updated_at = new Date(data.areq_updated_at);
+    if (data.areq_created_at) {
+      data.areq_created_at = new Date(data.areq_created_at);
+    }
+
+    if (data.areq_updated_at) {
+      data.areq_updated_at = new Date(data.areq_updated_at);
+    }
+
     if (data.areq_approved_at) {
       data.areq_approved_at = new Date(data.areq_approved_at);
     }
@@ -265,7 +271,7 @@ export class AdvanceRequestService {
     return data;
   }
 
-  getInternalStateAndDisplayName (advanceRequest: ExtendedAdvanceRequest): { state: string, name: string } {
+  getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string, name: string } {
     if (advanceRequest.areq_state === 'DRAFT') {
       if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
         return {
