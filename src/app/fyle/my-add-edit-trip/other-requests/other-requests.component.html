@@ -122,6 +122,14 @@
                         <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
+
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
+                        <div class="other-details--checkbox">
+                          <mat-checkbox color="primary" formControlName="value">
+                            {{customInput.input_name | ellipsis: 20 }}
+                          </mat-checkbox>
+                        </div>
+                      </div>
         
                       <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
                         <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
