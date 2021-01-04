@@ -39,6 +39,7 @@ export class AppComponent implements OnInit {
   isSwitchedToDelegator;
   isConnected$: Observable<boolean>;
   eou;
+  device;
 
   constructor(
     private platform: Platform,
@@ -449,7 +450,13 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
+    from(this.deviceService.getDeviceInfo()).subscribe(res => {
+      this.device = res.platform;
+      if (res.platform === 'android' || res.platform === 'ios') {
+        this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
+      }
+    });
+
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {

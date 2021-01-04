@@ -325,6 +325,7 @@ export class OtherRequestsComponent implements OnInit {
         if (mode === 'DRAFT') {
           return of(tripReq).pipe(
             switchMap((tripReq) => {
+              console.log('\n\n\n imp check ->', this.createOtherRequestForm(formValue, tripReq.id));
               const tripRequestObject = {
                 trip_request: tripReq
               };
@@ -384,7 +385,7 @@ export class OtherRequestsComponent implements OnInit {
       concatMap(res => {
         trpId = res.id;
         // create other request and post
-        return this.createOtherRequestFormAndPost(formValue, trpId);
+        return this.createOtherRequestForm(formValue, trpId);
       }),
       concatMap(res => {
         return this.tripRequestsService.triggerPolicyCheck(trpId);
@@ -440,7 +441,7 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
-  createOtherRequestFormAndPost(formValue, trpId) {
+  createOtherRequestForm(formValue, trpId) {
     const arr = [];
 
     if (formValue.advanceDetails.length > 0) {
@@ -480,10 +481,10 @@ export class OtherRequestsComponent implements OnInit {
             custom_field_values: advanceDetail.custom_field_values,
             notes: advanceDetail.notes,
             purpose: advanceDetail.purpose,
-            source: 'MOBILE',
+            source: advanceDetail.source || 'MOBILE',
             trip_request_id: trpId
           };
-          return this.advanceRequestService.submit(advanceDetailObject);
+          return advanceDetailObject;
         })
       );
     } else {
@@ -496,8 +497,12 @@ export class OtherRequestsComponent implements OnInit {
         source: 'MOBILE',
         trip_request_id: trpId
       };
-      return this.advanceRequestService.submit(advanceDetailObject);
+      return advanceDetailObject;
     }
+  }
+
+  submitAdvanceRequest(advanceDetailObject) {
+    return this.advanceRequestService.submit(advanceDetailObject);
   }
 
   makeHotelRequestObjectFromForm(hotelDetail, trpId, index) {
@@ -522,11 +527,11 @@ export class OtherRequestsComponent implements OnInit {
             need_booking: hotelDetail.needBooking,
             notes: hotelDetail.notes,
             rooms: hotelDetail.rooms,
-            source: 'MOBILE',
+            source: hotelRequest.source || 'MOBILE',
             traveller_details: hotelDetail.travellerDetails,
             trip_request_id: trpId
           };
-          return this.hotelRequestService.upsert(hotelDetailObject);
+          return hotelDetailObject;
         })
       );
     } else {
@@ -547,8 +552,12 @@ export class OtherRequestsComponent implements OnInit {
         traveller_details: hotelDetail.travellerDetails,
         trip_request_id: trpId
       };
-      return this.hotelRequestService.upsert(hotelDetailObject);
+      return hotelDetailObject;
     }
+  }
+
+  submitHotelRequest(hotelDetailObject) {
+    return this.hotelRequestService.upsert(hotelDetailObject);
   }
 
   makeTransportRequestObjectFromForm(transportDetail, trpId, index) {
@@ -571,13 +580,13 @@ export class OtherRequestsComponent implements OnInit {
             notes: transportDetail.notes,
             onward_dt: transportDetail.onwardDt,
             preferred_timing: transportDetail.transportTiming,
-            source: 'MOBILE',
+            source: transportationRequest.source || 'MOBILE',
             to_city: transportDetail.toCity,
             transport_mode: transportDetail.transportMode,
             traveller_details: transportDetail.travellerDetails,
             trip_request_id: trpId
           };
-          return this.transportationRequestsService.upsert(transportDetailObject);
+          return transportDetailObject;
         })
       );
     } else {
@@ -598,8 +607,12 @@ export class OtherRequestsComponent implements OnInit {
         traveller_details: transportDetail.travellerDetails,
         trip_request_id: trpId
       };
-      return this.transportationRequestsService.upsert(transportDetailObject);
+      return transportDetailObject;
     }
+  }
+
+  submitTransportRequest(transportDetailObject) {
+    return this.transportationRequestsService.upsert(transportDetailObject);
   }
 
   async saveDraft() {

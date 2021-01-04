@@ -5,7 +5,7 @@ import {ExtendedOrgUser} from 'src/app/core/models/extended-org-user.model';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {DateService} from 'src/app/core/services/date.service';
 import {FormGroup, FormControl, FormArray, FormBuilder, Validators} from '@angular/forms';
-import {map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take, concatMapTo} from 'rxjs/operators';
+import {map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take, concatMapTo, catchError} from 'rxjs/operators';
 import * as moment from 'moment';
 import {OrgUserService} from 'src/app/core/services/org-user.service';
 import {ModalController, PopoverController} from '@ionic/angular';
@@ -187,7 +187,7 @@ export class MyAddEditTripPage implements OnInit {
   // }
 
   async saveDraftModal() {
-    const addExpensePopover = await this.popoverController.create({
+    const savePopover = await this.popoverController.create({
       component: SavePopoverComponent,
       componentProps: {
         saveMode: 'DRAFT'
@@ -200,8 +200,8 @@ export class MyAddEditTripPage implements OnInit {
         this.fg.markAllAsTouched();
         return;
       } else {
-        await addExpensePopover.present();
-        const {data} = await addExpensePopover.onDidDismiss();
+        await savePopover.present();
+        const {data} = await savePopover.onDidDismiss();
         if (data && data.continue) {
           this.saveAsDraft(this.fg.value);
         }
@@ -253,7 +253,6 @@ export class MyAddEditTripPage implements OnInit {
         };
         return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
           switchMap((res) => {
-            console.log('\n\n\n policy res ->', res);
             const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(res);
             if (policyPopupRules.length > 0) {
               const policyActionDescription = res.trip_request_desired_state.action_description;
@@ -278,6 +277,9 @@ export class MyAddEditTripPage implements OnInit {
             } else {
               return of({tripReq});
             }
+          }),
+          catchError(() => {
+            return of({tripReq});
           })
         );
       }),
@@ -359,8 +361,65 @@ export class MyAddEditTripPage implements OnInit {
       switchMap(() => {
         return this.makeTrpFormFromFg(formValue);
       }),
-      switchMap(res => {
-        return this.tripRequestsService.submit(res);
+      switchMap((tripReq) => {
+        const tripRequestObject = {
+          trip_request: tripReq,
+          advance_requests: [],
+          transportation_requests: [],
+          hotel_requests: []
+        };
+        return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
+          switchMap((res) => {
+            const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(res);
+            if (policyPopupRules.length > 0) {
+              const policyActionDescription = res.trip_request_desired_state.action_description;
+              return from(this.showPolicyViolationPopup(
+                policyPopupRules,
+                policyActionDescription,
+                tripReq
+              )).pipe(
+                map(policyModalRes => {
+                  if (policyModalRes.status === 'proceed') {
+                   return {
+                     tripReq,
+                     comment: policyModalRes.comment
+                   };
+                  } else {
+                    throwError({
+                      status: 'Policy Violated'
+                    });
+                  }
+                })
+              );
+            } else {
+              return of({tripReq});
+            }
+          }),
+          catchError(() => {
+            return of({tripReq});
+          })
+        );
+      }),
+      switchMap(({ tripReq, comment }: any) => {
+        if (comment && tripReq.id) {
+          return this.tripRequestsService.submit(tripReq).pipe(
+            switchMap((res) => {
+              return this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
+                switchMap(result => {
+                  if (result === comment) {
+                    return this.statusService.post('trip_requests', tripReq.trp.id, {comment}, true).pipe(
+                      map(() => res)
+                    );
+                  } else {
+                    return of(res);
+                  }
+                })
+              );
+            })
+          );
+        } else {
+          return this.tripRequestsService.submit(tripReq);
+        }
       }),
       switchMap(res => {
         return this.tripRequestsService.triggerPolicyCheck(res.id);
