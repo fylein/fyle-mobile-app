@@ -610,8 +610,8 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onAddTransactionToNewReport(event, transactionId) {
-    const transactionIds = JSON.stringify([transactionId]);
+  onAddTransactionToNewReport(expense) {
+    const transactionIds = JSON.stringify([expense.tx_id]);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 

@@ -1,17 +1,19 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
-import { MyAddEditTripPageRoutingModule } from './my-add-edit-trip-routing.module';
-import { MyAddEditTripPage } from './my-add-edit-trip.page';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { FySelectProjectComponent } from '../add-edit-expense/fy-select-project/fy-select-project.component';
-import { SharedModule } from '../../shared/shared.module';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTabsModule } from '@angular/material/tabs';
-import { OtherRequestsComponent } from './other-requests/other-requests.component';
-import { SavePopoverComponent } from './save-popover/save-popover.component';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {IonicModule} from '@ionic/angular';
+import {MyAddEditTripPageRoutingModule} from './my-add-edit-trip-routing.module';
+import {MyAddEditTripPage} from './my-add-edit-trip.page';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSelectModule} from '@angular/material/select';
+import {SharedModule} from '../../shared/shared.module';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatTabsModule} from '@angular/material/tabs';
+import {OtherRequestsComponent} from './other-requests/other-requests.component';
+import {SavePopoverComponent} from './save-popover/save-popover.component';
+import {FySelectProjectComponent} from './fy-select-project/fy-select-project.component';
+import {FySelectModalComponent} from './fy-select-project/fy-select-modal/fy-select-modal.component';
+import {MatInputModule} from '@angular/material/input';
 
 @NgModule({
   imports: [
@@ -25,9 +27,11 @@ import { SavePopoverComponent } from './save-popover/save-popover.component';
     SharedModule,
     MatCheckboxModule,
     MatTabsModule,
+    MatInputModule
   ],
   declarations: [
     MyAddEditTripPage,
+    FySelectModalComponent,
     FySelectProjectComponent,
     OtherRequestsComponent,
     SavePopoverComponent
@@ -36,4 +40,5 @@ import { SavePopoverComponent } from './save-popover/save-popover.component';
     MatTabsModule
   ]
 })
-export class MyAddEditTripPageModule {}
+export class MyAddEditTripPageModule {
+}
