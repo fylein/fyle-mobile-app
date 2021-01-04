@@ -66,7 +66,7 @@
                   <div class="other-details--text-label">
                     Rooms
                   </div>
-                  <input class="other-details--date-input" type="number" formControlName="rooms">
+                  <input class="other-details--date-input" inputmode="decimal" type="number" formControlName="rooms">
                 </div>
     
                 <ng-container *ngIf="currencies$|async as currencies">
@@ -90,7 +90,7 @@
                   <div class="other-details--text-label">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}}
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
     
                 <div class="other-details--text">
@@ -122,7 +122,7 @@
                         <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
-        
+
                       <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
                         <div class="other-details--checkbox">
                           <mat-checkbox color="primary" formControlName="value">
@@ -232,7 +232,7 @@
                   <div class="other-details--text-label">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}}
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
     
                 <div class="other-details--text">
@@ -335,7 +335,7 @@
                   <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': control.controls.amount.touched && !control.controls.amount.valid}">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}} <span> *</span>
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
 
                 <div class="other-details--text">

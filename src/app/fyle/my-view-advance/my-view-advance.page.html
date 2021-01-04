@@ -96,7 +96,7 @@
         </div>
       </div>
 
-      <div class="view-advance--advance-request-block" >
+      <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
         <a [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]"> View Advance Request</a>
       </div>
 

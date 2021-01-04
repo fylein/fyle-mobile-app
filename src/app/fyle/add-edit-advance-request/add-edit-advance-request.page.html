@@ -96,7 +96,7 @@
             <input class="add-edit-advance-request--text-input" type="text" formControlName="value"
               *ngIf="customInput.type === 'TEXT'">
 
-            <input class="add-edit-advance-request--text-input" type="number" formControlName="value"
+            <input class="add-edit-advance-request--text-input" inputmode="decimal" type="number" formControlName="value"
               *ngIf="customInput.type === 'NUMBER'">
 
             <input class="add-edit-advance-request--date-input" *ngIf="customInput.type === 'DATE'" type="date"

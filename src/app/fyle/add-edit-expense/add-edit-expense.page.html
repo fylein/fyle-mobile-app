@@ -365,7 +365,7 @@
           <div class="add-edit-expense--text-label">
             Tax Value
           </div>
-          <input class="add-edit-expense--text-input" type="number" formControlName="taxValue"
+          <input class="add-edit-expense--text-input" inputmode="decimal" type="number" formControlName="taxValue"
             (focus)="focusState = true" (blur)="focusState = false" />
         </div>
       </div>
@@ -489,7 +489,7 @@
                   {{fg.controls.distance.value ? txnFields.distance?.title : 'Enter ' + txnFields.distance?.title}}
                   <span>*</span>
                 </div>
-                <input class="add-edit-expense--text-input" type="number" formControlName="distance"
+                <input class="add-edit-expense--text-input" inputmode="decimal" type="number" formControlName="distance"
                   [disabled]="!txnFields.distance?.canEdit" (focus)="focusState = true" (blur)="focusState = false">
               </div>
 
@@ -522,7 +522,7 @@
                 <input class="add-edit-expense--text-input" type="text" formControlName="value"
                   *ngIf="customInput.type === 'TEXT'" (focus)="focusState = true" (blur)="focusState = false">
 
-                <input class="add-edit-expense--text-input" type="number" formControlName="value"
+                <input class="add-edit-expense--text-input" inputmode="decimal" type="number" formControlName="value"
                   *ngIf="customInput.type === 'NUMBER'" (focus)="focusState = true" (blur)="focusState = false">
 
                 <input class="add-edit-expense--date-input" *ngIf="customInput.type === 'DATE'" type="date"
