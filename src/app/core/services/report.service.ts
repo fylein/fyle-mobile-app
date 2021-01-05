@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { NetworkService } from './network.service';
-import { StorageService } from './storage.service';
-import { switchMap, tap, map, concatMap, reduce, shareReplay, finalize, mergeMap } from 'rxjs/operators';
-import { from, range, forkJoin, of, Subject } from 'rxjs';
-import { AuthService } from './auth.service';
-import { ApiV2Service } from './api-v2.service';
-import { DateService } from './date.service';
-import { ExtendedReport } from '../models/report.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { isEqual } from 'lodash';
-import { DataTransformService } from './data-transform.service';
-import { Cacheable, CacheBuster } from 'ts-cacheable';
+import {Injectable} from '@angular/core';
+import {ApiService} from './api.service';
+import {NetworkService} from './network.service';
+import {StorageService} from './storage.service';
+import {concatMap, map, reduce, shareReplay, switchMap, tap} from 'rxjs/operators';
+import {from, of, range, Subject} from 'rxjs';
+import {AuthService} from './auth.service';
+import {ApiV2Service} from './api-v2.service';
+import {DateService} from './date.service';
+import {ExtendedReport} from '../models/report.model';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {isEqual} from 'lodash';
+import {DataTransformService} from './data-transform.service';
+import {Cacheable, CacheBuster} from 'ts-cacheable';
 
 const reportsCacheBuster$ = new Subject<void>();
 

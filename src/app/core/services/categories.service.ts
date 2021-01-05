@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { map } from 'rxjs/operators';
-import { Cacheable, CacheBuster } from 'ts-cacheable';
-import { Subject } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {ApiService} from './api.service';
+import {map} from 'rxjs/operators';
+import {Cacheable} from 'ts-cacheable';
+import {Subject} from 'rxjs';
 
 const categoriesCacheBuster$ = new Subject<void>();
 

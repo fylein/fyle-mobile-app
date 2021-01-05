@@ -1,16 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { from, throwError } from 'rxjs';
-import { PopoverController } from '@ionic/angular';
-import { ErrorComponent } from './error/error.component';
-import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap } from 'rxjs/operators';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {RouterAuthService} from 'src/app/core/services/router-auth.service';
+import {from, throwError} from 'rxjs';
+import {PopoverController} from '@ionic/angular';
+import {ErrorComponent} from './error/error.component';
+import {catchError, concatMap, filter, finalize, map, shareReplay, switchMap} from 'rxjs/operators';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {GoogleAuthService} from 'src/app/core/services/google-auth.service';
+import {InAppBrowser} from '@ionic-native/in-app-browser/ngx';
 
 @Component({
   selector: 'app-sign-in',

@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { UserEventService } from 'src/app/core/services/user-event.service';
-import { Router } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {UserEventService} from 'src/app/core/services/user-event.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-disabled',

@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { from, throwError } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { switchMap, finalize, catchError } from 'rxjs/operators';
-import { RouterAuthService } from 'src/app/core/services/router-auth.service';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {from, throwError} from 'rxjs';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {catchError, finalize, switchMap} from 'rxjs/operators';
+import {RouterAuthService} from 'src/app/core/services/router-auth.service';
 
 enum ResetPasswordPageState {
   notSent,
