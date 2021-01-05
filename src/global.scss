@@ -38,6 +38,10 @@ $header-input-interior: #eeeeee;
 
 }
 
+body {
+  font-family: "aktiv-grotesk", "Lato", sans-serif !important;
+}
+
 .ion-color-fyle-primary {
   --ion-color-base: var(--ion-color-fyle-primary);
   --ion-color-base-rgb: var(--ion-color-fyle-primary-rgb);

@@ -155,7 +155,7 @@ export class StatusService {
         });
         const sortedStatus = this.sortStatusByDate(userComments);
         if (sortedStatus.length) {
-          return sortedStatus[0].st.comment;
+          return sortedStatus[0].st_comment;
         }
       })
     );
@@ -163,8 +163,8 @@ export class StatusService {
 
   sortStatusByDate(estatus) {
     estatus.sort((a, b) => {
-      const dateA = a.st.created_at;
-      const dateB = b.st.created_at;
+      const dateA = a.st_created_at;
+      const dateB = b.st_created_at;
       if (dateA.getTime() > dateB.getTime()) {
         return -1;
       } else {
