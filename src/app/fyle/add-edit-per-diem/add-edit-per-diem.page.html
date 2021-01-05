@@ -148,7 +148,7 @@
                             *
                           </div>
                         </div>
-                        <input class="add-edit-per-diem--text-input" type="number" formControlName="num_days" [min]="0"
+                        <input class="add-edit-per-diem--text-input" inputmode="decimal" type="number" formControlName="num_days" [min]="0"
                                [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit">
                       </div>
                       <div class="add-edit-per-diem--error"
@@ -198,10 +198,10 @@
                                 {{paymentMode.advance.purpose}}
                               </div>
                             </ng-container>
-                            <div class="add-edit-per-diem--payment-mode-type" *ngIf="paymentMode.acc.isReimbursible">
+                            <div class="add-edit-per-diem--payment-mode-type" *ngIf="paymentMode.acc.isReimbursable">
                               (Reimbursible)
                             </div>
-                            <div class="add-edit-per-diem--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursible">
+                            <div class="add-edit-per-diem--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursable">
                               (Non Reimbursible)
                             </div>
                           </ng-container>
@@ -318,7 +318,7 @@
                           <input class="add-edit-per-diem--text-input" type="text" formControlName="value"
                                  *ngIf="customInput.type === 'TEXT'">
 
-                          <input class="add-edit-per-diem--text-input" type="number" formControlName="value"
+                          <input class="add-edit-per-diem--text-input" inputmode="decimal" type="number" formControlName="value"
                                  *ngIf="customInput.type === 'NUMBER'">
 
                           <input class="add-edit-per-diem--date-input" *ngIf="customInput.type === 'DATE'" type="date"

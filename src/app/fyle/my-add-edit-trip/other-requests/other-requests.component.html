@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <form [formGroup]="otherDetailsForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="otherDetailsForm" (ngSubmit)="onSubmit()" #formContainer>
     <div class="other-details--container">
       <mat-tab-group>
         <!-- Hote Tab starts -->
@@ -66,7 +66,7 @@
                   <div class="other-details--text-label">
                     Rooms
                   </div>
-                  <input class="other-details--date-input" type="number" formControlName="rooms">
+                  <input class="other-details--date-input" inputmode="decimal" type="number" formControlName="rooms">
                 </div>
     
                 <ng-container *ngIf="currencies$|async as currencies">
@@ -90,7 +90,7 @@
                   <div class="other-details--text-label">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}}
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
     
                 <div class="other-details--text">
@@ -100,52 +100,55 @@
                   <input class="other-details--text-input" type="text" formControlName="notes">
                 </div>
                 <!-- Add Custom Fields here -->
-                <p *ngIf="hotelRequestCustomFields$|async" class="other-details--special-elements">Additional Information</p>
-                <div *ngFor="let customInput of hotelRequestCustomFields$|async as customFields">
-                  <form [formGroup]="customInput.control">
-                    <!-- <button (click)="debug(customInput)">debug</button> -->
-                    <div class="other-details--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
-                      <div class="other-details--text-label">
-                        {{customInput.input_name | ellipsis: 20}}
-                        <span *ngIf="customInput.mandatory">
-                          *
-                        </span>
+                <ng-container *ngIf="hotelRequestCustomFields$|async as customFields">
+                  <p *ngIf="customFields.length > 0" class="other-details--special-elements">Additional Information</p>
+                  <div *ngFor="let customInput of customFields">
+                    <form [formGroup]="customInput.control">
+                      <!-- <button (click)="debug(customInput)">debug</button> -->
+                      <div class="other-details--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
+                        <div class="other-details--text-label"
+                        [ngClass]="{'other-details--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                          {{customInput.input_name | ellipsis: 20}}
+                          <span *ngIf="customInput.mandatory">
+                            *
+                          </span>
+                        </div>
+                        <input class="other-details--text-input" type="text" formControlName="value"
+                          *ngIf="customInput.input_type === 'TEXT'">
+            
+                        <input class="other-details--text-input" type="number" formControlName="value"
+                          *ngIf="customInput.input_type === 'NUMBER'">
+            
+                        <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
+                          formControlName="value">
                       </div>
-                      <input class="other-details--text-input" type="text" formControlName="value"
-                        *ngIf="customInput.input_type === 'TEXT'">
-          
-                      <input class="other-details--text-input" type="number" formControlName="value"
-                        *ngIf="customInput.input_type === 'NUMBER'">
-          
-                      <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
-                        formControlName="value">
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
-                      <div class="other-details--checkbox">
-                        <mat-checkbox color="primary" formControlName="value">
-                          {{customInput.input_name | ellipsis: 20 }}
-                        </mat-checkbox>
+
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
+                        <div class="other-details--checkbox">
+                          <mat-checkbox color="primary" formControlName="value">
+                            {{customInput.input_name | ellipsis: 20 }}
+                          </mat-checkbox>
+                        </div>
                       </div>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
-                      <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'SELECT'">
-                      <app-fy-select [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-select>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
-                      <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'USER_LIST'">
-                      <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
-                    </div>
-                  </form>
-                </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
+                        <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'SELECT'">
+                        <app-fy-select [label]="customInput.input_name" [options]="customInput.input_options" formControlName="value"></app-fy-select>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
+                        <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.input_options" formControlName="value"></app-fy-multiselect>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'USER_LIST'">
+                        <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
+                      </div>
+                    </form>
+                  </div>
+                </ng-container>
               </div>
             </div>
           </ng-container>
@@ -157,19 +160,20 @@
           <ng-container formArrayName="transportDetails">
             <div *ngFor="let control of transportDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
               <div class="other-details--wrapper-title">
-                <!-- Big Hack, no other option, please try this at your own risk -->
                 <strong>
                   <span *ngIf="fgValues.tripType === 'ROUND'">
-                      <!-- otherDetailsForm.value -> {{otherDetailsForm.value | json}} -->
-                    <p>
+                    <p *ngIf="!(fgValues.cities[0].from_city.city && fgValues.cities[0].to_city.city)">
+                      City {{i + 1}}
+                    </p>
+                    <p *ngIf="fgValues.cities[0].from_city.city && fgValues.cities[0].to_city.city">
                       {{ otherDetailsForm.value.transportDetails[i].fromCity.city }}
                       to 
                       {{ otherDetailsForm.value.transportDetails[i].toCity.city }}
                       on 
-                      <span *ngIf="i === 0">
-                        {{ fgValues.cities[i].onward_dt | date: 'dd MMM yyyy' }}
+                      <span>
+                        {{ fgValues.cities[0].onward_dt | date: 'dd MMM yyyy' }}
                       </span>
-                      <span *ngIf="i === 1">
+                      <span>
                         {{ fgValues.cities[0].return_date | date: 'dd MMM yyyy' }}
                       </span>
                     </p>
@@ -228,7 +232,7 @@
                   <div class="other-details--text-label">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}}
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
     
                 <div class="other-details--text">
@@ -239,52 +243,55 @@
                 </div>
 
                 <!-- Add Custom Fields here -->
-                <p *ngIf="transportRequestCustomFields$|async" class="other-details--special-elements">Additional Information</p>
-                <div *ngFor="let customInput of transportRequestCustomFields$|async as customFields">
-                  <form [formGroup]="customInput.control">
-                    <!-- <button (click)="debug(customInput)">debug</button> -->
-                    <div class="other-details--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
-                      <div class="other-details--text-label">
-                        {{customInput.input_name | ellipsis: 20}}
-                        <span *ngIf="customInput.mandatory">
-                          *
-                        </span>
+                <ng-container *ngIf="transportRequestCustomFields$|async as customFields">
+                  <p *ngIf="customFields.length > 0" class="other-details--special-elements">Additional Information</p>
+                  <div *ngFor="let customInput of customFields">
+                    <form [formGroup]="customInput.control">
+                      <!-- <button (click)="debug(customInput)">debug</button> -->
+                      <div class="other-details--text" *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'">
+                        <div class="other-details--text-label"
+                        [ngClass]="{'other-details--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                          {{customInput.input_name | ellipsis: 20}}
+                          <span *ngIf="customInput.mandatory">
+                            *
+                          </span>
+                        </div>
+                        <input class="other-details--text-input" type="text" formControlName="value"
+                          *ngIf="customInput.input_type === 'TEXT'">
+            
+                        <input class="other-details--text-input" type="number" formControlName="value"
+                          *ngIf="customInput.input_type === 'NUMBER'">
+            
+                        <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
+                          formControlName="value">
                       </div>
-                      <input class="other-details--text-input" type="text" formControlName="value"
-                        *ngIf="customInput.input_type === 'TEXT'">
-          
-                      <input class="other-details--text-input" type="number" formControlName="value"
-                        *ngIf="customInput.input_type === 'NUMBER'">
-          
-                      <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
-                        formControlName="value">
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
-                      <div class="other-details--checkbox">
-                        <mat-checkbox color="primary" formControlName="value">
-                          {{customInput.input_name | ellipsis: 20 }}
-                        </mat-checkbox>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'BOOLEAN'">
+                        <div class="other-details--checkbox">
+                          <mat-checkbox color="primary" formControlName="value">
+                            {{customInput.input_name | ellipsis: 20 }}
+                          </mat-checkbox>
+                        </div>
                       </div>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
-                      <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'SELECT'">
-                      <app-fy-select [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-select>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
-                      <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.input_type === 'USER_LIST'">
-                      <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
-                    </div>
-                  </form>
-                </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
+                        <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'SELECT'">
+                        <app-fy-select [label]="customInput.input_name" [options]="customInput.input_options" formControlName="value"></app-fy-select>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
+                        <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.input_options" formControlName="value"></app-fy-multiselect>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.input_type === 'USER_LIST'">
+                        <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
+                      </div>
+                    </form>
+                  </div>
+                </ng-container>
               </div>
             </div>
           </ng-container>
@@ -328,7 +335,7 @@
                   <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': control.controls.amount.touched && !control.controls.amount.valid}">
                     {{control['controls'].amount.value ? 'Amount' : 'Enter Amount'}} <span> *</span>
                   </div>
-                  <input class="other-details--text-input" type="number" formControlName="amount">
+                  <input class="other-details--text-input" inputmode="decimal" type="number" formControlName="amount">
                 </div>
 
                 <div class="other-details--text">
@@ -345,52 +352,55 @@
                   <input class="other-details--text-input" type="text" formControlName="notes">
                 </div>
 
-                <p *ngIf="advanceRequestCustomFields$|async" class="other-details--special-elements">Additional Information</p>
-                <div *ngFor="let customInput of advanceRequestCustomFields$|async as customFields">
-                  <form [formGroup]="customInput.control">
-                    <!-- <button (click)="debug(customInput)">debug</button> -->
-                    <div class="other-details--text" *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
-                      <div class="other-details--text-label">
-                        {{customInput.name | ellipsis: 20}}
-                        <span *ngIf="customInput.mandatory">
-                          *
-                        </span>
+                <ng-container *ngIf="advanceRequestCustomFields$|async as customFields">
+                  <p *ngIf="customFields.length > 0" class="other-details--special-elements">Additional Information</p>
+                  <div *ngFor="let customInput of customFields">
+                    <form [formGroup]="customInput.control">
+                      <!-- <button (click)="debug(customInput)">debug</button> -->
+                      <div class="other-details--text" *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
+                        <div class="other-details--text-label"
+                        [ngClass]="{'other-details--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                          {{customInput.name | ellipsis: 20}}
+                          <span *ngIf="customInput.mandatory">
+                            *
+                          </span>
+                        </div>
+                        <input class="other-details--text-input" type="text" formControlName="value"
+                          *ngIf="customInput.type === 'TEXT'">
+            
+                        <input class="other-details--text-input" type="number" formControlName="value"
+                          *ngIf="customInput.type === 'NUMBER'">
+            
+                        <input class="other-details--date-input" *ngIf="customInput.type === 'DATE'" type="date"
+                          formControlName="value">
                       </div>
-                      <input class="other-details--text-input" type="text" formControlName="value"
-                        *ngIf="customInput.type === 'TEXT'">
-          
-                      <input class="other-details--text-input" type="number" formControlName="value"
-                        *ngIf="customInput.type === 'NUMBER'">
-          
-                      <input class="other-details--date-input" *ngIf="customInput.type === 'DATE'" type="date"
-                        formControlName="value">
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.type === 'BOOLEAN'">
-                      <div class="other-details--checkbox">
-                        <mat-checkbox color="primary" formControlName="value">
-                          {{customInput.name | ellipsis: 20 }}
-                        </mat-checkbox>
+        
+                      <div class="other-details--text" *ngIf="customInput.type === 'BOOLEAN'">
+                        <div class="other-details--checkbox">
+                          <mat-checkbox color="primary" formControlName="value">
+                            {{customInput.name | ellipsis: 20 }}
+                          </mat-checkbox>
+                        </div>
                       </div>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.type === 'LOCATION'">
-                      <app-fy-location [label]="customInput.name" formControlName="value"></app-fy-location>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.type === 'SELECT'">
-                      <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value"></app-fy-select>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.type === 'MULTI_SELECT'">
-                      <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
-                    </div>
-      
-                    <div class="other-details--text" *ngIf="customInput.type === 'USER_LIST'">
-                      <app-fy-userlist [label]="customInput.name" formControlName="value"></app-fy-userlist>
-                    </div>
-                  </form>
-                </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.type === 'LOCATION'">
+                        <app-fy-location [label]="customInput.name" formControlName="value"></app-fy-location>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.type === 'SELECT'">
+                        <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value"></app-fy-select>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.type === 'MULTI_SELECT'">
+                        <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
+                      </div>
+        
+                      <div class="other-details--text" *ngIf="customInput.type === 'USER_LIST'">
+                        <app-fy-userlist [label]="customInput.name" formControlName="value"></app-fy-userlist>
+                      </div>
+                    </form>
+                  </div>
+                </ng-container>
               </div>
             </div>
             
@@ -407,7 +417,7 @@
     </div>
     <div class="other-details--cta-block">
       <div class="other-details--cta-container">
-        <ion-button *ngIf="!id" (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
+        <ion-button *ngIf="tripActions?.can_save" (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
         <ion-button type="submit" class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
       </div>
     </div>

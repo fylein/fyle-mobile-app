@@ -33,10 +33,10 @@ export class SignInPage implements OnInit {
     private inAppBrowser: InAppBrowser
   ) { }
 
-  checkSAMLResponseAndSignInUser = function (data) {
+  checkSAMLResponseAndSignInUser(data) {
     if (data.error) {
-      let err = {
-        status: parseInt(data.response_status_code)
+      const err = {
+        status: parseInt(data.response_status_code, 10)
       };
 
       this.handleError(err);
@@ -49,7 +49,7 @@ export class SignInPage implements OnInit {
         this.router.navigate(['/', 'auth', 'switch_org']);
       });
     }
-  };
+  }
 
   handleSamlSignIn(res) {
     const url = res.idp_url + '&RelayState=MOBILE';
@@ -77,6 +77,9 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
+    if (!this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}')) {
+      return;
+    }
     await this.loaderService.showLoader();
 
     const checkEmailExists$ = this.routerAuthService
@@ -109,7 +112,7 @@ export class SignInPage implements OnInit {
     });
   }
 
-  async handleError(err: HttpErrorResponse) {
+  async handleError(err) {
     let header = 'Incorrect Email or Password';
 
     if (err.status === 400) {
@@ -138,9 +141,12 @@ export class SignInPage implements OnInit {
   }
 
   async signInUser() {
-    await this.loaderService.showLoader();
+    if (this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}') && this.fg.value.password.replace(/\s/g, '').length <= 0) {
+      return;
+    }
 
-    const basicSignIn$ = this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password).pipe(
+    from(this.loaderService.showLoader('Signing you in...', 10000)).pipe(
+      switchMap(() => this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password)),
       catchError(err => {
         this.handleError(err);
         return throwError(err);
@@ -148,12 +154,8 @@ export class SignInPage implements OnInit {
       switchMap((res) => {
         return this.authService.newRefreshToken(res.refresh_token);
       }),
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })
-    );
-
-    basicSignIn$.subscribe(() => {
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(() => {
       this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
     });
   }
@@ -176,7 +178,7 @@ export class SignInPage implements OnInit {
           switchMap((res) => {
             return this.authService.newRefreshToken(res.refresh_token);
           }),
-        )
+        );
       }),
       finalize(() => {
         from(this.loaderService.hideLoader());

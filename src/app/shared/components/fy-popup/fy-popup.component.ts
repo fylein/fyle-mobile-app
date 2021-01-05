@@ -1,7 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { forkJoin, noop } from 'rxjs';
 import { PopupConfig } from './popup.model';
 
 @Component({
@@ -25,6 +23,7 @@ export class FyPopupComponent implements OnInit {
 
   primaryCtaClicked() {
     if (this.config.primaryCta) {
+      // noinspection JSIgnoredPromiseFromCall
       this.popoverController.dismiss({
         action: 'primary'
       });
@@ -33,6 +32,7 @@ export class FyPopupComponent implements OnInit {
 
   secondaryCtaClicked() {
     if (this.config.secondaryCta) {
+      // noinspection JSIgnoredPromiseFromCall
       this.popoverController.dismiss({
         action: 'secondary'
       });
@@ -40,6 +40,7 @@ export class FyPopupComponent implements OnInit {
   }
 
   cancel() {
+    // noinspection JSIgnoredPromiseFromCall
     this.popoverController.dismiss({
       action: 'cancel'
     });

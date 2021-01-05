@@ -53,7 +53,7 @@
               <ion-grid fixed *ngIf="event.feature === feature.key">
                 <ion-row [ngClass]="{'notifications--odd': odd}" class="notifications--features-list-row">
                   <ion-col>
-                      <p>{{ event.textLabel }}</p>
+                    <div>{{ event.textLabel }}</div>
                   </ion-col>
                   <ion-col size="2" *ngIf="(orgUserSettings$|async)?.notification_settings?.push.enabled">
                     <div formArrayName="pushEvents">

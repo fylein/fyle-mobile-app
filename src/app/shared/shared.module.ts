@@ -7,6 +7,7 @@ import { EllipsisPipe } from './pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
+import { TripState } from './pipes/trip-state.pipe';
 import { FySelectComponent } from './components/fy-select/fy-select.component';
 import { FySelectModalComponent } from './components/fy-select/fy-select-modal/fy-select-modal.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,6 +31,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ApproverDialogComponent } from './components/fy-apporver/approver-dialog/approver-dialog.component';
 import { ModifyApproverDialogComponent } from './components/fy-modify-approver/modify-approver-dialog/modify-approver-dialog.component';
 import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
+
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 import { IconModule } from './icon/icon.module';
@@ -60,6 +62,7 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
+    TripState,
     FySelectComponent,
     FySelectModalComponent,
     FyLocationComponent,
@@ -111,7 +114,6 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     EllipsisPipe,
     HumanizeCurrencyPipe,
     ReportState,
-    SnakeCaseToSpaceCase,
     FySelectComponent,
     FyLocationComponent,
     FyMultiselectComponent,
@@ -120,6 +122,7 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     FyDuplicateDetectionComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
+    TripState,
     InitialsPipe,
     DelegatedAccMessageComponent,
     IconModule,

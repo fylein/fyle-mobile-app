@@ -23,6 +23,7 @@ import { SelectCurrencyComponent } from './select-currency/select-currency.compo
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OtpPopoverComponent } from './otp-popover/otp-popover.component';
 import { Plugins } from '@capacitor/core';
+import { TokenService } from 'src/app/core/services/token.service';
 
 const { Browser } = Plugins;
 
@@ -55,6 +56,7 @@ export class MyProfilePage implements OnInit {
   isApiCallInProgress = false;
   mobileNumber: string;
   org$: Observable<any>;
+  clusterDomain: string;
 
   constructor(
     private authService: AuthService,
@@ -70,7 +72,8 @@ export class MyProfilePage implements OnInit {
     private loaderService: LoaderService,
     private toastController: ToastController,
     private orgUserService: OrgUserService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private tokenService: TokenService
   ) { }
 
   logOut() {
@@ -254,6 +257,9 @@ export class MyProfilePage implements OnInit {
 
   ionViewWillEnter() {
     this.reset();
+    from(this.tokenService.getClusterDomain()).subscribe(res => {
+      this.clusterDomain = res;
+    });
   }
 
   reset() {
@@ -355,7 +361,7 @@ export class MyProfilePage implements OnInit {
   openWebAppLink(location) {
     let link;
     if (location === 'app') {
-      link = 'https://in1.fylehq.com/';
+      link = this.clusterDomain;
     } else if (location === 'whatsapp') {
       link = 'https://www.fylehq.com/help/en/articles/3432961-create-expense-using-whatsapp';
     } else if (location === 'sms') {

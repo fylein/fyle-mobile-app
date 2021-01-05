@@ -445,10 +445,6 @@ export class AppComponent implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
   }
 
-  fetchEou() {
-    return from(this.authService.getEou());
-  }
-
   ngOnInit() {
     from(this.deviceService.getDeviceInfo()).subscribe(res => {
       this.device = res.platform;

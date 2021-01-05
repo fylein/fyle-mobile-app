@@ -59,11 +59,12 @@ export class ViewCommentComponent implements OnInit {
     if (this.isCommentAdded) {
       // Todo: Track Add Comment Event
       // TrackingService.addComment({Asset: 'Mobile'});
+      this.modalController.dismiss({updated: true});
     } else {
       // Todo: Track View Comment Event
       // TrackingService.viewComment({Asset: 'Mobile'});
+      this.modalController.dismiss();
     }
-    this.modalController.dismiss();
   }
 
   ngOnInit() {

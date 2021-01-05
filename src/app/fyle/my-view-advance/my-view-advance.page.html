@@ -18,7 +18,7 @@
           {{advance.adv_currency}}
         </div>
         <div class="view-advance--amount">
-          {{advance.adv_amount}}
+          {{advance.adv_amount }}
         </div>
       </div>
 
@@ -46,7 +46,7 @@
             Issued By
           </div>
           <div class="view-advance--element-value">
-            {{advance.creator_us_full_name}}
+            {{advance.creator_us_full_name || '-'}}
           </div>
         </div>
 
@@ -55,7 +55,7 @@
             Advance Number
           </div>
           <div class="view-advance--element-value">
-            {{advance.adv_advance_number}}
+            {{advance.adv_advance_number || '-'}}
           </div>
         </div>
 
@@ -64,7 +64,7 @@
             Payment Mode
           </div>
           <div class="view-advance--element-value">
-            {{advance.adv_mode}}
+            {{advance.adv_mode || '-'}}
           </div>
         </div>
 
@@ -73,7 +73,7 @@
             Purpose
           </div>
           <div class="view-advance--element-value">
-            {{advance.adv_purpose}}
+            {{advance.adv_purpose || '-'}}
           </div>
         </div>
 
@@ -82,7 +82,7 @@
             Project
           </div>
           <div class="view-advance--element-value">
-            {{advance.project_name}}
+            {{advance.project_name || '-'}}
           </div>
         </div>
 
@@ -91,12 +91,16 @@
             Additional Notes
           </div>
           <div class="view-advance--element-value">
-            {{advance.areq_notes}}
+            {{advance.areq_notes || '-'}}
           </div>
         </div>
       </div>
 
-      <div class="view-advance--advance-request-block" >
+<<<<<<< HEAD
+      <div *ngIf="advance.areq_id" class="view-advance--advance-request-block" >
+=======
+      <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
+>>>>>>> e2bc9da4fbf7ccde6855b5bef575a18be40f7d77
         <a [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]"> View Advance Request</a>
       </div>
 

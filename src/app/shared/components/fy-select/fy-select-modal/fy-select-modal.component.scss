@@ -31,9 +31,14 @@ $list-element-color: #333;
     color: $sub-title;
   }
 
+  &--search-input {
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
   &--form-field {
     font-size: 11px;
-    width: 80%;
+    width: 94%;
     padding: 4px;
   }
   &--search-icon {
@@ -47,7 +52,7 @@ $list-element-color: #333;
   &--container {
     display: flex;
     flex-direction: column;
-    padding: 0 10px;
+    padding: 0 16px;
   }
 
   &--recently-used-block {

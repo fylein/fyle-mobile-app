@@ -72,7 +72,7 @@ export class MyAdvancesPage implements OnInit {
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
       switchMap(() => {
-        return from(this.loaderService.showLoader('Retriving Advance')).pipe(
+        return from(this.loaderService.showLoader('Retrieving advance...')).pipe(
           switchMap(() => {
             return combineLatest([
               this.myAdvancerequests$,
