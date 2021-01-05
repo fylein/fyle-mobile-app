@@ -23,6 +23,7 @@ import {Plugins} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
+import * as Sentry from '@sentry/angular';
 
 const {App} = Plugins;
 
@@ -99,7 +100,6 @@ export class AppComponent implements OnInit {
     // tslint:disable-next-line:max-line-length
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
     App.addListener('appUrlOpen', (data) => {
-      console.log(data);
       this.zone.run(() => {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
       });
@@ -113,7 +113,6 @@ export class AppComponent implements OnInit {
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
     });
-
   }
 
   openHelp() {
@@ -209,6 +208,13 @@ export class AppComponent implements OnInit {
       this.isSwitchedToDelegator = res.isSwitchedToDelegator;
       const isConnected = res.isConnected;
       this.eou = res.eou;
+
+      Sentry.setUser({
+        id: res.eou.us.email + ' - ' + res.eou.ou.id,
+        email: res.eou.us.email,
+        orgUserId: res.eou.ou.id
+      });
+
       this.freshchatService.setupNetworkWatcher();
 
       // TODO: remove nested subscribe - mini tech debt

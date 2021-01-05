@@ -10,8 +10,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     MatIconModule
   ],
   exports: [
-    MatIconModule,
-    MatIconRegistry
+    MatIconModule
   ],
   providers: [MatIconRegistry]
 })

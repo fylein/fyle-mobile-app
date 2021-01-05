@@ -7,7 +7,9 @@
       *
     </span>
   </div>
-  <input [disabled]="!(eouc$|async)" class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+  <ng-container *ngIf="eouc$|async as eouc">
+    <input [disabled]="!eouc" class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+  </ng-container>
   <mat-icon>
     chevron_right
   </mat-icon>

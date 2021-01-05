@@ -27,7 +27,7 @@ export class SetupAccountPage implements OnInit {
   fullname$: Observable<string>;
   fg: FormGroup;
   org$: Observable<Org>;
-
+  hide = true;
   lengthValidationDisplay$: Observable<boolean>;
   uppercaseValidationDisplay$: Observable<boolean>;
   numberValidationDisplay$: Observable<boolean>;

@@ -47,6 +47,7 @@ export class MyAdvancesPage implements OnInit {
       reduce((acc, curr) => {
         return acc.concat(curr);
       }),
+      startWith([])
     );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
@@ -65,12 +66,13 @@ export class MyAdvancesPage implements OnInit {
       reduce((acc, curr) => {
         return acc.concat(curr);
       }),
+      startWith([])
     );
 
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
       switchMap(() => {
-        return from(this.loaderService.showLoader('Retriving Advance')).pipe(
+        return from(this.loaderService.showLoader('Retrieving advance...')).pipe(
           switchMap(() => {
             return forkJoin({
               myAdvancerequests$: this.myAdvancerequests$,

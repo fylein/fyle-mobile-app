@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { SwitchOrgPage } from './switch-org.page';
+import { FySelectModalComponent } from './fy-select-modal.component';
 
-describe('SwithOrgPage', () => {
-  let component: SwitchOrgPage;
-  let fixture: ComponentFixture<SwitchOrgPage>;
+describe('FySelectModalComponent', () => {
+  let component: FySelectModalComponent;
+  let fixture: ComponentFixture<FySelectModalComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SwitchOrgPage ],
+      declarations: [ FySelectModalComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SwitchOrgPage);
+    fixture = TestBed.createComponent(FySelectModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

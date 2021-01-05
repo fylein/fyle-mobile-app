@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 export class SignUpErrorComponent implements OnInit {
 
   @Input() header = 'Error';
-  @Input() status = 'Error';
+  @Input() status;
   @Input() email = '';
 
   constructor(

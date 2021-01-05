@@ -8,6 +8,7 @@ import { PopoverController } from '@ionic/angular';
   styleUrls: ['./split-expense-status.component.scss'],
 })
 export class SplitExpenseStatusComponent implements OnInit {
+  isSplitSuccessful = false;
 
   constructor(
     private router: Router,

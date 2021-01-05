@@ -5,18 +5,17 @@ import { getCurrencySymbol } from '@angular/common';
   name: 'humanizeCurrency'
 })
 export class HumanizeCurrencyPipe implements PipeTransform {
+  transform(value: number, currencyCode: string, fraction: number): any {
+    const sign = value < 0 ? '-' : '';
+    const amount = Math.abs(value) || 0;
+    const si = ['', 'K', 'M', 'G', 'T', 'P', 'H'];
+    const exp = Math.max(0, Math.floor(Math.log(amount) / Math.log(1000)));
+    const result = amount / Math.pow(1000, exp);
+    let fixedResult;
 
-  transform (amount: number, currencyCode: string, fraction: number): any {
-    var sign = amount < 0 ? '-':'';
-    var amount = Math.abs(amount) || 0;
-    var si = ['', 'K', 'M', 'G', 'T', 'P', 'H'];
-    var exp = Math.max(0, Math.floor(Math.log(amount) / Math.log(1000)));
-    var result = amount / Math.pow(1000, exp);
-    var fixedResult;
-
-    var currency = getCurrencySymbol(currencyCode, 'wide' , 'en');
+    const currency = getCurrencySymbol(currencyCode, 'wide' , 'en');
     if (currency) {
-      var fractionSize = fraction;
+      const fractionSize = fraction;
       if (fractionSize) {
         fixedResult = result.toFixed(fraction);
       } else {

@@ -20,8 +20,7 @@ export class InvitedUserPage implements OnInit {
   isConnected$: Observable<boolean>;
   fg: FormGroup;
   eou$: Observable<ExtendedOrgUser>;
-
-
+  hide = true;
   lengthValidationDisplay$: Observable<boolean>;
   uppercaseValidationDisplay$: Observable<boolean>;
   numberValidationDisplay$: Observable<boolean>;

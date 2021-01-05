@@ -20,7 +20,7 @@
       </div>
       <div class="search-filter--filter">
         <mat-radio-group color="primary" class="search-filter--radio-group" formControlName="state">
-          <mat-radio-button class="search-filter--radio-btn" value="READY_TO_REPORT">Ready To Report</mat-radio-button>
+          <mat-radio-button *ngIf="!draftMode" class="search-filter--radio-btn" value="READY_TO_REPORT">Ready To Report</mat-radio-button>
           <mat-radio-button class="search-filter--radio-btn" value="POLICY_VIOLATED">Policy Violated</mat-radio-button>
           <mat-radio-button class="search-filter--radio-btn" value="CANNOT_REPORT">Cannot Report</mat-radio-button>
           <mat-radio-button class="search-filter--radio-btn" value="NEEDS_RECEIPT">Needs Receipt</mat-radio-button>

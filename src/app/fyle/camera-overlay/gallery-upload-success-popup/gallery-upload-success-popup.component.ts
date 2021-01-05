@@ -16,6 +16,7 @@ export class GalleryUploadSuccessPopupComponent implements OnInit {
   ngOnInit() {}
 
   done() {
+    // noinspection JSIgnoredPromiseFromCall
     this.popoverController.dismiss();
   }
 

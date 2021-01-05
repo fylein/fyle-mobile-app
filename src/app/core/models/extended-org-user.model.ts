@@ -12,4 +12,5 @@ export interface ExtendedOrgUser {
   ap3: Approver;
   bb: BankBranch;
   dwolla: Dwolla;
+  checked?: boolean;
 }

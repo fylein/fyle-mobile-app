@@ -87,7 +87,7 @@
           <div class="add-edit-advance-request--text "
             *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
             <div class="add-edit-advance-request--text-label"
-              [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.custom_field_values.controls[i].touched && !fg.controls.custom_field_values.controls[i].valid}">
+              [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid}">
               {{customInput.name | ellipsis: 20}}
               <span *ngIf="customInput.mandatory">
                 *

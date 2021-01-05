@@ -82,10 +82,9 @@
 }
 
   &--add-receipt-text{
-    margin: 0;
     display: inline-block;
     vertical-align: middle;
-    margin-top: 20px;
+    margin: 20px 0 0;
   }
 
   &--currency-card {
@@ -104,7 +103,7 @@
     color: #4a4a4a;
     width: 40%;
     padding: 12px 16px;
-    line-height: 1;
+    line-height: 1.5;
     height: auto;
     text-align: center;
     letter-spacing: 1px;
@@ -161,7 +160,7 @@
     padding: 16px 0;
     display: flex;
     align-items: center;
-    
+
     p {
       display: inline-block;
       vertical-align: middle;
