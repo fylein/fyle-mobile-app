@@ -11,6 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -31,7 +32,8 @@ export class SignInPage implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     public googleAuthService: GoogleAuthService,
-    private inAppBrowser: InAppBrowser
+    private inAppBrowser: InAppBrowser,
+    private pushNotificationService: PushNotificationService
   ) { }
 
   checkSAMLResponseAndSignInUser(data) {
@@ -185,6 +187,7 @@ export class SignInPage implements OnInit {
         from(this.loaderService.hideLoader());
       })
     ).subscribe(() => {
+      this.pushNotificationService.postDeviceToken();
       this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
     });
   }
