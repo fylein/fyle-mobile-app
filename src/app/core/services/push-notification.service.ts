@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {Plugins, PushNotification, PushNotificationToken} from '@capacitor/core';
+import {Plugins, PushNotification, PushNotificationActionPerformed, PushNotificationToken} from '@capacitor/core';
 import { forkJoin, from, iif, noop, of } from 'rxjs';
 import { concatMap, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -24,6 +24,37 @@ export class PushNotificationService {
 
   setRoot(rootUrl: string) {
     this.ROOT_ENDPOINT = rootUrl;
+  }
+
+  initPush() {
+    //need to dicard for webapp
+    this.registerPush();
+  }
+
+  registerPush() {
+    PushNotifications.requestPermission().then( result => {
+      if (result.granted) {
+        // Register with Apple / Google to receive push via APNS/FCM
+        PushNotifications.register();
+      } else {
+        // Show some error
+      }
+    });
+ 
+    PushNotifications.addListener('registration',(token: PushNotificationToken) => {
+      return this.postDeviceInfo(token.value).subscribe(noop);
+    });
+
+    PushNotifications.addListener('pushNotificationReceived', (notification: PushNotification) => {
+      console.log('Push received: ' + JSON.stringify(notification));
+      return this.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
+    });
+
+    // Method called when tapping on a notification
+    PushNotifications.addListener('pushNotificationActionPerformed', (notification: PushNotificationActionPerformed) => {
+      console.log('Push action performed: ' + JSON.stringify(notification));
+      //return this.pushNotificationService.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
+    });
   }
 
   postDeviceInfo(token) {
@@ -55,16 +86,6 @@ export class PushNotificationService {
         return this.userService.upsertProperties(userProperties);
       })
     )
-  }
-
-  getUserProperties() {
-    return this.userService.getProperties();
-  }
-
-  postDeviceToken() {
-    PushNotifications.addListener('registration',(token: PushNotificationToken) => {
-      return this.postDeviceInfo(token.value).subscribe(noop);
-    });
   }
 
   updateDeliveryStatus(notification_id) {

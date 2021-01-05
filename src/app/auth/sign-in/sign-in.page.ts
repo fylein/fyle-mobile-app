@@ -187,7 +187,7 @@ export class SignInPage implements OnInit {
         from(this.loaderService.hideLoader());
       })
     ).subscribe(() => {
-      this.pushNotificationService.postDeviceToken();
+      this.pushNotificationService.initPush();
       this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
     });
   }

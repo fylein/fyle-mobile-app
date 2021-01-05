@@ -462,7 +462,7 @@ export class AppComponent implements OnInit {
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
         this.showSideMenu();
-        this.pushNotificationService.postDeviceToken();
+        this.pushNotificationService.initPush();
       }
     });
 
@@ -477,27 +477,6 @@ export class AppComponent implements OnInit {
     });
 
     this.setupNetworkWatcher();
-
-    PushNotifications.requestPermission().then( result => {
-      if (result.granted) {
-        // Register with Apple / Google to receive push via APNS/FCM
-        PushNotifications.register();
-      } else {
-        // Show some error
-      }
-    });
-
-    // Show us the notification payload if the app is open on our device
-    PushNotifications.addListener('pushNotificationReceived', (notification: PushNotification) => {
-      console.log('Push received: ' + JSON.stringify(notification));
-      return this.pushNotificationService.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
-    });
-
-    // Method called when tapping on a notification
-    PushNotifications.addListener('pushNotificationActionPerformed', (notification: PushNotificationActionPerformed) => {
-      console.log('Push action performed: ' + JSON.stringify(notification));
-      //return this.pushNotificationService.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
-    });
   }
 
 }
