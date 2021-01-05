@@ -152,7 +152,7 @@
         <ng-container *ngIf="transportationRequests.length">
           <div class="trip-request--card" matRipple>
             <div class="trip-request--element trip-request--element__single"
-              (click)="openTransportationRequests(transportationRequests)">
+              (click)="openTransportationRequests()">
               <div class="trip-request--element-label">
                 Transportation
               </div>
@@ -167,7 +167,7 @@
       <ng-container *ngIf="hotelRequests$|async as hotelRequests">
         <ng-container *ngIf="hotelRequests.length">
           <div class="trip-request--card" matRipple>
-            <div class="trip-request--element trip-request--element__single" (click)="openHotelRequests(hotelRequests)">
+            <div class="trip-request--element trip-request--element__single" (click)="openHotelRequests()">
               <div class="trip-request--element-label">
                 Hotel
               </div>
@@ -183,7 +183,7 @@
         <ng-container *ngIf="advanceRequests.length">
           <div class="trip-request--card" matRipple>
             <div class="trip-request--element trip-request--element__single"
-              (click)="openAdvanceRequests(advanceRequests)">
+              (click)="openAdvanceRequests()">
               <div class="trip-request--element-label">
                 Advance
               </div>
@@ -198,12 +198,12 @@
 
       <ng-container *ngIf="activeApprovals$|async as activeApprovals">
         <ng-container *ngIf="actions$|async as actions">
-          <app-fy-apporver 
+          <app-fy-apporver
             *ngIf="actions.can_add_approver"
-            [approverList]="getApproverEmails(activeApprovals)" 
+            [approverList]="getApproverEmails(activeApprovals)"
             [id]="tripRequest.trp_id"
-            [from]="'TRIP_REQUEST'" 
-            [title]="'Add Approvers'" 
+            [from]="'TRIP_REQUEST'"
+            [title]="'Add Approvers'"
             (notify)='onUpdateApprover($event)'>
           </app-fy-apporver>
         </ng-container>

@@ -22,6 +22,8 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
 
   @Input() duplicates: any;
   @Input() transactionId: any;
+  @Input() label;
+  @Input() mandatory;
 
   private innerValue;
   displayValue;

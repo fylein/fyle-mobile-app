@@ -12,6 +12,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   imports: [
@@ -23,6 +24,7 @@ import { ApproveReportComponent } from './approve-report/approve-report.componen
     MatButtonModule,
     MatRippleModule,
     SharedModule,
+    MatFormFieldModule
   ],
   declarations: [
     ViewTeamReportPage,

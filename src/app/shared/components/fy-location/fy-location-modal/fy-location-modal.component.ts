@@ -40,7 +40,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     const that = this;
     if (that.currentSelection && that.currentSelection.display) {
-      this.value = that.currentSelection.display
+      this.value = that.currentSelection.display;
     }
 
     that.filteredList$ = fromEvent(that.searchBarRef.nativeElement, 'keyup').pipe(
@@ -57,14 +57,14 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
           }))
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
-            return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`)
+            return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
           }),
           map((res) => {
-            that.loader = false
+            that.loader = false;
             return res;
           }),
           catchError(() => {
-            that.loader = false
+            that.loader = false;
             return [];
           })
         );

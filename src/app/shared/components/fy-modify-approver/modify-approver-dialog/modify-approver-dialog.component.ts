@@ -25,7 +25,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
   searchedApprovers$: Observable<any>;
   selectedApprovers: any[] = [];
   intialSelectedApprovers: any[] = [];
-  equals: boolean = false;
+  equals = false;
 
   constructor(
     private loaderService: LoaderService,
@@ -50,7 +50,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
           return removedApprovers.some(removedApprover => {
             return removedApprover.ou.id === eou.approver_id && eou.state !== 'APPROVAL_DONE';
           });
-        })
+        });
       })
     ).subscribe(noop);
 
@@ -122,10 +122,10 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
       map(eouc => {
         return eouc.filter((approver) => {
           if (this.approverList.indexOf(approver.us.email) > -1) {
-            approver['checked'] = true;
+            approver.checked = true;
             this.selectedApprovers.push(approver);
           } else {
-            approver['checked'] = false;
+            approver.checked = false;
           }
           return approver;
         });
