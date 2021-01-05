@@ -2,7 +2,7 @@ import {Component, OnInit, EventEmitter, NgZone} from '@angular/core';
 import {Platform, MenuController, AlertController} from '@ionic/angular';
 import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
-import {forkJoin, from, iif, of, concat, Observable, noop} from 'rxjs';
+import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
 import {map, switchMap, shareReplay} from 'rxjs/operators';
 import { Router} from '@angular/router';
 import {AuthService} from 'src/app/core/services/auth.service';
@@ -19,14 +19,13 @@ import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {NetworkService} from './core/services/network.service';
-import {Plugins, PushNotification, PushNotificationActionPerformed, PushNotificationToken} from '@capacitor/core';
+import {Plugins} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import * as Sentry from '@sentry/angular';
 import { PushNotificationService } from './core/services/push-notification.service';
 
-const { PushNotifications } = Plugins;
 const {App} = Plugins;
 
 @Component({
