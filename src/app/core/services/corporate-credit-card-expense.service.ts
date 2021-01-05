@@ -69,6 +69,7 @@ export class CorporateCreditCardExpenseService {
   getAllv2CardTransactions(config: Partial<{ order: string, queryParams: any }>) {
     return this.getv2CardTransactionsCount(config.queryParams).pipe(
       switchMap(count => {
+        count = count > 50 ? count / 50 : 1;
         return range(0, count / 50);
       }),
       concatMap(page => {
