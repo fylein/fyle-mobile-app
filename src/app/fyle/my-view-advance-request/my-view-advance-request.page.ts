@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
-import { from, noop, Observable, of } from 'rxjs';
+import { forkJoin, from, Observable } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { Approval } from 'src/app/core/models/approval.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -13,6 +13,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
+import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -25,6 +26,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
   activeApprovals$: Observable<Approval[]>;
   attachedFiles$: Observable<File[]>;
   advanceRequestCustomFields$: Observable<CustomField[]>;
+  customFields$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -34,7 +36,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private router: Router,
     private popoverController: PopoverController,
     private popupService: PopupService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService
   ) { }
 
   ionViewWillEnter() {
@@ -70,13 +73,27 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     this.attachedFiles$.subscribe(console.log);
 
-    this.advanceRequestCustomFields$ = this.advanceRequest$.pipe(
+    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
+
+    this.advanceRequestCustomFields$ = forkJoin({
+      advanceRequest: this.advanceRequest$,
+      customFields: this.customFields$
+    }).pipe(
       map(res => {
-        if ((res.areq_custom_field_values !== null) && (res.areq_custom_field_values.length > 0)) {
-          return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.areq_custom_field_values));
-        } else {
-          return of(null) as unknown as CustomField[];
+        let customFieldValues = [];
+        if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
+          customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
         }
+
+        res.customFields.map(customField => {
+          customFieldValues.filter(customFieldValue => {
+            if (customField.id === customFieldValue.id) {
+              customField.value = customFieldValue.value;
+            }
+          })
+        });
+
+        return res.customFields;
       })
     );
   }
@@ -93,7 +110,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     if (data) {
       const status = {
-        comment: data.comment
+        comment: data.reason
       };
 
       const addStatusPayload = {

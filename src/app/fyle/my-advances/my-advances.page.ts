@@ -32,7 +32,8 @@ export class MyAdvancesPage implements OnInit {
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null', areq_advance_id: 'is.null' }).pipe(
-      switchMap(count => {
+      concatMap(count => {
+        count = count > 10 ? count/10 : 1;
         return range(0, count / 10);
       }),
       concatMap(count => {
@@ -50,7 +51,8 @@ export class MyAdvancesPage implements OnInit {
     );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
-      switchMap(count => {
+      concatMap(count => {
+        count = count > 10 ? count/10 : 1;
         return range(0, count / 10);
       }),
       concatMap(count => {
