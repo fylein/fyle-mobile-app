@@ -219,6 +219,7 @@ export class ReportService {
   getAllExtendedReports(config: Partial<{ order: string, queryParams: any }>) {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap(count => {
+        count = count > 50 ? count / 50 : 1;
         return range(0, count / 50);
       }),
       concatMap(page => {
@@ -245,6 +246,7 @@ export class ReportService {
   }) {
     return this.getTeamReportsCount().pipe(
       switchMap(count => {
+        count = count > 50 ? count / 50 : 1;
         return range(0, count / 50);
       }),
       concatMap(page => {
