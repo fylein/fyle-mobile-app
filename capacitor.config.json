@@ -1,6 +1,6 @@
 {
-  "appId": "com.fylehq.production",
-  "appName": "Fyle v2 Alpha",
+  "appId": "com.ionicframework.fyle595781.staging",
+  "appName": "Fyle Staging",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",
@@ -10,5 +10,9 @@
       "showSpinner": true
     }
   },
-  "cordova": {}
+  "cordova": {},
+  "server": {
+    "url": "http://192.168.1.2:8100",
+    "cleartext": true
+  }
 }

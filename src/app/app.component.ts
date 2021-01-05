@@ -2,7 +2,7 @@ import {Component, OnInit, EventEmitter, NgZone} from '@angular/core';
 import {Platform, MenuController, AlertController} from '@ionic/angular';
 import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
-import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
+import {forkJoin, from, iif, of, concat, Observable, noop} from 'rxjs';
 import {map, switchMap, shareReplay} from 'rxjs/operators';
 import { Router} from '@angular/router';
 import {AuthService} from 'src/app/core/services/auth.service';
@@ -19,12 +19,14 @@ import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {NetworkService} from './core/services/network.service';
-import {Plugins} from '@capacitor/core';
+import {Plugins, PushNotification, PushNotificationActionPerformed, PushNotificationToken} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import * as Sentry from '@sentry/angular';
+import { PushNotificationService } from './core/services/push-notification.service';
 
+const { PushNotifications } = Plugins;
 const {App} = Plugins;
 
 @Component({
@@ -62,7 +64,8 @@ export class AppComponent implements OnInit {
     private zone: NgZone,
     private deepLinkService: DeepLinkService,
     private splashScreen: SplashScreen,
-    private screenOrientation: ScreenOrientation
+    private screenOrientation: ScreenOrientation,
+    private pushNotificationService: PushNotificationService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -108,7 +111,7 @@ export class AppComponent implements OnInit {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
-
+      
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
@@ -457,6 +460,7 @@ export class AppComponent implements OnInit {
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
         this.showSideMenu();
+        this.pushNotificationService.postDeviceToken();
       }
     });
 
@@ -471,6 +475,27 @@ export class AppComponent implements OnInit {
     });
 
     this.setupNetworkWatcher();
+
+    PushNotifications.requestPermission().then( result => {
+      if (result.granted) {
+        // Register with Apple / Google to receive push via APNS/FCM
+        PushNotifications.register();
+      } else {
+        // Show some error
+      }
+    });
+
+    // Show us the notification payload if the app is open on our device
+    PushNotifications.addListener('pushNotificationReceived', (notification: PushNotification) => {
+      console.log('Push received: ' + JSON.stringify(notification));
+      return this.pushNotificationService.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
+    });
+
+    // Method called when tapping on a notification
+    PushNotifications.addListener('pushNotificationActionPerformed', (notification: PushNotificationActionPerformed) => {
+      console.log('Push action performed: ' + JSON.stringify(notification));
+      //return this.pushNotificationService.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
+    });
   }
 
 }
