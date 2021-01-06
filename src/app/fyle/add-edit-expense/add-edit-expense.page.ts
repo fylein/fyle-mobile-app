@@ -2162,11 +2162,9 @@ export class AddEditExpensePage implements OnInit {
           return of(transaction);
         }),
         finalize(() => {
-          finalize(() => {
-            this.saveExpenseLoader = false;
-            this.saveAndNewExpenseLoader = false;
-            this.saveAndNextExpenseLoader = false;
-          })
+          this.saveExpenseLoader = false;
+          this.saveAndNewExpenseLoader = false;
+          this.saveAndNextExpenseLoader = false;
         })
       );
   }

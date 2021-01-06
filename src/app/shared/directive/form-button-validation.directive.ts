@@ -41,7 +41,7 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
   };
 
   ngOnChanges(changes: SimpleChanges) {
-    this.onPromiseChange(this.loading);
+    this.onLoading(this.loading);
   }
 
   disableButton() {
@@ -76,7 +76,7 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
     }
   }
 
-  onPromiseChange(loading) {
+  onLoading(loading) {
 
     if (loading) {
       this.disableButton();
@@ -86,10 +86,6 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
     } else {
       this.resetButton();
     }
-  }
-
-  @HostListener('click') onclick(event) {
-    console.log('\n\n\n click');
   }
 
   ngOnInit() {}
