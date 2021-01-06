@@ -2,8 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {Plugins, PushNotification, PushNotificationActionPerformed, PushNotificationToken} from '@capacitor/core';
 import { forkJoin, from, iif, noop, of } from 'rxjs';
-import { concatMap, map, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { DeepLinkService } from './deep-link.service';
 import { DeviceService } from './device.service';
 import { UserService } from './user.service';
 const { PushNotifications } = Plugins;
@@ -17,7 +18,8 @@ export class PushNotificationService {
   constructor(
     private userService: UserService,
     private deviceService: DeviceService,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private deepLinkService: DeepLinkService
   ) { 
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
@@ -54,6 +56,10 @@ export class PushNotificationService {
     PushNotifications.addListener('pushNotificationActionPerformed', (notification: PushNotificationActionPerformed) => {
       console.log('Push action performed: ' + JSON.stringify(notification));
       //return this.pushNotificationService.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
+      return this.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(notificationData => {
+        console.log(notification.notification.data);
+        this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
+      });
     });
   }
 
@@ -96,13 +102,14 @@ export class PushNotificationService {
     return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/read','');
   }
 
-  updateNotificationStatusAndRedirect(notificationData) {
+  updateNotificationStatusAndRedirect(notificationData, isTap?: boolean) {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
       concatMap(res => {
-        return iif(() => notificationData.wasTapped,
-          this.updateReadStatus(notificationData.notification_id),
-          of(null)
-        )
+        return iif(() => isTap, this.updateReadStatus(notificationData.notification_id), of(null).pipe(
+          map((res) => {
+            return notificationData
+          })
+        ))
       })
     )
   }
