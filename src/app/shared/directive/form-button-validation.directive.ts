@@ -1,6 +1,6 @@
 import { Directive, Input, ElementRef, OnInit, Component, HostListener, OnChanges, SimpleChanges } from '@angular/core';
 import { Form } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 @Directive({
   selector: '[appFormButtonValidation]'
@@ -15,8 +15,8 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
   defaultText;
   @Input() loadingText: string;
   @Input() buttonType: string;
-  @Input() formToValidate: Form;
-  @Input() apiPromise: Observable<any>;
+  @Input() loading: boolean;
+  loaderAdded = false;
 
   loadingTextMap = {
     'Save': 'Saving',
@@ -41,7 +41,7 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
   };
 
   ngOnChanges(changes: SimpleChanges) {
-    this.onPromiseChange(changes.apiPromise.currentValue);
+    this.onPromiseChange(this.loading);
   }
 
   disableButton() {
@@ -64,36 +64,34 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
 
   addLoader() {
     let cssClass = '';
-    // Execute svg-sprite directive
     cssClass = this.buttonType && this.buttonType === 'secondary' ? 'secondaryLoader' : 'primaryLoader';
     this.elementRef.nativeElement.innerHTML = (`${this.elementRef.nativeElement.innerHTML} <div class="${cssClass}"></div>`);
+    this.loaderAdded = true;
   }
 
   resetButton() {
-    this.elementRef.nativeElement.innerHTML = this.defaultText;
+    if (this.loaderAdded) {
+      this.elementRef.nativeElement.disabled = false;
+      this.elementRef.nativeElement.innerHTML = this.defaultText;
+    }
   }
 
-  onPromiseChange(promise) {
-    if (!promise) {
-      return;
-    }
+  onPromiseChange(loading) {
 
-    this.disableButton();
-    this.getButtonText();
-    this.changeLoadingText();
-    this.addLoader();
-
-    promise.subscribe(res => {
+    if (loading) {
+      this.disableButton();
+      this.getButtonText();
+      this.changeLoadingText();
+      this.addLoader();
+    } else {
       this.resetButton();
-    });
+    }
   }
 
   @HostListener('click') onclick(event) {
-
+    console.log('\n\n\n click');
   }
 
-  ngOnInit() {
-    // console.log('formToValidate ->', this.formToValidate);
-  }
+  ngOnInit() {}
 
 }

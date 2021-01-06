@@ -708,16 +708,19 @@
   <ion-footer>
     <ion-toolbar mode="md">
       <ion-buttons *ngIf="!reviewList">
-        <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
+        <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary"
+          appFormButtonValidation [loading]="saveExpenseLoader" [loadingText]="'SAVING'">
           Save
         </ion-button>
         <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-expense--primary-cta"
-                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value">
+                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value"
+                    appFormButtonValidation [loading]="saveAndNewExpenseLoader" [loadingText]="'SAVING'">
           Save & New
         </ion-button>
       </ion-buttons>
       <ion-buttons *ngIf="reviewList">
-        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
+        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary"
+          appFormButtonValidation [loading]="saveAndNextExpenseLoader" [loadingText]="'SAVING'">
           Save & Next
         </ion-button>
       </ion-buttons>

@@ -44,11 +44,9 @@ import { FyModifyApproverComponent } from './components/fy-modify-approver/fy-mo
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 import { ModifyApproverConfirmationPopoverComponent } from './components/fy-modify-approver/modify-approver-dialog/modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
 
-<<<<<<< HEAD
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 
-=======
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
@@ -59,7 +57,6 @@ import { FlagUnflagConfirmationComponent } from './components/fy-flag-expense/fl
 import { FyPolicyViolationInfoComponent } from './components/fy-policy-violation-info/fy-policy-violation-info.component';
 import {FyAddToReportComponent} from './components/fy-add-to-report/fy-add-to-report.component';
 import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
->>>>>>> master
 
 @NgModule({
   declarations: [
@@ -85,13 +82,6 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     CurrencyComponent,
     CommentsComponent,
     ViewCommentComponent,
-<<<<<<< HEAD
-    FormButtonValidationDirective
-  ],
-  imports: [
-    CommonModule,
-    FormsModule
-=======
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,
@@ -108,7 +98,8 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
-    FyAddToReportModalComponent
+    FyAddToReportModalComponent,
+    FormButtonValidationDirective
   ],
   imports: [
     CommonModule,
@@ -123,7 +114,6 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     ReactiveFormsModule,
     PinchZoomModule,
     PdfViewerModule
->>>>>>> master
   ],
   exports: [
     EllipsisPipe,
@@ -143,10 +133,8 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     IconModule,
     CurrencyComponent,
     CommentsComponent,
-<<<<<<< HEAD
     FormButtonValidationDirective,
-    MatProgressSpinnerModule
-=======
+    MatProgressSpinnerModule,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,
@@ -162,7 +150,6 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent
->>>>>>> master
   ],
   providers: [
     DecimalPipe,

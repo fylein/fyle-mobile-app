@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { from, throwError } from 'rxjs';
+import { from, throwError, Observable } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap } from 'rxjs/operators';
@@ -20,8 +20,10 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 export class SignInPage implements OnInit {
   fg: FormGroup;
   emailSet = false;
-  emailPromise = false;
+  emailLoading = false;
+  passwordLoading = false;
   hide = true;
+  checkEmailExists$: Observable<any>;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -78,17 +80,13 @@ export class SignInPage implements OnInit {
     });
   }
 
-  async checkIfEmailExists() {
-<<<<<<< HEAD
-=======
+  checkIfEmailExists() {
+    this.emailLoading = true;
     if (!this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}')) {
       return;
     }
-    await this.loaderService.showLoader();
 
->>>>>>> master
-    const checkEmailExists$ = this.routerAuthService
-      .checkEmailExists(this.fg.controls.email.value)
+    this.checkEmailExists$ = this.routerAuthService.checkEmailExists(this.fg.controls.email.value)
       .pipe(
         catchError(err => {
           this.handleError(err);
@@ -96,15 +94,15 @@ export class SignInPage implements OnInit {
         }),
         shareReplay(),
         finalize(async () => {
-          this.emailPromise = true;
+          this.emailLoading = false;
         })
       );
 
-    const saml$ = checkEmailExists$.pipe(
+    const saml$ = this.checkEmailExists$.pipe(
       filter(res => res.saml ? true : false)
     );
 
-    const basicSignIn$ = checkEmailExists$.pipe(
+    const basicSignIn$ = this.checkEmailExists$.pipe(
       filter(res => !res.saml ? true : false)
     );
 
@@ -143,16 +141,20 @@ export class SignInPage implements OnInit {
       cssClass: 'dialog-popover'
     });
 
+    this.emailLoading = false;
+    this.passwordLoading = false;
     await errorPopover.present();
   }
 
-  async signInUser() {
+  signInUser() {
+    this.emailLoading = false;
+    this.passwordLoading = true;
     if (this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}') && this.fg.value.password.replace(/\s/g, '').length <= 0) {
+      this.passwordLoading = false;
       return;
     }
 
-    from(this.loaderService.showLoader('Signing you in...', 10000)).pipe(
-      switchMap(() => this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password)),
+    this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password).pipe(
       catchError(err => {
         this.handleError(err);
         return throwError(err);
@@ -160,7 +162,9 @@ export class SignInPage implements OnInit {
       switchMap((res) => {
         return this.authService.newRefreshToken(res.refresh_token);
       }),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => {
+        this.passwordLoading = false;
+      })
     ).subscribe(() => {
       this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
     });

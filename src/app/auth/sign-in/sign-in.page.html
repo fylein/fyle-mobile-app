@@ -35,7 +35,7 @@
       </div>
 
       <mat-form-field class="sign-in--form-field" appearance="outline" *ngIf="emailSet">
-        <input id="sign-in--password" (keyup.enter)="signInUser()" formControlName="password" [type]="hide ? 'text': 'password'" matInput
+        <input id="sign-in--password" (keyup.enter)="signInUser()" formControlName="password" [type]="hide ? 'password': 'text'" matInput
           placeholder="Password">
         <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
           {{hide ? 'visibility_off' : 'visibility'}}
@@ -44,14 +44,14 @@
     </form>
     <div class="sign-in--primary-cta">
       <button id="sign-in--continue" [disabled]="!fg.controls.email.valid" *ngIf="!emailSet" mat-flat-button
-        color="primary" (click)="checkIfEmailExists()" appFormButtonValidation [formToValidate]="fg" [apiPromise]="checkEmailExists$">
+        color="primary" (click)="checkIfEmailExists()" appFormButtonValidation [loading]="emailLoading">
         CONTINUE
       </button>
     </div>
 
     <div class="sign-in--primary-cta">
       <button id="sign-in--btn-sign-in" [disabled]="!fg.valid" *ngIf="emailSet" mat-flat-button color="primary"
-        (click)="signInUser()">
+        (click)="signInUser()" appFormButtonValidation [loading]="passwordLoading" [loadingText]="'SIGNING IN'">
         SIGN IN
       </button>
     </div>
