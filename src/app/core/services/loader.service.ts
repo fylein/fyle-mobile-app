@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
-import { from, noop } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {LoadingController} from '@ionic/angular';
+import {noop} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'

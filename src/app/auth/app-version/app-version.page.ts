@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { DeviceService } from 'src/app/core/services/device.service';
-import { ActivatedRoute } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { Plugins } from '@capacitor/core';
+import {Component, OnInit} from '@angular/core';
+import {DeviceService} from 'src/app/core/services/device.service';
+import {ActivatedRoute} from '@angular/router';
+import {filter} from 'rxjs/operators';
+import {Plugins} from '@capacitor/core';
 
 const { Browser } = Plugins;
 

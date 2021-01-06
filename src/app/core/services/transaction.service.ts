@@ -577,4 +577,12 @@ export class TransactionService {
 
     return this.apiService.post('/transactions/unmatch', data);
   }
+
+  getTransactionByExpenseNumber(expenseNumber: string) {
+    return this.apiService.get('/transactions', {
+      params: {
+        expense_number: expenseNumber
+      }
+    });
+  }
 }

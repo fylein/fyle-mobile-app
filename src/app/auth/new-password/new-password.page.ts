@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { map, switchMap, tap, finalize } from 'rxjs/operators';
-import { Observable, from } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { PopoverController } from '@ionic/angular';
-import { PopupComponent } from './popup/popup.component';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {finalize, map, switchMap, tap} from 'rxjs/operators';
+import {from, Observable} from 'rxjs';
+import {ActivatedRoute} from '@angular/router';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {RouterAuthService} from 'src/app/core/services/router-auth.service';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {PopoverController} from '@ionic/angular';
+import {PopupComponent} from './popup/popup.component';
 
 @Component({
   selector: 'app-new-password',

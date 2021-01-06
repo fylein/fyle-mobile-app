@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { PolicyApiService } from './policy-api.service';
+import {Injectable} from '@angular/core';
+import {PolicyApiService} from './policy-api.service';
 
 @Injectable({
   providedIn: 'root'

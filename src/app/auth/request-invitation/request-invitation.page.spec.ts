@@ -1,7 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {IonicModule} from '@ionic/angular';
 
-import { RequestInvitationPage } from './request-invitation.page';
+import {RequestInvitationPage} from './request-invitation.page';
 
 describe('RequestInvitationPage', () => {
   let component: RequestInvitationPage;

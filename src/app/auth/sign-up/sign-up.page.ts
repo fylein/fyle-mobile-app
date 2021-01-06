@@ -1,12 +1,12 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
-import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { Router } from '@angular/router';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { Observable, concat, noop, from, throwError } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { switchMap, tap, catchError, finalize } from 'rxjs/operators';
-import { PopoverController } from '@ionic/angular';
-import { SignUpErrorComponent } from './error/error.component';
+import {Component, EventEmitter, OnInit} from '@angular/core';
+import {RouterAuthService} from 'src/app/core/services/router-auth.service';
+import {Router} from '@angular/router';
+import {NetworkService} from 'src/app/core/services/network.service';
+import {concat, from, noop, Observable, throwError} from 'rxjs';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {catchError, finalize, switchMap, tap} from 'rxjs/operators';
+import {PopoverController} from '@ionic/angular';
+import {SignUpErrorComponent} from './error/error.component';
 
 @Component({
   selector: 'app-sign-up',
