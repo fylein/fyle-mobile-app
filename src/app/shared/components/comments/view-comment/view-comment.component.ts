@@ -5,6 +5,8 @@ import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import {Expense} from '../../../../core/models/expense.model';
+import {TransactionService} from '../../../../core/services/transaction.service';
 
 
 @Component({
@@ -26,11 +28,14 @@ export class ViewCommentComponent implements OnInit {
   newComment: string;
   refreshEstatuses$: Subject<void> = new Subject();
   isCommentAdded: boolean;
+  reversalComment: string;
+  matchedExpense: Expense;
 
   constructor(
     private statusService: StatusService,
     private authService: AuthService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private transactionService: TransactionService
   ) { }
 
   changeBotComments() {
@@ -98,6 +103,21 @@ export class ViewCommentComponent implements OnInit {
         );
       })
     );
+
+    this.estatuses$.subscribe(estatuses => {
+      const reversalStatus = estatuses.filter((status) => {
+        return (status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1);
+      });
+
+      if (reversalStatus && reversalStatus.length > 0 && reversalStatus[0]) {
+        const comment = reversalStatus[0].st_comment;
+        const expenseNumber = comment.slice(comment.lastIndexOf(' ') + 1);
+        this.reversalComment = comment.substring(0, comment.lastIndexOf(' '));
+        this.transactionService.getTransactionByExpenseNumber(expenseNumber).subscribe((txn) => {
+          this.matchedExpense = txn;
+        });
+      }
+    });
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
       map(res => {

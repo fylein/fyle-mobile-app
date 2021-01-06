@@ -369,8 +369,7 @@ export class MyProfilePage implements OnInit {
     }
 
     Browser.open({ toolbarColor: '#f36', url: link });
-
-  };
+  }
 
   ngOnInit() {
   }
