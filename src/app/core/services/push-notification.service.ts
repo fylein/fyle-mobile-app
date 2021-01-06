@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {Plugins, PushNotification, PushNotificationActionPerformed, PushNotificationToken} from '@capacitor/core';
-import { forkJoin, from, iif, noop, of } from 'rxjs';
-import { concatMap, finalize, map, switchMap } from 'rxjs/operators';
+import { forkJoin, iif, noop, of } from 'rxjs';
+import { concatMap, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { DeepLinkService } from './deep-link.service';
 import { DeviceService } from './device.service';
@@ -29,7 +29,7 @@ export class PushNotificationService {
   }
 
   initPush() {
-    //need to dicard for webapp
+    //need to discard this for webapp
     this.registerPush();
   }
 
@@ -48,9 +48,8 @@ export class PushNotificationService {
       return this.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
     });
 
-    // Method called when tapping on a notification
     PushNotifications.addListener('pushNotificationActionPerformed', (notification: PushNotificationActionPerformed) => {
-      return this.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(notificationData => {
+      return this.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(() => {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
       });
     });
@@ -96,13 +95,14 @@ export class PushNotificationService {
 
   updateNotificationStatusAndRedirect(notificationData, wasTapped?: boolean) {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
-      concatMap(res => {
+      concatMap(() => {
         return iif(() => wasTapped, this.updateReadStatus(notificationData.notification_id), of(null).pipe(
-          map((res) => {
+          map(() => {
             return notificationData
           })
         ))
       })
     )
   }
+
 }
