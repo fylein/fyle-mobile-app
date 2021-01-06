@@ -45,6 +45,9 @@ export class MyAddEditTripPage implements OnInit {
   isTransportationRequested$: Observable<boolean>;
   isHotelRequested$: Observable<boolean>;
   isAdvanceRequested$: Observable<boolean>;
+  isTransportationEnabled$: Observable<boolean>;
+  isHotelEnabled$: Observable<boolean>;
+  isAdvanceEnabled$: Observable<boolean>;
   travelAgents$: Observable<any>;
   customFields$: Observable<any>;
   isProjectsEnabled$: Observable<boolean>;
@@ -816,6 +819,25 @@ export class MyAddEditTripPage implements OnInit {
       })
     );
     this.projects$ = this.offlineService.getProjects();
+
+
+    this.isAdvanceEnabled$ = orgSettings$.pipe(
+      map(orgSettings => {
+        return orgSettings.advance_requests.enabled;
+      })
+    );
+
+    this.isTransportationEnabled$ = orgSettings$.pipe(
+      map(orgSettings => {
+        return orgSettings.trip_requests.enabled_transportation_requests;
+      })
+    );
+
+    this.isHotelEnabled$ = orgSettings$.pipe(
+      map(orgSettings => {
+        return orgSettings.trip_requests.enabled_hotel_requests;
+      })
+    );
 
     this.fg.controls.tripType.valueChanges.subscribe(res => {
       this.refreshTrips$.next();

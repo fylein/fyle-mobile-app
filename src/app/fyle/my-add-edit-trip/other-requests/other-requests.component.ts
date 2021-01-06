@@ -335,20 +335,20 @@ export class OtherRequestsComponent implements OnInit {
         }
         if (mode === 'DRAFT') {
           return this.createOtherRequestForm(formValue, tripReq.id).pipe(
-            concatMap(res => {
-              console.log('\n\n\n res ->', res);
-              let tripRequestObject = {
+            switchMap((res: any) => {
+              const tripRequestObject = {
                 trip_request: tripReq,
-                advance_requests: [],
-                transportation_requests: [],
-                hotel_requests: []
+                advance_requests: res[0],
+                transportation_requests: res[2],
+                hotel_requests: res[1]
               };
 
               return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
-                switchMap((res) => {
-                  const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(res);
+                tap(policyTest => console.log('test res -> ', policyTest)),
+                switchMap(policyTest => {
+                  const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(policyTest);
                   if (policyPopupRules.length > 0) {
-                    const policyActionDescription = res.trip_request_desired_state.action_description;
+                    const policyActionDescription = policyTest.trip_request_desired_state.action_description;
                     return from(this.showPolicyViolationPopup(
                       policyPopupRules,
                       policyActionDescription,
@@ -370,6 +370,9 @@ export class OtherRequestsComponent implements OnInit {
                   } else {
                     return of({tripReq});
                   }
+                }),
+                catchError(() => {
+                  return of({tripReq});
                 })
               );
             }),
@@ -483,7 +486,11 @@ export class OtherRequestsComponent implements OnInit {
       if (advance.length === 0 && hotel.length === 0 && transport.length === 0) {
         return of([]);
       } else {
-        return combineLatest([advance, hotel, transport]);
+        return forkJoin([
+          advance.length > 0 ? forkJoin(advance) : of([]),
+          hotel.length > 0 ? forkJoin(hotel) : of([]),
+          transport.length > 0 ? forkJoin(transport) : of([])
+        ]);
       }
     } catch (e) {
       console.log('e', e);
@@ -496,7 +503,7 @@ export class OtherRequestsComponent implements OnInit {
     if (this.id) {
       return this.advanceRequest$.pipe(
         map(res => {
-          const advanceRequest: any = res.advanceRequest && res.advanceRequest[index];
+          const advanceRequest: any = res && res[index];
 
           if (advanceRequest) {
             const advanceDetailObject = {
@@ -546,13 +553,13 @@ export class OtherRequestsComponent implements OnInit {
     if (this.id) {
       return this.hotelRequest$.pipe(
         map(res => {
-          const hotelRequest: any = res.hotelRequest && res.hotelRequest[index] && res.hotelRequest[index].hr;
+          const hotelRequest: any = res && res[index] && res[index].hr;
 
           if (hotelRequest) {
             const hotelDetailObject = {
               ...hotelRequest,
               amount: hotelDetail.amount,
-              assigned_at: hotelDetail.assignedAt,
+              // assigned_at: hotelDetail.assignedAt,
               assigned_to: hotelDetail.assignedTo,
               check_in_dt: hotelDetail.checkInDt,
               check_out_dt: hotelDetail.checkOutDt,
@@ -564,14 +571,14 @@ export class OtherRequestsComponent implements OnInit {
               notes: hotelDetail.notes,
               rooms: hotelDetail.rooms,
               source: hotelRequest.source || 'MOBILE',
-              traveller_details: hotelDetail.travellerDetails,
+              // traveller_details: hotelDetail.travellerDetails,
               trip_request_id: trpId
             };
             return hotelDetailObject;
           } else {
             const hotelDetailObject = {
               amount: hotelDetail.amount,
-              assigned_at: hotelDetail.assignedAt,
+              // assigned_at: hotelDetail.assignedAt,
               assigned_to: hotelDetail.assignedTo,
               check_in_dt: hotelDetail.checkInDt,
               check_out_dt: hotelDetail.checkOutDt,
@@ -583,7 +590,7 @@ export class OtherRequestsComponent implements OnInit {
               notes: hotelDetail.notes,
               rooms: hotelDetail.rooms,
               source: 'MOBILE',
-              traveller_details: hotelDetail.travellerDetails,
+              // traveller_details: hotelDetail.travellerDetails,
               trip_request_id: trpId
             };
             return hotelDetailObject;
@@ -593,7 +600,7 @@ export class OtherRequestsComponent implements OnInit {
     } else {
       const hotelDetailObject = {
         amount: hotelDetail.amount,
-        assigned_at: hotelDetail.assignedAt,
+        // assigned_at: hotelDetail.assignedAt,
         assigned_to: hotelDetail.assignedTo,
         check_in_dt: hotelDetail.checkInDt,
         check_out_dt: hotelDetail.checkOutDt,
@@ -605,7 +612,7 @@ export class OtherRequestsComponent implements OnInit {
         notes: hotelDetail.notes,
         rooms: hotelDetail.rooms,
         source: 'MOBILE',
-        traveller_details: hotelDetail.travellerDetails,
+        // traveller_details: hotelDetail.travellerDetails,
         trip_request_id: trpId
       };
       return of(hotelDetailObject);
@@ -620,7 +627,7 @@ export class OtherRequestsComponent implements OnInit {
     if (this.id) {
       return this.transportationRequest$.pipe(
         map(res => {
-          const transportationRequest: any = res.transportationRequest && res.transportationRequest[index] && res.transportationRequest[index].tr;
+          const transportationRequest: any = res && res[index] && res[index].tr;
 
           if (transportationRequest) {
             const transportDetailObject = {
