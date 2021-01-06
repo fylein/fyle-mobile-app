@@ -209,11 +209,13 @@ export class AppComponent implements OnInit {
       const isConnected = res.isConnected;
       this.eou = res.eou;
 
-      Sentry.setUser({
-        id: res.eou.us.email + ' - ' + res.eou.ou.id,
-        email: res.eou.us.email,
-        orgUserId: res.eou.ou.id
-      });
+      if (res.eou) {
+        Sentry.setUser({
+          id: res.eou.us.email + ' - ' + res.eou.ou.id,
+          email: res.eou.us.email,
+          orgUserId: res.eou.ou.id
+        });
+      }
 
       this.freshchatService.setupNetworkWatcher();
 
