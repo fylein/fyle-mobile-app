@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
-import { tap, switchMap, map } from 'rxjs/operators';
+import { switchMap, map, finalize } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
-import { forkJoin, Observable, from } from 'rxjs';
+import { forkJoin, Observable, from, iif } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { JwtHelperService } from './jwt-helper.service';
 
@@ -83,27 +83,29 @@ export class AuthService {
     );
   }
 
-  async logout(logoutPayload?) {
+  logout(logoutPayload?) {
     // CacheService.clearAll();
-    await this.storageService.delete('recentlyUsedProjects');
-    await this.storageService.delete('recentlyUsedCategories');
-    await this.storageService.delete('recentlyUsedMileageCategories');
-    await this.storageService.delete('recentlyUsedPerDiemCategories');
-    await this.storageService.delete('recentlyUsedCostCenters');
-    await this.storageService.delete('user');
-    await this.storageService.delete('role');
-    await this.storageService.delete('currentView');
-    await this.storageService.delete('ui-grid-pagination-page-size');
-    await this.storageService.delete('ui-grid-pagination-page-number');
-    await this.storageService.delete('customExportFields');
-    await this.storageService.delete('lastLoggedInDelegatee');
-    await this.storageService.delete('lastLoggedInOrgQueue');
-    await this.storageService.delete('isSidenavCollapsed');
-
-    if (logoutPayload) {
-      return await this.apiService.post('/auth/logout', logoutPayload);
-    } else {
-      return await this.apiService.post('/auth/logout');
-    }
+    return iif(() =>
+      logoutPayload,
+      this.apiService.post('/auth/logout', logoutPayload),
+      this.apiService.post('/auth/logout')
+    ).pipe(
+      finalize(async () => {
+        await this.storageService.delete('recentlyUsedProjects');
+        await this.storageService.delete('recentlyUsedCategories');
+        await this.storageService.delete('recentlyUsedMileageCategories');
+        await this.storageService.delete('recentlyUsedPerDiemCategories');
+        await this.storageService.delete('recentlyUsedCostCenters');
+        await this.storageService.delete('user');
+        await this.storageService.delete('role');
+        await this.storageService.delete('currentView');
+        await this.storageService.delete('ui-grid-pagination-page-size');
+        await this.storageService.delete('ui-grid-pagination-page-number');
+        await this.storageService.delete('customExportFields');
+        await this.storageService.delete('lastLoggedInDelegatee');
+        await this.storageService.delete('lastLoggedInOrgQueue');
+        await this.storageService.delete('isSidenavCollapsed');
+      })
+    )
   }
 }
