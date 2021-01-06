@@ -84,6 +84,9 @@ export class ReportService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
   getMyReportsCount(queryParams = {}) {
     return this.getMyReports({
       offset: 0,
@@ -345,7 +348,7 @@ export class ReportService {
   getERpt(rptId) {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map(data => {
-        let erpt = this.dataTransformService.unflatten(data);
+        const erpt = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(erpt.rp);
         if (erpt && erpt.rp && erpt.rp.created_at) {
           erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
@@ -495,9 +498,9 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$
   })
   addApprover(rptId, approverEmail, comment) {
-    var data = {
+    const data = {
       approver_email: approverEmail,
-      comment: comment
+      comment
     };
     return this.apiService.post('/reports/' + rptId + '/approvals', data);
   }

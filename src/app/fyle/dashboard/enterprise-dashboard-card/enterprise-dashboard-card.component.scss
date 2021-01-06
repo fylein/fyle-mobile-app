@@ -134,7 +134,7 @@ $chevron-fill: #757575;
     padding: 8px 16px;
 
     .state-row {
-      padding: 0 0 0 16px;
+      padding: 0 0 0 8px;
       border-bottom: 1px solid $shadow;
 
       &:first-child {
@@ -155,7 +155,6 @@ $chevron-fill: #757575;
 
   &--icon-card {
     height: 10px;
-    margin-left: 6px;
   }
 
   &--expanded-amount-icon {

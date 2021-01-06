@@ -110,6 +110,7 @@ export class AddEditExpensePage implements OnInit {
   isDraftExpenseEnabled: boolean;
   isDraftExpense: boolean;
   isProjectsVisible$: Observable<boolean>;
+  canAttachReceipts: boolean;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1075,6 +1076,7 @@ export class AddEditExpensePage implements OnInit {
       }, 400);
 
       this.attachedReceiptsCount = etxn.tx.num_files;
+      this.canAttachReceipts = this.attachedReceiptsCount === 0;
 
       if (etxn.dataUrls && etxn.dataUrls.length) {
         this.newExpenseDataUrls = etxn.dataUrls;

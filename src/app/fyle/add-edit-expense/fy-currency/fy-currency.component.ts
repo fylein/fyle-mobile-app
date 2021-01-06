@@ -149,7 +149,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     if (this.fg) {
       if (v !== this.innerValue) {
         this.innerValue = v;
-        this.fg.setValue(
+        this.fg.patchValue(
           this.convertInnerValueToFormValue(
             this.innerValue));
         this.onChangeCallback(v);
@@ -165,7 +165,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     if (this.fg) {
       if (value !== this.innerValue) {
         this.innerValue = value;
-        this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
+        console.log({value});
+        console.log({control: this.ngControl});
+        this.fg.patchValue(this.convertInnerValueToFormValue(this.innerValue));
       }
     }
   }
@@ -193,13 +195,13 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     const { data } = await exchangeRateModal.onWillDismiss();
     if (data) {
       if (shortCode) {
-        this.fg.setValue({
+        this.fg.patchValue({
           currency: shortCode,
           amount: data.amount,
           homeCurrencyAmount: data.homeCurrencyAmount
         });
       } else {
-        this.fg.setValue({
+        this.fg.patchValue({
           currency: this.fg.controls.currency.value,
           amount: data.amount,
           homeCurrencyAmount: data.homeCurrencyAmount
@@ -231,7 +233,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     if (data) {
       const shortCode = data.currency.shortCode;
       if (shortCode === this.homeCurrency) {
-        this.fg.controls.currency.setValue(shortCode);
+        this.fg.controls.currency.patchValue(shortCode);
       } else {
         if (shortCode !== this.value.orig_currency) {
           await this.setExchangeRate(shortCode);

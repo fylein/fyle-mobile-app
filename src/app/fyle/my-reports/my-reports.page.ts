@@ -108,16 +108,12 @@ export class MyReportsPage implements OnInit {
       switchMap((params) => {
         const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return from(this.loaderService.showLoader()).pipe(switchMap(() => {
-          return this.reportService.getMyReports({
-            offset: (params.pageNumber - 1) * 10,
-            limit: 10,
-            queryParams,
-            order: orderByParams
-          });
-        }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        );
+        return this.reportService.getMyReports({
+          offset: (params.pageNumber - 1) * 10,
+          limit: 10,
+          queryParams,
+          order: orderByParams
+        });
       }),
       map(res => {
         if (this.currentPageNumber === 1) {
@@ -133,21 +129,16 @@ export class MyReportsPage implements OnInit {
         const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.getAllExtendedReports({
-              queryParams,
-              order: orderByParams
-            }).pipe(
-              map(erpts => erpts.filter(erpt => {
-                return Object.values(erpt)
-                  .map(value => value && value.toString().toLowerCase())
-                  .filter(value => !!value)
-                  .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
-              }))
-            );
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
+        return this.reportService.getAllExtendedReports({
+          queryParams,
+          order: orderByParams
+        }).pipe(
+          map(erpts => erpts.filter(erpt => {
+            return Object.values(erpt)
+              .map(value => value && value.toString().toLowerCase())
+              .filter(value => !!value)
+              .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
+          }))
         );
       })
     );
@@ -244,7 +235,9 @@ export class MyReportsPage implements OnInit {
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
-    event.target.complete();
+    setTimeout(() => {
+      event.target.complete();
+    }, 1000);
   }
 
   doRefresh(event?) {

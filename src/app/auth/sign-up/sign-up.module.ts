@@ -21,8 +21,7 @@ import {SignUpErrorComponent} from './error/error.component';
     SignUpPageRoutingModule,
     MatInputModule,
     MatIconModule,
-    MatButtonModule,
-    ReactiveFormsModule
+    MatButtonModule
   ],
   declarations: [
     SignUpPage,

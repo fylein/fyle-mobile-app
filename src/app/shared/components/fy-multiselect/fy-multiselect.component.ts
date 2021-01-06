@@ -1,5 +1,5 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {Component, OnInit, forwardRef, Input, Injector} from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -19,10 +19,19 @@ import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multisele
   ]
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
+  private ngControl: NgControl;
   @Input() options: { label: string, value: any }[] = [];
   @Input() disabled = false;
   @Input() label = '';
   @Input() mandatory = false;
+
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
+  }
 
   private innerValue;
   displayValue;
@@ -32,9 +41,12 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
   constructor(
     private modalController: ModalController,
+    private injector: Injector
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
+  }
 
   get value(): any {
     return this.innerValue;

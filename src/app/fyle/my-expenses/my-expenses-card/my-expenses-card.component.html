@@ -90,8 +90,10 @@
         <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__comments"
           (click)="onAddTransactionToReport()"
           [ngClass]="{'my-expenses-card-menu--action__disabled': (isDraft || isCriticalPolicyViolated)}">
-          <span *ngIf="addToReportPossible$|async">Add to Report</span>
-          <span *ngIf="!(addToReportPossible$|async)">Add to New Report</span>
+          <ng-container *ngIf="addToReportPossible$|async as addToReportPossible">
+            <span *ngIf="addToReportPossible">Add to Report</span>
+            <span *ngIf="!addToReportPossible">Add to New Report</span>
+          </ng-container>
         </div>
         <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__delete"
           [class]="{'my-expenses-card-menu--action__disabled': !expense.tx_user_can_delete}"

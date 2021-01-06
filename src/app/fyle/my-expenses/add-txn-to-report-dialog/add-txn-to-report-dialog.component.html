@@ -5,7 +5,11 @@
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Select Report</ion-title>
+    <ion-title>
+      <span class="report-list--header">
+        Select Report
+      </span>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -19,7 +23,7 @@
           <div class="report-list--date-amount-block-date">{{ report.rp_created_at|date: 'dd MMMM yyyy' }}</div>
           <div class="report-list--date-amount-block-amount">{{ report.rp_amount | currency: report.rp_currency }}</div>
         </div>
-        <div class="report-list--purpose">{{report.rp_purpose}} ({{report.rp_state}})</div>
+        <div class="report-list--purpose">{{report.rp_purpose}} ({{report.rp_state | snakeCaseToSpaceCase | titlecase}})</div>
       </div>
     </div>
   </div>
