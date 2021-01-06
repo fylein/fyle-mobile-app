@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
 import { finalize, map } from 'rxjs/operators';
-import { forkJoin, Subject } from 'rxjs';
+import { forkJoin, Subject, of } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 
@@ -27,6 +27,286 @@ export class OrgUserSettingsService {
     );
   }
 
+  getEmailEvents() {
+      const featuresList = {
+        features: {
+          expensesAndReports: {
+            textLabel: 'Expenses and Reports',
+            selected: true
+          },
+          trips: {
+            textLabel: 'Trips',
+            selected: true
+          },
+          advances: {
+            textLabel: 'Advances',
+            selected: true
+          }
+        },
+        expensesAndReports: {
+          eous_forward_email_to_user: {
+            textLabel: 'When an expense is created via email',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          erpts_submitted: {
+            textLabel: 'On submission of expense report',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          estatuses_created_txn: {
+            textLabel: 'When a comment is left on an expense',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          estatuses_created_rpt: {
+            textLabel: 'When a comment is left on a report',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          etxns_admin_removed: {
+            textLabel: 'When an expense is removed',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          etxns_admin_updated: {
+            textLabel: 'When an expense is edited by someone else',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          erpts_inquiry: {
+            textLabel: 'When a reported expense is sent back',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          erpts_approved: {
+            textLabel: 'When a report is approved',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          ereimbursements_completed: {
+            textLabel: 'When a reimbursement is done',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          }
+        },
+        trips: {
+          trip_requests_created: {
+            textLabel: 'When a trip request is submitted',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          trip_requests_add_approver: {
+            textLabel: 'When an approver is added to the trip request',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          estatuses_trip_request_comments: {
+            textLabel: 'When someone comments on trip request',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          trip_requests_inquiry: {
+            textLabel: 'When a trip request is sent back',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          trip_requests_approved: {
+            textLabel: 'When a trip request is approved',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          trip_requests_rejected: {
+            textLabel: 'When a trip request is rejected',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          transportation_requests_booked: {
+            textLabel: 'When a transport is booked by travel desk/agent',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            },
+            profile: 'transport_requests'
+          },
+          hotel_requests_booked: {
+            textLabel: 'When a hotel is booked by travel desk/agent',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            },
+            profile: 'hotel_requests'
+          },
+          transportation_bookings_cancelled: {
+            textLabel: 'When a transport booking is cancelled',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            },
+            profile: 'transport_requests'
+          },
+          hotel_bookings_cancelled: {
+            textLabel: 'When a hotel booking is cancelled',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            },
+            profile: 'hotel_requests'
+          }
+        },
+        advances: {
+          eadvance_requests_created: {
+            textLabel: 'When an advance request is submitted',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          eadvance_requests_updated: {
+            textLabel: 'When an advance request is updated',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          eadvance_requests_inquiry: {
+            textLabel: 'When an advance request is sent back',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          eadvance_requests_approved: {
+            textLabel: 'When an advance request is approved',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          eadvances_created: {
+            textLabel: 'When an advance is assigned',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          },
+          eadvance_requests_rejected: {
+            textLabel: 'When an advance request is rejected',
+            selected: true,
+            email: {
+              selected: true
+            },
+            push: {
+              selected: true
+            }
+          }
+        }
+      };
+      return featuresList;
+    };
+
 
   getAllowedCostCenteres(orgUserSettings) {
     return this.costCentersService.getAllActive().pipe(
@@ -46,6 +326,24 @@ export class OrgUserSettingsService {
     );
   }
 
+  getNotificationEvents() {
+    // TODO: convert this is rxjs
+    const emailEvents = this.getEmailEvents();
+    const notificationEvents = {
+      features: emailEvents.features,
+      events: []
+    };
+    Object.keys(emailEvents.features).forEach(featureKey => {
+      Object.keys(emailEvents[featureKey]).forEach(notificationEvent => {
+        const newNotificationEvent = emailEvents[featureKey][notificationEvent];
+        newNotificationEvent.feature = featureKey;
+        newNotificationEvent.eventType = notificationEvent;
+        notificationEvents.events.push(newNotificationEvent);
+      });
+    });
+    return of(notificationEvents);
+  }
+
   getDefaultCostCenter() {
     return forkJoin([this.costCentersService.getAllActive(), this.get()]).pipe(
       map(aggregatedResponse => {
@@ -60,11 +358,6 @@ export class OrgUserSettingsService {
     cacheBusterNotifier: orgUserSettingsCacheBuster$
   })
   post(data) {
-    // Todo: fix timezone issue later
-    return this.apiService.post('/org_user_settings', data).pipe(
-      finalize(async () => {
-        // Todo: Remove cache
-      })
-    );
+    return this.apiService.post('/org_user_settings', data);
   }
 }

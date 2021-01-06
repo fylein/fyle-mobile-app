@@ -1,5 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { Observable, Subject } from 'rxjs';
+import { map, switchMap, startWith } from 'rxjs/operators';
+import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from './view-comment/view-comment.component';
 
 @Component({
@@ -12,15 +15,17 @@ export class CommentsComponent implements OnInit {
   @Input() objectType: string;
   @Input() objectId: string;
   @Input() mode: string;
-  @Input() hideIcon =  false;
+  @Input() hideIcon: boolean;
   @Input() text: string;
-  @Input() showCommentsCount?: boolean; 
+  @Input() showCommentsCount?: boolean;
   @Input() dontLoadComments?: boolean;
 
-  noOfComments: number;
+  noOfComments$: Observable<number>;
+  refreshComments$ = new Subject();
 
   constructor(
-    private modalController: ModalController
+    private modalController: ModalController,
+    private statusService: StatusService
   ) { }
 
   async presentModal() {
@@ -32,11 +37,29 @@ export class CommentsComponent implements OnInit {
         mode: this.mode
       }
     });
-    return await modal.present();
+
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+    if (data && data.updated) {
+      this.refreshComments$.next();
+    }
   }
 
   ngOnInit() {
-    // Todo: showCommentsCount and dontLoadComments, need to figure out one tech debt for not loading comments in modal when this the showCommentsCount is true;
+    this.noOfComments$ = this.refreshComments$.pipe(
+      startWith(0),
+      switchMap(() => {
+        return this.statusService.find(this.objectType, this.objectId).pipe(
+          map(res => {
+            return res.filter((estatus) => {
+              return estatus.st_org_user_id !== 'SYSTEM';
+            }).length;
+          }),
+        );
+      })
+    );
+    this.refreshComments$.next();
   }
 
 }

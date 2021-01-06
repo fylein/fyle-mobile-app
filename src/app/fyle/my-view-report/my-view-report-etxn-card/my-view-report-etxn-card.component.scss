@@ -17,7 +17,15 @@
 
   &--icon {
     width: 20%;
-    color: #4a4a4a;
+    margin: 6px;
+  }
+
+  &--non-reimbursable {
+    text-decoration: line-through;
+
+    &-amount {
+      color: #ababab;
+    }
   }
 
   &--details {

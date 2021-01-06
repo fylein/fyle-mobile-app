@@ -14,7 +14,7 @@ $chevron-fill: #757575;
 .dashboard-card {
   &--details {
     margin: 16px;
-    padding: 12px 0 0 16px;
+    padding: 0 0 0 4px;
     border-radius: 4px;
     box-shadow: 0 4px 8px 0 $shadow !important;
     background-color: $background-color;
@@ -43,6 +43,7 @@ $chevron-fill: #757575;
     margin: 0 0 10px;
     color: $dashboard-count-text-color;
     white-space: nowrap;
+    font-size: 12px;
   }
 
   &--card-amount {
@@ -51,6 +52,7 @@ $chevron-fill: #757575;
     margin: 4px 8px 4px;
     color: $text-dark;
     float: right;
+    white-space: nowrap;
   }
 
   &--needs-attention {
@@ -61,12 +63,13 @@ $chevron-fill: #757575;
     display: flex;
     align-items: flex-end;
     flex-direction: column;
-    margin-top: 8px;
   }
 
   &--icon-curve {
+    margin-right: -14px;
+    fill: #f7b74a;
+    width: 53px;
     height: 20px;
-    margin-right: -2px;
     fill: $curve-fill;
   }
 
@@ -81,7 +84,9 @@ $chevron-fill: #757575;
     display: flex;
     align-items: flex-end;
     flex-direction: row;
-    margin-top: 8px;
+    top: 5px;
+    left: 6px;
+    position: relative;
   }
 
   &--need-attention-text {
@@ -91,6 +96,7 @@ $chevron-fill: #757575;
     display: flex;
     justify-content: center;
     height: 20px;
+    border-radius: 0 0 4px 0;
   }
 
   &--icon-dashboard {

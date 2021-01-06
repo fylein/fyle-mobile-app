@@ -17,6 +17,8 @@ import { switchMap, tap, map, catchError, finalize } from 'rxjs/operators';
 import { from, forkJoin } from 'rxjs';
 import { PermissionsService } from './permissions.service';
 import { Org } from '../models/org.model';
+import { Cacheable } from 'ts-cacheable';
+import { OrgUserService } from './org-user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +40,8 @@ export class OfflineService {
     private transactionFieldConfigurationsService: TransactionFieldConfigurationsService,
     private currencyService: CurrencyService,
     private storageService: StorageService,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
+    private orgUserService: OrgUserService
   ) { }
 
   load() {
@@ -53,8 +56,9 @@ export class OfflineService {
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const transactionFieldConfigurationsMap$ = this.getTransactionFieldConfigurationsMap();
-    const currencies$ = this.currencyService.getAll();
+    const currencies$ = this.getCurrencies();
     const homeCurrency$ = this.getHomeCurrency();
+    const delegatedAccounts$ = this.getDelegatedAccounts();
 
     this.appVersionService.load();
 
@@ -71,10 +75,49 @@ export class OfflineService {
       accounts$,
       transactionFieldConfigurationsMap$,
       currencies$,
-      homeCurrency$
+      homeCurrency$,
+      delegatedAccounts$
     ]);
   }
 
+  getDelegatedAccounts() {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.orgUserService.findDelegatedAccounts().pipe(
+              tap((orgSettings) => {
+                this.storageService.set('delegatedAccounts', orgSettings);
+              })
+            );
+          } else {
+            return from(this.storageService.get('delegatedAccounts'));
+          }
+        }
+      )
+    );
+  }
+
+  @Cacheable()
+  getCurrencies() {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.currencyService.getAll().pipe(
+              tap((orgSettings) => {
+                this.storageService.set('cachedCurrencies', orgSettings);
+              })
+            );
+          } else {
+            return from(this.storageService.get('cachedCurrencies'));
+          }
+        }
+      )
+    );
+  }
+
+  @Cacheable()
   getOrgSettings() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -93,6 +136,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getOrgUserSettings() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -111,6 +155,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getOrgUserMileageSettings() {
     return this.getOrgUserSettings().pipe(
       map((res: any) => res.mileage_settings)
@@ -125,6 +170,7 @@ export class OfflineService {
     return from(this.storageService.set('activeExpenseTab', activeTab));
   }
 
+  @Cacheable()
   getAllowedCostCenters(orgUserSettings) {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -143,6 +189,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getDefaultCostCenter() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -161,6 +208,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getHomeCurrency() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -179,6 +227,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getAllCategories() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -197,6 +246,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getAccounts() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -215,6 +265,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getCostCenters() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -233,6 +284,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getProjects() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -251,6 +303,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getPerDiemRates() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -269,6 +322,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getCustomInputs() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -287,6 +341,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getCurrentOrg() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -305,6 +360,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getOrgs() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -351,6 +407,7 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
   getTransactionFieldConfigurationsMap() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -377,6 +434,7 @@ export class OfflineService {
     return from(this.storageService.get('activeCorporateCardExpenseTab'));
   }
 
+  @Cacheable()
   getAllowedPerDiems(allPerDiemRates) {
     return this.getOrgUserSettings().pipe(
       map(

@@ -19,14 +19,12 @@
         {{erpt.rp_purpose | ellipsis: 30}}
       </div>
       <div class="reports-card--purpose">
-        Owner: {{erpt.us_full_name}}
+        Owner: {{erpt.us_full_name | ellipsis: 30}}
       </div>
     </div>
-    <div (click)="actionOpened = true; $event.stopPropagation()">
-      <mat-icon>
-        more_horiz
-      </mat-icon>
-    </div>
+    <!-- <div (click)="actionOpened = true; $event.stopPropagation()">
+        <mat-icon class="reports-card--more">more_horiz</mat-icon>
+    </div> -->
   </div>
   <div class="reports-card--secondary-info">
     <div class="reports-card--no-transactions">Contains <span>{{erpt.rp_num_transactions}}</span> expenses</div>
@@ -36,7 +34,7 @@
     </div>
   </div>
   <div class="reports-card--pill  reports-card--pill__{{erpt.rp_state | reportState}}">
-    {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
+    {{erpt.rp_state | reportState | snakeCaseToSpaceCase | uppercase}}
   </div>
 </div>
 

@@ -1,0 +1,44 @@
+<div class="reject">
+  <div class="reject--header">
+    <div class="reject--header-text">
+      Reject
+    </div>
+    <div class="reject--header-cancel" (click)="cancel()">
+      Cancel
+    </div>
+  </div>
+
+  <div class="reject--body">
+    <div class="reject--card">
+      <div class="reject--value">
+        <span class="reject--card-currency">
+          {{areq.areq_currency}}
+        </span>
+        <span class="reject--card-amount">
+          {{areq.areq_amount}}
+        </span>
+      </div>
+      <div>Submitted by <span>{{areq.us_full_name}}</span></div>
+      <div>
+        <div>Submitted on <span>{{areq.areq_created_at | date: 'dd MMM, yyyy'}}</span></div>
+      </div>
+    </div>
+
+    <div class="reject--card">
+      <p>
+        Please mention the reason for rejecting the advance request *
+      </p>
+      <textarea class="reject--textarea" name="reason" [(ngModel)]="rejectReason" required
+        #textInput="ngModel"></textarea>
+      <div class="reject--validation" [hidden]="textInput.valid || textInput.pristine">
+        Please enter a reason.
+      </div>
+    </div>
+  </div>
+
+  <div class="reject--buttons">
+    <button [disabled]="!(rejectReason.trim().length > 0)" class="reject--button" mat-flat-button color="primary" (click)="reject($event)">
+      Reject Advance
+    </button>
+  </div>
+</div>

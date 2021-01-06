@@ -5,6 +5,8 @@ import { IonicModule } from '@ionic/angular';
 import { ViewTeamMileagePageRoutingModule } from './view-team-mileage-routing.module';
 import { ViewTeamMileagePage } from './view-team-mileage.page';
 import { SharedModule } from '../../shared/shared.module';
+import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -12,8 +14,12 @@ import { SharedModule } from '../../shared/shared.module';
     FormsModule,
     IonicModule,
     ViewTeamMileagePageRoutingModule,
-    SharedModule
+    SharedModule,
+    MatButtonModule
   ],
-  declarations: [ViewTeamMileagePage]
+  declarations: [
+    ViewTeamMileagePage,
+    RemoveExpenseReportComponent
+  ]
 })
 export class ViewTeamMileagePageModule {}

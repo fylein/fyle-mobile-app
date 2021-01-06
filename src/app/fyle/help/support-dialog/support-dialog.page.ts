@@ -36,11 +36,6 @@ export class SupportDialogPage implements OnInit {
     Browser.open({ toolbarColor: '#280a31', url: 'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview' });
   }
 
-  openIbiboLink() {
-    // TODO: add tracking service to track engagement with help card event (source old mobile app)
-    Browser.open({ toolbarColor: '#280a31', url: 'https://medium.com/@Dhinesh/travel-reimbursements-just-one-tap-away-for-gobiz-users-2ca6f4667e21' });
-  }
-
   closeDialog() {
     this.modalController.dismiss({
       dismissed: true

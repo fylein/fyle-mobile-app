@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
       <button mat-icon-button [routerLink]="['/','enterprise','team_reports']">
@@ -7,11 +7,11 @@
         </mat-icon>
       </button>
     </ion-buttons>
-    <ion-title mode="md">
+    <ion-title mode="md" class="page-title">
       View Report
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button color="primary" *ngIf="isReportReported">Send Back</button>
+      <button mat-button color="primary" *ngIf="isReportReported" (click)="sendBack()">Send Back</button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -25,20 +25,21 @@
         <div class="view-reports--card-body">Owner: {{ erpt.us_full_name }}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
-            Approver<span *ngIf="reportApprovals.length === 1"> is </span><span *ngIf="reportApprovals.length > 1">s
-              are</span>
-            <span *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
+            <p><strong>Approver<span *ngIf="reportApprovals.length === 1"> is </span><span
+                  *ngIf="reportApprovals.length > 1">s
+                  are</span> </strong></p>
+            <div *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
               <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
-                {{ap.state | reportState}}
+                {{ap.state | reportState | titlecase}}
                 <span class="view-reports--card-body__highlight"
                   *ngIf="ap.approved_at">,{{ ap.approved_at | date: 'MMM dd, yyyy' }}</span>
               </span>
               ){{last ? '' : ', '}}
-            </span>
+            </div>
           </span>
         </div>
         <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
-          {{erpt.rp_state | reportState}}
+          {{erpt.rp_state | reportState | uppercase}}
         </div>
       </div>
 
@@ -75,21 +76,24 @@
           </div>
 
           <div *ngIf="!hideAllExpenses">
+            <ng-container *ngIf="etxns$|async; else loadExpenses"></ng-container>
             <app-view-team-report-etxn-card *ngFor="let etxn of etxns$|async as etxns; let i = index;" [etxn]="etxn"
               [prevDate]="etxns[i-1]?.tx_txn_dt" (goToTransaciton)="goToTransaction($event)">
             </app-view-team-report-etxn-card>
+            <ng-template #loadExpenses>
+              <ion-spinner name="crescent"></ion-spinner>
+            </ng-template>
           </div>
         </div>
       </div>
 
-      <div class="view-reports--card view-reports--card__block-action" matRipple>
-        <mat-icon class="view-reports--block-action-icon">
-          add_circle
-        </mat-icon>
-        <div class="view-reports--block-action view-reports--block-action__comment">
-          Modify Approvers
-        </div>
-      </div>
+
+      <ng-container *ngIf="(reportApprovals$|async) as reportApprovals">
+          <app-fy-modify-approver [approverList]="getApproverEmails(reportApprovals)" [object]="erpt" [id]="erpt.rp_id"
+          [from]="'TEAM_REPORTS'" [title]="'Modify Approvers'" (notify)='onUpdateApprover($event)'>
+        </app-fy-modify-approver>
+      </ng-container>
+
     </div>
 
     <div class="view-reports--card view-reports--card__zero-state" *ngIf="erpt.rp_num_transactions === 0">
@@ -105,20 +109,8 @@
     </div>
 
     <div class="view-reports--card view-reports--card__block-action" matRipple>
-      <mat-icon class="view-reports--block-action-icon">
-        chat
-      </mat-icon>
-      <div class="view-reports--block-action view-reports--block-action__comment">
-        Comments
-      </div>
+      <app-comments objectType="reports" [objectId]="erpt.rp_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
     </div>
-
-    <!-- TODO: View Comments -->
-    <!-- <div class="element-container" *ngIf="erpt && !isZeroExpenseReport">
-      <enterprise-fy-comments class="element-block m-0 comments-block" object-type="reports"
-        object-id="{{ erpt.rp_id }}" mode="edit" text="Comments" show-comments-count="false" dont-load-comments="true">
-      </enterprise-fy-comments>
-    </div> -->
 
     <div class="view-reports--card view-reports--card__block-action" *ngIf="canDelete$ | async" (click)="deleteReport()"
       matRipple>
@@ -128,16 +120,11 @@
   </div>
 </ion-content>
 
-<ion-footer *ngIf="((erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)">
-  <ion-toolbar>
+<ion-footer *ngIf="isReportReported">
+  <ion-toolbar mode="md">
     <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="canResubmitReport$ | async" (click)="showResubmitReportSummaryPopover($event)">
-      Resubmit Report
-    </ion-button>
-    <ion-button class="view-reports--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      *ngIf="(erpt$|async)?.rp_state == 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
-      (click)="showSubmitReportSummaryPopover($event)">
-      Submit Report
+      (click)="approveReport()">
+      Approve Report
     </ion-button>
   </ion-toolbar>
 </ion-footer>

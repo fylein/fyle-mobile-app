@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-advance-request',
@@ -9,9 +11,11 @@ import { ModalController } from '@ionic/angular';
 export class AdvanceRequestComponent implements OnInit {
 
   @Input() advanceRequests: any[];
+  homeCurrency$: Observable<string>
 
   constructor(
-    private modalController: ModalController
+    private modalController: ModalController,
+    private offlineService: OfflineService
   ) { }
 
   closeModal() {
@@ -19,6 +23,7 @@ export class AdvanceRequestComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.homeCurrency$ = this.offlineService.getHomeCurrency();
   }
 
 }

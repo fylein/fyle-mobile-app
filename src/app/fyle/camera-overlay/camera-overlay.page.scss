@@ -1,0 +1,139 @@
+.camera-overlay {
+
+  &--action-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 120px;
+    width: 100%;
+    display: inline-block;
+    padding: 30px 0;
+    background-color: #000 !important;
+    z-index: 999;
+  }
+
+  &--preview-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 99;
+  }
+
+  &--preview-receipt {
+    width: 85%;
+    height: 75%;
+    margin: 50px 7.5%;
+    border: 5px solid #fff;
+  }
+
+  &--camera-single {
+    position: fixed;
+    bottom: 50px;
+    fill: #fff;
+    z-index: 999;
+    left: 30px;
+
+    &.active {
+      fill: #ff3366;
+    }
+  }
+
+  &--camera-bulk {
+    position: fixed;
+    bottom: 50px;
+    fill: #fff;
+    z-index: 999;
+    left: 70px;
+
+    &.active {
+      fill: #ff3366;
+    }
+  }
+
+  &--camera-gallery {
+    color: #fff;
+    font-size: 24px;
+    left: 120px;
+    bottom: 50px;
+    position: absolute;
+    z-index: 999;
+  }
+
+  &--capture-container {
+    height: 60px;
+    width: 60px;
+    bottom: 5%;
+    position: fixed;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    left: 43%;
+    z-index: 999
+  }
+
+  &--capture-btn {
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    margin: 3px;
+  }
+
+  &--flash-active {
+    bottom: 55px;
+    right: 110px;
+    position: fixed;
+    width: 18px;
+    height: 18px;
+    color: #fff;
+    font-size: 25px;
+    z-index: 999;
+  }
+
+  &--finish {
+    right: 30px;
+    position: fixed;
+    margin: 15px 0 15px 15px;
+    color: #fff;
+    bottom: 35px;
+    font-size: 16px;
+    z-index: 999;
+  }
+
+  &--retake-btn {
+    color: #fff;
+    font-size: 18px;
+  }
+
+  &--continue-btn {
+    color: #fff;
+    text-align: right;
+    font-size: 18px;
+  }
+
+  &--image-thumbnail {
+    bottom: 35px;
+    width: 50px;
+    height: 50px;
+    position: fixed;
+    left: 30px;
+    border: 1px solid #fff;
+  }
+
+  &--image-count {
+    border-radius: 50%;
+    background-color: #ff3366;
+    color: white;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    left: 65px;
+    text-align: center;
+    bottom: 70px;
+    z-index: 1;
+    position: fixed;
+    border: 1px solid #fff;
+  }
+
+
+}
+  

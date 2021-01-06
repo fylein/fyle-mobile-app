@@ -20,9 +20,7 @@
       </div>
     </div>
     <div (click)="actionOpened = true; $event.stopPropagation()">
-      <mat-icon>
-        more_horiz
-      </mat-icon>
+      <mat-icon class="reports-card--more">more_horiz</mat-icon>
     </div>
   </div>
   <div class="reports-card--secondary-info">
@@ -33,7 +31,7 @@
     </div>
   </div>
   <div class="reports-card--pill  reports-card--pill__{{erpt.rp_state | reportState}}">
-    {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
+    {{erpt.rp_state | reportState | snakeCaseToSpaceCase | uppercase}}
   </div>
 </div>
 
@@ -47,9 +45,9 @@
     </div>
   </div>
   <div class="reports-card-menu--buttons">
-    <div matRipple class="reports-card-menu--action reports-card-menu--action__comments"
-      (click)="onViewComments()">
-      View Comments
+    <div matRipple class="reports-card-menu--action reports-card-menu--action__comments">
+      <app-comments objectType="reports" [objectId]="erpt.rp_id" mode="{{(['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) ? 'view' : 'edit'}}" text="View Comments" [hideIcon]="true">
+      </app-comments>
     </div>
 
     <div matRipple class="reports-card-menu--action reports-card-menu--action__delete"

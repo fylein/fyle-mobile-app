@@ -3,30 +3,28 @@
     <div class="currency-component--currency-input">
       <!-- need to add -->
       <!-- on-selection="vm.onSelectCurrency(currency)" currency-list="vm.currencyList" ng-if="vm.currencyList" -->
-      <input name="currency" type="text" class="currency-component--currency-input-currency" [(ngModel)]="currencyObj.tx_currency" placeholder="Currency" [required]="options.required" [disabled]="options.disabled" readonly>
+      <input name="currency" type="text" class="currency-component--currency-input-currency"
+             [(ngModel)]="etxn.tx_currency" placeholder="Currency" [required]="options.required"
+             [disabled]="options.disabled" readonly>
     </div>
     <div class="currency-component--amount-input">
-      <input type="number" fy-decimal-keypad class="currency-component--amount-input-amount" [(ngModel)]="currencyObj.tx_amount" name="amount" min="vm.minFylingValue" placeholder="Amount" [required]="options.required" [disabled]="options.disabled">
+      <input inputmode="decimal" type="number" class="currency-component--amount-input-amount"
+             [(ngModel)]="etxn.tx_amount" name="amount" min="vm.minFylingValue" placeholder="Amount"
+             [required]="options.required" [disabled]="options.disabled">
     </div>
   </div>
-  
-  <div class="currency-component--currency-block clearfix" *ngIf="false">
-    <div class="currency-component--currency-input">
-      <!-- need to add -->
-      <!-- on-selection="vm.onSelectCurrency(currency)" currency-list="vm.currencyList" ng-if="vm.currencyList" -->
-      <input type="text" class="currency-component--currency-input-currency" [(ngModel)]="currencyObj.tx_orig_currency" placeholder="Currency" [required]="options.required" [disabled]="options.disabled" readonly>
-    </div>
-    <div class="fy-amount-input">
-      <input type="number" fy-decimal-keypad class="currency-component--amount-input-amount" [(ngModel)]="currencyObj.tx_orig_amount" name="amount" min="vm.minFylingValue" placeholder="Amount" [required]="options.required" [disabled]="options.disabled" ng-change="vm.onChangeAmount()">
-    </div>
-  </div>
-
-  <!-- TODO: need to update this block -->
-  <div *ngIf="false" class="fy-exchange-rate-block" ng-click="vm.openCurrencyPopupModal()">
-    <p class="info-block m-0">
-      <span class="block"><span ng-bind="currencyObj.tx_currency"></span> <span ng-bind="currencyObj.tx_amount"></span></span>
-      <span class="block info">at <span ng-bind="vm.exchangeRate"></span> <span ng-bind="currencyObj.tx_currency"></span> <span>/</span> <span ng-bind="currencyObj.tx_orig_currency"></span></span>
-    </p>
-    <i class="icon ion-information-circled" ng-if="!options.disabled"></i>
-  </div>
+  <ng-container *ngIf="homeCurrency$|async as homeCurrency">
+    <ng-container *ngIf="calculatedExchangeRate$|async as calculatedExchangeRate">
+      <ng-container *ngIf="amountConvertedToHomeCurrency$|async as amountConvertedToHomeCurrency">
+        <div class="currency-component--conversion">
+          <div class="currency-component--converted-amount">
+            {{homeCurrency}} {{amountConvertedToHomeCurrency}}
+          </div>
+          <div class="currency-component--exchange-rate">
+            at {{calculatedExchangeRate}} {{homeCurrency}} / {{etxn.tx_currency}}
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </ng-container>
 </div>

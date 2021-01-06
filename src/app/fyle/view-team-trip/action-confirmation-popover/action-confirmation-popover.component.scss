@@ -1,0 +1,33 @@
+.action {
+  &--title {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  &--action-container {
+    padding: 0 16px;
+  }
+
+  &--message {
+    color: #aabbaa;
+    font-size: 16px;
+  }
+
+  &--message-box {
+    border-radius: 4px;
+    height: 60px;
+    width: 100%;
+  }
+
+  &--cancel {
+    color: #0077ee;
+  }
+
+  &--cta {
+    margin: 12px;
+    width: 100%;
+    --border-radius: 4px;
+    height: 48px;
+  }
+}

@@ -22,7 +22,7 @@ export class AddExpensePopoverComponent implements OnInit {
 
   async instafyle(event) {
     await this.popoverController.dismiss();
-    // this.router.navigate(['/', 'enterprise', '']);
+    this.router.navigate(['/', 'enterprise', 'camera_overlay']);
   }
 
   async createExpense(event) {

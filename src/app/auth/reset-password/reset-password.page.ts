@@ -21,6 +21,7 @@ export class ResetPasswordPage implements OnInit {
 
   fg: FormGroup;
   currentPageState: ResetPasswordPageState = ResetPasswordPageState.notSent;
+  emailSet = false;
 
   get pageStates() {
     return ResetPasswordPageState;

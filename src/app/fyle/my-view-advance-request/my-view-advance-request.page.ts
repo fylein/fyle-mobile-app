@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController, PopoverController } from '@ionic/angular';
-import { forkJoin, from, noop, Observable } from 'rxjs';
+import { PopoverController, ModalController } from '@ionic/angular';
+import { forkJoin, from, Observable } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { Approval } from 'src/app/core/models/approval.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -11,6 +11,9 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
+import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -23,15 +26,18 @@ export class MyViewAdvanceRequestPage implements OnInit {
   activeApprovals$: Observable<Approval[]>;
   attachedFiles$: Observable<File[]>;
   advanceRequestCustomFields$: Observable<CustomField[]>;
+  customFields$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private advanceRequestService: AdvanceRequestService,
     private fileService: FileService,
-    private alertController: AlertController,
     private router: Router,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private popupService: PopupService,
+    private modalController: ModalController,
+    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService
   ) { }
 
   ionViewWillEnter() {
@@ -65,9 +71,29 @@ export class MyViewAdvanceRequestPage implements OnInit {
       }, [] as File[])
     );
 
-    this.advanceRequestCustomFields$ = this.advanceRequest$.pipe(
+    this.attachedFiles$.subscribe(console.log);
+
+    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
+
+    this.advanceRequestCustomFields$ = forkJoin({
+      advanceRequest: this.advanceRequest$,
+      customFields: this.customFields$
+    }).pipe(
       map(res => {
-         return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.areq_custom_field_values));
+        let customFieldValues = [];
+        if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
+          customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+        }
+
+        res.customFields.map(customField => {
+          customFieldValues.filter(customFieldValue => {
+            if (customField.id === customFieldValue.id) {
+              customField.value = customFieldValue.value;
+            }
+          })
+        });
+
+        return res.customFields;
       })
     );
   }
@@ -84,7 +110,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     if (data) {
       const status = {
-        comment: data.comment
+        comment: data.reason
       };
 
       const addStatusPayload = {
@@ -107,31 +133,36 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   // Todo: Redirect to edit advance page
   edit() {
+    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   async delete() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    const alert = await this.alertController.create({
-      header: 'Confirm!',
-      message: 'Are you sure you want to delete this Advance Request',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            this.advanceRequestService.delete(id).subscribe(() => {
-              this.router.navigate(['/', 'enterprise', 'my_advances']);
-            });
-          }
-        }
-      ]
+    const popupResults = await this.popupService.showPopup({
+      header: 'Delete Advance Request',
+      message: 'Are you sure you want to delete this request ?',
+      primaryCta: {
+        text: 'DELETE'
+      }
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      this.advanceRequestService.delete(id).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_advances']);
+      });
+    }
+  }
+
+  async viewAttachments(attachments) {
+    const attachmentsModal = await this.modalController.create({
+      component: ViewAttachmentComponent,
+      componentProps: {
+        attachments
+      }
+    });
+
+    await attachmentsModal.present();
   }
 
   ngOnInit() {

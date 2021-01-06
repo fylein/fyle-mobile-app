@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
-import { map, shareReplay, filter, switchMap, withLatestFrom, tap, finalize, concatMap, reduce } from 'rxjs/operators';
-import { Observable, forkJoin, noop, from, EMPTY, iif, of } from 'rxjs';
+import { map, shareReplay, filter, switchMap, withLatestFrom, tap, finalize, concatMap, reduce, startWith } from 'rxjs/operators';
+import { Observable, forkJoin, noop, from, EMPTY, iif, of, Subject } from 'rxjs';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -16,10 +16,12 @@ import { TrpTravellerDetail } from 'src/app/core/models/trip_traveller_detail.mo
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { AlertController, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { TransportationRequestComponent } from '../view-team-trip/transportation-request/transportation-request.component';
 import { HotelRequestComponent } from '../view-team-trip/hotel-request/hotel-request.component';
 import { AdvanceRequestComponent } from '../view-team-trip/advance-request/advance-request.component';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ActionPopoverComponent } from './action-popover/action-popover.component';
 
 @Component({
   selector: 'app-view-team-trip',
@@ -31,6 +33,7 @@ export class ViewTeamTripPage implements OnInit {
   tripRequest$: Observable<ExtendedTripRequest>;
   approvals$: Observable<Approval[]>;
   actions$: Observable<any>;
+  actionsRedefined$: Observable<any>;
   advanceRequests$: Observable<any>;
   transportationRequests$: Observable<any>;
   hotelRequests$: Observable<any>;
@@ -48,10 +51,9 @@ export class ViewTeamTripPage implements OnInit {
   transformedTripRequests$: Observable<any>;
   transformedAdvanceRequests$: Observable<any>;
   approvers$: Observable<ExtendedOrgUser[]>;
-  canPullBack$: Observable<boolean>;
-  canCloseTrip$: Observable<boolean>;
-  canDelete$: Observable<boolean>;
-  canEdit$: Observable<boolean>;
+  eou$: Observable<any>;
+  refreshApprovers$ = new Subject();
+  canDoAction$: Observable<boolean>;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -65,35 +67,35 @@ export class ViewTeamTripPage implements OnInit {
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private transportationRequestsService: TransportationRequestsService,
     private transactionService: TransactionService,
-    public alertController: AlertController,
     private router: Router,
     private modalController: ModalController,
+    private popoverController: PopoverController,
+    private popupService: PopupService
   ) { }
 
 
   async deleteTrip() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    const alert = await this.alertController.create({
-      header: 'Confirm!',
+    const popupResults = await this.popupService.showPopup({
+      header: 'Confirm',
       message: 'Are you sure you want to delete this trip',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            this.tripRequestsService.delete(id).subscribe(() => {
-              this.router.navigate(['/', 'enterprise', 'my_trips']);
-            });
-          }
-        }
-      ]
+      primaryCta: {
+        text: 'Delete Trip'
+      }
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      this.tripRequestsService.delete(id).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      });
+    }
+  }
+
+  onUpdateApprover(message: string) {
+    if (message) {
+      this.refreshApprovers$.next();
+    }
   }
 
   getTripRequestCustomFields(allTripRequestCustomFields, tripRequest: ExtendedTripRequest, requestType, requestObj) {
@@ -187,7 +189,7 @@ export class ViewTeamTripPage implements OnInit {
 
     if (eTransportationRequest.tr.preferred_timing) {
       eTransportationRequest.tr.preferred_timing_formatted
-        = preferredTimings.filter(timing => timing.id === eTransportationRequest.tr.preferred_timing)[0].name;
+        = preferredTimings.filter(timing => timing.value === eTransportationRequest.tr.preferred_timing);
     }
 
     return forkJoin({
@@ -210,38 +212,54 @@ export class ViewTeamTripPage implements OnInit {
     );
   }
 
-  async closeTrip() {
-    const id = this.activatedRoute.snapshot.params.id;
-    const alert = await this.alertController.create({
-      header: 'Close Trip!',
-      message: 'Are you sure you want to close this trip?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            from(this.loaderService.showLoader()).pipe(
-              switchMap(() => {
-                return this.tripRequestsService.closeTrip(id);
-              }),
-              finalize(() => from(this.loaderService.hideLoader()))
-            ).subscribe(noop);
-          }
-        }
-      ]
+  async openActionBlock() {
+
+    const actions = await this.actionsRedefined$.toPromise()
+
+    const actionBlock = await this.popoverController.create({
+      component: ActionPopoverComponent,
+      componentProps: {
+        actions: actions
+      },
+      cssClass: 'dialog-popover'
     });
 
-    await alert.present();
+    await actionBlock.present();
+
+  }
+
+  async closeTrip() {
+    const id = this.activatedRoute.snapshot.params.id;
+
+
+    const popupResults = await this.popupService.showPopup({
+      header: 'Close Trip',
+      message: 'Are you sure you want to close this trip?',
+      primaryCta: {
+        text: 'Close Trip'
+      }
+    });
+
+    if (popupResults === 'primary') {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.tripRequestsService.closeTrip(id);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      );
+    }
+  }
+
+  getApproverEmails(activeApprovals) {
+    return activeApprovals.map(approver => {
+      return approver.approver_email;
+    });
   }
 
   ionViewWillEnter() {
 
     const id = this.activatedRoute.snapshot.params.id;
-    const eou$ = from(this.authService.getEou());
+    this.eou$ = from(this.authService.getEou());
     this.tripRequest$ = from(
       this.loaderService.showLoader()
     ).pipe(
@@ -251,12 +269,37 @@ export class ViewTeamTripPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe(shareReplay());
-    this.actions$ = this.tripRequestsService.getActions(id).pipe(shareReplay());
+    this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe();
+    this.actions$ = this.tripRequestsService.getActions(id);
     this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay());
     this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay());
 
-    this.activeApprovals$ = this.approvals$.pipe(
+    this.canDoAction$ = this.actions$.pipe(
+      map(actions => actions.can_approve || actions.can_inquire || actions.can_reject)
+    );
+
+    const currentApproval$ = forkJoin([this.eou$, this.tripRequest$]).pipe(
+      map(([eou, tripRequest]) => {
+        return tripRequest.approvals[eou.ou.id].state;
+      })
+    );
+
+    this.actionsRedefined$ = forkJoin([
+      this.eou$,
+      this.actions$,
+      currentApproval$
+    ]).pipe(
+      map(([eou, actions, currentApproval]) => {
+        actions.can_approve = actions.can_approve && eou.ou.roles.indexOf('ADMIN') > -1 && currentApproval === 'APPROVAL_PENDING'
+        return actions;
+      })
+    );
+
+    this.activeApprovals$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(() => {
+        return this.approvals$;
+      }),
       map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
     );
 
@@ -269,19 +312,24 @@ export class ViewTeamTripPage implements OnInit {
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
-            return [location.from_city.city, location.to_city.city];
+            return [location.from_city.city ? location.from_city.city : location.from_city.display,
+              location.to_city.city ? location.to_city.city : location.to_city.display];
           }
 
-          return location.from_city.city;
+          return location.from_city.city ? location.from_city.city : location.from_city.display;
         }),
         travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details)
       })
     ));
 
-    this.transformedTripRequests$ = forkJoin({
-      tripRequest: this.tripRequest$,
-      allTripRequestCustomFields: this.allTripRequestCustomFields$
-    }).pipe(
+    this.transformedTripRequests$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(res => {
+        return forkJoin({
+          tripRequest: this.tripRequest$,
+          allTripRequestCustomFields: this.allTripRequestCustomFields$
+        });
+      }),
       map(({ tripRequest, allTripRequestCustomFields }) => {
         return this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest);
       })
@@ -298,22 +346,6 @@ export class ViewTeamTripPage implements OnInit {
         const approversNotAllowed = this.getRestrictedApprovers(approvals, tripRequest);
         return this.orgUserService.exclude(eouc, approversNotAllowed);
       })
-    );
-
-    this.canPullBack$ = this.actions$.pipe(
-      map(actions => actions.can_pull_back)
-    );
-
-    this.canCloseTrip$ = this.actions$.pipe(
-      map(actions => actions.can_close_trip)
-    );
-
-    this.canDelete$ = this.actions$.pipe(
-      map(actions => actions.can_delete)
-    );
-
-    this.canEdit$ = this.actions$.pipe(
-      map(actions => actions.can_edit)
     );
 
     this.transportationRequests$ = forkJoin([
@@ -382,11 +414,7 @@ export class ViewTeamTripPage implements OnInit {
     );
   }
 
-  openApproverDialog() {
-    alert('open add approver dialog, TODO');
+  ngOnInit() {
   }
-
-  ngOnInit() { }
-
 
 }

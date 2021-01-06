@@ -1,0 +1,58 @@
+$details-color: #ababab;
+
+.save-trip {
+
+  &--header {
+    --background: #f8f8f8 !important;
+  }
+
+  &--close-button {
+    margin-right: 20px;
+    font-size: 16px;
+    color: #0077ee;
+  }
+
+  &--warning-box {
+    margin: 16px 16px 70px 16px;
+    padding: 8px 16px;
+    background-color: #fce4c3;
+    color: #f3993e;
+  }
+
+  &--cta-block {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    background-color: white;
+    box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  &--pending-request-block {
+    padding: 10px;
+    margin-bottom: 70px;
+  }
+
+  &--missing-request {
+    color: #ababab;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  &--request-list {
+    list-style-type: disc;
+    color: #666
+  }
+
+  &--cta-container {
+    margin: 0 10px 6px 10px;
+
+    &-cta {
+      height: 48px;
+      width: 100%;
+      --border-radius: 4px;
+      display: inline-block;
+      margin-top: 10px;
+    }
+  }
+}

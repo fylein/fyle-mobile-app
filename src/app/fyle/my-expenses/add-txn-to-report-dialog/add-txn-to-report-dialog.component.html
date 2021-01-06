@@ -1,0 +1,26 @@
+<ion-header mode="md" >
+  <ion-toolbar mode="md">
+    <ion-buttons slot="end">
+      <ion-button (click)="closeAddToReportModal()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Select Report</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="report-list--container">
+    <div class="report-list--title">All Open Reports</div>
+
+    <div class="report-list--list" *ngFor="let report of approverPendingReports$|async as approverPendingReports">
+      <div class="report-list--report-tile" mat-ripple (click)="addTransactionToReport(report.rp_id)">
+        <div class="report-list--date-amount-block">
+          <div class="report-list--date-amount-block-date">{{ report.rp_created_at|date: 'dd MMMM yyyy' }}</div>
+          <div class="report-list--date-amount-block-amount">{{ report.rp_amount | currency: report.rp_currency }}</div>
+        </div>
+        <div class="report-list--purpose">{{report.rp_purpose}} ({{report.rp_state}})</div>
+      </div>
+    </div>
+  </div>
+</ion-content>

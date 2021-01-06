@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 export class SignUpErrorComponent implements OnInit {
 
   @Input() header = 'Error';
-  @Input() status = 'Error';
+  @Input() status;
   @Input() email = '';
 
   constructor(
@@ -26,7 +26,7 @@ export class SignUpErrorComponent implements OnInit {
 
   async goSignin() {
     await this.popoverController.dismiss();
-    this.router.navigate(['/', 'auth', 'sign-in', { email: this.email }]);
+    this.router.navigate(['/', 'auth', 'sign_in', { email: this.email }]);
   }
 
   async requestInvitation() {

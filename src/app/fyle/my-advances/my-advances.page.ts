@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { range } from 'rxjs';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
-import { concatMap, finalize, map, scan, shareReplay, switchMap } from 'rxjs/operators';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { concatMap, finalize, map, reduce, startWith, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-my-advances',
@@ -15,87 +15,138 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 export class MyAdvancesPage implements OnInit {
 
   myAdvancerequests$: Observable<any[]>;
+  myAdvances$: Observable<any>;
   loadData$: Subject<number> = new Subject();
-  count$: Observable<number>;
-  currentPageNumber = 1;
-  isInfiniteScrollRequired$: Observable<boolean>;
+  navigateBack = false;
+  refreshAdvances$: Subject<void> = new Subject();
+  advances$: Observable<any>;
 
   constructor(
-    private offlineService: OfflineService,
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
-    private router: Router
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
+    private advanceService: AdvanceService
   ) { }
 
   ionViewWillEnter() {
-    this.myAdvancerequests$ = this.loadData$.pipe(
-      concatMap(pageNumber => {
-        return from(this.loaderService.showLoader()).pipe(
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null', areq_advance_id: 'is.null' }).pipe(
+      concatMap(count => {
+        count = count > 10 ? count / 10 : 1;
+        return range(0, count / 10);
+      }),
+      concatMap(count => {
+        return this.advanceRequestService.getMyadvanceRequests({
+          offset: 10 * count,
+          limit: 10,
+          queryParams: { areq_trip_request_id: 'is.null', areq_advance_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
+        });
+      }),
+      map(res => res.data),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }),
+      startWith([])
+    );
+
+    this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
+      concatMap(count => {
+        count = count > 10 ? count / 10 : 1;
+        return range(0, count / 10);
+      }),
+      concatMap(count => {
+        return this.advanceService.getMyadvances({
+          offset: 10 * count,
+          limit: 10,
+          queryParams: {order: 'adv_created_at.desc,adv_id.desc' }
+        });
+      }),
+      map(res => res.data),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }),
+      startWith([])
+    );
+
+    this.advances$ = this.refreshAdvances$.pipe(
+      startWith(0),
+      switchMap(() => {
+        return from(this.loaderService.showLoader('Retrieving advance...')).pipe(
           switchMap(() => {
-            return this.advanceRequestService.getMyadvanceRequests({
-              offset: (pageNumber - 1) * 10,
-              limit: 10,
-              queryParams: { areq_trip_request_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
-            });
-          }),
-          finalize(() => {
+            return forkJoin({
+              myAdvancerequests$: this.myAdvancerequests$,
+              myAdvances$: this.myAdvances$
+            }).pipe(
+              map(res => {
+                let myAdvancerequests = res.myAdvancerequests$ || [];
+                let myAdvances = res.myAdvances$ || [];
+                myAdvancerequests = myAdvancerequests.map(data => {
+                  return {
+                    ...data,
+                    type: 'request',
+                    currency: data.areq_currency,
+                    amount: data.areq_amount,
+                    created_at: data.areq_created_at,
+                    purpose: data.areq_purpose,
+                    state: data.areq_state
+                  };
+                });
+
+                myAdvances = myAdvances.map(data => {
+                  return {
+                    ...data,
+                    type: 'advance',
+                    amount: data.adv_amount,
+                    orig_amount: data.adv_orig_amount,
+                    created_at: data.adv_created_at,
+                    currency: data.adv_currency,
+                    orig_currency: data.adv_orig_currency,
+                    purpose: data.adv_purpose,
+                  };
+                });
+                return myAdvances.concat(myAdvancerequests);
+              }),
+              map(res => {
+                return res.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1);
+              })
+            );
+          }), finalize(() => {
             return from(this.loaderService.hideLoader());
           })
         );
-      }),
-      map(res => res.data),
-      scan((acc, curr) => {
-        if (this.currentPageNumber === 1) {
-          return curr;
-        }
-        return acc.concat(curr);
-      }, [] as ExtendedAdvanceRequest[]),
-      shareReplay()
-    );
-
-    this.count$ = this.advanceRequestService.getMyAdvanceRequestsCount(
-      { areq_trip_request_id: 'is.null' }
-    ).pipe(
-      shareReplay()
-    );
-
-    this.isInfiniteScrollRequired$ = this.myAdvancerequests$.pipe(
-      concatMap(myAdvancerequests => {
-        return this.count$.pipe(map(count => {
-          return count > myAdvancerequests.length;
-        }));
       })
+
     );
-
-    this.loadData$.subscribe(noop);
-    this.myAdvancerequests$.subscribe(noop);
-    this.count$.subscribe(noop);
-    this.isInfiniteScrollRequired$.subscribe(noop);
-    this.loadData$.next(this.currentPageNumber);
-  }
-
-  loadData(event) {
-    this.currentPageNumber = this.currentPageNumber + 1;
-    this.loadData$.next(this.currentPageNumber);
-    event.target.complete();
   }
 
   doRefresh(event) {
-    this.currentPageNumber = 1;
-    this.loadData$.next(this.currentPageNumber);
-    event.target.complete();
+    forkJoin({
+      destroyAdvanceRequestsCacheBuster: this.advanceRequestService.destroyAdvanceRequestsCacheBuster(),
+      destroyAdvancesCacheBuster: this.advanceService.destroyAdvancesCacheBuster()
+    }).pipe(
+      map(() => {
+        this.refreshAdvances$.next();
+        event.target.complete();
+      })
+    ).subscribe(noop);
   }
 
   onAdvanceClick(clickedAdvance: any) {
-    const id = clickedAdvance.advanceRequest?.areq_advance_id ? clickedAdvance.advanceRequest.areq_advance_id : clickedAdvance.advanceRequest.areq_id;
-    let route = clickedAdvance.advanceRequest.areq_advance_id ? 'my_view_advance' : 'my_view_advance_request';
-
-    if ((['draft', 'pulledBack', 'inquiry']).indexOf(clickedAdvance.internalState.state) > -1) {
-      route = 'enterprise.add_edit_advance_request';
+    let id = null;
+    let route = null;
+    if (clickedAdvance.advanceRequest.type.toLowerCase() === 'advance') {
+      id = clickedAdvance.advanceRequest.adv_id;
+      route = 'my_view_advance';
+    } else {
+      id = clickedAdvance.advanceRequest.areq_id;
+      route = 'my_view_advance_request';
     }
 
-    //Todo: Redirect to page later.
-    console.log(id, route);
+    if ((['draft', 'pulledBack', 'inquiry']).indexOf(clickedAdvance.internalState.state) > -1) {
+      route = 'my_view_advance_request';
+    }
+
     this.router.navigate(['/', 'enterprise', route, { id }]);
   }
 

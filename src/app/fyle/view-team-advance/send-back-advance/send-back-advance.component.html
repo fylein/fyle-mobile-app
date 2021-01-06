@@ -1,0 +1,34 @@
+<div class="send-back">
+  <div class="send-back--header">
+    <div class="send-back--header-text">
+      Send Back
+    </div>
+    <div class="send-back--header-cancel" (click)="cancel()">
+      CANCEL
+    </div>
+  </div>
+
+  <div class="send-back--body">
+    <div class="send-back--card">
+      <div class="send-back--name-container">Submitted by <span>{{areq.us_full_name}}</span></div>
+      <div class="send-back--date-container">Submitted on <span>{{areq.areq_created_at | date: 'dd MMM, yyyy'}}</span></div>
+    </div>
+
+    <div class="send-back--card">
+      <p>
+        Reason for Sending Back Advance *
+      </p>
+      <textarea class="send-back--textarea" name="reason" [(ngModel)]="sendBackReason" required
+        #sendBackInput="ngModel" ></textarea>
+      <div class="send-back--validation" [hidden]="sendBackInput.valid || sendBackInput.pristine">
+        Please enter a reason.
+      </div>
+    </div>
+  </div>
+
+  <div class="send-back--buttons">
+    <button [disabled]="!sendBackInput.valid" class="send-back--button" mat-flat-button color="primary" (click)="sendBack($event)">
+      Send Back
+    </button>
+  </div>
+</div>

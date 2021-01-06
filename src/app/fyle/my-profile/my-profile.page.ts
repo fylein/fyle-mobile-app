@@ -1,12 +1,10 @@
-// TODO list: 
+// TODO list:
 // Lite account
-// Contact no verfication
-// Notification popup
 
 import { Component, OnInit } from '@angular/core';
-import { forkJoin, from, noop } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { forkJoin, from, noop, Observable, throwError, of } from 'rxjs';
+import { concatMap, finalize, map, shareReplay, switchMap, take, catchError } from 'rxjs/operators';
+import { ModalController, ToastController, PopoverController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -15,12 +13,19 @@ import { OneClickActionService } from 'src/app/core/services/one-click-action.se
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 
-import { SelectCurrencyComponent } from 'src/app/post-verification/setup-account/select-currency/select-currency.component';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { SelectCurrencyComponent } from './select-currency/select-currency.component';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { OtpPopoverComponent } from './otp-popover/otp-popover.component';
+import { Plugins } from '@capacitor/core';
+import { TokenService } from 'src/app/core/services/token.service';
+
+const { Browser } = Plugins;
 
 @Component({
   selector: 'app-my-profile',
@@ -28,15 +33,30 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
   styleUrls: ['./my-profile.page.scss'],
 })
 export class MyProfilePage implements OnInit {
-  eou: ExtendedOrgUser;
   orgUserSettings: any;
   expenses: any;
   toggleUsageDetailsTab: boolean;
   oneClickActionOptions: any[];
   oneClickActionSelectedModuleId: string;
   orgSettings: any;
-  currencies: any;
-  preferredCurrency: any;
+  currencies$: Observable<any>;
+  preferredCurrency$: Observable<any>;
+  eou$: Observable<ExtendedOrgUser>;
+  myETxnc$: Observable<{
+    total: any;
+    mobile: number;
+    extension: number;
+    outlook: number;
+    email: number;
+    web: number;
+  }>;
+  isMobileChanged: boolean;
+  isMobileCountryCodeNotPresent: boolean;
+  showInvalidMobileFormat: boolean;
+  isApiCallInProgress = false;
+  mobileNumber: string;
+  org$: Observable<any>;
+  clusterDomain: string;
 
   constructor(
     private authService: AuthService,
@@ -49,29 +69,79 @@ export class MyProfilePage implements OnInit {
     private userEventService: UserEventService,
     private storageService: StorageService,
     private deviceService: DeviceService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private toastController: ToastController,
+    private orgUserService: OrgUserService,
+    private popoverController: PopoverController,
+    private tokenService: TokenService
   ) { }
 
   logOut() {
     this.userEventService.logout();
-    this.deviceService.getDeviceInfo().pipe(
-      switchMap((device) => {
+    forkJoin({
+      device: this.deviceService.getDeviceInfo(),
+      eou: from(this.authService.getEou())
+    }).pipe(
+      switchMap(({ device, eou }) => {
         return this.authService.logout({
           device_id: device.uuid,
-          user_id: this.eou.us.id
+          user_id: eou.us.id
         });
       })
     ).subscribe(noop);
+
     this.storageService.clearAll();
-    // Todo: Clear all cache
+    globalCacheBusterNotifier.next();
   }
 
   toggleUsageDetails() {
     this.toggleUsageDetailsTab = !this.toggleUsageDetailsTab;
   }
 
+  onMobileNumberChanged(eou) {
+    this.isMobileChanged = true;
+    if (this.mobileNumber && this.mobileNumber.charAt(0) !== '+') {
+      this.isMobileCountryCodeNotPresent = true;
+    } else {
+      this.isMobileCountryCodeNotPresent = false;
+    }
+
+  }
+
+  saveUserProfile(eou) {
+    if (this.mobileNumber && this.mobileNumber.charAt(0) !== '+') {
+      this.presentToast();
+    } else {
+      if (this.isMobileChanged) {
+        eou.ou.mobile = this.mobileNumber;
+      }
+      forkJoin({
+        userSettings: this.orgUserService.postUser(eou.us),
+        orgUserSettings: this.orgUserService.postOrgUser(eou.ou)
+      }).pipe(
+        concatMap(() => {
+          return this.authService.refreshEou().pipe(
+            map(() => {
+              this.isMobileChanged = false;
+              this.loaderService.showLoader('Profile saved successfully', 1000);
+              this.reset();
+            })
+          );
+        })
+      ).subscribe(noop);
+    }
+  }
+
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Please enter a valid number with country code. eg. +1XXXXXXXXXX, +91XXXXXXXXXX',
+      duration: 2000
+    });
+    toast.present();
+  }
+
   setMyExpensesCountBySource(myETxnc) {
-    this.expenses = {
+    return {
       total: myETxnc.length,
       mobile: this.transactionService.getCountBySource(myETxnc, 'MOBILE'),
       extension: this.transactionService.getCountBySource(myETxnc, 'GMAIL'),
@@ -82,13 +152,12 @@ export class MyProfilePage implements OnInit {
   }
 
   toggleCurrencySettings() {
-    return this.orgUserSettingsService.post(this.orgUserSettings)
-    .pipe(
-      map((res) => {
-        console.log(res);
-      })
-    )
-    .subscribe();
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.orgUserSettingsService.post(this.orgUserSettings)),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(() => {
+      this.getPreferredCurrency();
+    });
   }
 
   onSelectCurrency(currency) {
@@ -96,7 +165,7 @@ export class MyProfilePage implements OnInit {
     this.toggleCurrencySettings();
   }
 
-  async openCurrenySelectionModal(event) {
+  async openCurrenySelectionModal() {
     const modal = await this.modalController.create({
       component: SelectCurrencyComponent
     });
@@ -104,72 +173,72 @@ export class MyProfilePage implements OnInit {
     await modal.present();
 
     const { data } = await modal.onWillDismiss();
+
     if (data) {
-      this.preferredCurrency = this.currencies.find(currency => currency.id === data.currency.shortCode);
       this.onSelectCurrency(data.currency);
     }
   }
 
   toggleAutoExtraction() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
-    .pipe(
-      map((res) => {
-        console.log(res);
-        // Todo: Tracking service and disable toogle button
-      })
-    )
-    .subscribe(noop);
+      .pipe(
+        map((res) => {
+          console.log(res);
+          // Todo: Tracking service and disable toogle button
+        })
+      )
+      .subscribe(noop);
   }
 
   toggleBulkMode() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
-    .pipe(
-      map((res) => {
-        console.log(res);
-        // Todo: Tracking service and disable toogle button
-      })
-    )
-    .subscribe(noop);
+      .pipe(
+        map((res) => {
+          console.log(res);
+          // Todo: Tracking service and disable toogle button
+        })
+      )
+      .subscribe(noop);
   }
 
   toggleWhatsappSettings() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
-    .pipe(
-      map((res) => {
-        console.log(res);
-        // Todo: Tracking service and disable toogle button
-      })
-    )
-    .subscribe(noop);
+      .pipe(
+        map((res) => {
+          console.log(res);
+          // Todo: Tracking service and disable toogle button
+        })
+      )
+      .subscribe(noop);
   }
 
   toggleSmsSettings() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
-    .pipe(
-      map((res) => {
-        console.log(res);
-        // Todo: Tracking service and disable toogle button
-      })
-    )
-    .subscribe(noop);
+      .pipe(
+        map((res) => {
+          console.log(res);
+          // Todo: Tracking service and disable toogle button
+        })
+      )
+      .subscribe(noop);
   }
 
   toggleOneClickActionMode() {
     this.orgUserSettings.one_click_action_settings.module = null;
     this.oneClickActionSelectedModuleId = '';
     return this.orgUserSettingsService.post(this.orgUserSettings)
-    .pipe(
-      map((res) => {
-        console.log(res);
-        // Todo: Tracking service and disable toogle button
-      })
-    )
-    .subscribe(noop);
+      .pipe(
+        map((res) => {
+          console.log(res);
+          // Todo: Tracking service and disable toogle button
+        })
+      )
+      .subscribe(noop);
   }
 
   getOneClickActionSelectedModule(id: string) {
     const oneClickActionSelectedModule = this.oneClickActionService.filterByOneClickActionById(id);
-    this.oneClickActionSelectedModuleId = oneClickActionSelectedModule.id;
+    this.oneClickActionSelectedModuleId = oneClickActionSelectedModule.value;
   }
 
   oneClickActionModuleChanged() {
@@ -177,32 +246,37 @@ export class MyProfilePage implements OnInit {
     console.log(this.oneClickActionSelectedModuleId);
     this.orgUserSettings.one_click_action_settings.module = this.oneClickActionSelectedModuleId;
     return this.orgUserSettingsService.post(this.orgUserSettings)
-    .pipe(
-      map((res) => {
-        console.log(res);
-        // Todo: Tracking service and disable toogle button
-      })
-    )
-    .subscribe(noop);
-
-  }
-
-  getAllCurrencyAndMatchPreferredCurrency() {
-    this.currencyService.getAllCurrenciesInList().pipe(
-      map((res) => {
-        this.currencies = res;
-        this.preferredCurrency = this.currencies.find(currency => currency.id === this.orgUserSettings.currency_settings.preferred_currency);
-      })
-    ).subscribe(noop);
+      .pipe(
+        map((res) => {
+          console.log(res);
+          // Todo: Tracking service and disable toogle button
+        })
+      )
+      .subscribe(noop);
   }
 
   ionViewWillEnter() {
-    const eou$ = this.authService.getEou();
-    const orgUserSettings$ =  this.offlineService.getOrgUserSettings().pipe(
+    this.reset();
+    from(this.tokenService.getClusterDomain()).subscribe(res => {
+      this.clusterDomain = res;
+    });
+  }
+
+  reset() {
+    this.eou$ = from(this.authService.getEou());
+    const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
       shareReplay()
     );
-    const myETxnc$ = this.transactionService.getAllMyETxnc();
+    this.myETxnc$ = this.transactionService.getAllMyETxnc().pipe(
+      map(etxnc => this.setMyExpensesCountBySource(etxnc))
+    );
+
+    this.org$ = this.offlineService.getCurrentOrg();
+
+    this.getPreferredCurrency();
+
     const orgSettings$ = this.offlineService.getOrgSettings();
+    this.currencies$ = this.currencyService.getAllCurrenciesInList();
 
     orgUserSettings$.pipe(
       map((res) => {
@@ -211,30 +285,92 @@ export class MyProfilePage implements OnInit {
           this.getOneClickActionSelectedModule(oneClickAction);
         }
       })
-    ).subscribe();
+    ).subscribe(noop);
 
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return forkJoin({
-          eou: eou$,
+          eou: this.eou$,
           orgUserSettings: orgUserSettings$,
-          myETxnc: myETxnc$,
           orgSettings: orgSettings$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(async (res) => {
-      this.eou = res.eou;
       this.orgUserSettings = res.orgUserSettings;
-      const myETxnc = res.myETxnc;
       this.orgSettings = res.orgSettings;
-      this.setMyExpensesCountBySource(myETxnc);
       this.oneClickActionOptions = this.oneClickActionService.getAllOneClickActionOptions();
-      if (this.orgSettings.org_currency_settings.enabled) {
-        this.getAllCurrencyAndMatchPreferredCurrency();
-      }
+      this.mobileNumber = res.eou.ou.mobile;
     });
   }
+
+  getPreferredCurrency() {
+    this.preferredCurrency$ = this.offlineService.getOrgUserSettings().pipe(
+      switchMap((orgUserSettings) => this.currencyService
+        .getAllCurrenciesInList()
+        .pipe(
+          map(currencies => currencies
+            .find(currency => currency.id === orgUserSettings.currency_settings.preferred_currency)
+          )
+        )
+      )
+    );
+  }
+
+  openOtpPopover() {
+    const that = this;
+    that.eou$.pipe(
+      switchMap(eou => {
+        if (that.mobileNumber && that.mobileNumber.charAt(0) !== '+') {
+          return throwError({
+            type: 'plusMissingError'
+          });
+        } else {
+          that.isApiCallInProgress = true;
+          return that.orgUserService.verifyMobile();
+        }
+      }),
+      switchMap((resp) => {
+        return of(that.popoverController.create({
+          componentProps: {
+            phoneNumber: that.mobileNumber
+          },
+          component: OtpPopoverComponent,
+          cssClass: 'dialog-popover'
+        }).then(popOver => {
+          return popOver.present();
+        }));
+      }),
+      catchError((error) => {
+        if (error.type === 'plusMissingError') {
+          that.showInvalidMobileFormat = true;
+          setTimeout(() => {
+            that.showInvalidMobileFormat = false;
+          }, 5000);
+        } else {
+          that.loaderService.showLoader(error.data.message, 2000);
+        }
+        return of(null);
+      }),
+      finalize(() => that.isApiCallInProgress = false)
+    ).subscribe(() => {
+      that.reset();
+    });
+  }
+
+  openWebAppLink(location) {
+    let link;
+    if (location === 'app') {
+      link = this.clusterDomain;
+    } else if (location === 'whatsapp') {
+      link = 'https://www.fylehq.com/help/en/articles/3432961-create-expense-using-whatsapp';
+    } else if (location === 'sms') {
+      link = 'https://www.fylehq.com/help/en/articles/3524059-create-expense-via-sms';
+    }
+
+    Browser.open({ toolbarColor: '#f36', url: link });
+
+  };
 
   ngOnInit() {
   }

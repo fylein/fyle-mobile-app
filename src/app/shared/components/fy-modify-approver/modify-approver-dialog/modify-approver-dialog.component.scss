@@ -1,0 +1,54 @@
+.approver-list {
+
+  &--toolbar{
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--list-container {
+    padding: 4px 10px;
+  }
+
+  &--list-element {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #ababab
+  }
+
+  &--approver-details {
+    margin-left: 16px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  &--save {
+    margin: 12px;
+    --border-radius: 4px;
+    height: 48px;
+  }
+
+  &--form-field {
+    font-size: 11px;
+    width: 90%;
+    padding: 4px;
+  }
+  &--search-icon {
+    font-size: 14px;
+  }
+
+  &--form-field-container {
+    text-align: center;
+  }
+
+  &--search-input {
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
+  &--all-approvers {
+    color: #ababab;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 8px 16px;
+    line-height: 1.7;
+  }
+}

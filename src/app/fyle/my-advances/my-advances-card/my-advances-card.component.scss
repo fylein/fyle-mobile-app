@@ -8,18 +8,19 @@ $advance_rejected_color: #d50000;
 
 .advance-card {
   &:first-child {
-    margin-top: 12px;
+    margin-top: 16px;
   }
 
   &--header {
     color: #ababab;
     font-size: 16px;
-    margin: 1px 12px;
+    margin: 1px 16px;
   }
 
   &--body {
-    margin: 8px 12px;
-    padding: 12px;
+    margin: 8px 16px;
+    padding: 16px;
+    border-radius: 4px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
@@ -82,9 +83,14 @@ $advance_rejected_color: #d50000;
   &--currency {
     color: #ababab;
   }
+
   &--amount {
     font-size: 18px;
     margin-left: 8px;
     font-weight: 700;
+  }
+
+  &--approval {
+    margin-bottom: 8px;
   }
 }

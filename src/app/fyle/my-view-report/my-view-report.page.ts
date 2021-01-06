@@ -4,11 +4,15 @@ import { Observable, from, noop } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import { map, tap, switchMap, finalize, shareReplay } from 'rxjs/operators';
+import { map, switchMap, finalize, shareReplay } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { AlertController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
+import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
 
 @Component({
   selector: 'app-my-view-report',
@@ -28,6 +32,7 @@ export class MyViewReportPage implements OnInit {
   canEdit$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   canResubmitReport$: Observable<boolean>;
+  navigateBack = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -36,7 +41,8 @@ export class MyViewReportPage implements OnInit {
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
-    private alertController: AlertController
+    private popupService: PopupService,
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -66,12 +72,15 @@ export class MyViewReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.erpt$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
+    this.sharedWith$ = this.reportService
+        .getExports(this.activatedRoute.snapshot.params.id)
+        .pipe(
       map(pdfExports => {
         return pdfExports.results.sort((a, b) => {
           return (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0);
@@ -124,49 +133,77 @@ export class MyViewReportPage implements OnInit {
   }
 
   goToEditReport() {
-    // TODO
     this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   async deleteReport() {
-    const message = `
-    <p class="highlight-info">
-    On deleting this report, all the associated expenses will be moved to <strong>"My Expenses"</strong> list.</p>
-    <p>Are you sure, you want to delete this report?</p>`;
-    const alert = await this.alertController.create({
+    const popupResults = await this.popupService.showPopup({
       header: 'Delete Report',
-      message,
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            from(this.loaderService.showLoader()).pipe(
-              switchMap(() => {
-                return this.reportService.delete(this.activatedRoute.snapshot.params.id)
-              }),
-              finalize(() => from(this.loaderService.hideLoader()))
-            ).subscribe(() => {
-              this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
-          }
-        }
-      ]
+      message: `
+      <p class="highlight-info">
+        On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
+      </p>
+      <p>
+        Are you sure, you want to delete this report?
+      </p>
+      `,
+      primaryCta: {
+        text: 'Delete Report'
+      }
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.reportService.delete(this.activatedRoute.snapshot.params.id);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_reports']);
+      });
+    }
   }
 
-  showResubmitReportSummaryPopover() {
+  async showResubmitReportSummaryPopover() {
+    const erpt = await this.erpt$.toPromise();
+    const etxns = await this.etxns$.toPromise();
+    const popover = await this.popoverController.create({
+      componentProps: {
+        erpt,
+        etxns
+      },
+      component: ResubmitReportPopoverComponent,
+      cssClass: 'dialog-popover'
+    });
 
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
+    }
   }
 
-  showSubmitReportSummaryPopover() {
+  async showSubmitReportSummaryPopover() {
+    const erpt = await this.erpt$.toPromise();
+    const etxns = await this.etxns$.toPromise();
+    const popover = await this.popoverController.create({
+      componentProps: {
+        erpt,
+        etxns
+      },
+      component: SubmitReportPopoverComponent,
+      cssClass: 'dialog-popover'
+    });
 
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
+    }
   }
 
   goToTransaction(etxn: any) {
@@ -178,9 +215,13 @@ export class MyViewReportPage implements OnInit {
     }
 
     if (category === 'activity') {
-      // showCannotEditActivityDialog();
-      alert('can not edit Activity -> TODO show can not edit activity Dialog');
-      return;
+      this.popupService.showPopup({
+        header: 'Cannot Edit Activity',
+        message: 'Editing activity is not supported in mobile app.',
+        primaryCta: {
+          text: 'Cancel'
+        }
+      });
     }
 
     let route;
@@ -188,58 +229,42 @@ export class MyViewReportPage implements OnInit {
     if (category === 'mileage') {
       route = '/enterprise/my_view_mileage';
       if (canEdit) {
-        route = '/enterprise/my_add_edit_mileage';
+        route = '/enterprise/add_edit_mileage';
       }
     } else if (category === 'per diem') {
       route = '/enterprise/my_view_per_diem';
       if (canEdit) {
-        route = '/enterprise/my_add_edit_per_diem';
+        route = '/enterprise/add_edit_per_diem';
       }
     } else {
       route = '/enterprise/my_view_expense';
       if (canEdit) {
-        route = '/enterprise/my_add_edit_expense';
+        route = '/enterprise/add_edit_expense';
       }
     }
-
-    // TODO: also need to send scroll position
     this.router.navigate([route, { id: etxn.tx_id }]);
   }
 
   async shareReport(event) {
-    const alert = await this.alertController.create({
-      header: 'Share Report',
-      message: 'Share report via email',
-      inputs: [
-        {
-          name: 'email',
-          type: 'email',
-          placeholder: 'Email ID'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: (e) => {
-            const data = {
-              report_ids: [this.activatedRoute.snapshot.params.id],
-              email: e.email
-            };
-            this.reportService.downloadSummaryPdfUrl(data).subscribe(async () => {
-              const message = `We will send ${e.email} a link to download the PDF <br> when it is generated and send you a copy.`;
-              await this.loaderService.showLoader(message);
-            });
-          }
-        }
-      ]
+    const popover = await this.popoverController.create({
+      component: ShareReportComponent,
+      cssClass: 'dialog-popover'
     });
 
-    await alert.present();
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.email) {
+      const params = {
+        report_ids: [this.activatedRoute.snapshot.params.id],
+        email: data.email
+      };
+      this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
+        const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
+        await this.loaderService.showLoader(message);
+      });
+    }
   }
 
   canEditTxn(txState) {

@@ -1,0 +1,38 @@
+.split-expense-status {
+  &--popup {
+    padding: 10px;
+  }
+
+  &--popup-icon-container {
+    position: relative;
+    left: calc(100% - 215px);
+  }
+
+  &--success-popup-icon {
+    font-size: 100px;
+    color: #15cf6a;
+    margin-left: 72px;
+  }
+
+  &--failure-popup-icon {
+    font-size: 100px;
+    color: #ff9494;
+    margin-left: 72px;
+  }
+
+  &--popup-heading {
+    color: #000;
+    font-weight: 500;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  &--popup-info {
+    color: #ababab;
+    margin-bottom: 20px;
+  }
+
+  &--primary-cta {
+    width: 100%;
+  }
+}

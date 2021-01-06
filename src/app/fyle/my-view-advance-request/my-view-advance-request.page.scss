@@ -1,14 +1,18 @@
 .view-advance-request {
 
   &--card {
-    padding: 12px;
-    margin: 12px;
+    padding: 0 16px;
+    margin: 16px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
   }
 
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
   &--attachment-currency-container{
-    margin: 12px;
+    margin: 12px 16px;
     display: flex;
   }
 
@@ -36,11 +40,15 @@
   }
 
   &--receipt-thumbnails {
-    height: 100%;
-    width: 100%;
-    background-size: cover;
+    width: 72px;
+    height: 88px;
     border-radius: 6px;
     border: 1px solid #d8d8d8;
+  }
+
+  &--advance-state {
+    color: #666;
+    font-size: 14px;
   }
 
   &--pdf-thumbnails {
@@ -74,10 +82,9 @@
 }
 
   &--add-receipt-text{
-    margin: 0;
     display: inline-block;
     vertical-align: middle;
-    margin-top: 20px;
+    margin: 20px 0 0;
   }
 
   &--currency-card {
@@ -96,7 +103,7 @@
     color: #4a4a4a;
     width: 40%;
     padding: 12px 16px;
-    line-height: 1;
+    line-height: 1.5;
     height: auto;
     text-align: center;
     letter-spacing: 1px;
@@ -111,15 +118,15 @@
     font-size: 24px;
     font-weight: 500;
     border: 0;
+    background: transparent;
   }
 
 
 
   &--element {
     display: flex;
-    margin: 12px;
     border-bottom: 1px solid #e0e0e0;
-    padding: 10px 0;
+    padding: 16px 0;
 
     &:first-child {
       margin-top: 0;
@@ -145,18 +152,28 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
+    color: #444444;
+    overflow: auto;
   }
 
   &--common-action-block {
+    padding: 16px 0;
     display: flex;
-    padding: 4px 0;
-    
+    align-items: center;
+
     p {
       display: inline-block;
       vertical-align: middle;
       font-size: 16px;
       margin: 0 0 0 16px;
+    }
+
+    &__comment {
       color: #0077ee;
+    }
+
+    &__delete {
+      color: #f00;
     }
 
     mat-icon {
@@ -164,6 +181,12 @@
       color: #ababab;
       display: inline-block;
       vertical-align: middle;
+    }
+
+    &__delete {
+      p {
+        color: red;
+      }
     }
   }
 
@@ -174,6 +197,7 @@
 
   &--primary-cta {
     margin: 12px;
+    height: 48px;
   }
 
 }

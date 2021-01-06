@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { throwError } from 'rxjs';
+import { from, throwError } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
-import { shareReplay, catchError, filter, finalize, tap, switchMap } from 'rxjs/operators';
+import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -21,6 +21,7 @@ export class SignInPage implements OnInit {
   fg: FormGroup;
   emailSet = false;
   emailPromise = false;
+  hide = true;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -34,10 +35,10 @@ export class SignInPage implements OnInit {
     private inAppBrowser: InAppBrowser
   ) { }
 
-  checkSAMLResponseAndSignInUser = function (data) {
+  checkSAMLResponseAndSignInUser(data) {
     if (data.error) {
-      let err = {
-        status: parseInt(data.response_status_code)
+      const err = {
+        status: parseInt(data.response_status_code, 10)
       };
 
       this.handleError(err);
@@ -47,10 +48,10 @@ export class SignInPage implements OnInit {
       const samlNewRefreshToken$ = this.authService.newRefreshToken(data.refresh_token);
 
       samlNewRefreshToken$.subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch-org']);
+        this.router.navigate(['/', 'auth', 'switch_org']);
       });
     }
-  };
+  }
 
   handleSamlSignIn(res) {
     const url = res.idp_url + '&RelayState=MOBILE';
@@ -78,6 +79,14 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
+<<<<<<< HEAD
+=======
+    if (!this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}')) {
+      return;
+    }
+    await this.loaderService.showLoader();
+
+>>>>>>> master
     const checkEmailExists$ = this.routerAuthService
       .checkEmailExists(this.fg.controls.email.value)
       .pipe(
@@ -109,7 +118,7 @@ export class SignInPage implements OnInit {
 
   }
 
-  async handleError(err: HttpErrorResponse) {
+  async handleError(err) {
     let header = 'Incorrect Email or Password';
 
     if (err.status === 400) {
@@ -131,16 +140,19 @@ export class SignInPage implements OnInit {
       componentProps: {
         header
       },
-      cssClass: 'error-popover'
+      cssClass: 'dialog-popover'
     });
 
     await errorPopover.present();
   }
 
   async signInUser() {
-    await this.loaderService.showLoader();
+    if (this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}') && this.fg.value.password.replace(/\s/g, '').length <= 0) {
+      return;
+    }
 
-    const basicSignIn$ = this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password).pipe(
+    from(this.loaderService.showLoader('Signing you in...', 10000)).pipe(
+      switchMap(() => this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password)),
       catchError(err => {
         this.handleError(err);
         return throwError(err);
@@ -148,31 +160,37 @@ export class SignInPage implements OnInit {
       switchMap((res) => {
         return this.authService.newRefreshToken(res.refresh_token);
       }),
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })
-    );
-
-    basicSignIn$.subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch-org', { choose: true }]);
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(() => {
+      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
     });
   }
 
   googleSignIn() {
-    this.googleAuthService.login().then(data => {
-      const googleSignIn$ = this.routerAuthService.googleSignin(data.accessToken).pipe(
-        catchError(err => {
-          this.handleError(err);
-          return throwError(err);
-        }),
-        switchMap((res) => {
-          return this.authService.newRefreshToken(res.refresh_token);
-        })
-      );
-
-      googleSignIn$.subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch-org', { choose: true }]);
-      });
+    from(this.googleAuthService.login()).pipe(
+      concatMap((googleAuthResponse) => {
+        return from(this.loaderService.showLoader('Please wait...', 10000)).pipe(
+          map(() => {
+            return googleAuthResponse;
+          }
+        ));
+      }),
+      switchMap((googleAuthResponse) => {
+        return this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
+          catchError(err => {
+            this.handleError(err);
+            return throwError(err);
+          }),
+          switchMap((res) => {
+            return this.authService.newRefreshToken(res.refresh_token);
+          }),
+        );
+      }),
+      finalize(() => {
+        from(this.loaderService.hideLoader());
+      })
+    ).subscribe(() => {
+      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
     });
   }
 
@@ -186,7 +204,7 @@ export class SignInPage implements OnInit {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
 
     if (isLoggedIn) {
-      this.router.navigate(['/', 'auth', 'switch-org', { choose: false }]);
+      this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
     }
   }
 }

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { from, Observable } from 'rxjs';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { from, Observable, noop, Subject } from 'rxjs';
+import { switchMap, map, tap, concatMap } from 'rxjs/operators';
 import { ExtendedTripRequest } from '../models/extended_trip_request.model';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
@@ -10,6 +10,9 @@ import { TripDatesService } from './trip-dates.service';
 import { Approval } from '../models/approval.model';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+
+const tripRequestsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +29,9 @@ export class TripRequestsService {
     private storageService: StorageService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -64,26 +70,38 @@ export class TripRequestsService {
     }).pipe(
       map(
         res => {
-          const modifiedTrip = this.fixDates(res.data[0]) as ExtendedTripRequest;
+          let modifiedTrip = this.fixDates(res.data[0]) as ExtendedTripRequest;
           // try catch is failsafe against bad data
           try {
             modifiedTrip.trp_custom_field_values = JSON.parse(modifiedTrip.trp_custom_field_values);
           } catch (error) {
           }
+          modifiedTrip = this.setInternalStateAndDisplayName(modifiedTrip);
           return modifiedTrip;
         }
       )
     );
   }
 
+
+  get(tripRequestId) {
+    return this.apiService.get('/trip_requests/' + tripRequestId);
+  }
+
   getActions(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getAdvanceRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/advance_requests');
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getHotelRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
       map((reqs) => {
@@ -98,10 +116,16 @@ export class TripRequestsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   delete(tripRequestId: string) {
     return this.apiService.delete('/trip_requests/' + tripRequestId);
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getTransportationRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
       map((reqs) => reqs.map(req => {
@@ -125,6 +149,9 @@ export class TripRequestsService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
   getTeamTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -160,6 +187,53 @@ export class TripRequestsService {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/approvals').pipe(
       map(res => res as Approval[])
     );
+  }
+
+  setInternalStateAndDisplayName(tripRequest) {
+    if (tripRequest.trp_state === 'DRAFT') {
+      if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
+        tripRequest.internalState = 'draft';
+        tripRequest.internalStateDisplayName = 'Draft';
+      } else if (tripRequest.trp_is_pulled_back) {
+        tripRequest.internalState = 'pulledBack';
+        tripRequest.internalStateDisplayName = 'Pulled Back';
+      } else if (tripRequest.trp_is_sent_back) {
+        tripRequest.internalState = 'inquiry';
+        tripRequest.internalStateDisplayName = 'Inquiry';
+      }
+    } else if (tripRequest.trp_state === 'APPROVAL_PENDING') {
+      tripRequest.internalState = 'pendingApproval';
+      tripRequest.internalStateDisplayName = 'Pending Approval';
+    } else if (tripRequest.trp_state === 'APPROVED') {
+      if (!tripRequest.trp_is_to_close) {
+        if (tripRequest.trp_is_booked === null && tripRequest.trp_is_requested_cancellation === null) {
+          tripRequest.internalState = 'approved';
+          tripRequest.internalStateDisplayName = 'Approved';
+        } else if (tripRequest.trp_is_booked === false && tripRequest.trp_is_requested_cancellation === null) {
+          tripRequest.internalState = 'pendingBooking';
+          tripRequest.internalStateDisplayName = 'Pending Booking';
+        } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === null) {
+          tripRequest.internalState = 'booked';
+          tripRequest.internalStateDisplayName = 'Booked';
+        } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === true) {
+          tripRequest.internalState = 'pendingCancellation';
+          tripRequest.internalStateDisplayName = 'Pending Cancellation';
+        } else if (tripRequest.trp_is_requested_cancellation === false) {
+          tripRequest.internalState = 'cancelled';
+          tripRequest.internalStateDisplayName = 'Cancelled';
+        }
+      } else {
+        tripRequest.internalState = 'pendingClosure';
+        tripRequest.internalStateDisplayName = 'Pending Closure';
+      }
+    } else if (tripRequest.trp_state === 'CLOSED') {
+      tripRequest.internalState = 'closed';
+      tripRequest.internalStateDisplayName = 'Closed';
+    } else if (tripRequest.trp_state === 'REJECTED') {
+      tripRequest.internalState = 'rejected';
+      tripRequest.internalStateDisplayName = 'Rejected';
+    }
+    return tripRequest;
   }
 
   fixDates(datum: ExtendedTripRequest) {
@@ -309,11 +383,98 @@ export class TripRequestsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   pullBackTrip(tripRequestId: string, addStatusPayload) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/pull_back', addStatusPayload);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
   closeTrip(tripRequestId: string) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
+  }
+
+  triggerPolicyCheck(tripRequestId) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/trigger_policy_check');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  saveDraft(tripRequest) {
+    return from(this.authService.getEou()).pipe(
+      map(eou => {
+        return tripRequest.org_user_id = eou.ou.id;
+      }),
+      concatMap(() => {
+        return this.apiService.post('/trip_requests/save', tripRequest);
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  submit(tripRequest) {
+    return from(this.authService.getEou()).pipe(
+      map(eou => {
+        return tripRequest.org_user_id = eou.ou.id;
+      }),
+      concatMap(() => {
+        return this.apiService.post('/trip_requests/submit', tripRequest);
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  addApproverETripRequests(tripRequestId, approverEmail, comment) {
+    const data = {
+      approver_email: approverEmail,
+      comment: comment
+    };
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
+  }
+
+  findMyUnreportedRequests() {
+    const data = {
+      params: {
+        only_unreported: true
+      }
+    };
+
+    return this.apiService.get('/trip_requests', data);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  action(action, tripRequestId) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/' + action);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  approve(tripRequestId) {
+    return this.action('approve', tripRequestId);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  inquire(tripRequestId, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/inquire', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  reject(tripRequestId, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/reject', addStatusPayload);
   }
 }

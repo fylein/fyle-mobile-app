@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title mode="md">
+      Match a Transaction
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onDoneClick()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div>
+    <div class="match-transaction--card" *ngFor="let cccExpense of matchingCCCTransactions" matRipple (click)="selectCCCExpense(cccExpense)">
+      <div>
+        <span class="match-transaction--matched-currency">
+          {{cccExpense.currency}}
+        </span>
+        <span class="match-transaction--matched-amount">
+          {{cccExpense.amount}}
+        </span>
+      </div>
+      <div class="match-transaction--card-footer">
+        <div class="match-transaction--txn-dt">
+          {{cccExpense.txn_dt | date: 'MMM dd, yyyy'}}
+        </div>
+        <div class="match-transaction--vendor">
+          {{(cccExpense.vendor ||  cccExpense.description) | ellipsis:20}}
+        </div>
+      </div>
+    </div>
+    <div class="match-transaction--card-zero" matRipple (click)="selectNotInList()">
+      Transaction not in this list
+    </div>
+  </div>
+</ion-content>

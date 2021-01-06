@@ -1,7 +1,7 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="view-expense--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-button [routerLink]="['/','enterprise','my_expenses']" routerLinkActive="router-link-active">
+      <ion-button (click)="goBack()">
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
@@ -33,30 +33,32 @@
       </ng-template>
       <ng-template #crititcalPolicyNotiolated>
         <span class="info-text m-0">
-          Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency }} was capped to {{ etxn.tx_amount | currency:etxn.tx_currency}} due to policy.
+          Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency }} was capped to
+          {{ etxn.tx_amount | currency:etxn.tx_currency}} due to policy.
         </span>
       </ng-template>
     </div>
 
     <div class="view-expense--attachment-currency-block">
       <div class="view-expense--attachment-block">
-        <div class="view-expense--no-attachment" *ngIf="etxn.tx_num_files === 0">
-          <p>No Receipt</p>
-        </div>
-        
-        <!-- TODO: on click view attachment -->
-        <div *ngIf="etxn.tx_num_files > 0">
-          <div class="view-expense--receipt">
-            <img src="assets/images/fy-pdf.svg" alt="">
+        <ng-container *ngIf="attachments$|async as attachments">
+          <div class="view-expense--no-attachment" *ngIf="attachments.length === 0">
+            <p>No Receipt</p>
           </div>
-          <div class="view-expense--receipt-count">
-            <span class="view-expense--receipt-count-number">{{ etxn.tx_num_files }}</span>
+
+          <div *ngIf="attachments.length > 0" (click)="viewAttachments()">
+            <div class="view-expense--receipt">
+              <img src="assets/svg/fy-attachment.svg">
+            </div>
+            <div class="view-expense--receipt-count">
+              <span class="view-expense--receipt-count-number">{{ etxn.tx_num_files }}</span>
+            </div>
           </div>
-        </div>
+        </ng-container>
       </div>
 
       <div class="view-expense--currency-block">
-        <app-currency [options]="currencyOptions" [currencyObj]="etxn"></app-currency>
+        <app-currency [options]="currencyOptions" [etxn]="etxn"></app-currency>
       </div>
     </div>
 
@@ -102,7 +104,8 @@
     </div>
 
     <div *ngIf="etxn.tx_fyle_category === 'Flight'">
-      <div class="view-expense--element-block" *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class">
+      <div class="view-expense--element-block"
+        *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class">
         <div class="view-expense--element" *ngIf="etxn.tx_from_dt">
           <div class="view-expense--element-label">Check-In</div>
           <div class="view-expense--element-value">{{ etxn.tx_from_dt }}</div>
@@ -148,7 +151,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="view-expense--element-block">
       <div class="view-expense--element" *ngIf="orgSettings?.projects?.enabled && etxn.tx_project_id">
         <div class="view-expense--element-label">Project</div>
@@ -170,8 +173,7 @@
 
     <div class="view-expense--card">
       <div class="view-expense--card-action">
-        <mat-icon class="view-expense--card-action-icon">chat_bubble</mat-icon>
-        <div class="view-expense--card-action-text view-expense--card-action-text__comment">Comments</div>
+        <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments"></app-comments>
       </div>
     </div>
   </div>

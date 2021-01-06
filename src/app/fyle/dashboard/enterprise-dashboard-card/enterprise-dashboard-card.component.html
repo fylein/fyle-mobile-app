@@ -1,4 +1,4 @@
-<div class="dashboard-card--details dashboard-card--{{ this.item.class }}" (click)="this.expandCard(this.item)">
+<div class="dashboard-card--details dashboard-card--{{ item.class }}" (click)="expandCard()">
   <ion-grid class="dashboard-card--grid">
     <ion-row>
       <ion-col size="1">
@@ -6,34 +6,41 @@
       </ion-col>
       <ion-col size="8">
         <div class="dashboard-card--container">
-          <p class="dashboard-card--title m-0 text-capitalize" [textContent]="this.item.title"></p>
+          <p class="dashboard-card--title m-0 text-capitalize" [textContent]="item.title"></p>
           <p class="dashboard-card--card-count">
-            <small *ngIf="this.item.title !== 'trips'"> {{this.stats && this.stats.total_count || 0}} {{ 1 > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
-            <small *ngIf="this.item.title === 'trips'"> {{this.stats && this.stats.count || 0 }} {{ 1 > 1 ? this.subTitle + 's' : this.item.subTitle }}</small>
+            <span *ngIf="item.title !== 'trips'"> {{stats && stats.total_count || 0}}
+              {{ 1 > 1 ? item.subTitle + 's' : item.subTitle }}</span>
+            <span *ngIf="item.title === 'trips'"> {{stats && stats.count || 0 }}
+              {{ 1 > 1 ? item.subTitle + 's' : item.subTitle }}</span>
           </p>
         </div>
       </ion-col>
       <ion-col size="3">
-        <div class="dashboard-card--card-amount" *ngIf="this.stats && (this.stats.total_amount || this.stats.total_amount === 0) && this.item.title !== 'trips'" >{{this.stats.total_amount || 0 | humanizeCurrency: this.homeCurrency:2}}</div>
+        <div class="dashboard-card--card-amount" *ngIf="homeCurrency && item.title !== 'trips'">
+          {{stats?.total_amount || 0 | humanizeCurrency: homeCurrency:2}}</div>
       </ion-col>
-    </ion-row>  
+    </ion-row>
 
-    <div class="dashboard-card--needs-attention dashboard-card--need-attention-block" *ngIf="this.needsAttentionStats && this.needsAttentionStats.count && this.needsAttentionStats.count > 0">
+    <div class="dashboard-card--needs-attention dashboard-card--need-attention-block"
+      *ngIf="needsAttentionStats && needsAttentionStats.count && needsAttentionStats.count > 0">
       <div class="dashboard-card--need-attention-curve-container">
         <mat-icon class="dashboard-card--icon-curve" svgIcon="curve"></mat-icon>
         <div class="dashboard-card--need-attention-text text-right">
-            <mat-icon class="dashboard-card--icon-warning" svgIcon="warning"></mat-icon>
+          <mat-icon class="dashboard-card--icon-warning" svgIcon="warning"></mat-icon>
           <div class="text-ellipsis">
-            {{ this.needsAttentionStats.count || 0 }} {{ this.needsAttentionStats.count > 1 ? item.subTitle + 's' : item.subTitle }} {{this.needsAttentionStats.count > 1 ? 'need' : 'needs'}} your attention
+            {{ needsAttentionStats.count || 0 }}
+            {{ needsAttentionStats.count > 1 ? item.subTitle + 's' : item.subTitle }}
+            {{needsAttentionStats.count > 1 ? 'need' : 'needs'}} your attention
           </div>
         </div>
-      </div>  
+      </div>
     </div>
   </ion-grid>
 </div>
 
-<div class="dashboard-card--expanded-view full-width" *ngIf="this.expandedCard === this.item.title">
-  <div class="state-row" *ngFor="let stat of this.detailedStats; index as $index;" (click)="this.filterToState(this.item.title, this.stat.state)">
+<div class="dashboard-card--expanded-view full-width" *ngIf="expandedCard === item.title">
+  <div class="state-row" *ngFor="let stat of detailedStats; index as $index;"
+    (click)="filterToState(item.title, stat.state)">
     <ion-grid>
       <ion-row>
         <ion-col size="8">
@@ -41,22 +48,28 @@
             <div>
               <p class="dashboard-card--expanded-card-title m-0"> {{ stat.title }} </p>
             </div>
-            <div *ngIf="this.item.title === 'trips'">
-              <mat-icon class="dashboard-card--icon-card" *ngIf="stat && stat.warning && stat.count && stat.count > 0"  svgIcon="warning-inverted" ></mat-icon>
+            <div *ngIf="item.title === 'trips'">
+              <mat-icon class="dashboard-card--icon-card" *ngIf="stat && stat.warning && stat.count && stat.count > 0"
+                svgIcon="warning-inverted"></mat-icon>
             </div>
-            <div *ngIf="this.item.title !== 'trips'">
-              <mat-icon class="dashboard-card--icon-card" *ngIf="stat && stat.warning && stat.total_count && stat.total_count > 0" svgIcon="warning-inverted"></mat-icon>
+            <div *ngIf="item.title !== 'trips'">
+              <mat-icon class="dashboard-card--icon-card"
+                *ngIf="stat && stat.warning && stat.total_count && stat.total_count > 0" svgIcon="warning-inverted">
+              </mat-icon>
             </div>
           </div>
           <p class="dashboard-card--card-count">
-            <small *ngIf="this.item.title !== 'trips'"> {{ stat.total_count || 0 }} {{ stat.total_count > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
-            <small *ngIf="this.item.title === 'trips'"> {{ stat.count || 0 }} {{ stat.count > 1 ? this.item.subTitle + 's' : this.item.subTitle }}</small>
+            <span *ngIf="item.title !== 'trips'"> {{ stat.total_count || 0 }}
+              {{ stat.total_count > 1 ? item.subTitle + 's' : item.subTitle }}</span>
+            <span *ngIf="item.title === 'trips'"> {{ stat.count || 0 }}
+              {{ stat.count > 1 ? item.subTitle + 's' : item.subTitle }}</span>
           </p>
         </ion-col>
 
         <ion-col size="4">
           <div class="dashboard-card--expanded-amount-icon">
-            <div *ngIf="this.item.title !== 'trips'" class="dashboard-card--expanded-amount" [textContent]="this.stat.total_amount | humanizeCurrency: this.homeCurrency:2"></div>
+            <div *ngIf="homeCurrency && item.title !== 'trips'" class="dashboard-card--expanded-amount"
+              [textContent]="stat.total_amount | humanizeCurrency: homeCurrency:2"></div>
             <div class="icon-arrow-left">
               <mat-icon class="dashboard-card--expanded-icon" svgIcon="chevron-right"></mat-icon>
             </div>

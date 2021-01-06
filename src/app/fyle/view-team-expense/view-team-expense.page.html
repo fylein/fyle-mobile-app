@@ -1,17 +1,19 @@
-<ion-header>
+<ion-header mode="md">
   <ion-toolbar class="view-expense--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-back-button icon="close"></ion-back-button>
+      <ion-button (click)="goBack()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title mode="md">Team Expense</ion-title>
+    <ion-title mode="md" class="page-title">Team Expense</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
     <div *ngIf="etxn && policyViloations$|async as policyViloations">
-      <!-- TODO: on click scroll to comment section -->
-      <div class="view-expense--policy-container" *ngIf="policyViloations.length > 0 && etxn.tx_policy_flag" (click)="scrollToComments()">
+      <div class="view-expense--policy-container" *ngIf="policyViloations.length > 0 && etxn.tx_policy_flag"
+        (click)="scrollToComments()">
         <span>
           <mat-icon class="view-expense--policy-container-warning-icon">warning</mat-icon>
         </span>
@@ -23,29 +25,38 @@
 
     <div class="view-expense--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
       <span class="info-text m-0">
-        Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency }} was capped to {{ etxn.tx_amount | currency:etxn.tx_currency}} due to policy.
+        Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency }} was capped to
+        {{ etxn.tx_amount | currency:etxn.tx_currency}} due to policy.
       </span>
     </div>
 
     <div class="view-expense--attachment-currency-block">
       <div class="view-expense--attachment-block">
-        <div class="view-expense--no-attachment" *ngIf="etxn.tx_num_files === 0">
-          <p>No Receipt</p>
-        </div>
-        
-        <!-- TODO: on click view attachment -->
-        <div *ngIf="etxn.tx_num_files > 0">
-          <div class="view-expense--receipt">
-            <img src="assets/images/fy-pdf.svg" alt="">
+        <ng-container *ngIf="attachments$|async as attachments; else NoAttachmentYet">
+          <div class="view-expense--no-attachment" *ngIf="!attachments?.length">
+            <div>No</div>
+            <div>Receipt</div>
           </div>
-          <div class="view-expense--receipt-count">
-            <span class="view-expense--receipt-count-number">{{ etxn.tx_num_files }}</span>
+
+          <div *ngIf="attachments.length > 0" (click)="viewAttachments()">
+            <div class="view-expense--receipt">
+              <img src="assets/svg/fy-attachment.svg" alt="attachment">
+            </div>
+            <div class="view-expense--receipt-count">
+              <span class="view-expense--receipt-count-number">{{ etxn.tx_num_files }}</span>
+            </div>
           </div>
-        </div>
+        </ng-container>
+        <ng-template #NoAttachmentYet>
+          <div class="view-expense--no-attachment">
+            <div>No</div>
+            <div>Receipt</div>
+          </div>
+        </ng-template>
       </div>
 
       <div class="view-expense--currency-block">
-        <app-currency [options]="currencyOptions" [currencyObj]="etxn"></app-currency>
+        <app-currency [options]="currencyOptions" [etxn]="etxn"></app-currency>
       </div>
     </div>
 
@@ -91,7 +102,8 @@
     </div>
 
     <div *ngIf="etxn.tx_fyle_category === 'Flight'">
-      <div class="view-expense--element-block" *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class">
+      <div class="view-expense--element-block"
+        *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class">
         <div class="view-expense--element" *ngIf="etxn.tx_from_dt">
           <div class="view-expense--element-label">Check-In</div>
           <div class="view-expense--element-value">{{ etxn.tx_from_dt }}</div>
@@ -137,7 +149,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="view-expense--element-block">
       <div class="view-expense--element" *ngIf="orgSettings?.projects?.enabled && etxn.tx_project_id">
         <div class="view-expense--element-label">Project</div>
@@ -159,29 +171,24 @@
 
     <div class="view-expense--card">
       <div class="view-expense--card-action" id="commentsSection">
-        <mat-icon class="view-expense--card-action-icon">chat_bubble</mat-icon>
-        <div class="view-expense--card-action-text view-expense--card-action-text__comment">Comments</div>
+        <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
       </div>
     </div>
 
-    <!-- TODO: check logic for flag un flag and apply -->
     <div class="view-expense--card" *ngIf="canFlagOrUnflag$|async">
-      <div class="view-expense--card-action">
-        <mat-icon class="view-expense--card-action-icon">flag</mat-icon>
-        <div class="view-expense--card-action-text view-expense--card-action-text__comment">Flag</div>
-      </div>
+      <app-fy-flag-expense [etxn]="etxn" (notify)='onUpdateFlag($event)'></app-fy-flag-expense>
     </div>
 
     <div class="view-expense--card" *ngIf="canDelete$|async">
-      <div class="view-expense--card-action">
+      <div class="view-expense--card-action" (click)="removeExpenseFromReport()">
         <mat-icon class="view-expense--card-action-icon">delete</mat-icon>
         <div class="view-expense--card-action-text__comment">
           <div class="view-expense--card-action-text view-expense--card-action-text__delete">Remove</div>
-          <div class="view-expense--delete-warning view-expense--card-action-text__helper-comment">remove from report</div>
+          <div class="view-expense--delete-warning view-expense--card-action-text__helper-comment">remove from report
+          </div>
         </div>
       </div>
     </div>
   </div>
 
 </ion-content>
-  

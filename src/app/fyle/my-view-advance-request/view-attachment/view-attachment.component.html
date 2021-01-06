@@ -1,0 +1,38 @@
+<ion-header mode="md" >
+  <ion-toolbar mode="md">
+    <ion-title>
+      Receipt Preview
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onDoneClick()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="view-attachments--controls">
+    <mat-icon class="view-attachments--go-back" (click)="goToPrevSlide()">
+      arrow_back_ios
+    </mat-icon>
+    <mat-icon class="view-attachments--go-forward" (click)="goToNextSlide()">
+      arrow_forward_ios
+    </mat-icon>
+  </div>
+  <ion-slides #slides [options]="sliderOptions" zoom>
+    <ng-container *ngFor="let attachment of attachments">
+      <ion-slide>
+        <div>
+          <pinch-zoom *ngIf="attachment?.file_type !== 'pdf'" class="view-attachments--container">
+            <img [src]="attachment?.file_download_url" />
+          </pinch-zoom>
+
+          <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
+            <pdf-viewer [page]="1" [src]="attachment?.file_download_url" [render-text]="true" [zoom]="0.5"></pdf-viewer>
+          </div>
+        </div>
+      </ion-slide>
+    </ng-container>
+  </ion-slides>
+</ion-content>

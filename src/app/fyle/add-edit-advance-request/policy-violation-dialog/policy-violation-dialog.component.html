@@ -1,0 +1,44 @@
+<ion-header mode="md" >
+  <ion-toolbar mode="md">
+    <ion-title mode="md">
+      Policy Violated
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div class="policy-violation--container">
+    <p>This advance request falls outside the guidelines of your company’s policy.</p>
+
+    <ul>
+      <li *ngFor="let violation of violatedPolicyRules; index as i">{{violation}}</li>
+    </ul>
+
+    <p class="policy-violation--action-description">{{policyViolationActionDescription}}</p>
+
+    <textarea class="policy-violation--reason" rows="3" matInput placeholder="Please provide an explanation for policy violation" [(ngModel)]="newComment"></textarea>
+  </div>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar mode="md">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <ion-button class="policy-violation--secondary-cta" (click)="closePolicyModal()" fill="outline" color="fyle-primary">
+            Cancel
+          </ion-button>
+        </ion-col>
+        <ion-col size="6" class="text-right">
+          <ion-button class="policy-violation--primary-cta" (click)="continueWithPolicyViolation()" fill="solid" color="fyle-primary">
+           Continue
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+</ion-footer>
+
+

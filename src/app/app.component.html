@@ -4,16 +4,19 @@
       <ion-toolbar class="sidemenu--header-info-wrapper" translucent>
         <ion-grid>
           <ion-row class="sidemenu--header-wrapper">
-          <ion-col size="2">
-            <img class="sidemenu--header-logo" src="assets/svg/logo-icon-white.svg">
-          </ion-col>
-          <ion-col size="10">
-            <div class="sidemenu--info-wrapper">
-              <p class="sidemenu--user-name">{{ eou?.us?.full_name }}</p> <!-- Need to add characters pipe later -->
-              <p class="sidemenu--org-name">{{ activeOrg?.name }}</p>
-            </div>
-          </ion-col>
-        </ion-row>
+            <ion-col size="2">
+              <img class="sidemenu--header-logo" src="assets/svg/logo-icon-white.svg">
+            </ion-col>
+            <ion-col size="10">
+              <div class="sidemenu--info-wrapper">
+                <ng-container *ngIf="eou">
+                  <p class="sidemenu--user-name" *ngIf="eou.us.full_name">{{ eou.us.full_name | ellipsis: 15 }}</p>
+                </ng-container>
+                <!-- Need to add characters pipe later -->
+                <p class="sidemenu--org-name" *ngIf="activeOrg?.name">{{  activeOrg.name | ellipsis: 20 }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
         </ion-grid>
       </ion-toolbar>
     </ion-header>
@@ -22,29 +25,54 @@
       <div class="sidemenu--items-wrapper">
         <ion-list>
           <div *ngFor="let sideMenuItem of sideMenuList; index as i">
-            <ion-item detail="false" [routerLink]="sideMenuItem.route" routerLinkActive="item-active" class="sidemenu--items" [ngClass]="sideMenuItem.cssClass" *ngIf="sideMenuItem.isVisible" (click)="redirect(sideMenuItem.route)">
-              <a class="sidemenu--item">
-                <ion-grid>
-                  <ion-row>
-                    <ion-col size="1">
-                      <div>
-                        <mat-icon class="sidemenu--icon" svgIcon="{{sideMenuItem.icon}}"></mat-icon>
-                      </div>
-                    </ion-col>
-                    <ion-col size="11">
-                      <ion-label class="sidemenu--label">{{sideMenuItem.title}}</ion-label>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>                
-              </a>
-            </ion-item>
+            <ng-container *ngIf="!sideMenuItem.openHelp">
+              <ion-item detail="false" [disabled]="sideMenuItem.disabled" [routerLink]="sideMenuItem.route"
+                routerLinkActive="item-active" class="sidemenu--items" [class]="sideMenuItem.cssClass"
+                [ngClass]="{'sidemenu--items__disabled': sideMenuItem.disabled}" *ngIf="sideMenuItem.isVisible"
+                (click)="redirect(sideMenuItem.route)">
+                <a class="sidemenu--item" routerLinkActive="sidemenu--active-tab-text">
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="1">
+                        <div>
+                          <mat-icon class="sidemenu--icon" svgIcon="{{sideMenuItem.icon}}"></mat-icon>
+                        </div>
+                      </ion-col>
+                      <ion-col size="11">
+                        <ion-label class="sidemenu--label">{{sideMenuItem.title}}</ion-label>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </a>
+              </ion-item>
+              <div *ngIf="sideMenuItem.title === 'Profile'" class="sidemenu--divider"></div>
+            </ng-container>
+            <ng-container *ngIf="sideMenuItem.openHelp">
+              <ion-item detail="false" [disabled]="sideMenuItem.disabled" class="sidemenu--items" [class]="sideMenuItem.cssClass"
+                [ngClass]="{'sidemenu--items__disabled': sideMenuItem.disabled}" *ngIf="sideMenuItem.isVisible"
+                (click)="openHelp()">
+                <a class="sidemenu--item">
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="1">
+                        <div>
+                          <mat-icon class="sidemenu--icon" svgIcon="{{sideMenuItem.icon}}"></mat-icon>
+                        </div>
+                      </ion-col>
+                      <ion-col size="11">
+                        <ion-label class="sidemenu--label">{{sideMenuItem.title}}</ion-label>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </a>
+              </ion-item>
+            </ng-container>
           </div>
         </ion-list>
       </div>
       <div class="sidemenu--appversion" *ngIf="appVersion">v{{appVersion}}</div>
-      
     </ion-content>
   </ion-menu>
   <app-delegated-acc-message *ngIf="isSwitchedToDelegator"></app-delegated-acc-message>
-  <ion-router-outlet id="main-content" [ngClass]="{'main-outlet': isSwitchedToDelegator}" ></ion-router-outlet>
+  <ion-router-outlet id="main-content" [ngClass]="{'main-outlet': isSwitchedToDelegator}"></ion-router-outlet>
 </ion-app>

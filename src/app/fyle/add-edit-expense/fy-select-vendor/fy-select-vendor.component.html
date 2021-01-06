@@ -1,0 +1,14 @@
+<label class="fy-select-vendor--label">
+  <div class="fy-select-vendor--label-content" [ngClass]="{'fy-select-vendor--label-content__invalid': !valid}">
+    <span>
+      {{label}}
+    </span>
+    <span *ngIf="mandatory">
+      *
+    </span>
+  </div>
+  <input class="fy-select-vendor" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+  <mat-icon>
+    chevron_right
+  </mat-icon>
+</label>

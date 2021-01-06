@@ -1,0 +1,44 @@
+.split-expense-popover {
+  padding: 0 16px;
+  
+  &--header {
+    padding: 28px 8px 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  &--header-content {
+    font-size: 18px;
+    font-weight: 600;
+    color: #4a4a4a;
+    margin: 0 0 10px;
+  }
+
+  &--items-container {
+    margin: 16px 0;
+  }
+
+  &--item {
+    padding: 16px 8px 16px;
+
+    &-stripe-background {
+      border-radius: 4px;
+      background-color: #f3f5f8;
+    }
+  }
+
+  &--item-content {
+    display: inline-block;
+    vertical-align: middle;
+    width: calc(100% - 64px);
+  }
+
+  &--item-head {
+    font-size: 18px;
+    color: #4a4a4a;
+    line-height: 1.33;
+    margin-bottom: 0;
+  }
+
+}

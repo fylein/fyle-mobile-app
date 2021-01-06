@@ -1,0 +1,368 @@
+.add-edit-mileage {
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--sub-header {
+    color: #ababab;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  &--footer {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  &--cta-container {
+    padding: 16px;
+    justify-content: space-between;
+  }
+
+  &--primary-cta {
+    height: 48px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    --border-radius: 4px !important;
+    width: 100%;
+    margin: 0 4px;
+  }
+
+  &--receipt-currency {
+    display: flex;
+    align-items: center;
+  }
+
+  &--receipt {
+    align-items: center;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    background-color: #d8d8d8;
+    padding: 20px 8px;
+    border-radius: 4px;
+    color: #ababab;
+    margin: 12px 4px 12px 0;
+  }
+
+  &--currency {
+    margin: 18px 0;
+  }
+
+  &--form {
+    padding: 0 16px 16px 16px;
+  }
+
+  &--date {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &--date-label {
+    margin: 0 8px 0 0;
+    min-width: 145px;
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    &__invalid {
+      color: red;
+    }
+  }
+
+  &--date-input {
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    height: 24px;
+    text-align: right;
+    background-color: white;
+  }
+
+  &--text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &--text-label {
+    margin: 0 8px 0 0;
+    font-size: 16px;
+    min-width: 145px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 2;
+    white-space: nowrap;
+    display: flex;
+
+    &__invalid {
+      color: red;
+    }
+
+    &__unit {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+
+  &--text-input {
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    max-width: calc(100% - 145px);
+    height: 24px;
+  }
+
+  &--checkbox {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+  }
+
+  &--primary-block {
+    margin: 16px 0;
+    padding: 0 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+  }
+
+  &--internal-block {
+    padding: 16px 0;
+    background: #fff;
+    border: 0;
+    line-height: 1;
+    border-bottom: 1px solid #e0e0e0;
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &--conversion {
+    border: 1px solid #e0e0e0;
+    background-color: #f2f2f2;
+    border-radius: 4px;
+  }
+
+  &--delete {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+  }
+
+  &--delete-icon {
+    font-size: 24px;
+    color: #ababab;
+  }
+
+  &--delete-msg {
+    font-size: 16px;
+    margin: 4px 0 0 16px;
+    color: #f00;
+  }
+
+  &--conversion-amount {
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 500;
+    color: #4a4a4a;
+    width: calc(100% - 60px);
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+    padding: 8px 8px 0 16px;
+  }
+
+  &--conversion-rate {
+    color: #ababab;
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 500;
+    width: calc(100% - 60px);
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+    padding: 0 8px 8px 16px;
+  }
+
+  &--error {
+    color: red;
+  }
+
+  &--critical-policy {
+    border-radius: 6px;
+    background: #f2f2f2;
+    padding: 8px 16px;
+    margin-bottom: 16px;
+    margin-top: 8px;
+  }
+
+  &--amount-box {
+    background: #f2f2f2;
+    border-radius: 4px;
+    padding: 16px;
+    margin: 8px 0;
+    display: flex;
+    min-height: 45px;
+  }
+
+  &--amount {
+    width: calc(100% - 100px);
+    padding: 0 0 4px;
+    border-right: 1px solid #e0e0e0;
+    color: #ababab;
+  }
+
+  &--rate {
+    text-align: end;
+    width: 100px;
+    padding: 0 0 4px;
+    color: #ababab;
+  }
+
+  &--add-stop {
+    padding: 8px 0;
+    color: #f36;
+    display: flex;
+    align-items: center;
+  }
+
+  &--amount-value {
+    font-size: 24px;
+    color: #4a4a4a;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  &--rate-value {
+    font-size: 16px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  &--remove-stop {
+    color: #f00;
+  }
+
+  &--comment {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  &--review-nav {
+    position: sticky;
+    top: 45vh;
+  }
+
+  &--review-go-left {
+    float: left;
+    width: 45px;
+    height: 76px;
+    border-bottom-right-radius: 100px;
+    border-top-right-radius: 100px;
+    padding-right: 18px;
+
+    background-color: #999;
+    opacity: 0.8;
+    &__disabled {
+      opacity: 0.2;
+    }
+  }
+
+  &--review-go-right {
+    float: right;
+    width: 45px;
+    height: 76px;
+    border-bottom-left-radius: 100px;
+    border-top-left-radius: 100px;
+
+    padding-left: 18px;
+
+    background-color: #999;
+    opacity: 0.8;
+    &__disabled {
+      opacity: 0.2;
+    }
+  }
+
+  &--error-message-block {
+    position: sticky;
+    width: 100%;
+    bottom: 0;
+    background: rgba(221, 0, 0, 0.7);
+    color: #fff;
+    padding: 16px;
+  }
+
+  &--duplicate-pointer-container {
+    position: sticky;
+    top: 60vh;
+    height: 0;
+  }
+
+  &--duplicate-pointer {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    bottom: 0;
+    width: 100%;
+  }
+
+  &--duplicate-pointer-text {
+    border-radius: 6px;
+    background: #f2f2f2;
+    width: 96%;
+    color: #4a4a4a;
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: 0 2px 4px 0 rgba(#838383, 0.75);
+    text-align: center;
+  }
+
+  &--duplicate-pointer-icon {
+    border-radius: 50%;
+    background: #f2f2f2;
+    color: #4a4a4a;
+    font-size: 16px;
+    top: -10px;
+    box-shadow: 0 2px 4px 0 rgba(131, 131, 131, 0.75);
+  }
+
+  &--duplicate-pointer-icon-internal {
+    height: auto;
+    width: auto;
+    position: relative;
+    top: 4px;
+    font-size: 20px;
+  }
+
+  &--new-report-block {
+    display: flex;
+    align-items: center;
+  }
+
+  &--payment-mode-header {
+    font-weight: 500;
+    font-size: 16px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-purpose {
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+
+  &--payment-mode-type {
+    color: #ababab;
+    font-size: 12px;
+  }
+}

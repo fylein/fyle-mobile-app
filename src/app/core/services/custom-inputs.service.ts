@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { shareReplay, map } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
+import { Cacheable } from 'ts-cacheable';
+import { Subject } from 'rxjs';
+
+const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +18,9 @@ export class CustomInputsService {
     private datePipe: DatePipe
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: customInputssCacheBuster$
+  })
   getAll(active: boolean) {
     return this.apiService.get('/custom_inputs/custom_properties', { params: { active } }).pipe(
       shareReplay()
@@ -21,19 +28,11 @@ export class CustomInputsService {
   }
 
   filterByCategory(customInputs, orgCategoryId) {
-    let filteredCustomInputs = [];
-    customInputs.forEach(customInput => {
-      if (customInput.org_category_ids) {
-        customInput.org_category_ids.some(categoryId => {
-          if (categoryId === orgCategoryId) {
-            filteredCustomInputs.push(customInput);
-          }
-        });
-      } else {
-        filteredCustomInputs.push(customInput);
-      }
-    });
-    return filteredCustomInputs;
+    return customInputs
+      .filter(
+        customInput => customInput.org_category_ids ?
+          customInput.org_category_ids && customInput.org_category_ids.some(id => id === orgCategoryId) : true
+      ).sort();
   }
 
   // TODO: Siva - eventually this should be replaced by rank

@@ -9,6 +9,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { ViewTeamReportEtxnCardComponent } from './view-team-report-etxn-card/view-team-report-etxn-card.component';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { SendBackComponent } from './send-back/send-back.component';
+import { ApproveReportComponent } from './approve-report/approve-report.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   imports: [
@@ -19,11 +23,15 @@ import { SharedModule } from 'src/app/shared/shared.module';
     MatIconModule,
     MatButtonModule,
     MatRippleModule,
-    SharedModule
+    SharedModule,
+    MatFormFieldModule
   ],
   declarations: [
     ViewTeamReportPage,
-    ViewTeamReportEtxnCardComponent
+    ViewTeamReportEtxnCardComponent,
+    ShareReportComponent,
+    SendBackComponent,
+    ApproveReportComponent
   ]
 })
 export class ViewTeamReportPageModule {}

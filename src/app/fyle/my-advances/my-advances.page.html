@@ -1,11 +1,15 @@
 <ion-header class="ion-no-border">
   <div class="my-advances--header">
-    <ion-toolbar class="my-advances--header-toolbar">
-      <ion-buttons mode="md" slot="start">
-        <ion-menu-button class="my-advances--menubutton" auto-hide="false" ></ion-menu-button>
+    <ion-toolbar class="my-advances--toolbar-header">
+
+      <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+        <ion-back-button mode="md"></ion-back-button>
       </ion-buttons>
 
-      <ion-title mode="md" class="my-advances--title text-capitalize">My Advances</ion-title>
+      <ion-title mode="md" class="page-title">Advances</ion-title>
     </ion-toolbar>
   </div>
 </ion-header>
@@ -16,21 +20,35 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <div *ngFor="let myAdvancerequest of myAdvancerequests$ | async">
-      <app-my-advances-card [advanceRequest]=myAdvancerequest (advanceClick)="onAdvanceClick($event)"></app-my-advances-card>
-    </div>
+    <ng-container *ngIf="advances$|async as advances">
+      <ng-container *ngIf="advances?.length === 0">
+        <div class="my-advances--zero-state">
+          <app-fy-zero-state [image]="'../../../assets/images/zero-states/expenses.svg'"
+            [header]="'This is the home to all your Advance Requests'"
+            [message]="'Your advance request logs will show up here. Request your first advance to see how it looks.'">
+          </app-fy-zero-state>
+        </div>
 
-    <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
-      <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
-      </ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+        <div class="my-advances--zero-state-action-button-container">
+          <div class="my-advances--zero-state-action-button">
+            Request First Advance
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <div *ngFor="let advances of advances$ | async">
+      <app-my-advances-card [advanceRequest]=advances (advanceClick)="onAdvanceClick($event)">
+      </app-my-advances-card>
+    </div>
 
   </div>
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
-    <ion-button class="my-advances--primary-cta" fill="solid" color="fyle-primary" expand="block">
+  <ion-toolbar mode="md">
+    <ion-button [routerLink]="['/', 'enterprise', 'add_edit_advance_request']" class="my-advances--primary-cta"
+      fill="solid" color="fyle-primary" expand="block">
       REQUEST NEW ADVANCE
     </ion-button>
   </ion-toolbar>

@@ -1,10 +1,10 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header mode="md" >
+  <ion-toolbar mode="md">
     <mat-form-field class="switch-org--form-field" appearance="outline">
       <span class="material-icons switch-org--search-icon" matPrefix>
         search
       </span>
-      <input #searchOrgsInput id="switch-org--search-input" matInput placeholder="Placeholder">
+      <input #searchOrgsInput id="switch-org--search-input" matInput placeholder="Search Organization">
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
@@ -20,7 +20,7 @@
           <ion-row>
             <ion-col size="2">
               <div class="switch-org--org-thumb">
-                {{org.name | slice:0:2 | uppercase}}
+                {{org.name | initials | uppercase}}
               </div>
             </ion-col>
             <ion-col size="10">

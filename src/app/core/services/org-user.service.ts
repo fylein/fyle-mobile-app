@@ -5,9 +5,13 @@ import { ApiService } from './api.service';
 import { User } from '../models/user.model';
 import { switchMap, expand, reduce, tap, concatMap, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { range, of, Observable } from 'rxjs';
+import { range, of, Observable, from, Subject } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { DataTransformService } from './data-transform.service';
+import { StorageService } from './storage.service';
+import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
+
+const orgUsersCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -19,11 +23,19 @@ export class OrgUserService {
     private tokenService: TokenService,
     private apiService: ApiService,
     private authService: AuthService,
-    private dataTransformService: DataTransformService
+    private dataTransformService: DataTransformService,
+    private storageService: StorageService
   ) { }
 
+
   postUser(user: User) {
+    globalCacheBusterNotifier.next();
     return this.apiService.post('/users', user);
+  }
+
+  postOrgUser(orgUser) {
+    globalCacheBusterNotifier.next();
+    return this.apiService.post('/orgusers', orgUser);
   }
 
   markActive() {
@@ -35,6 +47,9 @@ export class OrgUserService {
   }
 
   // TODO: move to v2
+  @Cacheable({
+    cacheBusterObserver: orgUsersCacheBuster$
+  })
   getCompanyEouc(params: { offset: number, limit: number }) {
     return this.apiService.get('/eous/company', {
       params
@@ -59,7 +74,6 @@ export class OrgUserService {
     );
   }
 
-  // TODO: move to v2
   getCompanyEouCount(): Observable<{ count: number }> {
     return this.apiService.get('/eous/company/count').pipe(
       map(
@@ -80,7 +94,7 @@ export class OrgUserService {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map(delegatedAccounts => {
         delegatedAccounts = delegatedAccounts.map((delegatedAccount) => {
-          return this.dataTransformService.unflatten(delegatedAccount)
+          return this.dataTransformService.unflatten(delegatedAccount);
         });
 
         return delegatedAccounts;
@@ -93,7 +107,26 @@ export class OrgUserService {
       return status.indexOf(eou.ou.status) === -1;
     });
     return eousFiltered;
+  }
 
+  filterByRole(eous: ExtendedOrgUser[], role: string) {
+    const eousFiltered = eous.filter((eou) => {
+      return eou.ou.roles.indexOf(role);
+    });
+
+    return eousFiltered;
+  }
+
+  filterByRoles(eous: ExtendedOrgUser[], role) {
+    const filteredEous = eous.filter(eou => {
+      return role.some(userRole => {
+        if (eou.ou.roles.indexOf(userRole) > -1) {
+          return true;
+        }
+      });
+    });
+
+    return filteredEous;
   }
 
   switchToDelegator(orgUser) {
@@ -117,4 +150,11 @@ export class OrgUserService {
     return !!accessToken.proxy_org_user_id;
   }
 
+  verifyMobile() {
+    return this.apiService.post('/orgusers/verify_mobile');
+  }
+
+  checkMobileVerificationCode(otp) {
+    return this.apiService.post('/orgusers/check_mobile_verification_code', otp);
+  }
 }

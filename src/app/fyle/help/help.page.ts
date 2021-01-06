@@ -16,7 +16,6 @@ const { Browser } =  Plugins;
 })
 export class HelpPage implements OnInit {
 
-  pageTitle = 'Help';
   orgAdmins;
 
   constructor(
@@ -48,10 +47,6 @@ export class HelpPage implements OnInit {
 
   openCaptureEmailReceiptsDialog() {
     this.presentSupportModal('capture_email');
-  }
-
-  openManageGoIbiboBookingsDialog() {
-    this.presentSupportModal('goibibo_support');
   }
 
   async presentSupportModal(dialogType) {

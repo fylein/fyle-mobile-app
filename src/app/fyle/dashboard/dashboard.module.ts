@@ -12,6 +12,8 @@ import { EnterpriseDashboardCardComponent } from './enterprise-dashboard-card/en
 import { EnterpriseDashboardFooterComponent } from './enterprise-dashboard-footer/enterprise-dashboard-footer.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
+import { MatIconModule } from '@angular/material/icon';
+import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 
 @NgModule({
   imports: [
@@ -20,9 +22,15 @@ import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
     IonicModule,
     DashboardPageRoutingModule,
     MatExpansionModule,
-    SharedModule
+    SharedModule,
+    MatIconModule
   ],
-  declarations: [DashboardPage, EnterpriseDashboardCardComponent, EnterpriseDashboardFooterComponent],
+  declarations: [
+    DashboardPage,
+    EnterpriseDashboardCardComponent,
+    EnterpriseDashboardFooterComponent,
+    GetStartedPopupComponent
+  ],
   providers: [
   	DashboardService
   ]

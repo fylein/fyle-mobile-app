@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, from, Subject } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -11,6 +11,8 @@ import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
+import { PopoverController } from '@ionic/angular';
+import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 
 @Component({
   selector: 'app-view-team-per-diem',
@@ -28,6 +30,8 @@ export class ViewTeamPerDiemPage implements OnInit {
   policyViloations$: Observable<any>;
   canFlagOrUnflag$: Observable<any>;
   canDelete$: Observable<any>;
+  reportId;
+  updateFlag$ = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -37,7 +41,9 @@ export class ViewTeamPerDiemPage implements OnInit {
     private customInputsService: CustomInputsService,
     private perDiemService: PerDiemService,
     private policyService: PolicyService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private router: Router,
+    private popoverController: PopoverController,
   ) { }
 
   isNumber(val) {
@@ -45,19 +51,33 @@ export class ViewTeamPerDiemPage implements OnInit {
   }
 
   goBack() {
-    // Todo: All logic of redirect to previous page
+    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
+  }
+
+  onUpdateFlag(event) {
+    if (event) {
+      this.updateFlag$.next();
+    }
   }
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    this.extendedPerDiem$ = from(this.loaderService.showLoader()).pipe(
+    this.extendedPerDiem$ = this.updateFlag$.pipe(
       switchMap(() => {
-        return this.transactionService.getExpenseV2(id);
+        return from(this.loaderService.showLoader()).pipe(
+          switchMap(() => {
+            return this.transactionService.getExpenseV2(id);
+          })
+        );
       }),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay()
     );
+
+    this.extendedPerDiem$.subscribe(res => {
+      this.reportId = res.tx_report_id;
+    });
 
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay()
@@ -118,6 +138,26 @@ export class ViewTeamPerDiemPage implements OnInit {
       })
     );
 
+    this.updateFlag$.next();
+  }
+
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const popover = await this.popoverController.create({
+      component: RemoveExpenseReportComponent,
+      componentProps: {
+        etxn
+      },
+      cssClass: 'dialog-popover'
+    });
+
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
+    }
   }
 
   ngOnInit() {

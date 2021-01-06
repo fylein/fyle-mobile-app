@@ -1,12 +1,12 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header mode="md" >
+  <ion-toolbar mode="md" class="trip-request--header">
     <ion-buttons slot="end" mode="md">
       <ion-button mode="md" class="trip-request--header_close-button" [routerLink]="['/','enterprise','team_trips']"
         routerLinkActive="router-link-active">
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="trip-request--header-title text-capitalize">View Trip Request</ion-title>
+    <ion-title mode="md" class="page-title">View Trip Request</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -29,8 +29,8 @@
           <div class="trip-request--element-label">
             State
           </div>
-          <div class="trip-request--element-value">
-            {{tripRequest.trp_state}}
+          <div class="trip-request--element-value text-capitalize">
+            {{tripRequest.trp_state | snakeCaseToSpaceCase | lowercase}}
             <!--TODO: Add proper formatting -->
           </div>
         </div>
@@ -76,8 +76,8 @@
                 {{activeApproval.approver_name}}
               </span>
 
-              <span>
-                ({{activeApproval.state}})
+              <span class="text-capitalize">
+                ({{activeApproval.state | tripState}})
               </span>
 
             </span>
@@ -87,8 +87,8 @@
           <div class="trip-request--element-label">
             Trip Type
           </div>
-          <div class="trip-request--element-value">
-            {{tripRequest.trp_trip_type}}
+          <div class="trip-request--element-value text-capitalize">
+            {{tripRequest.trp_trip_type | snakeCaseToSpaceCase | lowercase}}
           </div>
         </div>
         <div class="trip-request--element">
@@ -125,82 +125,106 @@
         </div>
       </div>
 
-      <div class="trip-request--content-header">
-        Additional Information
-      </div>
+      <ng-container *ngIf="tripRequest.custom_field_values.length > 0">
+        <div class="trip-request--content-header">
+          Additional Information
+        </div>
+        <div class="trip-request--card">
+          <div *ngFor="let customField of tripRequest.custom_field_values" class="trip-request--element">
+            <div class="trip-request--element-label">
+              {{customField.name}}
+            </div>
+            <div *ngIf="customField.type === 'DATE'" class="trip-request--element-value">
+              {{customField.value | date: 'dd, MMM yyyy'}}
+            </div>
+            <div *ngIf="customField.type === 'BOOLEAN'" class="trip-request--element-value">
+              {{customField.value ? 'Yes' : 'No'}}
+            </div>
+            <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'">
+              {{customField?.value?.display || customField.value || '-'}}
+            </div>
+
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="transportationRequests$|async as transportationRequests">
+        <ng-container *ngIf="transportationRequests.length">
+          <div class="trip-request--card" matRipple>
+            <div class="trip-request--element trip-request--element__single"
+              (click)="openTransportationRequests()">
+              <div class="trip-request--element-label">
+                Transportation
+              </div>
+              <div class="trip-request--element-value">
+                {{transportationRequests.length}} Request
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="hotelRequests$|async as hotelRequests">
+        <ng-container *ngIf="hotelRequests.length">
+          <div class="trip-request--card" matRipple>
+            <div class="trip-request--element trip-request--element__single" (click)="openHotelRequests()">
+              <div class="trip-request--element-label">
+                Hotel
+              </div>
+              <div class="trip-request--element-value">
+                {{hotelRequests.length}} Request
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="transformedAdvanceRequests$|async as advanceRequests">
+        <ng-container *ngIf="advanceRequests.length">
+          <div class="trip-request--card" matRipple>
+            <div class="trip-request--element trip-request--element__single"
+              (click)="openAdvanceRequests()">
+              <div class="trip-request--element-label">
+                Advance
+              </div>
+              <div class="trip-request--element-value">
+                {{advanceRequests.length}} Request
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+
+      <ng-container *ngIf="activeApprovals$|async as activeApprovals">
+        <ng-container *ngIf="actions$|async as actions">
+          <app-fy-apporver
+            *ngIf="actions.can_add_approver"
+            [approverList]="getApproverEmails(activeApprovals)"
+            [id]="tripRequest.trp_id"
+            [from]="'TRIP_REQUEST'"
+            [title]="'Add Approvers'"
+            (notify)='onUpdateApprover($event)'>
+          </app-fy-apporver>
+        </ng-container>
+      </ng-container>
+
       <div class="trip-request--card">
-        <div *ngFor="let customField of tripRequest.custom_field_values" class="trip-request--element">
-          <div class="trip-request--element-label">
-            {{customField.name}}
-          </div>
-          <div *ngIf="customField.type === 'DATE'" class="trip-request--element-value">
-            {{customField.value | date: 'dd, MMM yyyy'}}
-          </div>
-          <div *ngIf="customField.type === 'BOOLEAN'" class="trip-request--element-value">
-            {{customField.value ? 'Yes' : 'No'}}
-          </div>
-          <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'">
-            {{customField?.value?.display || customField.value || '-'}}
-          </div>
-
-        </div>
-      </div>
-
-      <div class="trip-request--card" matRipple *ngIf="transportationRequests$|async as transportationRequests">
-        <div class="trip-request--element trip-request--element__single"
-          (click)="openTransportationRequests(transportationRequests)">
-          <div class="trip-request--element-label">
-            Transportation
-          </div>
-          <div class="trip-request--element-value">
-            {{transportationRequests.length}} Request
-          </div>
-        </div>
-      </div>
-
-      <div class="trip-request--card" matRipple *ngIf="hotelRequests$|async as hotelRequests">
-        <div class="trip-request--element trip-request--element__single" (click)="openHotelRequests(hotelRequests)">
-          <div class="trip-request--element-label">
-            Hotel
-          </div>
-          <div class="trip-request--element-value">
-            {{hotelRequests.length}} Request
-          </div>
-        </div>
-      </div>
-
-      <div class="trip-request--card" matRipple>
-        <div class="trip-request--element trip-request--element__single"
-          *ngIf="transformedAdvanceRequests$|async as advanceRequests" (click)="openAdvanceRequests(advanceRequests)">
-          <div class="trip-request--element-label">
-            Advance
-          </div>
-          <div class="trip-request--element-value">
-            {{advanceRequests.length}} Request
-          </div>
-        </div>
-      </div>
-
-      <div class="trip-request--card" (click)="openApproverDialog()">
         <div class="trip-request--card-action">
-          <mat-icon class="trip-request--card-action-icon">add_circle</mat-icon>
-          <div class="trip-request--card-action-text trip-request--card-action-text__comment">Add Approvers</div>
-        </div>
-      </div>
-      <div class="trip-request--card">
-        <div class="trip-request--card-action">
-          <mat-icon class="trip-request--card-action-icon">chat_bubble</mat-icon>
-          <div class="trip-request--card-action-text trip-request--card-action-text__comment">Comments</div>
+          <div class="trip-request--element trip-request--element_action">
+            <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments"></app-comments>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar>
-    <ion-button class="trip-request--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
-      Trip Action
+<ion-footer *ngIf="canDoAction$|async">
+  <ion-toolbar mode="md">
+    <ion-button (click)="openActionBlock()" class="trip-request--primary-cta flat-button" fill="solid"
+      color="fyle-primary" expand="block">
+      Trip Actions
     </ion-button>
   </ion-toolbar>
 </ion-footer>

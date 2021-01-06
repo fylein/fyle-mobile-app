@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
+import {Cacheable} from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,7 @@ export class TripRequestCustomFieldsService {
     }).sort(this.sortCustomFieldsByType);
   }
 
+  // @Cacheable()
   getAll() {
     return this.apiService.get('/trip_request_custom_fields');
   }

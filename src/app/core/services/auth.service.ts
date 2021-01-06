@@ -27,12 +27,14 @@ export class AuthService {
 
   refreshEou(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(
-      map(data => this.dataTransformService.unflatten(data)),
-      tap(
-        async (data) => {
-          await this.storageService.set('user', data);
-        }
-      )
+      switchMap(data => {
+        const extendedOrgUser = this.dataTransformService.unflatten(data);
+        return from(this.storageService.set('user', extendedOrgUser)).pipe(
+          map(() =>  {
+            return extendedOrgUser as ExtendedOrgUser;
+          })
+        );
+      }),
     );
   }
 
@@ -50,8 +52,8 @@ export class AuthService {
         return that.apiService.post('/auth/access_token', {
           refresh_token: token
         }).pipe(
-          tap(async (res) => {
-            await that.tokenService.setAccessToken(res.access_token);
+          switchMap((res) => {
+            return from(that.tokenService.setAccessToken(res.access_token));
           }),
           switchMap(() => {
             return that.refreshEou();

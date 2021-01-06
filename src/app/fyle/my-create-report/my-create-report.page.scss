@@ -1,14 +1,33 @@
+$item-border-color: #e0e0e0;
+$background-color: #fff;
+
 .my-create-report {
 
+  &--header {
+    background-color: $background-color;
+    // height: 80px !important;
+    border-bottom: 1px solid $item-border-color;
+
+    &-closebutton{
+      height: 65px;
+    }
+
+    &-title {
+      color: #4a4a4a;
+      font-size: 20px;
+      font-weight: 700;
+    }
+  }
+
   &--container {
-    padding: 0 16px;
+    padding: 16px;
   }
 
   &--report-card {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
     border-radius: 4px;
     margin-bottom: 24px;
-    border: 1px solid #fff;
+    border: 1px solid $background-color;
     padding: 10px;
   }
 
@@ -33,7 +52,7 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
     border-radius: 4px;
     margin-bottom: 24px;
-    border: 1px solid #fff;
+    border: 1px solid $background-color;
     min-height: 100px;
     padding: 10px;
   }
@@ -86,6 +105,12 @@
   }
 
   &--primary-cta {
+    height: 48px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 8px;
+    margin: 14px;
     width: 100%;
   }
 
@@ -94,5 +119,21 @@
     color: #0077EE;
     font-size: 16px;
     margin-top: 8px;
+  }
+
+  &--select-trip {
+    margin: 10px 0;
+  }
+
+  &--text-trip {
+    width: 100%;
+    font-size: 12px;
+    color: #4a4a4a;
+    border: 0;
+  }
+
+  &--non-reimbursable {
+    text-decoration: line-through;
+    color: #ababab;
   }
 }

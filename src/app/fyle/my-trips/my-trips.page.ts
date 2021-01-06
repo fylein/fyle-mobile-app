@@ -5,7 +5,7 @@ import { Observable, Subject, noop, from, concat } from 'rxjs';
 import { map, shareReplay, concatMap, switchMap, scan, finalize } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-my-trips',
@@ -20,22 +20,28 @@ export class MyTripsPage implements OnInit {
   isInfiniteScrollRequired$: Observable<boolean>;
   loadData$: Subject<number> = new Subject();
   currentPageNumber = 1;
+  navigateBack = false;
 
   constructor(
     private tripRequestsService: TripRequestsService,
     private loaderService: LoaderService,
     private networkService: NetworkService,
+    private activatedRoute: ActivatedRoute,
     private router: Router
   ) { }
 
   ionViewWillEnter() {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.currentPageNumber = 1;
+
     this.myTripRequests$ = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
             return this.tripRequestsService.getMyTrips({
               offset: (pageNumber - 1) * 10,
-              limit: 10
+              limit: 10,
+              queryParams: { order: 'trp_created_at.desc,trp_id.desc' }
             });
           }),
           finalize(() => {

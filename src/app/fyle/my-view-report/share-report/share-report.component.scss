@@ -1,0 +1,54 @@
+$details-color: #ababab;
+
+.share-report {
+  &--header {
+    letter-spacing: 1.4px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &--title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  &--cancel {
+    color: #0077ee;
+    font-weight: 700;
+  }
+
+  &--details {
+    font-size: 16px;
+    padding: 0 16px;
+    font-weight: 500;
+    color: $details-color;
+  }
+
+  &--form {
+    padding: 0 16px;
+  }
+
+  &--form-input {
+    width: 100%;
+  }
+
+  &--primary-cta {
+    padding: 16px;
+    .mat-button-base {
+      width: 100%;
+      font-weight: 700;
+      min-height: 47px;
+    }
+  }
+
+  &--redirect {
+    text-decoration: none;
+  }
+
+  &--validation {
+    color: red;
+    margin-left: 17px;
+    margin-top: 8px;
+  }
+}

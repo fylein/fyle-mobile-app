@@ -15,7 +15,7 @@
     </div>
     <form [formGroup]="fg">
       <mat-form-field class="sign-in--form-field" appearance="outline" *ngIf="!emailSet">
-        <input id="sign-in--email" formControlName="email" type="email" matInput placeholder="Work Email">
+        <input id="sign-in--email" (keyup.enter)="checkIfEmailExists()" formControlName="email" type="email" matInput placeholder="Work Email">
       </mat-form-field>
       <div *ngIf="emailSet">
         <ion-grid>
@@ -35,7 +35,7 @@
       </div>
 
       <mat-form-field class="sign-in--form-field" appearance="outline" *ngIf="emailSet">
-        <input id="sign-in--password" formControlName="password" [type]="hide ? 'text': 'password'" matInput
+        <input id="sign-in--password" (keyup.enter)="signInUser()" formControlName="password" [type]="hide ? 'text': 'password'" matInput
           placeholder="Password">
         <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
           {{hide ? 'visibility_off' : 'visibility'}}
@@ -56,14 +56,14 @@
       </button>
     </div>
     <div *ngIf="emailSet" class="sign-in--redirect">
-      <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password</a>
+      <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
     </div>
     <div *ngIf="!emailSet" class="sign-in--secondary-cta">
       <button mat-flat-button color="accent" (click)="googleSignIn()">SIGN IN WITH GOOGLE</button>
     </div>
     <div class="sign-in--redirect">
       Don't have an account?
-      <a [routerLink]="['/', 'auth', 'sign-up']">Sign Up</a>
+      <a [routerLink]="['/', 'auth', 'sign_up']"> Sign Up</a>
     </div>
   </div>
 </ion-content>

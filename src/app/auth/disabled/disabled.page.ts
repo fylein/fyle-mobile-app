@@ -19,6 +19,6 @@ export class DisabledPage implements OnInit {
 
   onGotoSignInClick() {
     this.userEventService.logout();
-    this.router.navigate(['/', 'auth', 'sign-in']);
+    this.router.navigate(['/', 'auth', 'sign_in']);
   }
 }

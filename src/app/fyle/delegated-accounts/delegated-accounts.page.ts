@@ -5,6 +5,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, finalize, catchError } from 'rxjs/operators';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -27,6 +28,7 @@ export class DelegatedAccountsPage implements OnInit {
   switchToDelegatee(eou) {
     from(this.loaderService.showLoader('Switching Account')).pipe(
       concatMap(() => {
+        // Todo: CacheService.clearAll()
         return this.orgUserService.switchToDelegator(eou.ou);
       }),
       finalize(async () => {
@@ -37,8 +39,10 @@ export class DelegatedAccountsPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(){
+  }
 
+  ionViewWillEnter() {
     const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn;
 
     if (switchToOwn) {
@@ -50,6 +54,7 @@ export class DelegatedAccountsPage implements OnInit {
           await this.loaderService.hideLoader();
         })
       ).subscribe(() => {
+        globalCacheBusterNotifier.next();
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       });
     } else {

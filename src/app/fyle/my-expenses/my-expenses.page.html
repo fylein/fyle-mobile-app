@@ -1,23 +1,41 @@
-<ion-header>
+<ion-header mode="md">
   <ion-toolbar mode="md" class="my-expenses--toolbar-header">
-    <ion-buttons mode="md" slot="start">
+    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>
-      My Expenses
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="page-title">
+      <ng-container *ngIf="baseState=== 'all'">
+        My Expenses
+      </ng-container>
+      <ng-container *ngIf="baseState=== 'draft'">
+        Review Expenses
+      </ng-container>
     </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <ion-button color="primary" (click)="switchSelectionMode()" class="text-capitalize">
+        <span *ngIf="selectionMode; else setSelectionMode">
+          Cancel
+        </span>
+        <ng-template #setSelectionMode>
+          Select
+        </ng-template>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <div class="my-expenses--state">
       <div matRipple class="my-expenses--state-pill my-expenses--state-pill__left"
-        [ngClass]="{'my-expenses--state-pill__selected': this.baseState === 'all'}" (click)="setState('all')">
+        [ngClass]="{'my-expenses--state-pill__selected': baseState === 'all'}" (click)="setState('all')">
         All Expenses
-        <span *ngIf="allExpensesCount$|async as allExpensesCount">
+        <span *ngIf="allExpenseCountHeader$|async as allExpensesCount">
           ({{allExpensesCount}})
         </span>
       </div>
       <div matRipple class="my-expenses--state-pill my-expenses--state-pill__right"
-        [ngClass]="{'my-expenses--state-pill__selected': this.baseState === 'draft'}" (click)="setState('draft')">
+        [ngClass]="{'my-expenses--state-pill__selected': baseState === 'draft'}" (click)="setState('draft')">
         Draft Expenses
         <span *ngIf="draftExpensesCount$|async as draftExpensesCount">
           ({{draftExpensesCount}})
@@ -25,27 +43,49 @@
       </div>
     </div>
   </ion-toolbar>
-  <ion-toolbar>
+  <ion-toolbar mode="md">
     <div class="my-expenses--toolbar">
-      <mat-form-field class="mat-form-field-no-padding my-expenses--simple-search" appearance="outline">
-        <mat-icon matPrefix>search</mat-icon>
-        <input #simpleSearchInput matInput placeholder="Search">
-      </mat-form-field>
-      <ion-buttons mode="md" slot="end">
-        <button mat-icon-button class="my-expenses--filter-button" (click)="openFilters()">
-          <mat-icon>
-            filter_list
-          </mat-icon>
-        </button>
-        <button mat-icon-button class="my-expenses--filter-button" (click)="openSort()">
-          <mat-icon>
-            sort
-          </mat-icon>
-        </button>
+      <div class="expense-report-search">
+        <mat-form-field class="mat-form-field-no-padding my-expenses--simple-search" appearance="outline">
+          <div class="my-expenses--simple-search-block">
+            <mat-icon matPrefix svgIcon="search" class="my-expenses--simple-search-icon"></mat-icon>
+            <input #simpleSearchInput matInput placeholder="Search" class="my-expenses--simple-search-input" [(ngModel)]="simpleSearchText">
+            <button mat-button *ngIf="simpleSearchText" matSuffix mat-icon-button aria-label="Clear" class="my-expenses--simple-search-close" (click)="clearText()">
+              <mat-icon class="my-expenses--simple-search-icon">close</mat-icon>
+            </button>
+          </div>
+        </mat-form-field>
+      </div>
+      <div>
+        <ion-buttons mode="md" slot="end">
+          <button mat-icon-button class="my-expenses--filter-button" (click)="openSort()">
+            <mat-icon class="my-expenses--filter-button-icon" *ngIf="filters?.sortDir === 'asc'" svgIcon="fy-sort-ascending"></mat-icon>
+            <mat-icon class="my-expenses--filter-button-icon" *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'" svgIcon="fy-sort-descending"></mat-icon>
+          </button>
+          <button mat-icon-button class="my-expenses--filter-button"
+            [ngClass]="{'my-expenses--filter-button__applied': filters?.state || filters?.date}" (click)="openFilters()">
+            <mat-icon class="my-expenses--filter-button-icon" svgIcon="fy-filter"></mat-icon>
+          </button>
       </ion-buttons>
+      </div>
     </div>
     <div class="my-expenses--filters" *ngIf="filters?.state || filters?.date">
-      <div>Filters are applied</div>
+      <div>Filtered by
+        <span [ngSwitch]="filters?.state">
+          <span *ngSwitchCase="'READY_TO_REPORT'">Ready to Report</span>
+          <span *ngSwitchCase="'POLICY_VIOLATED'">Policy Violated</span>
+          <span *ngSwitchCase="'CANNOT_REPORT'">Cannot Report</span>
+          <span *ngSwitchCase="'NEEDS_RECEIPT'">Needs Receipt</span>
+          <span *ngSwitchDefault></span>
+        </span>
+        <span *ngIf="filters?.state && filters?.date">,</span>
+        <span [ngSwitch]="filters?.date">
+          <span *ngSwitchCase="'THISMONTH'">This Month</span>
+          <span *ngSwitchCase="'LASTMONTH'">Last Month</span>
+          <span *ngSwitchCase="'CUSTOMDATE'">Custom Date</span>
+          <span *ngSwitchDefault></span>
+        </span>
+      </div>
       <mat-icon (click)="clearFilters()">
         cancel
       </mat-icon>
@@ -54,11 +94,11 @@
 </ion-header>
 
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+  <ion-refresher *ngIf="isConnected$|async" slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="(count$ | async) === 0" class="my-expenses--zero-state">
+  <div *ngIf="((count$ | async) === 0) && isConnected$|async" class="my-expenses--zero-state">
     <img class="my-expenses--zero-state-img" src="../../../assets/images/zero-states/expenses.svg"
       alt="Create First Expenses">
     <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
@@ -75,40 +115,115 @@
       You dont have any expenses for the selected filter(s)
     </div>
   </div>
-  <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-    <!-- <app-my-expenses-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
-      (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)"></app-my-expenses-card> -->
-    <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
-      (deleteTransaction)="onDeleteExpenseClick($event)" (addTransactionToNewReport)="onAddTransactionToNewReport($event, expense.tx_id)"  (addTransactionToReport)="onAddTransactionToReport($event)">
+  <ng-container *ngIf="syncing">
+    <ng-container *ngIf="pendingTransactions.length > 0">
+      <div class="my-expenses--syncing">
+        <span class="my-expenses--syncing-text">Sync in progress</span>
+        <img class="my-expenses--syncing-icon" src="../../../assets/svg/dots.svg" alt="">
+      </div>
+    </ng-container>
+  </ng-container>
+
+
+  <div class="my-expenses--offline-message" *ngIf="pendingTransactions.length > 0">
+    <div>
+      <div class="my-expenses--offline-header">
+        Offline Expenses
+      </div>
+      <div class="my-expenses--offline-sub-header">
+        Expenses will be synced when connected to the internet
+      </div>
+    </div>
+  </div>
+
+  <div *ngFor="let expense of pendingTransactions as list; let i = index">
+    <app-my-expenses-card [canOpenCard]="false" [expense]="expense" [prevExpense]="list[i-1]"
+      [dateComparatorProp]="'tx_txn_dt'" [skipDate]="true" (deleteTransaction)="onDeleteExpenseClick($event)"
+      (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
+      (addTransactionToReport)="onAddTransactionToReport($event)">
     </app-my-expenses-card>
   </div>
 
-  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
-    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+  <ng-container *ngIf="isConnected$|async; else isNotConnected">
+    <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
+      <app-my-expenses-card [expense]="expense" [prevExpense]="list[i-1]" [dateComparatorProp]="'tx_txn_dt'"
+        [baseState]="baseState" [selectionMode]="selectionMode" [selectedElements]="selectedElements"
+        (deleteTransaction)="onDeleteExpenseClick($event)"
+        (addTransactionToNewReport)="onAddTransactionToNewReport($event)"
+        (addTransactionToReport)="onAddTransactionToReport($event)" (goToTransaction)="goToTransaction($event)"
+        (cardClickedForSelection)="selectExpense($event)">
+      </app-my-expenses-card>
+    </div>
+
+    <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+      <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </ng-container>
+  <ng-template #isNotConnected>
+    <app-fy-zero-state [image]="'../../../assets/images/zero-states/offline.svg'"
+      [header]="'You\'re not connected to internet'"
+      [message]="'You can still add expenses, we\'ll sync them to your account once you\'re connected to the internet again.'"
+      [submessage]="'You can\'t access existing expenses or reports without internet connectivity.'">
+    </app-fy-zero-state>
+  </ng-template>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar *ngIf="this.baseState === 'all'">
-    <div class="my-expenses--stats">
-      <div class="my-expenses--amount" *ngIf="expensesAmountStats$|async as expensesAmountStats">
-        <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span> {{expensesAmountStats}}
+<ion-footer mode="md">
+  <div class="my-expenses--footer-container">
+    <ng-container *ngIf="allExpensesCount$|async as allExpensesCount">
+      <div *ngIf="baseState === 'all' && allExpensesCount && filters?.state !== 'NEEDS_RECEIPT'">
+        <div class="my-expenses--stats">
+          <div class="my-expenses--amount">
+            <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span>
+            {{(expensesAmountStats$|async|number:'1.2')}}
+          </div>
+          <div class="my-expenses--count" *ngIf="allExpensesCount as allExpensesCount">
+            across {{allExpensesCount}} unreported expenses
+          </div>
+        </div>
       </div>
-      <div class="my-expenses--count" *ngIf="allExpensesCount$|async as allExpensesCount">
-        across {{allExpensesCount}} unreported expenses
+    </ng-container>
+
+    <div *ngIf="filters?.state === 'NEEDS_RECEIPT'">
+      <div class="my-expenses--needs-receipt">
+        <div class="my-expenses--needs-receipt-header">
+          You have {{count$|async}} expense(s) without receipt
+        </div>
+        <div class="my-expenses--needs-receipt-sub-header">
+          Upload all reimbursable receipt here and we will classify and attach them with the associated transaction.
+        </div>
       </div>
     </div>
-  </ion-toolbar>
-  <ion-toolbar *ngIf="this.baseState === 'all'">
-    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      (click)="addNewExpense()">
-      ADD NEW EXPENSE
-    </ion-button>
-  </ion-toolbar>
-  <ion-toolbar *ngIf="this.baseState === 'draft'">
-    <ion-button class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
-      START REVIEW
-    </ion-button>
-  </ion-toolbar>
+    <ion-toolbar mode="md" *ngIf="baseState === 'all' && !selectionMode">
+      <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+        (click)="addNewExpense()">
+        ADD NEW EXPENSE
+      </ion-button>
+    </ion-toolbar>
+    <ion-toolbar mode="md" *ngIf="baseState === 'draft'">
+      <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+        (click)="openReviewExpenses()">
+        START REVIEW
+      </ion-button>
+    </ion-toolbar>
+    <ion-toolbar mode="md" *ngIf="baseState === 'all' && selectionMode && selectedElements.length === 0"
+      (click)="openCreateReport()">
+      <ion-button mode="md" class="my-expenses--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+        CREATE REPORT
+      </ion-button>
+    </ion-toolbar>
+    <ion-toolbar mode="md" *ngIf="baseState === 'all' && selectionMode && selectedElements.length > 0">
+      <div class="my-expenses--cta-container">
+        <ion-button mode="md" class="my-expenses--primary-cta my-expenses--selected-expense-primary-cta flat-button" fill="solid" color="fyle-primary"
+          (click)="openCreateReportWithSelectedIds()">
+          CREATE REPORT
+        </ion-button>
+        <ion-button mode="md" class="my-expenses--primary-cta" fill="outline" color="fyle-primary"
+          (click)="openReviewExpenses()">
+          START REVIEW
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </div>
 </ion-footer>

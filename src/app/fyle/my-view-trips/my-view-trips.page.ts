@@ -16,11 +16,12 @@ import { TrpTravellerDetail } from 'src/app/core/models/trip_traveller_detail.mo
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { AlertController, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { TransportationRequestsComponent } from './transportation-requests/transportation-requests.component';
 import { HotelRequestsComponent } from './hotel-requests/hotel-requests.component';
 import { AdvanceRequestsComponent } from './advance-requests/advance-requests.component';
 import { PullBackTripComponent } from './pull-back-trip/pull-back-trip.component';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-my-view-trips',
@@ -65,36 +66,29 @@ export class MyViewTripsPage implements OnInit {
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private transportationRequestsService: TransportationRequestsService,
     private transactionService: TransactionService,
-    public alertController: AlertController,
     private router: Router,
     private modalController: ModalController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private popupService: PopupService
   ) { }
 
 
   async deleteTrip() {
     const id = this.activatedRoute.snapshot.params.id;
 
-    const alert = await this.alertController.create({
-      header: 'Confirm!',
-      message: 'Are you sure you want to delete this trip',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            this.tripRequestsService.delete(id).subscribe(() => {
-              this.router.navigate(['/', 'enterprise', 'my_trips']);
-            });
-          }
-        }
-      ]
+    const popupResults = await this.popupService.showPopup({
+      header: 'Confirm',
+      message: 'Are you sure you want to delete this trip request?',
+      primaryCta: {
+        text: 'OK'
+      }
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      this.tripRequestsService.delete(id).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      });
+    }
   }
 
   getTripRequestCustomFields(allTripRequestCustomFields, tripRequest: ExtendedTripRequest, requestType, requestObj) {
@@ -186,7 +180,7 @@ export class MyViewTripsPage implements OnInit {
 
     if (eTransportationRequest.tr.preferred_timing) {
       eTransportationRequest.tr.preferred_timing_formatted
-        = preferredTimings.filter(timing => timing.id === eTransportationRequest.tr.preferred_timing)[0].name;
+        = preferredTimings.filter(timing => timing.value === eTransportationRequest.tr.preferred_timing);
     }
 
     return forkJoin({
@@ -207,6 +201,10 @@ export class MyViewTripsPage implements OnInit {
         return eTransportationRequest;
       })
     );
+  }
+
+  editTrip() {
+    this.router.navigate(['/', 'enterprise', 'my_add_edit_trip', {id: this.activatedRoute.snapshot.params.id}]);
   }
 
   async pullBack() {
@@ -244,30 +242,25 @@ export class MyViewTripsPage implements OnInit {
 
   async closeTrip() {
     const id = this.activatedRoute.snapshot.params.id;
-    const alert = await this.alertController.create({
-      header: 'Close Trip!',
+
+    const popupResults = await this.popupService.showPopup({
+      header: 'Close Trip',
       message: 'Are you sure you want to close this trip?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: noop
-        }, {
-          text: 'Okay',
-          handler: () => {
-            from(this.loaderService.showLoader()).pipe(
-              switchMap(() => {
-                return this.tripRequestsService.closeTrip(id);
-              }),
-              finalize(() => from(this.loaderService.hideLoader()))
-            ).subscribe(noop);
-          }
-        }
-      ]
+      primaryCta: {
+        text: 'OK'
+      }
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.tripRequestsService.closeTrip(id);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
+      });
+    }
   }
 
   ionViewWillEnter() {
@@ -287,7 +280,7 @@ export class MyViewTripsPage implements OnInit {
     this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe(shareReplay());
     this.actions$ = this.tripRequestsService.getActions(id).pipe(shareReplay());
     this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay());
-    this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay());
+    this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll();
 
     this.activeApprovals$ = this.approvals$.pipe(
       map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
@@ -302,25 +295,15 @@ export class MyViewTripsPage implements OnInit {
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
-            return [location.from_city.city, location.to_city.city];
+            return [location.from_city.city ? location.from_city.city : location.from_city.display,
+              location.to_city.city ? location.to_city.city : location.to_city.display];
           }
 
-          return location.from_city.city;
+          return location.from_city.city ? location.from_city.city : location.from_city.display;
         }),
         travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details)
       })
     ));
-
-    // this.transformedTripRequests$ = forkJoin({
-    //   tripRequest: this.tripRequest$,
-    //   allTripRequestCustomFields: this.allTripRequestCustomFields$
-    // }).pipe(
-    //   tap(console.log),
-    //   map(({ tripRequest, allTripRequestCustomFields }) => {
-    //     return this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest);
-    //   }),
-    //   tap(console.log)
-    // );
 
     this.approvers$ = this.actions$.pipe(
       filter(actions => actions.can_add_approver),

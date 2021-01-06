@@ -1,68 +1,72 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
-import { pipe, forkJoin } from 'rxjs';
-import { AlertController } from '@ionic/angular';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-enterprise-dashboard-footer',
   templateUrl: './enterprise-dashboard-footer.component.html',
   styleUrls: ['./enterprise-dashboard-footer.component.scss'],
 })
-export class EnterpriseDashboardFooterComponent implements OnInit {
+export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
 
   @Input() dashboardList: any[];
+
   ctaList: any[];
-  orgUserSettings: any;
-  orgSettings: any;
   canCreateExpense: boolean; // no idea why this variable is used
   gridSize: number;
 
   constructor(
     private offlineService: OfflineService,
     private dashboardService: DashboardService,
-    private alertController: AlertController
+    private router: Router
   ) { }
+  
 
-
-  setIconList() {
-    const isInstaFyleEnabled = this.orgUserSettings ? this.orgUserSettings.insta_fyle_settings.enabled : false;
-    const isBulkFyleEnabled = this.orgUserSettings ? this.orgUserSettings.bulk_fyle_settings.enabled : false;
+  async setIconList() {
+    const orgSettings = await this.offlineService.getOrgSettings().toPromise();
+    const orgUserSettings = await this.offlineService.getOrgUserSettings().toPromise();
+    const isInstaFyleEnabled = orgUserSettings ? orgUserSettings.insta_fyle_settings.enabled : false;
+    const isBulkFyleEnabled = orgUserSettings ? orgUserSettings.bulk_fyle_settings.enabled : false;
     this.ctaList = [];
 
-    if(this.canCreateExpense) {
+    if (this.canCreateExpense) {
       let isPerDiemEnabled = false;
       let isMileageEnabled = false;
-      if (this.orgSettings && this.orgSettings.per_diem && this.orgSettings.per_diem.enabled) {
+      if (orgSettings && orgSettings.per_diem && orgSettings.per_diem.enabled) {
         isPerDiemEnabled = true;
       }
 
       // Org Settings related
-      if (this.orgSettings && this.orgSettings.mileage && this.orgSettings.mileage.enabled) {
+      if (orgSettings && orgSettings.mileage && orgSettings.mileage.enabled) {
         isMileageEnabled = true;
       }
 
-      let buttonList = {
+      const buttonList = {
         addPerDiem: {
           name: 'Add Per Diem',
           icon: 'add-per-diem',
-          type: 'per_diem'
+          type: 'per_diem',
+          route: ['/', 'enterprise', 'add_edit_per_diem']
         },
         addExpense: {
           name: 'Add Expense',
           icon: 'add-expense',
-          type: 'expense'
+          type: 'expense',
+          route: ['/', 'enterprise', 'add_edit_expense']
         },
         instafyle: {
           name: 'Instafyle',
           icon: 'instafyle',
           expenseType: 'AUTO_FYLE',
-          type: 'auto_fyle'
+          type: 'auto_fyle',
+          route: ['/', 'enterprise', 'camera_overlay']
         },
         addMileage: {
           name: 'Add Mileage',
           icon: 'add-mileage',
-          type: 'mileage'
+          type: 'mileage',
+          route: ['/', 'enterprise', 'add_edit_mileage']
         }
       };
 
@@ -91,80 +95,61 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         }
       }
     } else {
-      var cannotFyleExpenseCTA = {
+      const cannotFyleExpenseCTA = {
         reports: {
           name: 'Create new report',
           icon: 'add-report',
-          type: 'report'
+          type: 'report',
+          route: ['/', 'enterprise', 'my_create_report']
         },
         trips: {
           name: 'Request new trip',
           icon: 'add-trip',
-          type: 'trip'
+          type: 'trip',
+          route: ['/', 'enterprise', 'my_add_edit_trip']
         },
         advances: {
           name: 'Request new advance',
           icon: 'add-advance',
-          type: 'advance'
+          type: 'advance',
+          route: ['/', 'enterprise', 'add_edit_advance_request']
         }
       };
-      this.ctaList = this.dashboardList.filter(function (element) {
+      this.ctaList = this.dashboardList.filter((element) => {
         return (!element.isCollapsed && cannotFyleExpenseCTA[element.title]);
-      }).map(function (element) {
+      }).map((element) => {
         return cannotFyleExpenseCTA[element.title];
       });
     }
     this.gridSize = Math.floor(12 / this.ctaList.length);
   }
 
-  async presentAlert(msg) {
-    const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Coming soon',
-      message: "Redirecting to -> " + msg,
-      buttons: ['Close']
-    });
-
-    await alert.present();
-  }
-
   actionFn(item) {
-    // Redirect to proper page based on params.
-    this.presentAlert(item.type);
+    this.router.navigate(item.route);
   }
 
-  reset (state: string) {
-    this.canCreateExpense= this.dashboardList.some(function (element) {
+  reset(state: string) {
+    this.canCreateExpense = this.dashboardList.some((element) => {
       if (state === 'default') {
         return true;
       } else {
         return (!element.isCollapsed && (element.title === 'expenses' || element.title === 'corporate cards'));
       }
-      
-    });    
+    });
+
     this.setIconList();
   }
 
-  ngOnInit() {
+  ngOnChanges(changes: SimpleChanges): void {
     this.canCreateExpense = true;
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    this.setIconList();
 
-    const primaryData$ = forkJoin({
-      orgUserSettings$,
-      orgSettings$
-    });
-
-    primaryData$.subscribe((res) => {
-      this.orgUserSettings = res.orgUserSettings$;
-      this.orgSettings = res.orgSettings$;
-      this.setIconList();
-    })
-
-    this.dashboardService.getDashBoardState().subscribe((state)=> {
+    this.dashboardService.getDashBoardState().subscribe((state) => {
       this.reset(state);
-    })
-   
+    });
   }
 
+  ngOnInit() {
+
+  }
 }

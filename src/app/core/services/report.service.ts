@@ -3,12 +3,17 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { switchMap, tap, map, concatMap, reduce, shareReplay, finalize, mergeMap } from 'rxjs/operators';
-import { from, range, forkJoin } from 'rxjs';
+import { from, range, forkJoin, of, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
 import { ExtendedReport } from '../models/report.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { isEqual } from 'lodash';
+import { DataTransformService } from './data-transform.service';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+
+const reportsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +28,7 @@ export class ReportService {
     private apiv2Service: ApiV2Service,
     private dateService: DateService,
     private offlineService: OfflineService,
+    private dataTransformService: DataTransformService
   ) { }
 
   getUserReportParams(state: string) {
@@ -213,6 +219,7 @@ export class ReportService {
   getAllExtendedReports(config: Partial<{ order: string, queryParams: any }>) {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap(count => {
+        count = count > 50 ? count / 50 : 1;
         return range(0, count / 50);
       }),
       concatMap(page => {
@@ -239,6 +246,7 @@ export class ReportService {
   }) {
     return this.getTeamReportsCount().pipe(
       switchMap(count => {
+        count = count > 50 ? count / 50 : 1;
         return range(0, count / 50);
       }),
       concatMap(page => {
@@ -251,6 +259,78 @@ export class ReportService {
     );
   }
 
+  addOrderByParams(params, sortOrder?) {
+    if (sortOrder) {
+      return Object.assign(params, { order_by: sortOrder });
+    } else {
+      return params;
+    }
+  }
+
+  searchParamsGenerator(search, sortOrder?) {
+    let params = {};
+
+    params = this.userReportsSearchParamsGenerator(params, search);
+    params = this.addOrderByParams(params, sortOrder);
+
+    return params;
+  }
+
+  userReportsSearchParamsGenerator(params, search) {
+
+    const searchParams = this.getUserReportParams(search.state);
+
+    let dateParams = null;
+    // Filter expenses by date range
+    // dateRange.from and dateRange.to needs to a valid date string (if present)
+    // Example: dateRange.from = 'Jan 1, 2015', dateRange.to = 'Dec 31, 2017'
+
+    if (search.dateRange && !isEqual(search.dateRange, {})) {
+      // TODO: Fix before 2025
+      let fromDate = new Date('Jan 1, 1970');
+      let toDate = new Date('Dec 31, 2025');
+
+      // Set fromDate to Jan 1, 1970 if none specified
+      if (search.dateRange.from) {
+        fromDate = new Date(search.dateRange.from);
+      }
+
+      // Set toDate to Dec 31, 2025 if none specified
+      if (search.dateRange.to) {
+        // Setting time to the end of the day
+        toDate = new Date(new Date(search.dateRange.to).setHours(23, 59, 59, 999));
+      }
+
+      dateParams = {
+        created_at: ['gte:' + (new Date(fromDate)).toISOString(), 'lte:' + (new Date(toDate)).toISOString()]
+      };
+    }
+
+    return Object.assign({}, params, searchParams, dateParams);
+  }
+
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
+  getPaginatedERptc(offset, limit, params) {
+    const data = {
+      params: {
+        offset,
+        limit
+      }
+    };
+
+    Object.keys(params).forEach((param) => {
+      data.params[param] = params[param];
+    });
+
+    return this.apiService.get('/erpts', data).pipe(
+      map((erptcs) => {
+        return erptcs.map(erptc => this.dataTransformService.unflatten(erptc));
+      })
+    );
+  }
+
   getReportPurpose(reportPurpose) {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(
       map(res => {
@@ -259,35 +339,173 @@ export class ReportService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
+  getERpt(rptId) {
+    return this.apiService.get('/erpts/' + rptId).pipe(
+      map(data => {
+        let erpt = this.dataTransformService.unflatten(data);
+        this.dateService.fixDates(erpt.rp);
+        if (erpt && erpt.rp && erpt.rp.created_at) {
+          erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
+        }
+        return erpt;
+      })
+    );
+  }
+
+  getApproversInBulk(rptIds) {
+    if (!rptIds || rptIds.length === 0) {
+      return of([]);
+    }
+
+    return range(0, rptIds.length / 50).pipe(
+      map(page => {
+        return {
+          params: {
+            report_ids: rptIds.slice(50 * page, 50)
+          }
+        };
+      }),
+      concatMap(params => {
+        return this.apiService.get('/reports/approvers', params);
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [])
+    );
+  }
+
+  addApprovers(erpts, approvers) {
+    const reportApprovalsMap = {};
+
+    approvers.forEach((approver) => {
+      if (reportApprovalsMap[approver.report_id]) {
+        reportApprovalsMap[approver.report_id].push(approver);
+      } else {
+        reportApprovalsMap[approver.report_id] = [approver];
+      }
+    });
+
+    return erpts.map((erpt) => {
+      erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
+      return erpt;
+    });
+  }
+
+  getFilteredPendingReports(searchParams) {
+    const params = this.searchParamsGenerator(searchParams);
+
+    return this.getPaginatedERptcCount(params).pipe(
+      switchMap((results) => {
+        // getting all results -> offset = 0, limit = count
+        return this.getPaginatedERptc(0, results.count, params);
+      }),
+      switchMap((erpts) => {
+        const rptIds = erpts.map((erpt) => {
+          return erpt.rp.id;
+        });
+
+        return this.getApproversInBulk(rptIds).pipe(
+          map(approvals => {
+            return this.addApprovers(erpts, approvals).filter(erpt => {
+              return !erpt.rp.approvals || (erpt.rp.approvals && !erpt.rp.approvals.some((approval) => {
+                return approval.state === 'APPROVAL_DONE';
+              }));
+            });
+          })
+        );
+      }),
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  addTransactions(rptId, txnIds) {
+    return this.apiService.post('/reports/' + rptId + '/txns', {
+      ids: txnIds
+    });
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   createDraft(report) {
     return this.apiService.post('/reports', report);
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   create(report, txnIds) {
     return this.createDraft(report).pipe(
       switchMap(newReport => {
-        return this.apiService.post('/reports/' + newReport.id + '/txns', {ids: txnIds}).pipe(
+        return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe(
           switchMap(res => {
-            return this.apiService.post('/reports/' + newReport.id + '/submit')
+            return this.apiService.post('/reports/' + newReport.id + '/submit');
           })
         );
       })
     );
   }
 
-  addTransactions(reportId, txnIds) {
-    return this.apiService.post('/reports/' + reportId + '/txns', {
-      ids: txnIds
-    });
-  }
-
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
   removeTransaction(rptId, txnId, comment?) {
-    var aspy = {
+    const aspy = {
       status: {
         comment
       }
     };
     return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy);
-  };
+  }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  submit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/submit');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  resubmit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/resubmit');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  inquire(rptId, addStatusPayload) {
+    return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  approve(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/approve');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  addApprover(rptId, approverEmail, comment) {
+    var data = {
+      approver_email: approverEmail,
+      comment: comment
+    };
+    return this.apiService.post('/reports/' + rptId + '/approvals', data);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  removeApprover(rptId, approvalId) {
+    return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
+  }
 }

@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="md" >
   <ion-toolbar class="advance-requests--toolbar">
     <ion-title>
       Advance Requests
@@ -15,26 +15,41 @@
   <div *ngFor="let advanceRequest of advanceRequests">
     <div class="advance-requests--card">
       <div (click)="advanceRequest.isOpened = !advanceRequest.isOpened" matRipple class="advance-requests--header">
-        <div class="advance-requests--element-label">
-          Advance Details
+        <div class="advance-requests--advance-number">
+          Advance {{advanceRequest.advance_request_number}}
         </div>
-        <div class="advance-requests--element-value">
-          {{advanceRequest.advance_request_number}}
+        <div class="advance-requests--advance-amount">
+          <ng-container *ngIf="homeCurrency$|async as homeCurrency">
+            Amount:  {{advanceRequest.amount | currency:homeCurrency}}
+          </ng-container>
         </div>
       </div>
-      <div *ngIf="advanceRequest.isOpened">
-        <div class="advance-requests--element">
-          <div class="advance-requests--element-label">Amount</div>
-          <div class="advance-requests--element-value">
-            {{advanceRequest.amount || '_'}}
-            <!-- TODO: Add iso currency -->
+      <div class="advance-requests--content" *ngIf="advanceRequest.isOpened">
+
+        <ng-container *ngIf="homeCurrency$|async as homeCurrency">
+          <div class="advance-requests--element">
+            <div class="advance-requests--element-label">Amount</div>
+            <div class="advance-requests--element-value">
+              <ng-container *ngIf="advanceRequest.amount">
+                {{advanceRequest.amount | currency:homeCurrency}}
+              </ng-container>
+              <ng-container *ngIf="!advanceRequest.amount">_</ng-container>
+            </div>
           </div>
-        </div>
+        </ng-container>
+
 
         <div class="advance-requests--element">
           <div class="advance-requests--element-label">Purpose</div>
           <div class="advance-requests--element-value">
             {{advanceRequest.purpose || '-'}}
+          </div>
+        </div>
+
+        <div class="advance-requests--element">
+          <div class="advance-requests--element-label">Notes</div>
+          <div class="advance-requests--element-value">
+            {{advanceRequest.notes || '-'}}
           </div>
         </div>
 
@@ -59,29 +74,6 @@
           </div>
           <div class="advance-requests--element-value" *ngIf="customField.type === 'DATE'">
             {{customField.value? (customField.value | date: 'dd MMM yyyy') :'-'}}
-          </div>
-        </div>
-
-        <div class="advance-requests--element">
-          <div class="advance-requests--element-label">Notes</div>
-          <div class="advance-requests--element-value">
-            {{advanceRequest.notes || '-'}}
-          </div>
-        </div>
-
-        <div class="advance-requests--element" *ngFor="let customField of advanceRequest.custom_field_values">
-          <div class="advance-requests--element-label">
-            {{customField.name}}
-          </div>
-          <div class="advance-requests--element-value" *ngIf="customField.type === 'DATE'">
-            {{customField.value | date: 'dd, MMM yyyy'}}
-          </div>
-          <div class="advance-requests--element-value" *ngIf="customField.type === 'BOOLEAN'">
-            {{customField.value ? 'Yes' : 'No'}}
-          </div>
-          <div class="advance-requests--element-value"
-            *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'">
-            {{customField?.value?.display || customField.value || '-'}}
           </div>
         </div>
       </div>

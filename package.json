@@ -13,6 +13,7 @@
   },
   "private": true,
   "dependencies": {
+    "@agm/core": "^3.0.0-beta.0",
     "@angular/animations": "~10.0.0",
     "@angular/cdk": "^10.2.0",
     "@angular/common": "~10.0.0",
@@ -23,25 +24,39 @@
     "@angular/platform-browser-dynamic": "~10.0.0",
     "@angular/router": "~10.0.0",
     "@auth0/angular-jwt": "^5.0.1",
+    "@capacitor-community/camera-preview": "^1.0.6",
     "@capacitor/android": "^2.4.0",
     "@capacitor/core": "2.4.0",
     "@capacitor/ios": "^2.4.0",
     "@ionic-native/core": "^5.0.0",
     "@ionic-native/google-plus": "^5.28.0",
+    "@ionic-native/image-picker": "^5.29.0",
     "@ionic-native/in-app-browser": "^5.28.0",
+    "@ionic-native/screen-orientation": "^5.30.0",
     "@ionic-native/splash-screen": "^5.0.0",
     "@ionic-native/status-bar": "^5.0.0",
     "@ionic/angular": "^5.0.0",
+    "@ionic/pwa-elements": "^3.0.1",
+    "@sentry/angular": "^5.29.2",
+    "@sentry/tracing": "^5.29.2",
+    "@types/googlemaps": "3.39.12",
     "cordova-plugin-googleplus": "^8.5.0",
     "cordova-plugin-inappbrowser": "^4.0.0",
+    "cordova-plugin-screen-orientation": "^3.0.2",
+    "cordova-plugin-telerik-imagepicker": "^2.3.5",
+    "es6-promise-plugin": "^4.2.2",
+    "jetifier": "^1.6.6",
+    "lodash": "^4.17.20",
     "moment": "^2.27.0",
+    "ng2-pdf-viewer": "^6.3.2",
+    "ngx-pinch-zoom": "^2.5.4",
     "rxjs": "~6.5.5",
     "ts-cacheable": "^1.0.1",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.1000.0",
+    "@angular-devkit/build-angular": "^0.1100.3",
     "@angular/cli": "~10.0.5",
     "@angular/compiler": "~10.0.0",
     "@angular/compiler-cli": "~10.0.0",
@@ -50,6 +65,7 @@
     "@ionic/angular-toolkit": "^2.3.0",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
+    "@types/lodash": "^4.14.162",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0",
     "jasmine-core": "~3.5.0",
@@ -64,5 +80,8 @@
     "tslint": "~6.1.0",
     "typescript": "~3.9.5"
   },
-  "description": "An Ionic project"
+  "description": "An Ionic project",
+  "config": {
+    "ionic_generate_source_map": "true"
+  }
 }

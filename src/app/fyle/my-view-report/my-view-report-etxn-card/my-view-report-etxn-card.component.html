@@ -2,32 +2,31 @@
   <div class="etxn-card--date" *ngIf="showDate">
     <span>
       {{etxn?.tx_txn_dt | date: 'EEEE'}}
-    </span>,
+    </span>
     <span>
       {{etxn?.tx_txn_dt | date: 'dd MMMM yyyy'}}
     </span>
   </div>
   <div class="etxn-card--body" matRipple (click)="goToTransactionClicked()">
     <div class="etxn-card--icon">
-      <!-- <svg-sprite icon="{{ etxn.tx_org_category | categoryIconMobile }}" class="thumbnail icon-category">
-        </svg-sprite> -->
-      <!-- category icon here -->
-      <mat-icon>fastfood</mat-icon>
+      <app-fy-category-icon [category]="etxn.tx_org_category"></app-fy-category-icon>
     </div>
     <div class="etxn-card--details">
       <div>
-        <span class="etxn-card--currency">
+        <span class="etxn-card--currency" [ngClass]="{'etxn-card--non-reimbursable': etxn.tx_skip_reimbursement}">
           {{etxn.tx_currency}}
         </span>
         <span class="etxn-card--amount">
-          {{etxn.tx_amount | number:'1.2'}}
+          <span [ngClass]="{'etxn-card--non-reimbursable etxn-card--non-reimbursable-amount': etxn.tx_skip_reimbursement}">
+            {{etxn.tx_amount | number:'1.2'}}
+          </span>
         </span>
       </div>
       <div class="etxn-card--vendor">
-        {{etxn.vendor | ellipsis:12:false}}
+        {{etxn.vendor | ellipsis:12}}
       </div>
       <div class="etxn-card--category">
-        {{etxn.tx_org_category | ellipsis:12:false}}
+        {{etxn.tx_org_category | ellipsis:12}}
       </div>
     </div>
     <div class="etxn-card--violation" *ngIf="etxn.violation">

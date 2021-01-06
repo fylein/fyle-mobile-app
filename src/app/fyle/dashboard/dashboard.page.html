@@ -1,36 +1,38 @@
-<ion-header>
-  <ion-toolbar class="dashboard--header-toolbar">
-    <ion-buttons *ngIf="!this.isDashboardCardExpanded" slot="start">
-      <ion-menu-button class="dashboard--menubutton" auto-hide="false"></ion-menu-button>
-    </ion-buttons>
+<ion-header class="ion-no-border">
+  <div class="dashboard--header">
+    <ion-toolbar class="dashboard--header-toolbar">
+      <ion-buttons slot="start">
+        <ion-menu-button *ngIf="!isDashboardCardExpanded" class="dashboard--menubutton" auto-hide="false">
+        </ion-menu-button>
+        <ion-button color="dark" class="dashboard--menubutton" *ngIf="isDashboardCardExpanded"
+          (click)="backButtonClick()">
+          <mat-icon>keyboard_backspace</mat-icon>
+        </ion-button>
+      </ion-buttons>
 
-    <ion-buttons class="dashboard--menubutton" slot="start" *ngIf="this.isDashboardCardExpanded"
-      (click)="this.backButtonClick()">
-      Back
-      <!-- will put icon here later -->
-    </ion-buttons>
-
-
-    <ion-title mode="md" class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
-  </ion-toolbar>
+      <ion-title slot="primary" mode="ios" class="dashboard--title text-capitalize">{{this.pageTitle}}</ion-title>
+    </ion-toolbar>
+  </div>
 </ion-header>
 
 <ion-content>
   <div class="dashboard--container">
-    <div class="dashboard--card" *ngFor="let item of this.dashboardList; index as $index;">
+    <div class="dashboard--card" *ngFor="let item of dashboardList; index as $index;">
       <div *ngIf="this.item && this.item.isVisible && !this.item.isCollapsed">
-        <app-enterprise-dashboard-card [dashboardList]="this.dashboardList" [index]="$index">
+        <app-enterprise-dashboard-card [dashboardList]="dashboardList" [index]="$index"
+          [homeCurrency]="homeCurrency$ | async" (dashboardToggle)="backButtonClick()">
         </app-enterprise-dashboard-card>
       </div>
     </div>
-
   </div>
 </ion-content>
 
-<ion-footer class="ion-no-border" *ngIf="this.dashboardList">
-  <div class="dashboard--footer">
-    <ion-toolbar class="dashboard--footer-toolbar">
-      <app-enterprise-dashboard-footer [dashboardList]="this.dashboardList"></app-enterprise-dashboard-footer>
-    </ion-toolbar>
-  </div>
-</ion-footer>
+<ng-container *ngIf="dashboardList?.length > 0">
+  <ion-footer class="ion-no-border">
+    <div class="dashboard--footer">
+      <ion-toolbar class="dashboard--footer-toolbar">
+        <app-enterprise-dashboard-footer [dashboardList]="dashboardList"></app-enterprise-dashboard-footer>
+      </ion-toolbar>
+    </div>
+  </ion-footer>
+</ng-container>

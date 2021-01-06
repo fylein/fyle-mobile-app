@@ -1,5 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -7,9 +6,11 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
-import { pipe, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { Router } from '@angular/router';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-enterprise-dashboard-card',
@@ -21,13 +22,16 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   @Input() dashboardList: any[];
   @Input() index: number;
+  @Input() homeCurrency: any;
   expandedCard: string;
   detailedStats: any[];
-  homeCurrency: string;
   stats: any;
   needsAttentionStats: any = {
     count: 0
   };
+
+  @Output() dashboardToggle: EventEmitter<boolean> = new EventEmitter();
+
   constructor(
     private transactionService: TransactionService,
     private reportService: ReportService,
@@ -37,12 +41,12 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private dashboardService: DashboardService,
     private mobileEventService: MobileEventService,
     private loaderService: LoaderService,
-    private alertController: AlertController
+    private router: Router
   ) { }
 
   isBlank(item) {
     return ((item === '') || (item === null)) ? {} : item;
-  };
+  }
 
   getExpensesExpandedDetails() {
     const readyToReportStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
@@ -129,7 +133,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         res.approvedStats.title = 'Approved';
         res.approvedStats.state = 'APPROVED';
 
-        let stats = [res.draftStats, res.inquiryStats, res.reportedStats, res.approvedStats];
+        const stats = [res.draftStats, res.inquiryStats, res.reportedStats, res.approvedStats];
         return stats;
       })
     );
@@ -162,7 +166,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res.draftStats, res.inquiryStats, res.pendingStats];
         return stats;
       })
-    )
+    );
   }
 
   getTripsExpandedDetails() {
@@ -197,11 +201,10 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res.draftStats, res.inquiryStats, res.submitted, res.toCloseStats];
         return stats;
       })
-    )
+    );
   }
 
   getCCCEExpandedDetails() {
-
     const CCCEExpandedDetails$ = this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' });
 
     return CCCEExpandedDetails$.pipe(
@@ -213,15 +216,15 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res];
         return stats;
       })
-    )
+    );
   }
 
 
   getExpandedDetails(title) {
     title = title.replace(' ', '_');
-    let expandedCardDetailsMap = {
+    const expandedCardDetailsMap = {
       expenses: this.getExpensesExpandedDetails,
-      reports: this.getReportsExpandedDetails, //change this later
+      reports: this.getReportsExpandedDetails,
       advances: this.getAdvancesExpandedDetails,
       trips: this.getTripsExpandedDetails,
       corporate_cards: this.getCCCEExpandedDetails
@@ -229,48 +232,57 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     return expandedCardDetailsMap[title].apply(this);
   }
 
-  async presentAlert() {
-    const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Coming soon',
-      buttons: ['Close']
-    });
-
-    await alert.present();
+  goToCreateReport() {
+    //TrackingService.clickCreateReport({Asset: 'Mobile'});
+    this.router.navigate(['/', 'enterprise', 'my_create_report', { isRedirectedFromDashboard: true }]);
   }
 
-  filterToState(a, b) {
-    this.presentAlert();
-  }
-
-
-  async expandCard(item) {
-    await this.loaderService.showLoader();
-    this.expandedCard = this.item && this.item.title ? this.item.title : '';
-    this.dashboardList = this.dashboardList.map((item) => {
-      item.isCollapsed = true;
-      return item;
-    });
-
-    this.item.isCollapsed = false;
-    if (this.item && this.item.title) {
-      const expandedDetails$ = this.getExpandedDetails(this.item.title).pipe(
-        finalize(async () => {
-          await this.loaderService.hideLoader();
-        })
-      );
-      expandedDetails$.subscribe((res) => {
-        this.detailedStats = res;
-        this.mobileEventService.dashboardCardExpanded();
-        this.dashboardService.setDashBoardState(this.item.title);
-      })
+  filterToState(type, state) {
+    if (type === 'expenses') {
+      if (state !== 'readyToReport') {
+        this.router.navigate(['/', 'enterprise', 'my_expenses', { state, navigateBack: true }]);
+      } else {
+        this.goToCreateReport();
+      }
+    } else if (type === 'reports') {
+      this.router.navigate(['/', 'enterprise', 'my_reports', { state, navigateBack: true }]);
+    } else {
+      const navigateToMap = {
+        trips: ['/', 'enterprise', 'my_trips'],
+        advances: ['/', 'enterprise', 'my_advances'],
+        'corporate card' : ['/', 'enterprise', 'corporate_card_expenses']
+      };
+      this.router.navigate([...navigateToMap[type], {navigateBack: true}]);
     }
   }
 
-  getHomeCurrency() {
-    // get home currency from homeCurrency service later
-    this.homeCurrency = 'INR';
-  };
+  async expandCard() {
+    if (this.item.title !== this.expandedCard) {
+      await this.loaderService.showLoader();
+
+      this.expandedCard = this.item && this.item.title ? this.item.title : '';
+      this.dashboardList = this.dashboardList.map((dashboardItem) => {
+        dashboardItem.isCollapsed = true;
+        return dashboardItem;
+      });
+
+      this.item.isCollapsed = false;
+      if (this.item && this.item.title) {
+        const expandedDetails$ = this.getExpandedDetails(this.item.title).pipe(
+          finalize(async () => {
+            await this.loaderService.hideLoader();
+          })
+        );
+        expandedDetails$.subscribe((res) => {
+          this.detailedStats = res;
+          this.mobileEventService.dashboardCardExpanded();
+          this.dashboardService.setDashBoardState(this.item.title);
+        });
+      }
+    } else {
+      this.dashboardToggle.emit(true);
+    }
+  }
 
   getExpenseNeedAttentionStats() {
     const policyFlaggedCount$ = this.transactionService.getPaginatedETxncCount(this.transactionService.getUserTransactionParams('flagged'));
@@ -290,31 +302,29 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   getReportNeedAttentionStats() {
     return this.reportService.getPaginatedERptcCount({ state: 'APPROVER_INQUIRY' });
-  };
+  }
 
   getAdvanceNeedAttentionStats() {
     return this.advanceRequestService.getPaginatedMyEAdvanceRequestsCount(this.advanceRequestService.getUserAdvanceRequestParams('inquiry'));
-  };
+  }
 
   getTripNeedAttentionStats() {
     return this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('inquiry'));
-  };
-
-
+  }
 
   getNeedAttentionCount(stats) {
     if (this.dashboardList && this.dashboardList[this.index]) {
       if (this.dashboardList[this.index].title === 'corporate cards') {
         this.needsAttentionStats.count = stats && stats.total_count;
       } else {
-        let countMap = {
+        const countMap = {
           expenses: this.getExpenseNeedAttentionStats(),
           reports: this.getReportNeedAttentionStats(),
           advances: this.getAdvanceNeedAttentionStats(),
           trips: this.getTripNeedAttentionStats()
-        }
+        };
 
-        let count$ = countMap[this.dashboardList[this.index].title];
+        const count$ = countMap[this.dashboardList[this.index].title];
 
         count$.subscribe((res) => {
           if (this.dashboardList[this.index].title === 'expenses') {
@@ -322,41 +332,40 @@ export class EnterpriseDashboardCardComponent implements OnInit {
           } else {
             this.needsAttentionStats.count = res.count;
           }
-        })
+        });
       }
     }
-  };
+  }
 
   async getStats() {
     if (this.dashboardList && this.dashboardList[this.index]) {
       // await this.loaderService.showLoader();
       this.dashboardList[this.index].isLoading = true;
-      var title = this.dashboardList[this.index].title.replace(' ', '_');
+      const title = this.dashboardList[this.index].title.replace(' ', '_');
 
-      var statsMap = {
+      const statsMap = {
         expenses: this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all')),
         reports: this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('pending')),
         advances: this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('pending')),
         trips: this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('submitted')),
         corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' })
-      }
+      };
 
-      var stats$ = statsMap[title].pipe(
+      const stats$ = statsMap[title].pipe(
         finalize(async () => {
           //await this.loaderService.hideLoader();
         })
-      )
+      );
 
       stats$.subscribe((res) => {
         this.stats = res;
         this.getNeedAttentionCount(this.stats);
-      })
+      });
     }
   }
 
   ngOnInit() {
     this.item = this.dashboardList[this.index];
-    this.getHomeCurrency();
     this.getStats();
   }
 }
