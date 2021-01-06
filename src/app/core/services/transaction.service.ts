@@ -306,7 +306,8 @@ export class TransactionService {
   getAllExpenses(config: Partial<{ order: string, queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap(count => {
-        return range(0, count / 50);
+        count = count > 50 ? count / 50 : 1;
+        return range(0, count);
       }),
       concatMap(page => {
         return this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
@@ -543,7 +544,7 @@ export class TransactionService {
   removeTxnsFromRptInBulk(txnIds, comment?) {
     return range(0, txnIds.length / 50).pipe(
       concatMap(page => {
-        let data: any = {
+        const data: any = {
           ids: txnIds.slice((page - 1) * 50, page * 50)
         };
 

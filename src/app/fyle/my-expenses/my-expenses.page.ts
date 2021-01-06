@@ -165,6 +165,7 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
+      tap(console.log),
       switchMap((params) => {
         let defaultState;
         if (this.baseState === 'all') {
@@ -178,15 +179,21 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = queryParams.tx_state || defaultState;
 
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return from(this.loaderService.showLoader()).pipe(switchMap(() => {
-          return this.transactionService.getMyExpenses({
-            offset: (params.pageNumber - 1) * 10,
-            limit: 10,
-            queryParams,
-            order: orderByParams
-          });
-        }),
-          finalize(() => from(this.loaderService.hideLoader()))
+        return this.transactionService.getMyExpensesCount(queryParams).pipe(
+          switchMap((count) => {
+            if (count > ((params.pageNumber - 1) * 10)) {
+              return this.transactionService.getMyExpenses({
+                offset: (params.pageNumber - 1) * 10,
+                limit: 10,
+                queryParams,
+                order: orderByParams
+              });
+            } else {
+             return of({
+               data: []
+             });
+            }
+        })
         );
       }),
       map(res => {
@@ -397,10 +404,14 @@ export class MyExpensesPage implements OnInit {
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
+
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
-    event.target.complete();
+
+    setTimeout(() => {
+      event.target.complete();
+    }, 1000);
   }
 
   doRefresh(event?) {
