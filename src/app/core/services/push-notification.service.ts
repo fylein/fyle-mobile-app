@@ -36,10 +36,7 @@ export class PushNotificationService {
   registerPush() {
     PushNotifications.requestPermission().then( result => {
       if (result.granted) {
-        // Register with Apple / Google to receive push via APNS/FCM
-        PushNotifications.register();
-      } else {
-        // Show some error
+        PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
       }
     });
  
@@ -48,16 +45,12 @@ export class PushNotificationService {
     });
 
     PushNotifications.addListener('pushNotificationReceived', (notification: PushNotification) => {
-      console.log('Push received: ' + JSON.stringify(notification));
       return this.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
     });
 
     // Method called when tapping on a notification
     PushNotifications.addListener('pushNotificationActionPerformed', (notification: PushNotificationActionPerformed) => {
-      console.log('Push action performed: ' + JSON.stringify(notification));
-      //return this.pushNotificationService.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
       return this.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(notificationData => {
-        console.log(notification.notification.data);
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
       });
     });
@@ -85,7 +78,6 @@ export class PushNotificationService {
         });
 
         userProperties.devices = userProperties.devices.concat(currenctDevice);
-        console.log(userProperties);
         return userProperties;
       }),
       switchMap(userProperties => {
@@ -102,10 +94,10 @@ export class PushNotificationService {
     return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/read','');
   }
 
-  updateNotificationStatusAndRedirect(notificationData, isTap?: boolean) {
+  updateNotificationStatusAndRedirect(notificationData, wasTapped?: boolean) {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
       concatMap(res => {
-        return iif(() => isTap, this.updateReadStatus(notificationData.notification_id), of(null).pipe(
+        return iif(() => wasTapped, this.updateReadStatus(notificationData.notification_id), of(null).pipe(
           map((res) => {
             return notificationData
           })
