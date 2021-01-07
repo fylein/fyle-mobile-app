@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { ErrorComponent } from './error/error.component';
 import { SharedModule } from '../../shared/shared.module';
 
-
 @NgModule({
   imports: [
     CommonModule,

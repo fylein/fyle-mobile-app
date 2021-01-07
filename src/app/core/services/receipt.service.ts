@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { ApiV2Service } from './api-v2.service';
-import { ApiService } from './api.service';
+import {Injectable} from '@angular/core';
+import {ApiV2Service} from './api-v2.service';
+import {ApiService} from './api.service';
 
 @Injectable({
   providedIn: 'root'

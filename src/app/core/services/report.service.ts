@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { NetworkService } from './network.service';
-import { StorageService } from './storage.service';
-import { switchMap, tap, map, concatMap, reduce, shareReplay, finalize, mergeMap } from 'rxjs/operators';
-import { from, range, forkJoin, of, Subject } from 'rxjs';
-import { AuthService } from './auth.service';
-import { ApiV2Service } from './api-v2.service';
-import { DateService } from './date.service';
-import { ExtendedReport } from '../models/report.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { isEqual } from 'lodash';
-import { DataTransformService } from './data-transform.service';
-import { Cacheable, CacheBuster } from 'ts-cacheable';
+import {Injectable} from '@angular/core';
+import {ApiService} from './api.service';
+import {NetworkService} from './network.service';
+import {StorageService} from './storage.service';
+import {concatMap, map, reduce, shareReplay, switchMap, tap} from 'rxjs/operators';
+import {from, of, range, Subject} from 'rxjs';
+import {AuthService} from './auth.service';
+import {ApiV2Service} from './api-v2.service';
+import {DateService} from './date.service';
+import {ExtendedReport} from '../models/report.model';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {isEqual} from 'lodash';
+import {DataTransformService} from './data-transform.service';
+import {Cacheable, CacheBuster} from 'ts-cacheable';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -84,6 +84,9 @@ export class ReportService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
   getMyReportsCount(queryParams = {}) {
     return this.getMyReports({
       offset: 0,
@@ -345,7 +348,7 @@ export class ReportService {
   getERpt(rptId) {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map(data => {
-        let erpt = this.dataTransformService.unflatten(data);
+        const erpt = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(erpt.rp);
         if (erpt && erpt.rp && erpt.rp.created_at) {
           erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
@@ -495,9 +498,9 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$
   })
   addApprover(rptId, approverEmail, comment) {
-    var data = {
+    const data = {
       approver_email: approverEmail,
-      comment: comment
+      comment
     };
     return this.apiService.post('/reports/' + rptId + '/approvals', data);
   }

@@ -19,6 +19,10 @@ $offline-sub-title: #ababab;
     color: white;
   }
 
+  &--form-field-error {
+    color: $error;
+  }
+
   &--header-element {
     font-size: 32px;
     font-weight: 700;

@@ -35,7 +35,8 @@ export class SignInPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     public googleAuthService: GoogleAuthService,
     private inAppBrowser: InAppBrowser
-  ) { }
+  ) {
+  }
 
   checkSAMLResponseAndSignInUser(data) {
     if (data.error) {
@@ -80,40 +81,42 @@ export class SignInPage implements OnInit {
     });
   }
 
-  checkIfEmailExists() {
+  async checkIfEmailExists() {
     this.emailLoading = true;
-    if (!this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}')) {
-      return;
-    }
+    if (this.fg.controls.email.valid) {
+      await this.loaderService.showLoader();
 
-    this.checkEmailExists$ = this.routerAuthService.checkEmailExists(this.fg.controls.email.value)
-      .pipe(
-        catchError(err => {
-          this.handleError(err);
-          return throwError(err);
-        }),
-        shareReplay(),
-        finalize(async () => {
-          this.emailLoading = false;
-        })
+      const checkEmailExists$ = this.routerAuthService
+        .checkEmailExists(this.fg.controls.email.value)
+        .pipe(
+          catchError(err => {
+            this.handleError(err);
+            return throwError(err);
+          }),
+          shareReplay(),
+          finalize(async () => {
+            this.emailLoading = false;
+          })
+        );
+
+      const saml$ = checkEmailExists$.pipe(
+        filter(res => res.saml ? true : false)
       );
 
-    const saml$ = this.checkEmailExists$.pipe(
-      filter(res => res.saml ? true : false)
-    );
+      const basicSignIn$ = checkEmailExists$.pipe(
+        filter(res => !res.saml ? true : false)
+      );
 
-    const basicSignIn$ = this.checkEmailExists$.pipe(
-      filter(res => !res.saml ? true : false)
-    );
+      basicSignIn$.subscribe(() => {
+        this.emailSet = true;
+      });
 
-    basicSignIn$.subscribe(() => {
-      this.emailSet = true;
-    });
-
-    saml$.subscribe((res) => {
-      this.handleSamlSignIn(res);
-    });
-
+      saml$.subscribe((res) => {
+        this.handleSamlSignIn(res);
+      });
+    } else {
+      this.fg.controls.email.markAsTouched();
+    }
   }
 
   async handleError(err) {
@@ -147,27 +150,24 @@ export class SignInPage implements OnInit {
   }
 
   signInUser() {
-    this.emailLoading = false;
-    this.passwordLoading = true;
-    if (this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}') && this.fg.value.password.replace(/\s/g, '').length <= 0) {
-      this.passwordLoading = false;
-      return;
+    if (this.fg.controls.password.valid) {
+      this.emailLoading = false;
+      this.passwordLoading = true;
+      this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password).pipe(
+        catchError(err => {
+          this.handleError(err);
+          return throwError(err);
+        }),
+        switchMap((res) => {
+          return this.authService.newRefreshToken(res.refresh_token);
+        }),
+        finalize(() => this.passwordLoading = false)
+      ).subscribe(() => {
+        this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
+      });
+    } else {
+      this.fg.controls.password.markAsTouched();
     }
-
-    this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password).pipe(
-      catchError(err => {
-        this.handleError(err);
-        return throwError(err);
-      }),
-      switchMap((res) => {
-        return this.authService.newRefreshToken(res.refresh_token);
-      }),
-      finalize(() => {
-        this.passwordLoading = false;
-      })
-    ).subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
-    });
   }
 
   googleSignIn() {
@@ -175,9 +175,9 @@ export class SignInPage implements OnInit {
       concatMap((googleAuthResponse) => {
         return from(this.loaderService.showLoader('Please wait...', 10000)).pipe(
           map(() => {
-            return googleAuthResponse;
-          }
-        ));
+              return googleAuthResponse;
+            }
+          ));
       }),
       switchMap((googleAuthResponse) => {
         return this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
@@ -194,7 +194,7 @@ export class SignInPage implements OnInit {
         from(this.loaderService.hideLoader());
       })
     ).subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+      this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
     });
   }
 
@@ -208,7 +208,7 @@ export class SignInPage implements OnInit {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
 
     if (isLoggedIn) {
-      this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
+      this.router.navigate(['/', 'auth', 'switch_org', {choose: false}]);
     }
   }
 }

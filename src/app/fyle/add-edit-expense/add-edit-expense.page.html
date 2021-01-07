@@ -86,7 +86,7 @@
           </ng-container>
         </div>
         <div class="add-edit-expense--receipt-currency-container">
-          <div *ngIf="!reviewList?.length" class="add-edit-expense--receipt">
+          <div *ngIf="!reviewList?.length || canAttachReceipts" class="add-edit-expense--receipt">
             <div class="add-edit-expense--receipt-image" *ngIf="attachmentUploadInProgress">
               <ion-spinner class="add-edit-expense--spinner-icon" icon="circles"></ion-spinner>
               <div class="add-edit-expense--receipt-image-subheader">
@@ -118,7 +118,7 @@
           <div>
             <div class="add-edit-expense--currency" *ngIf="etxn$|async as etxn">
               <div *ngIf="homeCurrency$|async as homeCurrency">
-                <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
+                <app-fy-currency [formControl]="fg?.controls?.currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
                 </app-fy-currency>
               </div>
             </div>

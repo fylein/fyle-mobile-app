@@ -1,4 +1,4 @@
-import { Destination } from './destination.model';
+import {Destination} from './destination.model';
 
 export interface TrpTripCity {
     from_city: Destination;

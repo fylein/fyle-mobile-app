@@ -1,9 +1,8 @@
-import { Component, OnInit, forwardRef, Input, OnDestroy, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, ControlValueAccessor, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
-import { isEqual } from 'lodash';
-import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
+import {Component, forwardRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
+import {noop} from 'rxjs';
+import {ModalController} from '@ionic/angular';
+import {FySelectModalComponent} from './fy-select-modal/fy-select-modal.component';
 
 @Component({
   selector: 'app-fy-select-project',

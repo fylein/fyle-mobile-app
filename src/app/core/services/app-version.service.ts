@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { DeviceService } from './device.service';
-import { shareReplay, map, switchMap } from 'rxjs/operators';
-import { ApiService } from './api.service';
-import { forkJoin, of, noop } from 'rxjs';
-import { RouterApiService } from './router-api.service';
-import { AppVersion } from '../models/app_version.model';
+import {Injectable} from '@angular/core';
+import {DeviceService} from './device.service';
+import {map, shareReplay, switchMap} from 'rxjs/operators';
+import {ApiService} from './api.service';
+import {forkJoin, noop, of} from 'rxjs';
+import {RouterApiService} from './router-api.service';
+import {AppVersion} from '../models/app_version.model';
 
 @Injectable({
   providedIn: 'root'
