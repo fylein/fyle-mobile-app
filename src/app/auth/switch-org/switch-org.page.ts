@@ -1,17 +1,17 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { fromEvent, Observable, forkJoin, concat, from, noop } from 'rxjs';
-import { distinctUntilChanged, finalize, map, startWith, switchMap, concatMap, shareReplay } from 'rxjs/operators';
-import { Org } from 'src/app/core/models/org.model';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { UserService } from 'src/app/core/services/user.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgService } from 'src/app/core/services/org.service';
-import { UserEventService } from 'src/app/core/services/user-event.service';
-import { globalCacheBusterNotifier } from 'ts-cacheable';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {forkJoin, from, fromEvent, noop, Observable} from 'rxjs';
+import {distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap} from 'rxjs/operators';
+import {Org} from 'src/app/core/models/org.model';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {UserService} from 'src/app/core/services/user.service';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {StorageService} from 'src/app/core/services/storage.service';
+import {NetworkService} from 'src/app/core/services/network.service';
+import {OrgService} from 'src/app/core/services/org.service';
+import {UserEventService} from 'src/app/core/services/user-event.service';
+import {globalCacheBusterNotifier} from 'ts-cacheable';
 import * as Sentry from '@sentry/angular';
 
 @Component({

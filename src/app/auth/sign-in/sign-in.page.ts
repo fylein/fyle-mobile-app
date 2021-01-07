@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { from, throwError } from 'rxjs';
+import { from, throwError, Observable } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap } from 'rxjs/operators';
@@ -20,7 +20,10 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 export class SignInPage implements OnInit {
   fg: FormGroup;
   emailSet = false;
+  emailLoading = false;
+  passwordLoading = false;
   hide = true;
+  checkEmailExists$: Observable<any>;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,7 +35,8 @@ export class SignInPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     public googleAuthService: GoogleAuthService,
     private inAppBrowser: InAppBrowser
-  ) { }
+  ) {
+  }
 
   checkSAMLResponseAndSignInUser(data) {
     if (data.error) {
@@ -78,39 +82,41 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
-    if (!this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}')) {
-      return;
-    }
-    await this.loaderService.showLoader();
+    this.emailLoading = true;
+    if (this.fg.controls.email.valid) {
+      await this.loaderService.showLoader();
 
-    const checkEmailExists$ = this.routerAuthService
-      .checkEmailExists(this.fg.controls.email.value)
-      .pipe(
-        catchError(err => {
-          this.handleError(err);
-          return throwError(err);
-        }),
-        shareReplay(),
-        finalize(async () => {
-          await this.loaderService.hideLoader();
-        })
+      const checkEmailExists$ = this.routerAuthService
+        .checkEmailExists(this.fg.controls.email.value)
+        .pipe(
+          catchError(err => {
+            this.handleError(err);
+            return throwError(err);
+          }),
+          shareReplay(),
+          finalize(async () => {
+            this.emailLoading = false;
+          })
+        );
+
+      const saml$ = checkEmailExists$.pipe(
+        filter(res => res.saml ? true : false)
       );
 
-    const saml$ = checkEmailExists$.pipe(
-      filter(res => res.saml ? true : false)
-    );
+      const basicSignIn$ = checkEmailExists$.pipe(
+        filter(res => !res.saml ? true : false)
+      );
 
-    const basicSignIn$ = checkEmailExists$.pipe(
-      filter(res => !res.saml ? true : false)
-    );
+      basicSignIn$.subscribe(() => {
+        this.emailSet = true;
+      });
 
-    basicSignIn$.subscribe(() => {
-      this.emailSet = true;
-    });
-
-    saml$.subscribe((res) => {
-      this.handleSamlSignIn(res);
-    });
+      saml$.subscribe((res) => {
+        this.handleSamlSignIn(res);
+      });
+    } else {
+      this.fg.controls.email.markAsTouched();
+    }
   }
 
   async handleError(err) {
@@ -138,27 +144,30 @@ export class SignInPage implements OnInit {
       cssClass: 'dialog-popover'
     });
 
+    this.emailLoading = false;
+    this.passwordLoading = false;
     await errorPopover.present();
   }
 
-  async signInUser() {
-    if (this.fg.controls.email.value.trim().match('\\S+@\\S+\\.\\S{2,}') && this.fg.value.password.replace(/\s/g, '').length <= 0) {
-      return;
+  signInUser() {
+    if (this.fg.controls.password.valid) {
+      this.emailLoading = false;
+      this.passwordLoading = true;
+      this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password).pipe(
+        catchError(err => {
+          this.handleError(err);
+          return throwError(err);
+        }),
+        switchMap((res) => {
+          return this.authService.newRefreshToken(res.refresh_token);
+        }),
+        finalize(() => this.passwordLoading = false)
+      ).subscribe(() => {
+        this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
+      });
+    } else {
+      this.fg.controls.password.markAsTouched();
     }
-
-    from(this.loaderService.showLoader('Signing you in...', 10000)).pipe(
-      switchMap(() => this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password)),
-      catchError(err => {
-        this.handleError(err);
-        return throwError(err);
-      }),
-      switchMap((res) => {
-        return this.authService.newRefreshToken(res.refresh_token);
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
-    });
   }
 
   googleSignIn() {
@@ -166,9 +175,9 @@ export class SignInPage implements OnInit {
       concatMap((googleAuthResponse) => {
         return from(this.loaderService.showLoader('Please wait...', 10000)).pipe(
           map(() => {
-            return googleAuthResponse;
-          }
-        ));
+              return googleAuthResponse;
+            }
+          ));
       }),
       switchMap((googleAuthResponse) => {
         return this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
@@ -185,7 +194,7 @@ export class SignInPage implements OnInit {
         from(this.loaderService.hideLoader());
       })
     ).subscribe(() => {
-      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+      this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
     });
   }
 
@@ -199,7 +208,7 @@ export class SignInPage implements OnInit {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
 
     if (isLoggedIn) {
-      this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
+      this.router.navigate(['/', 'auth', 'switch_org', {choose: false}]);
     }
   }
 }

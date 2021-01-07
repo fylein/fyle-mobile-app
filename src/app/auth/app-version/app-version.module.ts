@@ -1,14 +1,14 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { IonicModule } from '@ionic/angular';
+import {IonicModule} from '@ionic/angular';
 
-import { AppVersionPageRoutingModule } from './app-version-routing.module';
+import {AppVersionPageRoutingModule} from './app-version-routing.module';
 
-import { AppVersionPage } from './app-version.page';
+import {AppVersionPage} from './app-version.page';
 
-import { MatButtonModule } from '@angular/material/button';
+import {MatButtonModule} from '@angular/material/button';
 
 
 @NgModule({

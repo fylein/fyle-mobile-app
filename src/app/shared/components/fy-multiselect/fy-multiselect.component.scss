@@ -1,18 +1,32 @@
 .fy-select {
   border: none;
   width: 100%;
+  background-color: inherit;
+  font-size: 16px;
+  font-weight: 500;
+
   &--label-content {
     margin: 0 8px 0 0;
+    min-width: 120px;
+    max-width: 120px;
     font-size: 16px;
     color: #ababab;
     font-weight: 500;
     line-height: 1.5;
     white-space: nowrap;
-    min-width: 120px;
+    display: table;
+
+    &__invalid {
+      color: red;
+    }
   }
 
   &--label {
     display: flex;
     align-items: center;
+  }
+
+  &--input-disabled {
+    opacity: 0.5;
   }
 }

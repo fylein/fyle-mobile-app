@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { GooglePlus } from '@ionic-native/google-plus/ngx';
-import { environment } from 'src/environments/environment';
+import {Injectable} from '@angular/core';
+import {GooglePlus} from '@ionic-native/google-plus/ngx';
+import {environment} from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'

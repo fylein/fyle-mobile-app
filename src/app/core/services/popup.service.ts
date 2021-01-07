@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { FyPopupComponent } from 'src/app/shared/components/fy-popup/fy-popup.component';
-import { PopupConfig } from 'src/app/shared/components/fy-popup/popup.model';
+import {Injectable} from '@angular/core';
+import {PopoverController} from '@ionic/angular';
+import {FyPopupComponent} from 'src/app/shared/components/fy-popup/fy-popup.component';
+import {PopupConfig} from 'src/app/shared/components/fy-popup/popup.model';
 
 @Injectable({
   providedIn: 'root'

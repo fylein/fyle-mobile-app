@@ -1,24 +1,24 @@
-import { Injectable } from '@angular/core';
-import { NetworkService } from './network.service';
-import { AppVersionService } from './app-version.service';
-import { OrgSettingsService } from './org-settings.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
-import { CategoriesService } from './categories.service';
-import { CostCentersService } from './cost-centers.service';
-import { ProjectsService } from './projects.service';
-import { PerDiemService } from './per-diem.service';
-import { CustomInputsService } from './custom-inputs.service';
-import { OrgService } from './org.service';
-import { AccountsService } from './accounts.service';
-import { TransactionFieldConfigurationsService } from './transaction-field-configurations.service';
-import { StorageService } from './storage.service';
-import { CurrencyService } from './currency.service';
-import { switchMap, tap, map, catchError, finalize } from 'rxjs/operators';
-import { from, forkJoin } from 'rxjs';
-import { PermissionsService } from './permissions.service';
-import { Org } from '../models/org.model';
-import { Cacheable } from 'ts-cacheable';
-import { OrgUserService } from './org-user.service';
+import {Injectable} from '@angular/core';
+import {NetworkService} from './network.service';
+import {AppVersionService} from './app-version.service';
+import {OrgSettingsService} from './org-settings.service';
+import {OrgUserSettingsService} from './org-user-settings.service';
+import {CategoriesService} from './categories.service';
+import {CostCentersService} from './cost-centers.service';
+import {ProjectsService} from './projects.service';
+import {PerDiemService} from './per-diem.service';
+import {CustomInputsService} from './custom-inputs.service';
+import {OrgService} from './org.service';
+import {AccountsService} from './accounts.service';
+import {TransactionFieldConfigurationsService} from './transaction-field-configurations.service';
+import {StorageService} from './storage.service';
+import {CurrencyService} from './currency.service';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import {forkJoin, from} from 'rxjs';
+import {PermissionsService} from './permissions.service';
+import {Org} from '../models/org.model';
+import {Cacheable} from 'ts-cacheable';
+import {OrgUserService} from './org-user.service';
 
 @Injectable({
   providedIn: 'root'

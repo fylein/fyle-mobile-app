@@ -1,17 +1,17 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
-import { IonicModule } from '@ionic/angular';
+import {IonicModule} from '@ionic/angular';
 
-import { SignUpPageRoutingModule } from './sign-up-routing.module';
+import {SignUpPageRoutingModule} from './sign-up-routing.module';
 
-import { SignUpPage } from './sign-up.page';
+import {SignUpPage} from './sign-up.page';
 
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { SignUpErrorComponent } from './error/error.component';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {SignUpErrorComponent} from './error/error.component';
 
 @NgModule({
   imports: [
@@ -21,8 +21,7 @@ import { SignUpErrorComponent } from './error/error.component';
     SignUpPageRoutingModule,
     MatInputModule,
     MatIconModule,
-    MatButtonModule,
-    ReactiveFormsModule
+    MatButtonModule
   ],
   declarations: [
     SignUpPage,

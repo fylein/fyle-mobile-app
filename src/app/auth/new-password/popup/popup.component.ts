@@ -1,7 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { forkJoin, noop } from 'rxjs';
+import {Component, Input, OnInit} from '@angular/core';
+import {PopoverController} from '@ionic/angular';
+import {Router} from '@angular/router';
+import {forkJoin, noop} from 'rxjs';
 
 @Component({
   selector: 'app-popup',

@@ -1,21 +1,21 @@
-import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import {Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, EMPTY} from 'rxjs';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { DateService } from 'src/app/core/services/date.service';
+import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
+import {NetworkService} from 'src/app/core/services/network.service';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {ModalController, PopoverController} from '@ionic/angular';
+import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay, take, tap, catchError} from 'rxjs/operators';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { MyExpensesSearchFilterComponent } from './my-expenses-search-filter/my-expenses-search-filter.component';
-import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
-import { Expense } from 'src/app/core/models/expense.model';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
+import {TransactionService} from 'src/app/core/services/transaction.service';
+import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-expenses-search-filter.component';
+import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
+import {Expense} from 'src/app/core/models/expense.model';
+import {CurrencyService} from 'src/app/core/services/currency.service';
+import {AddExpensePopoverComponent} from './add-expense-popover/add-expense-popover.component';
+import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {PopupService} from 'src/app/core/services/popup.service';
+import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -116,6 +116,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.loaderService.showLoader('Loading Expenses...', 1000);
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
     this.simpleSearchText = '';
@@ -226,21 +227,16 @@ export class MyExpensesPage implements OnInit {
 
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getAllExpenses({
-              queryParams,
-              order: orderByParams
-            }).pipe(
-              map(expenses => expenses.filter(expense => {
-                return Object.values(expense)
-                  .map(value => value && value.toString().toLowerCase())
-                  .filter(value => !!value)
-                  .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
-              }))
-            );
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
+        return this.transactionService.getAllExpenses({
+          queryParams,
+          order: orderByParams
+        }).pipe(
+          map(expenses => expenses.filter(expense => {
+            return Object.values(expense)
+              .map(value => value && value.toString().toLowerCase())
+              .filter(value => !!value)
+              .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
+          }))
         );
       })
     );

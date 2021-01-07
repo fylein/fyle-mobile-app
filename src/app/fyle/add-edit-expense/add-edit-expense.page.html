@@ -86,7 +86,7 @@
           </ng-container>
         </div>
         <div class="add-edit-expense--receipt-currency-container">
-          <div *ngIf="!reviewList?.length" class="add-edit-expense--receipt">
+          <div *ngIf="!reviewList?.length || canAttachReceipts" class="add-edit-expense--receipt">
             <div class="add-edit-expense--receipt-image" *ngIf="attachmentUploadInProgress">
               <ion-spinner class="add-edit-expense--spinner-icon" icon="circles"></ion-spinner>
               <div class="add-edit-expense--receipt-image-subheader">
@@ -118,7 +118,7 @@
           <div>
             <div class="add-edit-expense--currency" *ngIf="etxn$|async as etxn">
               <div *ngIf="homeCurrency$|async as homeCurrency">
-                <app-fy-currency formControlName="currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
+                <app-fy-currency [formControl]="fg?.controls?.currencyObj" [txnDt]="etxn?.tx?.txn_dt" [homeCurrency]="homeCurrency">
                 </app-fy-currency>
               </div>
             </div>
@@ -708,16 +708,19 @@
   <ion-footer>
     <ion-toolbar mode="md">
       <ion-buttons *ngIf="!reviewList">
-        <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
+        <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary"
+          appFormButtonValidation [loading]="saveExpenseLoader" [loadingText]="'SAVING'">
           Save
         </ion-button>
         <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-expense--primary-cta"
-                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value">
+                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value"
+                    appFormButtonValidation [loading]="saveAndNewExpenseLoader" [loadingText]="'SAVING'">
           Save & New
         </ion-button>
       </ion-buttons>
       <ion-buttons *ngIf="reviewList">
-        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary">
+        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary"
+          appFormButtonValidation [loading]="saveAndNextExpenseLoader" [loadingText]="'SAVING'">
           Save & Next
         </ion-button>
       </ion-buttons>

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // pipe imports
@@ -42,6 +43,9 @@ import { FyApporverComponent } from './components/fy-apporver/fy-apporver.compon
 import { FyModifyApproverComponent } from './components/fy-modify-approver/fy-modify-approver.component';
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 import { ModifyApproverConfirmationPopoverComponent } from './components/fy-modify-approver/modify-approver-dialog/modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
+
+// directive imports
+import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
@@ -94,7 +98,8 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
-    FyAddToReportModalComponent
+    FyAddToReportModalComponent,
+    FormButtonValidationDirective
   ],
   imports: [
     CommonModule,
@@ -128,6 +133,8 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     IconModule,
     CurrencyComponent,
     CommentsComponent,
+    FormButtonValidationDirective,
+    MatProgressSpinnerModule,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,

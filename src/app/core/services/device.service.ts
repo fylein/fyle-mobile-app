@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
-import { Plugins } from '@capacitor/core';
-import { map } from 'rxjs/operators';
-import { from } from 'rxjs';
+import {Plugins} from '@capacitor/core';
+import {from} from 'rxjs';
 
 const { Device } = Plugins;
 

@@ -1,4 +1,4 @@
-import { Approval } from './approval.model';
+import {Approval} from './approval.model';
 
 export interface ExtendedAdvanceRequest {
   advance_request_approvals: { [id: string]: Approval};

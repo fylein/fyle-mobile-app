@@ -1,7 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {IonicModule} from '@ionic/angular';
 
-import { AppVersionPage } from './app-version.page';
+import {AppVersionPage} from './app-version.page';
 
 describe('AppVersionPage', () => {
   let component: AppVersionPage;

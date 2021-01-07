@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { OrgService } from './org.service';
-import { map, switchMap, tap, catchError } from 'rxjs/operators';
-import { AuthService } from './auth.service';
-import { ApiService } from './api.service';
-import { from, of } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {OrgService} from './org.service';
+import {catchError, map, switchMap} from 'rxjs/operators';
+import {AuthService} from './auth.service';
+import {ApiService} from './api.service';
+import {from, of} from 'rxjs';
 import * as moment from 'moment';
-import { Cacheable } from 'ts-cacheable';
+import {Cacheable} from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'

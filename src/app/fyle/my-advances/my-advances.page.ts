@@ -34,7 +34,7 @@ export class MyAdvancesPage implements OnInit {
     this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null', areq_advance_id: 'is.null' }).pipe(
       concatMap(count => {
         count = count > 10 ? count / 10 : 1;
-        return range(0, count / 10);
+        return range(0, count);
       }),
       concatMap(count => {
         return this.advanceRequestService.getMyadvanceRequests({
@@ -53,7 +53,7 @@ export class MyAdvancesPage implements OnInit {
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
       concatMap(count => {
         count = count > 10 ? count / 10 : 1;
-        return range(0, count / 10);
+        return range(0, count);
       }),
       tap(afterRange => console.log({ afterRange })),
       concatMap(count => {
