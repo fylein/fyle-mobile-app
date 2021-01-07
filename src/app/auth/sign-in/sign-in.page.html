@@ -68,7 +68,10 @@
       <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
     </div>
     <div *ngIf="!emailSet" class="sign-in--secondary-cta">
-      <button mat-flat-button color="accent" (click)="googleSignIn()">SIGN IN WITH GOOGLE</button>
+      <button mat-flat-button color="accent" (click)="googleSignIn()"
+      appFormButtonValidation [loading]="googleSignInLoading">
+      SIGN IN WITH GOOGLE
+    </button>
     </div>
     <div class="sign-in--redirect">
       Don't have an account?

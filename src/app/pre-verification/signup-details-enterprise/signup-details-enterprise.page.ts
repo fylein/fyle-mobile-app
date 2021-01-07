@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { Observable, concat, noop, from } from 'rxjs';
+import { Observable, concat, noop, from, of } from 'rxjs';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { SelectionModalComponent } from './selection-modal/selection-modal.component';
@@ -37,6 +37,8 @@ export class SignupDetailsEnterprisePage implements OnInit {
   specialCharValidationDisplay$: Observable<boolean>;
   hide = true;
   regions: string[] = [];
+  preVerificationLoader = false;
+  finalSignupLoading = false;
 
   get PageStates() {
     return SignUpDetailsPageState;
@@ -192,6 +194,7 @@ export class SignupDetailsEnterprisePage implements OnInit {
   }
 
   async continue() {
+    this.preVerificationLoader = true;
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       this.currentState = this.PageStates.secondForm;
@@ -212,6 +215,7 @@ export class SignupDetailsEnterprisePage implements OnInit {
         duration: 1200
       });
 
+      this.preVerificationLoader = false;
       await toast.present();
     }
   }
@@ -223,7 +227,8 @@ export class SignupDetailsEnterprisePage implements OnInit {
   async signUp() {
     this.sfg.markAllAsTouched();
     if (this.sfg.valid) {
-      from(this.loaderService.showLoader(`Sending an activation link to ${this.activateRoute.snapshot.params.email} ..`)).pipe(
+      this.finalSignupLoading = true;
+      of([]).pipe(
         tap(() => {
           // setting up user details in clevertap profile
           // TrackingService.updateSegmentProfile({
@@ -254,7 +259,7 @@ export class SignupDetailsEnterprisePage implements OnInit {
             this.sfg.value.region
           );
         }),
-        finalize(() => from(this.loaderService.hideLoader())),
+        finalize(() => this.finalSignupLoading = false),
         tap(() => {
           // TODO: on Signup
           // TrackingService.onSignup($stateParams.email, {Asset: 'Mobile', label: 'Email'});

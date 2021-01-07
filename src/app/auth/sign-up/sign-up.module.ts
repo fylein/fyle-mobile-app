@@ -12,6 +12,9 @@ import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {SignUpErrorComponent} from './error/error.component';
+import { SharedModule } from '../../shared/shared.module';
+// import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+
 
 @NgModule({
   imports: [
@@ -21,11 +24,13 @@ import {SignUpErrorComponent} from './error/error.component';
     SignUpPageRoutingModule,
     MatInputModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    SharedModule
   ],
   declarations: [
     SignUpPage,
-    SignUpErrorComponent
+    SignUpErrorComponent,
+    // FormButtonValidationDirective
   ]
 })
 export class SignUpPageModule {}

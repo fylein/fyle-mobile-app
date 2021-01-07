@@ -230,16 +230,20 @@ input:focus, textarea:focus{
   animation: spin 2s linear infinite;
 }
 
-.primaryLoader {
+.primary-loader {
   @include loader;
   border: 2px solid #f3f3f3;
   border-top: 2px solid #a4a4a4;
 }
 
-.secondaryLoader {
+.secondary-loader {
   @include loader;
   border: 2px solid #f3f3f3;
   border-top: 2px solid #FF3366;
+}
+
+.disabled {
+  opacity: 0.2;
 }
 
 /* Safari */
