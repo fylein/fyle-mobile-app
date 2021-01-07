@@ -291,3 +291,9 @@ textarea, input {
     padding-bottom: 6px !important;
   }
 }
+
+.selection-modal--form-field {
+  .mat-form-field-wrapper {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
+  }
+}

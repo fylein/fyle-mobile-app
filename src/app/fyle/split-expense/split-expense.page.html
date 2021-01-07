@@ -6,7 +6,7 @@
           <mat-icon>close</mat-icon>
         </ion-button>
       </ion-buttons>
-  
+
       <ion-title class="split-expense--header-title" mode="md">Split Expense</ion-title>
     </ion-toolbar>
   </div>
@@ -57,7 +57,7 @@
             <span class="split-expense--label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid}">{{currency}}*</span>
             <input inputmode="decimal" type="number" class="split-expense--input" formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm)">
           </div>
-  
+
           <div class="split-expense--item">
             <span class="split-expense--label">%</span>
             <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" (ngModelChange)="onChangePercentage(splitExpenseForm)">
@@ -68,7 +68,7 @@
 
     <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 10">
       <button type="button" class="split-expense--add-more-button" (click)="add()">
-        <mat-icon>add</mat-icon>
+        <mat-icon class="split-expense--add-more-icon">add</mat-icon>
       </button>
       <p class="text-center split-expense--add-more-label">Split More</p>
     </div>
@@ -79,10 +79,10 @@
 <ion-footer class="ion-no-border">
   <ion-toolbar mode="md">
     <div class="split-expense--sub-footer" *ngIf="amount">
-      <div class="split-expense--sub-footer__total">Total: 
+      <div class="split-expense--sub-footer__total">Total:
         <span class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}/{{amount}}</span>
       </div>
-      <div class="split-expense--sub-footer__remaining">Remaining: 
+      <div class="split-expense--sub-footer__remaining">Remaining:
         <span class="split-expense--split-amount">{{ currency }} {{ remainingAmount }}</span>
       </div>
     </div>

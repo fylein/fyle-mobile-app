@@ -7,6 +7,7 @@ import { FyMultiselectModalComponent } from '../fy-multiselect/fy-multiselect-mo
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { map } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import {FyUserlistModalComponent} from './fy-userlist-modal/fy-userlist-modal.component';
 
 @Component({
   selector: 'app-fy-userlist',
@@ -81,7 +82,7 @@ export class FyUserlistComponent implements OnInit {
 
   async openModal() {
     const currencyModal = await this.modalController.create({
-      component: FyMultiselectModalComponent,
+      component: FyUserlistModalComponent,
       componentProps: {
         options: this.options,
         currentSelections: this.value
