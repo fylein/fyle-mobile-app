@@ -18,8 +18,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FySelectProjectComponent } from './fy-select-project/fy-select-project.component';
 import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
-import { FySelectVendorComponent } from './fy-select-vendor/fy-select-vendor.component';
-import { FySelectVendorModalComponent } from './fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
@@ -56,8 +54,6 @@ import { MatchTransactionComponent } from './match-transaction/match-transaction
     FyCurrencyExchangeRateComponent,
     FySelectProjectComponent,
     FySelectModalComponent,
-    FySelectVendorComponent,
-    FySelectVendorModalComponent,
     SplitExpensePopoverComponent,
     CriticalPolicyViolationComponent,
     PolicyViolationComponent,
