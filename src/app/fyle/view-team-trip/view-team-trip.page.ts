@@ -54,6 +54,7 @@ export class ViewTeamTripPage implements OnInit {
   eou$: Observable<any>;
   refreshApprovers$ = new Subject();
   canDoAction$: Observable<boolean>;
+  actionsLoading = false;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -213,19 +214,24 @@ export class ViewTeamTripPage implements OnInit {
   }
 
   async openActionBlock() {
-
-    const actions = await this.actionsRedefined$.toPromise()
+    this.actionsLoading = true;
+    const actions = await this.actionsRedefined$.toPromise();
 
     const actionBlock = await this.popoverController.create({
       component: ActionPopoverComponent,
       componentProps: {
-        actions: actions
+        actions
       },
       cssClass: 'dialog-popover'
     });
 
     await actionBlock.present();
-
+    const {data} = await actionBlock.onDidDismiss();
+    if (data) {
+      this.actionsLoading = false;
+    } else {
+      this.actionsLoading = false;
+    }
   }
 
   async closeTrip() {

@@ -31,6 +31,7 @@ export class NotificationsPage implements OnInit {
     pushEvents: boolean;
   };
   notifEvents = [];
+  saveNotifLoading = false;
 
   notificationForm: FormGroup;
 
@@ -103,6 +104,7 @@ export class NotificationsPage implements OnInit {
   }
 
   saveNotificationSettings() {
+    this.saveNotifLoading = true;
     let unsubscribedPushEvents = [];
     let unsubscribedEmailEvents = [];
 
@@ -124,11 +126,8 @@ export class NotificationsPage implements OnInit {
     this.orgUserSettings.notification_settings.push.unsubscribed_events = [];
     this.orgUserSettings.notification_settings.push.unsubscribed_events = unsubscribedPushEvents;
 
-    from(this.loaderService.showLoader('Saving')).pipe(
-      switchMap(() => {
-        return this.orgUserSettingsService.post(this.orgUserSettings);
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
+    this.orgUserSettingsService.post(this.orgUserSettings).pipe(
+      finalize(() => this.saveNotifLoading = false)
     ).subscribe(noop);
   }
 

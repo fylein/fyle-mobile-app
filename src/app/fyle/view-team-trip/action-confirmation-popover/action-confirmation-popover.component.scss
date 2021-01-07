@@ -24,8 +24,12 @@
     color: #0077ee;
   }
 
+  &--cta-container {
+    width: 100%;
+    padding: 12px; 
+  }
+
   &--cta {
-    margin: 12px;
     width: 100%;
     --border-radius: 4px;
     height: 48px;

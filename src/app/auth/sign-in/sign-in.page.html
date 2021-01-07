@@ -53,7 +53,7 @@
     </form>
     <div class="sign-in--primary-cta">
       <button id="sign-in--continue" *ngIf="!emailSet" mat-flat-button
-        color="primary" (click)="checkIfEmailExists()" appFormButtonValidation [loading]="emailLoading">
+        color="primary" (click)="checkIfEmailExists()" appFormButtonValidation [loading]="emailLoading" [loadingText]="'CONTINUING'">
         CONTINUE
       </button>
     </div>

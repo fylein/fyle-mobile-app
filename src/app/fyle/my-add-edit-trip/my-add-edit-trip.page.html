@@ -233,11 +233,13 @@
   <ion-toolbar mode="md">
     <div class="add-edit-trip--cta-block">
       <div class="add-edit-trip--cta-container" *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))">
+        
         <ion-button *ngIf="tripActions?.can_save && !((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" 
         (click)="saveDraftModal()" class="add-edit-trip--cta-container-cta" fill="outline" color="fyle-primary" type="button"
-        appFormButtonValidation [loading]="saveTripAsDraftLoading">Save Draft</ion-button>
+        appFormButtonValidation [loading]="saveTripAsDraftLoading" [disabled]="saveTripAsDraftLoading || submitTripLoading">Save Draft</ion-button>
+        
         <ion-button (click)="onSubmit()" class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" type="submit"
-        appFormButtonValidation [loading]="submitTripLoading">Submit Request</ion-button>
+        appFormButtonValidation [loading]="submitTripLoading" [disabled]="saveTripAsDraftLoading || submitTripLoading">Submit Request</ion-button>
       </div>
       <div *ngIf="((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))" class="add-edit-trip--cta-container">
         <ion-button class="add-edit-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="openModal()">Continue</ion-button>

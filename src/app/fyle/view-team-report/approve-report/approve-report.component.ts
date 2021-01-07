@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ReportService } from 'src/app/core/services/report.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-approve-report',
@@ -13,6 +14,7 @@ export class ApproveReportComponent implements OnInit {
   @Input() erpt;
   @Input() etxns;
   numIssues = 0;
+  approveReportLoading = false;
 
   constructor(
     private popoverController: PopoverController,
@@ -49,13 +51,17 @@ export class ApproveReportComponent implements OnInit {
 
 
   approve(event) {
+    this.approveReportLoading = true;
     event.stopPropagation();
     event.preventDefault();
 
-    this.reportService.approve(this.erpt.rp_id).subscribe(() => {
+    this.reportService.approve(this.erpt.rp_id)
+    .pipe(
+      finalize(() => this.approveReportLoading = false)
+    ).subscribe(() => {
       this.popoverController.dismiss({
         goBack: true
       });
-    })
+    });
   }
 }

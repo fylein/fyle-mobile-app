@@ -34,12 +34,14 @@ $details-color: #ababab;
   &--buttons {
     display: flex;
     justify-content: center;
+    
   }
 
   &--button {
     width: 100%;
     margin: 4px 24px;
     margin-bottom: 12px;
+    height: 48px;
   }
 
   &--primary-cta {

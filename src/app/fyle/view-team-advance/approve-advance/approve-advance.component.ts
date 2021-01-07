@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-approve-advance',
@@ -10,6 +11,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 export class ApproveAdvanceComponent implements OnInit {
 
   @Input() areq;
+  approveAdvanceLoading = false;
 
   constructor(
     private popoverController: PopoverController,
@@ -25,7 +27,10 @@ export class ApproveAdvanceComponent implements OnInit {
   }
 
   approveAdvanceAfterReview(event) {
-    this.advanceRequestService.approve(this.areq.areq_id).subscribe(_ => {
+    this.approveAdvanceLoading = true;
+    this.advanceRequestService.approve(this.areq.areq_id).pipe(
+      finalize(() => this.approveAdvanceLoading = false)
+    ).subscribe(_ => {
       this.popoverController.dismiss({
         goBack: true
       })

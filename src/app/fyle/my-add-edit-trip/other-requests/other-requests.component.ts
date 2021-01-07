@@ -50,6 +50,8 @@ export class OtherRequestsComponent implements OnInit {
   advanceRequestCustomFieldValues: [];
   transportRequestCustomFieldValues: [];
   hotelRequestCustomFieldValues: [];
+  saveDratTripLoading = false;
+  submitTripLoading = false;
   
 
   otherDetailsForm: FormGroup;
@@ -289,11 +291,13 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   submitOtherRequests(formValue, mode) {
+    if (mode === 'SUBMIT') {
+      this.submitTripLoading = true;
+    } else {
+      this.saveDratTripLoading = true;
+    }
     let trpId;
-    from(this.loaderService.showLoader('Saving as draft')).pipe(
-      switchMap(() => {
-        return this.makeTripRequestFromForm(this.fgValues);
-      }),
+    this.makeTripRequestFromForm(this.fgValues).pipe(
       concatMap(res => {
         if (mode === 'SUBMIT') {
           return this.tripRequestsService.submit(res);
@@ -311,7 +315,11 @@ export class OtherRequestsComponent implements OnInit {
         return this.tripRequestsService.triggerPolicyCheck(trpId);
       }),
       finalize(() => {
-        this.loaderService.hideLoader();
+        if (mode === 'SUBMIT') {
+          this.submitTripLoading = false;
+        } else {
+          this.saveDratTripLoading = false;
+        }
         this.otherDetailsForm.reset();
         this.modalController.dismiss();
         this.router.navigate(['/', 'enterprise', 'my_trips']);

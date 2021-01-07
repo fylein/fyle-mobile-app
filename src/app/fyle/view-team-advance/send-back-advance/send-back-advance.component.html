@@ -27,8 +27,9 @@
   </div>
 
   <div class="send-back--buttons">
-    <button [disabled]="!sendBackInput.valid" class="send-back--button" mat-flat-button color="primary" (click)="sendBack($event)">
-      Send Back
+    <button [disabled]="!sendBackInput.valid" class="send-back--button" mat-flat-button color="primary" (click)="sendBack($event)"
+    appFormButtonValidation [loading]="sendBackLoading" [loadingText]="'SENDING BACK'">
+      SEND BACK
     </button>
   </div>
 </div>
