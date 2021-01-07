@@ -82,8 +82,8 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
-    this.emailLoading = true;
     if (this.fg.controls.email.valid) {
+      this.emailLoading = true;
       await this.loaderService.showLoader();
 
       const checkEmailExists$ = this.routerAuthService
