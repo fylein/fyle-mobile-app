@@ -34,6 +34,7 @@ export class PushNotificationService {
   }
 
   registerPush() {
+    let that = this;
     PushNotifications.requestPermission().then( result => {
       if (result.granted) {
         PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
@@ -41,16 +42,16 @@ export class PushNotificationService {
     });
  
     PushNotifications.addListener('registration',(token: PushNotificationToken) => {
-      return this.postDeviceInfo(token.value).subscribe(noop);
+      that.postDeviceInfo(token.value).subscribe(noop);
     });
 
     PushNotifications.addListener('pushNotificationReceived', (notification: PushNotification) => {
-      return this.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
+      that.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
     });
 
     PushNotifications.addListener('pushNotificationActionPerformed', (notification: PushNotificationActionPerformed) => {
-      return this.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(() => {
-        this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
+      that.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(() => {
+        that.deepLinkService.redirect(that.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
       });
     });
   }
