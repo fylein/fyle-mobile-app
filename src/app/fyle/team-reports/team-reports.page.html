@@ -23,7 +23,20 @@
       </ion-buttons>
     </div>
     <div class="reports--filters" *ngIf="filters?.state || filters?.date">
-      <div>Filters are applied</div>
+      <div>Filtered by
+        <span [ngSwitch]="filters?.state">
+          <span *ngSwitchCase="'MYQUEUE'">My Queue</span>
+          <span *ngSwitchCase="'ALL'">All</span>
+          <span *ngSwitchDefault></span>
+        </span>
+        <span *ngIf="filters?.state && filters?.date">,</span>
+        <span [ngSwitch]="filters?.date">
+          <span *ngSwitchCase="'THISMONTH'">This Month</span>
+          <span *ngSwitchCase="'LASTMONTH'">Last Month</span>
+          <span *ngSwitchCase="'CUSTOMDATE'">Custom Date</span>
+          <span *ngSwitchDefault></span>
+        </span>
+      </div>
       <mat-icon (click)="clearFilters()">
         cancel
       </mat-icon>
