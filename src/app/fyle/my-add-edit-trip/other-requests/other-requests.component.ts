@@ -345,10 +345,11 @@ export class OtherRequestsComponent implements OnInit {
 
               return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
                 tap(policyTest => console.log('test res -> ', policyTest)),
-                switchMap(policyTest => {
+                catchError(err => of(null)),
+                switchMap((policyTest: any) => {
                   const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(policyTest);
                   if (policyPopupRules.length > 0) {
-                    const policyActionDescription = policyTest.trip_request_desired_state.action_description;
+                    const policyActionDescription = policyTest && policyTest.trip_request_desired_state.action_description;
                     return from(this.showPolicyViolationPopup(
                       policyPopupRules,
                       policyActionDescription,
