@@ -1,9 +1,9 @@
 <ion-header mode="md" >
   <ion-toolbar mode="md">
     <ion-title>
-      <h1 class="selection-modal--title">
+      <div class="selection-modal--title">
         Select Items
-      </h1>
+      </div>
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onDoneClick()">
@@ -13,7 +13,7 @@
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
-      <input #searchBar id="selection-modal--search-input" matInput placeholder="Search">
+      <input #searchBar id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search">
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
@@ -28,7 +28,7 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button fill="solid" color="fyle-primary" expand="block" (click)="useSelected()">
+    <ion-button class="selection-modal--primary-cta" fill="solid" color="fyle-primary" expand="block" (click)="useSelected()">
       USE SELECTED
     </ion-button>
   </ion-toolbar>

@@ -25,6 +25,9 @@ $header-input: #f8f8f8;
     font-size: 11px;
     width: 100%;
     padding: 4px;
+    .mat-form-field-wrapper {
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
+    }
   }
   &--search-icon {
     font-size: 14px;
