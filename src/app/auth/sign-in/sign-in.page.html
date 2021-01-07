@@ -39,8 +39,9 @@
           </ion-row>
         </ion-grid>
       </div>
+
       <mat-form-field class="sign-in--form-field mat-form-field-no-padding" appearance="outline" *ngIf="emailSet">
-        <input id="sign-in--password" formControlName="password" [type]="hide ? 'text': 'password'" matInput
+        <input id="sign-in--password" (keyup.enter)="signInUser()" formControlName="password" [type]="hide ? 'password': 'text'" matInput
           placeholder="Password">
         <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
           {{hide ? 'visibility_off' : 'visibility'}}
@@ -52,14 +53,14 @@
     </form>
     <div class="sign-in--primary-cta">
       <button id="sign-in--continue" *ngIf="!emailSet" mat-flat-button
-        color="primary" (click)="checkIfEmailExists()">
+        color="primary" (click)="checkIfEmailExists()" appFormButtonValidation [loading]="emailLoading">
         CONTINUE
       </button>
     </div>
 
     <div class="sign-in--primary-cta">
-      <button id="sign-in--btn-sign-in" *ngIf="emailSet" mat-flat-button color="primary"
-        (click)="signInUser()">
+      <button id="sign-in--btn-sign-in"  *ngIf="emailSet" mat-flat-button color="primary"
+        (click)="signInUser()" appFormButtonValidation [loading]="passwordLoading" [loadingText]="'SIGNING IN'">
         SIGN IN
       </button>
     </div>
