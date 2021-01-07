@@ -49,7 +49,8 @@ export class SignInPage implements OnInit {
       const samlNewRefreshToken$ = this.authService.newRefreshToken(data.refresh_token);
 
       samlNewRefreshToken$.subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch_org']);
+        this.pushNotificationService.initPush();
+        this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
       });
     }
   }

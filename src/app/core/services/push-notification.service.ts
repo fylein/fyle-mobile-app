@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {Plugins, PushNotification, PushNotificationActionPerformed, PushNotificationToken} from '@capacitor/core';
+import {Capacitor, Plugins, PushNotification, PushNotificationActionPerformed, PushNotificationToken} from '@capacitor/core';
 import { forkJoin, iif, noop, of } from 'rxjs';
 import { concatMap, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -29,12 +29,15 @@ export class PushNotificationService {
   }
 
   initPush() {
-    //need to discard this for webapp
-    this.registerPush();
+    if (Capacitor.platform !== 'web') {
+      this.registerPush();
+    }
   }
 
   registerPush() {
     let that = this;
+    // If we don't call removeAllListeners() then PushNotifications will start add listeners every time user open the app
+    PushNotifications.removeAllListeners();
     PushNotifications.requestPermission().then( result => {
       if (result.granted) {
         PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
