@@ -331,6 +331,7 @@
                   [mandatory]="txnFields.purpose?.mandatory"
                   [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
                   [disabled]="!txnFields.purpose?.canEdit"
+                  [cacheName]="'recentPurposeList'"
                   [selectModalHeader]="'Enter Purpose'">
                 </app-fy-select>
               </div>
@@ -584,6 +585,7 @@
               <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id?.mandatory"
                 [label]="fg.controls.costCenter.value ? txnFields.cost_center_id?.title : 'Enter ' + txnFields.cost_center_id?.title"
                 [options]="costCenters"
+                [cacheName]="'recentCostCenterList'"
                 [selectModalHeader]="'Select Cost Center'">
               </app-fy-select>
             </div>
