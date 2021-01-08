@@ -161,7 +161,7 @@
   <ion-toolbar mode="md">
     <div class="add-edit-advance-request--cta-container">
       <ion-buttons>
-        <ion-button class="add-edit-advance-request--primary-cta" *ngIf="advanceActions?.can_save" (click)="save('Draft')" fill="outline" color="fyle-primary">
+        <ion-button class="add-edit-advance-request--primary-cta" *ngIf="advanceActions?.can_save" (click)="showAdvanceSummaryPopover()" fill="outline" color="fyle-primary">
           SAVE DRAFT
         </ion-button>
         <ion-button class="add-edit-advance-request--primary-cta" *ngIf="advanceActions?.can_submit" (click)="save('Submit')" fill="solid" color="fyle-primary">
