@@ -7,6 +7,12 @@
 
   <div class="camera-overlay--action-container">
     <div *ngIf="isCameraShown">
+
+      <div *ngIf="showInstaFyleIntro" class="camera-overlay--intro-container">
+        <img src="../../../assets/images/insta-fyle-intro.gif" alt="Insta Fyle Intro" class="camera-overlay--intro-img">
+        <p (click)="disableInstaFyleIntro()" class="camera-overlay--intro-text">Never show again</p>
+      </div>
+
       <div class="camera-overlay--camera-settings">
         <mat-icon class="camera-overlay--camera-single" [ngClass]="{'active': !isBulkMode}" *ngIf="captureCount === 0" svgIcon="single" (click)="switchMode()"></mat-icon>
         <mat-icon class="camera-overlay--camera-bulk" [ngClass]="{'active': isBulkMode}" *ngIf="captureCount === 0" svgIcon="bulk" (click)="switchMode()"></mat-icon>
