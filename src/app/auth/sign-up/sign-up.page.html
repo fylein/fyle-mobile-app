@@ -19,13 +19,17 @@
       We just need your work email address
     </div>
     <mat-form-field class="sign-up--form-field mat-form-field-no-padding" appearance="outline" *ngIf="!emailSet">
-      <input [(ngModel)]="userEmail" (keyup)="onEmailChange($event)" type="email" matInput placeholder="Work Email">
+      <input [(ngModel)]="userEmail" (keyup)="onEmailChange($event)" type="email" matInput placeholder="Work Email" required #emailInput="ngModel">
     </mat-form-field>
+    <div class="sign-up--form-field-error" *ngIf="emailInputElement?.control?.touched && !emailInputElement?.control?.valid">
+      Please enter an email
+    </div>
     <div class="ion-text-center sign-up--business-email" *ngIf="isFreeDomainEmail">
       Please use your business email to signup
     </div>
     <div class="sign-up--primary-cta">
-      <button [disabled]="isFreeDomainEmail||!isValidEmail" mat-flat-button color="primary" (click)="signUpUser()">
+      <button [disabled]="isFreeDomainEmail" mat-flat-button color="primary" (click)="signUpUser()"
+        appFormButtonValidation [loading]="signupLoader">
         SIGN UP
       </button>
     </div>

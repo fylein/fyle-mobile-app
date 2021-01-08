@@ -5,7 +5,7 @@
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md">
+    <ion-title mode="md" class="page-title">
       Transaction Details
     </ion-title>
   </ion-toolbar>
@@ -42,25 +42,39 @@
 
     <ng-container *ngIf="isCCCMatched$|async as isCCCMatched; else cccIsNotMatched">
       <ng-container *ngIf="canUnmatch$|async; else cannotUnmatch">
-        <app-fy-alert [message]="'This is a matched transaction. Click on unmatch to remove the classification'"
-                      [type]="'information'"></app-fy-alert>
+        <div class="ccc-classified-actions--alert-container">
+            <app-fy-alert [message]="'This is a matched transaction. Click on unmatch to remove the classification'"
+            [type]="'information'"></app-fy-alert>
+        </div>
       </ng-container>
       <ng-template #cannotUnmatch>
-        <app-fy-alert [message]="'This is a matched transaction and has been reconciled.'"
-                      [type]="'information'"></app-fy-alert>
+        <div class="ccc-classified-actions--alert-container">
+          <app-fy-alert [message]="'This is a matched transaction and has been reconciled.'" 
+            class="ccc-classified-actions--alert-container" [type]="'information'"></app-fy-alert>
+        </div>
       </ng-template>
     </ng-container>
     <ng-template #cccIsNotMatched>
-      <app-fy-alert *ngIf="canUnmarkPersonal$|async" [message]="'This is marked as a personal transaction. Click unmark to revert the classification'"
-                    [type]="'information'"></app-fy-alert>
-      <app-fy-alert *ngIf="(collectedBack$|async) && !cccExpense.personal" [message]="'This transaction has been collected back.'"
-                    [type]="'information'"></app-fy-alert>
-      <app-fy-alert *ngIf="(collectedBack$|async) && cccExpense.personal" [message]="'This is a personal transaction and has been collected back.'"
-                    [type]="'information'"></app-fy-alert>
-      <app-fy-alert *ngIf="canUndoDismissal$|async" [message]="'This is a dismissed transaction. Click undo to revert the classification'"
-                    [type]="'information'"></app-fy-alert>
-      <app-fy-alert *ngIf="cccExpense.reversed" [message]="'This transaction has been reversed completely.'"
-                    [type]="'information'"></app-fy-alert>
+        <div class="ccc-classified-actions--alert-container" *ngIf="canUnmarkPersonal$|async">
+          <app-fy-alert  [message]="'This is marked as a personal transaction. Click unmark to revert the classification'"
+            class="ccc-classified-actions--alert-container" [type]="'information'"></app-fy-alert>
+        </div>
+        <div class="ccc-classified-actions--alert-container" *ngIf="(collectedBack$|async) && !cccExpense.personal">
+          <app-fy-alert  [message]="'This transaction has been collected back.'"
+            class="ccc-classified-actions--alert-container" [type]="'information'"></app-fy-alert>
+        </div>
+        <div class="ccc-classified-actions--alert-container" *ngIf="(collectedBack$|async) && cccExpense.personal">
+          <app-fy-alert  [message]="'This is a personal transaction and has been collected back.'"
+            class="ccc-classified-actions--alert-container" [type]="'information'"></app-fy-alert>
+        </div>
+        <div class="ccc-classified-actions--alert-container" *ngIf="canUndoDismissal$|async">
+          <app-fy-alert  [message]="'This is a dismissed transaction. Click undo to revert the classification'"
+            class="ccc-classified-actions--alert-container" [type]="'information'"></app-fy-alert>
+        </div>
+        <div class="ccc-classified-actions--alert-container" *ngIf="cccExpense.reversed">
+          <app-fy-alert  [message]="'This transaction has been reversed completely.'"
+            class="ccc-classified-actions--alert-container" [type]="'information'"></app-fy-alert>
+        </div>
     </ng-template>
   </ng-container>
 

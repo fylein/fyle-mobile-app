@@ -1,4 +1,4 @@
-import { CustomField } from './custom_field.model';
+import {CustomField} from './custom_field.model';
 
 export interface OrgUser {
   id: string;

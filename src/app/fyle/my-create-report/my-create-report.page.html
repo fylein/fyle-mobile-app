@@ -22,7 +22,7 @@
     <div class="my-create-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)">
       <span>Select a trip to associate with report:</span>
       <div class="my-create-report--select-trip">
-        <app-fy-select [label]="selectedTripRequest? 'Trip' : 'Select a Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest">
+        <app-fy-select [label]="selectedTripRequest? 'Trip' : 'Select a Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest" [selectModalHeader]="'Select a Trip Request'" [subheader]="'All Trips'" [cacheName]="'recentTripRequestsList'">
         </app-fy-select>
       </div>
     </div>
@@ -78,10 +78,12 @@
       </ion-row>
     </ion-grid>
     <ion-buttons>
-      <ion-button class="my-create-report--primary-cta" fill="outline" color="fyle-primary" (click)="showReportSummaryPopover('draft')">
+      <ion-button class="my-create-report--primary-cta" fill="outline" color="fyle-primary" (click)="showReportSummaryPopover('draft')"
+      appFormButtonValidation [loading]="saveDraftReportLoading" [loadingText]="'SAVING'" [disabled]="saveDraftReportLoading  || saveReportLoading">
         SAVE DRAFT
       </ion-button>
-      <ion-button class="my-create-report--primary-cta" fill="solid" color="fyle-primary" (click)="showReportSummaryPopover('submit')">
+      <ion-button class="my-create-report--primary-cta" fill="solid" color="fyle-primary" (click)="showReportSummaryPopover('submit')"
+        appFormButtonValidation [loading]="saveReportLoading" [loadingText]="'SAVING'" [disabled]="saveDraftReportLoading  || saveReportLoading">
         SUBMIT REPORT
       </ion-button>
     </ion-buttons>

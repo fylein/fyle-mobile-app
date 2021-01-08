@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { LocationService } from './location.service';
-import { from, of } from 'rxjs';
-import { concatMap, reduce } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {LocationService} from './location.service';
+import {from, of} from 'rxjs';
+import {concatMap, reduce} from 'rxjs/operators';
 
 
 @Injectable({

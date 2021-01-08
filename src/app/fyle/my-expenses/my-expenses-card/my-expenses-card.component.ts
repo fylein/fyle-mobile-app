@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
-import { Observable } from 'rxjs';
+import {noop, Observable} from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { map } from 'rxjs/operators';
 
@@ -82,6 +82,7 @@ export class MyExpensesCardComponent implements OnInit {
       )
     );
 
+    this.addToReportPossible$.subscribe(noop);
   }
 
   onGoToTransaction() {

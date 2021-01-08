@@ -1,7 +1,7 @@
-import { Injectable, EventEmitter } from '@angular/core';
-import { Plugins } from '@capacitor/core';
-import { from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {EventEmitter, Injectable} from '@angular/core';
+import {Plugins} from '@capacitor/core';
+import {from} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 
 const { Network } = Plugins;

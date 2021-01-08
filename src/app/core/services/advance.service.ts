@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { from, Observable, of, Subject } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { Cacheable, CacheBuster } from 'ts-cacheable';
-import { ExtendedAdvance } from '../models/extended_advance.model';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
+import {Injectable} from '@angular/core';
+import {from, Observable, of, Subject} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
+import {Cacheable, CacheBuster} from 'ts-cacheable';
+import {ExtendedAdvance} from '../models/extended_advance.model';
+import {ApiV2Service} from './api-v2.service';
+import {AuthService} from './auth.service';
 
 const advancesCacheBuster$ = new Subject<void>();
 

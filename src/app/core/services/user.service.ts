@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import {catchError, map, switchMap} from 'rxjs/operators';
-import {from, of, Subject} from 'rxjs';
+import {from, of} from 'rxjs';
 import { ApiService } from './api.service';
 
 @Injectable({

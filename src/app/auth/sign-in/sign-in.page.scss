@@ -9,6 +9,12 @@ $secondary-cta-border: #e0e0e0;
     min-height: 180px;
   }
 
+  &--error {
+    color: #f00;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
   &--header-container {
     min-height: 180px;
     background-color: $sign-in-header;
@@ -46,6 +52,7 @@ $secondary-cta-border: #e0e0e0;
   }
 
   &--primary-cta {
+    margin-top: 12px;
     .mat-button-base {
       width: 100%;
       font-weight: 700;

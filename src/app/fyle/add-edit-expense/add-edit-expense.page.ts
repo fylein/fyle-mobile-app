@@ -110,6 +110,10 @@ export class AddEditExpensePage implements OnInit {
   isDraftExpenseEnabled: boolean;
   isDraftExpense: boolean;
   isProjectsVisible$: Observable<boolean>;
+  saveExpenseLoader = false;
+  saveAndNewExpenseLoader = false;
+  saveAndNextExpenseLoader = false;
+  canAttachReceipts: boolean;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -163,21 +167,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goBack() {
-    if (this.mode === 'add') {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    } else {
-      if (!this.reviewList || this.reviewList.length === 0) {
-        this.navController.back();
-      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
-        if (+this.activeIndex === 0) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
-          this.goToPrev();
-        }
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
-    }
+    this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
   merchantValidator(c: FormControl): ValidationErrors {
@@ -1075,6 +1065,7 @@ export class AddEditExpensePage implements OnInit {
       }, 400);
 
       this.attachedReceiptsCount = etxn.tx.num_files;
+      this.canAttachReceipts = this.attachedReceiptsCount === 0;
 
       if (etxn.dataUrls && etxn.dataUrls.length) {
         this.newExpenseDataUrls = etxn.dataUrls;
@@ -1861,7 +1852,7 @@ export class AddEditExpensePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe((res: any) => {
+          that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
             if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
               this.addToNewReport(res.transaction.id);
             } else {
@@ -1870,7 +1861,7 @@ export class AddEditExpensePage implements OnInit {
           });
         } else {
           // to do edit
-          that.editExpense().subscribe((res) => {
+          that.editExpense('SAVE_EXPENSE').subscribe((res) => {
             if (that.fg.controls.add_to_new_report.value && res && res.id) {
               this.addToNewReport(res.id);
             } else {
@@ -1906,11 +1897,11 @@ export class AddEditExpensePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(() => {
+          that.addExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
             this.reloadCurrentRoute();
           });
         } else {
-          that.editExpense().subscribe(() => {
+          that.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
             that.goBack();
           });
         }
@@ -1937,7 +1928,7 @@ export class AddEditExpensePage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense().subscribe(() => {
+        that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.closeAddEditExpenses();
           } else {
@@ -1946,7 +1937,7 @@ export class AddEditExpensePage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense().subscribe(() => {
+        that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.closeAddEditExpenses();
           } else {
@@ -1995,14 +1986,15 @@ export class AddEditExpensePage implements OnInit {
     return data;
   }
 
-  editExpense() {
+  editExpense(redirectedFrom) {
+    this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
+    this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
+    this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
+
     const customFields$ = this.getCustomFields();
 
-    return from(this.loaderService.showLoader())
+    return this.generateEtxnFromFg(this.etxn$, customFields$)
       .pipe(
-        switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$);
-        }),
         switchMap(etxn => {
           const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
           return policyViolations$.pipe(
@@ -2168,18 +2160,22 @@ export class AddEditExpensePage implements OnInit {
 
           return of(transaction);
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.saveExpenseLoader = false;
+          this.saveAndNewExpenseLoader = false;
+          this.saveAndNextExpenseLoader = false;
+        })
       );
   }
 
-  addExpense() {
+  addExpense(redirectedFrom) {
+    this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
+    this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
+    this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
     const customFields$ = this.getCustomFields();
 
-    return from(this.loaderService.showLoader())
+    return this.generateEtxnFromFg(this.etxn$, customFields$)
       .pipe(
-        switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$);
-        }),
         switchMap(etxn => {
           return this.isConnected$.pipe(
             take(1),
@@ -2328,7 +2324,11 @@ export class AddEditExpensePage implements OnInit {
               )
             );
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.saveExpenseLoader = false;
+          this.saveAndNewExpenseLoader = false;
+          this.saveAndNextExpenseLoader = false;
+        })
       );
   }
 

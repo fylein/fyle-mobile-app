@@ -38,12 +38,15 @@ $details-color: #ababab;
 
   &--button {
     width: 100%;
+    height: 48px;
     margin: 4px 24px;
     margin-bottom: 12px;
   }
 
   &--primary-cta {
     padding: 16px;
+    height: 48px;
+
     .mat-button-base {
       width: 100%;
       font-weight: 700;

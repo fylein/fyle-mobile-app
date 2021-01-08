@@ -72,7 +72,8 @@
         </div>
       </div>
       <div>
-        <ion-button type="submit" class="notifications--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block">
+        <ion-button type="submit" class="notifications--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+        appFormButtonValidation [loading]="saveNotifLoading" [loadingText]="'SAVING'">
           save
         </ion-button>
       </div>

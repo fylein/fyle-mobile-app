@@ -1,7 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {IonicModule} from '@ionic/angular';
 
-import { DisabledPage } from './disabled.page';
+import {DisabledPage} from './disabled.page';
 
 describe('DisabledPage', () => {
   let component: DisabledPage;

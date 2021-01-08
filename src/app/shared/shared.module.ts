@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // pipe imports
@@ -43,6 +44,9 @@ import { FyModifyApproverComponent } from './components/fy-modify-approver/fy-mo
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 import { ModifyApproverConfirmationPopoverComponent } from './components/fy-modify-approver/modify-approver-dialog/modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
 
+// directive imports
+import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
+
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
@@ -53,6 +57,8 @@ import { FlagUnflagConfirmationComponent } from './components/fy-flag-expense/fl
 import { FyPolicyViolationInfoComponent } from './components/fy-policy-violation-info/fy-policy-violation-info.component';
 import {FyAddToReportComponent} from './components/fy-add-to-report/fy-add-to-report.component';
 import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
+import { FySelectVendorComponent } from './components/fy-select-vendor/fy-select-vendor.component';
+import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +71,8 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     TripState,
     FySelectComponent,
     FySelectModalComponent,
+    FySelectVendorComponent,
+    FySelectVendorModalComponent,
     FyLocationComponent,
     FyMultiselectComponent,
     FyUserlistComponent,
@@ -94,7 +102,8 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
-    FyAddToReportModalComponent
+    FyAddToReportModalComponent,
+    FormButtonValidationDirective
   ],
   imports: [
     CommonModule,
@@ -115,6 +124,7 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     HumanizeCurrencyPipe,
     ReportState,
     FySelectComponent,
+    FySelectVendorComponent,
     FyLocationComponent,
     FyMultiselectComponent,
     FyUserlistComponent,
@@ -128,6 +138,8 @@ import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-
     IconModule,
     CurrencyComponent,
     CommentsComponent,
+    FormButtonValidationDirective,
+    MatProgressSpinnerModule,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,

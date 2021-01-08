@@ -17,6 +17,7 @@ const { Browser } =  Plugins;
 export class HelpPage implements OnInit {
 
   orgAdmins;
+  contactSupportLoading = false;
 
   constructor(
     private modalController: ModalController,
@@ -25,6 +26,7 @@ export class HelpPage implements OnInit {
     ) { }
 
   openContactSupportDialog() {
+    this.contactSupportLoading = true;
     from(this.loaderService.showLoader('Please wait')).pipe(
       switchMap(() => {
         return this.orgUserService.getAllCompanyEouc();
@@ -57,7 +59,17 @@ export class HelpPage implements OnInit {
         adminEous: this.orgAdmins && this.orgAdmins.splice(0, 5) || []
       }
     });
-    return await modal.present();
+
+    await modal.present();
+
+    const {data} = await modal.onDidDismiss();
+    if (data) {
+      if (dialogType === 'contact_support') {
+        this.contactSupportLoading = false;
+      }
+    } else {
+      this.contactSupportLoading = false;
+    }
   }
 
   openHelpLink() {

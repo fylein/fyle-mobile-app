@@ -20,6 +20,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -42,6 +43,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   from: string;
   isProjectsVisible$: Observable<boolean>;
   advanceActions;
+  saveDraftAdvanceLoading = false;
+  saveAdvanceLoading = false;
 
   constructor(
     private offlineService: OfflineService,
@@ -138,10 +141,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
 
       await policyViolationModal.present();
-  
+
       const { data } = await policyViolationModal.onWillDismiss();
       if (data) {
-        this.loaderService.showLoader('Creating Advance Request...');
+        // this.loaderService.showLoader('Creating Advance Request...');
         return this.saveAndSubmit(event, advanceRequest).pipe(
           switchMap(res => {
             return iif(
@@ -152,7 +155,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
           }),
           finalize(() => {
             this.fg.reset();
-            this.loaderService.hideLoader();
+            // this.loaderService.hideLoader();
+            if (event === 'draft') {
+              this.saveDraftAdvanceLoading = false;
+            } else {
+              this.saveAdvanceLoading = false;
+            }
             if (this.from === 'TEAM_ADVANCE') {
               return this.router.navigate(['/', 'enterprise', 'team_advance']);
             } else {
@@ -160,13 +168,43 @@ export class AddEditAdvanceRequestPage implements OnInit {
             }
           })
         ).subscribe(noop);
+      } else {
+        if (event === 'draft') {
+          this.saveDraftAdvanceLoading = false;
+        } else {
+          this.saveAdvanceLoading = false;
+        }
       }
     });
+  }
+
+  async showAdvanceSummaryPopover() {
+    if (this.fg.valid) {
+      const advanceSummaryPopover = await this.popoverController.create({
+        component: DraftAdvanceSummaryComponent,
+        cssClass: 'dialog-popover'
+      });
+
+      await advanceSummaryPopover.present();
+
+      const { data } = await advanceSummaryPopover.onWillDismiss();
+
+      if (data && data.saveAdvanceRequest) {
+        this.save('Draft');
+      }
+    } else {
+      this.fg.markAllAsTouched();
+    }
   }
 
   save(event: string) {
     event = event.toLowerCase();
     if (this.fg.valid) {
+      if (event === 'draft') {
+        this.saveDraftAdvanceLoading = true;
+      } else {
+        this.saveAdvanceLoading = true;
+      }
       this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$).pipe(
         switchMap(advanceRequest => {
           const policyViolations$ = this.checkPolicyViolation(advanceRequest).pipe(
@@ -183,11 +221,14 @@ export class AddEditAdvanceRequestPage implements OnInit {
               if (policyRules.length > 0) {
                 return this.showPolicyModal(policyRules, policyViolationActionDescription, event, advanceRequest);
               } else {
-                this.loaderService.showLoader('Creating Advance Request...');
                 return this.saveAndSubmit(event, advanceRequest).pipe(
                   finalize(() => {
                     this.fg.reset();
-                    this.loaderService.hideLoader();
+                    if (event === 'draft') {
+                      this.saveDraftAdvanceLoading = false;
+                    } else {
+                      this.saveAdvanceLoading = false;
+                    }
                     return this.router.navigate(['/', 'enterprise', 'my_advances']);
                   })
                 );

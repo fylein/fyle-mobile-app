@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { tap, switchMap, catchError } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { throwError } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {RouterAuthService} from 'src/app/core/services/router-auth.service';
+import {catchError, switchMap, tap} from 'rxjs/operators';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {throwError} from 'rxjs';
 
 enum VerifyPageState {
   verifying,
