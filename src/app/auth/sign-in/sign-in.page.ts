@@ -177,6 +177,10 @@ export class SignInPage implements OnInit {
   googleSignIn() {
     this.googleSignInLoading = true;
     from(this.googleAuthService.login()).pipe(
+      map(googleAuthResponse => {
+        from(this.loaderService.showLoader('Signing you in...', 10000));
+        return googleAuthResponse;
+      }),
       switchMap((googleAuthResponse) => {
         return this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
           catchError(err => {
@@ -189,6 +193,7 @@ export class SignInPage implements OnInit {
         );
       }),
       finalize(() => {
+        this.loaderService.hideLoader();
         this.googleSignInLoading = false;
       })
     ).subscribe(() => {
