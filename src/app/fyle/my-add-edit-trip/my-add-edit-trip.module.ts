@@ -14,6 +14,7 @@ import {SavePopoverComponent} from './save-popover/save-popover.component';
 import {FySelectProjectComponent} from './fy-select-project/fy-select-project.component';
 import {FySelectModalComponent} from './fy-select-project/fy-select-modal/fy-select-modal.component';
 import {MatInputModule} from '@angular/material/input';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import {MatInputModule} from '@angular/material/input';
     FySelectModalComponent,
     FySelectProjectComponent,
     OtherRequestsComponent,
-    SavePopoverComponent
+    SavePopoverComponent,
+    PolicyViolationComponent
   ],
   exports: [
     MatTabsModule

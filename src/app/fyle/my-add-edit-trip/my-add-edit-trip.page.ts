@@ -430,8 +430,14 @@ export class MyAddEditTripPage implements OnInit {
               return of({tripReq});
             }
           }),
-          catchError(() => {
-            return of({tripReq});
+          catchError((err) => {
+            if (err.status === 'Policy Violated') {
+              return throwError({
+                status: 'Policy Violated'
+              });
+            } else { 
+              return of({tripReq});
+            }
           })
         );
       }),
