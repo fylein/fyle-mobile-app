@@ -21,12 +21,8 @@ export class TripRequestPolicyService {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
    }
 
-  postCall(url, data, config) {
-    return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/trip_requests' + url, data, config).pipe(
-      map((resp: any) => {
-        return resp.data;
-      })
-    );
+  postCall(url, data, config?) {
+    return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/trip_requests' + url, data, config);
   }
 
   testTripRequest(tripRequestObject) {
@@ -57,11 +53,14 @@ export class TripRequestPolicyService {
   getPolicyPopupRules(result) {
     const popupRules = [];
 
-    result.trip_request_policy_rule_desired_states.forEach(desiredState => {
-      if (desiredState.popup) {
-        popupRules.push(desiredState.description);
-      }
-    });
+    if (result) {
+      result.trip_request_policy_rule_desired_states.forEach(desiredState => {
+        if (desiredState.popup) {
+          popupRules.push(desiredState.description);
+        }
+      });
+    }
+
     return popupRules;
   }
 }

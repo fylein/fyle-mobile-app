@@ -285,7 +285,8 @@ export class MyAddEditTripPage implements OnInit {
           hotel_requests: []
         };
         return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
-          switchMap((res) => {
+          catchError(_ => of(null)),
+          switchMap((res: any) => {
             const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(res);
             if (policyPopupRules.length > 0) {
               const policyActionDescription = res.trip_request_desired_state.action_description;
@@ -402,7 +403,8 @@ export class MyAddEditTripPage implements OnInit {
           hotel_requests: []
         };
         return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
-          switchMap((res) => {
+          catchError(_ => of(null)),
+          switchMap((res: any) => {
             const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(res);
             if (policyPopupRules.length > 0) {
               const policyActionDescription = res.trip_request_desired_state.action_description;
