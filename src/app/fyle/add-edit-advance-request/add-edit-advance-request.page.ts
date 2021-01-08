@@ -20,6 +20,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -175,6 +176,25 @@ export class AddEditAdvanceRequestPage implements OnInit {
         }
       }
     });
+  }
+
+  async showAdvanceSummaryPopover() {
+    if (this.fg.valid) {
+      const advanceSummaryPopover = await this.popoverController.create({
+        component: DraftAdvanceSummaryComponent,
+        cssClass: 'dialog-popover'
+      });
+
+      await advanceSummaryPopover.present();
+
+      const { data } = await advanceSummaryPopover.onWillDismiss();
+
+      if (data && data.saveAdvanceRequest) {
+        this.save('Draft');
+      }
+    } else {
+      this.fg.markAllAsTouched();
+    }
   }
 
   save(event: string) {
