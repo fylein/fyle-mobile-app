@@ -230,16 +230,20 @@ input:focus, textarea:focus{
   animation: spin 2s linear infinite;
 }
 
-.primaryLoader {
+.primary-loader {
   @include loader;
   border: 2px solid #f3f3f3;
   border-top: 2px solid #a4a4a4;
 }
 
-.secondaryLoader {
+.secondary-loader {
   @include loader;
   border: 2px solid #f3f3f3;
   border-top: 2px solid #FF3366;
+}
+
+.disabled {
+  opacity: 0.2;
 }
 
 /* Safari */
@@ -290,6 +294,10 @@ textarea, input {
     padding-top: 0 !important;
     padding-bottom: 6px !important;
   }
+}
+
+.mat-form-field-appearance-outline .mat-form-field-infix {
+  padding: 0.5em 0 1em 0;
 }
 
 .selection-modal--form-field {

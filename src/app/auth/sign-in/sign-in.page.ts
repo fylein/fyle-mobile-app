@@ -22,6 +22,7 @@ export class SignInPage implements OnInit {
   emailSet = false;
   emailLoading = false;
   passwordLoading = false;
+  googleSignInLoading = false;
   hide = true;
   checkEmailExists$: Observable<any>;
 
@@ -82,9 +83,8 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
-    this.emailLoading = true;
     if (this.fg.controls.email.valid) {
-      await this.loaderService.showLoader();
+      this.emailLoading = true;
 
       const checkEmailExists$ = this.routerAuthService
         .checkEmailExists(this.fg.controls.email.value)
@@ -171,14 +171,8 @@ export class SignInPage implements OnInit {
   }
 
   googleSignIn() {
+    this.googleSignInLoading = true;
     from(this.googleAuthService.login()).pipe(
-      concatMap((googleAuthResponse) => {
-        return from(this.loaderService.showLoader('Please wait...', 10000)).pipe(
-          map(() => {
-              return googleAuthResponse;
-            }
-          ));
-      }),
       switchMap((googleAuthResponse) => {
         return this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
           catchError(err => {
@@ -191,7 +185,7 @@ export class SignInPage implements OnInit {
         );
       }),
       finalize(() => {
-        from(this.loaderService.hideLoader());
+        this.googleSignInLoading = false;
       })
     ).subscribe(() => {
       this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);

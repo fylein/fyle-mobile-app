@@ -100,7 +100,7 @@ export class CustomInputsService {
     if (customProperty.type === 'TEXT' || customProperty.type === 'SELECT') {
       displayValue = customProperty.value || '-';
     } else if (customProperty.type === 'NUMBER') {
-      displayValue = customProperty.value ? this.decimalPipe.transform(customProperty.value, '2') : '-';
+      displayValue = customProperty.value ? this.decimalPipe.transform(customProperty.value, '1.2-2') : '-';
     }  else if (customProperty.type === 'BOOLEAN') {
       displayValue = customProperty.value ? 'Yes' : 'No';
     } else if (customProperty.type === 'MULTI_SELECT' || customProperty.type === 'USER_LIST') {

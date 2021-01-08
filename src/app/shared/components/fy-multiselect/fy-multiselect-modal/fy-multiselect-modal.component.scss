@@ -76,7 +76,12 @@ $list-element-color: #333;
     border-bottom: 1px solid #ddd;
   }
 
-  &--primary-cta {
-    margin: 12px;
+  &--cta-container {
+    padding: 16px;
+  }
+
+  &--cta {
+    height: 48px;
+    width: 100%;
   }
 }

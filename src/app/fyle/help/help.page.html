@@ -13,7 +13,7 @@
 
   <div class="help--btn-container">
     <div>
-      <button (click)="openContactSupportDialog()" mat-flat-button class="help--btn-container-help-button">Contact Support</button>
+      <button (click)="openContactSupportDialog()" [disabled]="contactSupportLoading" mat-flat-button class="help--btn-container-help-button">Contact Support</button>
     </div>
     <div>
       <button (click)="openHelpLink()" mat-flat-button class="help--btn-container-help-button">Explore Knowledge Base</button>

@@ -68,9 +68,11 @@
   <div class="submit-report--buttons"
     *ngIf="!(numCriticalPolicies > 0 && (erpt.rp_num_transactions - numCriticalPolicies === 0))">
     <button mat-flat-button color="primary" class="submit-report--button" *ngIf="numCriticalPolicies === 0"
-      (click)="submitReportAfterReview($event)">Submit</button>
+      (click)="submitReportAfterReview($event)"
+      appFormButtonValidation [loading]="submitReportLoading">Submit</button>
     <button mat-flat-button color="primary" class="submit-report--button" *ngIf="numCriticalPolicies > 0"
-      (click)="submitReportAfterReview($event)">
+      (click)="submitReportAfterReview($event)"
+      appFormButtonValidation [loading]="submitReportLoading">
       Remove and Submit
     </button>
   </div>

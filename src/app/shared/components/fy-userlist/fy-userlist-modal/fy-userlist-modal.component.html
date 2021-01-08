@@ -21,7 +21,7 @@
 <ion-content>
   <div class="selection-modal--container">
     <mat-checkbox color="primary" class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" [(ngModel)]="filteredListItem.selected" (ngModelChange)="onElementSelected(filteredListItem)">
-      {{filteredListItem.label}}
+      {{filteredListItem.label | ellipsis: 20}}
     </mat-checkbox>
   </div>
 </ion-content>

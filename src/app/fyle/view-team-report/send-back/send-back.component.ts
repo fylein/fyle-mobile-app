@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ReportService } from 'src/app/core/services/report.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-send-back',
@@ -13,6 +14,7 @@ export class SendBackComponent implements OnInit {
   @Input() erpt;
   @Input() etxns;
   numIssues = 0;
+  sendBackLoading = false;
 
   constructor(
     private popoverController: PopoverController,
@@ -49,6 +51,7 @@ export class SendBackComponent implements OnInit {
 
 
   sendBack(event) {
+    this.sendBackLoading = true;
     event.stopPropagation();
     event.preventDefault();
 
@@ -61,10 +64,12 @@ export class SendBackComponent implements OnInit {
       notify: false
     };
 
-     this.reportService.inquire(this.erpt.rp_id, statusPayload).subscribe(()=> {
-       this.popoverController.dismiss({
-         goBack: true
-       });
-     })
+    this.reportService.inquire(this.erpt.rp_id, statusPayload).pipe(
+      finalize(() => this.sendBackLoading = false)
+    ).subscribe(() => {
+      this.popoverController.dismiss({
+        goBack: true
+      });
+    });
   }
 }

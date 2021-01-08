@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { SelectionModalComponent } from './selection-modal/selection-modal.component';
 import { MatRippleModule } from '@angular/material/core';
+import { SharedModule } from '../../shared/shared.module';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { MatRippleModule } from '@angular/material/core';
     ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
-    MatRippleModule
+    MatRippleModule,
+    SharedModule
   ],
   declarations: [
     SignupDetailsEnterprisePage,

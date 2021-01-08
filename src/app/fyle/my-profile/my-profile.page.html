@@ -59,11 +59,13 @@
       </div>
 
       <ion-button *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged" class="my-profile--primary-cta"
-        fill="solid" color="fyle-primary" (click)="openOtpPopover()">
+        fill="solid" color="fyle-primary" (click)="openOtpPopover()"
+        appFormButtonValidation [loading]="verifyMobileLoading" [loadingText]="'VERIFYING'">
         VERIFY MOBILE
       </ion-button>
       <ion-button *ngIf="isMobileChanged" class="my-profile--primary-cta" fill="solid" color="fyle-primary"
-        (click)="saveUserProfile(eou)">
+        (click)="saveUserProfile(eou)"
+        appFormButtonValidation [loading]="saveProfileLoading" [loadingText]="'SAVING'">
         SAVE
       </ion-button>
     </div>
@@ -256,7 +258,7 @@
       <p class="my-profile--card-title">You can do so much more!</p>
       <div class="my-profile--cards-content  my-profile--toggle-container">
         <div class="my-profile--toggle-label my-profile--toggle-label__full">
-          Login to Fyle from your desktop <a (click)="openWebAppLink('app')">using our web app</a> to update your profile information, setup additional email IDs and much more.
+          Login to Fyle from your desktop <a (click)="openWebAppLink('app')" href="{{clusterDomain}}">using our web app</a> to update your profile information, setup additional email IDs and much more.
         </div>
       </div>
     </div>
