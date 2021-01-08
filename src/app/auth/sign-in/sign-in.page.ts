@@ -38,7 +38,8 @@ export class SignInPage implements OnInit {
     public googleAuthService: GoogleAuthService,
     private inAppBrowser: InAppBrowser,
     private pushNotificationService: PushNotificationService
-  ) { }
+  ) { 
+  }
 
   checkSAMLResponseAndSignInUser(data) {
     if (data.error) {
