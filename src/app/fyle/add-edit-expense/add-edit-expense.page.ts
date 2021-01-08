@@ -1993,11 +1993,8 @@ export class AddEditExpensePage implements OnInit {
 
     const customFields$ = this.getCustomFields();
 
-    return from(this.loaderService.showLoader())
+    return this.generateEtxnFromFg(this.etxn$, customFields$)
       .pipe(
-        switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$);
-        }),
         switchMap(etxn => {
           const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
           return policyViolations$.pipe(
@@ -2177,11 +2174,8 @@ export class AddEditExpensePage implements OnInit {
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
     const customFields$ = this.getCustomFields();
 
-    return from(this.loaderService.showLoader())
+    return this.generateEtxnFromFg(this.etxn$, customFields$)
       .pipe(
-        switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$);
-        }),
         switchMap(etxn => {
           return this.isConnected$.pipe(
             take(1),

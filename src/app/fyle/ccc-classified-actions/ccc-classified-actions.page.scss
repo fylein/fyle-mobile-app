@@ -1,31 +1,38 @@
 .ccc-classified-actions {
+
+  &--toolbar {
+    border-bottom: 1px solid #e0e0e0;
+  }
+
   &--card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     border-radius: 4px;
-    padding: 12px;
+    padding: 24px;
   }
 
   &--currency {
     color: #ababab;
-    font-size: 16px;
+    font-size: 20px;
   }
 
   &--amount {
-    font-size: 18px;
+    font-size: 20px;
     margin-left: 8px;
-    font-weight: 700;
+    font-weight: 500;
     color: #4a4a4a;
   }
 
   &--vendor {
-    color: #4a4a4a;
-    font-size: 16px;
+    padding-top: 4px;
+    color: #ababab;
+    font-size: 14px;
   }
 
   &--date {
+    padding-top: 4px;
     color: #4a4a4a;
   }
 
@@ -36,7 +43,7 @@
     align-items: center;
     padding: 22px 16px;
     color: #5A5D72;
-    margin: 12px;
+    margin: 0 12px;
     justify-content: space-between;
   }
 
@@ -177,5 +184,9 @@
   &--action-btn {
     color: #f36;
     font-weight: 500;
+  }
+
+  &--alert-container {
+    margin: 0 16px;
   }
 }

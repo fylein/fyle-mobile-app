@@ -64,13 +64,15 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
 
   addLoader() {
     let cssClass = '';
-    cssClass = this.buttonType && this.buttonType === 'secondary' ? 'secondaryLoader' : 'primaryLoader';
+    cssClass = this.buttonType && this.buttonType === 'secondary' ? 'secondary-loader' : 'primary-loader';
+    this.elementRef.nativeElement.classList.add('disabled');
     this.elementRef.nativeElement.innerHTML = (`${this.elementRef.nativeElement.innerHTML} <div class="${cssClass}"></div>`);
     this.loaderAdded = true;
   }
 
   resetButton() {
     if (this.loaderAdded) {
+      this.elementRef.nativeElement.classList.remove('disabled');
       this.elementRef.nativeElement.disabled = false;
       this.elementRef.nativeElement.innerHTML = this.defaultText;
     }

@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { PopoverController } from '@ionic/angular';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-send-back-advance',
@@ -10,6 +11,7 @@ import { PopoverController } from '@ionic/angular';
 export class SendBackAdvanceComponent implements OnInit {
 
   sendBackReason = '';
+  sendBackLoading = false;
 
   @Input() areq;
 
@@ -25,6 +27,7 @@ export class SendBackAdvanceComponent implements OnInit {
   }
 
   sendBack(event) {
+    this.sendBackLoading = true;
     var status = {
       comment: this.sendBackReason
     };
@@ -34,10 +37,12 @@ export class SendBackAdvanceComponent implements OnInit {
       notify: false
     };
 
-    this.advanceRequestService.sendBack(this.areq.areq_id, statusPayload).subscribe(() => {
+    this.advanceRequestService.sendBack(this.areq.areq_id, statusPayload).pipe(
+      finalize(() => this.sendBackLoading = false)
+    ).subscribe(() => {
       this.popoverController.dismiss({
         goBack: true
       });
-    })
+    });
   }
 }

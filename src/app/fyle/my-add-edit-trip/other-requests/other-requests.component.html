@@ -417,8 +417,11 @@
     </div>
     <div class="other-details--cta-block">
       <div class="other-details--cta-container">
-        <ion-button *ngIf="!id" (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button">Save Draft</ion-button>
-        <ion-button type="submit" class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit">Submit Request</ion-button>
+        <ion-button *ngIf="!id" (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button"
+        appFormButtonValidation [loading]="saveDratTripLoading" [loadingText]="'SAVING'" [disabled]="saveDratTripLoading || submitTripLoading">Save Draft</ion-button>
+        
+        <ion-button type="submit" class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit"
+        appFormButtonValidation [loading]="submitTripLoading" [disabled]="saveDratTripLoading || submitTripLoading">Submit Request</ion-button>
       </div>
     </div>
   </form>
