@@ -59,9 +59,7 @@ export class CameraOverlayPage implements OnInit {
 
       CameraPreview.start(cameraPreviewOptions).then(res => {
         this.isCameraShown = true;
-        if (!this.activeFlashMode) {
-          this.getFlashModes();
-        }
+        this.getFlashModes();
       })
 
     }
