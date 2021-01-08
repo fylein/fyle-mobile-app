@@ -157,15 +157,16 @@
 
     </div>
     <div *ngIf="currentState === PageStates.firstForm">
-      <button [ngClass]="{'sign-up-details-enterprise--save__disabled': !fg.valid}"
-        class="sign-up-details-enterprise--save" (click)="continue()" mat-flat-button color="primary">
+      <button class="sign-up-details-enterprise--save" (click)="continue()" mat-flat-button color="primary"
+        appFormButtonValidation [loading]="preVerificationLoader">
         Continue
       </button>
     </div>
 
     <div *ngIf="currentState === PageStates.secondForm">
-      <button [ngClass]="{'sign-up-details-enterprise--save__disabled': !sfg.valid}"
-        class="sign-up-details-enterprise--save" (click)="signUp()" mat-flat-button color="primary">
+      <button
+        class="sign-up-details-enterprise--save" (click)="signUp()" mat-flat-button color="primary"
+        appFormButtonValidation [loading]="finalSignupLoading">
         Finish
       </button>
     </div>

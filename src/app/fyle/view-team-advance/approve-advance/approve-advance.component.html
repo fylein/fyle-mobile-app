@@ -16,7 +16,8 @@
   </div>
 
   <div class="approve-advance--buttons">
-    <button class="approve-advance--button" mat-flat-button color="primary" (click)="approveAdvanceAfterReview($event)">
+    <button class="approve-advance--button" mat-flat-button color="primary" (click)="approveAdvanceAfterReview($event)"
+    appFormButtonValidation [loading]="approveAdvanceLoading">
       Approve
     </button>
   </div>

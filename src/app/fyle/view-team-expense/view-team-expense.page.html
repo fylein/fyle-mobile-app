@@ -144,7 +144,7 @@
     <div *ngIf="etxn.tx_custom_properties">
       <div class="view-expense--element-block">
         <div class="view-expense--element" *ngFor="let custom_properties of etxn.tx_custom_properties">
-          <div class="view-expense--element-label">{{custom_properties.name | ellipsis:11}}</div>
+          <div class="view-expense--element-label">{{custom_properties.name | ellipsis:12}}</div>
           <div class="view-expense--element-value">{{ getDisplayValue(custom_properties) }}</div>
         </div>
       </div>

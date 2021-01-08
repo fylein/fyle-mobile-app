@@ -57,6 +57,8 @@ export class MyProfilePage implements OnInit {
   mobileNumber: string;
   org$: Observable<any>;
   clusterDomain: string;
+  verifyMobileLoading = false;
+  saveProfileLoading = false;
 
   constructor(
     private authService: AuthService,
@@ -110,8 +112,9 @@ export class MyProfilePage implements OnInit {
 
   saveUserProfile(eou) {
     if (this.mobileNumber && this.mobileNumber.charAt(0) !== '+') {
-      this.presentToast();
+      this.presentToast('Please enter a valid number with country code. eg. +1XXXXXXXXXX, +91XXXXXXXXXX', 2000);
     } else {
+      this.saveProfileLoading = true;
       if (this.isMobileChanged) {
         eou.ou.mobile = this.mobileNumber;
       }
@@ -123,19 +126,22 @@ export class MyProfilePage implements OnInit {
           return this.authService.refreshEou().pipe(
             map(() => {
               this.isMobileChanged = false;
-              this.loaderService.showLoader('Profile saved successfully', 1000);
+              this.presentToast('Profile saved successfully', 1000);
               this.reset();
             })
           );
+        }),
+        finalize(() => {
+          this.saveProfileLoading = false;
         })
       ).subscribe(noop);
     }
   }
 
-  async presentToast() {
+  async presentToast(message, duration) {
     const toast = await this.toastController.create({
-      message: 'Please enter a valid number with country code. eg. +1XXXXXXXXXX, +91XXXXXXXXXX',
-      duration: 2000
+      message: message,
+      duration: duration
     });
     toast.present();
   }
@@ -318,6 +324,7 @@ export class MyProfilePage implements OnInit {
   }
 
   openOtpPopover() {
+    this.verifyMobileLoading = true;
     const that = this;
     that.eou$.pipe(
       switchMap(eou => {
@@ -348,11 +355,14 @@ export class MyProfilePage implements OnInit {
             that.showInvalidMobileFormat = false;
           }, 5000);
         } else {
-          that.loaderService.showLoader(error.data.message, 2000);
+          this.presentToast(error.error.message, 2000);
         }
         return of(null);
       }),
-      finalize(() => that.isApiCallInProgress = false)
+      finalize(() => {
+        that.isApiCallInProgress = false;
+        that.verifyMobileLoading = false;
+      })
     ).subscribe(() => {
       that.reset();
     });

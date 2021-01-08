@@ -21,6 +21,7 @@ export class SignUpPage implements OnInit, AfterViewChecked {
   isConnected$: Observable<boolean>;
   userEmail: string;
   emailSet = false;
+  signupLoader = false;
 
   @ViewChild('emailInput') emailInputElement: NgModel;
 
@@ -83,16 +84,14 @@ export class SignUpPage implements OnInit, AfterViewChecked {
 
   signUpUser() {
     if (this.emailInputElement.valid) {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.routerAuthService.canSignup(this.userEmail);
-        }),
+      this.signupLoader = true;
+      this.routerAuthService.canSignup(this.userEmail).pipe(
         tap(() => {
           // TODO: Add with tracking service
           // TrackingService.canSignup(vm.email, 'mobile', { Asset: 'Mobile' });
         }),
         finalize(async () => {
-          await this.loaderService.hideLoader();
+          this.signupLoader = false;
         }),
         catchError((err) => {
           this.handleError(err);

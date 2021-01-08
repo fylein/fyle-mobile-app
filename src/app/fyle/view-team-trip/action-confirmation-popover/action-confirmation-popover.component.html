@@ -26,8 +26,10 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button class="action--cta" fill="solid" color="fyle-primary" [disabled]="message.trim().length === 0" (click)="action()">
-      {{type === 'SEND_BACK' ? 'Send Back' : 'Reject Trip'}}
-    </ion-button>
+    <div class="action--cta-container">
+      <ion-button class="action--cta" fill="solid" color="fyle-primary" [disabled]="message.trim().length === 0" (click)="action()">
+        {{type === 'SEND_BACK' ? 'Send Back' : 'Reject Trip'}}
+      </ion-button>
+    </div>
   </ion-toolbar>
 </ion-footer>

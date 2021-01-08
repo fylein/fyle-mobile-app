@@ -4,7 +4,7 @@ import { PopoverController } from '@ionic/angular';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { Observable, forkJoin, iif, of } from 'rxjs';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
-import { map, tap, concatMap } from 'rxjs/operators';
+import { map, tap, concatMap, finalize } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 
@@ -20,6 +20,7 @@ export class SubmitReportPopoverComponent implements OnInit {
   numIssues = 0;
   numCriticalPolicies = 0;
   showTripRequestWarning = false;
+  submitReportLoading = false;
 
   constructor(
     private popoverController: PopoverController,
@@ -88,6 +89,7 @@ export class SubmitReportPopoverComponent implements OnInit {
   submitReportAfterReview(event) {
     event.preventDefault();
     event.stopPropagation();
+    this.submitReportLoading = true;
 
     var txnIdsCriticalViolations = this.etxns.filter(
       etxn => this.filterCriticalViolations(etxn)
@@ -99,6 +101,9 @@ export class SubmitReportPopoverComponent implements OnInit {
     iif(() => txnIdsCriticalViolations.length > 0, this.transactionService.removeTxnsFromRptInBulk(txnIdsCriticalViolations), of(null)).pipe(
       concatMap(() => {
         return this.reportService.submit(this.erpt.rp_id)
+      }),
+      finalize(() => {
+        this.submitReportLoading = false;
       })
     ).subscribe(() => {
       this.popoverController.dismiss({

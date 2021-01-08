@@ -56,6 +56,8 @@ export class MyAddEditTripPage implements OnInit {
   customFieldValues;
   refreshTrips$ = new Subject();
   hasAppliedForOtherRequests: boolean;
+  saveTripAsDraftLoading = false;
+  submitTripLoading = false;
 
   @ViewChild('formContainer') formContainer: ElementRef;
 
@@ -273,10 +275,8 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   saveAsDraft(formValue) {
-    from(this.loaderService.showLoader('Saving as draft')).pipe(
-      switchMap(() => {
-        return this.makeTrpFormFromFg(formValue);
-      }),
+    this.saveTripAsDraftLoading = true;
+    this.makeTrpFormFromFg(formValue).pipe(
       switchMap((tripReq) => {
         const tripRequestObject = {
           trip_request: tripReq,
@@ -342,7 +342,9 @@ export class MyAddEditTripPage implements OnInit {
         return this.tripRequestsService.triggerPolicyCheck(res.id);
       }),
       finalize(() => {
-        this.loaderService.hideLoader();
+        this.saveTripAsDraftLoading = false;
+        this.fg.reset();
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
       })
     ).subscribe(() => {
       this.fg.reset();
@@ -391,10 +393,8 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   submitTripRequest(formValue) {
-    from(this.loaderService.showLoader('Submitting Trip Request')).pipe(
-      switchMap(() => {
-        return this.makeTrpFormFromFg(formValue);
-      }),
+    this.submitTripLoading = true;
+    this.makeTrpFormFromFg(formValue).pipe(
       switchMap((tripReq) => {
         const tripRequestObject = {
           trip_request: tripReq,
@@ -460,7 +460,9 @@ export class MyAddEditTripPage implements OnInit {
         return this.tripRequestsService.triggerPolicyCheck(res.id);
       }),
       finalize(() => {
-        this.loaderService.hideLoader();
+        this.submitTripLoading = false;
+        this.fg.reset();
+        this.router.navigate(['/', 'enterprise', 'my_trips']);
       })
     ).subscribe(() => {
       this.fg.reset();

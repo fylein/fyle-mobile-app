@@ -28,7 +28,8 @@
       Please use your business email to signup
     </div>
     <div class="sign-up--primary-cta">
-      <button [disabled]="isFreeDomainEmail" mat-flat-button color="primary" (click)="signUpUser()">
+      <button [disabled]="isFreeDomainEmail" mat-flat-button color="primary" (click)="signUpUser()"
+        appFormButtonValidation [loading]="signupLoader">
         SIGN UP
       </button>
     </div>

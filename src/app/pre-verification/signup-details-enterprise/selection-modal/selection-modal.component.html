@@ -1,9 +1,9 @@
 <ion-header mode="md" >
   <ion-toolbar mode="md">
     <ion-title>
-      <h1 class="selection-modal--title">
+      <div class="selection-modal--title">
         {{header}}
-      </h1>
+      </div>
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onDoneClick()">
@@ -13,7 +13,7 @@
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
-      <input #searchBar id="selection-modal--search-input" matInput placeholder="Search">
+      <input #searchBar id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search">
     </mat-form-field>
   </ion-toolbar>
 </ion-header>

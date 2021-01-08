@@ -15,7 +15,7 @@
     </div>
     <form [formGroup]="fg">
       <mat-form-field class="sign-in--form-field mat-form-field-no-padding" appearance="outline" *ngIf="!emailSet">
-        <input id="sign-in--email" formControlName="email" type="email" matInput placeholder="Work Email">
+        <input id="sign-in--email" (keyup.enter)="checkIfEmailExists()" formControlName="email" type="email" matInput placeholder="Work Email">
       </mat-form-field>
       <div class="sign-in--error" *ngIf="fg.controls.email.touched && !fg.controls.email.valid && !fg.controls.email.value">
         Please enter an email
@@ -53,7 +53,7 @@
     </form>
     <div class="sign-in--primary-cta">
       <button id="sign-in--continue" *ngIf="!emailSet" mat-flat-button
-        color="primary" (click)="checkIfEmailExists()" appFormButtonValidation [loading]="emailLoading">
+        color="primary" (click)="checkIfEmailExists()" appFormButtonValidation [loading]="emailLoading" [loadingText]="'CONTINUING'">
         CONTINUE
       </button>
     </div>
@@ -68,7 +68,10 @@
       <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
     </div>
     <div *ngIf="!emailSet" class="sign-in--secondary-cta">
-      <button mat-flat-button color="accent" (click)="googleSignIn()">SIGN IN WITH GOOGLE</button>
+      <button mat-flat-button color="accent" (click)="googleSignIn()"
+      appFormButtonValidation [loading]="googleSignInLoading">
+      SIGN IN WITH GOOGLE
+    </button>
     </div>
     <div class="sign-in--redirect">
       Don't have an account?
