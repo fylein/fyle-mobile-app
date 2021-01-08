@@ -166,26 +166,12 @@ export class SignInPage implements OnInit {
         }),
         finalize(() => this.passwordLoading = false)
       ).subscribe(() => {
+        this.pushNotificationService.initPush();
         this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
       });
     } else {
       this.fg.controls.password.markAsTouched();
     }
-
-    from(this.loaderService.showLoader('Signing you in...', 10000)).pipe(
-      switchMap(() => this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password)),
-      catchError(err => {
-        this.handleError(err);
-        return throwError(err);
-      }),
-      switchMap((res) => {
-        return this.authService.newRefreshToken(res.refresh_token);
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(() => {
-      this.pushNotificationService.initPush();
-      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
-    });
   }
 
   googleSignIn() {
