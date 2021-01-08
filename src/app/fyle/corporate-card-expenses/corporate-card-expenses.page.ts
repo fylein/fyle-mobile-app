@@ -8,8 +8,8 @@ import {ActivatedRoute, Params, Router} from '@angular/router';
 import {TransactionsOutboxService} from '../../core/services/transactions-outbox.service';
 import {OfflineService} from '../../core/services/offline.service';
 import {PopupService} from '../../core/services/popup.service';
-import {debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take} from 'rxjs/operators';
-import {BehaviorSubject, concat, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
+import {debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, takeUntil} from 'rxjs/operators';
+import {BehaviorSubject, concat, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject} from 'rxjs';
 import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
 import {CorporateCardExpense} from '../../core/models/corporate-card-expense.model';
 import { CorporateCardExpensesSortFilterComponent } from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
@@ -52,6 +52,8 @@ export class CorporateCardExpensesPage implements OnInit {
   baseState = 'unclassified';
   simpleSearchText = '';
 
+  onPageExit = new Subject();
+
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
@@ -77,10 +79,10 @@ export class CorporateCardExpensesPage implements OnInit {
   }
 
   ngOnInit() {
-    this.setupNetworkWatcher();
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
     this.simpleSearchText = '';
@@ -247,7 +249,16 @@ export class CorporateCardExpensesPage implements OnInit {
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
   }
 
   loadData(event) {

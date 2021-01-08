@@ -7,6 +7,7 @@ import {DataTransformService} from './data-transform.service';
 import {forkJoin, from, Observable} from 'rxjs';
 import {ExtendedOrgUser} from '../models/extended-org-user.model';
 import {JwtHelperService} from './jwt-helper.service';
+import {Cacheable} from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'

@@ -233,7 +233,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   }
 
   goToCreateReport() {
-    //TrackingService.clickCreateReport({Asset: 'Mobile'});
+    // TrackingService.clickCreateReport({Asset: 'Mobile'});
     this.router.navigate(['/', 'enterprise', 'my_create_report', { isRedirectedFromDashboard: true }]);
   }
 
@@ -250,7 +250,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       const navigateToMap = {
         trips: ['/', 'enterprise', 'my_trips'],
         advances: ['/', 'enterprise', 'my_advances'],
-        'corporate card' : ['/', 'enterprise', 'corporate_card_expenses']
+        'corporate cards' : ['/', 'enterprise', 'corporate_card_expenses']
       };
       this.router.navigate([...navigateToMap[type], {navigateBack: true}]);
     }

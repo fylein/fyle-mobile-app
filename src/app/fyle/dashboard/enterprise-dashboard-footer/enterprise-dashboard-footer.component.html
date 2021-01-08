@@ -1,12 +1,14 @@
 <ion-grid class="dashboard-footer--grid" *ngIf="this.gridSize && this.gridSize > 0">
   <ion-row class="dashboard-footer--row">
     <ion-col class="dashboard-footer--col" *ngFor="let item of this.ctaList; index as $index;" size="{{this.gridSize}}">
-      <div class="dashboard-footer--block">
-        <div (click)="this.actionFn(item)"> <!-- //for click -->
-          <div class="text-center">
-            <mat-icon class="text-center dashboard-footer--icon-card" svgIcon="{{item.icon}}"></mat-icon>
+      <div>
+        <div class="dashboard-footer--block" [ngClass]="item.cssClass">
+          <div class="dashboard-footer--block-internal" (click)="this.actionFn(item)"> <!-- //for click -->
+            <div class="text-center">
+              <mat-icon class="text-center dashboard-footer--icon-card" svgIcon="{{item.icon}}"></mat-icon>
+            </div>
+            <div class="dashboard-footer--icon-text text-center">{{item.name}}</div>
           </div>
-          <div class="dashboard-footer--icon-text text-center">{{item.name}}</div>
         </div>
       </div>
     </ion-col>

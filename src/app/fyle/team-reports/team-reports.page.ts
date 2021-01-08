@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin } from 'rxjs';
+import {Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject} from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -19,7 +19,6 @@ import { PopupService } from 'src/app/core/services/popup.service';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
-
   pageTitle = 'Team Reports';
   isConnected$: Observable<boolean>;
   teamReports$: Observable<ExtendedReport[]>;
@@ -45,6 +44,7 @@ export class TeamReportsPage implements OnInit {
   homeCurrency$: Observable<string>;
   orgSettings$: Observable<string>;
   orgSettings: any;
+  onPageExit = new Subject();
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -61,6 +61,10 @@ export class TeamReportsPage implements OnInit {
 
   ngOnInit() {
     this.setupNetworkWatcher();
+  }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
   }
 
   ionViewWillEnter() {
@@ -215,15 +219,11 @@ export class TeamReportsPage implements OnInit {
         } else if (this.filters.state === 'MYQUEUE') {
           newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
           newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-          // TODO verify with Vaishnavi to check wether to send true in both condition
-          // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
           newQueryParams.sequential_approval_turn = 'in.(true)';
         }
       } else {
         newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
         newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-        // TODO verify with Vaishnavi to check wether to send true in both condition
-        // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
         newQueryParams.sequential_approval_turn = 'in.(true)';
       }
 

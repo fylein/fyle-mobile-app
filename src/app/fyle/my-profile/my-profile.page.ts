@@ -1,6 +1,3 @@
-// TODO list:
-// Lite account
-
 import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop, Observable, throwError, of } from 'rxjs';
 import { concatMap, finalize, map, shareReplay, switchMap, take, catchError } from 'rxjs/operators';
@@ -140,8 +137,8 @@ export class MyProfilePage implements OnInit {
 
   async presentToast(message, duration) {
     const toast = await this.toastController.create({
-      message: message,
-      duration: duration
+      message,
+      duration
     });
     toast.present();
   }
@@ -286,7 +283,9 @@ export class MyProfilePage implements OnInit {
 
     orgUserSettings$.pipe(
       map((res) => {
-        const oneClickAction = res.one_click_action_settings.allowed && res.one_click_action_settings.enabled && res.one_click_action_settings.module;
+        const oneClickAction = res.one_click_action_settings.allowed &&
+          res.one_click_action_settings.enabled &&
+          res.one_click_action_settings.module;
         if (oneClickAction) {
           this.getOneClickActionSelectedModule(oneClickAction);
         }

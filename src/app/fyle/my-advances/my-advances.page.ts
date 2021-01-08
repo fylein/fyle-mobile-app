@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit} from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { range } from 'rxjs';
+import {concat, range} from 'rxjs';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
-import { concatMap, finalize, map, reduce, startWith, switchMap } from 'rxjs/operators';
+import {concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil} from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-my-advances',
@@ -21,15 +22,39 @@ export class MyAdvancesPage implements OnInit {
   refreshAdvances$: Subject<void> = new Subject();
   advances$: Observable<any>;
 
+  isConnected$: Observable<boolean>;
+  onPageExit = new Subject();
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private advanceService: AdvanceService
+    private advanceService: AdvanceService,
+    private networkService: NetworkService
   ) { }
 
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay()
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
+  }
+
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null', areq_advance_id: 'is.null' }).pipe(
       concatMap(count => {

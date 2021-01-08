@@ -1,9 +1,9 @@
-import { Component, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import {Component, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnDestroy} from '@angular/core';
 import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, iif, of } from 'rxjs';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime } from 'rxjs/operators';
+import {concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime, takeUntil} from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController } from '@ionic/angular';
@@ -17,10 +17,9 @@ import { TransactionService } from '../../core/services/transaction.service';
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
-  styleUrls: ['./my-reports.page.scss'],
+  styleUrls: ['./my-reports.page.scss']
 })
 export class MyReportsPage implements OnInit {
-
   isConnected$: Observable<boolean>;
   myReports$: Observable<ExtendedReport[]>;
   count$: Observable<number>;
@@ -50,6 +49,8 @@ export class MyReportsPage implements OnInit {
     count: number
   }>;
 
+  onPageExit = new Subject();
+
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
@@ -66,7 +67,10 @@ export class MyReportsPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.setupNetworkWatcher();
+  }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
   }
 
   clearText() {
@@ -77,6 +81,8 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
+
     this.searchText = '';
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     console.log(this.navigateBack);
@@ -222,7 +228,11 @@ export class MyReportsPage implements OnInit {
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay()
+    );
+
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);

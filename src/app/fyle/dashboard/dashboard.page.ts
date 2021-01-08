@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { forkJoin, from, Observable } from 'rxjs';
-import { shareReplay } from 'rxjs/operators';
+import {concat, forkJoin, from, Observable, Subject} from 'rxjs';
+import {shareReplay, takeUntil} from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,6 +22,8 @@ export class DashboardPage implements OnInit {
   orgUserSettings$: Observable<any>;
   orgSettings$: Observable<any>;
   homeCurrency$: Observable<any>;
+  isConnected$: Observable<boolean>;
+  onPageExit = new Subject();
 
   constructor(
     private mobileEventService: MobileEventService,
@@ -28,9 +31,22 @@ export class DashboardPage implements OnInit {
     private offlineService: OfflineService,
     private transactionService: TransactionService,
     private storageService: StorageService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private networkService: NetworkService
   ) { }
 
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+  }
 
   dashboardCardExpanded() {
     this.isDashboardCardExpanded = true;

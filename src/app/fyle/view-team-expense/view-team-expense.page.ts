@@ -1,18 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, from, forkJoin, Subject, combineLatest } from 'rxjs';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {Observable, from, forkJoin, Subject, combineLatest, concat} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { switchMap, shareReplay, concatMap, map, finalize, reduce, tap } from 'rxjs/operators';
+import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil} from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-view-team-expense',
@@ -35,6 +36,8 @@ export class ViewTeamExpensePage implements OnInit {
   attachments$: Observable<any>;
   currencyOptions;
   updateFlag$ = new Subject();
+  isConnected$: Observable<boolean>;
+  onPageExit = new Subject();
 
   constructor(
     private loaderService: LoaderService,
@@ -47,8 +50,28 @@ export class ViewTeamExpensePage implements OnInit {
     private fileService: FileService,
     private modalController: ModalController,
     private router: Router,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private networkService: NetworkService
   ) { }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
+  }
 
   isNumber(val) {
     return typeof val === 'number';
@@ -83,6 +106,7 @@ export class ViewTeamExpensePage implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
     this.currencyOptions = {
       disabled: true

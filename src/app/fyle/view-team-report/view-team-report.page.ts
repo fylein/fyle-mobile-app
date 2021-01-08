@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, from, noop, Subject } from 'rxjs';
+import {Component, EventEmitter, OnInit} from '@angular/core';
+import {Observable, from, noop, Subject, concat} from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,11 +8,12 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController } from '@ionic/angular';
-import {switchMap, finalize, map, shareReplay, tap, startWith, take} from 'rxjs/operators';
+import {switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil} from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -35,6 +36,9 @@ export class ViewTeamReportPage implements OnInit {
   canResubmitReport$: Observable<boolean>;
   isReportReported: boolean;
 
+  isConnected$: Observable<boolean>;
+  onPageExit = new Subject();
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -43,10 +47,30 @@ export class ViewTeamReportPage implements OnInit {
     private loaderService: LoaderService,
     private router: Router,
     private popoverController: PopoverController,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private networkService: NetworkService
   ) { }
 
   ngOnInit() {
+  }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay()
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
   }
 
   getVendorName(etxn) {
@@ -79,6 +103,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     this.erpt$ = this.refreshApprovals$.pipe(
       switchMap(() => {
         return from(this.loaderService.showLoader()).pipe(
@@ -110,7 +135,7 @@ export class ViewTeamReportPage implements OnInit {
     this.reportApprovals$ = this.refreshApprovals$.pipe(
       startWith(true),
       switchMap(() => {
-        return this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)
+        return this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id);
       }),
       map(reportApprovals => {
         return reportApprovals.filter((approval) => {

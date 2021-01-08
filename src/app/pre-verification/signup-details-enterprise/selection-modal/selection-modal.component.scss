@@ -10,6 +10,9 @@ $list-element-color: #333;
     border-bottom: 1px solid $header-border;
     font-size: 16px;
     color: $list-element-color;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   &--title {
@@ -48,5 +51,11 @@ $list-element-color: #333;
 
   &--form-field-container {
     text-align: center;
+  }
+
+  &--selected-list-element {
+    height: auto;
+    width: auto;
+    font-size: 16px;
   }
 }

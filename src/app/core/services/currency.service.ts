@@ -97,7 +97,7 @@ export class CurrencyService {
       map((res) => {
         return this.getCurrenyList(res);
       })
-    )
+    );
   }
 }
 

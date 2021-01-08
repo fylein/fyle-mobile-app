@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { from, forkJoin, Observable } from 'rxjs';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {from, forkJoin, Observable, concat, Subject} from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { ActivatedRoute } from '@angular/router';
-import { switchMap, finalize, map, shareReplay, concatMap, tap, reduce } from 'rxjs/operators';
+import {ActivatedRoute, Router} from '@angular/router';
+import {switchMap, finalize, map, shareReplay, concatMap, tap, reduce, takeUntil} from 'rxjs/operators';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -12,6 +12,7 @@ import { ModalController, NavController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-my-view-expense',
@@ -29,6 +30,9 @@ export class MyViewExpensePage implements OnInit {
   etxnWithoutCustomProperties$: Observable<any>;
   orgSettings: any;
   attachments$: Observable<any>;
+  isConnected$: Observable<boolean>;
+
+  onPageExit = new Subject();
 
   currencyOptions;
 
@@ -42,7 +46,9 @@ export class MyViewExpensePage implements OnInit {
     private statusService: StatusService,
     private fileService: FileService,
     private modalController: ModalController,
-    private navController: NavController
+    private navController: NavController,
+    private networkService: NetworkService,
+    private router: Router
   ) { }
 
   isNumber(val) {
@@ -57,7 +63,30 @@ export class MyViewExpensePage implements OnInit {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
   }
 
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
+  }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
   ngOnInit() {
+  }
+
+  ionViewWillEnter() {
+    this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
     this.currencyOptions = {
       disabled: true
@@ -82,12 +111,12 @@ export class MyViewExpensePage implements OnInit {
         this.etxnWithoutCustomProperties$,
         this.customProperties$
       ]).pipe(
-        map(res => {
-          res[0].tx_custom_properties = res[1];
-          return res[0];
-        }),
-        finalize(() => this.loaderService.hideLoader())
-      );
+      map(res => {
+        res[0].tx_custom_properties = res[1];
+        return res[0];
+      }),
+      finalize(() => this.loaderService.hideLoader())
+    );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(txId);
 
@@ -129,7 +158,6 @@ export class MyViewExpensePage implements OnInit {
 
     this.attachments$.subscribe(console.log);
   }
-
 
   getReceiptExtension(name) {
     let res = null;

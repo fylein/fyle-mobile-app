@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
+import {Component, OnInit, forwardRef, Input, Injector, OnDestroy} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 
@@ -41,9 +41,6 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
-  }
-
-  ngOnDestroy(): void {
   }
 
   get value(): any {

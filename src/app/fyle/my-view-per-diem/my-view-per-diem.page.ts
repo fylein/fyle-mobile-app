@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { from, Observable } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import {concat, from, Observable, Subject} from 'rxjs';
+import {finalize, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -11,6 +11,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-my-view-per-diem',
@@ -26,6 +27,8 @@ export class MyViewPerDiemPage implements OnInit {
   isCriticalPolicyViolated$: Observable<boolean>;
   isAmountCapped$: Observable<boolean>;
   policyViloations$: Observable<any>;
+  isConnected$: Observable<boolean>;
+  onPageExit = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -35,7 +38,9 @@ export class MyViewPerDiemPage implements OnInit {
     private customInputsService: CustomInputsService,
     private perDiemService: PerDiemService,
     private policyService: PolicyService,
-    private navController: NavController
+    private navController: NavController,
+    private networkService: NetworkService,
+    private router: Router
   ) { }
 
   isNumber(val) {
@@ -46,7 +51,26 @@ export class MyViewPerDiemPage implements OnInit {
     this.navController.back();
   }
 
-  ionViewWillEnter() { 
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
+  }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
+  ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedPerDiem$ = from(this.loaderService.showLoader()).pipe(
@@ -66,17 +90,17 @@ export class MyViewPerDiemPage implements OnInit {
         return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
       }),
       map(res => {
-        return res.map(customProperties => { 
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties); 
-          return customProperties; 
-        })
+        return res.map(customProperties => {
+          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+          return customProperties;
+        });
       })
     );
 
     this.perDiemRate$ = this.extendedPerDiem$.pipe(
-      switchMap(res=> {
-        const per_diem_rate_id = parseInt(res.tx_per_diem_rate_id);
-        return this.perDiemService.getRate(per_diem_rate_id);
+      switchMap(res => {
+        const perDiemRateId = parseInt(res.tx_per_diem_rate_id, 10);
+        return this.perDiemService.getRate(perDiemRateId);
       })
     );
 
@@ -88,18 +112,18 @@ export class MyViewPerDiemPage implements OnInit {
 
     this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
       map(res => {
-        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001
+        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001;
       })
-    )
+    );
 
     this.isAmountCapped$ = this.extendedPerDiem$.pipe(
       map(res => {
-        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount)
+        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount);
       })
-    )
+    );
 
   }
-  
+
   ngOnInit() {
   }
 

@@ -3,9 +3,28 @@
     {{header}}
   </div>
   <div class="error-internal--details">
-    This email address will be temporarily locked after 5 unsuccessful login attempts. Try
-    <a class="error-internal--redirect" (click)="routeTo(['/', 'auth', 'sign_up'])">signing up</a> or
-    <a class="error-internal--redirect" (click)="routeTo(['/','auth','reset_password'])">resetting</a> your password?
+    <div *ngIf="error.status === 401 && (error.data || error.message)">
+      This email address will be temporarily locked after 5 unsuccessful login attempts. Try
+        <a class="error-internal--redirect" (click)="routeTo(['/', 'auth', 'sign_up'])">signing up</a> or
+        <a class="error-internal--redirect" (click)="routeTo(['/','auth','reset_password'])">resetting</a> your password?
+    </div>
+
+    <div *ngIf="error.status === 400">
+      Your account is not verified. Please request a verification link, if required
+    </div>
+
+    <div *ngIf="error.status === 500">
+      <div> Something terrible has happened. Please send us a note at support@fyle.in </div>
+    </div>
+
+    <div *ngIf="error.status === 433">
+      <div> This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please retry later.</div>
+    </div>
+
+    <div *ngIf="error.status === 401 && !(error.data || error.message)">
+      <div>Your organization has restricted Fyle’s access to its corporate network.</div>
+    </div>
+
   </div>
   <div class="error-internal--primary-cta">
     <button mat-flat-button color="primary" (click)="tryAgainClicked()">

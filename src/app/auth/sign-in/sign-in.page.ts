@@ -119,27 +119,28 @@ export class SignInPage implements OnInit {
     }
   }
 
-  async handleError(err) {
+  async handleError(error) {
     let header = 'Incorrect Email or Password';
 
-    if (err.status === 400) {
+    if (error.status === 400) {
       header = 'Account Not Verified!';
-    } else if (err.status === 401) {
+    } else if (error.status === 401) {
       header = 'Unauthorized';
 
-      if (err.error && err.error.message) {
+      if (error.error && error.error.message) {
         header = 'Account doesn\'t exist';
       }
-    } else if (err.status === 500) {
+    } else if (error.status === 500) {
       header = 'Something Bad Happened';
-    } else if (err.status === 433) {
+    } else if (error.status === 433) {
       header = 'Temporary Lockout';
     }
 
     const errorPopover = await this.popoverController.create({
       component: ErrorComponent,
       componentProps: {
-        header
+        header,
+        error
       },
       cssClass: 'dialog-popover'
     });

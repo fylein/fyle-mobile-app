@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, from, Subject } from 'rxjs';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {Observable, from, Subject, concat} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,10 +8,11 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap, tap } from 'rxjs/operators';
+import {switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil} from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import { PopoverController } from '@ionic/angular';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-view-team-mileage',
@@ -30,6 +31,8 @@ export class ViewTeamMileagePage implements OnInit {
   canDelete$: Observable<boolean>;
   updateFlag$ = new Subject();
   reportId;
+  isConnected$: Observable<boolean>;
+  onPageExit = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -40,8 +43,28 @@ export class ViewTeamMileagePage implements OnInit {
     private policyService: PolicyService,
     private reportService: ReportService,
     private popoverController: PopoverController,
-    private router: Router
+    private router: Router,
+    private networkService: NetworkService
   ) { }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
+  }
 
   isNumber(val) {
     return typeof val === 'number';
@@ -81,6 +104,7 @@ export class ViewTeamMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedMileage$ = this.updateFlag$.pipe(

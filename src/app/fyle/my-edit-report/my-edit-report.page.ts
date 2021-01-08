@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import * as moment from 'moment';
-import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import {concat, forkJoin, from, iif, noop, Observable, of, Subject} from 'rxjs';
+import {finalize, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -14,6 +14,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-my-edit-report',
@@ -21,7 +22,6 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
   styleUrls: ['./my-edit-report.page.scss'],
 })
 export class MyEditReportPage implements OnInit {
-
   extendedReport$: Observable<ExtendedReport>;
   reportedEtxns$: Observable<Expense[]>;
   unReportedEtxns: Expense[];
@@ -36,6 +36,9 @@ export class MyEditReportPage implements OnInit {
   selectedTripRequest: any;
   tripRequestId: string;
 
+  isConnected$: Observable<boolean>;
+  onPageExit = new Subject();
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -46,7 +49,8 @@ export class MyEditReportPage implements OnInit {
     private modalController: ModalController,
     private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private tripRequestsService: TripRequestsService
+    private tripRequestsService: TripRequestsService,
+    private networkService: NetworkService
   ) { }
 
   goBack() {
@@ -57,7 +61,26 @@ export class MyEditReportPage implements OnInit {
     this.isReportEdited = (this.deleteExpensesIdList.length > 0) || (this.addedExpensesIdList.length > 0) || this.isPurposeChanged;
   }
 
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
+  }
+
   ngOnInit() {
+  }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
   }
 
   getVendorName(etxn) {
@@ -96,18 +119,18 @@ export class MyEditReportPage implements OnInit {
     etxn.isHidden = true;
     this.deleteExpensesIdList.push(etxn.tx_id);
     this.checkReportEdited();
-    // Todo: update report amount and count after 
-    // 1. deselct old reported expense and 
+    // Todo: update report amount and count after
+    // 1. deselct old reported expense and
     // 2. select new expense
-  };
+  }
 
   undoExpenseDelete(etxn: Expense) {
     etxn.isHidden = false;
     const index = this.deleteExpensesIdList.indexOf(etxn.tx_id);
     this.deleteExpensesIdList.splice(index, 1);
     this.checkReportEdited();
-    // Todo: update report amount and count after 
-    // 1. deselct old reported expense and 
+    // Todo: update report amount and count after
+    // 1. deselct old reported expense and
     // 2. select new expense
   }
 
@@ -116,8 +139,8 @@ export class MyEditReportPage implements OnInit {
     const index = this.addedExpensesIdList.indexOf(etxn.tx_id);
     this.addedExpensesIdList.splice(index, 1);
     this.checkReportEdited();
-    // Todo: update report amount and count after 
-    // 1. deselct old reported expense and 
+    // Todo: update report amount and count after
+    // 1. deselct old reported expense and
     // 2. select new expense
   }
 
@@ -129,7 +152,7 @@ export class MyEditReportPage implements OnInit {
   removeTxnFromReport() {
     const removeTxnList$ = [];
     this.deleteExpensesIdList.forEach(txnId => {
-      removeTxnList$.push(this.reportService.removeTransaction(this.activatedRoute.snapshot.params.id, txnId))
+      removeTxnList$.push(this.reportService.removeTransaction(this.activatedRoute.snapshot.params.id, txnId));
     });
 
     return forkJoin(removeTxnList$);
@@ -210,6 +233,7 @@ export class MyEditReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     this.extendedReport$ = this.reportService.getReport(this.activatedRoute.snapshot.params.id);
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay()
@@ -262,7 +286,7 @@ export class MyEditReportPage implements OnInit {
     };
 
     this.transactionService.getAllExpenses({ queryParams }).pipe(
-      map((etxns : Expense[]) => {
+      map((etxns: Expense[]) => {
         etxns.forEach((etxn, i) => {
           etxn.vendorDetails = this.getVendorName(etxn);
           etxn.showDt = true;

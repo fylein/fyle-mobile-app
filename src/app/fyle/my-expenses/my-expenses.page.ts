@@ -690,12 +690,6 @@ export class MyExpensesPage implements OnInit {
         if (inital.tx.org_category) {
           category = inital.tx.org_category.toLowerCase();
         }
-        // TODO: Leave for later
-        // if (category === 'activity') {
-        //   showCannotEditActivityDialog();
-
-        //   return;
-        // }
 
         if (category === 'mileage') {
           this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {

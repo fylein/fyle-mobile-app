@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { Observable, from, noop } from 'rxjs';
+import {Observable, from, noop, concat, Subject} from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import { map, switchMap, finalize, shareReplay } from 'rxjs/operators';
+import {map, switchMap, finalize, shareReplay, takeUntil} from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -13,6 +13,7 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
 import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
+import {NetworkService} from '../../core/services/network.service';
 
 @Component({
   selector: 'app-my-view-report',
@@ -33,6 +34,8 @@ export class MyViewReportPage implements OnInit {
   canDelete$: Observable<boolean>;
   canResubmitReport$: Observable<boolean>;
   navigateBack = false;
+  isConnected$: Observable<boolean>;
+  onPageExit = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -42,10 +45,30 @@ export class MyViewReportPage implements OnInit {
     private loaderService: LoaderService,
     private router: Router,
     private popupService: PopupService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private networkService: NetworkService
   ) { }
 
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
+  }
+
   ngOnInit() {
+  }
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
   }
 
   getVendorName(etxn) {
@@ -72,6 +95,7 @@ export class MyViewReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.erpt$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
