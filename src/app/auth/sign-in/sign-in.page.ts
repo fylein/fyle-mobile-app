@@ -173,13 +173,6 @@ export class SignInPage implements OnInit {
   googleSignIn() {
     this.googleSignInLoading = true;
     from(this.googleAuthService.login()).pipe(
-      // concatMap((googleAuthResponse) => {
-      //   return from(this.loaderService.showLoader('Please wait...', 10000)).pipe(
-      //     map(() => {
-      //         return googleAuthResponse;
-      //       }
-      //     ));
-      // }),
       switchMap((googleAuthResponse) => {
         return this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
           catchError(err => {
@@ -193,7 +186,6 @@ export class SignInPage implements OnInit {
       }),
       finalize(() => {
         this.googleSignInLoading = false;
-        // from(this.loaderService.hideLoader());
       })
     ).subscribe(() => {
       this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
