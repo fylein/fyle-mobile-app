@@ -16,6 +16,7 @@ import { PopoverController } from '@ionic/angular';
 import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-popup/gallery-upload-success-popup.component';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { StorageService } from 'src/app/core/services/storage.service';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -31,6 +32,7 @@ export class CameraOverlayPage implements OnInit {
   captureCount: number;
   homeCurrency: string;
   activeFlashMode: string;
+  showInstaFyleIntro: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -39,7 +41,8 @@ export class CameraOverlayPage implements OnInit {
     private router: Router,
     private imagePicker: ImagePicker,
     private popoverController: PopoverController,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private storageService: StorageService
   ) { }
 
   setUpAndStartCamera() {
@@ -224,6 +227,24 @@ export class CameraOverlayPage implements OnInit {
     })
   }
 
+  disableInstaFyleIntro() {
+    this.storageService.set('hideInstaFyleIntroGif', true);
+    this.showInstaFyleIntro = false;
+  };
+
+  async showInstaFyleIntroImage() {
+    const hideInstaFyleIntroGif = await this.storageService.get('hideInstaFyleIntroGif');
+
+    if (!hideInstaFyleIntroGif) {
+      this.showInstaFyleIntro = true;
+      setTimeout(() => {
+        this.showInstaFyleIntro = false;
+      }, 2800)
+    } else {
+      this.showInstaFyleIntro = false;
+    }
+  }
+
   ionViewWillEnter() {
     this.captureCount = 0;
     this.isBulkMode = false;
@@ -236,10 +257,11 @@ export class CameraOverlayPage implements OnInit {
       this.homeCurrency = res;
     });
 
+    this.showInstaFyleIntroImage();
+
     setTimeout(() => {
       this.getFlashModes();
     }, 500);
-
   }
 
   ngOnInit() {
