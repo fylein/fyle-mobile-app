@@ -43,7 +43,7 @@ export class MyAdvancesPage implements OnInit {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.isConnected$.subscribe((isOnline) => {

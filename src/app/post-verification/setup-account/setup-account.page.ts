@@ -176,7 +176,7 @@ export class SetupAccountPage implements OnInit {
       concatMap(() => {
         return this.orgService.getCurrentOrg();
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.org$.subscribe((org) => {

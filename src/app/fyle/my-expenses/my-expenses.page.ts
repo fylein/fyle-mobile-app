@@ -245,7 +245,7 @@ export class MyExpensesPage implements OnInit {
       switchMap(params => {
         return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
@@ -265,7 +265,7 @@ export class MyExpensesPage implements OnInit {
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
       tap(count => console.log({ count })),
-      shareReplay()
+      shareReplay(1)
     );
 
     const paginatedScroll$ = this.myExpenses$.pipe(

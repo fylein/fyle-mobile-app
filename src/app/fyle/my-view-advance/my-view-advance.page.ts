@@ -28,11 +28,11 @@ export class MyViewAdvancePage implements OnInit {
         return this.advanceService.getAdvance(id);
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      shareReplay(1)
     );
   }
   ngOnInit() {
-    
+
   }
 
 }

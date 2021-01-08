@@ -144,7 +144,7 @@ export class TeamReportsPage implements OnInit {
       switchMap(params => {
         return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
@@ -152,7 +152,7 @@ export class TeamReportsPage implements OnInit {
         const queryParams = params.queryParams;
         return this.reportService.getTeamReportsCount(queryParams);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     const paginatedScroll$ = this.teamReports$.pipe(

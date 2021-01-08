@@ -144,10 +144,10 @@ export class MyViewReportPage implements OnInit {
           return etxn;
         })
       ),
-      shareReplay()
+      shareReplay(1)
     );
 
-    const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay());
+    const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
 
     this.canEdit$ = actions$.pipe(map(actions => actions.can_edit));
     this.canDelete$ = actions$.pipe(map(actions => actions.can_delete));

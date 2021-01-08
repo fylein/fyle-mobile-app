@@ -52,7 +52,7 @@ export class OtherRequestsComponent implements OnInit {
   hotelRequestCustomFieldValues: [];
   saveDratTripLoading = false;
   submitTripLoading = false;
-  
+
 
   otherDetailsForm: FormGroup;
 
@@ -334,7 +334,7 @@ export class OtherRequestsComponent implements OnInit {
       }).pipe(
         map(res => {
           const tripRequest: any = res.tripRequest;
-  
+
           const trp = {
             ...tripRequest,
             custom_field_values: fgValues.custom_field_values,
@@ -733,7 +733,7 @@ export class OtherRequestsComponent implements OnInit {
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.transportationMode$ = of(this.transportationRequestsService.getTransportationModes());
@@ -742,9 +742,9 @@ export class OtherRequestsComponent implements OnInit {
     this.initializeOtherRequests();
 
     if (this.id) {
-      this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id).pipe(shareReplay());
-      this.transportationRequest$ = this.tripRequestsService.getTransportationRequests(this.id).pipe(shareReplay());
-      this.advanceRequest$ = this.tripRequestsService.getAdvanceRequests(this.id).pipe(shareReplay());
+      this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id).pipe(shareReplay(1));
+      this.transportationRequest$ = this.tripRequestsService.getTransportationRequests(this.id).pipe(shareReplay(1));
+      this.advanceRequest$ = this.tripRequestsService.getAdvanceRequests(this.id).pipe(shareReplay(1));
 
       from(this.loaderService.showLoader('Getting trip details')).pipe(
         switchMap(() => {

@@ -153,14 +153,14 @@ export class MyReportsPage implements OnInit {
       switchMap(params => {
         return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
         return this.reportService.getMyReportsCount(params.queryParams);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
@@ -230,7 +230,7 @@ export class MyReportsPage implements OnInit {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.isConnected$.subscribe((isOnline) => {

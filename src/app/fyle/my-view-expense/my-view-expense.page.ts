@@ -96,14 +96,14 @@ export class MyViewExpensePage implements OnInit {
       switchMap(() => {
         return this.transactionService.getEtxn(txId);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap(etxn => {
         return this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.etxn$ = forkJoin(

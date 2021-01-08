@@ -56,11 +56,11 @@ export class MyTripsPage implements OnInit {
         }
         return acc.concat(curr);
       }, [] as ExtendedTripRequest[]),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.count$ = this.tripRequestsService.getMyTripsCount().pipe(
-      shareReplay()
+      shareReplay(1)
     );
 
     this.isInfiniteScrollRequired$ = this.myTripRequests$.pipe(

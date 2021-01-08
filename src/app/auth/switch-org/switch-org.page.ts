@@ -46,7 +46,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   ionViewWillEnter() {
     this.isLoading = true;
     this.orgs$ = this.offlineService.getOrgs().pipe(
-      shareReplay(),
+      shareReplay(1),
       finalize(() => {
         this.isLoading = false;
       })
@@ -66,11 +66,11 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   async proceed() {
-    const offlineData$ = this.offlineService.load().pipe(shareReplay());
-    const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay());
+    const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+    const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
-    const roles$ = from(this.authService.getRoles().pipe(shareReplay()));
-    const isOnline$ = this.networkService.isOnline().pipe(shareReplay());
+    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
+    const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
 
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -162,7 +162,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay());
+    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay(1));
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),

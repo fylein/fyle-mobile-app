@@ -208,7 +208,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$).pipe(
         switchMap(advanceRequest => {
           const policyViolations$ = this.checkPolicyViolation(advanceRequest).pipe(
-            shareReplay()
+            shareReplay(1)
           );
 
           let policyViolationActionDescription = '';
@@ -423,7 +423,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.customFieldValues = [];
     if (this.mode === 'edit') {
       this.actions$ = this.advanceRequestService.getActions(this.activatedRoute.snapshot.params.id).pipe(
-        shareReplay()
+        shareReplay(1)
       );
 
       this.actions$.subscribe(res => {
@@ -461,7 +461,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         return res.areq;
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      shareReplay(1)
     );
 
     const newAdvanceRequestPipe$ = forkJoin({

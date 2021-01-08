@@ -116,7 +116,7 @@ export class ViewTeamMileagePage implements OnInit {
         );
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.extendedMileage$.subscribe(res => {
@@ -124,7 +124,7 @@ export class ViewTeamMileagePage implements OnInit {
     });
 
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay()
+      shareReplay(1)
     );
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(

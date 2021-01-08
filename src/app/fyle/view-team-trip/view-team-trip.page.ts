@@ -277,8 +277,8 @@ export class ViewTeamTripPage implements OnInit {
 
     this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe();
     this.actions$ = this.tripRequestsService.getActions(id);
-    this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay());
-    this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay());
+    this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay(1));
+    this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay(1));
 
     this.canDoAction$ = this.actions$.pipe(
       map(actions => actions.can_approve || actions.can_inquire || actions.can_reject)
@@ -380,7 +380,7 @@ export class ViewTeamTripPage implements OnInit {
         return this.setRequiredTripDetails(transportationReq);
       }),
       reduce((acc, curr) => acc.concat(curr), []),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.hotelRequests$ = forkJoin([
@@ -402,7 +402,7 @@ export class ViewTeamTripPage implements OnInit {
           });
         }
       ),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.transformedAdvanceRequests$ = forkJoin({

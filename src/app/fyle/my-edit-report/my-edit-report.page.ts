@@ -236,7 +236,7 @@ export class MyEditReportPage implements OnInit {
     this.setupNetworkWatcher();
     this.extendedReport$ = this.reportService.getReport(this.activatedRoute.snapshot.params.id);
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay()
+      shareReplay(1)
     );
     const orgUserSettings$ = this.orgUserSettingsService.get();
 
@@ -273,7 +273,7 @@ export class MyEditReportPage implements OnInit {
               return etxn as Expense;
             });
           }),
-          shareReplay()
+          shareReplay(1)
         );
       }),
       finalize(() => from(this.loaderService.hideLoader()))

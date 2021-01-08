@@ -132,13 +132,13 @@ export class DashboardPage implements OnInit {
 
   ionViewWillEnter() {
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
-     shareReplay(),
+     shareReplay(1),
     );
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay(),
+      shareReplay(1),
     );
     this.homeCurrency$ = this.offlineService.getHomeCurrency().pipe(
-      shareReplay(),
+      shareReplay(1),
     );
 
     forkJoin({

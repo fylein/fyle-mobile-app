@@ -121,7 +121,7 @@ export class ViewTeamExpensePage implements OnInit {
         );
       }),
       finalize(() => this.loaderService.hideLoader()),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.etxnWithoutCustomProperties$.subscribe(res => {
@@ -132,7 +132,7 @@ export class ViewTeamExpensePage implements OnInit {
       concatMap(etxn => {
         return this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.etxn$ = combineLatest(

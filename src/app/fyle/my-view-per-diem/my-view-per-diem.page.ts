@@ -78,11 +78,11 @@ export class MyViewPerDiemPage implements OnInit {
         return this.transactionService.getExpenseV2(id);
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay()
+      shareReplay(1)
     );
 
     this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(

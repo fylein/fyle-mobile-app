@@ -268,7 +268,7 @@ export class MyProfilePage implements OnInit {
   reset() {
     this.eou$ = from(this.authService.getEou());
     const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
-      shareReplay()
+      shareReplay(1)
     );
     this.myETxnc$ = this.transactionService.getAllMyETxnc().pipe(
       map(etxnc => this.setMyExpensesCountBySource(etxnc))

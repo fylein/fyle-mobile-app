@@ -63,7 +63,7 @@ export class ViewTeamReportPage implements OnInit {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -163,10 +163,10 @@ export class ViewTeamReportPage implements OnInit {
           return etxn;
         })
       ),
-      shareReplay()
+      shareReplay(1)
     );
 
-    const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay());
+    const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
 
     this.canEdit$ = actions$.pipe(map(actions => actions.can_edit));
     this.canDelete$ = actions$.pipe(map(actions => actions.can_delete));

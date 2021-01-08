@@ -181,7 +181,7 @@ export class CorporateCardExpensesPage implements OnInit {
       switchMap(params => {
         return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
@@ -197,7 +197,7 @@ export class CorporateCardExpensesPage implements OnInit {
         queryParams.state = queryParams.state || defaultState;
         return this.corporateCreditCardExpenseService.getv2CardTransactionsCount(queryParams);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
 

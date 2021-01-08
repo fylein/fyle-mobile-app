@@ -47,11 +47,11 @@ export class MyViewAdvanceRequestPage implements OnInit {
         return this.advanceRequestService.getAdvanceRequest(id);
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(
-      shareReplay()
+      shareReplay(1)
     );
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(

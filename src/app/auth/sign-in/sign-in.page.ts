@@ -93,7 +93,7 @@ export class SignInPage implements OnInit {
             this.handleError(err);
             return throwError(err);
           }),
-          shareReplay(),
+          shareReplay(1),
           finalize(async () => {
             this.emailLoading = false;
           })
