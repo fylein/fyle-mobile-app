@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { Observable, concat, noop, from, of } from 'rxjs';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ModalController, ToastController } from '@ionic/angular';
+import {LoadingController, ModalController, ToastController} from '@ionic/angular';
 import { SelectionModalComponent } from './selection-modal/selection-modal.component';
 import { SignupDetailsService } from 'src/app/core/services/signup-details.service';
 import { map, tap, switchMap, finalize } from 'rxjs/operators';
@@ -54,7 +54,8 @@ export class SignupDetailsEnterprisePage implements OnInit {
     private userService: UserService,
     private routerAuthService: RouterAuthService,
     private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private loadingController: LoadingController
   ) { }
 
   ngOnInit() {
@@ -128,7 +129,8 @@ export class SignupDetailsEnterprisePage implements OnInit {
       component: SelectionModalComponent,
       componentProps: {
         header: 'Choose your role',
-        selectionItems: roles
+        selectionItems: roles,
+        selectedValue: this.fg.controls.role.value
       }
     });
 
@@ -146,7 +148,8 @@ export class SignupDetailsEnterprisePage implements OnInit {
       component: SelectionModalComponent,
       componentProps: {
         header: 'Choose Employee Count',
-        selectionItems: employeeRanges
+        selectionItems: employeeRanges,
+        selectedValue: this.fg.controls.count.value
       }
     });
 
@@ -164,7 +167,8 @@ export class SignupDetailsEnterprisePage implements OnInit {
       component: SelectionModalComponent,
       componentProps: {
         header: 'Choose Country',
-        selectionItems: countries
+        selectionItems: countries,
+        selectedValue: this.sfg.controls.country.value
       }
     });
 
@@ -181,7 +185,8 @@ export class SignupDetailsEnterprisePage implements OnInit {
       component: SelectionModalComponent,
       componentProps: {
         header: 'Choose Region',
-        selectionItems: this.regions
+        selectionItems: this.regions,
+        selectedValue: this.sfg.controls.region.value
       }
     });
 
@@ -198,7 +203,7 @@ export class SignupDetailsEnterprisePage implements OnInit {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       this.currentState = this.PageStates.secondForm;
-      // TODO: Add when Tracking is added 
+      // TODO: Add when Tracking is added
       // rasing event called choose persona with persona details that the user filled up in last form
       // TrackingService.onChosingPersona({Asset: 'Mobile', Persona: 'Enterprise'});
       // // setting up company details in clevertap profile
@@ -228,7 +233,24 @@ export class SignupDetailsEnterprisePage implements OnInit {
     this.sfg.markAllAsTouched();
     if (this.sfg.valid) {
       this.finalSignupLoading = true;
-      of([]).pipe(
+      const signupParams = {
+        auth: 'email',
+        asset: 'mobile',
+        employee_count: this.fg.value.count,
+        country: this.sfg.value.country,
+        region: this.sfg.value.region,
+        employee_type: null
+      };
+      this.routerAuthService.basicSignup(
+        this.activateRoute.snapshot.params.email,
+        this.sfg.value.name,
+        this.fg.value.role,
+        this.sfg.value.phone.trim() === '' ? null : this.sfg.value.phone.trim(),
+        signupParams,
+        'enterprise',
+        this.sfg.value.password,
+        this.sfg.value.region
+      ).pipe(
         tap(() => {
           // setting up user details in clevertap profile
           // TrackingService.updateSegmentProfile({
@@ -238,26 +260,6 @@ export class SignupDetailsEnterprisePage implements OnInit {
           //   // Phone number should be formatted as +[country code][number], have to fix
           //   // "Phone": ("" + vm.country.code + vm.phoneNumber)
           // });
-        }),
-        switchMap(() => {
-          const signupParams = {
-            auth: 'email',
-            asset: 'mobile',
-            employee_count: this.fg.value.count,
-            country: this.fg.value.country,
-            region: this.fg.value.region,
-            employee_type: null
-          };
-          return this.routerAuthService.basicSignup(
-            this.activateRoute.snapshot.params.email,
-            this.sfg.value.name,
-            this.fg.value.role,
-            this.sfg.value.phone,
-            signupParams,
-            null,
-            this.sfg.value.password,
-            this.sfg.value.region
-          );
         }),
         finalize(() => this.finalSignupLoading = false),
         tap(() => {
@@ -271,6 +273,14 @@ export class SignupDetailsEnterprisePage implements OnInit {
             name: this.sfg.value.name
           }
         ]);
+      }, async err => {
+        const errorMessage = await this.loadingController.create({
+          message: 'Something went wrong.Please try again',
+          duration: 1000,
+          spinner: null
+        });
+
+        await errorMessage.present();
       });
     } else {
       const toast = await this.toastController.create({

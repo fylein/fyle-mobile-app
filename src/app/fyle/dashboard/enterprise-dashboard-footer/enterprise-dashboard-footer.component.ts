@@ -21,7 +21,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
     private dashboardService: DashboardService,
     private router: Router
   ) { }
-  
+
 
   async setIconList() {
     const orgSettings = await this.offlineService.getOrgSettings().toPromise();
@@ -100,18 +100,21 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
           name: 'Create new report',
           icon: 'add-report',
           type: 'report',
+          cssClass: 'unit-action',
           route: ['/', 'enterprise', 'my_create_report']
         },
         trips: {
           name: 'Request new trip',
           icon: 'add-trip',
           type: 'trip',
+          cssClass: 'unit-action',
           route: ['/', 'enterprise', 'my_add_edit_trip']
         },
         advances: {
           name: 'Request new advance',
           icon: 'add-advance',
           type: 'advance',
+          cssClass: 'unit-action',
           route: ['/', 'enterprise', 'add_edit_advance_request']
         }
       };

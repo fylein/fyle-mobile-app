@@ -97,7 +97,7 @@ export class NewPasswordPage implements OnInit {
             header: 'Password changed successfully',
             route: ['/', 'auth', 'switch_org']
           },
-          cssClass: 'error-popover'
+          cssClass: 'dialog-popover'
         });
 
         await popup.present();
@@ -109,7 +109,7 @@ export class NewPasswordPage implements OnInit {
             header: 'Setting new password failed. Please try again later.',
             route: ['/', 'auth', 'sign_in']
           },
-          cssClass: 'error-popover'
+          cssClass: 'dialog-popover'
         });
 
         await popup.present();

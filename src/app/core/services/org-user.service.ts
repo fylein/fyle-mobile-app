@@ -88,6 +88,15 @@ export class OrgUserService {
     });
   }
 
+  @Cacheable()
+  getCurrent() {
+    return this.apiService.get('/eous/current').pipe(
+      map(eou => {
+        return this.dataTransformService.unflatten(eou);;
+      })
+    );
+  }
+
 
   // TODO: move to v2
   findDelegatedAccounts() {

@@ -22,6 +22,8 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
+
 
 
 @NgModule({
@@ -48,7 +50,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     FySelectModalComponent,
     PolicyViolationDialogComponent,
     CameraOptionsPopupComponent,
-    ViewAttachmentsComponent
+    ViewAttachmentsComponent,
+    DraftAdvanceSummaryComponent
   ]
 })
 export class AddEditAdvanceRequestPageModule {}

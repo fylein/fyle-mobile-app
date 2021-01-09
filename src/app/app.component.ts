@@ -155,7 +155,7 @@ export class AppComponent implements OnInit {
     const orgs$ = this.offlineService.getOrgs();
     const currentOrg$ = this.offlineService.getCurrentOrg();
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay()
+      shareReplay(1)
     );
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.offlineService.getDelegatedAccounts().pipe(
@@ -193,7 +193,7 @@ export class AppComponent implements OnInit {
           deviceInfo: deviceInfo$,
           isSwitchedToDelegator: isSwitchedToDelegator$,
           isConnected: of(isConnected),
-          eou: this.authService.getEou()
+          eou: this.offlineService.getCurrentUser()
         });
       })
     ).subscribe((res) => {
@@ -236,6 +236,12 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'my_expenses']
           },
           {
+            title: 'Cards',
+            isVisible: orgSettings.corporate_credit_card_settings.enabled,
+            icon: 'fy-cards-new',
+            route: ['/', 'enterprise', 'corporate_card_expenses']
+          },
+          {
             title: 'Reports',
             isVisible: true,
             icon: 'fy-reports-new',
@@ -259,18 +265,6 @@ export class AppComponent implements OnInit {
             isVisible: isDelegatee && !this.isSwitchedToDelegator,
             icon: 'fy-delegate-switch',
             route: ['/', 'enterprise', 'delegated_accounts']
-          },
-          {
-            title: 'Cards',
-            isVisible: orgSettings.corporate_credit_card_settings.enabled,
-            icon: 'fy-cards-new',
-            route: ['/', 'enterprise', 'corporate_card_expenses']
-          },
-          {
-            title: 'Receipts',
-            isVisible: orgSettings.receipt_settings.enabled,
-            icon: 'fy-receipts-new',
-            route: ['/', 'enterprise', 'my_dashboard7']
           },
           {
             title: 'Switch to own account',
@@ -341,6 +335,12 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'my_expenses']
           },
           {
+            title: 'Cards',
+            isVisible: orgSettings.corporate_credit_card_settings.enabled,
+            icon: 'fy-cards-new',
+            route: ['/', 'enterprise', 'corporate_card_expenses']
+          },
+          {
             title: 'Reports',
             isVisible: true,
             icon: 'fy-reports-new',
@@ -367,20 +367,6 @@ export class AppComponent implements OnInit {
             isVisible: isDelegatee && !this.isSwitchedToDelegator,
             icon: 'fy-delegate-switch',
             route: ['/', 'enterprise', 'delegated_accounts'],
-            disabled: true
-          },
-          {
-            title: 'Corporate Cards',
-            isVisible: orgSettings.corporate_credit_card_settings.enabled,
-            icon: 'fy-cards-new',
-            route: ['/', 'enterprise', 'corporate_card_expenses'],
-            disabled: true
-          },
-          {
-            title: 'Receipts',
-            isVisible: orgSettings.receipt_settings.enabled,
-            icon: 'fy-receipts-new',
-            route: ['/', 'enterprise', 'my_dashboard7'],
             disabled: true
           },
           {

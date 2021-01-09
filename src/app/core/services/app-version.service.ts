@@ -42,7 +42,7 @@ export class AppVersionService {
 
   load() {
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(
-      shareReplay()
+      shareReplay(1)
     );
     const platformOS$ = deviceInfo$.pipe(
       map(

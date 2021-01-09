@@ -911,7 +911,7 @@ export class OtherRequestsComponent implements OnInit {
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.transportationMode$ = of(this.transportationRequestsService.getTransportationModes());
@@ -920,9 +920,9 @@ export class OtherRequestsComponent implements OnInit {
     this.initializeOtherRequests();
 
     if (this.id) {
-      this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id).pipe(shareReplay());
-      this.transportationRequest$ = this.tripRequestsService.getTransportationRequests(this.id).pipe(shareReplay());
-      this.advanceRequest$ = this.tripRequestsService.getAdvanceRequests(this.id).pipe(shareReplay());
+      this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id).pipe(shareReplay(1));
+      this.transportationRequest$ = this.tripRequestsService.getTransportationRequests(this.id).pipe(shareReplay(1));
+      this.advanceRequest$ = this.tripRequestsService.getAdvanceRequests(this.id).pipe(shareReplay(1));
       this.actions$ = this.tripRequestsService.getActions(this.id);
 
       from(this.loaderService.showLoader('Getting trip details')).pipe(

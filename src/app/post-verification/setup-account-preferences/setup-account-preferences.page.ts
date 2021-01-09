@@ -44,7 +44,7 @@ export class SetupAccountPreferencesPage implements OnInit {
     this.isConnected$.subscribe(noop);
 
     this.eou$ = from(this.authService.getEou());
-    this.org$ = this.orgService.getCurrentOrg().pipe(shareReplay());
+    this.org$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
     this.companyName$ = this.org$.pipe(
       map(org => org.name)
     );

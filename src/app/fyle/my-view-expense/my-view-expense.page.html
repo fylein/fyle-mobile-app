@@ -12,7 +12,6 @@
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
     <div *ngIf="etxn && policyViloations$ | async">
-      <!-- TODO: on click scroll to comment section -->
       <span *ngIf="policyViloations$ | async as policyViloations">
         <div class="view-expense--policy-container" *ngIf="policyViloations && etxn.tx_policy_flag">
           <span>
