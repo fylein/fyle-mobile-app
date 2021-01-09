@@ -46,7 +46,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   ionViewWillEnter() {
     this.isLoading = true;
     this.orgs$ = this.offlineService.getOrgs().pipe(
-      shareReplay(),
+      shareReplay(1),
       finalize(() => {
         this.isLoading = false;
       })
@@ -66,11 +66,11 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   async proceed() {
-    const offlineData$ = this.offlineService.load().pipe(shareReplay());
-    const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay());
+    const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+    const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
-    const roles$ = from(this.authService.getRoles().pipe(shareReplay()));
-    const isOnline$ = this.networkService.isOnline().pipe(shareReplay());
+    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
+    const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
 
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -119,36 +119,21 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
         });
       }
 
-      let oneClickAction;
-      if (eou.ou.is_primary) {
-        const oneClickActionSettings = orgUserSettings.one_click_action_settings;
-        if (oneClickActionSettings.allowed && oneClickActionSettings.enabled) {
-          oneClickAction = oneClickActionSettings.module;
-          from(this.storageService.set('oneClickAction', oneClickAction)).subscribe(noop);
+      if (pendingDetails) {
+        if (roles.indexOf('OWNER') > -1) {
+          this.router.navigate(['/', 'post_verification', 'setup_account']);
+        } else {
+          this.router.navigate(['/', 'post_verification', 'invited_user']);
         }
+      } else if (eou.ou.status === 'ACTIVE') {
+        if (!isOnline) {
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        }
+      } else if (eou.ou.status === 'DISABLED') {
+        this.router.navigate(['/', 'auth', 'disabled']);
       }
-
-      from(this.storageService.get('oneClickAction')).subscribe(oneClickActionInternal => {
-        if (pendingDetails) {
-          if (roles.indexOf('OWNER') > -1) {
-            this.router.navigate(['/', 'post_verification', 'setup_account']);
-          } else {
-            this.router.navigate(['/', 'post_verification', 'invited_user']);
-          }
-        } else if (eou.ou.status === 'ACTIVE') {
-          if (oneClickActionInternal === 'insta_fyle') {
-            this.router.navigate(['/', 'enterprise', 'camera_overlay', { isOneClick: true }]);
-          } else {
-            if (!isOnline) {
-              this.router.navigate(['/', 'enterprise', 'my_expenses']);
-            } else {
-              this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-            }
-          }
-        } else if (eou.ou.status === 'DISABLED') {
-          this.router.navigate(['/', 'auth', 'disabled']);
-        }
-      });
     });
   }
 
@@ -177,7 +162,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay());
+    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay(1));
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),

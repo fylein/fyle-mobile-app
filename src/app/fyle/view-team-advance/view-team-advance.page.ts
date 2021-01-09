@@ -59,7 +59,7 @@ export class ViewTeamAdvancePage implements OnInit {
     );
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(
-      shareReplay()
+      shareReplay(1)
     );
 
     this.showAdvanceActions$ = this.actions$.pipe(map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject))

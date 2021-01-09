@@ -10,6 +10,7 @@ import {Router} from '@angular/router';
 export class ErrorComponent implements OnInit {
 
   @Input() header = 'Account dosent Exist';
+  @Input() error;
 
   constructor(
     private popoverController: PopoverController,

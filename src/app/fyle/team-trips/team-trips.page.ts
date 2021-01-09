@@ -1,7 +1,7 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import {Component, OnInit, EventEmitter, OnDestroy} from '@angular/core';
 import { Subject, Observable, from, noop, concat } from 'rxjs';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';
+import {concatMap, switchMap, finalize, map, scan, shareReplay, tap, take, takeUntil} from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -22,6 +22,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
   loadData$: Subject<{pageNumber: number, state: string}> = new Subject();
   currentPageNumber = 1;
   state = 'PENDING';
+  onPageExit = new Subject();
 
   constructor(
     private loaderService: LoaderService,
@@ -33,15 +34,19 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
   ngOnInit() {
   }
 
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
   ionViewWillEnter() {
     this.currentPageNumber = 1;
     this.teamTripRequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
 
-        const extraParams = state === 'PENDING'? { 
+        const extraParams = state === 'PENDING' ? {
           trp_approval_state: ['in.(APPROVAL_PENDING)'],
           trp_state: 'eq.APPROVAL_PENDING'
-        }: { 
+        } : {
           or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
           trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
         };
@@ -72,11 +77,11 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
     );
 
     this.count$ = this.loadData$.pipe(
-      switchMap(({ state })=> {
-        const extraParams = state === 'PENDING'? { 
+      switchMap(({ state }) => {
+        const extraParams = state === 'PENDING' ? {
           trp_approval_state: ['in.(APPROVAL_PENDING)'],
           trp_state: 'eq.APPROVAL_PENDING'
-        }: { 
+        } : {
           or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
           trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
         };
@@ -89,7 +94,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
       }),
       shareReplay(1)
     );
-    
+
     // this.tripRequestsService.getTeamTripsCount({
     //   trp_approval_state: ['in.(APPROVAL_PENDING)'],
     //   trp_state: 'eq.APPROVAL_PENDING'
@@ -131,7 +136,11 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);

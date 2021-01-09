@@ -406,7 +406,6 @@ export class MyAddEditTripPage implements OnInit {
       }
     ];
 
-    // TODO use formBuilder.group
     this.minDate = moment(new Date()).format('y-MM-DD');
 
     this.fg = new FormGroup({

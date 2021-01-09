@@ -15,6 +15,7 @@ export class SelectionModalComponent implements OnInit, AfterViewInit {
 
   @Input() header = '';
   @Input() selectionItems: string[] = [];
+  @Input() selectedValue: string;
 
   constructor(
     private modalController: ModalController,

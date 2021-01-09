@@ -20,10 +20,17 @@
 
 <ion-content>
   <div class="selection-modal--header">
-    {{header | lowercase}}
+    {{header | lowercase}} {{selectedValue}}
   </div>
   <div matRipple class="selection-modal--list-element"
     *ngFor="let filteredListItem of filteredList$ | async as list" (click)="onElementSelect(filteredListItem)">
-    {{filteredListItem}}
+    <div>
+      {{filteredListItem}}
+    </div>
+    <div *ngIf="filteredListItem === selectedValue">
+      <mat-icon class="selection-modal--selected-list-element">
+        check
+      </mat-icon>
+    </div>
   </div>
 </ion-content>

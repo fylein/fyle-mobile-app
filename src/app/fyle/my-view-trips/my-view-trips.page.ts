@@ -274,12 +274,12 @@ export class MyViewTripsPage implements OnInit {
         return this.tripRequestsService.getTrip(id);
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      shareReplay(1)
     );
 
-    this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe(shareReplay());
-    this.actions$ = this.tripRequestsService.getActions(id).pipe(shareReplay());
-    this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay());
+    this.approvals$ = this.tripRequestsService.getApproversByTripRequestId(id).pipe(shareReplay(1));
+    this.actions$ = this.tripRequestsService.getActions(id).pipe(shareReplay(1));
+    this.advanceRequests$ = this.tripRequestsService.getAdvanceRequests(id).pipe(shareReplay(1));
     this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll();
 
     this.activeApprovals$ = this.approvals$.pipe(
@@ -360,7 +360,7 @@ export class MyViewTripsPage implements OnInit {
         return this.setRequiredTripDetails(transportationReq);
       }),
       reduce((acc, curr) => acc.concat(curr), []),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.hotelRequests$ = forkJoin([
@@ -382,7 +382,7 @@ export class MyViewTripsPage implements OnInit {
           });
         }
       ),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.transformedAdvanceRequests$ = forkJoin({

@@ -163,24 +163,6 @@
       </div>
     </div>
 
-    <ng-container *ngIf="eou$|async as eou">
-      <div class="my-profile--card my-profile--card__action" *ngIf="eou.ou.is_primary && orgUserSettings?.one_click_action_settings?.allowed">
-        <div class="my-profile--card-title">One Click Action</div>
-        <div class="my-profile--cards-content my-profile--toggle-container">
-          <span class="my-profile--toggle-label"> Create expense from camera in one go. </span>
-          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
-            [(ngModel)]="orgUserSettings.one_click_action_settings.enabled" (ionChange)="toggleOneClickActionMode()">
-          </ion-toggle>
-        </div>
-        <div>
-          <ion-label></ion-label>
-          <app-fy-select [label]="'Module'" [(ngModel)]="oneClickActionSelectedModuleId"
-            [options]="oneClickActionOptions" (ngModelChange)="oneClickActionModuleChanged()"></app-fy-select>
-        </div>
-      </div>
-    </ng-container>
-
-
     <!-- Whatsapp card start -->
     <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.whatsapp_fyle_settings?.allowed">
       <div class="my-profile--card-title">WhatsApp</div>

@@ -239,7 +239,7 @@ export class ReportService {
     return this.getMyReportsCount({
       rp_state: 'in.(DRAFT,APPROVER_PENDING)'
     }).pipe(
-      shareReplay()
+      shareReplay(1)
     );
   }
 

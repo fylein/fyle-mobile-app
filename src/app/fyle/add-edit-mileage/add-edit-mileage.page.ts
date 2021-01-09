@@ -182,7 +182,7 @@ export class AddEditMileagePage implements OnInit {
           return (finalDistance).toFixed(2);
         }
       }),
-      shareReplay()
+      shareReplay(1)
     );
   }
 
@@ -365,7 +365,7 @@ export class AddEditMileagePage implements OnInit {
 
         return tfcMap;
       }),
-      shareReplay()
+      shareReplay(1)
     );
   }
 
@@ -439,7 +439,7 @@ export class AddEditMileagePage implements OnInit {
             && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()))
           .filter(category => category.enabled);
       }),
-      shareReplay()
+      shareReplay(1)
     );
   }
 
@@ -1393,7 +1393,7 @@ export class AddEditMileagePage implements OnInit {
           return (finalDistance).toFixed(2);
         }
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     return from(this.loaderService.showLoader())
@@ -1406,7 +1406,7 @@ export class AddEditMileagePage implements OnInit {
             take(1),
             switchMap(isConnected => {
             if (isConnected) {
-              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
               return policyViolations$.pipe(
 
                 map(this.policyService.getCriticalPolicyRules),
@@ -1626,7 +1626,7 @@ export class AddEditMileagePage implements OnInit {
             take(1),
             switchMap(isConnected => {
               if (isConnected) {
-                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
                 return policyViolations$.pipe(
                   map(this.policyService.getCriticalPolicyRules),
                   switchMap(criticalPolicyViolations => {

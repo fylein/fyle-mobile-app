@@ -13,11 +13,11 @@ import {AccountsService} from './accounts.service';
 import {TransactionFieldConfigurationsService} from './transaction-field-configurations.service';
 import {StorageService} from './storage.service';
 import {CurrencyService} from './currency.service';
-import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import {catchError, concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
 import {forkJoin, from} from 'rxjs';
 import {PermissionsService} from './permissions.service';
 import {Org} from '../models/org.model';
-import {Cacheable} from 'ts-cacheable';
+import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 import {OrgUserService} from './org-user.service';
 
 @Injectable({
@@ -45,6 +45,37 @@ export class OfflineService {
   ) { }
 
   load() {
+    globalCacheBusterNotifier.next();
+    const clearOffline$ = from([
+      'currentUser',
+      'delegatedAccounts',
+      'cachedCurrencies',
+      'cachedOrgSettings',
+      'cachedOrgUserSettings',
+      'activeExpenseTab',
+      'allowedCostCenters',
+      'defaultCostCenter',
+      'cachedHomeCurrency',
+      'cachedCategories',
+      'cachedPaymentModeAccounts',
+      'cachedCostCenters',
+      'cachedProjects',
+      'cachedPerDiemRates',
+      'cachedCustomInputs',
+      'cachedCurrentOrg',
+      'cachedOrgs',
+      'cachedReportActions',
+      'cachedTransactionFieldConfigurationsMap',
+      'activeCorporateCardExpenseTab',
+    ]).pipe(
+      concatMap(key => {
+        return from(this.storageService.delete(key));
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr);
+      }, [])
+    );
+
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const allCategories$ = this.getAllCategories();
@@ -62,22 +93,44 @@ export class OfflineService {
 
     this.appVersionService.load();
 
-    return forkJoin([
-      orgSettings$,
-      orgUserSettings$,
-      allCategories$,
-      costCenters$,
-      projects$,
-      perDiemRates$,
-      customInputs$,
-      currentOrg$,
-      orgs$,
-      accounts$,
-      transactionFieldConfigurationsMap$,
-      currencies$,
-      homeCurrency$,
-      delegatedAccounts$
-    ]);
+    return clearOffline$.pipe(
+      switchMap(() => {
+        return forkJoin([
+          orgSettings$,
+          orgUserSettings$,
+          allCategories$,
+          costCenters$,
+          projects$,
+          perDiemRates$,
+          customInputs$,
+          currentOrg$,
+          orgs$,
+          accounts$,
+          transactionFieldConfigurationsMap$,
+          currencies$,
+          homeCurrency$,
+          delegatedAccounts$
+        ]);
+      })
+    );
+  }
+
+  getCurrentUser() {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.orgUserService.getCurrent().pipe(
+              tap((currentUser) => {
+                this.storageService.set('currentUser', currentUser);
+              })
+            );
+          } else {
+            return from(this.storageService.get('currentUser'));
+          }
+        }
+      )
+    );
   }
 
   getDelegatedAccounts() {

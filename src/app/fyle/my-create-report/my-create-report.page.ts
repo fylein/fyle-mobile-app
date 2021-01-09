@@ -192,7 +192,7 @@ export class MyCreateReportPage implements OnInit {
     };
 
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay()
+      shareReplay(1)
     );
     const orgUserSettings$ = this.orgUserSettingsService.get();
 
@@ -231,7 +231,7 @@ export class MyCreateReportPage implements OnInit {
         );
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      shareReplay(1)
     ).subscribe(res => {
       this.readyToReportEtxns = res;
       this.getReportTitle();

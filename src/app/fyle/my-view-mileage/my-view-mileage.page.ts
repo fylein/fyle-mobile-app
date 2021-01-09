@@ -51,11 +51,11 @@ export class MyViewMileagePage implements OnInit {
         return this.transactionService.getExpenseV2(id);
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay()
+      shareReplay(1)
     );
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
@@ -63,9 +63,9 @@ export class MyViewMileagePage implements OnInit {
         return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
       }),
       map(res => {
-        return res.map(customProperties => { 
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties); 
-          return customProperties; 
+        return res.map(customProperties => {
+          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+          return customProperties;
         })
       })
     )

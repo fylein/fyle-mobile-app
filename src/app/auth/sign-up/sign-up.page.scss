@@ -27,7 +27,6 @@ $offline-sub-title: #ababab;
     font-size: 32px;
     font-weight: 700;
     padding: 8px;
-    letter-spacing: 1.6px;
   }
 
   &--flash {
@@ -46,6 +45,7 @@ $offline-sub-title: #ababab;
   }
 
   &--form-field {
+    font-size: 16px;
     width: 100%;
   }
 

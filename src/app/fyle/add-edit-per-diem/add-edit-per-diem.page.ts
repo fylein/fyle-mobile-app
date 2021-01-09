@@ -348,7 +348,7 @@ export class AddEditPerDiemPage implements OnInit {
 
         return tfcMap;
       }),
-      shareReplay()
+      shareReplay(1)
     );
   }
 
@@ -424,7 +424,7 @@ export class AddEditPerDiemPage implements OnInit {
             && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()))
           .filter(category => category.enabled);
       }),
-      shareReplay()
+      shareReplay(1)
     );
   }
 
@@ -492,7 +492,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   getEditExpense() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
-      shareReplay()
+      shareReplay(1)
     );
   }
 
@@ -587,7 +587,7 @@ export class AddEditPerDiemPage implements OnInit {
             })
           );
         }),
-        shareReplay()
+        shareReplay(1)
       );
   }
 
@@ -1232,7 +1232,7 @@ export class AddEditPerDiemPage implements OnInit {
             take(1),
             switchMap(isConnected => {
             if (isConnected) {
-              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
               return policyViolations$.pipe(
 
                 map(this.policyService.getCriticalPolicyRules),
@@ -1383,7 +1383,7 @@ export class AddEditPerDiemPage implements OnInit {
           return this.generateEtxnFromFg(this.etxn$, customFields$);
         }),
         switchMap(etxn => {
-          const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+          const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
           return policyViolations$.pipe(
             map(this.policyService.getCriticalPolicyRules),
             switchMap(policyViolations => {

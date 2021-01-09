@@ -76,7 +76,7 @@ export class SignUpPage implements OnInit, AfterViewChecked {
         status: err.status,
         email: this.userEmail
       },
-      cssClass: 'error-popover'
+      cssClass: 'dialog-popover'
     });
 
     await errorPopover.present();

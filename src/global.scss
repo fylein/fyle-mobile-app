@@ -25,6 +25,8 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
+@import "assets/fonts/font.css";
+
 $header-input-interior: #eeeeee;
 
 :root {
@@ -34,7 +36,7 @@ $header-input-interior: #eeeeee;
   --ion-color-fyle-primary-contrast-rgb: 255, 255, 255;
   --ion-color-fyle-primary-shade: #e02d5a;
   --ion-color-fyle-primary-tint: #ff4775;
-  --ion-font-family: "aktiv-grotesk", "Lato", sans-serif;
+  --ion-font-family: 'aktiv-grotesk', 'Lato', sans-serif;
 
 }
 
@@ -304,4 +306,9 @@ textarea, input {
   .mat-form-field-wrapper {
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
   }
+}
+
+.swiper-pagination-fraction, .swiper-pagination-custom, .swiper-container-horizontal>.swiper-pagination-bullets {
+  bottom: 45%;
+  --bullet-background-active: #cbc8c8;
 }

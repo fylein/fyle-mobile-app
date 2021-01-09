@@ -18,10 +18,10 @@
         <input id="sign-in--email" (keyup.enter)="checkIfEmailExists()" formControlName="email" type="email" matInput placeholder="Work Email">
       </mat-form-field>
       <div class="sign-in--error" *ngIf="fg.controls.email.touched && !fg.controls.email.valid && !fg.controls.email.value">
-        Please enter an email
+        Please enter an email.
       </div>
       <div class="sign-in--error" *ngIf="fg.controls.email.touched && !fg.controls.email.valid && fg.controls.email.value">
-        Please enter an valid email
+        Please enter a valid email.
       </div>
       <div *ngIf="emailSet">
         <ion-grid>
@@ -44,7 +44,7 @@
         <input id="sign-in--password" (keyup.enter)="signInUser()" formControlName="password" [type]="hide ? 'password': 'text'" matInput
           placeholder="Password">
         <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
-          {{hide ? 'visibility_off' : 'visibility'}}
+          {{hide ? 'visibility' : 'visibility_off'}}
         </mat-icon>
       </mat-form-field>
       <div class="sign-in--error" *ngIf="fg.controls.password.touched && !fg.controls.password.valid && !fg.controls.password.value">

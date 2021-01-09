@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
-import { StorageService } from './storage.service';
-import { TokenService } from './token.service';
-import { ApiService } from './api.service';
-import { switchMap, map, finalize } from 'rxjs/operators';
-import { DataTransformService } from './data-transform.service';
-import { forkJoin, Observable, from, iif } from 'rxjs';
-import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { JwtHelperService } from './jwt-helper.service';
+import {Injectable} from '@angular/core';
+import {StorageService} from './storage.service';
+import {TokenService} from './token.service';
+import {ApiService} from './api.service';
+import {switchMap, map, finalize} from 'rxjs/operators';
+import {DataTransformService} from './data-transform.service';
+import {forkJoin, Observable, from, iif} from 'rxjs';
+import {ExtendedOrgUser} from '../models/extended-org-user.model';
+import {JwtHelperService} from './jwt-helper.service';
+import {Cacheable} from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'

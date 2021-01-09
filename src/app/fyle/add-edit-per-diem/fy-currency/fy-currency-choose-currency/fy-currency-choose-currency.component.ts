@@ -33,7 +33,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
-      shareReplay()
+      shareReplay(1)
     );
 
     this.currencies$.subscribe(noop);

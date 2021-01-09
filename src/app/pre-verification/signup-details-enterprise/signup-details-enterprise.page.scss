@@ -77,7 +77,9 @@ $completed: #25ae88;
     }
 
     &__not_required {
-      content: none;
+      &::after {
+        content: none;
+      }
     }
   }
 
@@ -89,6 +91,12 @@ $completed: #25ae88;
     color: $header-text;
     position: relative;
     top: -7px;
+  }
+
+  &--error {
+    color: #f00;
+    margin-top: 4px;
+    margin-bottom: 4px;
   }
 
   &--password-rules {

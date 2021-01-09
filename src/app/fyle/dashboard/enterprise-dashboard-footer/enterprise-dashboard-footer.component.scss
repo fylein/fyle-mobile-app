@@ -33,3 +33,28 @@ $cta-icon-color: #e40566d9;
     margin: 5px;
   }
 }
+
+.unit-action {
+  margin: 0 36px;
+  width: auto;
+  .dashboard-footer {
+    &--block-internal {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 6px;
+    }
+
+    &--icon-card {
+      height: 22px;
+      width: 22px;
+      margin-right: 12px;
+      top: 2px;
+      position: relative;
+    }
+
+    &--icon-text {
+      font-size: 12px;
+    }
+  }
+}

@@ -7,7 +7,7 @@ import {ResetPasswordPage} from './reset-password.page';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
-import {FormButtonValidationDirective} from '../../shared/directive/form-button-validation.directive';
+import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -19,11 +19,11 @@ import {FormButtonValidationDirective} from '../../shared/directive/form-button-
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    SharedModule
   ],
   declarations: [
-    ResetPasswordPage,
-    FormButtonValidationDirective
+    ResetPasswordPage
   ]
 })
 export class ResetPasswordPageModule { }

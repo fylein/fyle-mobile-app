@@ -1350,7 +1350,7 @@ export class AddEditExpensePage implements OnInit {
         }
         return of(etxn);
       }),
-      shareReplay()
+      shareReplay(1)
     );
   }
 
@@ -1996,7 +1996,7 @@ export class AddEditExpensePage implements OnInit {
     return this.generateEtxnFromFg(this.etxn$, customFields$)
       .pipe(
         switchMap(etxn => {
-          const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+          const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
           return policyViolations$.pipe(
             map(this.policyService.getCriticalPolicyRules),
             switchMap(policyViolations => {
@@ -2181,7 +2181,7 @@ export class AddEditExpensePage implements OnInit {
             take(1),
             switchMap(isConnected => {
               if (isConnected) {
-                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
                 return policyViolations$.pipe(
                   map(this.policyService.getCriticalPolicyRules),
                   switchMap(criticalPolicyViolations => {

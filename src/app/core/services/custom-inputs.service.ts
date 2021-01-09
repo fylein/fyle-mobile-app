@@ -23,7 +23,7 @@ export class CustomInputsService {
   })
   getAll(active: boolean) {
     return this.apiService.get('/custom_inputs/custom_properties', { params: { active } }).pipe(
-      shareReplay()
+      shareReplay(1)
     );
   }
 
