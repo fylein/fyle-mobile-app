@@ -2,6 +2,10 @@ $white: #fff;
 $black: #000;
 .camera-overlay {
 
+  &--camera-preview{
+    --background: transparent;
+  }
+
   &--action-container {
     position: fixed;
     bottom: 0;

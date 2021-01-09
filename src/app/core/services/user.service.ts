@@ -1,9 +1,10 @@
-import {Injectable} from '@angular/core';
-import {AuthService} from './auth.service';
-import {HttpClient} from '@angular/common/http';
-import {environment} from 'src/environments/environment';
-import {catchError, map} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { AuthService } from './auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import {catchError, map, switchMap} from 'rxjs/operators';
 import {from, of} from 'rxjs';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +13,13 @@ export class UserService {
 
   constructor(
     private authService: AuthService,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private apiService: ApiService
   ) { }
+
+  getCurrent() {
+    return this.apiService.get('/users/current')
+  }
 
   isPendingDetails() {
     return from(this.authService.getEou()).pipe(
@@ -34,5 +40,21 @@ export class UserService {
       catchError(err => of(null)
       )
     );
+  }
+
+  getProperties() {
+    return this.getCurrent().pipe(
+      switchMap((user) => {
+        return this.apiService.get('/users/' + user.id + '/properties');
+      })
+    )
+  }
+
+  upsertProperties(userProperties) {
+    return this.getCurrent().pipe(
+      switchMap((user) => {
+        return this.apiService.post('/users/' + user.id + '/properties', userProperties);
+      })
+    )
   }
 }
