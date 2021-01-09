@@ -335,7 +335,6 @@ export class OtherRequestsComponent implements OnInit {
         };
 
         return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
-          tap(policyTest => console.log('test res -> ', policyTest)),
           catchError(err => {
             return of(null);
           }),
