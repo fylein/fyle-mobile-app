@@ -324,7 +324,7 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
-  checkPolicyAndSave(tripReq, formValue, saveMode) {
+  checkPolicyAndSaveOrSubmit(tripReq, formValue, saveMode) {
     return this.createOtherRequestForm(formValue, tripReq.id, 'POLICY_CHECK').pipe(
       switchMap((res: any) => {
         const tripRequestObject = {
@@ -413,10 +413,10 @@ export class OtherRequestsComponent implements OnInit {
     this.makeTripRequestFromForm(this.fgValues).pipe(
       concatMap(tripReq => {
         if (mode === 'SUBMIT') {
-          return this.checkPolicyAndSave(tripReq, formValue, 'SUBMIT');
+          return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SUBMIT');
         }
         if (mode === 'DRAFT') {
-          return this.checkPolicyAndSave(tripReq, formValue, 'SAVE_DRAFT');
+          return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SAVE_DRAFT');
         }
       }),
       concatMap(res => {

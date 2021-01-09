@@ -312,8 +312,14 @@ export class MyAddEditTripPage implements OnInit {
               return of({tripReq});
             }
           }),
-          catchError(() => {
-            return of({tripReq});
+          catchError((err) => {
+            if (err.status === 'Policy Violated') {
+              return throwError({
+                status: 'Policy Violated'
+              });
+            } else {
+              return of({tripReq});
+            }
           })
         );
       }),
@@ -323,7 +329,7 @@ export class MyAddEditTripPage implements OnInit {
             switchMap((res) => {
               return this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
                 switchMap(result => {
-                  if (result === comment) {
+                  if (result !== comment) {
                     return this.statusService.post('trip_requests', tripReq.trp.id, {comment}, true).pipe(
                       map(() => res)
                     );
@@ -435,7 +441,7 @@ export class MyAddEditTripPage implements OnInit {
               return throwError({
                 status: 'Policy Violated'
               });
-            } else { 
+            } else {
               return of({tripReq});
             }
           })
@@ -447,7 +453,7 @@ export class MyAddEditTripPage implements OnInit {
             switchMap((res) => {
               return this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
                 switchMap(result => {
-                  if (result === comment) {
+                  if (result !== comment) {
                     return this.statusService.post('trip_requests', tripReq.trp.id, {comment}, true).pipe(
                       map(() => res)
                     );
