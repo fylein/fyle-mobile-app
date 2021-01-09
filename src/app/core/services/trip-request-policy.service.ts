@@ -19,7 +19,15 @@ export class TripRequestPolicyService {
     private authService: AuthService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
-   }
+  }
+
+  setRoot(rootUrl: string) {
+    this.ROOT_ENDPOINT = rootUrl;
+  }
+
+  get(url: string, config = {}) {
+    return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/v2' + url, config);
+  }
 
   postCall(url, data, config?) {
     return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/trip_requests' + url, data, config);
@@ -33,17 +41,17 @@ export class TripRequestPolicyService {
       concatMap(() => {
         this.tripDateService.convertToDateFormat(tripRequestObject.trip_request);
 
-        // if (tripRequestObject.transportation_requests) {
-        //   tripRequestObject.transportation_requests.forEach(transportationRequest => {
-        //     this.tripDateService.convertToDateFormat(transportationRequest);
-        //   });
-        // }
+        if (tripRequestObject.transportation_requests) {
+          tripRequestObject.transportation_requests.forEach(transportationRequest => {
+            this.tripDateService.convertToDateFormat(transportationRequest);
+          });
+        }
 
-        // if (tripRequestObject.hotel_requests) {
-        //   tripRequestObject.hotel_requests.forEach(hotelRequest => {
-        //     this.tripDateService.convertToDateFormat(hotelRequest);
-        //   });
-        // }
+        if (tripRequestObject.hotel_requests) {
+          tripRequestObject.hotel_requests.forEach(hotelRequest => {
+            this.tripDateService.convertToDateFormat(hotelRequest);
+          });
+        }
 
         return this.postCall('/policy_check/test', tripRequestObject, {timeout: 5000});
       })
