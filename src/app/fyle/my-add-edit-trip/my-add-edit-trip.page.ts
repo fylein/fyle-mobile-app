@@ -176,37 +176,6 @@ export class MyAddEditTripPage implements OnInit {
     }
   }
 
-  // policyViolationCheck() {
-  //   from(this.makeTrpFormFromFg(this.fg.value)).pipe(
-  //     concatMap((res) => {
-  //       const tripRequestObject = {
-  //         trip_request: res
-  //       };
-  //       return this.tripRequestPolicyService.testTripRequest(tripRequestObject);
-  //     }),
-  //     concatMap(res => {
-  //       return this.tripRequestPolicyService.getPolicyPopupRules(res);
-  //     }),
-  //     map(res => {
-  //       console.log('\n\n\n res outside ->', res);
-  //       if (res) {
-  //         console.log('\n\n\n res inside ->', res);
-  //         // let policyPopupRules = res;
-  //         // let policyActionDescription = res.trip_request_desired_state.action_description;
-  //         // const policyPopup = await this.modalController.create({
-  //         //   component: PolicyViolationComponent,
-  //         //   componentProps: {
-  //         //     data: 'test'
-  //         //   }
-  //         // });
-  //         // await policyPopup.present();
-  //       } else {
-  //         this.saveAsDraft(this.fg.value);
-  //       }
-  //     })
-  //   );
-  // }
-
   async saveDraftModal() {
     const savePopover = await this.popoverController.create({
       component: SavePopoverComponent,
@@ -295,14 +264,14 @@ export class MyAddEditTripPage implements OnInit {
                 policyActionDescription,
                 tripReq
               )).pipe(
-                map(policyModalRes => {
+                switchMap(policyModalRes => {
                   if (policyModalRes.status === 'proceed') {
-                   return {
+                   return of({
                      tripReq,
                      comment: policyModalRes.comment
-                   };
+                   });
                   } else {
-                    throwError({
+                    return throwError({
                       status: 'Policy Violated'
                     });
                   }
@@ -419,14 +388,14 @@ export class MyAddEditTripPage implements OnInit {
                 policyActionDescription,
                 tripReq
               )).pipe(
-                map(policyModalRes => {
+                switchMap(policyModalRes => {
                   if (policyModalRes.status === 'proceed') {
-                   return {
+                   return of({
                      tripReq,
                      comment: policyModalRes.comment
-                   };
+                   });
                   } else {
-                    throwError({
+                    return throwError({
                       status: 'Policy Violated'
                     });
                   }

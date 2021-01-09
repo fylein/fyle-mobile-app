@@ -39,20 +39,6 @@ export class TripRequestPolicyService {
         return tripRequestObject.trip_request.org_user_id = eou.ou.id;
       }),
       concatMap(() => {
-        this.tripDateService.convertToDateFormat(tripRequestObject.trip_request);
-
-        if (tripRequestObject.transportation_requests) {
-          tripRequestObject.transportation_requests.forEach(transportationRequest => {
-            this.tripDateService.convertToDateFormat(transportationRequest);
-          });
-        }
-
-        if (tripRequestObject.hotel_requests) {
-          tripRequestObject.hotel_requests.forEach(hotelRequest => {
-            this.tripDateService.convertToDateFormat(hotelRequest);
-          });
-        }
-
         return this.postCall('/policy_check/test', tripRequestObject, {timeout: 5000});
       })
     );

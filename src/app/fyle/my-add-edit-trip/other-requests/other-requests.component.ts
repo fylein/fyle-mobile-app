@@ -377,21 +377,39 @@ export class OtherRequestsComponent implements OnInit {
       }),
       switchMap(({ tripReq, comment }: any) => {
         if (comment && tripReq.id) {
-          return this.tripRequestsService.saveDraft(tripReq).pipe(
-            switchMap((res) => {
-              return this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
-                switchMap(result => {
-                  if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
-                      map(() => res)
-                    );
-                  } else {
-                    return of(res);
-                  }
-                })
-              );
-            })
-          );
+          if (saveMode === 'SUBMIT') {
+            return this.tripRequestsService.submit(tripReq).pipe(
+              switchMap((res) => {
+                return this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+                  switchMap(result => {
+                    if (result !== comment) {
+                      return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
+                        map(() => res)
+                      );
+                    } else {
+                      return of(res);
+                    }
+                  })
+                );
+              })
+            );
+          } else {
+            return this.tripRequestsService.saveDraft(tripReq).pipe(
+              switchMap((res) => {
+                return this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+                  switchMap(result => {
+                    if (result !== comment) {
+                      return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
+                        map(() => res)
+                      );
+                    } else {
+                      return of(res);
+                    }
+                  })
+                );
+              })
+            );
+          }
         } else {
           if (saveMode === 'SUBMIT') {
             return this.tripRequestsService.submit(tripReq);
