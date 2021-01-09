@@ -217,9 +217,9 @@ export class MyViewTripsPage implements OnInit {
 
     const { data } = await pullBackPopover.onWillDismiss();
 
-    if (data) {
+    if (data && data.reason) {
       const status = {
-        comment: data.comment
+        comment: data.reason
       };
 
       const addStatusPayload = {
