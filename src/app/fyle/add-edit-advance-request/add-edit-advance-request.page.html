@@ -69,8 +69,9 @@
       <ng-container *ngIf="isProjectsVisible$|async">
         <div class="add-edit-advance-request--internal-block">
           <app-fy-select-project
-            [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
             formControlName="project"
+            [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
+            [cacheName]="'advanceProjectCache'"
           ></app-fy-select-project>
         </div>
       </ng-container>
