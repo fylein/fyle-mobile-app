@@ -54,11 +54,16 @@
 
     <div class="add-edit-advance-request--primary-block">
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
-        <div class="add-edit-advance-request--text-label"
-          [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
-          {{fg.controls.purpose.value ? 'Purpose *' : 'Enter Purpose *'}}
-        </div>
-        <input class="add-edit-advance-request--text-input" formControlName="purpose">
+        <app-fy-select formControlName="purpose"
+          [mandatory]="true"
+          [label]="fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose '"
+          [cacheName]="'recentPurposeList'"
+          [customInput]="true"
+          [showSaveButton]="true"
+          [selectModalHeader]="'Enter Purpose'"
+          [placeholder]="'Enter Purpose'"
+          [useAsSelectCache]="true">
+        </app-fy-select>
       </div>
 
       <ng-container *ngIf="isProjectsVisible$|async">

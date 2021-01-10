@@ -70,4 +70,14 @@ $list-element-color: #333;
     padding: 5px 14px;
     border-bottom: 1px solid #ddd;
   }
+
+  &--cta-container {
+    margin: 12px;
+  }
+
+  &--primary-cta {
+    width: 100%;
+    height: 48px;
+    --border-radius: 4px !important;
+  }
 }

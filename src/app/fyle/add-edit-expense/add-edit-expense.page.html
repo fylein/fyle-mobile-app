@@ -639,8 +639,10 @@
                 {{duplicate.reason}}
               </div>
               <div class="add-edit-expense--duplicate-reason-select">
-                <app-fy-select [customInput]="true" [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
-                  [options]="[]">
+                <app-fy-select 
+                  [label]="'Select your Reason'" 
+                  formControlName="duplicate_detection_reason"
+                  [options]="duplicateDetectionReasons">
                 </app-fy-select>
               </div>
             </div>
