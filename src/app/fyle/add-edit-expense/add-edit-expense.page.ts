@@ -500,11 +500,13 @@ export class AddEditExpensePage implements OnInit {
 
   async splitExpense() {
     return forkJoin({
+      orgSettings$: this.offlineService.getOrgSettings(),
       costCenters: this.costCenters$,
       projects: this.offlineService.getProjects()
     }).subscribe(async res => {
+      const orgSettings =  res.orgSettings$;
       const areCostCentersAvailable = res.costCenters.length > 0;
-      const areProjectsAvailable = res.projects.length > 0;
+      const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
 
       const splitExpensePopover = await this.popoverController.create({
         component: SplitExpensePopoverComponent,
