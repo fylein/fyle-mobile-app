@@ -78,12 +78,11 @@
             <app-fy-select formControlName="purpose"
               [mandatory]="true"
               [label]="fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose '"
-              [cacheName]="'recentPurposeList'"
+              [cacheName]="'tripsRecentPurposeList'"
               [customInput]="true"
               [showSaveButton]="true"
               [selectModalHeader]="'Enter Purpose'"
-              [placeholder]="'Enter Purpose'"
-              [useAsSelectCache]="true">
+              [placeholder]="'Enter Purpose'">
             </app-fy-select>
           </div>
 

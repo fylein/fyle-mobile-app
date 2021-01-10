@@ -32,7 +32,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() subheader = 'All';
   @Input() enableSearch = true;
   @Input() selectModalHeader = '';
-  @Input() useAsSelectCache = false;
   @Input() showSaveButton = false;
   @Input() placeholder = '';
 
