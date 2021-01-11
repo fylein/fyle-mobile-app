@@ -2,6 +2,10 @@ $shadow: #d8d8d8;
 $cta-icon-color: #e40566d9;
 
 .dashboard-footer {
+  &--block-container {
+    padding: 0 8px;
+  }
+
   &--block {
     border: 1px solid $shadow;
     width: calc(100% - 5px);

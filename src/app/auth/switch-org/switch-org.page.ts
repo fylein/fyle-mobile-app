@@ -24,7 +24,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
 
   orgs$: Observable<Org[]>;
   filteredOrgs$: Observable<Org[]>;
-
+  searchInput = '';
   isLoading = false;
 
   constructor(
@@ -44,6 +44,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   ionViewWillEnter() {
+    this.searchInput = '';
     this.isLoading = true;
     this.orgs$ = this.offlineService.getOrgs().pipe(
       shareReplay(1),
