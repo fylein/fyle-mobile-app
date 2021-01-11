@@ -323,7 +323,7 @@ export class AppComponent implements OnInit {
             icon: 'fy-switch-new',
             route: ['/', 'auth', 'switch_org', {choose: true}]
           },
-        ]
+        ];
       } else {
         this.sideMenuList = [
           {
@@ -435,7 +435,7 @@ export class AppComponent implements OnInit {
             route: ['/', 'auth', 'switch_org', {choose: true}],
             disabled: true
           },
-        ]
+        ];
       }
     });
   }
