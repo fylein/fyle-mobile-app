@@ -1,11 +1,11 @@
 <ion-header mode="md">
-  <ion-toolbar mode="md" class="delegated--toolbar-header">
-    <ion-buttons mode="md" slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title mode="md" class="page-title">
-      Delegated Account
-    </ion-title>
+  <ion-toolbar mode="md">
+    <mat-form-field class="delegated--form-field" appearance="outline">
+      <span class="material-icons delegated--search-icon" matPrefix>
+        search
+      </span>
+      <input #searchDelegatees [(ngModel)]="searchInput" matInput placeholder="Search Account">
+    </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
@@ -16,17 +16,17 @@
         <ion-row>
           <ion-col size="2">
             <div class="delegated--org-thumb">
-              {{ acc.us.full_name | initials | uppercase }}
+              {{ acc?.us?.full_name | initials | uppercase }}
             </div>
           </ion-col>
           <ion-col size="10">
             <div class="delegated--org-element-name">
-              {{acc.us.full_name}}
+              {{acc?.us?.full_name}}
             </div>
             <div class="delegated--org-element-us-details">
-              {{acc.us.email}}
+              {{acc?.us?.email}}
             </div>
-            <div *ngIf="acc.ou.org_id === currentOrg.id" class="delegated--org-element-us-details">
+            <div *ngIf="acc?.ou.org_id === currentOrg.id" class="delegated--org-element-us-details">
               {{currentOrg.name}}
             </div>
           </ion-col>

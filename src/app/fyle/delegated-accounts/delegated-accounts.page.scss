@@ -6,6 +6,17 @@ $org-thumb-header: #333;
 $org-thumb-text: #666;
 
 .delegated {
+  &--form-field {
+    font-size: 11px;
+    width: 100%;
+    padding: 4px;
+    background-color: $header-input;
+  }
+
+  &--search-icon {
+    font-size: 14px;
+  }
+
   &--toolbar-header {
     border-bottom: 1px solid #e6e6e6;
   }

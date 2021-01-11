@@ -159,11 +159,21 @@ input:focus, textarea:focus{
   }
 }
 
+.delegated--form-field {
+  .mat-form-field-wrapper {
+    padding: 0;
+  }
+}
+
 .header-md::after {
   background-image: none;
 }
 
 .switch-org--form-field .mat-form-field-wrapper {
+  background-color: $header-input-interior;
+}
+
+.delegated--form-field .mat-form-field-wrapper {
   background-color: $header-input-interior;
 }
 
@@ -259,10 +269,7 @@ input:focus, textarea:focus{
   100% { transform: rotate(360deg); }
 }
 .page-title {
-  font-size: 24px;
   font-weight: 700;
-  padding: 0 14px;
-  line-height: 3;
 }
 
 mat-checkbox {
@@ -311,4 +318,8 @@ textarea, input {
 .swiper-pagination-fraction, .swiper-pagination-custom, .swiper-container-horizontal>.swiper-pagination-bullets {
   bottom: 45%;
   --bullet-background-active: #cbc8c8;
+}
+
+.no-keyboard-adjust {
+  --keyboard-offset: 0 !important;
 }

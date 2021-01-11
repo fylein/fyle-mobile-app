@@ -170,10 +170,10 @@
                       </div>
                     </ng-container>
                     <div class="add-edit-expense--payment-mode-type" *ngIf="paymentMode.acc.isReimbursable">
-                      (Reimbursible)
+                      (Reimbursable)
                     </div>
                     <div class="add-edit-expense--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursable">
-                      (Non Reimbursible)
+                      (Non Reimbursable)
                     </div>
                   </ng-container>
                 </div>
@@ -640,8 +640,8 @@
                 {{duplicate.reason}}
               </div>
               <div class="add-edit-expense--duplicate-reason-select">
-                <app-fy-select 
-                  [label]="'Select your Reason'" 
+                <app-fy-select
+                  [label]="'Select your Reason'"
                   formControlName="duplicate_detection_reason"
                   [options]="duplicateDetectionReasons">
                 </app-fy-select>

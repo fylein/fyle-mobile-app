@@ -40,16 +40,19 @@
       <div>Filtered by
         <span [ngSwitch]="filters?.state">
           <span *ngSwitchCase="'DRAFT'">Draft</span>
-          <span *ngSwitchCase="'APPROVER_PENDING'">Approver Pending</span>
-          <span *ngSwitchCase="'APPROVER_INQUIRY'">Approver Inquiry</span>
+          <span *ngSwitchCase="'APPROVER_PENDING'">Reported</span>
+          <span *ngSwitchCase="'APPROVER_INQUIRY'">Inquiry</span>
           <span *ngSwitchCase="'APPROVED'">Approved</span>
-          <span *ngSwitchCase="'PAYMENT_PENDING'">Payment Pending</span>
+          <span *ngSwitchCase="'PAYMENT_PENDING'">Payments Queue</span>
           <span *ngSwitchCase="'PAID'">Paid</span>
           <span *ngSwitchCase="'ALL'">All</span>
           <span *ngSwitchDefault></span>
         </span>
-        <span *ngIf="filters?.state && filters?.date">,</span>
+        <span *ngIf="filters?.state && filters?.date">
+          ,
+        </span>
         <span [ngSwitch]="filters?.date">
+          <span *ngSwitchCase="'ALL'">All</span>
           <span *ngSwitchCase="'THISMONTH'">This Month</span>
           <span *ngSwitchCase="'LASTMONTH'">Last Month</span>
           <span *ngSwitchCase="'CUSTOMDATE'">Custom Date</span>
@@ -81,7 +84,7 @@
     </div>
 
     <div *ngIf="(filters?.state || filters?.date)" class="my-reports--zero-state-header">
-      You dont have any reports for the selected filter(s)
+      You do not have any reports for the selected filter(s)
     </div>
   </div>
   <div *ngFor="let erpt of myReports$ | async as list; let i = index">
@@ -101,7 +104,7 @@
       <div class="my-reports--stats">
         <div class="my-reports--amount">
           <span class="my-reports--homeCurrency">{{homeCurrency$ | async}}</span>
-          {{(expensesAmountStats.sum|number:'1.2')}}
+          {{expensesAmountStats.sum | number:'1.2-2'}}
         </div>
         <div class="my-reports--count">
           across {{expensesAmountStats.count}} unreported expenses

@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ModalController} from '@ionic/angular';
+import {ModalController, PopoverController} from '@ionic/angular';
 
 @Component({
   selector: 'app-corporate-card-expenses-sort-filter',
@@ -20,7 +20,7 @@ export class CorporateCardExpensesSortFilterComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private modalController: ModalController
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -42,13 +42,13 @@ export class CorporateCardExpensesSortFilterComponent implements OnInit {
   }
 
   save() {
-    this.modalController.dismiss({
+    this.popoverController.dismiss({
       sortOptions: this.fg.value
     });
   }
 
   cancel() {
-    this.modalController.dismiss();
+    this.popoverController.dismiss();
   }
 
   clearAll() {

@@ -11,7 +11,7 @@
     </div>
   </ion-toolbar>
 </ion-header>
-<ion-content>
+<ion-content class="no-keyboard-adjust">
 
   <div class="search-filter--body">
     <form [formGroup]="fg">
@@ -54,9 +54,9 @@
               To
             </div>
             <mat-form-field class="search-filter--custom-date-input mat-form-field-no-padding" appearance="outline">
-              <input formControlName="customDateEnd" matInput [matDatepicker]="picker2">
+              <input formControlName="customDateEnd" matInput [matDatepicker]="picker2" [min]="fg.value.customDateStart">
               <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-              <mat-datepicker #picker2></mat-datepicker>
+              <mat-datepicker #picker2 [startAt]="fg.value.customDateStart"></mat-datepicker>
             </mat-form-field>
           </div>
         </div>

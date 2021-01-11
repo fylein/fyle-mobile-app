@@ -6,13 +6,14 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import {concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime, takeUntil} from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController } from '@ionic/angular';
+import {ModalController, PopoverController} from '@ionic/angular';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TransactionService } from '../../core/services/transaction.service';
+import { capitalize, replace } from 'lodash';
 
 @Component({
   selector: 'app-my-reports',
@@ -63,7 +64,8 @@ export class MyReportsPage implements OnInit {
     private currencyService: CurrencyService,
     private activatedRoute: ActivatedRoute,
     private popupService: PopupService,
-    private transactionService: TransactionService
+    private transactionService: TransactionService,
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -81,6 +83,7 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.loaderService.showLoader('loading reports...', 1000);
     this.setupNetworkWatcher();
 
     this.searchText = '';
@@ -272,7 +275,6 @@ export class MyReportsPage implements OnInit {
       } else {
         newQueryParams.rp_state =
           `in.(${this.filters.state})`;
-
       }
     }
 
@@ -303,16 +305,17 @@ export class MyReportsPage implements OnInit {
   }
 
   async openFilters() {
-    const filterModal = await this.modalController.create({
+    const filterPopover = await this.popoverController.create({
       component: MyReportsSearchFilterComponent,
       componentProps: {
         filters: this.filters
-      }
+      },
+      cssClass: 'dialog-popover'
     });
 
-    await filterModal.present();
+    await filterPopover.present();
 
-    const { data } = await filterModal.onWillDismiss();
+    const { data } = await filterPopover.onWillDismiss();
     if (data) {
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
@@ -323,15 +326,16 @@ export class MyReportsPage implements OnInit {
 
 
   async openSort() {
-    const sortModal = await this.modalController.create({
+    const sortPopover = await this.popoverController.create({
       component: MyReportsSortFilterComponent,
       componentProps: {
         filters: this.filters
-      }
+      },
+      cssClass: 'dialog-popover'
     });
 
-    await sortModal.present();
-    const { data } = await sortModal.onWillDismiss();
+    await sortPopover.present();
+    const { data } = await sortPopover.onWillDismiss();
     if (data) {
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;
@@ -352,17 +356,18 @@ export class MyReportsPage implements OnInit {
   }
 
   async onDeleteReportClick(erpt: ExtendedReport) {
+    console.log(erpt.rp_state);
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
       await this.popupService.showPopup({
         header: 'Cannot Delete Report',
-        message: 'Report cannot be deleted',
+        message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted`,
         primaryCta: {
           text: 'Close'
         }
       });
     } else {
       const popupResults = await this.popupService.showPopup({
-        header: 'Delete Report',
+        header: 'Delete Report?',
         message: `
           <p class="highlight-info">
             On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.

@@ -75,6 +75,11 @@ export class AddEditPerDiemPage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
 
+  duplicateDetectionReasons = [
+    { label: 'Different expense', value: 'Different expense' },
+    { label: 'Other', value: 'Other' }
+  ];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -1581,14 +1586,14 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   reloadCurrentRoute() {
-    let currentUrl = this.router.url;
+    const currentUrl = this.router.url;
     this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
       this.router.navigate([currentUrl]);
     });
   }
 
   saveAndNewExpense() {
-    let that = this;
+    const that = this;
 
     that.checkIfInvalidPaymentMode().pipe(
       take(1)

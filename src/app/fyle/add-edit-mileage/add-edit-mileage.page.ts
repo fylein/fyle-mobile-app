@@ -76,6 +76,11 @@ export class AddEditMileagePage implements OnInit {
   formInitializedFlag = false;
   invalidPaymentMode = false;
 
+  duplicateDetectionReasons = [
+    { label: 'Different expense', value: 'Different expense' },
+    { label: 'Other', value: 'Other' }
+  ];
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,

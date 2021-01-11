@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import {ModalController} from '@ionic/angular';
+import {ModalController, PopoverController} from '@ionic/angular';
 
 @Component({
   selector: 'app-corporate-card-expenses-search-filter',
@@ -20,7 +20,7 @@ export class CorporateCardExpensesSearchFilterComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private modalController: ModalController
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -50,13 +50,13 @@ export class CorporateCardExpensesSearchFilterComponent implements OnInit {
       this.fg.controls.customDateEnd.reset();
     }
 
-    this.modalController.dismiss({
+    this.popoverController.dismiss({
       filters: this.fg.value
     });
   }
 
   cancel() {
-    this.modalController.dismiss();
+    this.popoverController.dismiss();
   }
 
   clearAll() {

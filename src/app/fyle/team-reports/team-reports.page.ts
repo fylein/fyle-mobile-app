@@ -4,7 +4,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController } from '@ionic/angular';
+import {ModalController, PopoverController} from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -56,7 +56,8 @@ export class TeamReportsPage implements OnInit {
     private dateService: DateService,
     private router: Router,
     private currencyService: CurrencyService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private popoverConroller: PopoverController
   ) { }
 
   ngOnInit() {
@@ -260,11 +261,12 @@ export class TeamReportsPage implements OnInit {
   }
 
   async openFilters() {
-    const filterModal = await this.modalController.create({
+    const filterModal = await this.popoverConroller.create({
       component: TeamReportsSearchFilterComponent,
       componentProps: {
         filters: this.filters
-      }
+      },
+      cssClass: 'dialog-popover'
     });
 
     await filterModal.present();
@@ -280,11 +282,12 @@ export class TeamReportsPage implements OnInit {
 
 
   async openSort() {
-    const sortModal = await this.modalController.create({
+    const sortModal = await this.popoverConroller.create({
       component: TeamReportsSortFilterComponent,
       componentProps: {
         filters: this.filters
-      }
+      },
+      cssClass: 'dialog-popover'
     });
 
     await sortModal.present();
@@ -346,9 +349,4 @@ export class TeamReportsPage implements OnInit {
       }
     }
   }
-
-  onViewCommentsClick(event) {
-    // TODO: Add when view comments is done
-  }
-
 }

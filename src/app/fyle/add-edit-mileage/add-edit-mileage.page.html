@@ -213,10 +213,10 @@
                         </div>
                       </ng-container>
                       <div class="add-edit-mileage--payment-mode-type" *ngIf="paymentMode.acc.isReimbursable">
-                        (Reimbursible)
+                        (Reimbursable)
                       </div>
                       <div class="add-edit-mileage--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursable">
-                        (Non Reimbursible)
+                        (Non Reimbursable)
                       </div>
                     </ng-container>
                   </div>
@@ -267,7 +267,7 @@
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                 <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                   <div class="add-edit-mileage--internal-block">
-                    <app-fy-select-project 
+                    <app-fy-select-project
                       formControlName="project"
                       [label]="fg.value.project ? 'Project' : 'Select Project'"
                       [cacheName]="'mileageProjectCache'"
@@ -292,7 +292,7 @@
               <ng-container *ngIf="subCategories.length > 0">
                 <div class="add-edit-mileage--internal-block">
                   <app-fy-select formControlName="sub_category"
-                    [label]="etxn?.tx?.org_category_id ? 'Sub Category' : 'Select Sub Category'" 
+                    [label]="etxn?.tx?.org_category_id ? 'Sub Category' : 'Select Sub Category'"
                     [mandatory]="true"
                     [cacheName]="'mileageSubCategoryName'"
                     [options]="subCategories"
@@ -422,7 +422,7 @@
                           formControlName="duplicate_detection_reason"
                           [selectModalHeader]="'Select Reason'"
                           [label]="'Select your Reason'"
-                          [options]="[]">
+                          [options]="duplicateDetectionReasons">
                         </app-fy-select>
                       </div>
                     </div>

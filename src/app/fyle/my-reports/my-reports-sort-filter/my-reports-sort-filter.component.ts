@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import {ModalController, PopoverController} from '@ionic/angular';
 
 @Component({
   selector: 'app-my-reports-sort-filter',
@@ -22,7 +22,7 @@ export class MyReportsSortFilterComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private modalController: ModalController
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -44,13 +44,13 @@ export class MyReportsSortFilterComponent implements OnInit {
   }
 
   save() {
-    this.modalController.dismiss({
+    this.popoverController.dismiss({
       sortOptions: this.fg.value
     });
   }
 
   cancel() {
-    this.modalController.dismiss();
+    this.popoverController.dismiss();
   }
 
   clearAll() {

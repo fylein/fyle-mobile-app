@@ -38,14 +38,14 @@ export class OtpPopoverComponent implements OnInit {
   }
 
   resendOtp(event) {
-    this.orgUserService.verifyMobile().subscribe(function (resp) {
+    this.orgUserService.verifyMobile().subscribe(() => {
       this.canRequestResendOTP = false;
       this.otpInfoClass = 'text-center';
       this.otpInfoMessage = 'OTP sent again';
-      setTimeout(function () {
+      setTimeout(() => {
         this.canRequestResendOTP = true;
       }, 30 * 1000);
-    }, function (err) {
+    }, (err) => {
       this.otpInfoClass = 'text-danger';
       this.otpInfoMessage = 'Unable to send OTP. Please try after sometime';
     });

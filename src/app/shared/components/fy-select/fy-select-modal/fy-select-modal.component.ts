@@ -49,7 +49,6 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         map((event: any) => event.srcElement.value),
         startWith(''),
         distinctUntilChanged(),
-        tap(console.log),
         map((searchText) => {
             const initial = [];
 
@@ -68,7 +67,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
                 return option;
               }));
           }
-        )
+        ),
+        map(elements => elements.sort((element1, element2) => element1.label.localeCompare(element2.label)))
       );
     } else {
       const initial = [];

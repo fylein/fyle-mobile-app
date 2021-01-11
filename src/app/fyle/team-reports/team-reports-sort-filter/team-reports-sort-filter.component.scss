@@ -7,9 +7,27 @@
     align-items: center;
   }
 
+  &--header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &--header-text {
+    color: #ababab;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 10px 0;
+  }
+
+  &--reset {
+    color:#1978f7;
+    font-size: 16px;
+  }
+
   &--body {
-    margin: 12px;
-    padding: 12px;
+    margin: 0 12px 12px;
+    padding: 0 12px 12px;
   }
 
   &--radio-group {
@@ -23,7 +41,7 @@
 
   &--footer {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     min-height: 48px;
     text-align: center;
@@ -37,11 +55,13 @@
   &--cancel {
     color: #6a6a6a;
     flex-grow: 1;
+    width: 100%;
   }
 
   &--save {
     color: #ff3366;
     border-left: 2px solid #e0e0e0;
     flex-grow: 1;
+    width: 100%;
   }
 }

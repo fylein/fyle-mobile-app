@@ -12,7 +12,7 @@
           {{erpt.rp_currency}}
         </span>
         <span class="reports-card--amount">
-          {{erpt.rp_amount | number: '1.2'}}
+          {{erpt.rp_amount | number: '1.2-2'}}
         </span>
       </div>
       <div class="reports-card--purpose">
@@ -34,9 +34,7 @@
     {{erpt.rp_state | reportState | snakeCaseToSpaceCase | uppercase}}
   </div>
 </div>
-
-
-<div class="reports-card-menu" *ngIf="actionOpened">
+<div class="reports-card-menu" *ngIf="actionOpened" [ngClass]="{'reports-card-menu__no-top-margin': erpt.rp_manual_flag || erpt.rp_policy_flag}">
   <div class="reports-card-menu--close">
     <div matRipple (click)="actionOpened = false" class="reports-card-menu--cancel">
       <mat-icon>
@@ -50,7 +48,7 @@
       </app-comments>
     </div>
 
-    <div matRipple class="reports-card-menu--action reports-card-menu--action__delete"
+    <div matRipple class="reports-card-menu--action reports-card-menu--action__delete" [ngClass]="{'reports-card-menu--action__disabled': ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state)}"
       (click)="onDeleteReport()">
       Delete
     </div>

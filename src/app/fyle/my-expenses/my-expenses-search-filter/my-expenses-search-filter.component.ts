@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-import { ModalController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 import { AppDateAdapter, APP_DATE_FORMATS } from 'src/app/shared/format-datepicker/format-datepicker';
 
 @Component({
@@ -30,7 +30,7 @@ export class MyExpensesSearchFilterComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private modalController: ModalController
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -61,13 +61,13 @@ export class MyExpensesSearchFilterComponent implements OnInit {
       this.fg.controls.customDateEnd.reset();
     }
 
-    this.modalController.dismiss({
+    this.popoverController.dismiss({
       filters: this.fg.value
     });
   }
 
   cancel() {
-    this.modalController.dismiss();
+    this.popoverController.dismiss();
   }
 
   clearAll() {

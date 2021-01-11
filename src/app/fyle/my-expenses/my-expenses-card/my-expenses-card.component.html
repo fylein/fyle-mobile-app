@@ -45,7 +45,7 @@
             </div>
             <div class="my-expenses-card--amount">
               <div *ngIf="amountIsNumber || extractedAmountIsNumber" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement }">
-                {{(expense.tx_amount || expense?.tx_extracted_data?.amount) | number:'1.2'}}
+                {{(expense.tx_amount || expense?.tx_extracted_data?.amount) | number:'1.2-2'}}
               </div>
               <div *ngIf="!amountIsNumber && !extractedAmountIsNumber">
                 --

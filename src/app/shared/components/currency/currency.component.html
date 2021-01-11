@@ -1,5 +1,5 @@
 <div class="currency-component">
-  <div class="currency-component--currency-block clearfix" ng-if="vm.isHomeCurrency">
+  <div class="currency-component--currency-block clearfix">
     <div class="currency-component--currency-input">
       <!-- need to add -->
       <!-- on-selection="vm.onSelectCurrency(currency)" currency-list="vm.currencyList" ng-if="vm.currencyList" -->
@@ -9,7 +9,7 @@
     </div>
     <div class="currency-component--amount-input">
       <input inputmode="decimal" type="number" class="currency-component--amount-input-amount"
-             [(ngModel)]="etxn.tx_amount" name="amount" min="vm.minFylingValue" placeholder="Amount"
+             [(ngModel)]="etxn.tx_amount" name="amount" placeholder="Amount"
              [required]="options.required" [disabled]="options.disabled">
     </div>
   </div>

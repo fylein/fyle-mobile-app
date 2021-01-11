@@ -31,6 +31,7 @@
         </span>
         <span *ngIf="filters?.state && filters?.date">,</span>
         <span [ngSwitch]="filters?.date">
+          <span *ngSwitchCase="'ALL'">All</span>
           <span *ngSwitchCase="'THISMONTH'">This Month</span>
           <span *ngSwitchCase="'LASTMONTH'">Last Month</span>
           <span *ngSwitchCase="'CUSTOMDATE'">Custom Date</span>

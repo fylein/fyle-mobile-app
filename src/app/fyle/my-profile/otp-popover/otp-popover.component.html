@@ -1,7 +1,7 @@
 <div class="otp-popover">
   <div class="otp-popover--header">
     <div class="otp-popover--header-text">
-      Send Back
+      Enter OTP
     </div>
     <div class="otp-popover--header-cancel" (click)="cancel()">
       Cancel
@@ -10,10 +10,10 @@
 
   <div class="otp-popover--body">
     <div>
-      An OTP was send to {{phoneNumber}}
+      An OTP was sent to {{phoneNumber}}
     </div>
     <div>
-      <mat-form-field class="otp-popover--input" appearance="outline">
+      <mat-form-field class="otp-popover--input mat-form-field-no-padding" appearance="outline">
         <input matInput required [(ngModel)]="otp" inputmode="decimal" type="number" #otpNumber="ngModel">
       </mat-form-field>
     </div>

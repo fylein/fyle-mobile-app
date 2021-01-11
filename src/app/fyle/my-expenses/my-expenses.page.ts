@@ -86,6 +86,7 @@ export class MyExpensesPage implements OnInit {
 
   ngOnInit() {
     this.setupNetworkWatcher();
+
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
     );
@@ -480,17 +481,18 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters() {
-    const filterModal = await this.modalController.create({
-      component: MyExpensesSearchFilterComponent,
-      componentProps: {
-        filters: this.filters,
-        draftMode: this.baseState === 'draft'
-      }
-    });
+    const filterPopover = await this.popoverController.create({
+        component: MyExpensesSearchFilterComponent,
+        componentProps: {
+          filters: this.filters,
+          draftMode: this.baseState === 'draft'
+        },
+        cssClass: 'dialog-popover'
+      });
 
-    await filterModal.present();
+    await filterPopover.present();
 
-    const { data } = await filterModal.onWillDismiss();
+    const { data } = await filterPopover.onWillDismiss();
     if (data) {
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
@@ -501,16 +503,17 @@ export class MyExpensesPage implements OnInit {
 
 
   async openSort() {
-    const sortModal = await this.modalController.create({
+    const sortPopover = await this.popoverController.create({
       component: MyExpensesSortFilterComponent,
       componentProps: {
         filters: this.filters
-      }
+      },
+      cssClass: 'dialog-popover'
     });
 
-    await sortModal.present();
+    await sortPopover.present();
 
-    const { data } = await sortModal.onWillDismiss();
+    const { data } = await sortPopover.onWillDismiss();
     if (data) {
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;
@@ -528,7 +531,9 @@ export class MyExpensesPage implements OnInit {
 
   setState(state: string) {
     this.baseState = state;
-    this.clearFilters();
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
   }
 
   async addNewExpense() {

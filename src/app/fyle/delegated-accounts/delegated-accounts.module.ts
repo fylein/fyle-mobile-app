@@ -6,6 +6,8 @@ import { DelegatedAccountsPageRoutingModule } from './delegated-accounts-routing
 import { DelegatedAccountsPage } from './delegated-accounts.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatRippleModule } from '@angular/material/core';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 
 @NgModule({
   imports: [
@@ -14,7 +16,9 @@ import { MatRippleModule } from '@angular/material/core';
     IonicModule,
     DelegatedAccountsPageRoutingModule,
     SharedModule,
-    MatRippleModule
+    MatRippleModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   declarations: [DelegatedAccountsPage]
 })

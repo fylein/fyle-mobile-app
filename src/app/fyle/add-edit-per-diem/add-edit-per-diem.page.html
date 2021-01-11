@@ -175,15 +175,15 @@
 
                   <ng-container *ngIf="paymentModes$|async as paymentModes">
                     <div class="add-edit-per-diem--internal-block">
-                      <app-fy-select 
+                      <app-fy-select
                         [mandatory]="true"
-                        [subheader]="'All Payment Modes'" 
+                        [subheader]="'All Payment Modes'"
                         [enableSearch]="false"
                         [label]="fg.controls.paymentMode.value ? 'Payment Mode' : 'Select Payment Mode'"
-                        formControlName="paymentMode" 
-                        [options]="paymentModes" 
+                        formControlName="paymentMode"
+                        [options]="paymentModes"
                         [mandatory]="true"
-                        [selectionElement]="paymentMode" 
+                        [selectionElement]="paymentMode"
                         [nullOption]="false"
                         [selectModalHeader]="'Choose Payment Mode'">
                       </app-fy-select>
@@ -199,10 +199,10 @@
                               </div>
                             </ng-container>
                             <div class="add-edit-per-diem--payment-mode-type" *ngIf="paymentMode.acc.isReimbursable">
-                              (Reimbursible)
+                              (Reimbursable)
                             </div>
                             <div class="add-edit-per-diem--payment-mode-type" *ngIf="!paymentMode.acc.isReimbursable">
-                              (Non Reimbursible)
+                              (Non Reimbursable)
                             </div>
                           </ng-container>
                         </div>
@@ -241,7 +241,7 @@
                       <div class="add-edit-per-diem--internal-block" *ngIf="txnFields?.purpose.type === 'SELECT'">
                         <app-fy-select class="add-edit-per-diem--text-input"
                           [label]="fg.controls.purpose.value ? txnFields?.purpose.title : 'Enter ' + txnFields?.purpose.title"
-                          formControlName="purpose" 
+                          formControlName="purpose"
                           [options]="txnFields?.purpose?.values"
                           [selectModalHeader]="'Enter Purpose'"
                           [disabled]="mode === 'edit' && !txnFields?.purpose.canEdit"></app-fy-select>
@@ -259,7 +259,7 @@
                         *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (allowedProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
                         <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                           <div class="add-edit-per-diem--internal-block">
-                            <app-fy-select-project 
+                            <app-fy-select-project
                               [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                               [mandatory]="transactionMandatoyFields?.project"
                               formControlName="project"
@@ -287,10 +287,10 @@
                     <ng-container *ngIf="filteredCategories$|async as subCategories">
                       <ng-container *ngIf="subCategories.length > 0">
                         <div class="add-edit-per-diem--internal-block">
-                          <app-fy-select 
+                          <app-fy-select
                             formControlName="sub_category"
                             [label]="fg.controls.sub_category.value ? 'Sub Category' : 'Select Sub Category'"
-                            [mandatory]="true" 
+                            [mandatory]="true"
                             [options]="subCategories"
                             [cacheName]="'perDielSubCategoryCache'"
                             [selectModalHeader]="'Choose Sub Category'">
@@ -359,8 +359,8 @@
                     <ng-container *ngIf="txnFields$|async as txnFields">
                       <div class="add-edit-per-diem--internal-block"
                            *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
-                        <app-fy-select 
-                          formControlName="costCenter" 
+                        <app-fy-select
+                          formControlName="costCenter"
                           [mandatory]="txnFields.cost_center_id.mandatory"
                           [label]="fg.controls.costCenter.value ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title"
                           [options]="costCenters"
@@ -437,11 +437,11 @@
                       {{duplicate.reason}}
                     </div>
                     <div class="add-edit-per-diem--duplicate-reason-select">
-                      <app-fy-select 
+                      <app-fy-select
                         [label]="'Select your Reason'"
-                        [selectModalHeader]="'Select Reason'" 
+                        [selectModalHeader]="'Select Reason'"
                         formControlName="duplicate_detection_reason"
-                        [options]="[]">
+                        [options]="duplicateDetectionReasons">
                       </app-fy-select>
                     </div>
                   </div>

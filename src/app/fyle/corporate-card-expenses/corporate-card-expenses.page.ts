@@ -324,11 +324,12 @@ export class CorporateCardExpensesPage implements OnInit {
   }
 
   async openFilters() {
-    const filterModal = await this.modalController.create({
+    const filterModal = await this.popoverController.create({
       component: CorporateCardExpensesSearchFilterComponent,
       componentProps: {
         filters: this.filters
-      }
+      },
+      cssClass: 'dialog-popover'
     });
 
     await filterModal.present();
@@ -344,11 +345,12 @@ export class CorporateCardExpensesPage implements OnInit {
 
 
   async openSort() {
-    const sortModal = await this.modalController.create({
+    const sortModal = await this.popoverController.create({
       component: CorporateCardExpensesSortFilterComponent,
       componentProps: {
         filters: this.filters
-      }
+      },
+      cssClass: 'dialog-popover'
     });
 
     await sortModal.present();
