@@ -36,3 +36,4 @@ src/environments/environment.staging.ts
 android
 ios
 ios/App/App/GoogleService-Info.plist
+package-lock.json

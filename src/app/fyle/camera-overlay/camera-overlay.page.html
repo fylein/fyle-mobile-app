@@ -1,9 +1,11 @@
-<ion-content>
+<ion-content class="camera-overlay--camera-preview">
   <div id="cameraPreview"></div>
 
   <div class="camera-overlay--preview-container" *ngIf="!isCameraShown">
     <ion-img class="camera-overlay--preview-receipt" [src]="recentImage" *ngIf="recentImage"></ion-img>
   </div>
+
+  <p *ngIf="modeChanged" class="camera-overlay--switch-mode-info">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</p>
 
   <div class="camera-overlay--action-container">
     <div *ngIf="isCameraShown">

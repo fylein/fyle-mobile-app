@@ -14,6 +14,7 @@ import { PolicyApiService } from './policy-api.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { TripRequestPolicyService } from './trip-request-policy.service';
+import { PushNotificationService } from './push-notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,8 @@ export class RouterAuthService {
     private policyApiService: PolicyApiService,
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
-    private tripRequestPolicyService: TripRequestPolicyService
+    private tripRequestPolicyService: TripRequestPolicyService,
+    private pushNotificationService: PushNotificationService
   ) { }
 
   checkEmailExists(email) {
@@ -62,6 +64,7 @@ export class RouterAuthService {
     this.policyApiService.setRoot(domain);
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
+    this.pushNotificationService.setRoot(domain);
 
     await this.tokenService.setClusterDomain(domain);
   }
