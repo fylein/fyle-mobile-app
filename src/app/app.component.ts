@@ -37,6 +37,7 @@ export class AppComponent implements OnInit {
   eou$: Observable<any>;
   activeOrg: any;
   sideMenuList: any[];
+  sideMenuSecondaryList: any[];
   appVersion: string;
   isSwitchedToDelegator;
   isConnected$: Observable<boolean>;
@@ -299,6 +300,8 @@ export class AppComponent implements OnInit {
             icon: 'fy-team-advances-new',
             route: ['/', 'enterprise', 'team_advance']
           },
+        ];
+        this.sideMenuSecondaryList = [
           {
             title: 'Live Chat',
             isVisible: orgUserSettings &&
@@ -406,6 +409,8 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'team_advance'],
             disabled: true
           },
+        ];
+        this.sideMenuSecondaryList = [
           {
             title: 'Live Chat',
             isVisible: orgUserSettings &&
