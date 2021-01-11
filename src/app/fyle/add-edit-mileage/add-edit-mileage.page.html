@@ -267,8 +267,11 @@
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                 <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                   <div class="add-edit-mileage--internal-block">
-                    <app-fy-select-project [label]="fg.value.project ? 'Project' : 'Select Project'"
-                      [mandatory]="transactionMandatoyFields.project" formControlName="project"
+                    <app-fy-select-project 
+                      formControlName="project"
+                      [label]="fg.value.project ? 'Project' : 'Select Project'"
+                      [cacheName]="'mileageProjectCache'"
+                      [mandatory]="transactionMandatoyFields.project"
                       [categoryIds]="projectCategoryIds"></app-fy-select-project>
                   </div>
                 </ng-container>
@@ -289,7 +292,9 @@
               <ng-container *ngIf="subCategories.length > 0">
                 <div class="add-edit-mileage--internal-block">
                   <app-fy-select formControlName="sub_category"
-                    [label]="etxn?.tx?.org_category_id ? 'Sub Category' : 'Select Sub Category'" [mandatory]="true"
+                    [label]="etxn?.tx?.org_category_id ? 'Sub Category' : 'Select Sub Category'" 
+                    [mandatory]="true"
+                    [cacheName]="'mileageSubCategoryName'"
                     [options]="subCategories"
                     [selectModalHeader]="'Choose Sub Category'">
                   </app-fy-select>
@@ -363,6 +368,7 @@
                     [selectModalHeader]="'Select Cost Center'"
                     [mandatory]="txnFields.cost_center_id.mandatory"
                     [label]="fg.controls.costCenter.value ? 'Cost Center' : 'Select Cost Center'"
+                    [cacheName]="'mileageCostCenterCache'"
                     [options]="costCenters">
                   </app-fy-select>
                 </div>

@@ -24,6 +24,7 @@ import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import * as Sentry from '@sentry/angular';
+import { PushNotificationService } from './core/services/push-notification.service';
 
 const {App} = Plugins;
 
@@ -40,6 +41,7 @@ export class AppComponent implements OnInit {
   isSwitchedToDelegator;
   isConnected$: Observable<boolean>;
   eou;
+  device;
 
   constructor(
     private platform: Platform,
@@ -62,7 +64,8 @@ export class AppComponent implements OnInit {
     private zone: NgZone,
     private deepLinkService: DeepLinkService,
     private splashScreen: SplashScreen,
-    private screenOrientation: ScreenOrientation
+    private screenOrientation: ScreenOrientation,
+    private pushNotificationService: PushNotificationService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -449,6 +452,7 @@ export class AppComponent implements OnInit {
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       if (loggedInStatus) {
         this.showSideMenu();
+        this.pushNotificationService.initPush();
       }
     });
 

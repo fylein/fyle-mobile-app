@@ -270,6 +270,7 @@
                     <app-fy-select-project
                       [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                       [mandatory]="transactionMandatoyFields.project"
+                      [cacheName]="'expenseProjectCache'"
                       formControlName="project"></app-fy-select-project>
                   </div>
                 </ng-container>
@@ -639,8 +640,10 @@
                 {{duplicate.reason}}
               </div>
               <div class="add-edit-expense--duplicate-reason-select">
-                <app-fy-select [customInput]="true" [label]="'Select your Reason'" formControlName="duplicate_detection_reason"
-                  [options]="[]">
+                <app-fy-select 
+                  [label]="'Select your Reason'" 
+                  formControlName="duplicate_detection_reason"
+                  [options]="duplicateDetectionReasons">
                 </app-fy-select>
               </div>
             </div>

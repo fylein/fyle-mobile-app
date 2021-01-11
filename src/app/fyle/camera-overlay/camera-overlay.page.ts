@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Plugins } from '@capacitor/core';
+import { Capacitor, Plugins } from '@capacitor/core';
 import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
@@ -33,6 +33,7 @@ export class CameraOverlayPage implements OnInit {
   homeCurrency: string;
   activeFlashMode: string;
   showInstaFyleIntro: boolean;
+  modeChanged: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -47,17 +48,21 @@ export class CameraOverlayPage implements OnInit {
 
   setUpAndStartCamera() {
     if (this.isCameraShown === false) {
-      this.isCameraShown = true;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
         x: 0,
         y: 0,
+        toBack: true,
         width: window.screen.width,
         height: window.innerHeight - 120,
         parent: 'cameraPreview'
       };
 
-      CameraPreview.start(cameraPreviewOptions);
+      CameraPreview.start(cameraPreviewOptions).then(res => {
+        this.isCameraShown = true;
+        this.getFlashModes();
+      })
+
     }
   }
 
@@ -70,6 +75,10 @@ export class CameraOverlayPage implements OnInit {
 
   switchMode() {
     this.isBulkMode = !this.isBulkMode;
+    this.modeChanged = true;
+    setTimeout(() => {
+      this.modeChanged = false;
+    }, 1000)
   }
 
   uploadFiles() {
@@ -221,7 +230,7 @@ export class CameraOverlayPage implements OnInit {
   getFlashModes() {
     CameraPreview.getSupportedFlashModes().then(flashModes => {
       if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
-        this.activeFlashMode = 'off';
+        this.activeFlashMode = this.activeFlashMode || 'off';
         CameraPreview.setFlashMode({flashMode: this.activeFlashMode});
       }
     })
@@ -258,10 +267,6 @@ export class CameraOverlayPage implements OnInit {
     });
 
     this.showInstaFyleIntroImage();
-
-    setTimeout(() => {
-      this.getFlashModes();
-    }, 500);
   }
 
   ngOnInit() {

@@ -13,7 +13,7 @@
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container" *ngIf="enableSearch">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
-      <input #searchBar id="election-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value">
+      <input #searchBar id="election-modal--search-input" class="selection-modal--search-input" matInput placeholder="{{placeholder || 'Search'}}" [(ngModel)]="value">
       <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
           <mat-icon>close</mat-icon>
         </button>
@@ -40,22 +40,34 @@
       </div>
     </div>
 
-    <div *ngIf="(filteredOptions$|async)?.length > 0">
+    <div *ngIf="(filteredOptions$|async)?.length > 0 && !customInput">
       <div class="selection-modal--sub-title">
         {{subheader}}
       </div>
-      <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
-        <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-          <div>
-            {{label}}
-          </div>
-          <mat-icon *ngIf="selected">
-            check
-          </mat-icon>
-        </ng-template>
-        <ng-container *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:filteredListItem">
-        </ng-container>
-      </div>
+      <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
+        <div *ngIf="filteredListItem.label.length > 0" matRipple class="selection-modal--list-element" (click)="onElementSelect(filteredListItem)">
+          <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+            <div>
+              {{label}}
+            </div>
+            <mat-icon *ngIf="selected">
+              check
+            </mat-icon>
+          </ng-template>
+          <ng-container *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:filteredListItem">
+          </ng-container>
+        </div>
+      </ng-container>
     </div>
   </div>
 </ion-content>
+
+<ion-footer *ngIf="showSaveButton">
+  <ion-toolbar>
+    <div class="selection-modal--cta-container">
+      <ion-button class="selection-modal--primary-cta" (click)="saveToCacheAndUse()" fill="solid" color="fyle-primary">
+        SAVE
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

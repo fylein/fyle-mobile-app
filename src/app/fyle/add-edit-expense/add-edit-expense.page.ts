@@ -114,6 +114,7 @@ export class AddEditExpensePage implements OnInit {
   saveAndNewExpenseLoader = false;
   saveAndNextExpenseLoader = false;
   canAttachReceipts: boolean;
+  duplicateDetectionReasons = [];
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -500,11 +501,13 @@ export class AddEditExpensePage implements OnInit {
 
   async splitExpense() {
     return forkJoin({
+      orgSettings$: this.offlineService.getOrgSettings(),
       costCenters: this.costCenters$,
       projects: this.offlineService.getProjects()
     }).subscribe(async res => {
+      const orgSettings =  res.orgSettings$;
       const areCostCentersAvailable = res.costCenters.length > 0;
-      const areProjectsAvailable = res.projects.length > 0;
+      const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
 
       const splitExpensePopover = await this.popoverController.create({
         component: SplitExpensePopoverComponent,
@@ -1431,6 +1434,11 @@ export class AddEditExpensePage implements OnInit {
       costCenter: [],
       hotel_is_breakfast_provided: []
     });
+
+    this.duplicateDetectionReasons = [
+      { label: 'Different expense', value: 'Different expense' },
+      { label: 'Other', value: 'Other' }
+    ];
 
     this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
       map((paymentMode: any) => paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT')

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { Observable, fromEvent, iif, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, tap, concatMap } from 'rxjs/operators';
@@ -6,6 +6,7 @@ import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 @Component({
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-modal.component.html',
@@ -16,13 +17,18 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() currentSelection: any;
   @Input() categoryIds: string[];
   @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+  @Input() cacheName;
+  @Input() selectionElement: TemplateRef<ElementRef>;
+
+  recentrecentlyUsedItems$: Observable<any[]>;
 
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private projectService: ProjectsService,
     private offlineService: OfflineService,
-    private authService: AuthService
+    private authService: AuthService,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) { }
 
   ngOnInit() {
@@ -79,6 +85,16 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         });
       })
     );
+
+    this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+      map((options: any) => {
+        return options
+          .map(option => {
+          option.selected = isEqual(option.value, this.currentSelection);
+          return option;
+        });
+      })
+    );
     this.cdr.detectChanges();
   }
 
@@ -87,6 +103,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   }
 
   onElementSelect(option) {
+    if (this.cacheName) {
+      this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
+    }
     this.modalController.dismiss(option);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, OnDestroy, Injector } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, OnDestroy, Injector, TemplateRef, ElementRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -22,6 +22,8 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   @Input() mandatory = false;
   @Input() label = 'Project';
+  @Input() cacheName;
+  @Input() selectionElement: TemplateRef<ElementRef>;
 
   private innerValue;
   displayValue;
@@ -69,7 +71,9 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
     const currencyModal = await this.modalController.create({
       component: FySelectModalComponent,
       componentProps: {
-        currentSelection: this.value
+        currentSelection: this.value,
+        cacheName: this.cacheName,
+        selectionElement: this.selectionElement
       }
     });
 
