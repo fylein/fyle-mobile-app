@@ -1,10 +1,10 @@
+import {Observable, forkJoin, noop, of, from, zip, combineLatest, throwError} from 'rxjs';
 import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef } from '@angular/core';
-import { Observable, forkJoin, noop, of, from, zip, combineLatest } from 'rxjs';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { map, concatMap, finalize, shareReplay, switchMap, tap, take, mergeMap } from 'rxjs/operators';
+import { map, concatMap, finalize, shareReplay, switchMap, tap, take, catchError, mergeMap } from 'rxjs/operators';
 import { TransportationRequestsService } from 'src/app/core/services/transportation-requests.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
@@ -16,6 +16,9 @@ import { HotelRequestService } from 'src/app/core/services/hotel-request.service
 import { SavePopoverComponent } from '../save-popover/save-popover.component';
 import * as moment from 'moment';
 import { CustomField } from 'src/app/core/models/custom_field.model';
+import {TripRequestPolicyService} from '../../../core/services/trip-request-policy.service';
+import {PolicyViolationComponent} from '../policy-violation/policy-violation.component';
+import {StatusService} from '../../../core/services/status.service';
 
 @Component({
   selector: 'app-other-requests',
@@ -45,14 +48,15 @@ export class OtherRequestsComponent implements OnInit {
   hotelRequest$: Observable<any>;
   transportationRequest$: Observable<any>;
   advanceRequest$: Observable<any>;
+  actions$: Observable<any>;
   minDate;
   maxDate;
   advanceRequestCustomFieldValues: [];
   transportRequestCustomFieldValues: [];
   hotelRequestCustomFieldValues: [];
+  tripActions;
   saveDratTripLoading = false;
   submitTripLoading = false;
-
 
   otherDetailsForm: FormGroup;
 
@@ -69,7 +73,9 @@ export class OtherRequestsComponent implements OnInit {
     private router: Router,
     private advanceRequestService: AdvanceRequestService,
     private hotelRequestService: HotelRequestService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private tripRequestPolicyService: TripRequestPolicyService,
+    private statusService: StatusService
   ) { }
 
   goBack() {
@@ -145,9 +151,9 @@ export class OtherRequestsComponent implements OnInit {
 
           for (const customField of customFields) {
             let value;
-            this.transportRequestCustomFieldValues.filter(customFieldValue => {
-              if (customFieldValue['id'] === customField.id) {
-                value = customFieldValue['value'];
+            this.transportRequestCustomFieldValues.filter((customFieldValue: any) => {
+              if (customFieldValue.id === customField.id) {
+                value = customFieldValue.value;
               }
             });
             customFieldsFormArray.push(
@@ -186,9 +192,9 @@ export class OtherRequestsComponent implements OnInit {
 
           for (const customField of customFields) {
             let value;
-            this.hotelRequestCustomFieldValues.filter(customFieldValue => {
-              if (customFieldValue['id'] === customField.id) {
-                value = customFieldValue['value'];
+            this.hotelRequestCustomFieldValues.filter((customFieldValue: any) => {
+              if (customFieldValue.id === customField.id) {
+                value = customFieldValue.value;
               }
             });
             customFieldsFormArray.push(
@@ -223,9 +229,9 @@ export class OtherRequestsComponent implements OnInit {
 
           for (const customField of customFields) {
             let value;
-            this.advanceRequestCustomFieldValues.filter(customFieldValue => {
-              if (customFieldValue['id'] === customField.id) {
-                value = customFieldValue['value'];
+            this.advanceRequestCustomFieldValues.filter((customFieldValue: any) => {
+              if (customFieldValue.id === customField.id) {
+                value = customFieldValue.value;
               }
             });
 
@@ -290,6 +296,131 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
+  async showPolicyViolationPopup(policyPopupRules: any [], policyActionDescription: string, tripReq) {
+    const latestComment = await this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).toPromise();
+
+    const policyViolationsModal = await this.modalController.create({
+      component: PolicyViolationComponent,
+      componentProps: {
+        policyViolationMessages: policyPopupRules,
+        policyActionDescription,
+        comment: latestComment
+      }
+    });
+
+    await policyViolationsModal.present();
+
+    const { data } = await policyViolationsModal.onWillDismiss();
+
+    if (data && data.comment) {
+      return {
+        status: 'proceed',
+        comment: data.comment
+      };
+    } else {
+      return {
+        status: 'stop'
+      };
+    }
+  }
+
+  checkPolicyAndSaveOrSubmit(tripReq, formValue, saveMode) {
+    return this.createOtherRequestForm(formValue, tripReq.id, 'POLICY_CHECK').pipe(
+      switchMap((res: any) => {
+        const tripRequestObject = {
+          trip_request: tripReq,
+          advance_requests: res[0],
+          transportation_requests: res[2],
+          hotel_requests: res[1]
+        };
+
+        return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
+          catchError(err => {
+            return of(null);
+          }),
+          switchMap((policyTest: any) => {
+            const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(policyTest);
+            if (policyPopupRules.length > 0) {
+              const policyActionDescription = policyTest && policyTest.trip_request_desired_state.action_description;
+              return from(this.showPolicyViolationPopup(
+                policyPopupRules,
+                policyActionDescription,
+                tripReq
+              )).pipe(
+                switchMap(policyModalRes => {
+                  if (policyModalRes.status === 'proceed') {
+                    return of({
+                      tripReq,
+                      comment: policyModalRes.comment
+                    });
+                  } else {
+                    return throwError({
+                      status: 'Policy Violated'
+                    });
+                  }
+                })
+              );
+            } else {
+              return of({tripReq});
+            }
+          }),
+          catchError((err) => {
+            if (err.status === 'Policy Violated') {
+              return throwError({
+                status: 'Policy Violated'
+              });
+            } else {
+              return of({tripReq});
+            }
+          })
+        );
+      }),
+      switchMap(({ tripReq, comment }: any) => {
+        if (comment && tripReq.id) {
+          if (saveMode === 'SUBMIT') {
+            return this.tripRequestsService.submit(tripReq).pipe(
+              switchMap((res) => {
+                return this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+                  switchMap(result => {
+                    if (result !== comment) {
+                      return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
+                        map(() => res)
+                      );
+                    } else {
+                      return of(res);
+                    }
+                  })
+                );
+              })
+            );
+          } else {
+            return this.tripRequestsService.saveDraft(tripReq).pipe(
+              switchMap((res) => {
+                return this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+                  switchMap(result => {
+                    if (result !== comment) {
+                      return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
+                        map(() => res)
+                      );
+                    } else {
+                      return of(res);
+                    }
+                  })
+                );
+              })
+            );
+          }
+        } else {
+          if (saveMode === 'SUBMIT') {
+            return this.tripRequestsService.submit(tripReq);
+          } else {
+            return this.tripRequestsService.saveDraft(tripReq);
+          }
+        }
+      }),
+    );
+  }
+
   submitOtherRequests(formValue, mode) {
     if (mode === 'SUBMIT') {
       this.submitTripLoading = true;
@@ -298,18 +429,17 @@ export class OtherRequestsComponent implements OnInit {
     }
     let trpId;
     this.makeTripRequestFromForm(this.fgValues).pipe(
-      concatMap(res => {
+      concatMap(tripReq => {
         if (mode === 'SUBMIT') {
-          return this.tripRequestsService.submit(res);
+          return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SUBMIT');
         }
         if (mode === 'DRAFT') {
-          return this.tripRequestsService.saveDraft(res);
+          return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SAVE_DRAFT');
         }
       }),
       concatMap(res => {
         trpId = res.id;
-        // create other request and post
-        return this.createOtherRequestFormAndPost(formValue, trpId);
+        return this.createOtherRequestForm(formValue, trpId, 'SUBMIT');
       }),
       concatMap(res => {
         return this.tripRequestsService.triggerPolicyCheck(trpId);
@@ -320,11 +450,12 @@ export class OtherRequestsComponent implements OnInit {
         } else {
           this.saveDratTripLoading = false;
         }
-        this.otherDetailsForm.reset();
-        this.modalController.dismiss();
-        this.router.navigate(['/', 'enterprise', 'my_trips']);
       })
-    ).subscribe(noop);
+    ).subscribe(() => {
+      this.otherDetailsForm.reset();
+      this.modalController.dismiss();
+      this.router.navigate(['/', 'enterprise', 'my_trips']);
+    }, _ => {});
   }
 
   makeTripRequestFromForm(fgValues) {
@@ -368,51 +499,82 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
-  createOtherRequestFormAndPost(formValue, trpId) {
-
-    let arr = [];
+  createOtherRequestForm(formValue, trpId, mode) {
+    const advance = [];
+    const hotel = [];
+    const transport = [];
 
     if (formValue.advanceDetails.length > 0) {
       formValue.advanceDetails.forEach((advanceDetail, index) => {
-        arr.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index));
+        advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
       });
     }
 
     if (formValue.hotelDetails.length > 0) {
       formValue.hotelDetails.forEach((hotelDetail, index) => {
-        arr.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index));
+        hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
       });
     }
 
     if (formValue.transportDetails.length > 0) {
       formValue.transportDetails.forEach((transportDetail, index) => {
-        arr.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index));
+        transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
       });
     }
 
-    return forkJoin(arr);
+    try {
+      if (advance.length === 0 && hotel.length === 0 && transport.length === 0) {
+        return of([]);
+      } else {
+        return forkJoin([
+          advance.length > 0 ? forkJoin(advance) : of([]),
+          hotel.length > 0 ? forkJoin(hotel) : of([]),
+          transport.length > 0 ? forkJoin(transport) : of([])
+        ]);
+      }
+    } catch (e) {
+      console.log('e', e);
+    }
+
   }
 
   // TODO refactor
-  makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index) {
+  makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode) {
     if (this.id) {
-      return forkJoin({
-        advanceRequest: this.advanceRequest$
-      }).pipe(
+      return this.advanceRequest$.pipe(
         switchMap(res => {
-          const advanceRequest: any = res.advanceRequest[index];
+          const advanceRequest: any = res && res[index];
 
-          const advanceDetailObject = {
-            ...advanceRequest,
-            amount: advanceDetail.amount,
-            currency: advanceDetail.currency,
-            custom_field_values: advanceDetail.custom_field_values,
-            notes: advanceDetail.notes,
-            purpose: advanceDetail.purpose,
-            source: 'MOBILE',
-            trip_request_id: trpId
-          };
-          return this.advanceRequestService.submit(advanceDetailObject);
+          if (advanceRequest) {
+            const advanceDetailObject = {
+              ...advanceRequest,
+              amount: advanceDetail.amount,
+              currency: advanceDetail.currency,
+              custom_field_values: advanceDetail.custom_field_values,
+              notes: advanceDetail.notes,
+              purpose: advanceDetail.purpose,
+              source: advanceDetail.source || 'MOBILE',
+              trip_request_id: trpId
+            };
+            if (mode === 'SUBMIT') {
+              return this.submitAdvanceRequest(advanceDetailObject);
+            }
+            return of(advanceDetailObject);
+          } else {
+            const advanceDetailObject = {
+              amount: advanceDetail.amount,
+              currency: advanceDetail.currency,
+              custom_field_values: advanceDetail.custom_field_values,
+              notes: advanceDetail.notes,
+              purpose: advanceDetail.purpose,
+              source: 'MOBILE',
+              trip_request_id: trpId
+            };
+            if (mode === 'SUBMIT') {
+              return this.submitAdvanceRequest(advanceDetailObject);
+            }
+            return of(advanceDetailObject);
+          }
         })
       );
     } else {
@@ -425,17 +587,22 @@ export class OtherRequestsComponent implements OnInit {
         source: 'MOBILE',
         trip_request_id: trpId
       };
-      return this.advanceRequestService.submit(advanceDetailObject);
+      if (mode === 'SUBMIT') {
+        return this.submitAdvanceRequest(advanceDetailObject);
+      }
+      return of(advanceDetailObject);
     }
   }
 
-  makeHotelRequestObjectFromForm(hotelDetail, trpId, index) {
+  submitAdvanceRequest(advanceDetailObject) {
+    return this.advanceRequestService.submit(advanceDetailObject);
+  }
+
+  makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode) {
     if (this.id) {
-      return forkJoin({
-        hotelRequest: this.hotelRequest$
-      }).pipe(
+      return this.hotelRequest$.pipe(
         switchMap(res => {
-          const hotelRequest: any = res.hotelRequest[index] && res.hotelRequest[index].hr;
+          const hotelRequest: any = res && res[index] && res[index].hr;
 
           if (hotelRequest) {
             const hotelDetailObject = {
@@ -452,13 +619,16 @@ export class OtherRequestsComponent implements OnInit {
               need_booking: hotelDetail.needBooking,
               notes: hotelDetail.notes,
               rooms: hotelDetail.rooms,
-              source: 'MOBILE',
+              source: hotelRequest.source || 'MOBILE',
               traveller_details: hotelDetail.travellerDetails,
               trip_request_id: trpId
             };
-            return this.hotelRequestService.upsert(hotelDetailObject);
+            if (mode === 'SUBMIT') {
+              return this.submitHotelRequest(hotelDetailObject);
+            }
+            return of(hotelDetailObject);
           } else {
-            let hotelDetailObject = {
+            const hotelDetailObject = {
               amount: hotelDetail.amount,
               assigned_at: hotelDetail.assignedAt,
               assigned_to: hotelDetail.assignedTo,
@@ -475,12 +645,15 @@ export class OtherRequestsComponent implements OnInit {
               traveller_details: hotelDetail.travellerDetails,
               trip_request_id: trpId
             };
-            return this.hotelRequestService.upsert(hotelDetailObject);
+            if (mode === 'SUBMIT') {
+              return this.submitHotelRequest(hotelDetailObject);
+            }
+            return of(hotelDetailObject);
           }
         })
       );
     } else {
-      let hotelDetailObject = {
+      const hotelDetailObject = {
         amount: hotelDetail.amount,
         assigned_at: hotelDetail.assignedAt,
         assigned_to: hotelDetail.assignedTo,
@@ -497,17 +670,22 @@ export class OtherRequestsComponent implements OnInit {
         traveller_details: hotelDetail.travellerDetails,
         trip_request_id: trpId
       };
-      return this.hotelRequestService.upsert(hotelDetailObject);
+      if (mode === 'SUBMIT') {
+        return this.submitHotelRequest(hotelDetailObject);
+      }
+      return of(hotelDetailObject);
     }
   }
 
-  makeTransportRequestObjectFromForm(transportDetail, trpId, index) {
+  submitHotelRequest(hotelDetailObject) {
+    return this.hotelRequestService.upsert(hotelDetailObject);
+  }
+
+  makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode) {
     if (this.id) {
-      return forkJoin({
-        transportationRequest: this.transportationRequest$
-      }).pipe(
+      return this.transportationRequest$.pipe(
         switchMap(res => {
-          const transportationRequest: any = res.transportationRequest[index] && res.transportationRequest[index].tr;
+          const transportationRequest: any = res && res[index] && res[index].tr;
 
           if (transportationRequest) {
             const transportDetailObject = {
@@ -522,13 +700,16 @@ export class OtherRequestsComponent implements OnInit {
               notes: transportDetail.notes,
               onward_dt: transportDetail.onwardDt,
               preferred_timing: transportDetail.transportTiming,
-              source: 'MOBILE',
+              source: transportationRequest.source || 'MOBILE',
               to_city: transportDetail.toCity,
               transport_mode: transportDetail.transportMode,
               traveller_details: transportDetail.travellerDetails,
               trip_request_id: trpId
             };
-            return this.transportationRequestsService.upsert(transportDetailObject);
+            if (mode === 'SUBMIT') {
+              return this.submitTransportRequest(transportDetailObject);
+            }
+            return of(transportDetailObject);
           } else {
             const transportDetailObject = {
               amount: transportDetail.amount,
@@ -547,7 +728,10 @@ export class OtherRequestsComponent implements OnInit {
               traveller_details: transportDetail.travellerDetails,
               trip_request_id: trpId
             };
-            return this.transportationRequestsService.upsert(transportDetailObject);
+            if (mode === 'SUBMIT') {
+              return this.submitTransportRequest(transportDetailObject);
+            }
+            return of(transportDetailObject);
           }
 
         })
@@ -570,8 +754,15 @@ export class OtherRequestsComponent implements OnInit {
         traveller_details: transportDetail.travellerDetails,
         trip_request_id: trpId
       };
-      return this.transportationRequestsService.upsert(transportDetailObject);
+      if (mode === 'SUBMIT') {
+        return this.submitTransportRequest(transportDetailObject);
+      }
+      return of(transportDetailObject);
     }
+  }
+
+  submitTransportRequest(transportDetailObject) {
+    return this.transportationRequestsService.upsert(transportDetailObject);
   }
 
   async saveDraft() {
@@ -709,6 +900,11 @@ export class OtherRequestsComponent implements OnInit {
     this.minDate = this.fgValues.startDate;
     this.maxDate = this.fgValues.endDate;
 
+    this.tripActions = {
+      can_save: true,
+      can_submit: true
+    };
+
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
       map(res => {
         return res;
@@ -745,17 +941,20 @@ export class OtherRequestsComponent implements OnInit {
       this.hotelRequest$ = this.tripRequestsService.getHotelRequests(this.id).pipe(shareReplay(1));
       this.transportationRequest$ = this.tripRequestsService.getTransportationRequests(this.id).pipe(shareReplay(1));
       this.advanceRequest$ = this.tripRequestsService.getAdvanceRequests(this.id).pipe(shareReplay(1));
+      this.actions$ = this.tripRequestsService.getActions(this.id);
 
       from(this.loaderService.showLoader('Getting trip details')).pipe(
         switchMap(() => {
           return combineLatest([
             this.hotelRequest$,
             this.transportationRequest$,
-            this.advanceRequest$
+            this.advanceRequest$,
+            this.actions$
           ]);
         }),
         take(1),
-      ).subscribe(([hotelRequest, transportationRequest, advanceRequest]) => {
+      ).subscribe(([hotelRequest, transportationRequest, advanceRequest, actions]) => {
+        this.tripActions = actions;
         if (this.otherRequests[0].hotel) {
           this.hotelDetails.clear();
 
@@ -775,10 +974,10 @@ export class OtherRequestsComponent implements OnInit {
               notes: [request.hr.notes],
               custom_field_values: new FormArray([])
             });
-            let custom = details.get('custom_field_values') as FormArray;
-            let renderedCustomFeild = this.modifyOtherRequestCustomFields(request.hr.custom_field_values, 'HOTEL');
+            const custom = details.get('custom_field_values') as FormArray;
+            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.hr.custom_field_values, 'HOTEL');
             renderedCustomFeild.forEach(field => {
-              let customFields = this.formBuilder.group({
+              const customFields = this.formBuilder.group({
                 id: [field.id],
                 name: [field.name],
                 value: [field.value]
@@ -799,10 +998,10 @@ export class OtherRequestsComponent implements OnInit {
               custom_field_values: new FormArray([]),
               notes: [request.notes]
             });
-            let custom = details.get('custom_field_values') as FormArray;
-            let renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
+            const custom = details.get('custom_field_values') as FormArray;
+            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
             renderedCustomFeild.forEach(field => {
-              let customFields = this.formBuilder.group({
+              const customFields = this.formBuilder.group({
                 id: [field.id],
                 name: [field.name],
                 value: [field.value]
@@ -831,10 +1030,10 @@ export class OtherRequestsComponent implements OnInit {
               travellerDetails: [this.fgValues.travellerDetails],
               notes: [request.tr.notes]
             });
-            let custom = details.get('custom_field_values') as FormArray;
-            let renderedCustomFeild = this.modifyOtherRequestCustomFields(request.tr.custom_field_values, 'TRANSPORT');
+            const custom = details.get('custom_field_values') as FormArray;
+            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.tr.custom_field_values, 'TRANSPORT');
             renderedCustomFeild.forEach(field => {
-              let customFields = this.formBuilder.group({
+              const customFields = this.formBuilder.group({
                 id: [field.id],
                 name: [field.name],
                 value: [field.value]
@@ -851,7 +1050,7 @@ export class OtherRequestsComponent implements OnInit {
       });
     }
 
-    this.otherDetailsForm.valueChanges.subscribe(res => console.log('res ->', res));
+    // this.otherDetailsForm.valueChanges.subscribe(res => console.log('res ->', res));
   }
 
 }

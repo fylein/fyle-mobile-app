@@ -41,6 +41,7 @@ export class AppComponent implements OnInit {
   isSwitchedToDelegator;
   isConnected$: Observable<boolean>;
   eou;
+  device;
 
   constructor(
     private platform: Platform,
