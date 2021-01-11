@@ -4,7 +4,7 @@
       <span class="material-icons switch-org--search-icon" matPrefix>
         search
       </span>
-      <input #searchOrgsInput id="switch-org--search-input" matInput placeholder="Search Organization">
+      <input #searchOrgsInput [(ngModel)]="searchInput" id="switch-org--search-input" matInput placeholder="Search Organization">
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
