@@ -33,6 +33,7 @@ export class CameraOverlayPage implements OnInit {
   homeCurrency: string;
   activeFlashMode: string;
   showInstaFyleIntro: boolean;
+  modeChanged: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -74,6 +75,10 @@ export class CameraOverlayPage implements OnInit {
 
   switchMode() {
     this.isBulkMode = !this.isBulkMode;
+    this.modeChanged = true;
+    setTimeout(() => {
+      this.modeChanged = false;
+    }, 1000)
   }
 
   uploadFiles() {
