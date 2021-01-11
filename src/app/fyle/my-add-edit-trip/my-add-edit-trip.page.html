@@ -75,10 +75,15 @@
           </div>
 
           <div class="add-edit-trip--text">
-            <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
-              {{ fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose ' }} <span>*</span>
-            </div>
-            <input class="add-edit-trip--text-input" type="text" formControlName="purpose">
+            <app-fy-select formControlName="purpose"
+              [mandatory]="true"
+              [label]="fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose '"
+              [cacheName]="'tripsRecentPurposeList'"
+              [customInput]="true"
+              [showSaveButton]="true"
+              [selectModalHeader]="'Enter Purpose'"
+              [placeholder]="'Enter Purpose'">
+            </app-fy-select>
           </div>
 
           <ng-container formArrayName="cities">
@@ -129,20 +134,34 @@
           </ng-container>
           <!-- show if projects .length > 0 -->
           <div class="add-edit-trip--text" *ngIf="(projects$|async)?.length > 0">
-            <app-fy-select-project [label]="fg.controls.project.value ? 'Project' : 'Enter Project'" formControlName="project"></app-fy-select-project>
+            <app-fy-select-project 
+              [cacheName]="'tripProjectCache'"
+              [label]="fg.controls.project.value ? 'Project' : 'Select Project'" 
+              formControlName="project">
+            </app-fy-select-project>
           </div>
 
           <!-- show if travel agent length > 0 -->
           <div class="add-edit-trip--text" *ngIf="(travelAgents$|async)?.length > 0">
-            <app-fy-select [label]="fg.controls.travelAgent.value ? 'Agent' : 'Select Agent'" formControlName="travelAgent"
-            [options]="travelAgents$|async" [nullOption]="false"></app-fy-select>
+            <app-fy-select 
+              formControlName="travelAgent"
+              [label]="fg.controls.travelAgent.value ? 'Agent' : 'Select Agent'" 
+              [options]="travelAgents$|async" 
+              [nullOption]="false">
+            </app-fy-select>
           </div>
 
           <div class="add-edit-trip--text">
-            <div class="add-edit-trip--text-label">
-              {{fg.controls.notes.value ? 'Notes' : 'Enter Notes'}}
-            </div>
-            <input class="add-edit-trip--text-input" type="text" formControlName="notes">
+            <app-fy-select formControlName="notes"
+              [mandatory]="true"
+              [label]="fg.controls.notes.value ? 'Notes ' : 'Enter Notes '"
+              [cacheName]="'recentNotesList'"
+              [customInput]="true"
+              [showSaveButton]="true"
+              [selectModalHeader]="'Enter Notes'"
+              [placeholder]="'Enter Notes'"
+              [useAsSelectCache]="true">
+            </app-fy-select>
           </div>
         </div>
       </div>

@@ -22,6 +22,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() subheader;
   @Input() enableSearch;
   @Input() selectModalHeader = '';
+  @Input() showSaveButton = false;
+  @Input() placeholder = '';
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -56,7 +58,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
             }
 
             if (this.customInput) {
-              initial.push({ label: searchText, value: searchText });
+              initial.push({ label: searchText, value: searchText, selected: false});
             }
 
             return initial.concat(this.options
@@ -88,7 +90,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
       map((options: any) => {
         return options
-          .filter(option => this.options.map(op => op.label).includes(option.label))
+          .filter(option => {
+            return option.custom || this.options.map(op => op.label).includes(option.label);
+          })
           .map(option => {
           option.selected = isEqual(option.value, this.currentSelection);
           return option;
@@ -104,9 +108,15 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   onElementSelect(option) {
     if (this.cacheName) {
+      option.custom = !(this.options.some(internalOption => internalOption.value !== option.value));
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
     this.modalController.dismiss(option);
+  }
+
+  saveToCacheAndUse() {
+    const option: any = { label: this.searchBarRef.nativeElement.value, value: this.searchBarRef.nativeElement.value, selected: false };
+    this.onElementSelect(option);
   }
 
 }

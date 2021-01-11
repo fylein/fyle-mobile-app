@@ -292,6 +292,7 @@
                             [label]="fg.controls.sub_category.value ? 'Sub Category' : 'Select Sub Category'"
                             [mandatory]="true" 
                             [options]="subCategories"
+                            [cacheName]="'perDielSubCategoryCache'"
                             [selectModalHeader]="'Choose Sub Category'">
                           </app-fy-select>
                         </div>
@@ -363,6 +364,7 @@
                           [mandatory]="txnFields.cost_center_id.mandatory"
                           [label]="fg.controls.costCenter.value ? txnFields.cost_center_id.title : 'Enter ' + txnFields.cost_center_id.title"
                           [options]="costCenters"
+                          [cacheName]="'perDiemCostCenterCache'"
                           [selectModalHeader]="'Select Cost Center'">
                         </app-fy-select>
                       </div>
