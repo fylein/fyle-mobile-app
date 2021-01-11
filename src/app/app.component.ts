@@ -299,7 +299,7 @@ export class AppComponent implements OnInit {
             isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
             icon: 'fy-team-advances-new',
             route: ['/', 'enterprise', 'team_advance']
-          }
+          },
         ];
         this.sideMenuSecondaryList = [
           {
@@ -322,7 +322,7 @@ export class AppComponent implements OnInit {
             isVisible: (orgs.length > 1),
             icon: 'fy-switch-new',
             route: ['/', 'auth', 'switch_org', {choose: true}]
-          }
+          },
         ]
       } else {
         this.sideMenuList = [
@@ -408,7 +408,7 @@ export class AppComponent implements OnInit {
             icon: 'fy-team-advances-new',
             route: ['/', 'enterprise', 'team_advance'],
             disabled: true
-          }
+          },
         ];
         this.sideMenuSecondaryList = [
           {
@@ -434,7 +434,7 @@ export class AppComponent implements OnInit {
             icon: 'fy-switch-new',
             route: ['/', 'auth', 'switch_org', {choose: true}],
             disabled: true
-          }
+          },
         ]
       }
     });
