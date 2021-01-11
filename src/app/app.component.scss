@@ -66,6 +66,13 @@ $sidenav-bg: #161528;
     padding: 0;
   }
 
+  &--items-wrapper{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 100%;
+  }
+
   &--divider {
     margin: 25px 15px;
     border-top: 1px solid #a9acbc;
@@ -119,8 +126,12 @@ $sidenav-bg: #161528;
     background: none !important;
   }
 
+  &--bottom-list {
+    margin-top: 50px;
+  }
+
   &--appversion{
-    padding-right: 10px;
+    padding: 0 10px 10px 0;
     color: #a9acbc;
     text-align: right;
   }
@@ -131,5 +142,4 @@ $sidenav-bg: #161528;
     }
     color: white;
   }
-
 }
