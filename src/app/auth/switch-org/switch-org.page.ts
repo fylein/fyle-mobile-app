@@ -72,41 +72,28 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
+    const currentOrg$ = this.offlineService.getCurrentOrg();
 
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return forkJoin(
           [
-            offlineData$,
             pendingDetails$,
             eou$,
             roles$,
-            isOnline$
+            isOnline$,
+            currentOrg$
           ]
         );
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(aggregatedResults => {
       const [
-        [
-          orgSettings,
-          orgUserSettings,
-          allCategories,
-          costCenters,
-          projects,
-          perDiemRates,
-          customInputs,
-          currentOrg,
-          orgs,
-          accounts,
-          transactionFieldConfigurationsMap,
-          currencies,
-          homeCurrency
-        ],
         isPendingDetails,
         eou,
         roles,
-        isOnline
+        isOnline,
+        currentOrg
       ] = aggregatedResults;
 
 
@@ -165,17 +152,25 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay(1));
 
-    this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
-      startWith(''),
-      distinctUntilChanged(),
-      switchMap((searchText) => {
-        return currentOrgs$.pipe(
-          map(
-            orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
-          )
-        );
+    this.networkService.isOnline().pipe(
+      map(isOnline => {
+        if (isOnline) {
+          this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
+            map((event: any) => event.srcElement.value),
+            startWith(''),
+            distinctUntilChanged(),
+            switchMap((searchText) => {
+              return currentOrgs$.pipe(
+                map(
+                  orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
+                )
+              );
+            })
+          );
+        } else {
+          this.filteredOrgs$ = currentOrgs$;
+        }
       })
-    );
+    )
   }
 }
