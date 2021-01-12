@@ -121,18 +121,24 @@
 
             <ng-container *ngIf="mileageConfig$|async as mileageConfig">
               <ng-container formArrayName="mileage_locations">
-                <div class="add-edit-mileage--internal-block"
-                  *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
-                  <app-fy-location
-                    [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Select Stop ' + (i) + ' Location'))): (isFirst ? (control.value ? 'Start' : 'Select From Location'): (control.value ? 'End' :'Select To Location'))"
-                    [formControlName]="i">
+                <ng-container *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
+                  <div class="add-edit-mileage--internal-block">
+                    <app-fy-location
+                      [mandatory]="mileageConfig.location_mandatory"
+                      [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Select Stop ' + (i) + ' Location'))): (isFirst ? (control.value ? 'Start' : 'Select From Location'): (control.value ? 'End' :'Select To Location'))"
+                      [formControlName]="i">
                     <span *ngIf="i >= 2">
                       <mat-icon class="add-edit-mileage--remove-stop" (click)="removeMileageLocation(i)">
                         delete
                       </mat-icon>
                     </span>
-                  </app-fy-location>
-                </div>
+                    </app-fy-location>
+
+                  </div>
+                  <div class="add-edit-mileage--error" *ngIf="control.touched && !control.valid">
+                    Please select location
+                  </div>
+                </ng-container>
               </ng-container>
             </ng-container>
             <div class="add-edit-mileage--add-stop" (click)="addMileageLocation()"
@@ -172,7 +178,7 @@
                 </div>
                 <div class="add-edit-mileage--error"
                   *ngIf="fg.controls.distance.touched && !fg.controls.distance.valid">
-                  Please select {{txnFields?.distance.title  }}
+                  Please enter the distance
                 </div>
               </ng-container>
             </ng-container>
@@ -225,6 +231,9 @@
                   </mat-icon>
                 </ng-template>
               </div>
+              <div class="add-edit-mileage--error" *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid">
+                Please select payment mode.
+              </div>
             </ng-container>
 
             <ng-container *ngIf="isAdvancesEnabled$">
@@ -260,6 +269,9 @@
                     [selectModalHeader]="'Enter Purpose'">
                   </app-fy-select>
                 </div>
+                <div class="add-edit-mileage--error" *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid">
+                  Please enter a {{ txnFields.purpose?.title }}
+                </div>
               </ng-container>
             </ng-container>
 
@@ -273,6 +285,9 @@
                       [cacheName]="'mileageProjectCache'"
                       [mandatory]="transactionMandatoyFields.project"
                       [categoryIds]="projectCategoryIds"></app-fy-select-project>
+                  </div>
+                  <div class="add-edit-mileage--error" *ngIf="!fg.controls.project.touched && fg.controls.project.valid">
+                    Please select a project.
                   </div>
                 </ng-container>
               </ng-container>
@@ -357,8 +372,10 @@
                   </div>
                 </form>
               </div>
+              <div class="add-edit-mileage--error" *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid">
+                Please enter a {{customInput.name}}
+              </div>
             </ng-container>
-
 
             <ng-container *ngIf="costCenters$|async as costCenters">
               <ng-container *ngIf="txnFields$|async as txnFields">

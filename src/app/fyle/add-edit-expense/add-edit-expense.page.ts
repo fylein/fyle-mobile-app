@@ -3,7 +3,7 @@ import {Observable, of, iif, forkJoin, from, combineLatest, throwError, noop, co
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   concatMap, switchMap, map, startWith, shareReplay,
-  distinctUntilChanged, take, tap, finalize, filter, debounceTime, catchError, reduce
+  distinctUntilChanged, take, tap, finalize, filter, debounceTime, catchError, reduce, delay
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -115,6 +115,7 @@ export class AddEditExpensePage implements OnInit {
   saveAndNextExpenseLoader = false;
   canAttachReceipts: boolean;
   duplicateDetectionReasons = [];
+  tfcDefaultValues$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1034,7 +1035,7 @@ export class AddEditExpensePage implements OnInit {
         project,
         category,
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
-        merchant: etxn.tx.vendor ? {
+        vendor_id: etxn.tx.vendor ? {
           display_name: etxn.tx.vendor
         } : null,
         purpose: etxn.tx.purpose,
@@ -1175,7 +1176,8 @@ export class AddEditExpensePage implements OnInit {
           }
         }
         return tfcMap;
-      })
+      }),
+      shareReplay(1)
     );
 
     this.txnFields$.pipe(
@@ -1195,7 +1197,7 @@ export class AddEditExpensePage implements OnInit {
       } = {
         purpose: this.fg.controls.purpose,
         txn_dt: this.fg.controls.dateOfSpend,
-        vendor_id: this.fg.controls.merchant,
+        vendor_id: this.fg.controls.vendor_id,
         cost_center_id: this.fg.controls.costCenter,
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
@@ -1242,25 +1244,22 @@ export class AddEditExpensePage implements OnInit {
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
-        } else {
-          if (txnFieldKey === 'vendor_id') {
-            control.setValidators(this.merchantValidator);
-          }
         }
         control.updateValueAndValidity();
       }
       this.fg.updateValueAndValidity();
     });
 
-    txnFieldsMap$.pipe(
-      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields))
+    this.etxn$.pipe(
+      switchMap(() => txnFieldsMap$),
+      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields)),
     ).subscribe((defaultValues) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
         purpose: this.fg.controls.purpose,
         txn_dt: this.fg.controls.dateOfSpend,
-        vendor_id: this.fg.controls.merchant,
+        vendor_id: this.fg.controls.vendor_id,
         cost_center_id: this.fg.controls.costCenter,
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
@@ -1277,9 +1276,9 @@ export class AddEditExpensePage implements OnInit {
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (defaultValueColumn !== 'vendor_id' && !control.value) {
+          if (defaultValueColumn !== 'vendor_id' && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (defaultValueColumn === 'vendor_id' && !control.value) {
+          } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
@@ -1412,7 +1411,7 @@ export class AddEditExpensePage implements OnInit {
       project: [],
       category: [],
       dateOfSpend: [],
-      merchant: [, this.merchantValidator],
+      vendor_id: [, this.merchantValidator],
       purpose: [],
       report: [],
       tax: [],
@@ -1718,7 +1717,7 @@ export class AddEditExpensePage implements OnInit {
             org_category_id: this.fg.value.category && this.fg.value.category.id,
             fyle_category: this.fg.value.category && this.fg.value.category.fyle_category,
             policy_amount: null,
-            vendor: this.fg.value.merchant && this.fg.value.merchant.display_name,
+            vendor: this.fg.value.vendor_id && this.fg.value.vendor_id.display_name,
             purpose: this.fg.value.purpose,
             locations: locations || [],
             custom_properties: customProperties || [],

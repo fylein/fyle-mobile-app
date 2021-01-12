@@ -24,6 +24,8 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   @Input() disabled = false;
   @Input() label = '';
   @Input() mandatory = false;
+  @Input() header = 'Select Items';
+  @Input() subheader = 'All Items';
 
   get valid() {
     if (this.ngControl.touched) {
@@ -73,7 +75,9 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
       component: FyMultiselectModalComponent,
       componentProps: {
         options: this.options,
-        currentSelections: this.value
+        currentSelections: this.value,
+        header: this.header,
+        subheader: this.subheader
       }
     });
 

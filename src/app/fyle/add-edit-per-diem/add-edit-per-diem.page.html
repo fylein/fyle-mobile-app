@@ -298,7 +298,7 @@
                         </div>
                         <div class="add-edit-per-diem--error"
                              *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid">
-                          Please select a Sub Category.
+                          Please select a sub Category.
                         </div>
                       </ng-container>
                     </ng-container>
@@ -352,6 +352,9 @@
                           </app-fy-multiselect>
                         </div>
                       </form>
+                    </div>
+                    <div class="add-edit-per-diem--error" *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid">
+                      Please select {{customInput.name}}
                     </div>
                   </ng-container>
 

@@ -405,7 +405,7 @@ export class AddEditMileagePage implements OnInit {
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!control.value) {
+          if (!control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
