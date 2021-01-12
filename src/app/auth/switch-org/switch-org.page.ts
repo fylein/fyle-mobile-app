@@ -78,22 +78,36 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       switchMap(() => {
         return forkJoin(
           [
+            offlineData$,
             pendingDetails$,
             eou$,
             roles$,
             isOnline$,
-            currentOrg$
           ]
         );
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(aggregatedResults => {
       const [
+        [
+          orgSettings,
+          orgUserSettings,
+          allCategories,
+          costCenters,
+          projects,
+          perDiemRates,
+          customInputs,
+          currentOrg,
+          orgs,
+          accounts,
+          transactionFieldConfigurationsMap,
+          currencies,
+          homeCurrency
+        ],
         isPendingDetails,
         eou,
         roles,
         isOnline,
-        currentOrg
       ] = aggregatedResults;
 
 
@@ -171,6 +185,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
           this.filteredOrgs$ = currentOrgs$;
         }
       })
-    )
+    ).subscribe(noop);
   }
 }

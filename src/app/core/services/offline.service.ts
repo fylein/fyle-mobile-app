@@ -46,36 +46,6 @@ export class OfflineService {
 
   load() {
     globalCacheBusterNotifier.next();
-    const clearOffline$ = from([
-      'currentUser',
-      'delegatedAccounts',
-      'cachedCurrencies',
-      'cachedOrgSettings',
-      'cachedOrgUserSettings',
-      'activeExpenseTab',
-      'allowedCostCenters',
-      'defaultCostCenter',
-      'cachedHomeCurrency',
-      'cachedCategories',
-      'cachedPaymentModeAccounts',
-      'cachedCostCenters',
-      'cachedProjects',
-      'cachedPerDiemRates',
-      'cachedCustomInputs',
-      'cachedCurrentOrg',
-      'cachedOrgs',
-      'cachedReportActions',
-      'cachedTransactionFieldConfigurationsMap',
-      'activeCorporateCardExpenseTab',
-    ]).pipe(
-      concatMap(key => {
-        return from(this.storageService.delete(key));
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [])
-    );
-
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const allCategories$ = this.getAllCategories();
@@ -93,26 +63,23 @@ export class OfflineService {
 
     this.appVersionService.load();
 
-    return clearOffline$.pipe(
-      switchMap(() => {
-        return forkJoin([
-          orgSettings$,
-          orgUserSettings$,
-          allCategories$,
-          costCenters$,
-          projects$,
-          perDiemRates$,
-          customInputs$,
-          currentOrg$,
-          orgs$,
-          accounts$,
-          transactionFieldConfigurationsMap$,
-          currencies$,
-          homeCurrency$,
-          delegatedAccounts$
-        ]);
-      })
-    );
+    return forkJoin([
+      orgSettings$,
+      orgUserSettings$,
+      allCategories$,
+      costCenters$,
+      projects$,
+      perDiemRates$,
+      customInputs$,
+      currentOrg$,
+      orgs$,
+      accounts$,
+      transactionFieldConfigurationsMap$,
+      currencies$,
+      homeCurrency$,
+      delegatedAccounts$
+    ]);
+    
   }
 
   getCurrentUser() {
