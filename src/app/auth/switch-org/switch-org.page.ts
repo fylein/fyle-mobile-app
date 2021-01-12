@@ -82,7 +82,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
             pendingDetails$,
             eou$,
             roles$,
-            isOnline$,
+            isOnline$
           ]
         );
       }),
@@ -107,7 +107,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
         isPendingDetails,
         eou,
         roles,
-        isOnline,
+        isOnline
       ] = aggregatedResults;
 
 
@@ -165,6 +165,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay(1));
+
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
