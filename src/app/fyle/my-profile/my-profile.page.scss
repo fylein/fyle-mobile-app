@@ -3,17 +3,12 @@ $menu-botton-color: #000;
 $background-color: #fff;
 
 .my-profile {
-  &--header {
-    background-color: $background-color;
-    // height: 80px !important;
-    border-bottom: 1px solid $item-border-color;
-    &-toolbar {
-      border-bottom: 1px solid $item-border-color;
-    }
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
   &--menubutton {
-    height: 80px;
+    // height: 80px;
     color: $menu-botton-color;
   }
 
