@@ -192,8 +192,8 @@ export class AddEditExpensePage implements OnInit {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax.valueChanges).subscribe(() => {
       if (this.fg.controls.tax.value && this.fg.controls.tax.value.percentage && this.fg.controls.currencyObj.value) {
         this.fg.controls.taxValue.setValue(
-          this.fg.controls.tax.value.percentage *
-          (this.fg.controls.currencyObj.value.orig_amount || this.fg.controls.currencyObj.value.amount));
+          (this.fg.controls.tax.value.percentage *
+          (this.fg.controls.currencyObj.value.orig_amount || this.fg.controls.currencyObj.value.amount)).toFixed(2));
       }
     });
   }
@@ -531,16 +531,16 @@ export class AddEditExpensePage implements OnInit {
   ngOnInit() {
   }
 
-  // getFormValidationErrors() {
-  //   Object.keys(this.fg.controls).forEach(key => {
-  //     const controlErrors: ValidationErrors = this.fg.get(key).errors;
-  //     if (controlErrors != null) {
-  //       Object.keys(controlErrors).forEach(keyError => {
-  //         console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-  //       });
-  //     }
-  //   });
-  // }
+  getFormValidationErrors() {
+    Object.keys(this.fg.controls).forEach(key => {
+      const controlErrors: ValidationErrors = this.fg.get(key).errors;
+      if (controlErrors != null) {
+        Object.keys(controlErrors).forEach(keyError => {
+          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+        });
+      }
+    });
+  }
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();

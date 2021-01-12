@@ -23,14 +23,20 @@
 
 <ion-content>
   <div class="selection-modal--container">
-    <div *ngIf="(filteredOptions$|async)?.length > 0">
+    <div *ngIf="value">
+      <div class="selection-modal--sub-title">New Merchant</div>
+      <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
+        <div>{{value}}</div>
+      </div>
+    </div>
+    <div class="" *ngIf="(filteredOptions$|async)?.length > 0" [ngClass]="{'selection-modal--all-merchants__margin-top': value}">
       <div class="selection-modal--sub-title">All Merchants</div>
       <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
         <div>{{filteredListItem.label}}</div>
         <mat-icon *ngIf="filteredListItem.selected">check</mat-icon>
       </div>
     </div>
-  
+
     <div class="selection-modal--recently-used-block" *ngIf="(recentrecentlyUsedItems$|async)?.length > 0">
       <div class="selection-modal--sub-title">Recently Used</div>
       <div matRipple class="selection-modal--list-element" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list" (click)="onElementSelect(recentrecentlyUsedItem)">
@@ -42,7 +48,7 @@
             check
           </mat-icon>
         </ng-template>
-        <ng-container *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:recentrecentlyUsedItem">
+        <ng-container *ngTemplateOutlet="defaultSelectionElement;context:recentrecentlyUsedItem">
         </ng-container>
       </div>
     </div>

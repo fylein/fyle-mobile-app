@@ -301,7 +301,9 @@
                     [mandatory]="transactionMandatoyFields.category"
                     [options]="categories"
                     [cacheName]="'recentCategoryList'"
-                    [selectModalHeader]="'Choose Category'">
+                    [selectModalHeader]="'Choose Category'"
+                    [subheader]="'All Categories'"
+                  >
                   </app-fy-select>
                 </div>
                 <div class="add-edit-expense--error" *ngIf="fg.controls.category.touched && !fg.controls.category.valid">
@@ -361,7 +363,9 @@
                   [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
                   [disabled]="!txnFields.purpose?.canEdit"
                   [cacheName]="'recentPurposeList'"
-                  [selectModalHeader]="'Enter Purpose'">
+                  [selectModalHeader]="'Enter '+ txnFields.purpose?.title"
+                  [subheader]="'All ' + txnFields.purpose?.title"
+                >
                 </app-fy-select>
               </div>
               <div class="add-edit-expense--error" *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid">
@@ -393,11 +397,17 @@
       <ng-container *ngIf="taxSettings$|async as taxSettings">
         <div class="add-edit-expense--primary-block" *ngIf="mode=='add' && taxSettings.enabled && taxSettings.groups.length > 0">
           <div class="add-edit-expense--internal-block">
-            <app-fy-select [label]="'Tax Group'" [options]="taxSettings" formControlName="tax"></app-fy-select>
+            <app-fy-select
+              [label]="taxSettings.name || 'Tax Group'"
+              [options]="taxSettings"
+              formControlName="tax"
+              [selectModalHeader]="'Select ' + (taxSettings.name || 'Tax Group')"
+              [subheader]="taxSettings.name || 'Tax Group'"
+            ></app-fy-select>
           </div>
           <div class="add-edit-expense--text add-edit-expense--internal-block" *ngIf="fg.value.tax">
             <div class="add-edit-expense--text-label">
-              Tax Value
+              {{(taxSettings.name || 'Tax') | ellipsis: 11 }}
             </div>
             <input class="add-edit-expense--text-input" inputmode="decimal" type="number" formControlName="taxValue"
                    (focus)="focusState = true" (blur)="focusState = false" />
@@ -602,7 +612,7 @@
                   <app-fy-multiselect
                     [mandatory]="customInput.mandatory"
                     [label]="customInput.name"
-                    [header]="'Choose '+customInput.name"
+                    [selectModalHeader]="'Choose '+customInput.name"
                     [subheader]="customInput.name"
                     [options]="customInput.options" formControlName="value">
                   </app-fy-multiselect>
@@ -759,9 +769,9 @@
     </form>
   </ng-container>
   <!-- This is very helpful for debugging - Angular will remove this when compiling so lets have this here -->
-  <!-- <ion-button (click)="getFormValidationErrors()">
-    Click me for errors!
-  </ion-button> -->
+<!--  <ion-button (click)="getFormValidationErrors()">-->
+<!--    Click me for errors!-->
+<!--  </ion-button>-->
   <div class="add-edit-expense--error-message-block" *ngIf="invalidPaymentMode">
     Expense greater than balance in selected Payment Mode. Please choose a different Payment Mode.
   </div>

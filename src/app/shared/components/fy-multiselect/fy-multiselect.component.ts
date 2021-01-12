@@ -24,7 +24,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   @Input() disabled = false;
   @Input() label = '';
   @Input() mandatory = false;
-  @Input() header = 'Select Items';
+  @Input() selectModalHeader = 'Select Items';
   @Input() subheader = 'All Items';
 
   get valid() {
@@ -76,7 +76,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
       componentProps: {
         options: this.options,
         currentSelections: this.value,
-        header: this.header,
+        selectModalHeader: this.selectModalHeader,
         subheader: this.subheader
       }
     });

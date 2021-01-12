@@ -429,10 +429,14 @@ export class MyExpensesPage implements OnInit {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.loadData$.next(params);
-    if (event) {
-      event.target.complete();
-    }
+    this.transactionService.clearCache().subscribe(() => {
+      this.loadData$.next(params);
+      if (event) {
+        setTimeout(() => {
+          event.target.complete();
+        }, 1000);
+      }
+    });
   }
 
   addNewFiltersToParams() {

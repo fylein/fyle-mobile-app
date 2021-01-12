@@ -4,7 +4,7 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { from, Observable, range, concat, forkJoin, Subject } from 'rxjs';
+import {from, Observable, range, concat, forkJoin, Subject, of} from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
@@ -36,6 +36,13 @@ export class TransactionService {
     private fileService: FileService,
     private policyApiService: PolicyApiService
   ) { }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
+  clearCache() {
+    return of(null);
+  }
 
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$
