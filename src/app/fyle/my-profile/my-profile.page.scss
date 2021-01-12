@@ -22,7 +22,7 @@ $background-color: #fff;
   }
 
   &--blocks {
-    margin-top: 20px;
+    margin-top: 2px;
 
     &-header {
       padding-left: 16px;
@@ -58,6 +58,10 @@ $background-color: #fff;
     &__action {
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     }
+  }
+
+  &--about-you-card {
+    padding: 0 16px;
   }
 
   &--cards-content {
