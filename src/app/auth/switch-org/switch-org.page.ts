@@ -165,26 +165,17 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay(1));
-
-    this.networkService.isOnline().pipe(
-      map(isOnline => {
-        if (isOnline) {
-          this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
-            map((event: any) => event.srcElement.value),
-            startWith(''),
-            distinctUntilChanged(),
-            switchMap((searchText) => {
-              return currentOrgs$.pipe(
-                map(
-                  orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
-                )
-              );
-            })
-          );
-        } else {
-          this.filteredOrgs$ = currentOrgs$;
-        }
+    this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText) => {
+        return currentOrgs$.pipe(
+          map(
+            orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
+          )
+        );
       })
-    ).subscribe(noop);
+    );
   }
 }
