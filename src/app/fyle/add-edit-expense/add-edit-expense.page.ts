@@ -703,6 +703,7 @@ export class AddEditExpensePage implements OnInit {
                         new Date(extractedDetails.parsedResponse.date) :
                         new Date()
                     ).pipe(
+                      catchError(err => null),
                       map(exchangeRate => {
                         return {
                           ...instaFyleImageData,
@@ -719,6 +720,7 @@ export class AddEditExpensePage implements OnInit {
               return of(instaFyleImageData);
             }
           }),
+          tap(console.log),
           finalize(() => from(this.loaderService.hideLoader()))
         );
     } else {
@@ -872,6 +874,9 @@ export class AddEditExpensePage implements OnInit {
           }
 
           etxn.tx.source = 'MOBILE_INSTA';
+        }
+
+        if (imageData && imageData.url) {
           etxn.dataUrls.push({
             url: imageData.url,
             type: 'image',
@@ -879,8 +884,7 @@ export class AddEditExpensePage implements OnInit {
           });
           etxn.tx.num_files = etxn.dataUrls.length;
         }
-
-
+        
         return etxn;
       }),
       shareReplay(1)
