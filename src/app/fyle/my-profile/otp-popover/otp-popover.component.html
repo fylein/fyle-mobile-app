@@ -26,10 +26,10 @@
     <button mat-flat-button color="accent" class="otp-popover--button" (click)="resendOtp($event)"
       [disabled]="!canRequestResendOTP">
       <ng-container *ngIf="canRequestResendOTP; else waitMessage">
-        Resend Otp
+        RESEND OTP
       </ng-container>
       <ng-template #waitMessage>
-        Please wait
+        PLEASE WAIT
       </ng-template>
     </button>
   </div>
@@ -37,7 +37,7 @@
   <div class="otp-popover--buttons">
     <button mat-flat-button color="primary" class="otp-popover--button"
       [disabled]="!otpNumber.valid || isApiCallInProgress" (click)="verifyOtp($event)">
-      Verify Otp
+      VERIFY OTP
     </button>
   </div>
 </div>
