@@ -72,7 +72,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
-    const currentOrg$ = this.offlineService.getCurrentOrg();
 
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
