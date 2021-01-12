@@ -1,7 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { ReportService } from 'src/app/core/services/report.service';
-import { finalize } from 'rxjs/operators';
+import {Component, OnInit, Input} from '@angular/core';
+import {PopoverController} from '@ionic/angular';
+import {ReportService} from 'src/app/core/services/report.service';
+import {finalize} from 'rxjs/operators';
+import {NgModel} from '@angular/forms';
 
 @Component({
   selector: 'app-send-back',
@@ -19,7 +20,8 @@ export class SendBackComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private reportService: ReportService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.numIssues = this.getNumIssues(this.etxns);
@@ -32,15 +34,13 @@ export class SendBackComponent implements OnInit {
   getNumIssues(etxns) {
     let count = 0;
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (const etxn of etxns) {
       if (etxn.tx_policy_flag) {
         count = count + 1;
       }
     }
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (const etxn of etxns) {
       if (etxn.tx_manual_flag) {
         count = count + 1;
       }
@@ -50,26 +50,26 @@ export class SendBackComponent implements OnInit {
   }
 
 
-  sendBack(event) {
-    this.sendBackLoading = true;
-    event.stopPropagation();
-    event.preventDefault();
+  sendBack(ngmodel: NgModel) {
+    if (ngmodel.valid) {
+      const status = {
+        comment: this.sendBackReason
+      };
 
-    var status = {
-      comment: this.sendBackReason
-    };
+      const statusPayload = {
+        status,
+        notify: false
+      };
 
-    var statusPayload = {
-      status: status,
-      notify: false
-    };
-
-    this.reportService.inquire(this.erpt.rp_id, statusPayload).pipe(
-      finalize(() => this.sendBackLoading = false)
-    ).subscribe(() => {
-      this.popoverController.dismiss({
-        goBack: true
+      this.reportService.inquire(this.erpt.rp_id, statusPayload).pipe(
+        finalize(() => this.sendBackLoading = false)
+      ).subscribe(() => {
+        this.popoverController.dismiss({
+          goBack: true
+        });
       });
-    });
+    } else {
+      ngmodel.control.markAsTouched();
+    }
   }
 }
