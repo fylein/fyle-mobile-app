@@ -12,7 +12,6 @@
                 <ng-container *ngIf="eou">
                   <p class="sidemenu--user-name" *ngIf="eou.us.full_name">{{ eou.us.full_name | ellipsis: 15 }}</p>
                 </ng-container>
-                <!-- Need to add characters pipe later -->
                 <p class="sidemenu--org-name" *ngIf="activeOrg?.name">{{  activeOrg.name | ellipsis: 20 }}</p>
               </div>
             </ion-col>
@@ -45,7 +44,9 @@
                   </ion-grid>
                 </a>
               </ion-item>
-              <div *ngIf="sideMenuItem.title === 'Profile'" class="sidemenu--divider"></div>
+              <ng-container *ngIf="allowedActions$|async as allowedActions">
+                <div *ngIf="sideMenuItem.title === 'Profile' && (allowedActions.allowedReportsActions.approve || allowedActions.allowedAdvancesActions.approve)" class="sidemenu--divider"></div>
+              </ng-container>
             </ng-container>
           </div>
         </ion-list>

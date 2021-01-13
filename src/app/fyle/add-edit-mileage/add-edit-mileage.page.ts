@@ -1038,10 +1038,6 @@ export class AddEditMileagePage implements OnInit {
     this.mileage_locations.removeAt(index);
   }
 
-  close() {
-    this.router.navigate(['/', 'enterprise', 'my_expenses']);
-  }
-
   async goBack() {
     const popupResults = await this.popupService.showPopup({
       header: 'Unsaved Changes',
@@ -1052,20 +1048,24 @@ export class AddEditMileagePage implements OnInit {
     });
 
     if (popupResults === 'primary') {
-      if (this.mode === 'add') {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      } else {
-        if (!this.reviewList || this.reviewList.length === 0) {
-          this.navController.back();
-        } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
-          if (+this.activeIndex === 0) {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          } else {
-            this.goToPrev();
-          }
-        } else {
+      this.close();
+    }
+  }
+
+  close() {
+    if (this.mode === 'add') {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    } else {
+      if (!this.reviewList || this.reviewList.length === 0) {
+        this.navController.back();
+      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
+        if (+this.activeIndex === 0) {
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        } else {
+          this.goToPrev();
         }
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
   }
@@ -1103,7 +1103,7 @@ export class AddEditMileagePage implements OnInit {
       if (!criticalPolicyViolated) {
         that.router.navigate(['/', 'enterprise' , 'my_create_report' , { txn_ids: JSON.stringify([txnId]) }]);
       } else {
-        that.goBack();
+        that.close();
       }
     });
   }
@@ -1120,7 +1120,7 @@ export class AddEditMileagePage implements OnInit {
             if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id ) {
               this.addToNewReport(etxn.tx.id);
             } else {
-              that.goBack();
+              that.close();
             }
           });
         } else {
@@ -1129,7 +1129,7 @@ export class AddEditMileagePage implements OnInit {
             if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id ) {
               this.addToNewReport(etxn.tx.id);
             } else {
-              that.goBack();
+              that.close();
             }
           });
         }
@@ -1173,7 +1173,7 @@ export class AddEditMileagePage implements OnInit {
         } else {
           // to do edit
           that.editExpense().subscribe(() => {
-            that.goBack();
+            that.close();
           });
         }
       } else {
@@ -1631,7 +1631,8 @@ export class AddEditMileagePage implements OnInit {
             take(1),
             switchMap(isConnected => {
               if (isConnected) {
-                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
+                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(
+                  shareReplay(1));
                 return policyViolations$.pipe(
                   map(this.policyService.getCriticalPolicyRules),
                   switchMap(criticalPolicyViolations => {
@@ -1662,7 +1663,7 @@ export class AddEditMileagePage implements OnInit {
                   })
                 );
               } else {
-                return of(etxn);
+                return of({etxn});
               }
             })
           );

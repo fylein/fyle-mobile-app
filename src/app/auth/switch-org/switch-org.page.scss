@@ -7,14 +7,20 @@ $org-thumb-text: #666;
 
 .switch-org {
   &--form-field {
-    font-size: 11px;
     width: 100%;
-    padding: 4px;
-    background-color: $header-input;
   }
 
   &--search-icon {
     font-size: 14px;
+    padding-right: 6px;
+    color: #aaa;
+  }
+  &--search-input {
+    font-size: 14px;
+
+    &::placeholder {
+      color: #ababab;
+    }
   }
 
   &--header {

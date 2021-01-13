@@ -15,13 +15,11 @@
 
 <ion-content>
   <div class="selection-modal--container">
-    <ng-container *ngIf="selectedOption">
-      <div matRipple class="selection-modal--list-element" (click)="onNoneSelect()">
-        <div>
-          None
-        </div>
+    <div matRipple class="selection-modal--list-element" (click)="onNoneSelect()">
+      <div>
+        None
       </div>
-    </ng-container>
+    </div>
 
     <ng-container *ngIf="selectedOption">
       <div class="selection-modal--sub-title">

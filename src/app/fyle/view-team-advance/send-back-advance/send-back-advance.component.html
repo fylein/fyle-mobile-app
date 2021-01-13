@@ -20,14 +20,14 @@
       </p>
       <textarea class="send-back--textarea" name="reason" [(ngModel)]="sendBackReason" required
         #sendBackInput="ngModel" ></textarea>
-      <div class="send-back--validation" [hidden]="sendBackInput.valid || sendBackInput.pristine">
+      <div class="send-back--validation" *ngIf="!sendBackInput.valid && sendBackInput.touched">
         Please enter a reason.
       </div>
     </div>
   </div>
 
   <div class="send-back--buttons">
-    <button [disabled]="!sendBackInput.valid" class="send-back--button" mat-flat-button color="primary" (click)="sendBack($event)"
+    <button [disabled]="!sendBackInput.valid" class="send-back--button" mat-flat-button color="primary" (click)="sendBack(sendBackInput)"
     appFormButtonValidation [loading]="sendBackLoading" [loadingText]="'SENDING BACK'">
       SEND BACK
     </button>

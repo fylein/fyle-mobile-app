@@ -41,6 +41,7 @@ export class AppComponent implements OnInit {
   appVersion: string;
   isSwitchedToDelegator;
   isConnected$: Observable<boolean>;
+  allowedActions$: Observable<any>;
   eou;
   device;
 
@@ -169,7 +170,7 @@ export class AppComponent implements OnInit {
     const deviceInfo$ = this.deviceService.getDeviceInfo();
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
 
-    const allowedActions$ = orgSettings$.pipe(
+    this.allowedActions$ = orgSettings$.pipe(
       switchMap(orgSettings => {
         const allowedReportsActions$ = this.offlineService.getReportActions(orgSettings);
         const allowedAdvancesActions$ = this.permissionsService.allowedActions('advances', ['approve', 'create', 'delete'], orgSettings);
@@ -192,7 +193,7 @@ export class AppComponent implements OnInit {
           orgSettings: orgSettings$,
           orgUserSettings: orgUserSettings$,
           delegatedAccounts: delegatedAccounts$,
-          allowedActions: allowedActions$,
+          allowedActions: this.allowedActions$,
           deviceInfo: deviceInfo$,
           isSwitchedToDelegator: isSwitchedToDelegator$,
           isConnected: of(isConnected),
@@ -437,6 +438,10 @@ export class AppComponent implements OnInit {
           },
         ];
       }
+
+      this.hasApproversTitles =  this.sideMenuList.find(item => {
+        return ['Team Reports', 'Team Trips', 'Team Advances'].indexOf(item.title) > 0 && item.isVisible === true;
+      });
     });
   }
 

@@ -14,7 +14,7 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   @Input() options: { label: string, value: any, selected?: boolean }[] = [];
   @Input() currentSelections: any[] = [];
   @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
-  @Input() header = 'Select Items';
+  @Input() selectModalHeader = 'Select Items';
   @Input() subheader = 'All Items';
   value;
 

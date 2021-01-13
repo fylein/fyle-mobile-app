@@ -11,7 +11,7 @@
       View Report
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button color="primary" class="view-reports--send-back" *ngIf="isReportReported" (click)="sendBack()">Send Back</button>
+      <button mat-button class="view-reports--send-back" *ngIf="isReportReported" (click)="sendBack()">Send Back</button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -25,10 +25,9 @@
         <div class="view-reports--card-body">Owner: {{ erpt.us_full_name }}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
-            <p><strong>Approver<span *ngIf="reportApprovals.length === 1"> is </span><span
-                  *ngIf="reportApprovals.length > 1">s
-                  are</span> </strong></p>
-            <div *ngFor="let ap of reportApprovals;let last = last;">{{ap.approver_email}} (
+            <p class="view-reports--approver-title">Approver(s)</p>
+            <div class="view-reports--approvals" *ngFor="let ap of reportApprovals;let last = last;">
+              {{ap.approver_email}} (
               <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
                 {{ap.state | reportState | titlecase}}
                 <span class="view-reports--card-body__highlight"
@@ -76,6 +75,7 @@
           </div>
 
           <div *ngIf="!hideAllExpenses">
+            <div class="view-reports--divider"></div>
             <ng-container *ngIf="etxns$|async; else loadExpenses"></ng-container>
             <app-view-team-report-etxn-card *ngFor="let etxn of etxns$|async as etxns; let i = index;" [etxn]="etxn"
               [prevDate]="etxns[i-1]?.tx_txn_dt" (goToTransaciton)="goToTransaction($event)">
@@ -108,7 +108,7 @@
       </div>
     </div>
 
-    <div class="view-reports--card view-reports--card__block-action" matRipple>
+    <div class="view-reports--card view-reports--card__block-action  view-reports--card__no-shadow" matRipple>
       <app-comments objectType="reports" [objectId]="erpt.rp_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
     </div>
 
