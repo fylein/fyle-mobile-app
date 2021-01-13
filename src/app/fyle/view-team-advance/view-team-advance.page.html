@@ -123,17 +123,19 @@
           <p>Edit Advance</p>
         </div>
       </div>
-    </ng-container>
-
-
-    <ng-container class="view-advances--card" *ngIf="activeApprovals$ | async as activeApprovals">
-      <app-fy-apporver 
-        [approverList]="getApproverEmails(activeApprovals)" 
-        [id]="advanceRequest.areq_id"
-        [from]="'ADVANCE_REQUEST'" 
-        [title]="'Add Approvers'" 
-        (notify)='onUpdateApprover($event)'>
-      </app-fy-apporver>
+    
+      <ng-container *ngIf="actions.can_add_approver">
+        <ng-container class="view-advances--card" *ngIf="activeApprovals$ | async as activeApprovals">
+          <app-fy-apporver 
+            [approverList]="getApproverEmails(activeApprovals)" 
+            [id]="advanceRequest.areq_id"
+            [from]="'ADVANCE_REQUEST'" 
+            [title]="'Add Approvers'" 
+            (notify)='onUpdateApprover($event)'>
+          </app-fy-apporver>
+        </ng-container>
+      </ng-container>
+      
     </ng-container>
 
     <div class="view-advances--card view-advances--card__modified-padding">
