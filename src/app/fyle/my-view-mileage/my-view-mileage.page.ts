@@ -43,6 +43,10 @@ export class MyViewMileagePage implements OnInit {
     this.navController.back();
   }
 
+  scrollToComments() {
+    document.getElementById('commentsSection').scrollIntoView();
+  }
+
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
 

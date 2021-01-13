@@ -12,8 +12,7 @@
 <ion-content>
   <div class="view-per-diem--container" *ngIf="extendedPerDiem$|async as extendedPerDiem">
 
-    <div class="view-per-diem--policy-info-container" *ngIf="extendedPerDiem.tx_policy_flag && policyViloations$|async as policyViloations">
-      <!-- TODO: on click scroll to comment section -->
+    <div class="view-per-diem--policy-info-container" (click)="scrollToComments()" *ngIf="extendedPerDiem.tx_policy_flag && policyViloations$|async as policyViloations">
       <mat-icon class="view-per-diem--policy-warning-icon">warning</mat-icon>
       <span>{{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this expense</span>
     </div>

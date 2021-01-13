@@ -51,6 +51,10 @@ export class MyViewPerDiemPage implements OnInit {
     this.navController.back();
   }
 
+  scrollToComments() {
+    document.getElementById('commentsSection').scrollIntoView();
+  }
+
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);

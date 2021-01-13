@@ -63,6 +63,10 @@ export class MyViewExpensePage implements OnInit {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
   }
 
+  scrollToComments() {
+    document.getElementById('commentsSection').scrollIntoView();
+  }
+
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);

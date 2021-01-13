@@ -136,4 +136,35 @@
     }
   }
 
+  &--conversion {
+    border: 1px solid #e0e0e0;
+    background-color: #f2f2f2;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--conversion-amount {
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 500;
+    color: #4a4a4a;
+    width: calc(100% - 60px);
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+    padding: 8px 8px 0 16px;
+  }
+
+  &--conversion-rate {
+    color: #ababab;
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 500;
+    width: calc(100% - 60px);
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+    padding: 0 8px 8px 16px;
+  }
+
 }
