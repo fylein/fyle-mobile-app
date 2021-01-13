@@ -696,26 +696,6 @@ export class AddEditMileagePage implements OnInit {
       map(orgSettings => orgSettings.mileage)
     );
 
-    this.transactionMandatoyFields$ = this.isConnected$.pipe(
-      filter(isConnected => !!isConnected),
-      switchMap(() => {
-        return this.offlineService.getOrgSettings();
-      }),
-      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
-    );
-
-    this.transactionMandatoyFields$
-      .pipe(
-        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
-      )
-      .subscribe((transactionMandatoyFields) => {
-        if (transactionMandatoyFields.project) {
-          this.fg.controls.project.setValidators(Validators.required);
-          this.fg.controls.project.updateValueAndValidity();
-        }
-      });
-
-
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
     this.fg.controls.mileage_locations.valueChanges.pipe(
@@ -758,6 +738,44 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.customInputs$ = this.getCustomInputs();
+
+    this.transactionMandatoyFields$ = this.isConnected$.pipe(
+      filter(isConnected => !!isConnected),
+      switchMap(() => {
+        return this.offlineService.getOrgSettings();
+      }),
+      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
+    );
+
+    this.transactionMandatoyFields$
+      .pipe(
+        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
+        switchMap((transactionMandatoyFields) => {
+          return forkJoin({
+            individualProjectIds: this.individualProjectIds$,
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
+          }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+            return {
+              transactionMandatoyFields,
+              individualProjectIds,
+              isIndividualProjectsEnabled
+            };
+          }));
+        })
+      )
+      .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled}) => {
+        if (isIndividualProjectsEnabled) {
+          if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
+            this.fg.controls.project.setValidators(Validators.required);
+            this.fg.controls.project.updateValueAndValidity();
+          }
+        } else {
+          if (transactionMandatoyFields.project) {
+            this.fg.controls.project.setValidators(Validators.required);
+            this.fg.controls.project.updateValueAndValidity();
+          }
+        }
+      });
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
@@ -1005,6 +1023,7 @@ export class AddEditMileagePage implements OnInit {
         billable: etxn.tx.billable,
         sub_category: subCategory,
         costCenter,
+        duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
         report
       });
 
@@ -1371,7 +1390,8 @@ export class AddEditMileagePage implements OnInit {
             category: null,
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
-            cost_center_code: formValue.costCenter && formValue.costCenter.code
+            cost_center_code: formValue.costCenter && formValue.costCenter.code,
+            user_reason_for_duplicate_expenses: formValue.duplicate_detection_reason,
           },
           dataUrls: [],
           ou: etxn.ou

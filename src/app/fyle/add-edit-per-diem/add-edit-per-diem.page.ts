@@ -1048,6 +1048,7 @@ export class AddEditPerDiemPage implements OnInit {
         from_dt: etxn.tx.from_dt ? moment(new Date(etxn.tx.from_dt)).format('y-MM-DD') : null,
         to_dt: etxn.tx.to_dt ? moment(new Date(etxn.tx.to_dt)).format('y-MM-DD') : null,
         billable: etxn.tx.billable,
+        duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
         costCenter
       });
 
@@ -1121,7 +1122,8 @@ export class AddEditPerDiemPage implements OnInit {
             num_days: formValue.num_days,
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
-            cost_center_code: formValue.costCenter && formValue.costCenter.code
+            cost_center_code: formValue.costCenter && formValue.costCenter.code,
+            user_reason_for_duplicate_expenses: formValue.duplicate_detection_reason
           },
           dataUrls: [],
           ou: etxn.ou
