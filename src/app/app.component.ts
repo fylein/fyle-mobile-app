@@ -44,7 +44,6 @@ export class AppComponent implements OnInit {
   allowedActions$: Observable<any>;
   eou;
   device;
-  hasApproversTitles: any;
 
   constructor(
     private platform: Platform,
