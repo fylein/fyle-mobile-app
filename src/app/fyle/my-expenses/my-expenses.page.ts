@@ -344,6 +344,7 @@ export class MyExpensesPage implements OnInit {
           defaultState = 'in.(DRAFT)';
         }
 
+        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
 
         return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
