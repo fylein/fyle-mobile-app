@@ -15,7 +15,7 @@
       <div class="save-approver--container">
         <div *ngIf="selectedApprovers.length > 0">
           <div class="save-approver--title">
-            Approver(s) to be added
+            Approver(s) to be added:
           </div>
           <div class="save-approver--approver-list">
             <div *ngFor="let approver of selectedApprovers" class="save-approver--approver-email">
@@ -26,7 +26,7 @@
 
         <div *ngIf="removedApprovers.length > 0">
           <div class="save-approver--title">
-            Approver(s) to be removed
+            Approver(s) to be removed:
           </div>
           <div class="save-approver--approver-list">
             <div *ngFor="let approver of removedApprovers" class="save-approver--approver-email">

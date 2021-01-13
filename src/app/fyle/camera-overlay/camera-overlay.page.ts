@@ -78,7 +78,7 @@ export class CameraOverlayPage implements OnInit {
     this.modeChanged = true;
     setTimeout(() => {
       this.modeChanged = false;
-    }, 1000)
+    }, 1000);
   }
 
   uploadFiles() {

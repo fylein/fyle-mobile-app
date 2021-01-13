@@ -3,7 +3,7 @@ import {Observable, of, iif, forkJoin, from, combineLatest, throwError, noop, co
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   concatMap, switchMap, map, startWith, shareReplay,
-  distinctUntilChanged, take, tap, finalize, filter, debounceTime, catchError, reduce
+  distinctUntilChanged, take, tap, finalize, filter, debounceTime, catchError, reduce, delay, timeout
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -69,7 +69,6 @@ export class AddEditExpensePage implements OnInit {
   customInputs$: Observable<any>;
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
   selectedCCCTransaction;
-  isOffline = false;
   canChangeMatchingCCCTransaction = true;
   transactionInReport$: Observable<boolean>;
   transactionMandatoyFields$: Observable<any>;
@@ -115,6 +114,7 @@ export class AddEditExpensePage implements OnInit {
   saveAndNextExpenseLoader = false;
   canAttachReceipts: boolean;
   duplicateDetectionReasons = [];
+  tfcDefaultValues$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -191,8 +191,8 @@ export class AddEditExpensePage implements OnInit {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax.valueChanges).subscribe(() => {
       if (this.fg.controls.tax.value && this.fg.controls.tax.value.percentage && this.fg.controls.currencyObj.value) {
         this.fg.controls.taxValue.setValue(
-          this.fg.controls.tax.value.percentage *
-          (this.fg.controls.currencyObj.value.orig_amount || this.fg.controls.currencyObj.value.amount));
+          (this.fg.controls.tax.value.percentage *
+          (this.fg.controls.currencyObj.value.orig_amount || this.fg.controls.currencyObj.value.amount)).toFixed(2));
       }
     });
   }
@@ -530,16 +530,16 @@ export class AddEditExpensePage implements OnInit {
   ngOnInit() {
   }
 
-  // getFormValidationErrors() {
-  //   Object.keys(this.fg.controls).forEach(key => {
-  //     const controlErrors: ValidationErrors = this.fg.get(key).errors;
-  //     if (controlErrors != null) {
-  //       Object.keys(controlErrors).forEach(keyError => {
-  //         console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-  //       });
-  //     }
-  //   });
-  // }
+  getFormValidationErrors() {
+    Object.keys(this.fg.controls).forEach(key => {
+      const controlErrors: ValidationErrors = this.fg.get(key).errors;
+      if (controlErrors != null) {
+        Object.keys(controlErrors).forEach(keyError => {
+          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+        });
+      }
+    });
+  }
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -662,13 +662,11 @@ export class AddEditExpensePage implements OnInit {
 
   getInstaFyleImageData() {
     if (this.activatedRoute.snapshot.params.dataUrl) {
-      return from(this.loaderService.showLoader('Applying Fyle Magic...'))
+      const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
+      const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
+      return from(this.transactionOutboxService.parseReceipt(b64Image))
         .pipe(
-          switchMap(() => {
-            const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
-            const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
-            return from(this.transactionOutboxService.parseReceipt(b64Image));
-          }),
+          timeout(15000),
           map((parsedResponse) => ({
             parsedResponse: parsedResponse.data,
             auditCallBackUrl: parsedResponse.callback_url
@@ -689,7 +687,7 @@ export class AddEditExpensePage implements OnInit {
               ...extractedDetails
             };
 
-            // TODO: Check and Add iamge coordinates
+            // TODO: Check and Add image coordinates
 
             if (extractedDetails.parsedResponse) {
               return this.offlineService.getHomeCurrency().pipe(
@@ -702,6 +700,7 @@ export class AddEditExpensePage implements OnInit {
                         new Date(extractedDetails.parsedResponse.date) :
                         new Date()
                     ).pipe(
+                      catchError(err => null),
                       map(exchangeRate => {
                         return {
                           ...instaFyleImageData,
@@ -717,8 +716,7 @@ export class AddEditExpensePage implements OnInit {
             } else {
               return of(instaFyleImageData);
             }
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
+          })
         );
     } else {
       return of(null);
@@ -871,6 +869,9 @@ export class AddEditExpensePage implements OnInit {
           }
 
           etxn.tx.source = 'MOBILE_INSTA';
+        }
+
+        if (imageData && imageData.url) {
           etxn.dataUrls.push({
             url: imageData.url,
             type: 'image',
@@ -879,7 +880,6 @@ export class AddEditExpensePage implements OnInit {
           etxn.tx.num_files = etxn.dataUrls.length;
         }
 
-
         return etxn;
       }),
       shareReplay(1)
@@ -887,8 +887,29 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupFormInit(allCategories$: Observable<any>) {
-    const selectedProject$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.project_id, this.projectService.getbyId(etxn.tx.project_id), of(null));
+    const selectedProject$ = this.etxn$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.project_id) {
+          return of(etxn.tx.project_id);
+        } else {
+          return forkJoin({
+            orgSettings: this.offlineService.getOrgSettings(),
+            orgUserSettings: this.offlineService.getOrgUserSettings()
+          }).pipe(
+            map(({orgSettings, orgUserSettings}) => {
+              if (orgSettings.projects.enabled) {
+                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+              }
+            })
+          );
+        }
+      }),
+      switchMap(projectId => {
+        if (projectId) {
+          return this.projectService.getbyId(projectId);
+        } else {
+          return of(null);
+        }
     }));
 
     const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
@@ -952,9 +973,30 @@ export class AddEditExpensePage implements OnInit {
 
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
-        return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
-          .map(res => res.value)
-          .find(costCenter => costCenter.id === etxn.tx.cost_center_id))), of(null));
+        if (etxn.tx.cost_center_id) {
+          return of(etxn.tx.cost_center_id);
+        } else {
+          return forkJoin({
+            orgSettings: this.offlineService.getOrgSettings(),
+            costCenters: this.costCenters$
+          }).pipe(
+            map(({ orgSettings, costCenters }) => {
+              if (orgSettings.cost_centers.enabled) {
+                if (costCenters.length === 1 && this.mode === 'add') {
+                  return costCenters[0].value.id;
+                }
+              }
+            })
+          );
+        }
+      }),
+      switchMap(costCenterId => {
+        if (costCenterId) {
+          return this.costCenters$.pipe(
+            map(costCenters => costCenters.map(res => res.value).find(costCenter => costCenter.id === costCenterId)));
+        } else {
+          return of(null);
+        }
       })
     );
 
@@ -967,7 +1009,7 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    from(this.loaderService.showLoader()).pipe(
+    from(this.loaderService.showLoader('loading expense...', 15000)).pipe(
       switchMap(() => {
         return forkJoin({
           etxn: this.etxn$,
@@ -1034,7 +1076,7 @@ export class AddEditExpensePage implements OnInit {
         project,
         category,
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
-        merchant: etxn.tx.vendor ? {
+        vendor_id: etxn.tx.vendor ? {
           display_name: etxn.tx.vendor
         } : null,
         purpose: etxn.tx.purpose,
@@ -1175,7 +1217,8 @@ export class AddEditExpensePage implements OnInit {
           }
         }
         return tfcMap;
-      })
+      }),
+      shareReplay(1)
     );
 
     this.txnFields$.pipe(
@@ -1195,7 +1238,7 @@ export class AddEditExpensePage implements OnInit {
       } = {
         purpose: this.fg.controls.purpose,
         txn_dt: this.fg.controls.dateOfSpend,
-        vendor_id: this.fg.controls.merchant,
+        vendor_id: this.fg.controls.vendor_id,
         cost_center_id: this.fg.controls.costCenter,
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
@@ -1242,25 +1285,22 @@ export class AddEditExpensePage implements OnInit {
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
-        } else {
-          if (txnFieldKey === 'vendor_id') {
-            control.setValidators(this.merchantValidator);
-          }
         }
         control.updateValueAndValidity();
       }
       this.fg.updateValueAndValidity();
     });
 
-    txnFieldsMap$.pipe(
-      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields))
+    this.etxn$.pipe(
+      switchMap(() => txnFieldsMap$),
+      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields)),
     ).subscribe((defaultValues) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
         purpose: this.fg.controls.purpose,
         txn_dt: this.fg.controls.dateOfSpend,
-        vendor_id: this.fg.controls.merchant,
+        vendor_id: this.fg.controls.vendor_id,
         cost_center_id: this.fg.controls.costCenter,
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
@@ -1277,9 +1317,9 @@ export class AddEditExpensePage implements OnInit {
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (defaultValueColumn !== 'vendor_id' && !control.value) {
+          if (defaultValueColumn !== 'vendor_id' && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (defaultValueColumn === 'vendor_id' && !control.value) {
+          } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
@@ -1412,7 +1452,7 @@ export class AddEditExpensePage implements OnInit {
       project: [],
       category: [],
       dateOfSpend: [],
-      merchant: [, this.merchantValidator],
+      vendor_id: [, this.merchantValidator],
       purpose: [],
       report: [],
       tax: [],
@@ -1637,8 +1677,12 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.taxSettings$ = orgSettings$.pipe(
-      map(orgSettings => orgSettings.tax_settings.groups),
-      map(taxs => taxs.map(tax => ({label: tax.name, value: tax})))
+      map(orgSettings => orgSettings.tax_settings),
+      map(taxsSettings => ({
+          ...taxsSettings,
+          groups: taxsSettings.groups.map(tax => ({label: tax.name, value: tax}))
+        })
+      )
     );
 
     this.reports$ = this.reportService.getFilteredPendingReports({state: 'edit'}).pipe(
@@ -1718,7 +1762,7 @@ export class AddEditExpensePage implements OnInit {
             org_category_id: this.fg.value.category && this.fg.value.category.id,
             fyle_category: this.fg.value.category && this.fg.value.category.fyle_category,
             policy_amount: null,
-            vendor: this.fg.value.merchant && this.fg.value.merchant.display_name,
+            vendor: this.fg.value.vendor_id && this.fg.value.vendor_id.display_name,
             purpose: this.fg.value.purpose,
             locations: locations || [],
             custom_properties: customProperties || [],
@@ -1733,6 +1777,7 @@ export class AddEditExpensePage implements OnInit {
             distance: this.fg.value.distance,
             distance_unit: this.fg.value.distance_unit,
             hotel_is_breakfast_provided: this.fg.value.hotel_is_breakfast_provided,
+            user_reason_for_duplicate_expenses: this.fg.value.duplicate_detection_reason,
             ...costCenter
           },
           ou: etxn.ou,

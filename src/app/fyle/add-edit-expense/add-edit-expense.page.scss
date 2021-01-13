@@ -112,6 +112,7 @@
     font-weight: 500;
     line-height: 1.5;
     white-space: nowrap;
+    min-width: 120px;
     &__invalid {
       color: red;
     }
@@ -140,7 +141,7 @@
     line-height: 2;
     white-space: nowrap;
     display: flex;
-    min-width: 145px;
+    min-width: 120px;
     &__invalid {
       color: red;
     }
@@ -152,7 +153,7 @@
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
-    max-width: calc(100% - 145px);
+    max-width: calc(100% - 120px);
   }
 
   &--checkbox {
@@ -469,5 +470,9 @@
     font-size: 16px;
     color: #ababab;
     margin-top: 2px;
+  }
+
+  &--error {
+    color: red;
   }
 }

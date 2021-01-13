@@ -77,7 +77,7 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     await currencyModal.present();
 
     const { data } = await currencyModal.onWillDismiss();
-
+    console.log(data);
     if (data) {
       this.value = data.value;
     }
@@ -93,17 +93,12 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
       const selectedOption = this.innerValue;
       if (selectedOption) {
         this.displayValue = selectedOption.display_name;
+      } else {
+        this.displayValue = '';
       }
     }
   }
 
-  // validate(fc: FormControl) {
-  //   if (this.mandatory && fc.value === null) {
-  //     return {
-  //       required: true
-  //     };
-  //   }
-  // }
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;

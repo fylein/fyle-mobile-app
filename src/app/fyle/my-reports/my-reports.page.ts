@@ -257,10 +257,12 @@ export class MyReportsPage implements OnInit {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.loadData$.next(params);
-    if (event) {
-      event.target.complete();
-    }
+    this.reportService.clearCache().subscribe(() => {
+      this.loadData$.next(params);
+      if (event) {
+        event.target.complete();
+      }
+    });
   }
 
   addNewFiltersToParams() {

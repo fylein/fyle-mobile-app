@@ -305,11 +305,27 @@ textarea, input {
   }
 }
 
+.switch-org-search {
+  width: 100%;
+  padding: 0 10px;
+
+  .mat-form-field-appearance-outline .mat-form-field-infix {
+    padding-top: 0 !important;
+    padding-bottom: 6px !important;
+  }
+}
+
 .mat-form-field-appearance-outline .mat-form-field-infix {
   padding: 0.5em 0 1em 0;
 }
 
 .selection-modal--form-field {
+  .mat-form-field-wrapper {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
+  }
+}
+
+.approver-list--form-field {
   .mat-form-field-wrapper {
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
   }

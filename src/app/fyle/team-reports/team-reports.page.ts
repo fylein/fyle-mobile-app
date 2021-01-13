@@ -42,6 +42,7 @@ export class TeamReportsPage implements OnInit {
     sortDir: string;
   }>;
   homeCurrency$: Observable<string>;
+  searchText = '';
   orgSettings$: Observable<string>;
   orgSettings: any;
   onPageExit = new Subject();
@@ -66,6 +67,13 @@ export class TeamReportsPage implements OnInit {
 
   ionViewWillLeave() {
     this.onPageExit.next();
+  }
+
+  clearText() {
+    this.searchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
   }
 
   ionViewWillEnter() {

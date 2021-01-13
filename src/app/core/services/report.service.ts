@@ -31,6 +31,13 @@ export class ReportService {
     private dataTransformService: DataTransformService
   ) { }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  clearCache() {
+    return of(null);
+  }
+
   getUserReportParams(state: string) {
     const stateMap = {
       draft: {

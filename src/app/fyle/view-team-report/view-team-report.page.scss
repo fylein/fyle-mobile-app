@@ -16,13 +16,20 @@ $inquiry-color: #4848ad;
   &--send-back {
     font-weight: normal;
     font-size: 16px;
+    color: red;
   }
 
   &--card {
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    box-shadow: 0 0 8px #0000001a;
+    border: 1px solid #e5e5e5;
     margin: 20px 0;
     padding: 16px;
     border-radius: 4px;
+
+    &__no-shadow {
+      box-shadow: none;
+    }
+
     &__block-action {
       display: flex;
       justify-content: flex-start;
@@ -32,6 +39,15 @@ $inquiry-color: #4848ad;
     &__zero-state {
       text-align: center;
     }
+  }
+
+  &--divider {
+    border-top: 1px solid #e5e5e5;
+    margin: 16px 0;
+  }
+
+  &--approvals {
+    padding-bottom: 8px;
   }
 
   &--zero-state-header {
@@ -75,11 +91,16 @@ $inquiry-color: #4848ad;
     font-size: 16px;
     color: #ababab;
     font-weight: 300;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     line-height: 1;
+
     &__highlight {
       color: #67bc53;
     }
+  }
+
+  &--approver-title {
+    margin-bottom: 10px;
   }
 
   &--approval-state {
@@ -156,7 +177,7 @@ $inquiry-color: #4848ad;
     color: #ababab;
     font-weight: 300;
     line-height: 1;
-    margin-bottom: 8px;
+    margin: 8px 0;
   }
 
   &--view-hide-btn {

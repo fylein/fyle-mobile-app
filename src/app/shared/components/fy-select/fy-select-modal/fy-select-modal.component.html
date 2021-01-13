@@ -1,4 +1,4 @@
-<ion-header mode="md" >
+<ion-header mode="md">
   <ion-toolbar mode="md">
     <ion-title>
       <div class="selection-modal--title">
@@ -11,23 +11,26 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar class="selection-modal--form-field-container" *ngIf="enableSearch">
-    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
-      <input #searchBar id="election-modal--search-input" class="selection-modal--search-input" matInput placeholder="{{placeholder || 'Search'}}" [(ngModel)]="value">
-      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
-          <mat-icon>close</mat-icon>
-        </button>
+  <ion-toolbar *ngIf="enableSearch" class="selection-modal--form-field-container">
+    <mat-form-field appearance="outline" class="selection-modal--form-field mat-form-field-no-padding">
+      <input #searchBar [(ngModel)]="value" class="selection-modal--search-input" id="election-modal--search-input"
+             matInput placeholder="{{placeholder || 'Search'}}">
+      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+        <mat-icon>close</mat-icon>
+      </button>
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--container">
-    <div class="selection-modal--recently-used-block" *ngIf="cacheName && (recentrecentlyUsedItems$|async)?.length > 0">
+    <div *ngIf="cacheName && (recentrecentlyUsedItems$|async)?.length > 0" class="selection-modal--recently-used-block">
       <div class="selection-modal--sub-title">Recently Used</div>
 
-      <div matRipple class="selection-modal--list-element" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list" (click)="onElementSelect(recentrecentlyUsedItem)">
-        <ng-template #defaultSelectionElement  let-label="label" let-selected="selected">
+      <div (click)="onElementSelect(recentrecentlyUsedItem)" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list"
+           class="selection-modal--list-element"
+           matRipple>
+        <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
           <div>
             {{label}}
           </div>
@@ -35,7 +38,8 @@
             check
           </mat-icon>
         </ng-template>
-        <ng-container *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:recentrecentlyUsedItem">
+        <ng-container
+          *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:recentrecentlyUsedItem">
         </ng-container>
       </div>
     </div>
@@ -45,7 +49,8 @@
         {{subheader}}
       </div>
       <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
-        <div *ngIf="filteredListItem.label.length > 0" matRipple class="selection-modal--list-element" (click)="onElementSelect(filteredListItem)">
+        <div (click)="onElementSelect(filteredListItem)" *ngIf="filteredListItem.label.length > 0" class="selection-modal--list-element"
+             matRipple>
           <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
             <div>
               {{label}}
@@ -54,7 +59,8 @@
               check
             </mat-icon>
           </ng-template>
-          <ng-container *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:filteredListItem">
+          <ng-container
+            *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:filteredListItem">
           </ng-container>
         </div>
       </ng-container>
@@ -65,7 +71,7 @@
 <ion-footer *ngIf="showSaveButton">
   <ion-toolbar>
     <div class="selection-modal--cta-container">
-      <ion-button class="selection-modal--primary-cta" (click)="saveToCacheAndUse()" fill="solid" color="fyle-primary">
+      <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
         SAVE
       </ion-button>
     </div>

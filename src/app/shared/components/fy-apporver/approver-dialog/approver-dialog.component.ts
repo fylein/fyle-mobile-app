@@ -22,6 +22,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   @Input() approverList;
   @Input() id;
   @Input() from;
+  value;
 
   approverList$: Observable<any>;
   searchedApprovers$: Observable<ExtendedOrgUser[]>;
@@ -130,5 +131,12 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
        }));
       })
     );
+  }
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
   }
 }

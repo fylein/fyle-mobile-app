@@ -47,7 +47,6 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
           }))
           ),
           catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
-          map(vendors => [{ label: searchText, value: { display_name: searchText } }].concat(vendors)),
           map(vendors => [{ label: 'None', value: null }].concat(vendors))
         );
       }),
@@ -82,5 +81,11 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   onElementSelect(option) {
     this.recentLocalStorageItemsService.post('recentVendorList', option, 'label');
     this.modalController.dismiss(option);
+  }
+
+  onNewSelect() {
+    const newOption = { label: this.value, value: { display_name: this.value } };
+    this.recentLocalStorageItemsService.post('recentVendorList', newOption, 'label');
+    this.modalController.dismiss(newOption);
   }
 }

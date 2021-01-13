@@ -38,11 +38,11 @@ export class SignInPage implements OnInit {
     public googleAuthService: GoogleAuthService,
     private inAppBrowser: InAppBrowser,
     private pushNotificationService: PushNotificationService
-  ) { 
+  ) {
   }
 
   checkSAMLResponseAndSignInUser(data) {
-    if (data.error) {
+    if (data && data.error) {
       const err = {
         status: parseInt(data.response_status_code, 10)
       };

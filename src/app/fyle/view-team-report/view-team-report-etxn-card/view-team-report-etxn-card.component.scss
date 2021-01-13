@@ -12,7 +12,7 @@
     display: flex;
     align-items: center;
     margin: 8px;
-    padding: 8px;
+    padding: 8px 0;
   }
 
   &--icon {
@@ -32,6 +32,9 @@
     width: 60%;
     display: flex;
     flex-direction: column;
+    color: #4a4a4a;
+    padding-left: 8px;
+    font-size: 16px;
   }
 
   &--violation {

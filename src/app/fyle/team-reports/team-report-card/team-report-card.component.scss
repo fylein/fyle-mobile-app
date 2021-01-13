@@ -1,9 +1,9 @@
 .reports-card {
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
   border-radius: 4px;
   min-height: 160px;
-  margin: 12px;
-  padding: 12px;
+  margin: 8px 16px 16px 16px;
+  padding: 16px;
 
   &__no-top-margin {
     margin-top: 0;
@@ -12,23 +12,24 @@
   &--date {
     color: #ababab;
     font-size: 16px;
-    margin: 0 12px;
+    margin: 8px 16px;
   }
 
   &--main-info {
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid lightgray;
-    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
     font-size: 16px;
+    color: #4a4a4a;
   }
 
   &--secondary-info {
-    padding: 12px 0;
+    padding-top: 4px;
   }
 
   &--policy-violation {
-    margin: 12px 12px 0;
+    margin: 8px 16px 0;
     background: #ff9900;
     color: #fff;
     font-size: 16px;
@@ -48,11 +49,13 @@
   }
 
   &--purpose {
-    line-height: 1.3;
+    line-height: 1.4;
   }
 
   &--no-transactions {
+    font-size: 16px;
     color: #ababab;
+    font-weight: 300;
   }
 
   &--approved-on {
@@ -61,11 +64,11 @@
 
   &--pill {
     font-size: 12px;
-    padding: 0 12px;
     display: inline-block;
     color: white;
     border-radius: 4px;
-    padding: 2px 8px;
+    padding: 2px 5px;
+
     &__fyled {
       background-color: #f90;
     }

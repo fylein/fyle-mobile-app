@@ -14,6 +14,8 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   @Input() options: { label: string, value: any, selected?: boolean }[] = [];
   @Input() currentSelections: any[] = [];
   @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+  @Input() placeholder;
+  value;
 
   constructor(
     private modalController: ModalController,
@@ -21,6 +23,13 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() { }
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
 
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(

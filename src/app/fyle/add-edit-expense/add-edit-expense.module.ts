@@ -27,6 +27,7 @@ import { ViewAttachmentsComponent } from './view-attachments/view-attachments.co
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -45,7 +46,8 @@ import { MatchTransactionComponent } from './match-transaction/match-transaction
     MatCheckboxModule,
     SharedModule,
     PinchZoomModule,
-    PdfViewerModule
+    PdfViewerModule,
+    MatButtonModule
   ],
   declarations: [
     AddEditExpensePage,

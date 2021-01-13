@@ -45,6 +45,9 @@
     border-radius: 4px;
     margin-top: 16px;
     padding: 8px 16px;
+    &__invalid {
+      border: 1px solid red;
+    }
   }
 
   &--exchange-rate-coverted {

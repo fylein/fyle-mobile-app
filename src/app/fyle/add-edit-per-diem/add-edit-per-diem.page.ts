@@ -74,6 +74,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   duplicateDetectionReasons = [
     { label: 'Different expense', value: 'Different expense' },
@@ -907,6 +908,8 @@ export class AddEditPerDiemPage implements OnInit {
         });
       });
 
+    this.setupDuplicateDetection();
+
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
@@ -921,8 +924,28 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     const selectedProject$ = this.etxn$.pipe(
-      switchMap(etxn => {
-        return iif(() => etxn.tx.project_id, this.projectService.getbyId(etxn.tx.project_id), of(null));
+      switchMap((etxn) => {
+        if (etxn.tx.project_id) {
+          return of(etxn.tx.project_id);
+        } else {
+          return forkJoin({
+            orgSettings: this.offlineService.getOrgSettings(),
+            orgUserSettings: this.offlineService.getOrgUserSettings()
+          }).pipe(
+            map(({orgSettings, orgUserSettings}) => {
+              if (orgSettings.projects.enabled) {
+                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+              }
+            })
+          );
+        }
+      }),
+      switchMap(projectId => {
+        if (projectId) {
+          return this.projectService.getbyId(projectId);
+        } else {
+          return of(null);
+        }
       })
     );
 
@@ -989,14 +1012,30 @@ export class AddEditPerDiemPage implements OnInit {
 
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
-        return iif(() => etxn.tx.cost_center_id,
-          this.costCenters$.pipe(
-            map(costCenters => costCenters
-              .map(res => res.value)
-              .find(costCenter => costCenter.id === etxn.tx.cost_center_id))
-          ),
-          of(null)
-        );
+        if (etxn.tx.cost_center_id) {
+          return of(etxn.tx.cost_center_id);
+        } else {
+          return forkJoin({
+            orgSettings: this.offlineService.getOrgSettings(),
+            costCenters: this.costCenters$
+          }).pipe(
+            map(({ orgSettings, costCenters }) => {
+              if (orgSettings.cost_centers.enabled) {
+                if (costCenters.length === 1 && this.mode === 'add') {
+                  return costCenters[0].value.id;
+                }
+              }
+            })
+          );
+        }
+      }),
+      switchMap(costCenterId => {
+        if (costCenterId) {
+          return this.costCenters$.pipe(
+            map(costCenters => costCenters.map(res => res.value).find(costCenter => costCenter.id === costCenterId)));
+        } else {
+          return of(null);
+        }
       })
     );
 
@@ -1048,6 +1087,7 @@ export class AddEditPerDiemPage implements OnInit {
         from_dt: etxn.tx.from_dt ? moment(new Date(etxn.tx.from_dt)).format('y-MM-DD') : null,
         to_dt: etxn.tx.to_dt ? moment(new Date(etxn.tx.to_dt)).format('y-MM-DD') : null,
         billable: etxn.tx.billable,
+        duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
         costCenter
       });
 
@@ -1121,7 +1161,8 @@ export class AddEditPerDiemPage implements OnInit {
             num_days: formValue.num_days,
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
-            cost_center_code: formValue.costCenter && formValue.costCenter.code
+            cost_center_code: formValue.costCenter && formValue.costCenter.code,
+            user_reason_for_duplicate_expenses: formValue.duplicate_detection_reason
           },
           dataUrls: [],
           ou: etxn.ou
@@ -1704,6 +1745,19 @@ export class AddEditPerDiemPage implements OnInit {
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
         }
       });
+    }
+  }
+
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
     }
   }
 }
