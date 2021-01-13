@@ -339,13 +339,20 @@ export class MyExpensesPage implements OnInit {
 
         let defaultState;
         if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
+          defaultState = 'in.(COMPLETE)';
+          if (this.filters && !this.filters.state) {
+            queryParams.or = '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)';
+          }
         } else if (this.baseState === 'draft') {
           defaultState = 'in.(DRAFT)';
         }
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
+        if (this.filters && this.filters.state) {
+          queryParams.tx_state = queryParams.tx_state || defaultState;
+        } else {
+          queryParams.tx_state =  defaultState || queryParams.tx_state;
+        }
 
         return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
