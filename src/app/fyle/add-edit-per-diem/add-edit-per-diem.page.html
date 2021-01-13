@@ -257,7 +257,7 @@
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                       <ng-container
-                        *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (allowedProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
+                        *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
                         <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-select-project

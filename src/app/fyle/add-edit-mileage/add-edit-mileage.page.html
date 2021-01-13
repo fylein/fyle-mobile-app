@@ -281,20 +281,23 @@
 
             <ng-container *ngIf="isConnected$|async">
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-                <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
-                  <div class="add-edit-mileage--internal-block">
-                    <app-fy-select-project
-                      [cacheName]="'mileageProjectCache'"
-                      [categoryIds]="projectCategoryIds"
-                      [label]="fg.value.project ? 'Project' : 'Select Project'"
-                      [mandatory]="transactionMandatoyFields.project"
-                      formControlName="project"
-                    ></app-fy-select-project>
-                  </div>
-                  <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
-                       class="add-edit-mileage--error">
-                    Please select a project.
-                  </div>
+                <ng-container
+                  *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
+                  <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
+                    <div class="add-edit-mileage--internal-block">
+                      <app-fy-select-project
+                        [cacheName]="'mileageProjectCache'"
+                        [categoryIds]="projectCategoryIds"
+                        [label]="fg.value.project ? 'Project' : 'Select Project'"
+                        [mandatory]="transactionMandatoyFields.project"
+                        formControlName="project"
+                      ></app-fy-select-project>
+                    </div>
+                    <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
+                         class="add-edit-mileage--error">
+                      Please select a project.
+                    </div>
+                  </ng-container>
                 </ng-container>
               </ng-container>
             </ng-container>
