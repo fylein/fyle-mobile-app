@@ -8,6 +8,9 @@ import {RouterAuthService} from 'src/app/core/services/router-auth.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {PopoverController} from '@ionic/angular';
 import {PopupComponent} from './popup/popup.component';
+import {TrackingService} from '../../core/services/tracking.service';
+import {DeviceService} from '../../core/services/device.service';
+import {LoginInfoService} from '../../core/services/login-info.service';
 
 @Component({
   selector: 'app-new-password',
@@ -31,8 +34,12 @@ export class NewPasswordPage implements OnInit {
     private loaderService: LoaderService,
     private routerAuthService: RouterAuthService,
     private authService: AuthService,
-    private popoverController: PopoverController
-  ) { }
+    private popoverController: PopoverController,
+    private trackingService: TrackingService,
+    private deviceService: DeviceService,
+    private loginInfoService: LoginInfoService
+  ) {
+  }
 
   ngOnInit() {
     this.fg = this.fb.group({
@@ -82,11 +89,11 @@ export class NewPasswordPage implements OnInit {
       switchMap(res => {
         return this.authService.newRefreshToken(res.refresh_token);
       }),
-      tap((eou) => {
-        // TODO:  Add when tracking service is added
-        // const email = eou.us.email;
-        // TrackingService.onSignin(email, { Asset: 'Mobile' });
-        // TrackingService.resetPassword({ Asset: 'Mobile' });
+      tap(async (eou) => {
+        const email = eou.us.email;
+        this.trackingService.onSignin(email, {Asset: 'Mobile'});
+        this.trackingService.resetPassword({Asset: 'Mobile'});
+        await this.trackLoginInfo();
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(
@@ -114,6 +121,12 @@ export class NewPasswordPage implements OnInit {
 
         await popup.present();
       });
+  }
+
+  async trackLoginInfo() {
+    const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
+    this.trackingService.eventTrack('Added Login Info', {Asset: 'Mobile', label: deviceInfo.appVersion});
+    await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
 }

@@ -49,7 +49,7 @@ export class AddEditExpensePage implements OnInit {
   etxn$: Observable<any>;
   paymentModes$: Observable<any[]>;
   pickRecentCurrency$: Observable<any>;
-  isCreatedFromCCC = false; // TODO: Verify naming
+  isCreatedFromCCC = false;
   paymentAccount$: Observable<any>;
   isCCCAccountSelected$: Observable<boolean>;
   homeCurrency$: Observable<string>;
@@ -492,7 +492,7 @@ export class AddEditExpensePage implements OnInit {
         splitType,
         txn: JSON.stringify(res.tx),
         currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-        fileObjs: res.dataUrls, // Todo: Need to check passing array is enough or need to do JSON.stringify before
+        fileObjs: res.dataUrls,
         selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
       }]);
     });

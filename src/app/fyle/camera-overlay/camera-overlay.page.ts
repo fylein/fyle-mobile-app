@@ -61,7 +61,7 @@ export class CameraOverlayPage implements OnInit {
       CameraPreview.start(cameraPreviewOptions).then(res => {
         this.isCameraShown = true;
         this.getFlashModes();
-      })
+      });
 
     }
   }
@@ -163,11 +163,7 @@ export class CameraOverlayPage implements OnInit {
   }
 
   syncExpenseAndFinishProcess() {
-    if (this.isCameraOpenedInOneClick) {
-      // Todo: Sync expense and redirect to close_app page
-    } else {
-      this.finishProcess();
-    }
+    this.finishProcess();
   }
 
   finishProcess() {
@@ -195,13 +191,7 @@ export class CameraOverlayPage implements OnInit {
 
     } else {
       // Single mode
-      if (this.isCameraOpenedInOneClick) {
-        // Todo: Add expense to queue
-        // this.syncExpenseAndFinishProcess()
-      } else {
-        this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage}]);
-      }
-    }
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage}]);    }
   }
 
   async onCapture() {
@@ -233,13 +223,13 @@ export class CameraOverlayPage implements OnInit {
         this.activeFlashMode = this.activeFlashMode || 'off';
         CameraPreview.setFlashMode({flashMode: this.activeFlashMode});
       }
-    })
+    });
   }
 
   disableInstaFyleIntro() {
     this.storageService.set('hideInstaFyleIntroGif', true);
     this.showInstaFyleIntro = false;
-  };
+  }
 
   async showInstaFyleIntroImage() {
     const hideInstaFyleIntroGif = await this.storageService.get('hideInstaFyleIntroGif');
@@ -248,7 +238,7 @@ export class CameraOverlayPage implements OnInit {
       this.showInstaFyleIntro = true;
       setTimeout(() => {
         this.showInstaFyleIntro = false;
-      }, 2800)
+      }, 2800);
     } else {
       this.showInstaFyleIntro = false;
     }
@@ -260,7 +250,7 @@ export class CameraOverlayPage implements OnInit {
     this.isCameraShown = false;
     this.setUpAndStartCamera();
     this.activeFlashMode = null;
-    this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
+    // this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
 
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;

@@ -14,6 +14,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
+import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-setup-account',
@@ -44,7 +45,8 @@ export class SetupAccountPage implements OnInit {
     private orgUserService: OrgUserService,
     private offlineService: OfflineService,
     private orgSettingsService: OrgSettingsService,
-    private router: Router
+    private router: Router,
+    private trackingService: TrackingService
   ) { }
 
 
@@ -127,13 +129,12 @@ export class SetupAccountPage implements OnInit {
           return this.authService.refreshEou();
         })
       ).subscribe(() => {
-        // TODO: Add in Tracking service
-        // TrackingService.setupHalf({ Asset: 'Mobile' });
+        this.trackingService.setupHalf({ Asset: 'Mobile' });
         // // setting up company details in clevertap profile
-        // TrackingService.updateSegmentProfile({
-        //   'Company Name': vm.org.name
-        // });
-        // $state.go('post_verification.setup_account_preferences');
+        this.trackingService.updateSegmentProfile({
+          'Company Name': this.fg.controls.companyName.value
+        });
+
         this.router.navigate(['/', 'post_verification', 'setup_account_preferences']);
       });
     } else {

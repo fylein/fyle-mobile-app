@@ -8,6 +8,7 @@ import {catchError, finalize, switchMap, tap} from 'rxjs/operators';
 import {PopoverController} from '@ionic/angular';
 import {SignUpErrorComponent} from './error/error.component';
 import {NgModel} from '@angular/forms';
+import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -31,7 +32,8 @@ export class SignUpPage implements OnInit, AfterViewChecked {
     private router: Router,
     private loaderService: LoaderService,
     private popoverController: PopoverController,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private trackingService: TrackingService
   ) { }
 
   ngAfterViewChecked() {
@@ -87,8 +89,7 @@ export class SignUpPage implements OnInit, AfterViewChecked {
       this.signupLoader = true;
       this.routerAuthService.canSignup(this.userEmail).pipe(
         tap(() => {
-          // TODO: Add with tracking service
-          // TrackingService.canSignup(vm.email, 'mobile', { Asset: 'Mobile' });
+          this.trackingService.canSignup(this.userEmail, 'mobile', { Asset: 'Mobile' });
         }),
         finalize(async () => {
           this.signupLoader = false;

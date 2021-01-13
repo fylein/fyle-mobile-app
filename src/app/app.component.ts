@@ -4,7 +4,7 @@ import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
 import {map, switchMap, shareReplay} from 'rxjs/operators';
-import { Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {OrgUserService} from 'src/app/core/services/org-user.service';
@@ -22,9 +22,11 @@ import {NetworkService} from './core/services/network.service';
 import {Plugins} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
-import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
+import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
 import * as Sentry from '@sentry/angular';
-import { PushNotificationService } from './core/services/push-notification.service';
+import {PushNotificationService} from './core/services/push-notification.service';
+import {TrackingService} from './core/services/tracking.service';
+import {LoginInfoService} from './core/services/login-info.service';
 
 const {App} = Plugins;
 
@@ -67,7 +69,9 @@ export class AppComponent implements OnInit {
     private deepLinkService: DeepLinkService,
     private splashScreen: SplashScreen,
     private screenOrientation: ScreenOrientation,
-    private pushNotificationService: PushNotificationService
+    private pushNotificationService: PushNotificationService,
+    private trackingService: TrackingService,
+    private loginInfoService: LoginInfoService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -144,8 +148,18 @@ export class AppComponent implements OnInit {
 
         return this.appVersionService.isSupported(data);
       })
-    ).subscribe((res: { message: string, supported: boolean }) => {
+    ).subscribe(async (res: { message: string, supported: boolean }) => {
       if (!res.supported && environment.production) {
+        const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
+        const eou = await this.authService.getEou();
+
+        this.trackingService.eventTrack('Auto Logged out', {
+          Asset: 'Mobile',
+          lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
+          user_email: eou.us.email,
+          appVersion: deviceInfo.appVersion
+        });
+
         this.router.navigate(['/', 'auth', 'app_version', {message: res.message}]);
       }
     });

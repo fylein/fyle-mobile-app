@@ -56,7 +56,6 @@ export class AddEditPerDiemPage implements OnInit {
   customInputs$: Observable<any>;
   costCenters$: Observable<any>;
   reports$: Observable<any[]>;
-  allowedProjectIds$: Observable<string[]>;
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
   paymentModeInvalid$: Observable<boolean>;
   isAmountCapped$: Observable<boolean>;
@@ -915,7 +914,10 @@ export class AddEditPerDiemPage implements OnInit {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return this.offlineService.getAccounts().pipe(
             map(accounts => {
-              return accounts.filter(account => account && account.acc && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' && account.acc.tentative_balance_amount > 0).length > 0;
+              return accounts.filter(account => account &&
+                account.acc &&
+                account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' &&
+                account.acc.tentative_balance_amount > 0).length > 0;
             })
           );
         }
@@ -1042,7 +1044,6 @@ export class AddEditPerDiemPage implements OnInit {
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap(etxn => {
         return this.offlineService.getCustomInputs().pipe(map(customFields => {
-          // TODO: Convert custom properties to get generated from formValue
           return this.customFieldsService
             .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
         }));
