@@ -438,6 +438,10 @@ export class AppComponent implements OnInit {
           },
         ];
       }
+
+      this.hasApproversTitles =  this.sideMenuList.find(item => {
+        return ['Team Reports', 'Team Trips', 'Team Advances'].indexOf(item.title) > 0 && item.isVisible === true;
+      });
     });
   }
 

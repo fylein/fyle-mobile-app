@@ -23,10 +23,10 @@
         </span>
       </div>
       <div class="etxn-card--vendor">
-        {{etxn.vendor | ellipsis:12}}
+        {{etxn.vendor}}
       </div>
       <div class="etxn-card--category">
-        {{etxn.tx_org_category | ellipsis:12}}
+        {{etxn.tx_org_category}}
       </div>
     </div>
     <div class="etxn-card--violation" *ngIf="etxn.violation">
