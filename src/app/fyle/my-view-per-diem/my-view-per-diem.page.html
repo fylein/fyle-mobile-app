@@ -34,7 +34,7 @@
 
     <div class="view-per-diem--conversion" *ngIf="extendedPerDiem.tx_orig_currency && extendedPerDiem.tx_orig_amount">
       <div class="view-per-diem--conversion-amount">
-        {{extendedPerDiem.tx_currency}} {{extendedPerDiem.tx_amount | number: '1.0-2'}}
+        {{extendedPerDiem.tx_currency}} {{extendedPerDiem.tx_amount | number: '1.2-2'}}
       </div>
       <div class="view-per-diem--conversion-rate">
         at {{ extendedPerDiem.tx_amount / extendedPerDiem.tx_orig_amount }}

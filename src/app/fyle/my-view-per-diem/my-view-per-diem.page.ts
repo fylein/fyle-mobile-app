@@ -1,6 +1,6 @@
-import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController, IonContent } from '@ionic/angular';
 import {concat, from, Observable, Subject} from 'rxjs';
 import {finalize, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -19,6 +19,8 @@ import {NetworkService} from '../../core/services/network.service';
   styleUrls: ['./my-view-per-diem.page.scss'],
 })
 export class MyViewPerDiemPage implements OnInit {
+
+  @ViewChild(IonContent, { static: false }) content: IonContent;
 
   extendedPerDiem$: Observable<Expense>;
   orgSettings$: Observable<any>;
@@ -52,7 +54,7 @@ export class MyViewPerDiemPage implements OnInit {
   }
 
   scrollToComments() {
-    document.getElementById('commentsSection').scrollIntoView();
+    this.content.scrollToBottom(500);
   }
 
   setupNetworkWatcher() {

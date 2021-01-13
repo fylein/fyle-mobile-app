@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {from, forkJoin, Observable, concat, Subject} from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -8,7 +8,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, IonContent } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
@@ -20,6 +20,8 @@ import {NetworkService} from '../../core/services/network.service';
   styleUrls: ['./my-view-expense.page.scss'],
 })
 export class MyViewExpensePage implements OnInit {
+
+  @ViewChild(IonContent, { static: false }) content: IonContent;
 
   etxn$: Observable<Expense>;
   policyViloations$: Observable<any>;
@@ -64,7 +66,7 @@ export class MyViewExpensePage implements OnInit {
   }
 
   scrollToComments() {
-    document.getElementById('commentsSection').scrollIntoView();
+    this.content.scrollToBottom(500);
   }
 
   setupNetworkWatcher() {

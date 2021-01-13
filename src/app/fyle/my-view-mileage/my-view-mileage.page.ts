@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController, IonContent } from '@ionic/angular';
 import { from, Observable } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -17,6 +17,8 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
   styleUrls: ['./my-view-mileage.page.scss'],
 })
 export class MyViewMileagePage implements OnInit {
+
+  @ViewChild(IonContent, { static: false }) content: IonContent;
 
   extendedMileage$: Observable<Expense>;
   orgSettings$: Observable<any>;
@@ -44,7 +46,7 @@ export class MyViewMileagePage implements OnInit {
   }
 
   scrollToComments() {
-    document.getElementById('commentsSection').scrollIntoView();
+    this.content.scrollToBottom(500);
   }
 
   ionViewWillEnter() {
@@ -84,9 +86,9 @@ export class MyViewMileagePage implements OnInit {
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
       map(res => {
-        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount)
+        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount);
       })
-    )
+    );
 
   }
 

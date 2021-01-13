@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Observable, from, forkJoin, Subject, combineLatest, concat} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -10,7 +10,7 @@ import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonContent } from '@ionic/angular';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import {NetworkService} from '../../core/services/network.service';
@@ -21,6 +21,8 @@ import {NetworkService} from '../../core/services/network.service';
   styleUrls: ['./view-team-expense.page.scss'],
 })
 export class ViewTeamExpensePage implements OnInit {
+
+  @ViewChild(IonContent, { static: false }) content: IonContent;
 
   etxn$: Observable<Expense>;
   policyViloations$: Observable<any>;
@@ -86,7 +88,7 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   scrollToComments() {
-    document.getElementById('commentsSection').scrollIntoView();
+    this.content.scrollToBottom(500);
   }
 
   getDisplayValue(customProperties) {

@@ -21,6 +21,8 @@ import { RemoveExpenseReportComponent } from './remove-expense-report/remove-exp
 })
 export class ViewTeamPerDiemPage implements OnInit {
 
+  @ViewChild(IonContent, { static: false }) content: IonContent;
+
   extendedPerDiem$: Observable<Expense>;
   orgSettings$: Observable<any>;
   perDiemCustomFields$: Observable<CustomField[]>;
@@ -61,7 +63,7 @@ export class ViewTeamPerDiemPage implements OnInit {
   }
 
   scrollToComments() {
-    document.getElementById('commentsSection').scrollIntoView();
+    this.content.scrollToBottom(500);
   }
 
   ionViewWillEnter() {
