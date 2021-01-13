@@ -9,6 +9,12 @@ $heading-shadow-color: #ababab;
     margin: 0 16px;
   }
 
+  &--title {
+    font-weight: 700;
+    font-size: 24px;
+    color: #000;
+  }
+
   &--element {
     padding: 10px 10px 10px 20px;
   }

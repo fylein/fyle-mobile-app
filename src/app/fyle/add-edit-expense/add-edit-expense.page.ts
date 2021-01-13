@@ -69,7 +69,6 @@ export class AddEditExpensePage implements OnInit {
   customInputs$: Observable<any>;
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
   selectedCCCTransaction;
-  isOffline = false;
   canChangeMatchingCCCTransaction = true;
   transactionInReport$: Observable<boolean>;
   transactionMandatoyFields$: Observable<any>;
@@ -888,8 +887,29 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupFormInit(allCategories$: Observable<any>) {
-    const selectedProject$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.project_id, this.projectService.getbyId(etxn.tx.project_id), of(null));
+    const selectedProject$ = this.etxn$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.project_id) {
+          return of(etxn.tx.project_id);
+        } else {
+          return forkJoin({
+            orgSettings: this.offlineService.getOrgSettings(),
+            orgUserSettings: this.offlineService.getOrgUserSettings()
+          }).pipe(
+            map(({orgSettings, orgUserSettings}) => {
+              if (orgSettings.projects.enabled) {
+                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+              }
+            })
+          );
+        }
+      }),
+      switchMap(projectId => {
+        if (projectId) {
+          return this.projectService.getbyId(projectId);
+        } else {
+          return of(null);
+        }
     }));
 
     const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
@@ -953,9 +973,30 @@ export class AddEditExpensePage implements OnInit {
 
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
-        return iif(() => etxn.tx.cost_center_id, this.costCenters$.pipe(map(costCenters => costCenters
-          .map(res => res.value)
-          .find(costCenter => costCenter.id === etxn.tx.cost_center_id))), of(null));
+        if (etxn.tx.cost_center_id) {
+          return of(etxn.tx.cost_center_id);
+        } else {
+          return forkJoin({
+            orgSettings: this.offlineService.getOrgSettings(),
+            costCenters: this.costCenters$
+          }).pipe(
+            map(({ orgSettings, costCenters }) => {
+              if (orgSettings.cost_centers.enabled) {
+                if (costCenters.length === 1 && this.mode === 'add') {
+                  return costCenters[0].value.id;
+                }
+              }
+            })
+          );
+        }
+      }),
+      switchMap(costCenterId => {
+        if (costCenterId) {
+          return this.costCenters$.pipe(
+            map(costCenters => costCenters.map(res => res.value).find(costCenter => costCenter.id === costCenterId)));
+        } else {
+          return of(null);
+        }
       })
     );
 

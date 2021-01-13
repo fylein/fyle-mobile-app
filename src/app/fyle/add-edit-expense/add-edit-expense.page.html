@@ -742,7 +742,7 @@
               <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
 
                 <app-fy-alert
-                  *ngIf="!isOffline && transactionMandatoyFields.project && individualProjectIds.length === 0"
+                  *ngIf="transactionMandatoyFields.project && individualProjectIds.length === 0"
                   [type]="'warning'"
                   [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
                 </app-fy-alert>

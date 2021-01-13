@@ -1,12 +1,10 @@
 <ion-header class="ion-no-border">
-  <div class="my-profile--header">
-    <ion-toolbar class="my-profile--header-toolbar">
-      <ion-buttons slot="start">
-        <ion-menu-button class="my-profile--menubutton" auto-hide="false"></ion-menu-button>
-      </ion-buttons>
-      <ion-title mode="md" class="page-title">Profile</ion-title>
-    </ion-toolbar>
-  </div>
+  <ion-toolbar class="my-profile--toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button class="my-profile--menubutton" auto-hide="false"></ion-menu-button>
+    </ion-buttons>
+    <ion-title mode="md" class="page-title">Profile</ion-title>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
@@ -15,7 +13,7 @@
       About You
     </span>
     <div *ngIf="eou$|async as eou">
-      <div class="my-profile--card">
+      <div class="my-profile--card my-profile--about-you-card">
         <div class="my-profile--name my-profile--card-item">
           <div class="my-profile--name-label">
             Name

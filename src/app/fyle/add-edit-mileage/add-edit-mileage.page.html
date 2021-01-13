@@ -55,7 +55,7 @@
         <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
           <ng-container *ngIf="mode === 'edit'">
             <ng-container *ngIf="comments$|async as comments">
-              <app-fy-policy-violation-info [estatuses]="comments"></app-fy-policy-violation-info>
+              <app-fy-policy-violation-info [estatuses]="comments" (click)="scrollCommentsIntoView()"></app-fy-policy-violation-info>
             </ng-container>
           </ng-container>
 
@@ -281,20 +281,23 @@
 
             <ng-container *ngIf="isConnected$|async">
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-                <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
-                  <div class="add-edit-mileage--internal-block">
-                    <app-fy-select-project
-                      [cacheName]="'mileageProjectCache'"
-                      [categoryIds]="projectCategoryIds"
-                      [label]="fg.value.project ? 'Project' : 'Select Project'"
-                      [mandatory]="transactionMandatoyFields.project"
-                      formControlName="project"
-                    ></app-fy-select-project>
-                  </div>
-                  <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
-                       class="add-edit-mileage--error">
-                    Please select a project.
-                  </div>
+                <ng-container
+                  *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
+                  <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
+                    <div class="add-edit-mileage--internal-block">
+                      <app-fy-select-project
+                        [cacheName]="'mileageProjectCache'"
+                        [categoryIds]="projectCategoryIds"
+                        [label]="fg.value.project ? 'Project' : 'Select Project'"
+                        [mandatory]="transactionMandatoyFields.project"
+                        formControlName="project"
+                      ></app-fy-select-project>
+                    </div>
+                    <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
+                         class="add-edit-mileage--error">
+                      Please select a project.
+                    </div>
+                  </ng-container>
                 </ng-container>
               </ng-container>
             </ng-container>
@@ -474,17 +477,29 @@
           </div>
 
           <ng-container *ngIf="etxn$|async as etxn">
-            <div *ngIf="etxn && mode === 'edit'" class="add-edit-mileage--comment">
+            <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-mileage--comment">
               <app-comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments">
               </app-comments>
             </div>
 
 
-            <!-- <app-fy-alert
-            *ngIf="!vm.isOffline && vm.mandatorymileageFields.project && vm.isProjectsEnabled && (vm.isIndividualProjectsEnabled && vm.allowedProjectIds.length === 0)"
-            type="warning"
-            message="'There are no projects assigned to you, so this mileage will be saved as a draft. Please contact admin for further help.'">
-          </app-fy-alert> -->
+            <ng-container *ngIf="isConnected$">
+              <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+                <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
+                  <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
+                    <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
+
+                      <app-fy-alert
+                        *ngIf="transactionMandatoyFields.project && individualProjectIds.length === 0"
+                        [type]="'warning'"
+                        [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
+                      </app-fy-alert>
+
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </ng-container>
 
 
             <ng-container *ngIf="etxn$|async as etxn">
