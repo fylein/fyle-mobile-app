@@ -395,11 +395,11 @@
       </div>
 
       <ng-container *ngIf="taxSettings$|async as taxSettings">
-        <div class="add-edit-expense--primary-block" *ngIf="mode=='add' && taxSettings.enabled && taxSettings.groups.length > 0">
+        <div class="add-edit-expense--primary-block" *ngIf="mode=='add' && taxSettings?.enabled && taxSettings?.groups?.length > 0">
           <div class="add-edit-expense--internal-block">
             <app-fy-select
               [label]="taxSettings.name || 'Tax Group'"
-              [options]="taxSettings"
+              [options]="taxSettings?.groups"
               formControlName="tax"
               [selectModalHeader]="'Select ' + (taxSettings.name || 'Tax Group')"
               [subheader]="taxSettings.name || 'Tax Group'"
