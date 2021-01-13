@@ -11,7 +11,7 @@ import {NgModel} from '@angular/forms';
 })
 export class SendBackComponent implements OnInit {
   sendBackReason = '';
-
+  showNoReasonError = false;
   @Input() erpt;
   @Input() etxns;
   numIssues = 0;
