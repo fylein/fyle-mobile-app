@@ -34,15 +34,13 @@
             <ion-grid fixed>
               <ion-row>
                 <ion-col>
-                  <h4>
-                    <strong>{{ feature.value.textLabel }}</strong>
-                  </h4>
+                  <h4><strong>{{ feature.value.textLabel }}</strong></h4>
                 </ion-col>
-                <ion-col size="2" *ngIf="$first && (orgUserSettings$|async)?.notification_settings?.push.enabled">
+                <ion-col size="3" *ngIf="$first && (orgUserSettings$|async)?.notification_settings?.push.enabled">
                   <mat-checkbox [checked]="isAllSelected.pushEvents" (change)="toggleAllSelected('push')" color="primary"></mat-checkbox>
                   <mat-icon svgIcon="fy-iphone" class="notifications--notif-type-icon"></mat-icon>
                 </ion-col>
-                <ion-col size="2" *ngIf="$first">
+                <ion-col size="3" *ngIf="$first">
                   <mat-checkbox color="primary" [checked]="isAllSelected.emailEvents" (change)="toggleAllSelected('email')"></mat-checkbox>
                   <mat-icon svgIcon="fy-email" class="notifications--notif-type-icon"></mat-icon>
                 </ion-col>
@@ -53,14 +51,14 @@
               <ion-grid fixed *ngIf="event.feature === feature.key">
                 <ion-row [ngClass]="{'notifications--odd': odd}" class="notifications--features-list-row">
                   <ion-col>
-                    <div>{{ event.textLabel }}</div>
+                    <div class="notifications--event-label">{{ event.textLabel }}</div>
                   </ion-col>
-                  <ion-col size="2" *ngIf="(orgUserSettings$|async)?.notification_settings?.push.enabled">
+                  <ion-col size="3" *ngIf="(orgUserSettings$|async)?.notification_settings?.push.enabled">
                     <div formArrayName="pushEvents">
                       <mat-checkbox color="primary" formControlName="{{i}}"></mat-checkbox>
                     </div>
                   </ion-col>
-                  <ion-col size="2">
+                  <ion-col size="3">
                     <div formArrayName="emailEvents">
                       <mat-checkbox formControlName="{{i}}" color="primary"></mat-checkbox>
                     </div>

@@ -106,7 +106,7 @@
             Purpose
           </div>
           <div class="view-trip--element-value">
-            {{tripRequest.trp_purpose}}
+            {{tripRequest.trp_purpose || '-'}}
           </div>
         </div>
         <div class="view-trip--element">
@@ -114,7 +114,7 @@
             Project
           </div>
           <div class="view-trip--element-value">
-            {{tripExtraInfo.projectName}}
+            {{tripExtraInfo.projectName || '-'}}
           </div>
         </div>
         <div class="view-trip--element">
@@ -122,7 +122,7 @@
             Notes
           </div>
           <div class="view-trip--element-value">
-            {{tripRequest.trp_notes}}
+            {{tripRequest.trp_notes || '-'}}
           </div>
         </div>
       </div>
@@ -137,10 +137,10 @@
               {{customField.name}}
             </div>
             <div *ngIf="customField.type === 'DATE'" class="view-trip--element-value">
-              {{customField.value | date: 'dd, MMM yyyy'}}
+              {{customField.value | date: 'dd, MMM yyyy' || '-'}}
             </div>
             <div *ngIf="customField.type === 'BOOLEAN'" class="view-trip--element-value">
-              {{customField.value ? 'Yes' : 'No'}}
+              {{customField.value ? 'Yes' : 'No' || '-'}}
             </div>
             <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'" class="view-trip--element-value">
               {{customField?.value?.display || customField.value || '-'}}
@@ -151,7 +151,7 @@
       </ng-container>
 
 
-      <div class="view-trip--card" matRipple *ngIf="transportationRequests$|async as transportationRequests">
+      <div class="view-trip--card" *ngIf="transportationRequests$|async as transportationRequests">
         <div class="view-trip--element view-trip--element__single"
           (click)="openTransportationRequests()">
           <div class="view-trip--element-label">
@@ -163,7 +163,7 @@
         </div>
       </div>
 
-      <div class="view-trip--card" matRipple *ngIf="hotelRequests$|async as hotelRequests">
+      <div class="view-trip--card" *ngIf="hotelRequests$|async as hotelRequests">
         <div class="view-trip--element view-trip--element__single" (click)="openHotelRequests()">
           <div class="view-trip--element-label">
             Hotel
@@ -174,9 +174,8 @@
         </div>
       </div>
 
-      <div class="view-trip--card" matRipple>
-        <div class="view-trip--element view-trip--element__single"
-          *ngIf="transformedAdvanceRequests$|async as advanceRequests" (click)="openAdvanceRequests()">
+      <div class="view-trip--card" *ngIf="transformedAdvanceRequests$|async as advanceRequests">
+        <div class="view-trip--element view-trip--element__single" (click)="openAdvanceRequests()">
           <div class="view-trip--element-label">
             Advance
           </div>

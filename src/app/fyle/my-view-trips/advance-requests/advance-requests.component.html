@@ -14,7 +14,7 @@
 <ion-content>
   <div *ngFor="let advanceRequest of advanceRequests">
     <div class="advance-requests--card">
-      <div (click)="advanceRequest.isOpened = !advanceRequest.isOpened" matRipple class="advance-requests--header">
+      <div (click)="advanceRequest.isOpened = !advanceRequest.isOpened" class="advance-requests--header">
         <div class="advance-requests--advance-number">
           Advance {{advanceRequest.advance_request_number}}
         </div>

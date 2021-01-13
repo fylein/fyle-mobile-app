@@ -5,7 +5,6 @@ $background-color: #fff;
 .my-profile {
   &--header {
     background-color: $background-color;
-    // height: 80px !important;
     border-bottom: 1px solid $item-border-color;
     &-toolbar {
       border-bottom: 1px solid $item-border-color;
@@ -13,7 +12,6 @@ $background-color: #fff;
   }
 
   &--menubutton {
-    height: 80px;
     color: $menu-botton-color;
   }
 
@@ -235,6 +233,10 @@ $background-color: #fff;
     &__full {
       width: 100%;
     }
+  }
+
+  &--toggle-value {
+    padding-left: 6px;
   }
 
   &--primary-cta {

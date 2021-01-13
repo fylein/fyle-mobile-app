@@ -270,12 +270,13 @@ input:focus, textarea:focus{
 }
 .page-title {
   font-weight: 700;
+  line-height: 1.3;
 }
 
 mat-checkbox {
   .mat-checkbox-layout {
     .mat-checkbox-inner-container {
-      padding: 8px !important;
+      padding: 9px !important;
     }
   }
 }
