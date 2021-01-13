@@ -3,7 +3,7 @@ import {Observable, of, iif, forkJoin, from, combineLatest, throwError, noop, co
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   concatMap, switchMap, map, startWith, shareReplay,
-  distinctUntilChanged, take, tap, finalize, filter, debounceTime, catchError, reduce, delay
+  distinctUntilChanged, take, tap, finalize, filter, debounceTime, catchError, reduce, delay, timeout
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -663,13 +663,11 @@ export class AddEditExpensePage implements OnInit {
 
   getInstaFyleImageData() {
     if (this.activatedRoute.snapshot.params.dataUrl) {
-      return from(this.loaderService.showLoader('Applying Fyle Magic...'))
+      const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
+      const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
+      return from(this.transactionOutboxService.parseReceipt(b64Image))
         .pipe(
-          switchMap(() => {
-            const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
-            const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
-            return from(this.transactionOutboxService.parseReceipt(b64Image));
-          }),
+          timeout(15000),
           map((parsedResponse) => ({
             parsedResponse: parsedResponse.data,
             auditCallBackUrl: parsedResponse.callback_url
@@ -690,7 +688,7 @@ export class AddEditExpensePage implements OnInit {
               ...extractedDetails
             };
 
-            // TODO: Check and Add iamge coordinates
+            // TODO: Check and Add image coordinates
 
             if (extractedDetails.parsedResponse) {
               return this.offlineService.getHomeCurrency().pipe(
@@ -719,9 +717,7 @@ export class AddEditExpensePage implements OnInit {
             } else {
               return of(instaFyleImageData);
             }
-          }),
-          tap(console.log),
-          finalize(() => from(this.loaderService.hideLoader()))
+          })
         );
     } else {
       return of(null);
@@ -884,7 +880,7 @@ export class AddEditExpensePage implements OnInit {
           });
           etxn.tx.num_files = etxn.dataUrls.length;
         }
-        
+
         return etxn;
       }),
       shareReplay(1)
@@ -972,7 +968,7 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    from(this.loaderService.showLoader()).pipe(
+    from(this.loaderService.showLoader('loading expense...', 15000)).pipe(
       switchMap(() => {
         return forkJoin({
           etxn: this.etxn$,
@@ -1640,8 +1636,12 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.taxSettings$ = orgSettings$.pipe(
-      map(orgSettings => orgSettings.tax_settings.groups),
-      map(taxs => taxs.map(tax => ({label: tax.name, value: tax})))
+      map(orgSettings => orgSettings.tax_settings),
+      map(taxsSettings => ({
+          ...taxsSettings,
+          groups: taxsSettings.groups.map(tax => ({label: tax.name, value: tax}))
+        })
+      )
     );
 
     this.reports$ = this.reportService.getFilteredPendingReports({state: 'edit'}).pipe(
@@ -1736,6 +1736,7 @@ export class AddEditExpensePage implements OnInit {
             distance: this.fg.value.distance,
             distance_unit: this.fg.value.distance_unit,
             hotel_is_breakfast_provided: this.fg.value.hotel_is_breakfast_provided,
+            user_reason_for_duplicate_expenses: this.fg.value.duplicate_detection_reason,
             ...costCenter
           },
           ou: etxn.ou,

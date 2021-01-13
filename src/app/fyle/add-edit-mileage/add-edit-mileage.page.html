@@ -288,7 +288,8 @@
                       [categoryIds]="projectCategoryIds"
                       [label]="fg.value.project ? 'Project' : 'Select Project'"
                       [mandatory]="transactionMandatoyFields.project"
-                      formControlName="project"></app-fy-select-project>
+                      formControlName="project"
+                    ></app-fy-select-project>
                   </div>
                   <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
                        class="add-edit-mileage--error">
