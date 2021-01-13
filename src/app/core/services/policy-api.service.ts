@@ -20,11 +20,7 @@ export class PolicyApiService {
   }
 
   get(url, config) {
-    return this.httpClient.get(this.ROOT_ENDPOINT + '/policy/expenses' + url, config).pipe(
-      map((resp: any) => {
-        return resp.data;
-      })
-    );
+    return this.httpClient.get(this.ROOT_ENDPOINT + '/policy/expenses' + url, config);
   }
 
   post(url, data) {

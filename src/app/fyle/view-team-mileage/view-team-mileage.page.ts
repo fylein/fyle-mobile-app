@@ -159,6 +159,10 @@ export class ViewTeamMileagePage implements OnInit {
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
 
+    this.policyViloations$.subscribe(res => {
+      console.log('policy ->', res);
+    });
+
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
       map(res => {
         return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001;

@@ -13,7 +13,6 @@
   <div class="view-mileage--container" *ngIf="extendedMileage$|async as extendedMileage">
     <div class="view-mileage--policy-info-container" (click)="scrollToComments()"
       *ngIf="extendedMileage.tx_policy_flag && policyViloations$|async as policyViloations">
-      <!-- TODO: on click scroll to comment section -->
       <mat-icon class="view-mileage--policy-warning-icon">warning</mat-icon>
       <span>{{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this
         expense</span>

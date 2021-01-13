@@ -2,16 +2,18 @@
   &--date {
     color: #ababab;
     font-size: 16px;
+    padding: 8px;
   }
 
   &--details {
     display: flex;
+    padding-left: 8px;
   }
 
   &--body {
     display: flex;
     align-items: center;
-    margin: 8px;
+    margin: 0 8px 8px 8px;
     padding: 8px;
   }
 
@@ -39,17 +41,24 @@
     text-align: center;
   }
 
+  &--vendor {
+    font-size: 16px;
+  }
+
   &--currency {
     color: #ababab;
+    font-size: 16px;
   }
 
   &--amount {
     font-size: 18px;
     font-weight: 700;
     color: #4a4a4a;
+    padding-left: 8px; 
   }
 
   &--category {
+    font-size: 16px;
     color: #ababab;
   }
 

@@ -66,17 +66,17 @@ export class MyViewMileagePage implements OnInit {
         return res.map(customProperties => {
           customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
           return customProperties;
-        })
+        });
       })
-    )
+    );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
       map(res => {
-        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001
+        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001;
       })
-    )
+    );
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
       map(res => {
