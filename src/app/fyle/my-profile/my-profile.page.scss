@@ -3,17 +3,12 @@ $menu-botton-color: #000;
 $background-color: #fff;
 
 .my-profile {
-  &--header {
-    background-color: $background-color;
-    // height: 80px !important;
-    border-bottom: 1px solid $item-border-color;
-    &-toolbar {
-      border-bottom: 1px solid $item-border-color;
-    }
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
   &--menubutton {
-    height: 80px;
+    // height: 80px;
     color: $menu-botton-color;
   }
 
@@ -27,7 +22,7 @@ $background-color: #fff;
   }
 
   &--blocks {
-    margin-top: 20px;
+    margin-top: 5px;
 
     &-header {
       padding-left: 16px;
@@ -65,8 +60,12 @@ $background-color: #fff;
     }
   }
 
+  &--about-you-card {
+    padding: 0 16px;
+  }
+
   &--cards-content {
-    padding: 16px 0;
+    padding: 16px 0 0 0;
   }
 
   &--card-title {
@@ -110,6 +109,7 @@ $background-color: #fff;
       line-height: 1.5;
       height: 24px;
       border: 0;
+      color: #444;
     }
   }
 
@@ -117,9 +117,11 @@ $background-color: #fff;
     font-size: 16px;
     text-decoration: none;
     color: #0077ee;
+    font-weight: 500;
 
     &__decore {
       text-decoration: underline;
+      font-weight: normal;
     }
   }
 
@@ -160,6 +162,7 @@ $background-color: #fff;
       line-height: 1.5;
       height: 24px;
       border: 0;
+      color: #444;
     }
   }
 
@@ -193,6 +196,7 @@ $background-color: #fff;
       line-height: 1.5;
       height: 24px;
       border: 0;
+      color: #444;
     }
   }
 
@@ -238,7 +242,7 @@ $background-color: #fff;
   }
 
   &--primary-cta {
-    margin: 0 16px;
+    margin: 0 16px 10px 16px;
     height: 48px;
     width: 90%;
   }
