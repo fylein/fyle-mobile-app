@@ -69,7 +69,6 @@ export class AddEditExpensePage implements OnInit {
   customInputs$: Observable<any>;
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
   selectedCCCTransaction;
-  isOffline = false;
   canChangeMatchingCCCTransaction = true;
   transactionInReport$: Observable<boolean>;
   transactionMandatoyFields$: Observable<any>;

@@ -74,6 +74,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   duplicateDetectionReasons = [
     { label: 'Different expense', value: 'Different expense' },
@@ -906,6 +907,8 @@ export class AddEditPerDiemPage implements OnInit {
           orig_amount: perDiemRate.rate * numDays
         });
       });
+
+    this.setupDuplicateDetection();
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
@@ -1742,6 +1745,19 @@ export class AddEditPerDiemPage implements OnInit {
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
         }
       });
+    }
+  }
+
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
     }
   }
 }

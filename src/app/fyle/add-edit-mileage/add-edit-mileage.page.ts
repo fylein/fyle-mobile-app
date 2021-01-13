@@ -72,6 +72,7 @@ export class AddEditMileagePage implements OnInit {
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   formInitializedFlag = false;
   invalidPaymentMode = false;
@@ -1859,4 +1860,16 @@ export class AddEditMileagePage implements OnInit {
 
   }
 
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
+    }
+  }
 }
