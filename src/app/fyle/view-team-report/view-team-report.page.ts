@@ -222,7 +222,7 @@ export class ViewTeamReportPage implements OnInit {
 
     const { data } = await popover.onWillDismiss();
 
-    if (data.goBack) {
+    if (data && data.goBack) {
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }
@@ -303,7 +303,7 @@ export class ViewTeamReportPage implements OnInit {
 
     const { data } = await popover.onWillDismiss();
 
-    if (data.goBack) {
+    if (data && data.goBack) {
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }

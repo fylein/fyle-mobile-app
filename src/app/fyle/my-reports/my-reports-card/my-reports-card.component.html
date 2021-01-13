@@ -48,7 +48,7 @@
       </app-comments>
     </div>
 
-    <div matRipple class="reports-card-menu--action reports-card-menu--action__delete" [ngClass]="{'reports-card-menu--action__disabled': ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state)}"
+    <div matRipple class="reports-card-menu--action reports-card-menu--action__delete" [ngClass]="{'reports-card-menu--action__disabled': ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1}"
       (click)="onDeleteReport()">
       Delete
     </div>

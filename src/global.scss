@@ -325,6 +325,12 @@ textarea, input {
   }
 }
 
+.approver-list--form-field {
+  .mat-form-field-wrapper {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
+  }
+}
+
 .swiper-pagination-fraction, .swiper-pagination-custom, .swiper-container-horizontal>.swiper-pagination-bullets {
   bottom: 45%;
   --bullet-background-active: #cbc8c8;

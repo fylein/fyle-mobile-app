@@ -80,7 +80,6 @@ export class MyAdvancesPage implements OnInit {
         count = count > 10 ? count / 10 : 1;
         return range(0, count);
       }),
-      tap(afterRange => console.log({ afterRange })),
       concatMap(count => {
         return this.advanceService.getMyadvances({
           offset: 10 * count,

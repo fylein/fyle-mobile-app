@@ -1,12 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, Input } from '@angular/core';
-import { Observable, fromEvent, forkJoin, from } from 'rxjs';
-import { AgmGeocoder } from '@agm/core';
-import { ModalController } from '@ionic/angular';
-import { LocationService } from 'src/app/core/services/location.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { map, debounceTime, distinctUntilChanged, switchMap, tap, startWith } from 'rxjs/operators';
-import { Geolocation } from '@capacitor/core';
-import { isEqual } from 'lodash';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {fromEvent, Observable} from 'rxjs';
+import {ModalController} from '@ionic/angular';
+import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
+import {isEqual} from 'lodash';
 
 @Component({
   selector: 'app-fy-multiselect-modal',
@@ -18,11 +14,21 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   @Input() options: { label: string, value: any, selected?: boolean }[] = [];
   @Input() currentSelections: any[] = [];
   @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+  @Input() selectModalHeader = 'Select Items';
+  @Input() subheader = 'All Items';
+  value;
 
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef
   ) { }
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
 
   ngOnInit() { }
 
