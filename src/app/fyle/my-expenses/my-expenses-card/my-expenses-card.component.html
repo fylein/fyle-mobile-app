@@ -87,7 +87,7 @@
       </div>
 
       <div class="my-expenses-card-menu--buttons">
-        <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__comments"
+        <div matRipple [matRippleDisabled]="(isDraft || isCriticalPolicyViolated)" class="my-expenses-card-menu--action my-expenses-card-menu--action__comments"
           (click)="onAddTransactionToReport()"
           [ngClass]="{'my-expenses-card-menu--action__disabled': (isDraft || isCriticalPolicyViolated)}">
           <ng-container *ngIf="addToReportPossible$|async as addToReportPossible">

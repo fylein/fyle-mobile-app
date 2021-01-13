@@ -10,7 +10,7 @@ import { finalize } from 'rxjs/operators';
 })
 export class SendBackComponent implements OnInit {
   sendBackReason = '';
-
+  showNoReasonError = false;
   @Input() erpt;
   @Input() etxns;
   numIssues = 0;
@@ -51,6 +51,12 @@ export class SendBackComponent implements OnInit {
 
 
   sendBack(event) {
+
+    if (this.sendBackReason.trim().length <= 0) {
+      this.showNoReasonError = true;
+      return;
+    }
+
     this.sendBackLoading = true;
     event.stopPropagation();
     event.preventDefault();

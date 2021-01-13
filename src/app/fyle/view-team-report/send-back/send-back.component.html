@@ -34,14 +34,15 @@
         Reason for sending back report *
       </div>
       <textarea class="send-back--textarea" name="reason" [(ngModel)]="sendBackReason" required #sendBackInput="ngModel"></textarea>
-      <div class="send-back--validation" [hidden]="sendBackInput.valid || sendBackInput.pristine">
+      sendBackReason.trim().length = {{sendBackReason.trim().length}}
+      <div class="send-back--validation" *ngIf="showNoReasonError && !(sendBackReason.trim().length >= 0)">
         Please enter a reason.
       </div>
     </div>
   </div>
 
   <div class="send-back--buttons">
-    <button mat-flat-button color="primary" class="send-back--button" [disabled]="!sendBackInput.valid" (click)="sendBack($event)"
+    <button mat-flat-button color="primary" class="send-back--button" (click)="sendBack($event)"
     appFormButtonValidation [loading]="sendBackLoading" [loadingText]="'SENDING BACK'">
       SEND BACK
     </button>

@@ -98,7 +98,7 @@
   </ion-infinite-scroll>
 </ion-content>
 
-<ion-footer>
+<ion-footer mode="md">
   <ng-container *ngIf="expensesAmountStats$|async as expensesAmountStats">
     <ion-toolbar mode="md" *ngIf="expensesAmountStats.count > 0">
       <div class="my-reports--stats">
