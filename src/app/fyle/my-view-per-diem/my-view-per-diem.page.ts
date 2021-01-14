@@ -92,7 +92,7 @@ export class MyViewPerDiemPage implements OnInit {
       map(res => {
         let customeField = res.filter(customProperties => {
           return customProperties.type !== 'USER_LIST';
-        })
+        });
         return customeField;
       }),
       map(res => {
