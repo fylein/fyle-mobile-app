@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop, Observable, throwError, of } from 'rxjs';
-import { concatMap, finalize, map, shareReplay, switchMap, take, catchError } from 'rxjs/operators';
+import {concatMap, finalize, map, shareReplay, switchMap, take, catchError, tap} from 'rxjs/operators';
 import { ModalController, ToastController, PopoverController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -21,6 +21,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OtpPopoverComponent } from './otp-popover/otp-popover.component';
 import { Plugins } from '@capacitor/core';
 import { TokenService } from 'src/app/core/services/token.service';
+import {TrackingService} from '../../core/services/tracking.service';
 
 const { Browser } = Plugins;
 
@@ -72,7 +73,8 @@ export class MyProfilePage implements OnInit {
     private toastController: ToastController,
     private orgUserService: OrgUserService,
     private popoverController: PopoverController,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private trackingService: TrackingService
   ) { }
 
   logOut() {
@@ -121,6 +123,7 @@ export class MyProfilePage implements OnInit {
       }).pipe(
         concatMap(() => {
           return this.authService.refreshEou().pipe(
+            tap(() => this.trackingService.activated({Asset: 'Mobile'})),
             map(() => {
               this.isMobileChanged = false;
               this.presentToast('Profile saved successfully', 1000);
@@ -186,8 +189,11 @@ export class MyProfilePage implements OnInit {
     return this.orgUserSettingsService.post(this.orgUserSettings)
       .pipe(
         map((res) => {
-          console.log(res);
-          // Todo: Tracking service and disable toogle button
+          if (this.orgUserSettings.insta_fyle_settings.enabled) {
+            this.trackingService.onEnableInstaFyle({Asset: 'Mobile', persona: 'Enterprise'});
+          } else {
+            this.trackingService.onDisableInstaFyle({Asset: 'Mobile', persona: 'Enterprise'});
+          }
         })
       )
       .subscribe(noop);
@@ -198,7 +204,11 @@ export class MyProfilePage implements OnInit {
       .pipe(
         map((res) => {
           console.log(res);
-          // Todo: Tracking service and disable toogle button
+          if (this.orgUserSettings.bulk_fyle_settings.enabled) {
+            this.trackingService.onEnableBulkFyle({Asset: 'Mobile', persona: 'Enterprise'});
+          } else {
+            this.trackingService.onDisableBulkFyle({Asset: 'Mobile', persona: 'Enterprise'});
+          }
         })
       )
       .subscribe(noop);

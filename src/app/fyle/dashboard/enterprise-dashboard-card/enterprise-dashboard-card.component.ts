@@ -10,7 +10,7 @@ import { forkJoin } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Router } from '@angular/router';
-import { PopupService } from 'src/app/core/services/popup.service';
+import {TrackingService} from '../../../core/services/tracking.service';
 
 @Component({
   selector: 'app-enterprise-dashboard-card',
@@ -41,7 +41,8 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     private dashboardService: DashboardService,
     private mobileEventService: MobileEventService,
     private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private trackingService: TrackingService
   ) { }
 
   isBlank(item) {
@@ -233,7 +234,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   }
 
   goToCreateReport() {
-    // TrackingService.clickCreateReport({Asset: 'Mobile'});
+    this.trackingService.clickCreateReport({Asset: 'Mobile'});
     this.router.navigate(['/', 'enterprise', 'my_create_report', { isRedirectedFromDashboard: true }]);
   }
 

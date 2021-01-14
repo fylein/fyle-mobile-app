@@ -17,6 +17,8 @@ import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-pop
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { StorageService } from 'src/app/core/services/storage.service';
+import {TrackingService} from '../../core/services/tracking.service';
+import {AuthService} from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -43,7 +45,9 @@ export class CameraOverlayPage implements OnInit {
     private imagePicker: ImagePicker,
     private popoverController: PopoverController,
     private offlineService: OfflineService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private trackingService: TrackingService,
+    private authService: AuthService
   ) { }
 
   setUpAndStartCamera() {
@@ -166,9 +170,24 @@ export class CameraOverlayPage implements OnInit {
     this.finishProcess();
   }
 
+  async trackBulkUpload(captureCount) {
+    const eou = await this.authService.getEou();
+
+    const properties = {
+      Asset: 'Mobile',
+      Page: this.activatedRoute.snapshot.params.from || 'Receipts',
+      NumberOfReceipts: captureCount,
+      Source: eou.ou.id,
+      Type: 'Upload Receipts'
+    };
+
+    return this.trackingService.bulkUploadReceipts(properties);
+  }
+
   finishProcess() {
     this.stopCamera();
     if (this.isBulkMode && this.captureCount > 0) {
+      this.trackBulkUpload(this.captureCount);
       this.showGalleryUploadSuccessPopup(this.captureCount);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_dashboard']);

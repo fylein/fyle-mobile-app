@@ -4,6 +4,7 @@ import { Observable, Subject } from 'rxjs';
 import { map, switchMap, startWith } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from './view-comment/view-comment.component';
+import {TrackingService} from '../../../core/services/tracking.service';
 
 @Component({
   selector: 'app-comments',
@@ -25,7 +26,8 @@ export class CommentsComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private trackingService: TrackingService
   ) { }
 
   async presentModal() {
@@ -41,8 +43,12 @@ export class CommentsComponent implements OnInit {
     await modal.present();
 
     const { data } = await modal.onDidDismiss();
+
     if (data && data.updated) {
+      this.trackingService.addComment({Asset: 'Mobile'});
       this.refreshComments$.next();
+    } else {
+      this.trackingService.viewComment({Asset: 'Mobile'});
     }
   }
 

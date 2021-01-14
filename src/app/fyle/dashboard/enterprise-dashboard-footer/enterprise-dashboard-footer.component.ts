@@ -60,7 +60,9 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
           icon: 'instafyle',
           expenseType: 'AUTO_FYLE',
           type: 'auto_fyle',
-          route: ['/', 'enterprise', 'camera_overlay']
+          route: ['/', 'enterprise', 'camera_overlay', {
+            from: 'my_dashboard'
+          }]
         },
         addMileage: {
           name: 'Add Mileage',

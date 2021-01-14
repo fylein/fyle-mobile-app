@@ -483,6 +483,8 @@ export class AppComponent implements OnInit {
     });
 
     this.userEventService.onLogout(() => {
+      this.trackingService.onSignOut({Asset: 'Mobile'});
+      this.freshchatService.destory();
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
 

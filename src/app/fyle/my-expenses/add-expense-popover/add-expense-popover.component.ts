@@ -103,18 +103,22 @@ export class AddExpensePopoverComponent implements OnInit {
   async instafyle(event) {
     if (this.isInstaFyleEnabled) {
       await this.popoverController.dismiss();
-      this.router.navigate(['/', 'enterprise', 'camera_overlay']);
+      this.router.navigate(['/', 'enterprise', 'camera_overlay', {
+        from: 'my_expenses'
+      }]);
     } else {
-      this.doAutoFyle();
+      await this.doAutoFyle();
     }
   }
 
   async createExpense(event) {
     await this.popoverController.dismiss();
+    this.trackingService.eventTrack('Click Add Expense', {Asset: 'Mobile'});
     this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
   async createMileage(event) {
+    this.trackingService.eventTrack('Click Add Mileage', {Asset: 'Mobile'});
     await this.popoverController.dismiss();
     this.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
   }

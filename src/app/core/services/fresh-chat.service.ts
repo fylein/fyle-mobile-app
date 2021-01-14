@@ -8,7 +8,7 @@ import {NetworkService} from './network.service';
 import {concat} from 'rxjs';
 import {environment} from 'src/environments/environment';
 
-const { Device } = Plugins;
+const {Device} = Plugins;
 
 
 @Injectable({
@@ -122,5 +122,11 @@ export class FreshChatService {
 
   openLiveChatSupport() {
     return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
+  }
+
+  destory() {
+    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
+      (window as any).fcWidget.destory();
+    }
   }
 }

@@ -74,14 +74,14 @@ export class SetupAccountPreferencesPage implements OnInit {
         return this.orgSettingsService.post(orgSettings).pipe(
           tap(() => {
             // setting up company details in clevertap profile
-            // TODO: Add when tracking service is introduced
-            // TrackingService.updateSegmentProfile({
-            //   'Enable Mileage': vm.settings.mileage.enabled,
-            //   'Enable Per Diem': vm.settings.per_diem.enabled,
-            //   'Enable Corporate Cards': vm.settings.corporate_credit_card_settings.enabled,
-            //   'Enable Advances': vm.settings.advance_requests.enabled,
-            //   'Enable Trips': vm.settings.trip_requests.enabled
-            // });
+
+            this.trackingService.updateSegmentProfile({
+              'Enable Mileage': this.fg.controls.mileage.value,
+              'Enable Per Diem': this.fg.controls.per_diem.value,
+              'Enable Corporate Cards': this.fg.controls.ccc.value,
+              'Enable Advances': this.fg.controls.advances.value,
+              'Enable Trips': this.fg.controls.trip.value
+            });
           })
         );
       })

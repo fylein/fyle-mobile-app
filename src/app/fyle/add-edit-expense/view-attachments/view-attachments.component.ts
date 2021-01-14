@@ -1,10 +1,11 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { noop, from, iif, of } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { switchMap, finalize } from 'rxjs/operators';
-import { FileService } from 'src/app/core/services/file.service';
-import { PopupService } from 'src/app/core/services/popup.service';
+import {Component, OnInit, Input, ViewChild} from '@angular/core';
+import {ModalController} from '@ionic/angular';
+import {noop, from, iif, of} from 'rxjs';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {switchMap, finalize} from 'rxjs/operators';
+import {FileService} from 'src/app/core/services/file.service';
+import {PopupService} from 'src/app/core/services/popup.service';
+import {TrackingService} from '../../../core/services/tracking.service';
 
 @Component({
   selector: 'app-view-attachments',
@@ -23,8 +24,10 @@ export class ViewAttachmentsComponent implements OnInit {
     private modalController: ModalController,
     private loaderService: LoaderService,
     private fileService: FileService,
-    private popupService: PopupService
-  ) { }
+    private popupService: PopupService,
+    private trackingService: TrackingService
+  ) {
+  }
 
   ngOnInit() {
     this.sliderOptions = {
@@ -35,7 +38,8 @@ export class ViewAttachmentsComponent implements OnInit {
   }
 
   onDoneClick() {
-    this.modalController.dismiss({ attachments: this.attachments });
+    this.trackingService.viewAttachment({Asset: 'Mobile'});
+    this.modalController.dismiss({attachments: this.attachments});
   }
 
   goToNextSlide() {
@@ -61,6 +65,10 @@ export class ViewAttachmentsComponent implements OnInit {
       from(this.loaderService.showLoader()).pipe(
         switchMap(() => {
           if (this.attachments[activeIndex].id) {
+            this.trackingService.deleteAttachment({
+              Asset: 'Mobile',
+              Mode: 'Edit Expense'
+            });
             return this.fileService.delete(this.attachments[activeIndex].id);
           } else {
             return of(null);
@@ -70,7 +78,7 @@ export class ViewAttachmentsComponent implements OnInit {
       ).subscribe(() => {
         this.attachments.splice(activeIndex, 1);
         if (this.attachments.length === 0) {
-          this.modalController.dismiss({ attachments: this.attachments });
+          this.modalController.dismiss({attachments: this.attachments});
         } else {
           if (activeIndex > 0) {
             this.goToPrevSlide();
@@ -79,6 +87,8 @@ export class ViewAttachmentsComponent implements OnInit {
           }
         }
       });
+    } else {
+      this.trackingService.clickDeleteExpense({Asset: 'Mobile', Type: 'Receipt'});
     }
   }
 }
