@@ -122,28 +122,11 @@ export class MyEditReportPage implements OnInit {
     }
   }
 
-  removeExpenseFromAddedExpensesList(etxn: Expense) {
-    etxn.isSelected = false;
-    const index = this.addedExpensesIdList.indexOf(etxn.tx_id);
-    this.addedExpensesIdList.splice(index, 1);
-    this.selectedTotalTxns = this.selectedTotalTxns - 1;
-    this.selectedTotalAmount = !etxn.tx_skip_reimbursement ? this.selectedTotalAmount - etxn.tx_amount : this.selectedTotalAmount;
-    this.checkReportEdited();
-    // Todo: update report amount and count after
-    // 1. deselct old reported expense and
-    // 2. select new expense
-  }
-
   addExpenseToDeleteList(etxn: Expense) {
     etxn.isHidden = true;
     this.deleteExpensesIdList.push(etxn.tx_id);
     this.checkReportEdited();
-    // this.reportAmount = this.reportAmount - etxn.tx_amount;
-    // this.noOfTxnsInReport = this.noOfTxnsInReport - 1;
     this.updateStats(etxn, 'remove');
-    // Todo: update report amount and count after
-    // 1. deselct old reported expense and
-    // 2. select new expense
   }
 
   undoExpenseDelete(etxn: Expense) {
@@ -152,24 +135,25 @@ export class MyEditReportPage implements OnInit {
     this.deleteExpensesIdList.splice(index, 1);
     this.checkReportEdited();
     this.updateStats(etxn, 'add');
-    // this.reportAmount = this.reportAmount + etxn.tx_amount;
-    // this.noOfTxnsInReport = this.noOfTxnsInReport + 1;
-    // Todo: update report amount and count after
-    // 1. deselct old reported expense and
-    // 2. select new expense
   }
 
   updateStats(etxn, action) {
-    // if (!etxn.tx_skip_reimbursement) {
-      if (action === 'remove') {
-        this.reportAmount = !etxn.tx_skip_reimbursement ? this.reportAmount - etxn.tx_amount : this.reportAmount;
-        this.noOfTxnsInReport = this.noOfTxnsInReport - 1;
-      } else if (action === 'add') {
-        this.reportAmount = !etxn.tx_skip_reimbursement ? this.reportAmount + etxn.tx_amount : this.reportAmount;
-        this.noOfTxnsInReport = this.noOfTxnsInReport + 1;
-      }
-  
-    // }
+    if (action === 'remove') {
+      this.reportAmount = !etxn.tx_skip_reimbursement ? this.reportAmount - etxn.tx_amount : this.reportAmount;
+      this.noOfTxnsInReport = this.noOfTxnsInReport - 1;
+    } else if (action === 'add') {
+      this.reportAmount = !etxn.tx_skip_reimbursement ? this.reportAmount + etxn.tx_amount : this.reportAmount;
+      this.noOfTxnsInReport = this.noOfTxnsInReport + 1;
+    }
+  }
+
+  removeExpenseFromAddedExpensesList(etxn: Expense) {
+    etxn.isSelected = false;
+    const index = this.addedExpensesIdList.indexOf(etxn.tx_id);
+    this.addedExpensesIdList.splice(index, 1);
+    this.selectedTotalTxns = this.selectedTotalTxns - 1;
+    this.selectedTotalAmount = !etxn.tx_skip_reimbursement ? this.selectedTotalAmount - etxn.tx_amount : this.selectedTotalAmount;
+    this.checkReportEdited();
   }
 
   setPurposeChanged() {
