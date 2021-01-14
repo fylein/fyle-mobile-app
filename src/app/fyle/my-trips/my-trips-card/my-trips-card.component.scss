@@ -15,9 +15,7 @@ $trips_inquiry_color: #7e57c2;
 $text-light: #ababab;
 
 .trip-card {
-  &:first-child {
-    margin-top: 12px;
-  }
+  margin: 6px;
 
   &--header {
     margin: 0 8px;
