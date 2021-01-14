@@ -50,6 +50,7 @@ export class MyExpensesPage implements OnInit {
   expensesAmountStats$: Observable<number>;
   homeCurrency$: Observable<string>;
   isInstaFyleEnabled$: Observable<boolean>;
+  isBulkFyleEnabled$: Observable<boolean>;
   isMileageEnabled$: Observable<boolean>;
   isPerDiemEnabled$: Observable<boolean>;
   pendingTransactions = [];
@@ -89,6 +90,10 @@ export class MyExpensesPage implements OnInit {
 
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
+    );
+
+    this.isBulkFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
+      map(orgUserSettings => orgUserSettings && orgUserSettings.bulk_fyle_settings && orgUserSettings.bulk_fyle_settings.enabled)
     );
 
     this.isMileageEnabled$ = this.offlineService.getOrgSettings().pipe(
@@ -544,8 +549,9 @@ export class MyExpensesPage implements OnInit {
     forkJoin({
       isInstaFyleEnabled: this.isInstaFyleEnabled$,
       isMileageEnabled: this.isMileageEnabled$,
-      isPerDiemEnabled: this.isPerDiemEnabled$
-    }).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled }) => {
+      isPerDiemEnabled: this.isPerDiemEnabled$,
+      isBulkFyleEnabled: this.isBulkFyleEnabled$
+    }).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
       if (!(isInstaFyleEnabled || isMileageEnabled || isPerDiemEnabled)) {
         this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
       } else {
@@ -555,12 +561,20 @@ export class MyExpensesPage implements OnInit {
           componentProps: {
             isInstaFyleEnabled,
             isMileageEnabled,
-            isPerDiemEnabled
+            isPerDiemEnabled,
+            isBulkFyleEnabled
           },
           cssClass: 'dialog-popover'
         });
 
         await addExpensePopover.present();
+
+        const {data} = await addExpensePopover.onDidDismiss();
+
+        if (data && data.reload) {
+          this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+          this.doRefresh();
+        }
       }
     });
   }

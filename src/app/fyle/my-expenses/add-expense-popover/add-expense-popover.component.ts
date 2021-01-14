@@ -1,6 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import {Component, OnInit, Input} from '@angular/core';
+import {PopoverController} from '@ionic/angular';
+import {Router} from '@angular/router';
+import {FyleModeComponent} from '../fyle-mode/fyle-mode.component';
+import {CameraDirection, CameraResultType, CameraSource, Plugins} from '@capacitor/core';
+import {TransactionsOutboxService} from '../../../core/services/transactions-outbox.service';
+
+const {Camera} = Plugins;
 
 @Component({
   selector: 'app-add-expense-popover',
@@ -12,23 +17,100 @@ export class AddExpensePopoverComponent implements OnInit {
   @Input() isInstaFyleEnabled: boolean;
   @Input() isMileageEnabled: boolean;
   @Input() isPerDiemEnabled: boolean;
+  @Input() isBulkFyleEnabled: boolean;
+  isAutoFyling = false;
+  bulkAutoCount = 0;
 
   constructor(
     private popoverController: PopoverController,
-    private router: Router
-  ) { }
+    private router: Router,
+    private transactionOutboxService: TransactionsOutboxService
+  ) {
+  }
 
-  ngOnInit() { }
+  ngOnInit() {
+  }
+
+  async takeAutoFylePicture(openCamera, mode) {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        source: CameraSource.Camera,
+        direction: CameraDirection.Rear,
+        resultType: CameraResultType.DataUrl
+      });
+
+      if (image) {
+        const source = mode === 'bulk' ? 'BULK_AUTO' : 'MOBILE_AUTO';
+        const txn = {
+          billable: false,
+          skip_reimbursement: false,
+          state: 'DRAFT',
+          source,
+          txn_dt: new Date(),
+          org_category: 'Unspecified'
+        };
+
+        const dataUrls = [{
+          url: image.dataUrl,
+          type: 'image'
+        }];
+
+        // TrackingService.createExpense({Asset: 'Mobile', Category: 'AutoFyle'});
+
+        this.transactionOutboxService.addEntry(txn, dataUrls);
+
+        if (mode === 'bulk') {
+          this.bulkAutoCount++;
+          await this.takeAutoFylePicture(true, 'bulk');
+        } else {
+          await this.popoverController.dismiss({
+            reload: true
+          });
+        }
+      };
+    } catch (e) {
+      await this.popoverController.dismiss({
+        reload: true
+      });
+    }
+  }
+
+  async doAutoFyle() {
+    if (this.isBulkFyleEnabled) {
+      this.isAutoFyling = true;
+      const fyleModePopover = await this.popoverController.create({
+        component: FyleModeComponent,
+        cssClass: 'dialog-popover'
+      });
+
+      await fyleModePopover.present();
+
+      const {data} = await fyleModePopover.onDidDismiss();
+
+      if (data && data.mode === 'bulk') {
+        await this.takeAutoFylePicture(true, 'bulk');
+      } else {
+        await this.takeAutoFylePicture(true, 'single');
+      }
+    } else {
+      await this.takeAutoFylePicture(true, 'single');
+    }
+  }
 
   async instafyle(event) {
-    await this.popoverController.dismiss();
-    this.router.navigate(['/', 'enterprise', 'camera_overlay']);
+    if (this.isInstaFyleEnabled) {
+      await this.popoverController.dismiss();
+      this.router.navigate(['/', 'enterprise', 'camera_overlay']);
+    } else {
+      this.doAutoFyle();
+    }
   }
 
   async createExpense(event) {
     await this.popoverController.dismiss();
     this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
-  } 
+  }
 
   async createMileage(event) {
     await this.popoverController.dismiss();
