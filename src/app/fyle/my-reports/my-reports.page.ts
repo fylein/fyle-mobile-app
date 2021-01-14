@@ -364,8 +364,9 @@ export class MyReportsPage implements OnInit {
         header: 'Cannot Delete Report',
         message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted`,
         primaryCta: {
-          text: 'Close'
-        }
+          text: 'CLOSE'
+        },
+        showCancelButton: false
       });
     } else {
       const popupResults = await this.popupService.showPopup({
