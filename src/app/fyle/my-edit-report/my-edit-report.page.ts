@@ -15,6 +15,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import {NetworkService} from '../../core/services/network.service';
+import { PopupService } from 'src/app/core/services/popup.service';
 
 @Component({
   selector: 'app-my-edit-report',
@@ -54,7 +55,8 @@ export class MyEditReportPage implements OnInit {
     private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
     private tripRequestsService: TripRequestsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private popupService: PopupService
   ) { }
 
   goBack() {
@@ -198,6 +200,35 @@ export class MyEditReportPage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_reports']);
       })
     ).subscribe(noop);
+  }
+
+  async deleteReport() {
+    const popupResult = await this.popupService.showPopup({
+      header: 'Delete Report?',
+      message: `
+        <p class="highlight-info">
+          All expenses were removed from this report.
+        </p>
+        <p>
+          Are you sure, you want to delete this report?
+        </p>
+      `,
+      primaryCta: {
+        text: 'DELETE'
+      }
+    });
+
+    if (popupResult === 'primary') {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.reportService.delete(this.activatedRoute.snapshot.params.id);
+        }),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
+        })
+      ).subscribe(noop);
+    }
   }
 
   getTripRequests() {
