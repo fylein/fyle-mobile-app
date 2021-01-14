@@ -90,6 +90,12 @@ export class MyViewPerDiemPage implements OnInit {
         return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
       }),
       map(res => {
+        let customeField = res.filter(customProperties => {
+          return customProperties.type !== 'USER_LIST';
+        });
+        return customeField;
+      }),
+      map(res => {
         return res.map(customProperties => {
           customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
           return customProperties;

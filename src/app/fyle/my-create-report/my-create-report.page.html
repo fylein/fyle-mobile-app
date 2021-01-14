@@ -56,7 +56,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar mode="md">
+  <ion-toolbar mode="md" class="my-create-report--footer">
     <ion-grid>
       <ion-row>
         <ion-col size="8">
@@ -71,8 +71,8 @@
 
         <ion-col size="4">
           <div *ngIf="readyToReportEtxns" class="my-create-report--secondary-action">
-            <span *ngIf="readyToReportEtxns.length === selectedTotalTxns" (click)="toggleSelectAll(false)">Unselect all</span>
-            <span *ngIf="readyToReportEtxns.length !== selectedTotalTxns" (click)="toggleSelectAll(true)">Select all</span>
+            <span *ngIf="readyToReportEtxns.length === selectedTotalTxns" (click)="toggleSelectAll(false)">Unselect All</span>
+            <span *ngIf="readyToReportEtxns.length !== selectedTotalTxns" (click)="toggleSelectAll(true)">Select All</span>
           </div>
         </ion-col>
       </ion-row>
