@@ -38,6 +38,10 @@ export class MyEditReportPage implements OnInit {
 
   isConnected$: Observable<boolean>;
   onPageExit = new Subject();
+  reportAmount: number;
+  noOfTxnsInReport: number;
+  selectedTotalAmount: number;
+  selectedTotalTxns: number;
 
   constructor(
     private router: Router,
@@ -98,6 +102,7 @@ export class MyEditReportPage implements OnInit {
     return vendorName;
   }
 
+
   async showAddExpensesToReportModal() {
     const AddExpensesToReportModal = await this.modalController.create({
       component: AddExpensesToReportComponent,
@@ -111,14 +116,31 @@ export class MyEditReportPage implements OnInit {
     const { data } = await AddExpensesToReportModal.onWillDismiss();
     if (data && data.selectedTxnIds) {
       this.addedExpensesIdList = data.selectedTxnIds;
+      this.selectedTotalAmount = data.selectedTotalAmount;
+      this.selectedTotalTxns = data.selectedTotalTxns;
       this.checkReportEdited();
     }
+  }
+
+  removeExpenseFromAddedExpensesList(etxn: Expense) {
+    etxn.isSelected = false;
+    const index = this.addedExpensesIdList.indexOf(etxn.tx_id);
+    this.addedExpensesIdList.splice(index, 1);
+    this.selectedTotalTxns = this.selectedTotalTxns - 1;
+    this.selectedTotalAmount = !etxn.tx_skip_reimbursement ? this.selectedTotalAmount - etxn.tx_amount : this.selectedTotalAmount;
+    this.checkReportEdited();
+    // Todo: update report amount and count after
+    // 1. deselct old reported expense and
+    // 2. select new expense
   }
 
   addExpenseToDeleteList(etxn: Expense) {
     etxn.isHidden = true;
     this.deleteExpensesIdList.push(etxn.tx_id);
     this.checkReportEdited();
+    // this.reportAmount = this.reportAmount - etxn.tx_amount;
+    // this.noOfTxnsInReport = this.noOfTxnsInReport - 1;
+    this.updateStats(etxn, 'remove');
     // Todo: update report amount and count after
     // 1. deselct old reported expense and
     // 2. select new expense
@@ -129,19 +151,25 @@ export class MyEditReportPage implements OnInit {
     const index = this.deleteExpensesIdList.indexOf(etxn.tx_id);
     this.deleteExpensesIdList.splice(index, 1);
     this.checkReportEdited();
+    this.updateStats(etxn, 'add');
+    // this.reportAmount = this.reportAmount + etxn.tx_amount;
+    // this.noOfTxnsInReport = this.noOfTxnsInReport + 1;
     // Todo: update report amount and count after
     // 1. deselct old reported expense and
     // 2. select new expense
   }
 
-  removeExpenseFromAddedExpensesList(etxn: Expense) {
-    etxn.isSelected = false;
-    const index = this.addedExpensesIdList.indexOf(etxn.tx_id);
-    this.addedExpensesIdList.splice(index, 1);
-    this.checkReportEdited();
-    // Todo: update report amount and count after
-    // 1. deselct old reported expense and
-    // 2. select new expense
+  updateStats(etxn, action) {
+    // if (!etxn.tx_skip_reimbursement) {
+      if (action === 'remove') {
+        this.reportAmount = !etxn.tx_skip_reimbursement ? this.reportAmount - etxn.tx_amount : this.reportAmount;
+        this.noOfTxnsInReport = this.noOfTxnsInReport - 1;
+      } else if (action === 'add') {
+        this.reportAmount = !etxn.tx_skip_reimbursement ? this.reportAmount + etxn.tx_amount : this.reportAmount;
+        this.noOfTxnsInReport = this.noOfTxnsInReport + 1;
+      }
+  
+    // }
   }
 
   setPurposeChanged() {
@@ -234,6 +262,8 @@ export class MyEditReportPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.selectedTotalAmount = 0;
+    this.selectedTotalTxns = 0;
     this.extendedReport$ = this.reportService.getReport(this.activatedRoute.snapshot.params.id);
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay(1)
@@ -247,6 +277,8 @@ export class MyEditReportPage implements OnInit {
       tripRequests: this.getTripRequests()
     }).subscribe(({ extendedReport, orgSettings,  orgUserSettings, tripRequests}) => {
       this.reportTitle = extendedReport.rp_purpose;
+      this.reportAmount = extendedReport.rp_amount;
+      this.noOfTxnsInReport = extendedReport.rp_num_transactions;
       this.isTripRequestsEnabled = orgSettings.trip_requests.enabled;
       this.canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee ||
       (orgSettings.trip_requests.enable_for_certain_employee &&

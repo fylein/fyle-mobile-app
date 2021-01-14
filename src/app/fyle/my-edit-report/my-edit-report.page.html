@@ -41,9 +41,9 @@
     <div class="my-edit-report--report-info">
       <div>
         <span class="my-edit-report--report-info-currency">{{extendedReport.rp_currency}}</span> 
-        <span class="my-edit-report--report-info-amount"> {{extendedReport.rp_amount}} </span>
+        <span class="my-edit-report--report-info-amount"> {{(reportAmount + selectedTotalAmount).toFixed(2)}} </span>
       </div>
-      <p class="my-edit-report--report-info-no-of-txns">Contain {{extendedReport.rp_num_transactions}} expenses</p>
+      <p class="my-edit-report--report-info-no-of-txns">Contain {{noOfTxnsInReport + selectedTotalTxns}} expenses</p>
     </div>
 
     <div class="my-edit-report--expense-list" *ngIf="addedExpensesIdList.length > 0">
@@ -58,8 +58,10 @@
               </ion-col>
               <ion-col size ="9">
                 <ion-row>
-                  <span class="my-edit-report--expense-card-currency">{{unReportedEtxn.tx_currency}}</span>
-                  <span class="my-edit-report--expense-card-amount">{{unReportedEtxn.tx_amount}}</span>
+                  <span [ngClass]="{'my-edit-report--non-reimbursable' : unReportedEtxn.tx_skip_reimbursement}">
+                    <span class="my-edit-report--expense-card-currency">{{unReportedEtxn.tx_currency}}</span>
+                    <span class="my-edit-report--expense-card-amount" [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : unReportedEtxn.tx_skip_reimbursement}">{{unReportedEtxn.tx_amount}}</span>
+                  </span>
                 </ion-row>
     
                 <ion-row class="my-edit-report--expense-card-vendor">{{unReportedEtxn.vendorDetails}}</ion-row>
@@ -83,8 +85,10 @@
             </ion-col>
             <ion-col size ="9">
               <ion-row>
-                <span class="my-edit-report--expense-card-currency">{{reportedEtxn.tx_currency}}</span>
-                <span class="my-edit-report--expense-card-amount">{{reportedEtxn.tx_amount}}</span>
+                <span [ngClass]="{'my-edit-report--non-reimbursable' : reportedEtxn.tx_skip_reimbursement}">
+                  <span class="my-edit-report--expense-card-currency">{{reportedEtxn.tx_currency}}</span>
+                  <span class="my-edit-report--expense-card-amount" [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : reportedEtxn.tx_skip_reimbursement}">{{reportedEtxn.tx_amount}}</span>
+                </span>
               </ion-row>
   
               <ion-row class="my-edit-report--expense-card-vendor">{{reportedEtxn.vendorDetails}}</ion-row>
