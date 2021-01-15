@@ -16,6 +16,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import {NetworkService} from '../../core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-my-edit-report',
@@ -279,6 +280,8 @@ export class MyEditReportPage implements OnInit {
     this.setupNetworkWatcher();
     this.selectedTotalAmount = 0;
     this.selectedTotalTxns = 0;
+    this.deleteExpensesIdList = [];
+    this.addedExpensesIdList = [];
     this.extendedReport$ = this.reportService.getReport(this.activatedRoute.snapshot.params.id);
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay(1)
@@ -314,6 +317,9 @@ export class MyEditReportPage implements OnInit {
               order: 'tx_txn_dt.desc,tx_id.desc'
             });
           }),
+          map((etxns) => {
+            return cloneDeep(etxns);
+          }),
           map((etxns: Expense[]) => {
             return etxns.map(etxn => {
               etxn.vendorDetails = this.getVendorName(etxn);
@@ -333,6 +339,9 @@ export class MyEditReportPage implements OnInit {
     };
 
     this.transactionService.getAllExpenses({ queryParams }).pipe(
+      map((etxns) => {
+        return cloneDeep(etxns);
+      }),
       map((etxns: Expense[]) => {
         etxns.forEach((etxn, i) => {
           etxn.vendorDetails = this.getVendorName(etxn);
