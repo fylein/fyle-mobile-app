@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import * as moment from 'moment';
 import {concat, forkJoin, from, iif, noop, Observable, of, Subject} from 'rxjs';
-import {finalize, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
+import {finalize, map, shareReplay, switchMap, takeUntil, tap} from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -15,6 +15,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import {NetworkService} from '../../core/services/network.service';
+import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-my-edit-report',
@@ -50,7 +51,8 @@ export class MyEditReportPage implements OnInit {
     private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
     private tripRequestsService: TripRequestsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private trackingService: TrackingService
   ) { }
 
   goBack() {
@@ -165,11 +167,15 @@ export class MyEditReportPage implements OnInit {
       trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId
     };
 
+    // method body is same as update
+    // should rename method later
     this.reportService.createDraft(report).pipe(
       switchMap(res => {
         return iif(
           () => (this.addedExpensesIdList.length > 0),
-          this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList),
+          this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList).pipe(
+            tap(() => this.trackingService.addToExistingReport({Asset: 'Mobile'}))
+          ),
           of(false)
         );
       }),

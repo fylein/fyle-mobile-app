@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NavParams } from '@ionic/angular';
 import { Plugins } from '@capacitor/core';
+import {TrackingService} from '../../../core/services/tracking.service';
 
 const { Browser } =  Plugins;
 
@@ -19,20 +20,21 @@ export class SupportDialogPage implements OnInit {
   constructor(
     private modalController: ModalController,
     private navParams: NavParams,
+    private trackingService: TrackingService
   ) { }
 
   openHelpLink() {
-    // TODO: add tracking service to track engagement with help card event (source old mobile app)
+    this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
     Browser.open({ toolbarColor: '#280a31', url: 'https://fylehq.com/help/' });
   }
 
   openChromeExtLink() {
-    // TODO: add tracking service to track engagement with help card event (source old mobile app)
+    this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
     Browser.open({ toolbarColor: '#280a31', url: 'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk' });
   }
 
   openOutlookExtLink() {
-    // TODO: add tracking service to track engagement with help card event (source old mobile app)
+    this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
     Browser.open({ toolbarColor: '#280a31', url: 'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview' });
   }
 

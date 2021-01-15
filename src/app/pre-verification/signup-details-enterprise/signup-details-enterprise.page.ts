@@ -11,6 +11,7 @@ import { UserService } from 'src/app/core/services/user.service';
 import { Plugins } from '@capacitor/core';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
+import {TrackingService} from '../../core/services/tracking.service';
 
 const { Browser } = Plugins;
 
@@ -55,7 +56,8 @@ export class SignupDetailsEnterprisePage implements OnInit {
     private routerAuthService: RouterAuthService,
     private loaderService: LoaderService,
     private router: Router,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private trackingService: TrackingService
   ) { }
 
   ngOnInit() {
@@ -203,15 +205,14 @@ export class SignupDetailsEnterprisePage implements OnInit {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       this.currentState = this.PageStates.secondForm;
-      // TODO: Add when Tracking is added
       // rasing event called choose persona with persona details that the user filled up in last form
-      // TrackingService.onChosingPersona({Asset: 'Mobile', Persona: 'Enterprise'});
-      // // setting up company details in clevertap profile
-      // TrackingService.updateSegmentProfile({
-      //   'Account Type': 'Enterprise',
-      //   'Employee Size': vm.employeeCount,
-      //   'Title': vm.title
-      // });
+      this.trackingService.onChosingPersona({Asset: 'Mobile', Persona: 'Enterprise'});
+      // setting up company details in clevertap profile
+      this.trackingService.updateSegmentProfile({
+        'Account Type': 'Enterprise',
+        'Employee Size': this.fg.value.count,
+        Title: this.fg.value.role
+      });
 
     } else {
       const toast = await this.toastController.create({
@@ -253,18 +254,17 @@ export class SignupDetailsEnterprisePage implements OnInit {
       ).pipe(
         tap(() => {
           // setting up user details in clevertap profile
-          // TrackingService.updateSegmentProfile({
-          //   '$name': vm.fullName,
-          //   '$country': vm.country,
-          //   'Region': vm.region
-          //   // Phone number should be formatted as +[country code][number], have to fix
-          //   // "Phone": ("" + vm.country.code + vm.phoneNumber)
-          // });
+          this.trackingService.updateSegmentProfile({
+            $name: this.sfg.value.name,
+            $country: this.sfg.value.country,
+            Region: this.sfg.value.region
+            // Phone number should be formatted as +[country code][number], have to fix
+            // "Phone": ("" + vm.country.code + vm.phoneNumber)
+          });
         }),
         finalize(() => this.finalSignupLoading = false),
         tap(() => {
-          // TODO: on Signup
-          // TrackingService.onSignup($stateParams.email, {Asset: 'Mobile', label: 'Email'});
+          this.trackingService.onSignup(this.activateRoute.snapshot.params.email, {Asset: 'Mobile', label: 'Email'});
         })
       ).subscribe(res => {
         this.router.navigate(['/', 'pre_verification', 'verify_email',

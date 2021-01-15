@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {FyleModeComponent} from '../fyle-mode/fyle-mode.component';
 import {CameraDirection, CameraResultType, CameraSource, Plugins} from '@capacitor/core';
 import {TransactionsOutboxService} from '../../../core/services/transactions-outbox.service';
+import {TrackingService} from '../../../core/services/tracking.service';
 
 const {Camera} = Plugins;
 
@@ -24,7 +25,8 @@ export class AddExpensePopoverComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private router: Router,
-    private transactionOutboxService: TransactionsOutboxService
+    private transactionOutboxService: TransactionsOutboxService,
+    private trackingService: TrackingService
   ) {
   }
 
@@ -56,7 +58,7 @@ export class AddExpensePopoverComponent implements OnInit {
           type: 'image'
         }];
 
-        // TrackingService.createExpense({Asset: 'Mobile', Category: 'AutoFyle'});
+        this.trackingService.createExpense({Asset: 'Mobile', Category: 'AutoFyle'});
 
         this.transactionOutboxService.addEntry(txn, dataUrls);
 
@@ -68,7 +70,7 @@ export class AddExpensePopoverComponent implements OnInit {
             reload: true
           });
         }
-      };
+      }
     } catch (e) {
       await this.popoverController.dismiss({
         reload: true
@@ -101,18 +103,22 @@ export class AddExpensePopoverComponent implements OnInit {
   async instafyle(event) {
     if (this.isInstaFyleEnabled) {
       await this.popoverController.dismiss();
-      this.router.navigate(['/', 'enterprise', 'camera_overlay']);
+      this.router.navigate(['/', 'enterprise', 'camera_overlay', {
+        from: 'my_expenses'
+      }]);
     } else {
-      this.doAutoFyle();
+      await this.doAutoFyle();
     }
   }
 
   async createExpense(event) {
     await this.popoverController.dismiss();
+    this.trackingService.eventTrack('Click Add Expense', {Asset: 'Mobile'});
     this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
   async createMileage(event) {
+    this.trackingService.eventTrack('Click Add Mileage', {Asset: 'Mobile'});
     await this.popoverController.dismiss();
     this.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
   }

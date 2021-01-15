@@ -3,13 +3,14 @@ import {JwtHelperService} from './jwt-helper.service';
 import {TokenService} from './token.service';
 import {ApiService} from './api.service';
 import {User} from '../models/user.model';
-import {concatMap, map, reduce, switchMap} from 'rxjs/operators';
+import {concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
 import {AuthService} from './auth.service';
 import {Observable, range, Subject} from 'rxjs';
 import {ExtendedOrgUser} from '../models/extended-org-user.model';
 import {DataTransformService} from './data-transform.service';
 import {StorageService} from './storage.service';
 import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
+import {TrackingService} from './tracking.service';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -24,7 +25,8 @@ export class OrgUserService {
     private apiService: ApiService,
     private authService: AuthService,
     private dataTransformService: DataTransformService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private trackingService: TrackingService
   ) { }
 
 
@@ -42,7 +44,8 @@ export class OrgUserService {
     return this.apiService.post('/orgusers/current/mark_active').pipe(
       switchMap(() => {
         return this.authService.refreshEou();
-      })
+      }),
+      tap(() => this.trackingService.activated({Asset: 'Mobile'}))
     );
   }
 

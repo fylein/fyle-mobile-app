@@ -77,7 +77,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   ngOnInit() {
     this.id = this.activatedRoute.snapshot.params.id;
     this.from = this.activatedRoute.snapshot.params.from;
-    // Todo: Support to add receipts to advance request
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
       purpose: [, Validators.required],
