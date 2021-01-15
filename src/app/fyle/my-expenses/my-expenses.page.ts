@@ -747,8 +747,8 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await addExpenseToReportModal.onDidDismiss();
     if (data && data.reload) {
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
+      this.doRefresh();
     }
   }
+
 }
