@@ -11,7 +11,7 @@
 
 <ion-content>
   <div class="view-mileage--container" *ngIf="extendedMileage$|async as extendedMileage">
-    <div class="view-mileage--policy-info-container" (click)="scrollToComments()"
+    <div class="view-mileage--policy-info-container" (click)="scrollCommentsIntoView()"
       *ngIf="extendedMileage.tx_policy_flag && policyViloations$|async as policyViloations">
       <mat-icon class="view-mileage--policy-warning-icon">warning</mat-icon>
       <span>{{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this
@@ -125,7 +125,7 @@
     </div>
 
     <div class="view-mileage--card">
-      <div class="view-mileage--card-action" id="commentsSection">
+      <div class="view-mileage--card-action" #comments>
         <app-comments objectType="transactions" [objectId]="extendedMileage.tx_id" mode="edit" text="Comments" [showCommentsCount]="true">
         </app-comments>
       </div>

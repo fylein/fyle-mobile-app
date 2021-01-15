@@ -21,7 +21,7 @@ import { RemoveExpenseReportComponent } from './remove-expense-report/remove-exp
 })
 export class ViewTeamPerDiemPage implements OnInit {
 
-  @ViewChild(IonContent, { static: false }) content: IonContent;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedPerDiem$: Observable<Expense>;
   orgSettings$: Observable<any>;
@@ -62,8 +62,17 @@ export class ViewTeamPerDiemPage implements OnInit {
     }
   }
 
-  scrollToComments() {
-    this.content.scrollToBottom(500);
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
+    }
   }
 
   ionViewWillEnter() {

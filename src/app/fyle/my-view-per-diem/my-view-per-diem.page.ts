@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import { NavController, IonContent } from '@ionic/angular';
 import {concat, from, Observable, Subject} from 'rxjs';
@@ -20,7 +20,7 @@ import {NetworkService} from '../../core/services/network.service';
 })
 export class MyViewPerDiemPage implements OnInit {
 
-  @ViewChild(IonContent, { static: false }) content: IonContent;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedPerDiem$: Observable<Expense>;
   orgSettings$: Observable<any>;
@@ -53,8 +53,17 @@ export class MyViewPerDiemPage implements OnInit {
     this.navController.back();
   }
 
-  scrollToComments() {
-    this.content.scrollToBottom(500);
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
+    }
   }
 
   setupNetworkWatcher() {

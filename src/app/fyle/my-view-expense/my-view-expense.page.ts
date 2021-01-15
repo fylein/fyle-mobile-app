@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
 import {from, forkJoin, Observable, concat, Subject} from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -21,7 +21,7 @@ import {NetworkService} from '../../core/services/network.service';
 })
 export class MyViewExpensePage implements OnInit {
 
-  @ViewChild(IonContent, { static: false }) content: IonContent;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   etxn$: Observable<Expense>;
   policyViloations$: Observable<any>;
@@ -65,8 +65,17 @@ export class MyViewExpensePage implements OnInit {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
   }
 
-  scrollToComments() {
-    this.content.scrollToBottom(500);
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
+    }
   }
 
   setupNetworkWatcher() {

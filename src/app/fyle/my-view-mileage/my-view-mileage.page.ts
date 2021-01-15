@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, IonContent } from '@ionic/angular';
 import { from, Observable } from 'rxjs';
@@ -18,7 +18,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 })
 export class MyViewMileagePage implements OnInit {
 
-  @ViewChild(IonContent, { static: false }) content: IonContent;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
   orgSettings$: Observable<any>;
@@ -45,8 +45,17 @@ export class MyViewMileagePage implements OnInit {
     this.navController.back();
   }
 
-  scrollToComments() {
-    this.content.scrollToBottom(500);
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
+    }
   }
 
   ionViewWillEnter() {

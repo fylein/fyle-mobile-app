@@ -150,7 +150,7 @@
     color: #4a4a4a;
     width: calc(100% - 60px);
     display: inline-block;
-    vertical-align: middle;
+    align-items: center;
     height: 100%;
     padding: 8px 8px 0 16px;
   }
@@ -162,7 +162,7 @@
     font-weight: 500;
     width: calc(100% - 60px);
     display: inline-block;
-    vertical-align: middle;
+    align-items: center;
     height: 100%;
     padding: 0 8px 8px 16px;
   }

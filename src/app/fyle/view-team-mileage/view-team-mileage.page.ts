@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
 import {Observable, from, Subject, concat} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -21,7 +21,7 @@ import {NetworkService} from '../../core/services/network.service';
 })
 export class ViewTeamMileagePage implements OnInit {
 
-  @ViewChild(IonContent, { static: false }) content: IonContent;
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
   orgSettings$: Observable<any>;
@@ -72,8 +72,17 @@ export class ViewTeamMileagePage implements OnInit {
     return typeof val === 'number';
   }
 
-  scrollToComments() {
-    this.content.scrollToBottom(500);
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
+    }
   }
 
   goBack() {
