@@ -1,0 +1,19 @@
+<div class="add-expense-popover-internal">
+  <div class="add-expense-popover-internal--element" matRipple (click)="decideCameraType('single')">
+    <div>
+      <ion-icon class="add-expense-popover-internal--icon" name="image"></ion-icon>
+    </div>
+    <div class="add-expense-popover-internal--content">
+      <div class="add-expense-popover-internal--head">Single Receipt</div>
+    </div>
+  </div>
+
+  <div class="add-expense-popover-internal--element" matRipple (click)="decideCameraType('bulk')">
+    <div>
+      <ion-icon class="add-expense-popover-internal--icon" name="images"></ion-icon>
+    </div>
+    <div class="add-expense-popover-internal--content">
+      <div class="add-expense-popover-internal--head">Multiple Receipts</div>
+    </div>
+  </div>
+</div>

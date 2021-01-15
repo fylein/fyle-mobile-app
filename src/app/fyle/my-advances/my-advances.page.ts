@@ -1,11 +1,12 @@
 import {Component, EventEmitter, OnInit} from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import {concat, range, zip, combineLatest} from 'rxjs';
+import {concat, range, zip, combineLatest, iif, of} from 'rxjs';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
 import {concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import {NetworkService} from '../../core/services/network.service';
 
 @Component({
@@ -30,7 +31,8 @@ export class MyAdvancesPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private advanceService: AdvanceService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private offlineService: OfflineService
   ) { }
 
   ionViewWillLeave() {
@@ -98,10 +100,13 @@ export class MyAdvancesPage implements OnInit {
       startWith(0),
       switchMap(() => {
         return from(this.loaderService.showLoader('Retrieving advance...')).pipe(
-          switchMap(() => {
+          concatMap(() => {
+            return this.offlineService.getOrgSettings();
+          }),
+          switchMap((orgSettings) => {
             return combineLatest([
-              this.myAdvancerequests$,
-              this.myAdvances$
+              iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
+              iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
             ]).pipe(
               map(res => {
                 const [myAdvancerequestsRes,  myAdvancesRes] = res;

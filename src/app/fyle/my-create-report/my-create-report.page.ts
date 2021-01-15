@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import * as moment from 'moment';
 import { forkJoin, from, noop, Observable } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import {finalize, map, shareReplay, switchMap, tap} from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -13,6 +13,8 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { ReportSummaryComponent } from './report-summary/report-summary.component';
+import {TrackingService} from '../../core/services/tracking.service';
+import {StorageService} from '../../core/services/storage.service';
 
 
 @Component({
@@ -46,8 +48,9 @@ export class MyCreateReportPage implements OnInit {
     private popoverController: PopoverController,
     private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private tripRequestsService: TripRequestsService
-
+    private tripRequestsService: TripRequestsService,
+    private trackingService: TrackingService,
+    private storageService: StorageService
   ) { }
 
   cancel() {
@@ -55,6 +58,22 @@ export class MyCreateReportPage implements OnInit {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
+    }
+  }
+
+  async sendFirstReportCreated() {
+    const isFirstReportCreated = await this.storageService.get('isFirstReportCreated');
+
+    if (!isFirstReportCreated) {
+      this.reportService.getMyReportsCount({}).subscribe(async (allReportsCount) => {
+        if (allReportsCount === 0) {
+          const etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
+          const txnIds = etxns.map(etxn => etxn.tx_id);
+          const selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
+          this.trackingService.createFirstReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: selectedTotalAmount});
+          await this.storageService.set('isFirstReportCreated', true);
+        }
+      });
     }
   }
 
@@ -66,7 +85,7 @@ export class MyCreateReportPage implements OnInit {
       componentProps: {
         selectedTotalAmount: this.selectedTotalAmount,
         selectedTotalTxns: this.selectedTotalTxns,
-        homeCurrency: homeCurrency,
+        homeCurrency,
         purpose: this.reportTitle,
         action
       },
@@ -78,6 +97,8 @@ export class MyCreateReportPage implements OnInit {
     const { data } = await reportSummaryPopover.onWillDismiss();
 
     if (data && data.saveReport) {
+      this.sendFirstReportCreated();
+
       const report = {
         purpose: this.reportTitle,
         source: 'MOBILE',
@@ -90,6 +111,9 @@ export class MyCreateReportPage implements OnInit {
       if (action === 'draft') {
         this.saveDraftReportLoading = true;
         this.reportService.createDraft(report).pipe(
+          tap(() => {
+            this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount});
+          }),
           switchMap((res) => {
             return this.reportService.addTransactions(res.id, txnIds);
           }),
@@ -100,7 +124,13 @@ export class MyCreateReportPage implements OnInit {
         ).subscribe(noop);
       } else {
         this.saveReportLoading = true;
+        this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
         this.reportService.create(report, txnIds).pipe(
+          tap(() => this.trackingService.createReport({
+            Asset: 'Mobile',
+            Expense_Count: txnIds.length,
+            Report_Value: this.selectedTotalAmount
+          })),
           finalize(() => {
             this.saveReportLoading = false;
             this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -184,7 +214,9 @@ export class MyCreateReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.selectedTxnIds = this.activatedRoute.snapshot.params.txn_ids ? JSON.parse(this.activatedRoute.snapshot.params.txn_ids) : new Array();
+    this.selectedTxnIds = this.activatedRoute.snapshot.params.txn_ids ?
+      JSON.parse(this.activatedRoute.snapshot.params.txn_ids) :
+      [];
     const queryParams = {
       tx_report_id : 'is.null',
       tx_state: 'in.(COMPLETE)',

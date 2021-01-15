@@ -14,6 +14,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
+import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -65,7 +66,8 @@ export class MyReportsPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private popupService: PopupService,
     private transactionService: TransactionService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private trackingService: TrackingService
   ) { }
 
   ngOnInit() {
@@ -358,14 +360,15 @@ export class MyReportsPage implements OnInit {
   }
 
   async onDeleteReportClick(erpt: ExtendedReport) {
-    console.log(erpt.rp_state);
+
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
       await this.popupService.showPopup({
         header: 'Cannot Delete Report',
         message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted`,
         primaryCta: {
-          text: 'Close'
-        }
+          text: 'CLOSE'
+        },
+        showCancelButton: false
       });
     } else {
       const popupResults = await this.popupService.showPopup({
@@ -388,6 +391,7 @@ export class MyReportsPage implements OnInit {
           switchMap(() => {
             return this.reportService.delete(erpt.rp_id);
           }),
+          tap(() => this.trackingService.deleteReport({Asset: 'Mobile'})),
           finalize(async () => {
             await this.loaderService.hideLoader();
             this.doRefresh();

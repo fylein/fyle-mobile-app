@@ -18,7 +18,7 @@ export class UserService {
   ) { }
 
   getCurrent() {
-    return this.apiService.get('/users/current')
+    return this.apiService.get('/users/current');
   }
 
   isPendingDetails() {
@@ -47,7 +47,7 @@ export class UserService {
       switchMap((user) => {
         return this.apiService.get('/users/' + user.id + '/properties');
       })
-    )
+    );
   }
 
   upsertProperties(userProperties) {
@@ -55,6 +55,6 @@ export class UserService {
       switchMap((user) => {
         return this.apiService.post('/users/' + user.id + '/properties', userProperties);
       })
-    )
+    );
   }
 }

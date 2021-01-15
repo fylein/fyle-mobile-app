@@ -4,7 +4,7 @@ import {Observable, from, noop, concat, Subject} from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import {map, switchMap, finalize, shareReplay, takeUntil} from 'rxjs/operators';
+import {map, switchMap, finalize, shareReplay, takeUntil, tap} from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -14,6 +14,7 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
 import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
 import {NetworkService} from '../../core/services/network.service';
+import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-my-view-report',
@@ -46,7 +47,8 @@ export class MyViewReportPage implements OnInit {
     private router: Router,
     private popupService: PopupService,
     private popoverController: PopoverController,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private trackingService: TrackingService
   ) { }
 
   setupNetworkWatcher() {
@@ -164,12 +166,12 @@ export class MyViewReportPage implements OnInit {
     const popupResults = await this.popupService.showPopup({
       header: 'Delete Report',
       message: `
-      <p class="highlight-info">
-        On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-      </p>
-      <p>
-        Are you sure, you want to delete this report?
-      </p>
+        <p class="highlight-info">
+          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
+        </p>
+        <p>
+          Are you sure, you want to delete this report?
+        </p>
       `,
       primaryCta: {
         text: 'Delete Report'
@@ -181,6 +183,10 @@ export class MyViewReportPage implements OnInit {
         switchMap(() => {
           return this.reportService.delete(this.activatedRoute.snapshot.params.id);
         }),
+        tap(() => this.trackingService.deleteReport({
+            Asset: 'Mobile'
+          })
+        ),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -270,6 +276,8 @@ export class MyViewReportPage implements OnInit {
   }
 
   async shareReport(event) {
+    this.trackingService.clickShareReport({Asset: 'Mobile'});
+
     const popover = await this.popoverController.create({
       component: ShareReportComponent,
       cssClass: 'dialog-popover'

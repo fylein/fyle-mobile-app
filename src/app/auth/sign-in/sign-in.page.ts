@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { from, throwError, Observable } from 'rxjs';
-import { PopoverController } from '@ionic/angular';
-import { ErrorComponent } from './error/error.component';
-import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap } from 'rxjs/operators';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
-import { PushNotificationService } from 'src/app/core/services/push-notification.service';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {RouterAuthService} from 'src/app/core/services/router-auth.service';
+import {from, throwError, Observable} from 'rxjs';
+import {PopoverController} from '@ionic/angular';
+import {ErrorComponent} from './error/error.component';
+import {shareReplay, catchError, filter, finalize, switchMap, map, concatMap, tap} from 'rxjs/operators';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {Router, ActivatedRoute} from '@angular/router';
+import {HttpErrorResponse} from '@angular/common/http';
+import {GoogleAuthService} from 'src/app/core/services/google-auth.service';
+import {InAppBrowser} from '@ionic-native/in-app-browser/ngx';
+import {PushNotificationService} from 'src/app/core/services/push-notification.service';
+import {TrackingService} from '../../core/services/tracking.service';
+import {AppVersionService} from '../../core/services/app-version.service';
+import {DeviceService} from '../../core/services/device.service';
+import {LoginInfoService} from '../../core/services/login-info.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -37,7 +41,10 @@ export class SignInPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     public googleAuthService: GoogleAuthService,
     private inAppBrowser: InAppBrowser,
-    private pushNotificationService: PushNotificationService
+    private pushNotificationService: PushNotificationService,
+    private trackingService: TrackingService,
+    private deviceService: DeviceService,
+    private loginInfoService: LoginInfoService
   ) {
   }
 
@@ -53,9 +60,17 @@ export class SignInPage implements OnInit {
       this.routerAuthService.handleSignInResponse(data);
       const samlNewRefreshToken$ = this.authService.newRefreshToken(data.refresh_token);
 
-      samlNewRefreshToken$.subscribe(() => {
+      samlNewRefreshToken$.pipe(
+        tap(async () => {
+          await this.trackLoginInfo();
+          this.trackingService.onSignin(this.fg.value.email, {
+            Asset: 'Mobile',
+            label: 'Email'
+          });
+        })
+      ).subscribe(() => {
         this.pushNotificationService.initPush();
-        this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+        this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
       });
     }
   }
@@ -165,6 +180,13 @@ export class SignInPage implements OnInit {
         switchMap((res) => {
           return this.authService.newRefreshToken(res.refresh_token);
         }),
+        tap(async () => {
+          await this.trackLoginInfo();
+          this.trackingService.onSignin(this.fg.value.email, {
+            Asset: 'Mobile',
+            label: 'Email'
+          });
+        }),
         finalize(() => this.passwordLoading = false)
       ).subscribe(() => {
         this.pushNotificationService.initPush();
@@ -191,6 +213,13 @@ export class SignInPage implements OnInit {
           switchMap((res) => {
             return this.authService.newRefreshToken(res.refresh_token);
           }),
+          tap(async () => {
+            await this.trackLoginInfo();
+            this.trackingService.onSignin(this.fg.value.email, {
+              Asset: 'Mobile',
+              label: 'Email'
+            });
+          })
         );
       }),
       finalize(() => {
@@ -199,8 +228,14 @@ export class SignInPage implements OnInit {
       })
     ).subscribe(() => {
       this.pushNotificationService.initPush();
-      this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+      this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
     });
+  }
+
+  async trackLoginInfo() {
+    const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
+    this.trackingService.eventTrack('Added Login Info', {Asset: 'Mobile', label: deviceInfo.appVersion});
+    await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
   async ngOnInit() {

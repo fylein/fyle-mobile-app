@@ -341,3 +341,21 @@ textarea, input {
   --keyboard-offset: 0 !important;
 }
 
+.mat-radio-button {
+  &.mat-radio-checked {
+    .mat-radio-outer-circle {
+      border-color: #1978f7 !important;
+    }
+
+    .mat-radio-label-content {
+      color: #f36;
+    }
+  }
+   .mat-radio-inner-circle {
+    background-color: #1978f7 !important;
+  }
+
+  .mat-ripple-element {
+    background-color: #fff !important;
+  }
+}

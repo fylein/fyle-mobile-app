@@ -5,6 +5,7 @@ const { Camera } = Plugins;
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
+import {TrackingService} from '../../../core/services/tracking.service';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -18,7 +19,8 @@ export class CameraOptionsPopupComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private loaderService: LoaderService,
-    private fileService: FileService
+    private fileService: FileService,
+    private trackingService: TrackingService
   ) { }
 
   ngOnInit() { }
@@ -28,6 +30,8 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async getImageFromPicture() {
+    this.trackingService.addAttachment({Asset: 'Mobile', Mode: 'Add Expense', Category: 'Camera'});
+
     const image = await Camera.getPhoto({
       quality: 90,
       source: CameraSource.Camera,
@@ -47,7 +51,9 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async getImageFromImagePicker() {
     const that = this;
-    const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+    that.trackingService.addAttachment({Asset: 'Mobile', Mode: 'Add Expense', Category: 'Camera'});
+
+    const nativeElement = that.fileUpload.nativeElement as HTMLInputElement;
 
     nativeElement.onchange = async () => {
       const file = nativeElement.files[0];

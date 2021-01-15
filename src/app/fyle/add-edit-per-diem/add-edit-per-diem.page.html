@@ -14,7 +14,7 @@
       </div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="goBack()" mode="md">
+      <ion-button (click)="closePopup()" mode="md">
         <mat-icon slot="icon-only">close</mat-icon>
       </ion-button>
     </ion-buttons>
@@ -58,7 +58,7 @@
 
               <ng-container *ngIf="mode === 'edit'">
                 <ng-container *ngIf="comments$|async as comments">
-                  <app-fy-policy-violation-info [estatuses]="comments"></app-fy-policy-violation-info>
+                  <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
                 </ng-container>
               </ng-container>
 
@@ -257,7 +257,7 @@
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                       <ng-container
-                        *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (allowedProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
+                        *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
                         <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-select-project
@@ -405,20 +405,24 @@
                     </ng-container>
                   </ng-container>
 
-                  <ng-container *ngIf="isConnected$|async">
-                    <ng-container *ngIf="transactionMandatoyFields$|async as mandatoryExpenseFields">
+                  <ng-container *ngIf="isConnected$">
+                    <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                       <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
-                        <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                          <app-fy-alert
-                            *ngIf="mandatoryExpenseFields.project && isProjectsEnabled && ((isIndividualProjectsEnabled$|async) && individualProjectIds.length === 0)"
-                            [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                            [type]="'warning'">
-                          </app-fy-alert>
+                        <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
+                          <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
+
+                            <app-fy-alert
+                              *ngIf="transactionMandatoyFields.project && individualProjectIds.length === 0"
+                              [type]="'warning'"
+                              [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
+                            </app-fy-alert>
+
+                          </ng-container>
                         </ng-container>
                       </ng-container>
                     </ng-container>
-
                   </ng-container>
+
 
 
                   <!-- This is very helpful for debugging - Angular will remove this when compiling so lets have this here -->
@@ -466,7 +470,7 @@
 
             <ng-container *ngIf="etxn$|async as etxn">
               <div *ngIf="etxn && mode === 'edit'" class="add-edit-per-diem--comment">
-                <app-comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments">
+                <app-comments #comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments">
                 </app-comments>
               </div>
 

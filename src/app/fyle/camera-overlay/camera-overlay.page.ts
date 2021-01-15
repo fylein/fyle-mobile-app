@@ -17,6 +17,8 @@ import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-pop
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { StorageService } from 'src/app/core/services/storage.service';
+import {TrackingService} from '../../core/services/tracking.service';
+import {AuthService} from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -43,7 +45,9 @@ export class CameraOverlayPage implements OnInit {
     private imagePicker: ImagePicker,
     private popoverController: PopoverController,
     private offlineService: OfflineService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private trackingService: TrackingService,
+    private authService: AuthService
   ) { }
 
   setUpAndStartCamera() {
@@ -61,7 +65,7 @@ export class CameraOverlayPage implements OnInit {
       CameraPreview.start(cameraPreviewOptions).then(res => {
         this.isCameraShown = true;
         this.getFlashModes();
-      })
+      });
 
     }
   }
@@ -78,7 +82,7 @@ export class CameraOverlayPage implements OnInit {
     this.modeChanged = true;
     setTimeout(() => {
       this.modeChanged = false;
-    }, 1000)
+    }, 1000);
   }
 
   uploadFiles() {
@@ -163,16 +167,27 @@ export class CameraOverlayPage implements OnInit {
   }
 
   syncExpenseAndFinishProcess() {
-    if (this.isCameraOpenedInOneClick) {
-      // Todo: Sync expense and redirect to close_app page
-    } else {
-      this.finishProcess();
-    }
+    this.finishProcess();
+  }
+
+  async trackBulkUpload(captureCount) {
+    const eou = await this.authService.getEou();
+
+    const properties = {
+      Asset: 'Mobile',
+      Page: this.activatedRoute.snapshot.params.from || 'Receipts',
+      NumberOfReceipts: captureCount,
+      Source: eou.ou.id,
+      Type: 'Upload Receipts'
+    };
+
+    return this.trackingService.bulkUploadReceipts(properties);
   }
 
   finishProcess() {
     this.stopCamera();
     if (this.isBulkMode && this.captureCount > 0) {
+      this.trackBulkUpload(this.captureCount);
       this.showGalleryUploadSuccessPopup(this.captureCount);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_dashboard']);
@@ -195,13 +210,7 @@ export class CameraOverlayPage implements OnInit {
 
     } else {
       // Single mode
-      if (this.isCameraOpenedInOneClick) {
-        // Todo: Add expense to queue
-        // this.syncExpenseAndFinishProcess()
-      } else {
-        this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage}]);
-      }
-    }
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage}]);    }
   }
 
   async onCapture() {
@@ -233,13 +242,13 @@ export class CameraOverlayPage implements OnInit {
         this.activeFlashMode = this.activeFlashMode || 'off';
         CameraPreview.setFlashMode({flashMode: this.activeFlashMode});
       }
-    })
+    });
   }
 
   disableInstaFyleIntro() {
     this.storageService.set('hideInstaFyleIntroGif', true);
     this.showInstaFyleIntro = false;
-  };
+  }
 
   async showInstaFyleIntroImage() {
     const hideInstaFyleIntroGif = await this.storageService.get('hideInstaFyleIntroGif');
@@ -248,7 +257,7 @@ export class CameraOverlayPage implements OnInit {
       this.showInstaFyleIntro = true;
       setTimeout(() => {
         this.showInstaFyleIntro = false;
-      }, 2800)
+      }, 2800);
     } else {
       this.showInstaFyleIntro = false;
     }
@@ -260,7 +269,7 @@ export class CameraOverlayPage implements OnInit {
     this.isCameraShown = false;
     this.setUpAndStartCamera();
     this.activeFlashMode = null;
-    this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
+    // this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
 
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;

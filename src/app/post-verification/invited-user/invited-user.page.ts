@@ -2,13 +2,14 @@ import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { map, switchMap, finalize } from 'rxjs/operators';
+import {map, switchMap, finalize, tap} from 'rxjs/operators';
 import { ToastController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-invited-user',
@@ -33,7 +34,8 @@ export class InvitedUserPage implements OnInit {
     private orgUserService: OrgUserService,
     private loaderService: LoaderService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private trackingService: TrackingService
   ) { }
 
   ngOnInit() {
@@ -99,12 +101,14 @@ export class InvitedUserPage implements OnInit {
           user.password = this.fg.controls.password.value;
           return this.orgUserService.postUser(user);
         }),
+        tap(() => this.trackingService.setupComplete({Asset: 'Mobile'})),
         switchMap(() => {
           return this.authService.refreshEou();
         }),
         switchMap(() => {
           return this.orgUserService.markActive();
         }),
+        tap(() => this.trackingService.activated({Asset: 'Mobile'})),
         finalize(async () => await this.loaderService.hideLoader())
       ).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);

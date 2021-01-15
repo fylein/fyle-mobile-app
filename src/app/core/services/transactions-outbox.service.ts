@@ -8,13 +8,12 @@ import { OfflineService } from './offline.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
-import { UtilityService } from './utility.service';
 import { StatusService } from './status.service';
 import { cloneDeep } from 'lodash';
 import { ReceiptService } from './receipt.service';
 import { ReportService } from './report.service';
-import { queue } from 'rxjs/internal/scheduler/queue';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
+import {TrackingService} from './tracking.service';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +36,8 @@ export class TransactionsOutboxService {
     private httpClient: HttpClient,
     private receiptService: ReceiptService,
     private reportService: ReportService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private trackingService: TrackingService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -291,7 +291,7 @@ export class TransactionsOutboxService {
         if (reportId) {
           const txnIds = [resp.id];
           that.reportService.addTransactions(reportId, txnIds).toPromise().then((result) => {
-            // TrackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
+            this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
             return result;
           });
         }
@@ -311,10 +311,9 @@ export class TransactionsOutboxService {
           resolve(entry);
         }
       }, (err) => {
-        // TrackingService.syncError({ Asset: 'Mobile', label: err });
+        this.trackingService.syncError({ Asset: 'Mobile', label: err });
 
         reject(err);
-        // console.log('unable to upload.. will try later');
       });
     });
   }

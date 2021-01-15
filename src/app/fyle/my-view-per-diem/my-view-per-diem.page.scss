@@ -103,16 +103,22 @@
     color: #ababab;
     font-weight: 500;
     line-height: 1.5;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   &--element-value {
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
-    color: #444444;
+    color: #444;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 
-    &-date {
-      color: #ababab;
+    &__disabled {
+      opacity: 0.5;
     }
   }
 

@@ -8,6 +8,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 import {Expense} from '../../../../core/models/expense.model';
 import {TransactionService} from '../../../../core/services/transaction.service';
 import {Router} from '@angular/router';
+import {TrackingService} from '../../../../core/services/tracking.service';
 
 
 @Component({
@@ -38,7 +39,8 @@ export class ViewCommentComponent implements OnInit {
     private authService: AuthService,
     private modalController: ModalController,
     private transactionService: TransactionService,
-    private router: Router
+    private router: Router,
+    private trackingService: TrackingService
   ) { }
 
   changeBotComments() {
@@ -65,12 +67,10 @@ export class ViewCommentComponent implements OnInit {
 
   closeCommentModal() {
     if (this.isCommentAdded) {
-      // Todo: Track Add Comment Event
-      // TrackingService.addComment({Asset: 'Mobile'});
+      this.trackingService.addComment({Asset: 'Mobile'});
       this.modalController.dismiss({updated: true});
     } else {
-      // Todo: Track View Comment Event
-      // TrackingService.viewComment({Asset: 'Mobile'});
+      this.trackingService.viewComment({Asset: 'Mobile'});
       this.modalController.dismiss();
     }
   }

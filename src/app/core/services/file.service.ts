@@ -69,7 +69,7 @@ export class FileService {
     } else if (extension && (['pdf'].indexOf(extension) > -1)) {
       fileType = 'pdf';
     }
-    // Todo PDF check
+
     file.file_type = fileType;
     return file;
   }

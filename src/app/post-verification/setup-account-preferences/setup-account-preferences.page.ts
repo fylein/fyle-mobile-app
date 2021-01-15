@@ -11,6 +11,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { Router } from '@angular/router';
+import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-setup-account-preferences',
@@ -34,7 +35,8 @@ export class SetupAccountPreferencesPage implements OnInit {
     private fb: FormBuilder,
     private loadingService: LoaderService,
     private orgUserService: OrgUserService,
-    private router: Router
+    private router: Router,
+    private trackingService: TrackingService
   ) { }
 
   ngOnInit() {
@@ -72,14 +74,14 @@ export class SetupAccountPreferencesPage implements OnInit {
         return this.orgSettingsService.post(orgSettings).pipe(
           tap(() => {
             // setting up company details in clevertap profile
-            // TODO: Add when tracking service is introduced
-            // TrackingService.updateSegmentProfile({
-            //   'Enable Mileage': vm.settings.mileage.enabled,
-            //   'Enable Per Diem': vm.settings.per_diem.enabled,
-            //   'Enable Corporate Cards': vm.settings.corporate_credit_card_settings.enabled,
-            //   'Enable Advances': vm.settings.advance_requests.enabled,
-            //   'Enable Trips': vm.settings.trip_requests.enabled
-            // });
+
+            this.trackingService.updateSegmentProfile({
+              'Enable Mileage': this.fg.controls.mileage.value,
+              'Enable Per Diem': this.fg.controls.per_diem.value,
+              'Enable Corporate Cards': this.fg.controls.ccc.value,
+              'Enable Advances': this.fg.controls.advances.value,
+              'Enable Trips': this.fg.controls.trip.value
+            });
           })
         );
       })
@@ -91,15 +93,13 @@ export class SetupAccountPreferencesPage implements OnInit {
   markActiveAndRedirect() {
     from(this.loadingService.showLoader()).pipe(
       tap(() => {
-        // TODO: Tracking Service
-        // TrackingService.setupComplete({ Asset: 'Mobile' });
+        this.trackingService.setupComplete({ Asset: 'Mobile' });
       }),
       switchMap(() => {
         return this.orgUserService.markActive();
       }),
       tap(() => {
-        // TODO: Tracking Service
-        // TrackingService.activated({ Asset: 'Mobile' });
+        this.trackingService.activated({ Asset: 'Mobile' });
       }),
       finalize(async () => this.loadingService.hideLoader())
     ).subscribe(() => {

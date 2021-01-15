@@ -16,6 +16,8 @@ import {TransactionsOutboxService} from 'src/app/core/services/transactions-outb
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {PopupService} from 'src/app/core/services/popup.service';
 import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import {TrackingService} from '../../core/services/tracking.service';
+import {StorageService} from '../../core/services/storage.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -50,6 +52,7 @@ export class MyExpensesPage implements OnInit {
   expensesAmountStats$: Observable<number>;
   homeCurrency$: Observable<string>;
   isInstaFyleEnabled$: Observable<boolean>;
+  isBulkFyleEnabled$: Observable<boolean>;
   isMileageEnabled$: Observable<boolean>;
   isPerDiemEnabled$: Observable<boolean>;
   pendingTransactions = [];
@@ -74,7 +77,9 @@ export class MyExpensesPage implements OnInit {
     private transactionOutboxService: TransactionsOutboxService,
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private trackingService: TrackingService,
+    private storageService: StorageService
   ) { }
 
   clearText() {
@@ -89,6 +94,10 @@ export class MyExpensesPage implements OnInit {
 
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
+    );
+
+    this.isBulkFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
+      map(orgUserSettings => orgUserSettings && orgUserSettings.bulk_fyle_settings && orgUserSettings.bulk_fyle_settings.enabled)
     );
 
     this.isMileageEnabled$ = this.offlineService.getOrgSettings().pipe(
@@ -116,6 +125,22 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  async sendFirstExpenseCreatedEvent() {
+    // checking if the expense is first expense
+    const isFirstExpenseCreated = await this.storageService.get('isFirstExpenseCreated');
+
+    // for first expense etxnc size will be 0
+    if (!isFirstExpenseCreated) {
+      this.allExpensesCount$.subscribe(async (count) => {
+        if (count === 0) {
+          this.trackingService.createFirstExpense({Asset: 'Mobile'});
+          await this.storageService.set('isFirstExpenseCreated', true);
+        }
+      });
+
+    }
+  }
+
   ionViewWillEnter() {
     this.loaderService.showLoader('Loading Expenses...', 1000);
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
@@ -137,6 +162,7 @@ export class MyExpensesPage implements OnInit {
       switchMap(() => {
         return from(this.transactionOutboxService.sync());
       }),
+      tap(() => this.sendFirstExpenseCreatedEvent()),
       finalize(() => this.syncing = false)
     ).subscribe(() => {
       this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
@@ -544,8 +570,9 @@ export class MyExpensesPage implements OnInit {
     forkJoin({
       isInstaFyleEnabled: this.isInstaFyleEnabled$,
       isMileageEnabled: this.isMileageEnabled$,
-      isPerDiemEnabled: this.isPerDiemEnabled$
-    }).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled }) => {
+      isPerDiemEnabled: this.isPerDiemEnabled$,
+      isBulkFyleEnabled: this.isBulkFyleEnabled$
+    }).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
       if (!(isInstaFyleEnabled || isMileageEnabled || isPerDiemEnabled)) {
         this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
       } else {
@@ -555,12 +582,20 @@ export class MyExpensesPage implements OnInit {
           componentProps: {
             isInstaFyleEnabled,
             isMileageEnabled,
-            isPerDiemEnabled
+            isPerDiemEnabled,
+            isBulkFyleEnabled
           },
           cssClass: 'dialog-popover'
         });
 
         await addExpensePopover.present();
+
+        const {data} = await addExpensePopover.onDidDismiss();
+
+        if (data && data.reload) {
+          this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+          this.doRefresh();
+        }
       }
     });
   }
@@ -579,6 +614,7 @@ export class MyExpensesPage implements OnInit {
         switchMap(() => {
           return this.transactionService.delete(etxn.tx_id);
         }),
+        tap(() => this.trackingService.deleteExpense({Asset: 'Mobile'})),
         finalize(async () => {
           await this.loaderService.hideLoader();
           this.doRefresh();
@@ -627,15 +663,18 @@ export class MyExpensesPage implements OnInit {
   }
 
   onAddTransactionToNewReport(expense) {
+    this.trackingService.clickAddToReport({Asset: 'Mobile'});
     const transactionIds = JSON.stringify([expense.tx_id]);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
   openCreateReportWithSelectedIds() {
+    this.trackingService.addToReport({Asset: 'Mobile'});
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(this.selectedElements) }]);
   }
 
   openCreateReport() {
+    this.trackingService.clickCreateReport({Asset: 'Mobile'});
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
