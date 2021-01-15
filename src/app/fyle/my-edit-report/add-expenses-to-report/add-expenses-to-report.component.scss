@@ -25,6 +25,10 @@
   &--item-card-checkbox {
     margin: 18px;
   }
+  &--non-reimbursable {
+    color: #ababab;
+    text-decoration: line-through;
+  }
 
   &--item-card-currency {
     color: #ababab;
@@ -35,6 +39,9 @@
     margin-left: 8px;
     font-weight: 700;
     color: #666;
+    &__non-reimbursable {
+      color: #ababab;
+    }
   }
 
   &--item-card-vendor {

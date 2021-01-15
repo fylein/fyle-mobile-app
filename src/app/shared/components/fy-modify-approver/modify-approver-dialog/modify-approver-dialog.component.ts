@@ -85,9 +85,10 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
         reduce((acc, curr) => {
           return acc.concat(curr);
         }, []),
-      ).subscribe(() => {
-        this.modalController.dismiss({reload: true});
-      });
+        finalize(() => {
+          this.modalController.dismiss({reload: true});
+        })
+      ).subscribe(noop);
     }
   }
 
