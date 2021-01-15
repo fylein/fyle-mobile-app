@@ -63,7 +63,7 @@
 
     <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
       <app-team-report-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
-        (deleteReport)="onDeleteReportClick($event)" (viewComments)="onViewCommentsClick($event)">
+        (deleteReport)="onDeleteReportClick($event)">
       </app-team-report-card>
     </div>
   </ng-container>
