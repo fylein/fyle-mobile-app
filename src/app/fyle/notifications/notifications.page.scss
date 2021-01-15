@@ -33,6 +33,10 @@ $heading-shadow-color: #ababab;
     display: contents;
   }
 
+  &--event-label {
+    padding: 4px 20px 4px;
+  }
+
   &--checkbox-select-all {
     padding-right: 0;
     flex: 10;

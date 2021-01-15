@@ -5,15 +5,14 @@
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md">View Per Diem</ion-title>
+    <ion-title mode="md" class="page-title">View Per Diem</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="view-per-diem--container" *ngIf="extendedPerDiem$|async as extendedPerDiem">
 
-    <div class="view-per-diem--policy-info-container" *ngIf="extendedPerDiem.tx_policy_flag && policyViloations$|async as policyViloations">
-      <!-- TODO: on click scroll to comment section -->
+    <div class="view-per-diem--policy-info-container" (click)="scrollCommentsIntoView()" *ngIf="extendedPerDiem.tx_policy_flag && policyViloations$|async as policyViloations">
       <mat-icon class="view-per-diem--policy-warning-icon">warning</mat-icon>
       <span>{{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this expense</span>
     </div>
@@ -26,10 +25,20 @@
     <!-- Todo: Move this to currnecy directive later -->
     <div class="view-per-diem--amount-currency-block">
       <div class="view-per-diem--currency-block">
-        <span class="view-per-diem--currency">{{extendedPerDiem.tx_currency}}</span>
+        <span class="view-per-diem--currency">{{extendedPerDiem.tx_orig_currency ? extendedPerDiem.tx_orig_currency : extendedPerDiem.tx_currency}}</span>
       </div>
       <div class="view-per-diem--amount-block">
-        <span class="view-per-diem--amount">{{extendedPerDiem.tx_amount | number: '1.0-2'}}</span>
+        <span class="view-per-diem--amount">{{extendedPerDiem.tx_orig_amount ? extendedPerDiem.tx_orig_amount : extendedPerDiem.tx_amount | number: '1.0-2'}}</span>
+      </div>
+    </div>
+
+    <div class="view-per-diem--conversion" *ngIf="extendedPerDiem.tx_orig_currency && extendedPerDiem.tx_orig_amount">
+      <div class="view-per-diem--conversion-amount">
+        {{extendedPerDiem.tx_currency}} {{extendedPerDiem.tx_amount | number: '1.2-2'}}
+      </div>
+      <div class="view-per-diem--conversion-rate">
+        at {{ extendedPerDiem.tx_amount / extendedPerDiem.tx_orig_amount }}
+        {{extendedPerDiem.tx_currency}} / {{extendedPerDiem.tx_orig_currency}}
       </div>
     </div>
 
@@ -90,8 +99,8 @@
     </div>
 
     <div class="view-per-diem--info-card">
-      <div class="view-per-diem--common-action-block">
-        <app-comments objectType="transactions" [objectId]="extendedPerDiem.tx_id" mode="edit" text="Comments"></app-comments>
+      <div class="view-per-diem--common-action-block" #comments>
+        <app-comments objectType="transactions" [objectId]="extendedPerDiem.tx_id" mode="edit"  text="Comments"></app-comments>
       </div>
     </div>
   </div>

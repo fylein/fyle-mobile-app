@@ -18,6 +18,7 @@ $inquiry-color: #4848ad;
     margin: 20px 0;
     padding: 16px;
     border-radius: 4px;
+
     &__block-action {
       display: flex;
       justify-content: flex-start;
@@ -27,6 +28,15 @@ $inquiry-color: #4848ad;
     &__zero-state {
       text-align: center;
     }
+  }
+
+  &--divider {
+    border-top: 1px solid #e5e5e5;
+    margin: 16px 0;
+  }
+
+  &--expense-container {
+    background-color: #f7f7f5;
   }
 
   &--zero-state-header {
@@ -98,11 +108,12 @@ $inquiry-color: #4848ad;
 
   &--report-state-pill {
     color: white;
-    padding: 4px 8px;
+    padding: 1px 4px;
     display: inline-block;
     border-radius: 4px;
     text-transform: uppercase;
     font-size: 12px;
+    font-weight: 500;
 
     &__fyled {
       background-color: #f90;
@@ -186,5 +197,7 @@ $inquiry-color: #4848ad;
 
   &--edit {
     color: #0077ee;
+    font-size: 16px;
+    font-weight: normal;
   }
 }

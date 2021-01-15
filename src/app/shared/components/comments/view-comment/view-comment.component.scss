@@ -12,6 +12,12 @@
     color: #666;
   }
 
+  &--title {
+    letter-spacing: 0 !important;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
   &--bot-comment {
     background-color: #ffedf1;
   }
@@ -37,6 +43,10 @@
     &__user-profile {
       border-color: #fff;
     }
+  }
+
+  &--commenter-name {
+    color: black;
   }
 
   &--name-time-container{

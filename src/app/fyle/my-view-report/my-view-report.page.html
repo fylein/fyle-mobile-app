@@ -79,11 +79,12 @@
           </div>
 
           <div *ngIf="!hideAllExpenses">
-            <ng-container *ngIf="etxns$|async;else ExpensesLoader">
+            <div class="view-reports--divider"></div>
+            <div *ngIf="etxns$|async;else ExpensesLoader" class="view-reports--expense-container">
               <app-my-view-report-etxn-card *ngFor="let etxn of etxns$|async as etxns; let i = index;" [etxn]="etxn"
                 [prevDate]="etxns[i-1]?.tx_txn_dt" (goToTransaciton)="goToTransaction($event)">
               </app-my-view-report-etxn-card>
-            </ng-container>
+            </div>
             <ng-template #ExpensesLoader>
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>

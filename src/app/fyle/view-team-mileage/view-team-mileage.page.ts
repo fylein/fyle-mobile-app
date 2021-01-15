@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
 import {Observable, from, Subject, concat} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -11,7 +11,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import {switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil} from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, IonContent } from '@ionic/angular';
 import {NetworkService} from '../../core/services/network.service';
 
 @Component({
@@ -20,6 +20,8 @@ import {NetworkService} from '../../core/services/network.service';
   styleUrls: ['./view-team-mileage.page.scss'],
 })
 export class ViewTeamMileagePage implements OnInit {
+
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
   orgSettings$: Observable<any>;
@@ -70,8 +72,17 @@ export class ViewTeamMileagePage implements OnInit {
     return typeof val === 'number';
   }
 
-  scrollToComments() {
-    document.getElementById('commentsSection').scrollIntoView();
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
+    }
   }
 
   goBack() {

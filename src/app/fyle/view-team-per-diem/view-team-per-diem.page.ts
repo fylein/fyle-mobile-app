@@ -21,6 +21,8 @@ import { RemoveExpenseReportComponent } from './remove-expense-report/remove-exp
 })
 export class ViewTeamPerDiemPage implements OnInit {
 
+  @ViewChild('comments') commentsContainer: ElementRef;
+
   extendedPerDiem$: Observable<Expense>;
   orgSettings$: Observable<any>;
   perDiemCustomFields$: Observable<CustomField[]>;
@@ -57,6 +59,19 @@ export class ViewTeamPerDiemPage implements OnInit {
   onUpdateFlag(event) {
     if (event) {
       this.updateFlag$.next();
+    }
+  }
+
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
     }
   }
 

@@ -27,7 +27,7 @@
       </ng-container>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar mode="md">
+  <ion-toolbar mode="md" class="my-expenses--state-toolbar">
     <div class="my-expenses--state">
       <div (click)="setState('all')" [ngClass]="{'my-expenses--state-pill__selected': baseState === 'all'}"
            class="my-expenses--state-pill my-expenses--state-pill__left" matRipple>

@@ -12,7 +12,7 @@
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
     <div *ngIf="etxn && policyViloations$ | async">
-      <span *ngIf="policyViloations$ | async as policyViloations">
+      <span *ngIf="policyViloations$ | async as policyViloations" (click)="scrollCommentsIntoView()">
         <div class="view-expense--policy-container" *ngIf="policyViloations && etxn.tx_policy_flag">
           <span>
             <mat-icon class="view-expense--policy-container-warning-icon">warning</mat-icon>
@@ -171,7 +171,7 @@
     </div>
 
     <div class="view-expense--card">
-      <div class="view-expense--card-action">
+      <div class="view-expense--card-action" #comments>
         <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments"></app-comments>
       </div>
     </div>
