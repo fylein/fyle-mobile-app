@@ -11,8 +11,7 @@
 
 <ion-content>
   <div class="view-mileage--container" *ngIf="extendedMileage$|async as extendedMileage">
-    <div class="view-mileage--policy-info-container" *ngIf="extendedMileage.tx_policy_flag && policyViloations$|async as policyViloations">
-      <!-- TODO: on click scroll to comment section -->
+    <div class="view-mileage--policy-info-container" (click)="scrollToComments()" *ngIf="extendedMileage.tx_policy_flag && policyViloations$|async as policyViloations">
       <mat-icon class="view-mileage--policy-warning-icon">warning</mat-icon>
       <span>{{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this expense</span>
     </div>
@@ -38,7 +37,7 @@
         <div class="view-mileage--element-label">Type</div>
         <div class="view-mileage--element-value">
           <!-- Todo: Add Bicycle and electric car later -->
-          <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'}" *ngIf="orgSettings.mileage.two_wheeler || extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'" svgIcon="fy-bike"></mat-icon>    
+          <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'}" *ngIf="orgSettings.mileage.two_wheeler || extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'" svgIcon="fy-bike"></mat-icon>
           <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'}" *ngIf="orgSettings.mileage.four_wheeler || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'" svgIcon="fy-car-mini"></mat-icon>
           <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'}" *ngIf="orgSettings.mileage.four_wheeler1 || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'" svgIcon="fy-car"></mat-icon>
         </div>
@@ -103,8 +102,8 @@
 
     </div>
 
-    <div class="view-mileage--info-card">
-      <app-comments objectType="transactions" [objectId]="extendedMileage.tx_id" mode="view" text="Comments"></app-comments>
+    <div class="view-mileage--info-card" id="commentsSection">
+      <app-comments #comments objectType="transactions" [objectId]="extendedMileage.tx_id" mode="view" text="Comments"></app-comments>
     </div>
 
   </div>

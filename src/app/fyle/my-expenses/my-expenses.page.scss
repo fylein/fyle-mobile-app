@@ -17,10 +17,15 @@
     line-height: 2;
   }
 
+  &--state-toolbar {
+    margin-bottom: -2px !important;
+  }
+
   &--state {
     display: flex;
     justify-content: center;
     margin-top: 8px;
+    border: none;
   }
 
   &--stats {

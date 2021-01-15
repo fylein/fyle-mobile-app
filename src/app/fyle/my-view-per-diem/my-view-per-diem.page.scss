@@ -1,4 +1,9 @@
 .view-per-diem {
+
+  &--toolbar {
+    border-bottom: 1px solid #e0e0e0;
+  }
+
   &--container {
     padding: 5px 16px 0 16px;
   }
@@ -35,10 +40,10 @@
   }
 
   &--currency-block {
-    border-right: 1px solid #e0e0e0;
     float: left;
     width: 70px;
     font-size: 16px;
+    padding: 8px 0;
     font-weight: 500;
     color: #4a4a4a;
   }
@@ -59,6 +64,8 @@
   &--amount-block {
     float: left;
     width: calc(100% - 70px);
+    padding: 8px 0;
+    border-left: 1px solid #e0e0e0;
   }
 
   &--amount {
@@ -72,7 +79,7 @@
   }
 
   &--info-card {
-    padding: 12px;
+    padding: 0 16px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
     margin-bottom: 10px;
@@ -117,11 +124,11 @@
 
   &--common-action-block {
     display: flex;
-    padding: 4px 0;
+    padding: 16px 0;
 
     p {
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: center;
       font-size: 16px;
       margin: 0 0 0 16px;
       color: #0077ee;
@@ -131,8 +138,39 @@
       font-size: 24px;
       color: #ababab;
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: center;
     }
+  }
+
+  &--conversion {
+    border: 1px solid #e0e0e0;
+    background-color: #f2f2f2;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--conversion-amount {
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 500;
+    color: #4a4a4a;
+    width: calc(100% - 60px);
+    display: inline-block;
+    align-items: center;
+    height: 100%;
+    padding: 8px 8px 0 16px;
+  }
+
+  &--conversion-rate {
+    color: #ababab;
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 500;
+    width: calc(100% - 60px);
+    display: inline-block;
+    align-items: center;
+    height: 100%;
+    padding: 0 8px 8px 16px;
   }
 
 }

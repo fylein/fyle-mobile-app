@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
 import {from, forkJoin, Observable, concat, Subject} from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -8,7 +8,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, IonContent } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
@@ -20,6 +20,8 @@ import {NetworkService} from '../../core/services/network.service';
   styleUrls: ['./my-view-expense.page.scss'],
 })
 export class MyViewExpensePage implements OnInit {
+
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   etxn$: Observable<Expense>;
   policyViloations$: Observable<any>;
@@ -61,6 +63,19 @@ export class MyViewExpensePage implements OnInit {
 
   getDisplayValue(customProperties) {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+  }
+
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
+    }
   }
 
   setupNetworkWatcher() {

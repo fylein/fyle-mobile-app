@@ -4,6 +4,7 @@ import {RouterAuthService} from 'src/app/core/services/router-auth.service';
 import {catchError, switchMap, tap} from 'rxjs/operators';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {throwError} from 'rxjs';
+import {TrackingService} from '../../core/services/tracking.service';
 
 enum VerifyPageState {
   verifying,
@@ -27,8 +28,10 @@ export class VerifyPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private routerAuthService: RouterAuthService,
     private authService: AuthService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private trackingService: TrackingService
+  ) {
+  }
 
   ngOnInit() {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code;
@@ -36,10 +39,9 @@ export class VerifyPage implements OnInit {
       switchMap((resp) => {
         return this.authService.newRefreshToken(resp.refresh_token);
       }),
-      tap(() => {
-        // TODO: Add when tracking service is added
-        //     TrackingService.emailVerified({Asset: 'Mobile'});
-        //     TrackingService.onSignin(eou.us.email, {Asset: 'Mobile'});
+      tap((eou) => {
+        this.trackingService.emailVerified({Asset: 'Mobile'});
+        this.trackingService.onSignin(eou.us.email, {Asset: 'Mobile'});
       }),
       catchError((err) => {
         this.currentPageState = VerifyPageState.error;

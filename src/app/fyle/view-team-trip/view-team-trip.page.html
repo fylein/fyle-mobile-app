@@ -30,7 +30,7 @@
             State
           </div>
           <div class="trip-request--element-value text-capitalize">
-            {{tripRequest.trp_state | snakeCaseToSpaceCase | lowercase}}
+            {{tripRequest.internalStateDisplayName | snakeCaseToSpaceCase | lowercase}}
             <!--TODO: Add proper formatting -->
           </div>
         </div>
@@ -75,9 +75,8 @@
               <span>
                 {{activeApproval.approver_name}}
               </span>
-
               <span class="text-capitalize">
-                ({{activeApproval.state | tripState}})
+                ({{ activeApproval.state | tripState }})
               </span>
 
             </span>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -20,6 +20,8 @@ import { RemoveExpenseReportComponent } from './remove-expense-report/remove-exp
   styleUrls: ['./view-team-per-diem.page.scss'],
 })
 export class ViewTeamPerDiemPage implements OnInit {
+
+  @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedPerDiem$: Observable<Expense>;
   orgSettings$: Observable<any>;
@@ -57,6 +59,19 @@ export class ViewTeamPerDiemPage implements OnInit {
   onUpdateFlag(event) {
     if (event) {
       this.updateFlag$.next();
+    }
+  }
+
+  scrollCommentsIntoView() {
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }
     }
   }
 

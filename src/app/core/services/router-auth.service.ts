@@ -111,7 +111,7 @@ export class RouterAuthService {
     }).pipe(
       switchMap(res => {
         return from(this.handleSignInResponse(res)).pipe(
-          map(()=> res)
+          map(() => res)
         )
       })
     );
@@ -123,7 +123,7 @@ export class RouterAuthService {
     }).pipe(
       switchMap(res => {
         return from(this.handleSignInResponse(res)).pipe(
-          map(()=> res)
+          map(() => res)
         )
       })
     );

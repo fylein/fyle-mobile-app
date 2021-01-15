@@ -13,7 +13,7 @@
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
     <div *ngIf="etxn && policyViloations$|async as policyViloations">
       <div class="view-expense--policy-container" *ngIf="policyViloations.length > 0 && etxn.tx_policy_flag"
-        (click)="scrollToComments()">
+        (click)="scrollCommentsIntoView()">
         <span>
           <mat-icon class="view-expense--policy-container-warning-icon">warning</mat-icon>
         </span>
@@ -170,7 +170,7 @@
     </div>
 
     <div class="view-expense--card">
-      <div class="view-expense--card-action" id="commentsSection">
+      <div #comments class="view-expense--card-action" id="commentsSection">
         <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
       </div>
     </div>

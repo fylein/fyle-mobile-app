@@ -6,7 +6,7 @@
 
   &--card-action-icon {
     color: #ababab;
-    margin-right: 12px;
+    margin-right: 16px;
   }
 
   &--card-action-text {
@@ -14,10 +14,13 @@
     &__comment {
       color: #0077ee;
       display: inline-block;
+      font-size: 16px;
     }
+
     &__delete {
       color: #f00;
     }
+
     &__helper-comment {
       vertical-align: bottom;
       font-weight: 400;

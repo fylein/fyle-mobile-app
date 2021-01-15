@@ -3,8 +3,9 @@ import { PopoverController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { switchMap } from 'rxjs/operators';
+import {switchMap, tap} from 'rxjs/operators';
 import { from } from 'rxjs';
+import {TrackingService} from '../../../core/services/tracking.service';
 
 @Component({
   selector: 'app-otp-popover',
@@ -24,7 +25,8 @@ export class OtpPopoverComponent implements OnInit {
     private popoverController: PopoverController,
     private orgUserService: OrgUserService,
     private authService: AuthService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private trackingService: TrackingService
   ) { }
 
   ngOnInit() {
@@ -58,6 +60,7 @@ export class OtpPopoverComponent implements OnInit {
       switchMap(() => {
         return that.authService.refreshEou();
       }),
+      tap(() => this.trackingService.activated({Asset: 'Mobile'})),
       switchMap(() => {
         return from(this.loaderService.showLoader('Mobile verified', 1000));
       })

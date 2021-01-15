@@ -6,6 +6,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { filter, tap, map, switchMap, finalize, take } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { from, of } from 'rxjs';
+import {TrackingService} from '../../core/services/tracking.service';
 
 const { Browser } =  Plugins;
 
@@ -22,7 +23,8 @@ export class HelpPage implements OnInit {
   constructor(
     private modalController: ModalController,
     private orgUserService: OrgUserService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private trackingService: TrackingService
     ) { }
 
   openContactSupportDialog() {
@@ -33,7 +35,7 @@ export class HelpPage implements OnInit {
       }),
       map(user =>
         {
-          return user.filter(user => user.ou.roles.indexOf('ADMIN') > -1 && user.ou.status === 'ACTIVE');
+          return user.filter(userInternal => userInternal.ou.roles.indexOf('ADMIN') > -1 && userInternal.ou.status === 'ACTIVE');
         }
       ),
       finalize(() => from(this.loaderService.hideLoader()))
@@ -52,6 +54,7 @@ export class HelpPage implements OnInit {
   }
 
   async presentSupportModal(dialogType) {
+    this.trackingService.viewHelpCard({Asset: 'Mobile'});
     const modal = await this.modalController.create({
       component: SupportDialogPage,
       componentProps: {

@@ -27,6 +27,7 @@ import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detec
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { DateService } from 'src/app/core/services/date.service';
+import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -69,6 +70,7 @@ export class AddEditMileagePage implements OnInit {
   pointToDuplicates = false;
   isAdvancesEnabled$: Observable<boolean>;
   comments$: Observable<any>;
+  expenseStartTime;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -107,6 +109,7 @@ export class AddEditMileagePage implements OnInit {
     private popupService: PopupService,
     private navController: NavController,
     private dateService: DateService,
+    private trackingService: TrackingService
   ) { }
 
   ngOnInit() {
@@ -619,6 +622,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.expenseStartTime = new Date().getTime();
     this.fg = this.fb.group({
       mileage_vehicle_type: [],
       dateOfSpend: [],
@@ -1100,15 +1104,22 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async goBack() {
-    const popupResults = await this.popupService.showPopup({
-      header: 'Unsaved Changes',
-      message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
-      primaryCta: {
-        text: 'Discard Changes'
-      }
-    });
+    if (this.fg.touched) {
+      const popupResults = await this.popupService.showPopup({
+        header: 'Unsaved Changes',
+        message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
+        primaryCta: {
+          text: 'Discard Changes'
+        }
+      });
 
-    if (popupResults === 'primary') {
+      if (popupResults === 'primary') {
+        this.close();
+      }
+    } else {
+      if (this.activatedRoute.snapshot.params.id) {
+        this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Mileage'});
+      }
       this.close();
     }
   }
@@ -1229,6 +1240,7 @@ export class AddEditMileagePage implements OnInit {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
           that.addExpense().subscribe(() => {
+            this.trackingService.clickSaveAddNew({Asset: 'Mobile'});
             this.reloadCurrentRoute();
           });
         } else {
@@ -1442,8 +1454,37 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  getTimeSpentOnPage() {
+    const expenseEndTime = new Date().getTime();
+    // Get time spent on page in seconds
+    return (expenseEndTime - this.expenseStartTime) / 1000;
+  }
+
+  trackPolicyCorrections() {
+    this.isCriticalPolicyViolated$.subscribe(isCriticalPolicyViolated => {
+      if (isCriticalPolicyViolated && this.fg.dirty) {
+        this.trackingService.policyCorrection({Asset: 'Mobile', Violation: 'Critical', Mode: 'Edit Expense'});
+      }
+    });
+
+    this.comments$.pipe(
+      map(
+        estatuses => estatuses.filter((estatus) => {
+          return estatus.st_org_user_id === 'POLICY';
+        })
+      ),
+      map(policyViolationComments => policyViolationComments.length > 0)
+    ).subscribe(policyViolated => {
+      if (policyViolated && this.fg.dirty) {
+        this.trackingService.policyCorrection({Asset: 'Mobile', Violation: 'Regular', Mode: 'Edit Expense'});
+      }
+    });
+  }
+
   editExpense() {
     const customFields$ = this.getCustomFields();
+
+    this.trackPolicyCorrections();
 
     const calculatedDistance$ = this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
       switchMap((distance) => {
@@ -1555,15 +1596,20 @@ export class AddEditMileagePage implements OnInit {
           }).pipe(
             switchMap(({ eou, txnCopy }) => {
 
-              // if (!isEqual(etxn.tx, txnCopy)) {
-              //   // only if the form is edited
-              //   TrackingService.editExpense
-              // ({Asset: 'Mobile', Type: 'Receipt', Amount: vm.etxn.tx.amount, Currency: vm.etxn.tx.currency,
-              // Category: vm.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
-              // } else {
-              //   // tracking expense closed without editing
-              //   TrackingService.viewExpense({Asset: 'Mobile', Type: 'Receipt'});
-              // }
+              if (!isEqual(etxn.tx, txnCopy)) {
+                // only if the form is edited
+                this.trackingService.editExpense({
+                  Asset: 'Mobile',
+                  Type: 'Mileage',
+                  Amount: etxn.tx.amount,
+                  Currency: etxn.tx.currency,
+                  Category: etxn.tx.org_category,
+                  Time_Spent: this.getTimeSpentOnPage() + ' secs'
+                });
+              } else {
+                // tracking expense closed without editing
+                this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Mileage'});
+              }
 
               // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
               return this.transactionService.upsert(etxn.tx).pipe(
@@ -1573,27 +1619,38 @@ export class AddEditMileagePage implements OnInit {
                 map(savedEtxn => savedEtxn && savedEtxn.tx),
                 switchMap((tx) => {
                   const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
+                  const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
+                  if (!criticalPolicyViolated) {
+                    if (!txnCopy.tx.report_id && selectedReportId) {
+                      return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
+                        tap(() => this.trackingService.addToExistingReportAddEditExpense({Asset: 'Mobile'})),
+                        map(() => tx)
+                      );
+                    }
 
-                  if (!txnCopy.tx.report_id && selectedReportId) {
-                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(map(() => tx));
+                    if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
+                      return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                        switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
+                        tap(() => this.trackingService.addToExistingReportAddEditExpense({Asset: 'Mobile'})),
+                        map(() => tx)
+                      );
+                    }
+
+                    if (txnCopy.tx.report_id && !selectedReportId) {
+                      return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                        tap(() => this.trackingService.removeFromExistingReportEditExpense({Asset: 'Mobile'})),
+                        map(() => tx)
+                      );
+                    }
                   }
 
-                  if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
-                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
-                      map(() => tx)
-                    );
-                  }
-
-                  if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(map(() => tx));
-                  }
 
                   return of(null).pipe(map(() => tx));
 
                 }),
                 switchMap(tx => {
-                  if (etxn.tx.user_review_needed) {
+                  const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
+                  if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
                     return this.transactionService.review(tx.id).pipe(map(() => tx));
                   }
 
@@ -1621,6 +1678,7 @@ export class AddEditMileagePage implements OnInit {
           );
         }),
         map((transaction) => {
+          // remove after confirming mileage cannot be ccc expenses
           // if (transaction.corporate_credit_card_expense_group_id && vm.selectedCCCTransaction && vm.selectedCCCTransaction.id) {
           //   if (transaction.corporate_credit_card_expense_group_id !== vm.selectedCCCTransaction.id) {
           //     this.transactionService.unmatchCCCExpense(transaction.id, matchedCCCTransaction.id).then(function () {
@@ -1777,24 +1835,18 @@ export class AddEditMileagePage implements OnInit {
               switchMap(eou => {
 
                 const comments = [];
-                // if (this.activatedRoute.snapshot.params.dataUrl) {
-                //   TrackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
-                // } else {
-                //   TrackingService.createExpense
-                // ({Asset: 'Mobile', Type: 'Receipt', Amount: this.etxn.tx.amount,
-                // Currency: this.etxn.tx.currency, Category: this.etxn.tx.org_category, Time_Spent: timeSpentOnExpensePage +' secs'});
-                // }
-                // if (this.saveAndCreate) {
-                //   // track click of save and new expense button
-                //   TrackingService.clickSaveAddNew({Asset: 'Mobile'});
-                // }
+                this.trackingService.createExpense({
+                  Asset: 'Mobile',
+                  Type: 'Mileage',
+                  Amount: etxn.tx.amount,
+                  Currency: etxn.tx.currency,
+                  Category: etxn.tx.org_category,
+                  Time_Spent: this.getTimeSpentOnPage() + ' secs'
+                });
+
                 if (comment) {
                   comments.push(comment);
                 }
-                // if (this.selectedCCCTransaction) {
-                //   this.etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
-                //   setSourceAccount('PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-                // }
 
                 let reportId;
                 if (
@@ -1845,6 +1897,7 @@ export class AddEditMileagePage implements OnInit {
         switchMap(() => {
           return this.transactionService.delete(id);
         }),
+        tap(() => this.trackingService.deleteExpense({Asset: 'Mobile', Type: 'Mileage'})),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
         if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
@@ -1856,8 +1909,9 @@ export class AddEditMileagePage implements OnInit {
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
         }
       });
+    } else {
+      this.trackingService.clickDeleteExpense({Asset: 'Mobile', Type: 'Mileage'});
     }
-
   }
 
   scrollCommentsIntoView() {
