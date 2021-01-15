@@ -183,6 +183,7 @@ export class TeamReportsPage implements OnInit {
     this.teamReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
+    this.clearFilters();
 
   }
 
@@ -259,8 +260,6 @@ export class TeamReportsPage implements OnInit {
     } else {
       newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
       newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-      // TODO verify with Vaishnavi to check wether to send true in both condition
-      // newQueryParams.sequential_approval_turn = res.orgSettings$.approval_settings.enable_sequential_approvers ? 'in.(true)' : 'in.(true)';
       newQueryParams.sequential_approval_turn = 'in.(true)';
     }
 

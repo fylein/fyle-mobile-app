@@ -42,7 +42,12 @@
       <div class="view-expense--attachment-block">
         <ng-container *ngIf="attachments$|async as attachments">
           <div class="view-expense--no-attachment" *ngIf="attachments.length === 0">
-            <p>No Receipt</p>
+            <div>
+              No
+            </div>
+            <div>
+              Receipt
+            </div>
           </div>
 
           <div *ngIf="attachments.length > 0" (click)="viewAttachments()">
