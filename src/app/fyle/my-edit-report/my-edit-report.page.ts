@@ -15,6 +15,8 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import {NetworkService} from '../../core/services/network.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { cloneDeep } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
@@ -39,6 +41,10 @@ export class MyEditReportPage implements OnInit {
 
   isConnected$: Observable<boolean>;
   onPageExit = new Subject();
+  reportAmount: number;
+  noOfTxnsInReport: number;
+  selectedTotalAmount: number;
+  selectedTotalTxns: number;
 
   constructor(
     private router: Router,
@@ -52,6 +58,7 @@ export class MyEditReportPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private tripRequestsService: TripRequestsService,
     private networkService: NetworkService,
+    private popupService: PopupService,
     private trackingService: TrackingService
   ) { }
 
@@ -100,6 +107,7 @@ export class MyEditReportPage implements OnInit {
     return vendorName;
   }
 
+
   async showAddExpensesToReportModal() {
     const AddExpensesToReportModal = await this.modalController.create({
       component: AddExpensesToReportComponent,
@@ -113,6 +121,8 @@ export class MyEditReportPage implements OnInit {
     const { data } = await AddExpensesToReportModal.onWillDismiss();
     if (data && data.selectedTxnIds) {
       this.addedExpensesIdList = data.selectedTxnIds;
+      this.selectedTotalAmount = data.selectedTotalAmount;
+      this.selectedTotalTxns = data.selectedTotalTxns;
       this.checkReportEdited();
     }
   }
@@ -121,9 +131,7 @@ export class MyEditReportPage implements OnInit {
     etxn.isHidden = true;
     this.deleteExpensesIdList.push(etxn.tx_id);
     this.checkReportEdited();
-    // Todo: update report amount and count after
-    // 1. deselct old reported expense and
-    // 2. select new expense
+    this.updateStats(etxn, 'remove');
   }
 
   undoExpenseDelete(etxn: Expense) {
@@ -131,19 +139,26 @@ export class MyEditReportPage implements OnInit {
     const index = this.deleteExpensesIdList.indexOf(etxn.tx_id);
     this.deleteExpensesIdList.splice(index, 1);
     this.checkReportEdited();
-    // Todo: update report amount and count after
-    // 1. deselct old reported expense and
-    // 2. select new expense
+    this.updateStats(etxn, 'add');
+  }
+
+  updateStats(etxn, action) {
+    if (action === 'remove') {
+      this.reportAmount = !etxn.tx_skip_reimbursement ? this.reportAmount - etxn.tx_amount : this.reportAmount;
+      this.noOfTxnsInReport = this.noOfTxnsInReport - 1;
+    } else if (action === 'add') {
+      this.reportAmount = !etxn.tx_skip_reimbursement ? this.reportAmount + etxn.tx_amount : this.reportAmount;
+      this.noOfTxnsInReport = this.noOfTxnsInReport + 1;
+    }
   }
 
   removeExpenseFromAddedExpensesList(etxn: Expense) {
     etxn.isSelected = false;
     const index = this.addedExpensesIdList.indexOf(etxn.tx_id);
     this.addedExpensesIdList.splice(index, 1);
+    this.selectedTotalTxns = this.selectedTotalTxns - 1;
+    this.selectedTotalAmount = !etxn.tx_skip_reimbursement ? this.selectedTotalAmount - etxn.tx_amount : this.selectedTotalAmount;
     this.checkReportEdited();
-    // Todo: update report amount and count after
-    // 1. deselct old reported expense and
-    // 2. select new expense
   }
 
   setPurposeChanged() {
@@ -194,6 +209,35 @@ export class MyEditReportPage implements OnInit {
     ).subscribe(noop);
   }
 
+  async deleteReport() {
+    const popupResult = await this.popupService.showPopup({
+      header: 'Delete Report?',
+      message: `
+        <p class="highlight-info">
+          All expenses were removed from this report.
+        </p>
+        <p>
+          Are you sure, you want to delete this report?
+        </p>
+      `,
+      primaryCta: {
+        text: 'DELETE'
+      }
+    });
+
+    if (popupResult === 'primary') {
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => {
+          return this.reportService.delete(this.activatedRoute.snapshot.params.id);
+        }),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
+        })
+      ).subscribe(noop);
+    }
+  }
+
   getTripRequests() {
     return this.tripRequestsService.findMyUnreportedRequests().pipe(
       map(res => {
@@ -240,6 +284,10 @@ export class MyEditReportPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.selectedTotalAmount = 0;
+    this.selectedTotalTxns = 0;
+    this.deleteExpensesIdList = [];
+    this.addedExpensesIdList = [];
     this.extendedReport$ = this.reportService.getReport(this.activatedRoute.snapshot.params.id);
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay(1)
@@ -253,6 +301,8 @@ export class MyEditReportPage implements OnInit {
       tripRequests: this.getTripRequests()
     }).subscribe(({ extendedReport, orgSettings,  orgUserSettings, tripRequests}) => {
       this.reportTitle = extendedReport.rp_purpose;
+      this.reportAmount = extendedReport.rp_amount;
+      this.noOfTxnsInReport = extendedReport.rp_num_transactions;
       this.isTripRequestsEnabled = orgSettings.trip_requests.enabled;
       this.canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee ||
       (orgSettings.trip_requests.enable_for_certain_employee &&
@@ -273,6 +323,9 @@ export class MyEditReportPage implements OnInit {
               order: 'tx_txn_dt.desc,tx_id.desc'
             });
           }),
+          map((etxns) => {
+            return cloneDeep(etxns);
+          }),
           map((etxns: Expense[]) => {
             return etxns.map(etxn => {
               etxn.vendorDetails = this.getVendorName(etxn);
@@ -292,6 +345,9 @@ export class MyEditReportPage implements OnInit {
     };
 
     this.transactionService.getAllExpenses({ queryParams }).pipe(
+      map((etxns) => {
+        return cloneDeep(etxns);
+      }),
       map((etxns: Expense[]) => {
         etxns.forEach((etxn, i) => {
           etxn.vendorDetails = this.getVendorName(etxn);

@@ -104,6 +104,11 @@ $background-color: #fff;
     padding: 16px;
   }
 
+  &--non-reimbursable {
+    color: #ababab;
+    text-decoration: line-through;
+  }
+
   &--expense-card-currency {
     color: #ababab;
   }
@@ -112,7 +117,10 @@ $background-color: #fff;
     font-size: 18px;
     margin-left: 8px;
     font-weight: 700;
-    color: #4a4a4a
+    color: #4a4a4a;
+    &__non-reimbursable {
+      color: #ababab;
+    }
   }
 
   &--expense-card-vendor {
@@ -171,4 +179,6 @@ $background-color: #fff;
     border-radius: 8px;
     margin: 14px;
   }
+
+  
 }

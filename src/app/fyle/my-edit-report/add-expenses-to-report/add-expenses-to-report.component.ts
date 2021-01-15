@@ -28,7 +28,9 @@ export class AddExpensesToReportComponent implements OnInit {
 
   addExpensestoReport() {
     this.modalController.dismiss({
-      selectedTxnIds: this.selectedTxnIds
+      selectedTxnIds: this.selectedTxnIds,
+      selectedTotalAmount: this.selectedTotalAmount,
+      selectedTotalTxns: this.selectedTotalTxns
     });
   }
 
@@ -36,7 +38,14 @@ export class AddExpensesToReportComponent implements OnInit {
     etxn.isSelected = !etxn.isSelected;
     let etxns = this.unReportedEtxns.filter(etxn => etxn.isSelected);
     this.selectedTxnIds = etxns.map(etxn => etxn.tx_id);
-    this.selectedTotalAmount = etxns.reduce(function (acc, obj) { return acc + obj.tx_amount; }, 0);
+    this.selectedTotalAmount = etxns.reduce((acc, obj) => 
+    {
+      if (!obj.tx_skip_reimbursement) {
+        return acc + obj.tx_amount; 
+      } else {
+        return acc;
+      }
+    }, 0);
     this.selectedTotalTxns = this.selectedTxnIds.length;
   };
 

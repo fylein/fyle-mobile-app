@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {ApiService} from './api.service';
 import {NetworkService} from './network.service';
 import {StorageService} from './storage.service';
-import {concatMap, map, reduce, shareReplay, switchMap, tap} from 'rxjs/operators';
+import {concatMap, map, reduce, shareReplay, switchMap, switchMapTo, tap} from 'rxjs/operators';
 import {from, of, range, Subject} from 'rxjs';
 import {AuthService} from './auth.service';
 import {ApiV2Service} from './api-v2.service';
@@ -12,6 +12,7 @@ import {OfflineService} from 'src/app/core/services/offline.service';
 import {isEqual} from 'lodash';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
+import { TransactionService } from './transaction.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -28,14 +29,15 @@ export class ReportService {
     private apiv2Service: ApiV2Service,
     private dateService: DateService,
     private offlineService: OfflineService,
-    private dataTransformService: DataTransformService
+    private dataTransformService: DataTransformService,
+    private transactionService: TransactionService
   ) { }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
   clearCache() {
-    return of(null);
+    return this.transactionService.clearCache();
   }
 
   getUserReportParams(state: string) {
@@ -218,7 +220,15 @@ export class ReportService {
   }
 
   delete(rptId) {
-    return this.apiService.delete('/reports/' + rptId);
+    return this.apiService.delete('/reports/' + rptId).pipe(
+     switchMap((res) => {
+       return this.clearCache().pipe(
+         map(() => {
+           return res;
+         })
+       );
+     })
+    );
   }
 
   downloadSummaryPdfUrl(data: { report_ids: string[], email: string }) {
