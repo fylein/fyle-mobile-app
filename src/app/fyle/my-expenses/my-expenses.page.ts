@@ -648,7 +648,7 @@ export class MyExpensesPage implements OnInit {
     if (expense.tx_org_category) {
       category = expense.tx_org_category.toLowerCase();
     }
-    // TODO: Leave for later
+
     if (category === 'activity') {
       this.showCannotEditActivityDialog();
       return;

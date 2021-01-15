@@ -260,7 +260,6 @@ export class ViewTeamReportPage implements OnInit {
       route = '/enterprise/view_team_expense';
     }
 
-    // TODO: also need to send scroll position
     this.router.navigate([route, { id: etxn.tx_id }]);
   }
 

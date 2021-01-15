@@ -9,7 +9,7 @@ import {Observable, range, Subject} from 'rxjs';
 import {ExtendedOrgUser} from '../models/extended-org-user.model';
 import {DataTransformService} from './data-transform.service';
 import {StorageService} from './storage.service';
-import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
+import {Cacheable, globalCacheBusterNotifier, CacheBuster} from 'ts-cacheable';
 import {TrackingService} from './tracking.service';
 
 const orgUsersCacheBuster$ = new Subject<void>();
@@ -141,6 +141,9 @@ export class OrgUserService {
     return filteredEous;
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: orgUsersCacheBuster$
+  })
   switchToDelegator(orgUser) {
     return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
       switchMap(data => {

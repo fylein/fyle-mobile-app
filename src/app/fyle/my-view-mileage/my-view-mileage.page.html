@@ -11,8 +11,7 @@
 
 <ion-content>
   <div class="view-mileage--container" *ngIf="extendedMileage$|async as extendedMileage">
-    <div class="view-mileage--policy-info-container" (click)="scrollToComments()" *ngIf="extendedMileage.tx_policy_flag && policyViloations$|async as policyViloations">
-      <!-- TODO: on click scroll to comment section -->
+    <div class="view-mileage--policy-info-container" (click)="scrollCommentsIntoView()" *ngIf="extendedMileage.tx_policy_flag && policyViloations$|async as policyViloations">
       <mat-icon class="view-mileage--policy-warning-icon">warning</mat-icon>
       <span>{{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this expense</span>
     </div>
@@ -37,10 +36,9 @@
       <div class="view-mileage--element" *ngIf="orgSettings$|async as orgSettings">
         <div class="view-mileage--element-label">Type</div>
         <div class="view-mileage--element-value">
-          <!-- Todo: Add Bicycle and electric car later -->
-          <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'}" *ngIf="orgSettings.mileage.two_wheeler || extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'" svgIcon="fy-bike"></mat-icon>    
-          <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'}" *ngIf="orgSettings.mileage.four_wheeler || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'" svgIcon="fy-car-mini"></mat-icon>
-          <mat-icon class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'}" *ngIf="orgSettings.mileage.four_wheeler1 || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'" svgIcon="fy-car"></mat-icon>
+          <ion-icon name="bicycle" class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'}" *ngIf="orgSettings.mileage.two_wheeler || extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'" ></ion-icon>
+          <ion-icon name="car" class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'}" *ngIf="orgSettings.mileage.four_wheeler || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler'"></ion-icon>
+          <ion-icon name="car-sport" class="view-mileage--vehicle-icon" [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'}" *ngIf="orgSettings.mileage.four_wheeler1 || extendedMileage.tx_mileage_vehicle_type === 'four_wheeler1'"></ion-icon>
         </div>
       </div>
 
@@ -103,7 +101,7 @@
 
     </div>
 
-    <div class="view-mileage--info-card" id="commentsSection">
+    <div class="view-mileage--info-card" id="commentsSection" #comments>
       <app-comments objectType="transactions" [objectId]="extendedMileage.tx_id" mode="view" text="Comments"></app-comments>
     </div>
 

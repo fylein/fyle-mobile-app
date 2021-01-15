@@ -35,7 +35,7 @@ export class CustomInputsService {
       ).sort();
   }
 
-  // TODO: Siva - eventually this should be replaced by rank
+  // TODO: eventually this should be replaced by rank (old app TODO)
   sortByRank(a, b) {
     if (a.type > b.type) {
       return -1;

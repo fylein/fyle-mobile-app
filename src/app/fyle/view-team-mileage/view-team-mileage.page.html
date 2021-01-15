@@ -43,7 +43,6 @@
       <div class="view-mileage--element" *ngIf="orgSettings$|async as orgSettings">
         <div class="view-mileage--element-label">Type</div>
         <div class="view-mileage--element-value">
-          <!-- Todo: Fix all vehicle icon later -->
 
           <ion-icon class="view-mileage--vehicle-icon"
             [ngClass]="{ 'selected' : extendedMileage.tx_mileage_vehicle_type === 'two_wheeler'}"
