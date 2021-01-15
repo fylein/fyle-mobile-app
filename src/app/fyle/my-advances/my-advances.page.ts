@@ -165,18 +165,14 @@ export class MyAdvancesPage implements OnInit {
   }
 
   onAdvanceClick(clickedAdvance: any) {
-    let id = null;
-    let route = null;
-    if (clickedAdvance.advanceRequest.type.toLowerCase() === 'advance') {
-      id = clickedAdvance.advanceRequest.adv_id;
-      route = 'my_view_advance';
-    } else {
-      id = clickedAdvance.advanceRequest.areq_id;
-      route = 'my_view_advance_request';
+    const id = clickedAdvance.advanceRequest.adv_id || clickedAdvance.advanceRequest.areq_id;
+    let route = 'my_view_advance_request';
+    if (clickedAdvance.advanceRequest.type === 'request' && clickedAdvance.internalState.state.toLowerCase() === 'inquiry') {
+      route = 'add_edit_advance_request';
     }
 
-    if ((['draft', 'pulledBack', 'inquiry']).indexOf(clickedAdvance.internalState.state) > -1) {
-      route = 'my_view_advance_request';
+    if (clickedAdvance.advanceRequest.type === 'advance') {
+      route = 'my_view_advance';
     }
 
     this.router.navigate(['/', 'enterprise', route, { id }]);

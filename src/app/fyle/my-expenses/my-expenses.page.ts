@@ -761,6 +761,12 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
+  uploadCameraOveralay() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', {
+      from: 'my_expenses'
+    }]);
+  }
+
   async onAddTransactionToReport(event) {
     const addExpenseToReportModal = await this.modalController.create({
       component: AddTxnToReportDialogComponent,
@@ -772,8 +778,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await addExpenseToReportModal.onDidDismiss();
     if (data && data.reload) {
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
+      this.doRefresh();
     }
   }
 }

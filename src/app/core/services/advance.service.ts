@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {from, Observable, of, Subject} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {map, switchMap, tap} from 'rxjs/operators';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
 import {ExtendedAdvance} from '../models/extended_advance.model';
 import {ApiV2Service} from './api-v2.service';
@@ -49,6 +49,7 @@ export class AdvanceService {
           }
         });
       }),
+      tap(console.log),
       map(res => res as {
         count: number,
         data: ExtendedAdvance[],
@@ -74,9 +75,15 @@ export class AdvanceService {
   }
 
   fixDates(data: ExtendedAdvance) {
-    data.adv_created_at = new Date(data.adv_created_at);
-    data.adv_issued_at = new Date(data.adv_issued_at);
-    if (data.areq_approved_at) {
+    if (data && data.adv_created_at) {
+      data.adv_created_at = new Date(data.adv_created_at);
+    }
+
+    if (data && data.adv_issued_at) {
+      data.adv_issued_at = new Date(data.adv_issued_at);
+    }
+
+    if (data && data.areq_approved_at) {
       data.areq_approved_at = new Date(data.areq_approved_at);
     }
     return data;

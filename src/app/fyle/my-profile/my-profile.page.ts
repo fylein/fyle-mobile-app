@@ -326,7 +326,8 @@ export class MyProfilePage implements OnInit {
         .pipe(
           map(currencies => currencies
             .find(currency => currency.id === orgUserSettings.currency_settings.preferred_currency)
-          )
+          ),
+          map(preferedCurrencySettings => preferedCurrencySettings.value)
         )
       )
     );

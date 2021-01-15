@@ -209,11 +209,18 @@
         </div>
       </div>
     </div>
-    <ion-toolbar *ngIf="baseState === 'all' && !selectionMode" mode="md">
+    <ion-toolbar *ngIf="baseState === 'all' && !selectionMode && filters?.state !== 'NEEDS_RECEIPT'" mode="md">
       <ion-button (click)="addNewExpense()" class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block"
                   fill="solid"
                   mode="md">
         ADD NEW EXPENSE
+      </ion-button>
+    </ion-toolbar>
+    <ion-toolbar *ngIf="baseState === 'all' && !selectionMode && filters?.state === 'NEEDS_RECEIPT'" mode="md">
+      <ion-button (click)="uploadCameraOveralay()" class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block"
+                  fill="solid"
+                  mode="md">
+        UPLOAD RECEIPTS
       </ion-button>
     </ion-toolbar>
     <ion-toolbar *ngIf="baseState === 'draft'" mode="md">
@@ -243,5 +250,6 @@
         </ion-button>
       </div>
     </ion-toolbar>
+
   </div>
 </ion-footer>

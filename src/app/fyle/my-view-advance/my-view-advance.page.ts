@@ -21,7 +21,6 @@ export class MyViewAdvancePage implements OnInit {
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
-    this.advanceService.getAdvance(id);
 
     this.advance$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {

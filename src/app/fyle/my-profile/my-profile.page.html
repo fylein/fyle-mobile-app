@@ -56,12 +56,12 @@
         </div>
       </div>
 
-      <ion-button *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged" class="my-profile--primary-cta"
+      <ion-button mode="md" *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged" class="my-profile--primary-cta"
         fill="solid" color="fyle-primary" (click)="openOtpPopover()"
         appFormButtonValidation [loading]="verifyMobileLoading" [loadingText]="'VERIFYING'">
         VERIFY MOBILE
       </ion-button>
-      <ion-button *ngIf="isMobileChanged" class="my-profile--primary-cta" fill="solid" color="fyle-primary"
+      <ion-button mode="md" *ngIf="isMobileChanged" class="my-profile--primary-cta" fill="solid" color="fyle-primary"
         (click)="saveUserProfile(eou)"
         appFormButtonValidation [loading]="saveProfileLoading" [loadingText]="'SAVING'">
         SAVE
@@ -193,6 +193,9 @@
         Select Currency
       </div>
       <div class="my-profile--notifications-arrow my-profile--notifications-arrow__lite">
+        <span class="my-profile--currency-value">
+          {{preferredCurrency$|async}}
+        </span>
         <mat-icon>keyboard_arrow_right</mat-icon>
       </div>
     </div>

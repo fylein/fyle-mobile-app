@@ -12,6 +12,18 @@ $background-color: #fff;
     color: $menu-botton-color;
   }
 
+  &--currency-value {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    height: 24px;
+    border: 0;
+    text-overflow: ellipsis;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   &--title {
     font-size: 24px;
     height: 100%;
@@ -45,6 +57,8 @@ $background-color: #fff;
 
     &__lite {
       color: #ababab;
+      display: flex;
+      align-items: center;
     }
   }
 
