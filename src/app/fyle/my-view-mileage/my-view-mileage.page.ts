@@ -105,4 +105,10 @@ export class MyViewMileagePage implements OnInit {
   ngOnInit() {
   }
 
+  scrollToComments() {
+    const commentsElement = this.commentsContainer.nativeElement as HTMLElement;
+    if (commentsElement) {
+      commentsElement.scrollIntoView();
+    }
+  }
 }
