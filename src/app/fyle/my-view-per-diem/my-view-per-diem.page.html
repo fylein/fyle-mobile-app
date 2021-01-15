@@ -23,15 +23,7 @@
       <p class="view-per-diem--policy-info-text" *ngIf="!(isCriticalPolicyViolated$|async)">Claimed amount {{extendedPerDiem.tx_user_amount | currency: extendedPerDiem.tx_currency}} was capped to {{extendedPerDiem.tx_amount | currency: extendedPerDiem.tx_currency}} due to policy.</p>
     </div>
 
-    <!-- Todo: Move this to currnecy directive later -->
-    <div class="view-per-diem--amount-currency-block">
-      <div class="view-per-diem--currency-block">
-        <span class="view-per-diem--currency">{{extendedPerDiem.tx_currency}}</span>
-      </div>
-      <div class="view-per-diem--amount-block">
-        <span class="view-per-diem--amount">{{extendedPerDiem.tx_amount | number: '1.0-2'}}</span>
-      </div>
-    </div>
+    <app-currency [etxn]="extendedPerDiem"></app-currency>
 
     <div class="view-per-diem--info-card">
       <div class="view-per-diem--element">

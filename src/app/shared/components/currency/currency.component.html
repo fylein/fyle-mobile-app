@@ -1,30 +1,47 @@
 <div class="currency-component">
-  <div class="currency-component--currency-block clearfix">
+  <div class="currency-component--currency-block clearfix" *ngIf="(etxn.tx_orig_amount && etxn.tx_orig_currency); else plainAmount">
     <div class="currency-component--currency-input">
-      <!-- need to add -->
-      <!-- on-selection="vm.onSelectCurrency(currency)" currency-list="vm.currencyList" ng-if="vm.currencyList" -->
       <input name="currency" type="text" class="currency-component--currency-input-currency"
-             [(ngModel)]="etxn.tx_currency" placeholder="Currency" [required]="options.required"
-             [disabled]="options.disabled" readonly>
+             [(ngModel)]="etxn.tx_orig_currency" placeholder="Currency"
+             [disabled]="true" readonly>
     </div>
     <div class="currency-component--amount-input">
       <input inputmode="decimal" type="number" class="currency-component--amount-input-amount"
-             [(ngModel)]="etxn.tx_amount" name="amount" placeholder="Amount"
-             [required]="options.required" [disabled]="options.disabled">
+             [(ngModel)]="etxn.tx_orig_amount" name="amount" placeholder="Amount"
+             [disabled]="true">
     </div>
   </div>
-  <ng-container *ngIf="homeCurrency$|async as homeCurrency">
-    <ng-container *ngIf="calculatedExchangeRate$|async as calculatedExchangeRate">
-      <ng-container *ngIf="amountConvertedToHomeCurrency$|async as amountConvertedToHomeCurrency">
-        <div class="currency-component--conversion">
-          <div class="currency-component--converted-amount">
-            {{homeCurrency}} {{amountConvertedToHomeCurrency}}
+
+  <ng-template #plainAmount>
+    <div class="currency-component--currency-block clearfix">
+      <div class="currency-component--currency-input">
+        <input name="currency" type="text" class="currency-component--currency-input-currency"
+               [(ngModel)]="etxn.tx_currency" placeholder="Currency"
+               [disabled]="true" readonly>
+      </div>
+      <div class="currency-component--amount-input">
+        <input inputmode="decimal" type="number" class="currency-component--amount-input-amount"
+               [(ngModel)]="etxn.tx_amount" name="amount" placeholder="Amount"
+               [disabled]="true">
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-container *ngIf="showExchangeRate$|async">
+    <ng-container *ngIf="homeCurrency$|async as homeCurrency">
+      <ng-container *ngIf="calculatedExchangeRate$|async as calculatedExchangeRate">
+        <ng-container *ngIf="amountConvertedToHomeCurrency$|async as amountConvertedToHomeCurrency">
+          <div class="currency-component--conversion">
+            <div class="currency-component--converted-amount">
+              {{homeCurrency}} {{amountConvertedToHomeCurrency}}
+            </div>
+            <div class="currency-component--exchange-rate">
+              at {{calculatedExchangeRate | number: '1.0-6'}} {{etxn.tx_orig_currency || etxn.tx_currency}} / {{homeCurrency}}
+            </div>
           </div>
-          <div class="currency-component--exchange-rate">
-            at {{calculatedExchangeRate}} {{homeCurrency}} / {{etxn.tx_currency}}
-          </div>
-        </div>
+        </ng-container>
       </ng-container>
     </ng-container>
   </ng-container>
 </div>
+
