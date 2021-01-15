@@ -18,13 +18,13 @@ $text-light: #ababab;
   margin: 6px;
 
   &--header {
-    margin: 0 8px;
+    margin: 0 16px;
     color: $text-light;
     font-size: 16px;
   }
 
   &--body {
-    margin: 8px;
+    margin: 4px 16px 16px 16px;
     padding: 12px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -58,7 +58,7 @@ $text-light: #ababab;
   
       &:first-child {
         position: relative;
-        top: -10px;
+        top: -12px;
         left: 8px;
       }
     }
@@ -70,7 +70,7 @@ $text-light: #ababab;
   }
 
   &--pill {
-    padding: 2px 4px;
+    padding: 0 4px;
     border-radius: 4px;
     display: inline-block;
     color: white;
@@ -130,5 +130,7 @@ $text-light: #ababab;
 
   &--trip-type {
     color: $text-light;
+    margin-top: 4px;
+    margin-bottom: 12px;
   }
 }
