@@ -1446,7 +1446,7 @@ export class AddEditExpensePage implements OnInit {
     }
 
     if (category === 'activity') {
-      showCannotEditActivityDialog();
+      this.showCannotEditActivityDialog();
       return;
     }
 

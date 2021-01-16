@@ -330,7 +330,7 @@ export class AddEditPerDiemPage implements OnInit {
     }
 
     if (category === 'activity') {
-      showCannotEditActivityDialog();
+      this.showCannotEditActivityDialog();
 
       return;
     }
