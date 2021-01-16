@@ -1896,10 +1896,10 @@ export class AddEditMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     const popupResponse = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Expense?',
+      header: 'Delete  Mileage',
+      message: 'Are you sure you want to delete this mileage expense?',
       primaryCta: {
-        text: 'Delete'
+        text: 'DELETE'
       }
     });
 
