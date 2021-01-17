@@ -186,7 +186,7 @@
               </ng-container>
             </ng-container>
 
-            <div class="add-edit-mileage--internal-block">
+            <div class="add-edit-mileage--internal-block" *ngIf="mileage_locations.controls.length < 3">
               <mat-checkbox [disabled]="(isAmountDisabled$|async) || !fg.controls.distance" color="primary"
                             formControlName="round_trip">
                 <span class="add-edit-mileage--checkbox">
