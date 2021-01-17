@@ -54,7 +54,7 @@ export class ViewAttachmentsComponent implements OnInit {
     const activeIndex = await this.imageSlides.getActiveIndex();
 
     const popupResult = await this.popupService.showPopup({
-      header: 'Confirm',
+      header: 'Delete Attachment',
       message: 'Are you sure you want to delete this attachment?',
       primaryCta: {
         text: 'DELETE'
