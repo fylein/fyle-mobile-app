@@ -4,11 +4,13 @@
   }
 
   &--header {
-    margin: 12px;
+    margin: 12px 16px;
   }
 
   &--edit {
     color: #0077ee;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--card {
@@ -30,6 +32,8 @@
   }
 
   &--card-action-text {
+    font-size: 16px;
+
     &__comment {
       color: #0077ee;
     }
