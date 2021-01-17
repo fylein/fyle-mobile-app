@@ -3,9 +3,9 @@ import {OrgService} from './org.service';
 import {catchError, map, switchMap} from 'rxjs/operators';
 import {AuthService} from './auth.service';
 import {ApiService} from './api.service';
-import {from, of} from 'rxjs';
+import {from, of, Subject} from 'rxjs';
 import * as moment from 'moment';
-import {Cacheable} from 'ts-cacheable';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +62,7 @@ export class CurrencyService {
     );
   }
 
+  @Cacheable()
   getAll() {
     return from(this.authService.getEou())
       .pipe(
