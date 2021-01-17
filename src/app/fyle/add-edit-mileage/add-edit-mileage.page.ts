@@ -727,10 +727,14 @@ export class AddEditMileagePage implements OnInit {
       })
     ).subscribe(finalDistance => {
       if (this.formInitializedFlag) {
-        if (this.fg.value.round_trip) {
-          this.fg.controls.distance.setValue((finalDistance * 2).toFixed(2));
+        if (finalDistance === 0) {
+          this.fg.controls.distance.setValue(finalDistance);
         } else {
-          this.fg.controls.distance.setValue(finalDistance.toFixed(2));
+          if (this.fg.value.round_trip) {
+            this.fg.controls.distance.setValue((finalDistance * 2).toFixed(2));
+          } else {
+            this.fg.controls.distance.setValue(finalDistance.toFixed(2));
+          }
         }
       }
     });
