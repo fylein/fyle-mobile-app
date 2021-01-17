@@ -1860,12 +1860,8 @@ export class AddEditMileagePage implements OnInit {
                 }
 
                 let reportId;
-                if (
-                  this.fg.value.report &&
-                  (etxn.tx.policy_amount === null ||
-                    (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
-                ) {
-                  reportId = this.fg.value.report.id;
+                if (this.fg.value.report && (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
+                  reportId = this.fg.value.report.rp.id;
                 }
                 let entry;
                 if (this.fg.value.add_to_new_report) {
