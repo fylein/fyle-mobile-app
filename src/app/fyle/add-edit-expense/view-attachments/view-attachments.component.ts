@@ -19,6 +19,7 @@ export class ViewAttachmentsComponent implements OnInit {
   activeIndex = 0;
 
   @ViewChild('slides') imageSlides: any;
+  zoomScale: number;
 
   constructor(
     private modalController: ModalController,
@@ -30,6 +31,7 @@ export class ViewAttachmentsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.zoomScale = 0.5;
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,
@@ -48,6 +50,18 @@ export class ViewAttachmentsComponent implements OnInit {
 
   goToPrevSlide() {
     this.imageSlides.slidePrev();
+  }
+
+  zoomIn() {
+    this.zoomScale += 0.25;
+  }
+
+  zoomOut() {
+    this.zoomScale -= 0.25;
+  }
+
+  resetZoom() {
+    this.zoomScale = 0.5;
   }
 
   async deleteAttachment() {
