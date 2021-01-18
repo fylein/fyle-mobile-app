@@ -161,7 +161,6 @@ export class AddEditMileagePage implements OnInit {
     
     if (category === 'activity') {
       this.showCannotEditActivityDialog();
-
       return;
     }
 

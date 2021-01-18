@@ -279,7 +279,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   fileAttachments() {
     const fileObjs = [];
     this.dataUrls.map(dataUrl => {
-      dataUrl.type = dataUrl.type === 'application/pdf' ? 'pdf' : 'image';
+      dataUrl.type = (dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf') ? 'pdf' : 'image';
       if (!dataUrl.id) {
         fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
       }
@@ -321,7 +321,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     attachments = attachments.map(attachment => {
       if (!attachment.id) {
-        attachment.type = attachment.type === 'application/pdf' ? 'pdf' : 'image';
+        attachment.type = (attachment.type === 'application/pdf' && attachment.type === 'pdf') ? 'pdf' : 'image';
       }
       return attachment;
     });

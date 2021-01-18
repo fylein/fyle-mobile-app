@@ -5,6 +5,8 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { switchMap, finalize } from 'rxjs/operators';
 import { FileService } from 'src/app/core/services/file.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import {TrackingService} from '../../../core/services/tracking.service';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-view-attachments',
@@ -24,10 +26,17 @@ export class ViewAttachmentsComponent implements OnInit {
     private alertController: AlertController,
     private loaderService: LoaderService,
     private fileService: FileService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit() {
+    this.attachments.forEach(attachment => {
+      if (attachment.type === 'pdf') {
+        this.sanitizer.bypassSecurityTrustUrl(attachment.url);
+      }
+    });
+
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,
