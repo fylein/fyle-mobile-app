@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-view-attachment',
@@ -14,10 +15,17 @@ export class ViewAttachmentComponent implements OnInit {
   @ViewChild('slides') imageSlides: any;
 
   constructor(
-    private modalController: ModalController
+    private modalController: ModalController,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit() {
+    this.attachments.forEach(attachment => {
+      if (attachment.type === 'pdf') {
+        this.sanitizer.bypassSecurityTrustUrl(attachment.url);
+      }
+    });
+
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,

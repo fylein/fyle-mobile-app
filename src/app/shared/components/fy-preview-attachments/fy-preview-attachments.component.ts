@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { FileService } from 'src/app/core/services/file.service';
 import { switchMap, tap, concatMap, map, reduce } from 'rxjs/operators';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-fy-preview-attachments',
@@ -19,7 +20,8 @@ export class FyPreviewAttachmentsComponent implements OnInit {
   @ViewChild('slides') imageSlides: any;
 
   constructor(
-    private fileService: FileService
+    private fileService: FileService,
+    private sanitizer: DomSanitizer
   ) { }
 
   getReceiptExtension(name) {
@@ -70,6 +72,7 @@ export class FyPreviewAttachmentsComponent implements OnInit {
         return this.fileService.downloadUrl(fileObj.id).pipe(
           map(downloadUrl => {
             fileObj.url = downloadUrl;
+            this.sanitizer.bypassSecurityTrustUrl(fileObj.url);
             const details = this.getReceiptDetails(fileObj);
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;

@@ -1466,6 +1466,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.newExpenseDataUrls = [];
     this.expenseStartTime = new Date().getTime();
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
@@ -2438,7 +2439,7 @@ export class AddEditExpensePage implements OnInit {
 
                     let attachmentType = 'image';
 
-                    if (data.type === 'application/pdf') {
+                    if (data.type === 'application/pdf' || data.type === 'pdf') {
                       attachmentType = 'pdf';
                     }
 
@@ -2508,7 +2509,7 @@ export class AddEditExpensePage implements OnInit {
         this.attachmentUploadInProgress = true;
         let attachmentType = 'image';
 
-        if (data.type === 'application/pdf') {
+        if (data.type === 'application/pdf' || data.type === 'pdf') {
           attachmentType = 'pdf';
         }
         from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType)).pipe(
@@ -2583,7 +2584,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     const addExpenseAttachments = of(this.newExpenseDataUrls.map(fileObj => {
-      fileObj.type = fileObj.type === 'application/pdf' ? 'pdf' : 'image';
+      fileObj.type = (fileObj.type === 'application/pdf' || fileObj.type === 'pdf') ? 'pdf' : 'image';
       return fileObj;
     }));
 
