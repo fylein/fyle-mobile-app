@@ -133,19 +133,37 @@
                       </div>
         
                       <div class="other-details--text" *ngIf="customInput.input_type === 'LOCATION'">
-                        <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
+                        <app-fy-location 
+                          [mandatory]="customInput.mandatory" 
+                          [label]="customInput.input_name" 
+                          formControlName="value">
+                        </app-fy-location>
                       </div>
         
                       <div class="other-details--text" *ngIf="customInput.input_type === 'SELECT'">
-                        <app-fy-select [label]="customInput.input_name" [options]="customInput.input_options" formControlName="value"></app-fy-select>
+                        <app-fy-select 
+                          [mandatory]="customInput.mandatory" 
+                          [label]="customInput.input_name" 
+                          [options]="customInput.input_options" 
+                          formControlName="value">
+                        </app-fy-select>
                       </div>
         
                       <div class="other-details--text" *ngIf="customInput.input_type === 'MULTI_SELECT'">
-                        <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.input_options" formControlName="value"></app-fy-multiselect>
+                        <app-fy-multiselect 
+                          [mandatory]="customInput.mandatory" 
+                          [label]="customInput.input_name" 
+                          [options]="customInput.input_options" 
+                          formControlName="value">
+                        </app-fy-multiselect>
                       </div>
         
                       <div class="other-details--text" *ngIf="customInput.input_type === 'USER_LIST'">
-                        <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
+                        <app-fy-userlist 
+                          [mandatory]="customInput.mandatory" 
+                          [label]="customInput.input_name" 
+                          formControlName="value">
+                        </app-fy-userlist>
                       </div>
                     </form>
                   </div>

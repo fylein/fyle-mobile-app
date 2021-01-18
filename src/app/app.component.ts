@@ -125,7 +125,6 @@ export class AppComponent implements OnInit {
   }
 
   openHelp() {
-    console.log('Here');
     this.freshchatService.openLiveChatSupport();
   }
 

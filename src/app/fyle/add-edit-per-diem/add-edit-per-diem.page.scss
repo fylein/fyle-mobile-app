@@ -19,7 +19,7 @@
     font-size: 14px;
     text-transform: uppercase;
     font-weight: 700;
-    border-radius: 8px;
+    --border-radius: 4px !important;
     margin: 14px;
     width: 100%;
   }
@@ -299,6 +299,47 @@
     position: relative;
     top: 4px;
     font-size: 20px;
+  }
+
+  &--duplicates-box {
+    background-color: #f3f5f8;
+    border: 0;
+    padding: 0;
+  }
+
+  &--duplicate-header {
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &--duplicate-info {
+    display: flex;
+    font-weight: 500;
+  }
+
+  &--duplicate-warning-icon {
+    color: #ffb25c;
+    margin-right: 5px;
+  }
+
+  &--duplicate-cta {
+    color: #387ef5;
+    text-decoration: underline;
+    font-weight: bold;
+  }
+
+  &--duplicate-sub-box {
+    padding: 8px;
+  }
+
+  &--duplicate-reason {
+    padding: 8px;
+  }
+
+  &--duplicate-reason-select {
+    padding: 8px;
   }
 
   &--payment-mode-header {
