@@ -20,6 +20,7 @@ export class ViewAttachmentsComponent implements OnInit {
   activeIndex = 0;
 
   @ViewChild('slides') imageSlides: any;
+  zoomScale: number;
 
   constructor(
     private modalController: ModalController,
@@ -32,6 +33,7 @@ export class ViewAttachmentsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.zoomScale = 0.5;
     this.attachments.forEach(attachment => {
       if (attachment.type === 'pdf') {
         this.sanitizer.bypassSecurityTrustUrl(attachment.url);
@@ -58,11 +60,23 @@ export class ViewAttachmentsComponent implements OnInit {
     this.imageSlides.slidePrev();
   }
 
+  zoomIn() {
+    this.zoomScale += 0.25;
+  }
+
+  zoomOut() {
+    this.zoomScale -= 0.25;
+  }
+
+  resetZoom() {
+    this.zoomScale = 0.5;
+  }
+
   async deleteAttachment() {
     const activeIndex = await this.imageSlides.getActiveIndex();
 
     const popupResult = await this.popupService.showPopup({
-      header: 'Confirm',
+      header: 'Delete Attachment',
       message: 'Are you sure you want to delete this attachment?',
       primaryCta: {
         text: 'DELETE'
