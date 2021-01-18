@@ -4,6 +4,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, map, finalize, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { RecentLocalStorageItemsService } from '../../../../core/services/recent-local-storage-items.service';
 
 @Component({
   selector: 'app-fy-currency-choose-currency',
@@ -22,7 +23,8 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   constructor(
     private currencyService: CurrencyService,
     private modalController: ModalController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) { }
 
   clearValue() {
@@ -71,6 +73,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   }
 
   onCurrencySelect(currency) {
+    this.recentLocalStorageItemsService.post('recent-currency-cache', currency, 'label');
     this.modalController.dismiss({
       currency
     });

@@ -117,6 +117,7 @@ export class AddEditExpensePage implements OnInit {
   duplicateDetectionReasons = [];
   tfcDefaultValues$: Observable<any>;
   expenseStartTime;
+  pickRecentCurrency;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -789,6 +790,9 @@ export class AddEditExpensePage implements OnInit {
 
           if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
             etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency || etxn.tx.currency;
+            this.pickRecentCurrency = orgUserSettings.currency_settings.preferred_currency && '';
+          } else {
+            this.pickRecentCurrency = 'true';
           }
 
           const receiptsData = this.activatedRoute.snapshot.params.receiptsData;
