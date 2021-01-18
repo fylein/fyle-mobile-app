@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
+import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { FileObject } from 'src/app/core/models/file_obj.model';
@@ -21,6 +21,7 @@ import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy
 import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
+import { NetworkService } from 'src/app/core/services/network.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -28,6 +29,7 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
   styleUrls: ['./add-edit-advance-request.page.scss'],
 })
 export class AddEditAdvanceRequestPage implements OnInit {
+  isConnected$: Observable<boolean>;
   isProjectsEnabled$: Observable<boolean>;
   extendedAdvanceRequest$: Observable<any>;
   mode: string;
@@ -62,7 +64,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private popoverController: PopoverController,
     private transactionsOutboxService: TransactionsOutboxService,
     private fileService: FileService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private networkService: NetworkService
   ) { }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -534,6 +537,19 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
       })
     )
+
+    this.setupNetworkWatcher();
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    });
   }
 
 }
