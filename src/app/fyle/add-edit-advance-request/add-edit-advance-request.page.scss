@@ -51,15 +51,10 @@
 
   &--receipt-background {
     position: absolute;
-    top: 0px;
-    left: 0px;
-    font-size: 64px;
-    height: 88px;
-    width: 72px;
-    background-color: rgba(34, 0, 51, 0.4);
-    color: black;
-    padding: 7px 0px;
-    border-radius: 4px;
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    border-radius: 6px;
   }
 
   &--receipt-count-container {
