@@ -112,6 +112,9 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
   }
 
   onDoneClick() {
-    this.modalController.dismiss();
+    this.modalController.dismiss({
+      amount: +this.fg.value.newCurrencyAmount,
+      homeCurrencyAmount: +this.fg.value.homeCurrencyAmount
+    });
   }
 }

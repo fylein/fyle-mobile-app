@@ -41,6 +41,7 @@ import {NetworkService} from 'src/app/core/services/network.service';
 import {PopupService} from 'src/app/core/services/popup.service';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
 import {TrackingService} from '../../core/services/tracking.service';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -120,7 +121,8 @@ export class AddEditPerDiemPage implements OnInit {
     private popupService: PopupService,
     private duplicateDetectionService: DuplicateDetectionService,
     private navController: NavController,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private currencyPipe: CurrencyPipe
   ) {
   }
 
@@ -556,7 +558,9 @@ export class AddEditPerDiemPage implements OnInit {
       concatMap(project => {
         return activeCategories$.pipe(
           map(activeCategories =>
-            this.projectService.getAllowedOrgCategoryIds(project, activeCategories)));
+            this.projectService.getAllowedOrgCategoryIds(project, activeCategories)
+          )
+        );
       }),
       map(
         categories => categories.map(category => ({label: category.displayName, value: category}))
@@ -759,7 +763,11 @@ export class AddEditPerDiemPage implements OnInit {
     });
 
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
-      map(allowedPerDiemRates => allowedPerDiemRates.map(rate => ({label: rate.full_name, value: rate})))
+      map(allowedPerDiemRates => allowedPerDiemRates.map(rate => {
+        const rateName = rate.name + ' (' + this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + 'per day )';
+        return ({label: rateName, value: rate});
+      } 
+      ))
     );
 
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
@@ -1431,9 +1439,9 @@ export class AddEditPerDiemPage implements OnInit {
 
                 let reportId;
                 if (this.fg.value.report &&
-                  (etxn.tx.policy_amount === null ||
-                    (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
-                  reportId = this.fg.value.report.id;
+                    (etxn.tx.policy_amount === null ||
+                      (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
+                  reportId = this.fg.value.report.rp.id;
                 }
                 let entry;
                 if (this.fg.value.add_to_new_report) {
@@ -1695,7 +1703,6 @@ export class AddEditPerDiemPage implements OnInit {
             }
           });
         } else {
-          // to do edit
           that.editExpense().subscribe((res) => {
             if (that.fg.controls.add_to_new_report.value && res && res.id) {
               this.addToNewReport(res.id);

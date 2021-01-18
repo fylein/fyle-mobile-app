@@ -25,9 +25,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     private authService: AuthService
   ) { }
 
-  ngOnInit() {
-  console.log('HEREEEEEE');
-  }
+  ngOnInit() {}
 
   getProjects(searchNameText) {
     return this.offlineService.getOrgSettings().pipe(

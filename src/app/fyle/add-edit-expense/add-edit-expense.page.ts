@@ -201,8 +201,9 @@ export class AddEditExpensePage implements OnInit {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax.valueChanges).subscribe(() => {
       if (this.fg.controls.tax.value && this.fg.controls.tax.value.percentage && this.fg.controls.currencyObj.value) {
         this.fg.controls.taxValue.setValue(
-          (this.fg.controls.tax.value.percentage *
-          (this.fg.controls.currencyObj.value.orig_amount || this.fg.controls.currencyObj.value.amount)).toFixed(2));
+          (this.fg.controls.currencyObj.value.amount -
+            (this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax.value.percentage + 1))).toFixed(2)
+        );
       }
     });
   }
