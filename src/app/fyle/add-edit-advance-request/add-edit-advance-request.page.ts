@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -47,6 +47,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   advanceActions;
   saveDraftAdvanceLoading = false;
   saveAdvanceLoading = false;
+
+  @ViewChild('formContainer') formContainer: ElementRef;
 
   constructor(
     private offlineService: OfflineService,
@@ -196,6 +198,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
       }
     } else {
       this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
@@ -241,6 +250,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
       ).subscribe(noop);
     } else {
       this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
