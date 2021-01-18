@@ -321,7 +321,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     attachments = attachments.map(attachment => {
       if (!attachment.id) {
-        attachment.type = (attachment.type === 'application/pdf' && attachment.type === 'pdf') ? 'pdf' : 'image';
+        attachment.type = (attachment.type === 'application/pdf' || attachment.type === 'pdf') ? 'pdf' : 'image';
       }
       return attachment;
     });
