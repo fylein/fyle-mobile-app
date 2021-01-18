@@ -726,10 +726,14 @@ export class AddEditMileagePage implements OnInit {
       })
     ).subscribe(finalDistance => {
       if (this.formInitializedFlag) {
-        if (this.fg.value.round_trip) {
-          this.fg.controls.distance.setValue((finalDistance * 2).toFixed(2));
+        if (finalDistance === 0) {
+          this.fg.controls.distance.setValue(finalDistance);
         } else {
-          this.fg.controls.distance.setValue(finalDistance.toFixed(2));
+          if (this.fg.value.round_trip) {
+            this.fg.controls.distance.setValue((finalDistance * 2).toFixed(2));
+          } else {
+            this.fg.controls.distance.setValue(finalDistance.toFixed(2));
+          }
         }
       }
     });
@@ -1859,12 +1863,8 @@ export class AddEditMileagePage implements OnInit {
                 }
 
                 let reportId;
-                if (
-                  this.fg.value.report &&
-                  (etxn.tx.policy_amount === null ||
-                    (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
-                ) {
-                  reportId = this.fg.value.report.id;
+                if (this.fg.value.report && (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
+                  reportId = this.fg.value.report.rp.id;
                 }
                 let entry;
                 if (this.fg.value.add_to_new_report) {
@@ -1895,10 +1895,10 @@ export class AddEditMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     const popupResponse = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Expense?',
+      header: 'Delete  Mileage',
+      message: 'Are you sure you want to delete this mileage expense?',
       primaryCta: {
-        text: 'Delete'
+        text: 'DELETE'
       }
     });
 

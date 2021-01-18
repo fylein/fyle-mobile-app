@@ -53,7 +53,7 @@
     <ng-container *ngIf="etxn$|async as etxn">
       <ng-container *ngIf="fg">
         <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
-          <ng-container *ngIf="mode === 'edit'">
+          <ng-container *ngIf="etxn.tx.policy_flag && mode === 'edit'">
             <ng-container *ngIf="comments$|async as comments">
               <app-fy-policy-violation-info [estatuses]="comments" (click)="scrollCommentsIntoView()"></app-fy-policy-violation-info>
             </ng-container>
@@ -186,7 +186,7 @@
               </ng-container>
             </ng-container>
 
-            <div class="add-edit-mileage--internal-block">
+            <div class="add-edit-mileage--internal-block" *ngIf="mileage_locations.controls.length < 3">
               <mat-checkbox [disabled]="(isAmountDisabled$|async) || !fg.controls.distance" color="primary"
                             formControlName="round_trip">
                 <span class="add-edit-mileage--checkbox">
