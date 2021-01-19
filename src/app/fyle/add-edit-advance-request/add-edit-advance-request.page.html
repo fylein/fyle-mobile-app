@@ -141,7 +141,9 @@
             </div>
           </form>
         </div>
-        <div *ngIf="fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid" class="add-edit-advance-request--mandatory-text">Please add this field.</div>
+        <div *ngIf="fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid" class="add-edit-advance-request--mandatory-text">
+          Please add this field.
+        </div>
       </ng-container>
     </div>
   </form>
