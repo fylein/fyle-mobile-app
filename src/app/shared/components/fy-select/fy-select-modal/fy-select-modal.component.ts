@@ -107,7 +107,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   }
 
   onElementSelect(option) {
-    if (this.cacheName) {
+    if (this.cacheName && option.value) {
       option.custom = !(this.options.some(internalOption => internalOption.value !== option.value));
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }

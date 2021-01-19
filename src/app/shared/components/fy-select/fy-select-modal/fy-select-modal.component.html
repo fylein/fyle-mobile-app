@@ -24,6 +24,26 @@
 
 <ion-content>
   <div class="selection-modal--container">
+
+    <div *ngIf="customInput && (filteredOptions$|async)?.length > 0" class="selection-modal--single-element-block">
+      <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
+        <div (click)="onElementSelect(filteredListItem)" *ngIf="!filteredListItem.value && filteredListItem.label.length > 0" class="selection-modal--list-element"
+             matRipple>
+          <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+            <div>
+              {{label}}
+            </div>
+            <mat-icon *ngIf="selected">
+              check
+            </mat-icon>
+          </ng-template>
+          <ng-container
+            *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:filteredListItem">
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+
     <div *ngIf="cacheName && (recentrecentlyUsedItems$|async)?.length > 0" class="selection-modal--recently-used-block">
       <div class="selection-modal--sub-title">Recently Used</div>
 
