@@ -8,7 +8,7 @@
   <div class="fy-currency--exchange-rate" [ngClass]="{'fy-currency--exchange-rate__invalid': !valid}">
     <div>
       <div class="fy-currency--exchange-rate-coverted-amount">
-        {{value.currency}}
+        {{ value.currency }}
         <ng-container *ngIf="value.amount">
           {{ value.amount | number: '1.0-2'}}
         </ng-container>

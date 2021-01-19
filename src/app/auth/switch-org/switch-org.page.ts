@@ -13,6 +13,7 @@ import {OrgService} from 'src/app/core/services/org.service';
 import {UserEventService} from 'src/app/core/services/user-event.service';
 import {globalCacheBusterNotifier} from 'ts-cacheable';
 import * as Sentry from '@sentry/angular';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
   selector: 'app-swicth-org',
@@ -37,7 +38,8 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     private router: Router,
     private networkService: NetworkService,
     private orgService: OrgService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) { }
 
   ngOnInit() {
@@ -145,12 +147,17 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(() => {
+      this.clearRecentLocalStorageCache();
       from(this.proceed()).subscribe(noop);
     }, async (err) => {
       await this.storageService.clearAll();
       this.userEventService.logout();
       globalCacheBusterNotifier.next();
     });
+  }
+
+  clearRecentLocalStorageCache() {
+    this.recentLocalStorageItemsService.clear('recent-currency-cache');
   }
 
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
