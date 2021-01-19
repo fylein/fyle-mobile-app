@@ -31,8 +31,8 @@ export class RecentLocalStorageItemsService {
     return recentItems;
   }
 
-  clear(cacheName) {
-    return this.storageService.delete(cacheName);
+  async clear(cacheName) {
+    await this.storageService.delete(cacheName);
   }
 
   indexOfItem(recentItemsArray, item, property?) {

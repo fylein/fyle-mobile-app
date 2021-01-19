@@ -156,8 +156,8 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     });
   }
 
-  async clearRecentLocalStorageCache() {
-    await this.recentLocalStorageItemsService.clear('recent-currency-cache');
+  clearRecentLocalStorageCache() {
+    this.recentLocalStorageItemsService.clear('recent-currency-cache');
   }
 
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
