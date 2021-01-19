@@ -32,7 +32,7 @@ export class RecentLocalStorageItemsService {
   }
 
   clear(cacheName) {
-    this.storageService.delete(cacheName);
+    return this.storageService.delete(cacheName);
   }
 
   indexOfItem(recentItemsArray, item, property?) {
