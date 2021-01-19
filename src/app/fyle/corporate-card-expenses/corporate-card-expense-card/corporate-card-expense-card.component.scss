@@ -37,7 +37,6 @@
   }
 
   &--date {
-    display: flex;
     margin: 8px 12px;
     color: #ababab;
     font-size: 16px;
@@ -58,11 +57,12 @@
 
   &--currency {
     color: #ababab;
-    font-size: 16px;
+    font-size: 20px;
+    font-weight: 500;
   }
 
   &--amount {
-    font-size: 18px;
+    font-size: 20px;
     margin-left: 8px;
     font-weight: 700;
     color: #4a4a4a;
@@ -70,7 +70,9 @@
 
   &--vendor {
     color: #4a4a4a;
-    font-size: 16px;
+    font-size: 14px;
+    margin-top: 8px;
+    font-weight: 400;
   }
 
   &--conversion {

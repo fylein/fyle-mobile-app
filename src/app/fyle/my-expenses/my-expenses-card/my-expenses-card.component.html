@@ -58,10 +58,17 @@
               </div>
             </div>
           </div>
+
           <div class="my-expenses-card--conversion"
             *ngIf="expense.tx_orig_currency && expense.tx_orig_amount && !selectionMode" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement }">
             <strong>({{ expense.tx_orig_amount | currency: expense.tx_orig_currency }} at
-            {{ (expense.tx_amount / expense.tx_orig_amount) | currency: expense.tx_currency}})</strong>
+              <ng-container *ngIf="expense.tx_currency; else noCurrencyAvailable">
+                {{ (expense.tx_amount / expense.tx_orig_amount) | currency: expense.tx_currency}}
+              </ng-container>
+              <ng-template #noCurrencyAvailable>
+                {{ (expense.tx_amount / expense.tx_orig_amount)}}
+              </ng-template>
+            )</strong>
           </div>
           <div class="my-expenses-card--vendor" *ngIf="!selectionMode">
             {{vendorDetails}}
