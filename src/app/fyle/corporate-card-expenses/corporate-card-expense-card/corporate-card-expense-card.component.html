@@ -1,11 +1,11 @@
 <div>
   <div class="corporate-card-expenses-card--date" *ngIf="showDt && !skipDate">
-    <div *ngIf="corporateCardExpense.txn_dt">
+    <span *ngIf="corporateCardExpense.txn_dt">
       {{corporateCardExpense.txn_dt | date: 'EEEE'}}
-    </div>
-    <div *ngIf="corporateCardExpense.txn_dt">
+    </span>
+    <span *ngIf="corporateCardExpense.txn_dt">
       {{corporateCardExpense.txn_dt | date: 'dd MMMM yyyy'}}
-    </div>
+    </span>
   </div>
   <ng-container *ngIf="baseState==='unclassified'">
     <div class="corporate-card-expenses-card--body" matRipple (click)="onGoToTransaction()">
