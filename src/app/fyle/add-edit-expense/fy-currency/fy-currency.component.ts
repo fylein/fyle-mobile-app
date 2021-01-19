@@ -25,7 +25,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   private ngControl: NgControl;
   @Input() txnDt: Date;
   @Input() homeCurrency: string;
-  @Input() pickRecentCurrency: string;
   exchangeRate = 1;
 
   private innerValue: {

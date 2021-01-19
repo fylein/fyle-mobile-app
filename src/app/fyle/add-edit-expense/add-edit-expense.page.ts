@@ -779,7 +779,7 @@ export class AddEditExpensePage implements OnInit {
               txn_dt: new Date(),
               currency: homeCurrency,
               amount: null,
-              orig_currency: 'AED',
+              orig_currency: null,
               orig_amount: null,
               policy_amount: null,
               locations: [],
