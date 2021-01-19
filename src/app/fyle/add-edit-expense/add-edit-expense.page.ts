@@ -40,6 +40,7 @@ import {CorporateCreditCardExpenseSuggestionsService} from '../../core/services/
 import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
 import {MatchTransactionComponent} from './match-transaction/match-transaction.component';
 import {TrackingService} from '../../core/services/tracking.service';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -117,7 +118,6 @@ export class AddEditExpensePage implements OnInit {
   duplicateDetectionReasons = [];
   tfcDefaultValues$: Observable<any>;
   expenseStartTime;
-  pickRecentCurrency;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -153,7 +153,8 @@ export class AddEditExpensePage implements OnInit {
     private navController: NavController,
     private corporateCreditCardExpenseSuggestionService: CorporateCreditCardExpenseSuggestionsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) {
   }
 
@@ -761,10 +762,11 @@ export class AddEditExpensePage implements OnInit {
       accounts: accounts$,
       eou: eou$,
       instaFyleSettings: instaFyleSettings$,
-      imageData: this.getInstaFyleImageData()
+      imageData: this.getInstaFyleImageData(),
+      recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache'))
     }).pipe(
       map((dependencies) => {
-        const {orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData} = dependencies;
+        const {orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData, recentCurrency} = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
@@ -777,7 +779,7 @@ export class AddEditExpensePage implements OnInit {
               txn_dt: new Date(),
               currency: homeCurrency,
               amount: null,
-              orig_currency: null,
+              orig_currency: 'AED',
               orig_amount: null,
               policy_amount: null,
               locations: [],
@@ -789,10 +791,11 @@ export class AddEditExpensePage implements OnInit {
           };
 
           if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
-            etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency || etxn.tx.currency;
-            this.pickRecentCurrency = orgUserSettings.currency_settings.preferred_currency && '';
+            if (orgUserSettings.currency_settings.preferred_currency) {
+              etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
+            }
           } else {
-            this.pickRecentCurrency = 'true';
+            etxn.tx.currency = recentCurrency && recentCurrency[0] && recentCurrency[0].shortCode || etxn.tx.currency;
           }
 
           const receiptsData = this.activatedRoute.snapshot.params.receiptsData;

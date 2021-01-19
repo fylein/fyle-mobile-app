@@ -121,8 +121,7 @@
                 <app-fy-currency 
                   [formControl]="fg?.controls?.currencyObj" 
                   [txnDt]="etxn?.tx?.txn_dt" 
-                  [homeCurrency]="homeCurrency"
-                  [pickRecentCurrency]="pickRecentCurrency">
+                  [homeCurrency]="homeCurrency">
                 </app-fy-currency>
                 <div class="add-edit-expense--error" *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid">
                   Please enter the amount.

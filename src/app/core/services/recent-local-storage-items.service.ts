@@ -31,6 +31,10 @@ export class RecentLocalStorageItemsService {
     return recentItems;
   }
 
+  clear(cacheName) {
+    this.storageService.delete(cacheName);
+  }
+
   indexOfItem(recentItemsArray, item, property?) {
     for (let i = 0, len = recentItemsArray.length; i < len; i++) {
       if (recentItemsArray[i][property] === item[property]) {
