@@ -36,12 +36,12 @@ export class TeamAdvancePage implements OnInit {
     this.currentPageNumber = 1;
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
-        const extraParams = state === 'PENDING'? { 
+        const extraParams = state === 'PENDING' ? {
           areq_state: ['eq.APPROVAL_PENDING'],
           areq_trip_request_id: ['is.null'],
           or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
 
-        }: { };
+        } : { };
 
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
@@ -70,13 +70,13 @@ export class TeamAdvancePage implements OnInit {
     );
 
     this.count$ = this.loadData$.pipe(
-      switchMap(({ state })=> {
-        const extraParams = state === 'PENDING'? { 
+      switchMap(({ state }) => {
+        const extraParams = state === 'PENDING' ? {
           areq_state: ['eq.APPROVAL_PENDING'],
           areq_trip_request_id: ['is.null'],
           or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
 
-        }: { };
+        } : { };
 
         return this.advanceRequestService.getTeamAdvanceRequestsCount(
           {
