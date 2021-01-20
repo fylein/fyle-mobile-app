@@ -31,6 +31,7 @@ export class OtherRequestsComponent implements OnInit {
   @Input() otherRequests;
   @Input() fgValues;
   @Input() id;
+
   @ViewChild('formContainer') formContainer: ElementRef;
 
   isTransportationRequested$: Observable<any>;
@@ -290,12 +291,16 @@ export class OtherRequestsComponent implements OnInit {
       this.submitOtherRequests(this.otherDetailsForm.value, 'SUBMIT');
     } else {
       this.otherDetailsForm.markAllAsTouched();
+
       const formContainer = this.formContainer.nativeElement as HTMLElement;
+
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }
@@ -780,12 +785,15 @@ export class OtherRequestsComponent implements OnInit {
 
     if (!this.otherDetailsForm.valid) {
       this.otherDetailsForm.markAllAsTouched();
+
       const formContainer = this.formContainer.nativeElement as HTMLElement;
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
     } else {
       await addExpensePopover.present();

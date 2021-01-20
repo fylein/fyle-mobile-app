@@ -140,6 +140,11 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
+      if (!this.validateDates()) {
+        this.scrollToError();
+        return false;
+      }
+
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
         const formContainer = this.formContainer.nativeElement as HTMLElement;
@@ -176,6 +181,37 @@ export class MyAddEditTripPage implements OnInit {
     }
   }
 
+  validateDates() {
+    if (this.tripType === 'MULTI_CITY') {
+      return this.cities.value.some((city, index) => {
+        if (index === 0) {
+          if (!(city.onward_dt >= this.startDate.value)) {
+            this.cities.controls[0]['controls'].onward_dt.setErrors({'incorrect': true});
+            return false;
+          }
+        }
+        else if ((index + 1) <= this.cities.value.length) {
+          if (!(city.onward_dt <= this.cities.value[index + 1])) {
+            this.cities.controls[index]['controls'].onward_dt.setErrors({'incorrect': true});
+            return false;
+          }
+        }
+      });
+    }
+  }
+
+  scrollToError() {
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
+    }
+  }
+
   async saveDraftModal() {
     const savePopover = await this.popoverController.create({
       component: SavePopoverComponent,
@@ -186,15 +222,14 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
+      if (!this.validateDates()) {
+        this.scrollToError();
+        return false;
+      }
+
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
-        const formContainer = this.formContainer.nativeElement as HTMLElement;
-        if (formContainer) {
-          const invalidElement = formContainer.querySelector('.ng-invalid');
-          invalidElement.scrollIntoView({
-            behavior: 'smooth'
-          });
-        }
+        this.scrollToError();
         return;
       } else {
         await savePopover.present();
@@ -205,13 +240,7 @@ export class MyAddEditTripPage implements OnInit {
       }
     } else {
       this.fg.markAllAsTouched();
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
-      }
+      this.scrollToError();
     }
   }
 
@@ -561,6 +590,10 @@ export class MyAddEditTripPage implements OnInit {
     });
     this.customFieldValues = customFields;
     return this.customFieldValues;
+  }
+
+  deubg(data) {
+    console.log('\n\n debug data ->', data);
   }
 
   ngOnInit() {

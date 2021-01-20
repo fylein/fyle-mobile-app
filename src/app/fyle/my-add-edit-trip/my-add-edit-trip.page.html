@@ -143,9 +143,17 @@
                        class="add-edit-trip--text-label">
                     {{control['controls'].onward_dt.value ? 'Depart Date' : 'Select Depart Date'}}<span>*</span>
                   </div>
-                  <input (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input"
-                         formControlName="onward_dt" matInput
-                         type="date">
+                  
+                  <ng-container *ngIf="fg.controls.tripType.value === 'ONE_WAY' || fg.controls.tripType.value === 'ROUND'">
+                    <input (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input"
+                      formControlName="onward_dt" matInput type="date">
+                  </ng-container>
+
+                  <ng-container *ngIf="fg.controls.tripType.value === 'MULTI_CITY'">
+                    <input (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="i === 0 ? fg.controls.startDate.value : (cities['controls'][i-1]['controls'].onward_dt.value ? cities['controls'][i-1]['controls'].onward_dt.value: fg.controls.startDate.value )" class="add-edit-trip--date-input"
+                      formControlName="onward_dt" matInput type="date">
+                  </ng-container>
+
                 </div>
                 <div *ngIf="control['controls'].onward_dt.touched && !control['controls'].onward_dt.valid" class="add-edit-trip--mandatory-text">
                     Please select depart date.
