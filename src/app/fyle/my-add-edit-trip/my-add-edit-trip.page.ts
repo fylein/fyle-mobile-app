@@ -208,7 +208,7 @@ export class MyAddEditTripPage implements OnInit {
 
     if (this.tripType === 'ONE_WAY') {
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
-        return false;
+        return true;
       }
     }
   }
