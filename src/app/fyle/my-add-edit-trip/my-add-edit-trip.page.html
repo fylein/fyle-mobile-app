@@ -74,7 +74,7 @@
                  class="add-edit-trip--text-label">
               Start date<span>*</span>
             </div>
-            <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-trip--date-input"
+            <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="tripDate.startMin" class="add-edit-trip--date-input"
                    formControlName="startDate" matInput type="date">
           </div>
 

@@ -582,6 +582,19 @@ export class MyAddEditTripPage implements OnInit {
       }
     ];
 
+    this.tripDate = {
+      startMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      endMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      departMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      departMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD')
+    };
+
+    this.hotelDate = {
+      checkInMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      checkInMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      checkOutMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+    };
+
     this.minDate = moment(new Date()).format('y-MM-DD');
 
     this.fg = new FormGroup({
@@ -679,6 +692,16 @@ export class MyAddEditTripPage implements OnInit {
           tripRequest.traveller_details.forEach(traveller => {
             this.setTripRequestObject(traveller.name, traveller.phone_number);
           });
+
+          this.tripDate.startMin = moment(this.dateService.addDaysToDate(new Date(tripRequest.start_date), -1)).format('y-MM-DD');
+          this.tripDate.endMin = this.tripDate.startMin;
+          this.tripDate.departMin = moment(this.dateService.addDaysToDate(new Date(tripRequest.start_date), -1)).format('y-MM-DD');
+          this.tripDate.departMax = moment(tripRequest.end_date).format('y-MM-DD');
+
+          this.hotelDate.checkInMin = moment(this.dateService.addDaysToDate(new Date(tripRequest.start_date), -1)).format('y-MM-DD');
+          this.hotelDate.checkInMax = moment(tripRequest.end_date).format('y-MM-DD');
+          this.hotelDate.checkOutMin = moment(tripRequest.end_date).format('y-MM-DD');
+
           this.fg.get('tripType').setValue(tripRequest.trip_type);
           this.fg.get('startDate').setValue(moment(tripRequest.start_date).format('y-MM-DD'));
           this.fg.get('endDate').setValue(moment(tripRequest.end_date).format('y-MM-DD'));
@@ -764,6 +787,15 @@ export class MyAddEditTripPage implements OnInit {
 
     this.isTripTypeMultiCity$.subscribe(isMulticity => {
       if (isMulticity) {
+        const firstCity = this.cities.value[0];
+        this.cities.clear();
+        const intialCity = this.formBuilder.group({
+          from_city: [firstCity.from_city, Validators.required],
+          to_city: [firstCity.to_city, Validators.required],
+          onward_dt: [firstCity.onward_dt, Validators.required]
+        });
+        this.cities.push(intialCity);
+
         this.addDefaultCity();
       } else {
         const firstCity = this.cities.at(0);
@@ -771,13 +803,6 @@ export class MyAddEditTripPage implements OnInit {
         this.cities.push(firstCity);
       }
     });
-
-    // this.isTripTypeOneWay$.subscribe(oneWay => {
-    //   if (oneWay) {
-    //     this.cities.clear();
-    //     this.addDefaultCity();
-    //   }
-    // });
 
     this.isTransportationRequested$ = this.fg.controls.transportationRequest.valueChanges.pipe(
       map(res => {
@@ -856,6 +881,16 @@ export class MyAddEditTripPage implements OnInit {
         }
       }
     });
+
+    // this.fg.valueChanges.subscribe(formValue => {
+    //   formValue.cities.forEach((city, index) => {
+    //     if (index + 1 <= formValue.cities.length) {
+    //       if (!(moment(city.onward_dt).format('y-MM-DD') < moment(formValue.cities[index + 1]).format('y-MM-DD'))) {
+    //         console.log('this.fg.controls ->', this.fg.controls);
+    //       }
+    //     }
+    //   });
+    // });
 
     this.refreshTrips$.next();
   }

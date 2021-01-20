@@ -44,7 +44,7 @@
                     check in date <span> *</span>
                   </div>
                   <input class="other-details--date-input" matInput type="date" formControlName="checkInDt" 
-                  (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
+                  (keydown)="$event.preventDefault()" [min]="hotelDate.checkInMin" [max]="maxDate">
                 </div>
                 <div *ngIf="control['controls'].checkInDt.touched && !control['controls'].checkInDt.valid" class="other-details--mandatory-text">
                   Please select a date.
