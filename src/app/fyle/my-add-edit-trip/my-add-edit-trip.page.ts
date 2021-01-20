@@ -140,6 +140,11 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
+      if (this.validateDates()) {
+        this.scrollToError();
+        return false;
+      }
+
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
         const formContainer = this.formContainer.nativeElement as HTMLElement;
@@ -176,6 +181,50 @@ export class MyAddEditTripPage implements OnInit {
     }
   }
 
+  validateDates() {
+    if (this.tripType === 'MULTI_CITY') {
+      return this.cities.value.some((city, index) => {
+        if (index === 0) {
+          if (!(city.onward_dt >= this.startDate.value)) {
+            this.cities.controls[0]['controls'].onward_dt.setErrors({'incorrect': true});
+            return true;
+          }
+        }
+        else if ((index + 1) <= this.cities.value.length) {
+          if (!(city.onward_dt <= this.cities.value[index + 1])) {
+            this.cities.controls[index]['controls'].onward_dt.setErrors({'incorrect': true});
+            return true;
+          }
+        }
+      });
+    }
+
+    if (this.tripType === 'ROUND') {
+      if (!(this.cities.controls[0].value.onward_dt < this.cities.controls[0].value.return_date)) {
+        this.cities.controls[0]['controls'].onward_dt.setErrors({'incorrect': true});
+        return true;
+      }
+    }
+
+    if (this.tripType === 'ONE_WAY') {
+      if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
+        return true;
+      }
+    }
+  }
+
+  scrollToError() {
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
+    }
+  }
+
   async saveDraftModal() {
     const savePopover = await this.popoverController.create({
       component: SavePopoverComponent,
@@ -186,15 +235,14 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
+      if (this.validateDates()) {
+        this.scrollToError();
+        return false;
+      }
+
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
-        const formContainer = this.formContainer.nativeElement as HTMLElement;
-        if (formContainer) {
-          const invalidElement = formContainer.querySelector('.ng-invalid');
-          invalidElement.scrollIntoView({
-            behavior: 'smooth'
-          });
-        }
+        this.scrollToError();
         return;
       } else {
         await savePopover.present();
@@ -205,13 +253,7 @@ export class MyAddEditTripPage implements OnInit {
       }
     } else {
       this.fg.markAllAsTouched();
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
-      }
+      this.scrollToError();
     }
   }
 
@@ -522,6 +564,11 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
+      if (this.validateDates()) {
+        this.scrollToError();
+        return false;
+      }
+
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
         const formContainer = this.formContainer.nativeElement as HTMLElement;
@@ -581,6 +628,19 @@ export class MyAddEditTripPage implements OnInit {
         label: 'Multi City'
       }
     ];
+
+    this.tripDate = {
+      startMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      endMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      departMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      departMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD')
+    };
+
+    this.hotelDate = {
+      checkInMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      checkInMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      checkOutMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+    };
 
     this.minDate = moment(new Date()).format('y-MM-DD');
 
@@ -679,6 +739,16 @@ export class MyAddEditTripPage implements OnInit {
           tripRequest.traveller_details.forEach(traveller => {
             this.setTripRequestObject(traveller.name, traveller.phone_number);
           });
+
+          this.tripDate.startMin = moment(this.dateService.addDaysToDate(new Date(tripRequest.start_date), -1)).format('y-MM-DD');
+          this.tripDate.endMin = this.tripDate.startMin;
+          this.tripDate.departMin = moment(this.dateService.addDaysToDate(new Date(tripRequest.start_date), -1)).format('y-MM-DD');
+          this.tripDate.departMax = moment(tripRequest.end_date).format('y-MM-DD');
+
+          this.hotelDate.checkInMin = moment(this.dateService.addDaysToDate(new Date(tripRequest.start_date), -1)).format('y-MM-DD');
+          this.hotelDate.checkInMax = moment(tripRequest.end_date).format('y-MM-DD');
+          this.hotelDate.checkOutMin = moment(tripRequest.end_date).format('y-MM-DD');
+
           this.fg.get('tripType').setValue(tripRequest.trip_type);
           this.fg.get('startDate').setValue(moment(tripRequest.start_date).format('y-MM-DD'));
           this.fg.get('endDate').setValue(moment(tripRequest.end_date).format('y-MM-DD'));
@@ -764,6 +834,15 @@ export class MyAddEditTripPage implements OnInit {
 
     this.isTripTypeMultiCity$.subscribe(isMulticity => {
       if (isMulticity) {
+        const firstCity = this.cities.value[0];
+        this.cities.clear();
+        const intialCity = this.formBuilder.group({
+          from_city: [firstCity.from_city, Validators.required],
+          to_city: [firstCity.to_city, Validators.required],
+          onward_dt: [firstCity.onward_dt, Validators.required]
+        });
+        this.cities.push(intialCity);
+
         this.addDefaultCity();
       } else {
         const firstCity = this.cities.at(0);
@@ -771,13 +850,6 @@ export class MyAddEditTripPage implements OnInit {
         this.cities.push(firstCity);
       }
     });
-
-    // this.isTripTypeOneWay$.subscribe(oneWay => {
-    //   if (oneWay) {
-    //     this.cities.clear();
-    //     this.addDefaultCity();
-    //   }
-    // });
 
     this.isTransportationRequested$ = this.fg.controls.transportationRequest.valueChanges.pipe(
       map(res => {
@@ -856,6 +928,16 @@ export class MyAddEditTripPage implements OnInit {
         }
       }
     });
+
+    // this.fg.valueChanges.subscribe(formValue => {
+    //   formValue.cities.forEach((city, index) => {
+    //     if (index + 1 <= formValue.cities.length) {
+    //       if (!(moment(city.onward_dt).format('y-MM-DD') < moment(formValue.cities[index + 1]).format('y-MM-DD'))) {
+    //         console.log('this.fg.controls ->', this.fg.controls);
+    //       }
+    //     }
+    //   });
+    // });
 
     this.refreshTrips$.next();
   }

@@ -56,6 +56,10 @@ $item-border-color: #e0e0e0;
     width: 16px;
   }
 
+  &--mandatory-text {
+    color: #f00;
+  }
+
   &--text {
     display: flex;
     justify-content: space-between;
@@ -65,6 +69,10 @@ $item-border-color: #e0e0e0;
 
     &__dynamic {
       padding: 16px 0 16px 16px;
+    }
+
+    &__invalid {
+      border-bottom-color: red !important;
     }
   }
 

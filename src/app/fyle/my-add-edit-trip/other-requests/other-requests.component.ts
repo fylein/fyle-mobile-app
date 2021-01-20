@@ -19,6 +19,7 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import {TripRequestPolicyService} from '../../../core/services/trip-request-policy.service';
 import {PolicyViolationComponent} from '../policy-violation/policy-violation.component';
 import {StatusService} from '../../../core/services/status.service';
+import { DateService } from 'src/app/core/services/date.service';
 
 @Component({
   selector: 'app-other-requests',
@@ -30,6 +31,7 @@ export class OtherRequestsComponent implements OnInit {
   @Input() otherRequests;
   @Input() fgValues;
   @Input() id;
+
   @ViewChild('formContainer') formContainer: ElementRef;
 
   isTransportationRequested$: Observable<any>;
@@ -57,6 +59,8 @@ export class OtherRequestsComponent implements OnInit {
   tripActions;
   saveDratTripLoading = false;
   submitTripLoading = false;
+  tripDate;
+  hotelDate;
 
   otherDetailsForm: FormGroup;
 
@@ -75,7 +79,8 @@ export class OtherRequestsComponent implements OnInit {
     private hotelRequestService: HotelRequestService,
     private popoverController: PopoverController,
     private tripRequestPolicyService: TripRequestPolicyService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private dateService: DateService
   ) { }
 
   goBack() {
@@ -286,12 +291,16 @@ export class OtherRequestsComponent implements OnInit {
       this.submitOtherRequests(this.otherDetailsForm.value, 'SUBMIT');
     } else {
       this.otherDetailsForm.markAllAsTouched();
+
       const formContainer = this.formContainer.nativeElement as HTMLElement;
+
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }
@@ -776,12 +785,15 @@ export class OtherRequestsComponent implements OnInit {
 
     if (!this.otherDetailsForm.valid) {
       this.otherDetailsForm.markAllAsTouched();
+
       const formContainer = this.formContainer.nativeElement as HTMLElement;
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
     } else {
       await addExpensePopover.present();
@@ -885,6 +897,19 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.tripDate = {
+      startMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      endMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      departMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      departMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD')
+    };
+
+    this.hotelDate = {
+      checkInMin: moment(this.fgValues.startDate).format('y-MM-DD'),
+      checkInMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      checkOutMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+    };
 
     this.orgUserSettings$ = this.orgUserSettings.get();
     this.advanceRequestCustomFieldValues = [];
