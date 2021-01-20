@@ -190,9 +190,9 @@ export class MyAddEditTripPage implements OnInit {
             return true;
           }
         }
-        else if ((index + 1) <= this.cities.value.length) {
-          if (!(city.onward_dt <= this.cities.value[index + 1])) {
-            this.cities.controls[index]['controls'].onward_dt.setErrors({'incorrect': true});
+        else if ((index + 1) < this.cities.value.length) {
+          if (!(city.onward_dt <= this.cities.value[index + 1].onward_dt)) {
+            this.cities.controls[index + 1]['controls'].onward_dt.setErrors({'incorrect': true});
             return true;
           }
         }
@@ -201,7 +201,7 @@ export class MyAddEditTripPage implements OnInit {
 
     if (this.tripType === 'ROUND') {
       if (!(this.cities.controls[0].value.onward_dt < this.cities.controls[0].value.return_date)) {
-        this.cities.controls[0]['controls'].onward_dt.setErrors({'incorrect': true});
+        this.cities.controls[0]['controls'].return_date.setErrors({'incorrect': true});
         return true;
       }
     }
@@ -922,6 +922,15 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     this.fg.valueChanges.subscribe(formValue => {
+      // removing errors after fields value are touched
+      this.cities.value.forEach((city, index) => {
+        this.cities.controls[index]['controls'].onward_dt.setErrors(null);
+      });
+
+      if (this.tripType === 'ROUND' && this.cities.controls.length && this.cities.controls[0]['controls'].return_date) {
+        this.cities.controls[0]['controls'].return_date.setErrors(null);
+      }
+
       if (formValue.tripType === 'MULTI_CITY') {
         if (formValue.cities.length > 1) {
           this.minDate = formValue.cities[formValue.cities.length - 2].onward_dt;
