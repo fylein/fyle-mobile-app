@@ -246,7 +246,7 @@ export class SignupDetailsEnterprisePage implements OnInit {
         this.activateRoute.snapshot.params.email,
         this.sfg.value.name,
         this.fg.value.role,
-        this.sfg.value.phone.trim() === '' ? null : this.sfg.value.phone.trim(),
+        this.sfg.value.phone,
         signupParams,
         'enterprise',
         this.sfg.value.password,
@@ -275,7 +275,7 @@ export class SignupDetailsEnterprisePage implements OnInit {
         ]);
       }, async err => {
         const errorMessage = await this.loadingController.create({
-          message: 'Something went wrong.Please try again',
+          message: 'Something went wrong. Please try again',
           duration: 1000,
           spinner: null
         });

@@ -138,7 +138,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation() {
-    from(this.loaderService.showLoader()).pipe(
+    from(this.loaderService.showLoader('loading current location...', 10000)).pipe(
       switchMap(() => {
         return Geolocation.getCurrentPosition();
       }),

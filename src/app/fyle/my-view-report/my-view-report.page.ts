@@ -272,7 +272,14 @@ export class MyViewReportPage implements OnInit {
         route = '/enterprise/add_edit_expense';
       }
     }
-    this.router.navigate([route, { id: etxn.tx_id }]);
+    if (canEdit) {
+      this.router.navigate([route, {
+        id: etxn.tx_id,
+        navigate_back: true
+      }]);
+    } else {
+      this.router.navigate([route, { id: etxn.tx_id }]);
+    }
   }
 
   async shareReport(event) {

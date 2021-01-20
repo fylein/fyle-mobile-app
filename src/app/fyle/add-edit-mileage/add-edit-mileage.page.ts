@@ -71,6 +71,7 @@ export class AddEditMileagePage implements OnInit {
   isAdvancesEnabled$: Observable<boolean>;
   comments$: Observable<any>;
   expenseStartTime;
+  navigateBack = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -158,7 +159,7 @@ export class AddEditMileagePage implements OnInit {
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
     }
-    
+
     if (category === 'activity') {
       this.showCannotEditActivityDialog();
       return;
@@ -632,6 +633,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     this.fg = this.fb.group({
       mileage_vehicle_type: [],
@@ -1439,7 +1441,7 @@ export class AddEditMileagePage implements OnInit {
             mileage_is_round_trip: formValue.round_trip,
             source_account_id: formValue.paymentMode.acc.id,
             billable: formValue.billable,
-            distance: formValue.distance,
+            distance: +formValue.distance,
             org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
             txn_dt: new Date(formValue.dateOfSpend),
             skip_reimbursement: skipReimbursement,
@@ -1565,6 +1567,11 @@ export class AddEditMileagePage implements OnInit {
           }));
         }),
         catchError(err => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$).pipe(
+              map(etxn => ({ etxn }))
+            );
+          }
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
               switchMap(() => {
@@ -1803,6 +1810,11 @@ export class AddEditMileagePage implements OnInit {
           );
         }),
         catchError(err => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$).pipe(
+              map(etxn => ({ etxn }))
+            );
+          }
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
               switchMap(() => {

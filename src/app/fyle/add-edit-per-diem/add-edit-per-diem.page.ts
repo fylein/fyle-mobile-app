@@ -86,6 +86,7 @@ export class AddEditPerDiemPage implements OnInit {
   isAdvancesEnabled$: Observable<boolean>;
   comments$: Observable<any>;
   expenseStartTime;
+  navigateBack = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -656,6 +657,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     const today = new Date();
     this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
@@ -766,7 +768,7 @@ export class AddEditPerDiemPage implements OnInit {
       map(allowedPerDiemRates => allowedPerDiemRates.map(rate => {
         const rateName = rate.name + ' (' + this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + 'per day )';
         return ({label: rateName, value: rate});
-      } 
+      }
       ))
     );
 
@@ -1379,6 +1381,11 @@ export class AddEditPerDiemPage implements OnInit {
             }));
         }),
         catchError(err => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+              map(etxn => ({ etxn }))
+            );
+          }
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
               switchMap(() => {
@@ -1545,6 +1552,11 @@ export class AddEditPerDiemPage implements OnInit {
           );
         }),
         catchError(err => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+              map(etxn => ({ etxn }))
+            );
+          }
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
               switchMap(() => {
