@@ -41,7 +41,10 @@ export class TeamAdvancePage implements OnInit {
           areq_trip_request_id: ['is.null'],
           or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
 
-        } : { };
+        } : {
+          areq_trip_request_id: ['is.null'],
+          areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}']
+         };
 
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
@@ -76,7 +79,10 @@ export class TeamAdvancePage implements OnInit {
           areq_trip_request_id: ['is.null'],
           or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
 
-        } : { };
+        } : {
+          areq_trip_request_id: ['is.null'],
+          areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}']
+        };
 
         return this.advanceRequestService.getTeamAdvanceRequestsCount(
           {

@@ -94,10 +94,12 @@
       </div>
 
       <div *ngIf="(mileageCustomFields$|async)?.length > 0">
-        <div class="view-mileage--element" *ngFor="let mileageCustomField of mileageCustomFields$ | async; index as i">
-          <div class="view-mileage--element-label">{{mileageCustomField.name}}</div>
-          <div class="view-mileage--element-value">{{mileageCustomField.displayValue}}</div>
-        </div>
+        <ng-container *ngFor="let mileageCustomField of mileageCustomFields$ | async; index as i">
+          <div class="view-mileage--element" *ngIf="mileageCustomField.type !== 'USER_LIST'">
+            <div class="view-mileage--element-label">{{mileageCustomField.name}}</div>
+            <div class="view-mileage--element-value">{{mileageCustomField.displayValue}}</div>
+          </div>
+        </ng-container>
       </div>
 
     </div>
