@@ -50,4 +50,13 @@ $org-thumb-text: #666;
       border: none;
     }
   }
+
+  &--header-bar {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 0;
+    background-color: $header-background;
+    border: 1px solid $header-border;
+  }
 }
