@@ -116,7 +116,7 @@
 
       <div *ngIf="(mileageCustomFields$|async)?.length > 0">
         <div class="view-mileage--element" *ngFor="let mileageCustomField of mileageCustomFields$ | async; index as i">
-          <div class="view-mileage--element-label">{{mileageCustomField.name | ellipsis:14}}</div>
+          <div class="view-mileage--element-label">{{mileageCustomField.name | ellipsis:10}}</div>
           <div class="view-mileage--element-value">{{mileageCustomField.displayValue}}</div>
         </div>
       </div>

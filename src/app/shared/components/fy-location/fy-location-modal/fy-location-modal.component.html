@@ -22,8 +22,11 @@
 </ion-header>
 
 <ion-content>
-  <div class="selection-modal--header">
+  <div *ngIf="header" class="selection-modal--header">
     {{header | lowercase}}
+  </div>
+  <div class="selection-modal--error-lookup" *ngIf="lookupFailed">
+    Couldn't get current location. Please enter manually.
   </div>
   <div matRipple class="selection-modal--list-element" (click)="getCurrentLocation()">
     <mat-icon class="selection-modal--list-element-icon">

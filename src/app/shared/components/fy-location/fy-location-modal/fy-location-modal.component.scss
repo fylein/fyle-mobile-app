@@ -14,6 +14,14 @@ $list-element-color: #333;
     align-items: center;
   }
 
+  &--error-lookup {
+    color: #4a4a4a;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+  }
+
   &--list-element-icon {
     margin-right: 12px;
   }

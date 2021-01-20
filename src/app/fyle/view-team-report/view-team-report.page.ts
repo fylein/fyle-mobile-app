@@ -38,6 +38,7 @@ export class ViewTeamReportPage implements OnInit {
 
   isConnected$: Observable<boolean>;
   onPageExit = new Subject();
+  navigateBack = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -104,6 +105,9 @@ export class ViewTeamReportPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
+
     this.erpt$ = this.refreshApprovals$.pipe(
       switchMap(() => {
         return from(this.loaderService.showLoader()).pipe(
