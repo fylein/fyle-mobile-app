@@ -58,6 +58,9 @@ $completed: #25ae88;
     height: 22px;
     width: 24px;
     margin-right: 8px;
+    &__invalid {
+      --border-color: red;
+    }
   }
 
   &--form-label {

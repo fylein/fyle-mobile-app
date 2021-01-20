@@ -1,5 +1,8 @@
 <ion-header mode="md" >
   <ion-toolbar class="add-edit-expense--toolbar">
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
     <ion-title mode="md" *ngIf="mode" class="page-title">
       <div *ngIf="mode === 'add'">
         Add Expense
@@ -14,7 +17,7 @@
       </div>
     </ion-title>
 
-    <ion-buttons slot="end">
+    <ion-buttons *ngIf="!navigateBack" slot="end">
       <ion-button mode="md" (click)="showClosePopup()">
         <mat-icon slot="icon-only">close</mat-icon>
       </ion-button>
@@ -118,9 +121,9 @@
           <div>
             <div class="add-edit-expense--currency" *ngIf="etxn$|async as etxn">
               <ng-container *ngIf="homeCurrency$|async as homeCurrency">
-                <app-fy-currency 
-                  [formControl]="fg?.controls?.currencyObj" 
-                  [txnDt]="etxn?.tx?.txn_dt" 
+                <app-fy-currency
+                  [formControl]="fg?.controls?.currencyObj"
+                  [txnDt]="etxn?.tx?.txn_dt"
                   [homeCurrency]="homeCurrency">
                 </app-fy-currency>
                 <div class="add-edit-expense--error" *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid">

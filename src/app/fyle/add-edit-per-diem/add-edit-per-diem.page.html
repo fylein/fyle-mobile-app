@@ -1,5 +1,8 @@
 <ion-header mode="md">
   <ion-toolbar class="add-edit-per-diem--toolbar">
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
     <ion-title *ngIf="mode" class="page-title" mode="md">
       <div *ngIf="mode === 'add'">
         Add Per Diem
@@ -13,7 +16,7 @@
         </div>
       </div>
     </ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons *ngIf="!navigateBack" slot="end">
       <ion-button (click)="closePopup()" mode="md">
         <mat-icon slot="icon-only">close</mat-icon>
       </ion-button>
@@ -164,8 +167,8 @@
                       <app-fy-select
                         [disabled]="isAmountDisabled"
                         [nullOption]="false"
-                        [label]="fg.controls.per_diem_rate.value ? 'Per Diem Type' : 'Select Per Diem Type'" 
-                        [mandatory]="true" 
+                        [label]="fg.controls.per_diem_rate.value ? 'Per Diem Type' : 'Select Per Diem Type'"
+                        [mandatory]="true"
                         [options]="allowedPerDiemRateOptions"
                         [selectModalHeader]="'Choose Per Diem Type'"
                         formControlName="per_diem_rate">
@@ -243,7 +246,7 @@
                                name="purpose" type="text">
                       </div>
                       <div *ngIf="txnFields?.purpose.type === 'SELECT'" class="add-edit-per-diem--internal-block">
-                        <app-fy-select 
+                        <app-fy-select
                           [disabled]="mode === 'edit' && !txnFields?.purpose.canEdit"
                           [label]="fg.controls.purpose.value ? txnFields?.purpose.title : 'Enter ' + txnFields?.purpose.title"
                           [options]="txnFields?.purpose?.values"

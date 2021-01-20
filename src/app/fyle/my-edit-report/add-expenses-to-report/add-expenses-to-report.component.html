@@ -18,7 +18,7 @@
       <ion-grid class="add-expenses-to-report--item-card" [ngClass]="{'add-expenses-to-report--item-card-selected': etxn.isSelected}" (click)="toggleTransaction(etxn)">
         <ion-row>
           <ion-col size="3">
-            <ion-checkbox class="add-expenses-to-report--item-card-checkbox" checked="{{etxn.isSelected}}"></ion-checkbox>
+            <ion-checkbox mode="ios" class="add-expenses-to-report--item-card-checkbox" checked="{{etxn.isSelected}}"></ion-checkbox>
           </ion-col>
           <ion-col size ="9">
             <ion-row>
@@ -27,7 +27,7 @@
                 <span class="add-expenses-to-report--item-card-amount" [ngClass]="{'add-expenses-to-report--item-card-amount__non-reimbursable' : etxn.tx_skip_reimbursement}">{{etxn.tx_amount}}</span>
               </span>
             </ion-row>
-  
+
             <ion-row class="add-expenses-to-report--item-card-vendor">{{etxn.vendorDetails}}</ion-row>
             <ion-row class="add-expenses-to-report--item-card-category">{{etxn.tx_org_category}}</ion-row>
           </ion-col>
@@ -41,7 +41,7 @@
   <ion-toolbar mode="md">
     <div class="add-expenses-to-report--footer">
       <div>
-        <span class="add-expenses-to-report--footer-currency">{{homeCurrency$ | async}}</span> 
+        <span class="add-expenses-to-report--footer-currency">{{homeCurrency$ | async}}</span>
         <span class="add-expenses-to-report--footer-amount"> {{selectedTotalAmount.toFixed(2)}} </span>
       </div>
       <div class="add-expenses-to-report--footer-summary">

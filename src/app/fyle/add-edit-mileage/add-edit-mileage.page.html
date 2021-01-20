@@ -1,5 +1,8 @@
 <ion-header mode="md">
   <ion-toolbar class="add-edit-mileage--toolbar">
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
     <ion-title *ngIf="mode" class="page-title" mode="md">
       <div *ngIf="mode === 'add'">
         Add Mileage
@@ -13,7 +16,7 @@
         </div>
       </div>
     </ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons *ngIf="!navigateBack" slot="end">
       <ion-button (click)="goBack()" mode="md">
         <mat-icon slot="icon-only">close</mat-icon>
       </ion-button>

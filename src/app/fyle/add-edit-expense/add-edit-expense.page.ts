@@ -118,6 +118,7 @@ export class AddEditExpensePage implements OnInit {
   duplicateDetectionReasons = [];
   tfcDefaultValues$: Observable<any>;
   expenseStartTime;
+  navigateBack = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1475,6 +1476,8 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillEnter() {
     this.newExpenseDataUrls = [];
+
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
@@ -1670,7 +1673,7 @@ export class AddEditExpensePage implements OnInit {
         this.matchedCCCTransaction = matchedExpense[0].ccce;
         this.matchingCCCTransactions = matchingTransactions;
         this.selectedCCCTransaction = this.matchedCCCTransaction;
-        this.cardEndingDigits = (this.selectedCCCTransaction.corporate_credit_card_account_number ?
+        this.cardEndingDigits = (this.selectedCCCTransaction.cxorporate_credit_card_account_number ?
           this.selectedCCCTransaction.corporate_credit_card_account_number
           : this.selectedCCCTransaction.card_or_account_number).slice(-4);
 
@@ -2136,6 +2139,11 @@ export class AddEditExpensePage implements OnInit {
           );
         }),
         catchError(err => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+              map(etxn => ({ etxn }))
+            );
+          }
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
               switchMap(() => {
@@ -2363,6 +2371,12 @@ export class AddEditExpensePage implements OnInit {
             }));
         }),
         catchError(err => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+              map(etxn => ({ etxn }))
+            );
+          }
+
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
               switchMap(() => {

@@ -104,7 +104,10 @@
             {{hide ? 'visibility_off' : 'visibility'}}
           </mat-icon>
         </mat-form-field>
-        <div class="sign-up-details-enterprise--password-rules">
+        <div class="sign-up-details-enterprise--error" *ngIf="(!sfg.controls.password.valid && sfg.controls.password.touched)">
+          Please enter a password.
+        </div>
+        <div *ngIf="sfg.controls.password.dirty" class="sign-up-details-enterprise--password-rules">
           <div>
             <span>
               <ion-icon *ngIf="lengthValidationDisplay$|async" class="sign-up-details-enterprise--validation__correct"
@@ -159,12 +162,16 @@
         </mat-form-field>
         <div class="sign-up-details-enterprise--form-field sign-up-details-enterprise--checkbox">
           <ion-checkbox class="sign-up-details-enterprise--checkbox-internal" formControlName="tos" color="fyle-primary"
-            mode="ios"></ion-checkbox>
+            [ngClass]="{'sign-up-details-enterprise--checkbox-internal__invalid':(!sfg.controls.tos.valid && sfg.controls.tos.touched) }" mode="ios"></ion-checkbox>
           <div>
             I agree to the <a (click)="openLinkInApp('https://www.fylehq.com/privacy/terms-and-conditions')">terms of
               service</a>
             and <a (click)="openLinkInApp('https://www.fylehq.com/privacy/privacy-policy')">privacy
-              policy</a> </div>
+              policy</a>
+          </div>
+        </div>
+        <div class="sign-up-details-enterprise--error" *ngIf="(!sfg.controls.tos.valid && sfg.controls.tos.touched)">
+          Please agree.
         </div>
       </form>
 

@@ -117,14 +117,14 @@
         <img src="../../../assets/images/zero-states/expenses.svg" alt="No expense in this report">
         <div class="view-reports--zero-state-header">
           No expense in this report yet
-        </div>
+        </div>¡
         <div class="view-reports--zero-state-sub-header">
           Edit to add expenses to this report
         </div>
       </div>
     </div>
 
-    <div class="view-reports--card view-reports--card__block-action" matRipple>
+    <div *ngIf="erpt.rp_num_transactions > 0" class="view-reports--card view-reports--card__block-action" matRipple>
       <app-comments objectType="reports" [objectId]="erpt.rp_id" mode="edit" text="Comments"></app-comments>
     </div>
 
