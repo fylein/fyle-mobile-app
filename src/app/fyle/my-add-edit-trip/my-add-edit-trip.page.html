@@ -165,7 +165,7 @@
                        class="add-edit-trip--text-label">
                     {{control['controls'].return_date.value ? 'Return Date' : 'Select Return Date'}}<span>*</span>
                   </div>
-                  <input (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="control['controls'].onward_dt.value" class="add-edit-trip--date-input"
+                  <input (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="control['controls'].onward_dt.value ? control['controls'].onward_dt.value : fg.controls.startDate.value" class="add-edit-trip--date-input"
                          formControlName="return_date" matInput
                          type="date">
                 </div>

@@ -140,7 +140,7 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
-      if (!this.validateDates()) {
+      if (this.validateDates()) {
         this.scrollToError();
         return false;
       }
@@ -187,16 +187,29 @@ export class MyAddEditTripPage implements OnInit {
         if (index === 0) {
           if (!(city.onward_dt >= this.startDate.value)) {
             this.cities.controls[0]['controls'].onward_dt.setErrors({'incorrect': true});
-            return false;
+            return true;
           }
         }
         else if ((index + 1) <= this.cities.value.length) {
           if (!(city.onward_dt <= this.cities.value[index + 1])) {
             this.cities.controls[index]['controls'].onward_dt.setErrors({'incorrect': true});
-            return false;
+            return true;
           }
         }
       });
+    }
+
+    if (this.tripType === 'ROUND') {
+      if (!(this.cities.controls[0].value.onward_dt < this.cities.controls[0].value.return_date)) {
+        this.cities.controls[0]['controls'].onward_dt.setErrors({'incorrect': true});
+        return true;
+      }
+    }
+
+    if (this.tripType === 'ONE_WAY') {
+      if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
+        return false;
+      }
     }
   }
 
@@ -222,7 +235,7 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
-      if (!this.validateDates()) {
+      if (this.validateDates()) {
         this.scrollToError();
         return false;
       }
@@ -551,6 +564,11 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     if (this.fg.valid) {
+      if (this.validateDates()) {
+        this.scrollToError();
+        return false;
+      }
+
       if (!(this.fg.controls.endDate.value >= this.fg.controls.startDate.value)) {
         this.fg.markAllAsTouched();
         const formContainer = this.formContainer.nativeElement as HTMLElement;
