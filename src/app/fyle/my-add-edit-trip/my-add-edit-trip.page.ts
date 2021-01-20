@@ -610,10 +610,6 @@ export class MyAddEditTripPage implements OnInit {
     return this.customFieldValues;
   }
 
-  deubg(data) {
-    console.log('\n\n debug data ->', data);
-  }
-
   ngOnInit() {
 
     const id = this.activatedRoute.snapshot.params.id;
