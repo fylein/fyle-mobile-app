@@ -54,7 +54,7 @@ export class CccClassifyActionsPage implements OnInit {
       flow: 'newCCCFlow'
     };
 
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { bankTxn: JSON.stringify(bankTxn) }]);
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { bankTxn: JSON.stringify(bankTxn), navigate_back: true }]);
   }
 
   async openDismissalPopover(cccTxn: CorporateCardExpense) {
@@ -66,7 +66,9 @@ export class CccClassifyActionsPage implements OnInit {
       },
       secondaryCta: {
         text: 'Cancel'
-      }
+      },
+      cssClass: 'ccc-popup',
+      showCancelButton: false
     });
 
     if (popupResult === 'primary') {
@@ -88,7 +90,9 @@ export class CccClassifyActionsPage implements OnInit {
       },
       secondaryCta: {
         text: 'Cancel'
-      }
+      },
+      cssClass: 'ccc-popup',
+      showCancelButton: false
     });
 
     console.log(popupResult);

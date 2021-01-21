@@ -43,6 +43,7 @@ export class MatchExpensePopoverComponent implements OnInit {
     await this.loaderService.showLoader();
     await this.corporateCreditCardExpenseService.markPersonal(this.cccGroupId);
     await this.loaderService.hideLoader();
-    this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+    await this.popoverController.dismiss();
+    await this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
   }
 }

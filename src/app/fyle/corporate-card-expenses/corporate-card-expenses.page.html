@@ -17,15 +17,15 @@
       <div matRipple class="corporate-card-expenses--state-pill corporate-card-expenses--state-pill__left"
            [ngClass]="{'corporate-card-expenses--state-pill__selected': baseState === 'unclassified'}" (click)="setState('unclassified')">
         Unclassified
-        <span *ngIf="unclassifiedExpensesCountHeader$|async as unclassifiedExpensesCountHeader">
-          ({{unclassifiedExpensesCountHeader}})
+        <span>
+          ({{unclassifiedExpensesCountHeader$|async}})
         </span>
       </div>
       <div matRipple class="corporate-card-expenses--state-pill corporate-card-expenses--state-pill__right"
            [ngClass]="{'corporate-card-expenses--state-pill__selected': baseState === 'classified'}" (click)="setState('classified')">
         Classified
-        <span *ngIf="classifiedExpensesCountHeader$|async as classifiedExpensesCountHeader">
-          ({{classifiedExpensesCountHeader}})
+        <span>
+          ({{classifiedExpensesCountHeader$|async}})
         </span>
       </div>
     </div>
@@ -59,7 +59,6 @@
     </div>
     <div class="corporate-card-expenses--filters" *ngIf="filters?.state || filters?.date">
       <div>Filtered by
-        <span *ngIf="filters?.state && filters?.date">,</span>
         <span [ngSwitch]="filters?.date">
           <span *ngSwitchCase="'ALL'">All</span>
           <span *ngSwitchCase="'THISMONTH'">This Month</span>
@@ -80,12 +79,24 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="(count$ | async) === 0" class="corporate-card-expenses--zero-state">
-    <app-fy-zero-state
-      [image]="'../../../assets/images/zero-states/expenses.svg'"
-      [header]="'Your card transactions will show up here'"
-    ></app-fy-zero-state>
+  <div *ngIf="!(filters?.state || filters?.date)">
+    <div *ngIf="(count$ | async) === 0" class="corporate-card-expenses--zero-state">
+      <app-fy-zero-state
+        [image]="'../../../assets/images/zero-states/expenses.svg'"
+        [header]="'Looks like you\'ve got no card transactions right now!'"
+      ></app-fy-zero-state>
+    </div>
   </div>
+
+  <div *ngIf="(filters?.state || filters?.date)">
+    <div *ngIf="(count$ | async) === 0" class="corporate-card-expenses--zero-state">
+      <app-fy-zero-state
+        [image]="'../../../assets/images/zero-states/expenses.svg'"
+        [header]="'No card transactions found for this selected filter'"
+      ></app-fy-zero-state>
+    </div>
+  </div>
+
 
     <div *ngFor="let cardTransaction of cardTransactions$ | async as list; let i = index">
       <app-corporate-card-expense-card [baseState]="baseState" [corporateCardExpense]="cardTransaction" [prevExpense]="list[i-1]" [dateComparatorProp]="'txn_dt'"

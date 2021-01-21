@@ -181,7 +181,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
+    if (bankTxn) {
+      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    }
   }
 
   merchantValidator(c: FormControl): ValidationErrors {
