@@ -19,6 +19,12 @@
       <input class="my-create-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required>
     </div>
 
+    <div *ngIf="readyToReportEtxns?.length === 0" class="my-create-report--zero-state">
+      <img alt="Create First Expenses" class="my-create-report--zero-state-img"
+            src="../../../assets/images/zero-states/expenses.svg">
+      <p class="my-create-report--zero-state-header"><a href [routerLink]="['/','enterprise','add_edit_expense']">Create expense</a> to start adding them to reports</p>
+    </div>
+
     <div class="my-create-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)">
       <span>Select a trip to associate with report:</span>
       <div class="my-create-report--select-trip">
@@ -70,7 +76,7 @@
         </ion-col>
 
         <ion-col size="4">
-          <div *ngIf="readyToReportEtxns" class="my-create-report--secondary-action">
+          <div *ngIf="readyToReportEtxns && readyToReportEtxns?.length > 0" class="my-create-report--secondary-action">
             <span *ngIf="readyToReportEtxns.length === selectedTotalTxns" (click)="toggleSelectAll(false)">Unselect All</span>
             <span *ngIf="readyToReportEtxns.length !== selectedTotalTxns" (click)="toggleSelectAll(true)">Select All</span>
           </div>

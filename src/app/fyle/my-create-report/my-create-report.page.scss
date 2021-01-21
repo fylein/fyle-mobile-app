@@ -41,6 +41,10 @@ $background-color: #fff;
     font-size: 20px;
     color: #4a4a4a;
     border: 0;
+
+    &::placeholder {
+      color: #ababab;
+    }
   }
 
   &--expense-date {
@@ -139,5 +143,26 @@ $background-color: #fff;
   &--non-reimbursable {
     text-decoration: line-through;
     color: #ababab;
+  }
+
+  &--zero-state {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: center;
+    text-align: center;
+
+    &-img {
+      margin: 32px;
+    }
+
+    &-header {
+      font-size: 16px;
+      display: block;
+      margin-bottom: 16px;
+      color: #4a4a4a;
+      line-height: 1.5;
+      font-weight: 500;
+    }
   }
 }

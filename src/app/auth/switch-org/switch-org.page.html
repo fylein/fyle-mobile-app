@@ -1,13 +1,11 @@
 <ion-header mode="md" >
-  <ion-toolbar mode="md">
-    <div class="switch-org-search">
-      <mat-form-field class="switch-org--form-field" appearance="outline">
-        <span class="material-icons switch-org--search-icon" matPrefix>
-          search
-        </span>
-        <input #searchOrgsInput [(ngModel)]="searchInput" id="switch-org--search-input" class="switch-org--search-input" matInput placeholder="Search Orgs">
-      </mat-form-field>
-    </div>
+  <ion-toolbar mode="md" class="switch-org--toolbar">
+    <mat-form-field class="switch-org--form-field" appearance="outline">
+      <span class="material-icons switch-org--search-icon" matPrefix>
+        search
+      </span>
+      <input #searchOrgsInput [(ngModel)]="searchInput" id="switch-org--search-input" class="switch-org--search-input" matInput placeholder="Search Orgs">
+    </mat-form-field>
   </ion-toolbar>
 </ion-header>
 

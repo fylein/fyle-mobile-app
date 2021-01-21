@@ -1710,7 +1710,9 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.taxSettings$ = orgSettings$.pipe(
+      tap(orgSettings => console.log('before ->', orgSettings)),
       map(orgSettings => orgSettings.tax_settings),
+      tap(orgSettings => console.log('after ->', orgSettings)),
       map(taxsSettings => ({
           ...taxsSettings,
           groups: taxsSettings.groups.map(tax => ({label: tax.name, value: tax}))
@@ -2446,7 +2448,7 @@ export class AddEditExpensePage implements OnInit {
                   let reportId;
                   if (this.fg.value.report
                     && (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
-                    reportId = this.fg.value.report.id;
+                    reportId = this.fg.value.report.rp.id;
                   }
                   let entry;
                   if (this.fg.value.add_to_new_report) {
