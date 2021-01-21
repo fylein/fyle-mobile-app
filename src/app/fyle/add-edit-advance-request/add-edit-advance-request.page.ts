@@ -2,8 +2,8 @@ import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
+import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
@@ -227,6 +227,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
             map(policyViolations => {
               policyViolationActionDescription = policyViolations.advance_request_desired_state.action_description;
               return this.advanceRequestPolicyService.getPolicyRules(policyViolations);
+            }),
+            catchError(err => {
+              if (err.status === 500) {
+                return of([]);
+              } else {
+                return throwError(err);
+              }
             }),
             switchMap((policyRules: string[]) => {
               if (policyRules.length > 0) {
