@@ -1518,6 +1518,19 @@ export class AddEditExpensePage implements OnInit {
       { label: 'Other', value: 'Other' }
     ];
 
+    if (this.activatedRoute.snapshot.params.bankTxn) {
+      const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
+      this.showSelectedTransaction = true;
+      this.selectedCCCTransaction = bankTxn.ccce;
+      let cccAccountNumber;
+      if (bankTxn.flow && bankTxn.flow === 'newCCCFlow') {
+        cccAccountNumber = this.selectedCCCTransaction.corporate_credit_card_account_number;
+      }
+      this.cardEndingDigits = cccAccountNumber.slice(-4);
+      this.selectedCCCTransaction.corporate_credit_card_account_number = cccAccountNumber;
+      this.isCreatedFromCCC = true;
+    }
+
     this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
       map((paymentMode: any) => paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT')
     );
@@ -1720,7 +1733,7 @@ export class AddEditExpensePage implements OnInit {
       tap(orgSettings => console.log('after ->', orgSettings)),
       map(taxsSettings => ({
           ...taxsSettings,
-          groups: taxsSettings.groups.map(tax => ({label: tax.name, value: tax}))
+          groups: taxsSettings.groups && taxsSettings.groups.map(tax => ({label: tax.name, value: tax}))
         })
       )
     );
