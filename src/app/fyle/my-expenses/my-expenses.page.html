@@ -77,7 +77,7 @@
         </ion-buttons>
       </div>
     </div>
-    <div *ngIf="filters?.state || filters?.date" class="my-expenses--filters">
+    <div *ngIf="(filters?.state || filters?.date) && filters?.date !== 'ALL'" class="my-expenses--filters">
       <div>Filtered by
         <span [ngSwitch]="filters?.state">
           <span *ngSwitchCase="'READY_TO_REPORT'">Ready to Report</span>
