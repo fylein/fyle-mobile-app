@@ -127,10 +127,6 @@ export class ViewTeamAdvancePage implements OnInit {
         }
       })
     );
-
-    this.advanceRequestCustomFields$.subscribe(res => {
-      console.log('res =>', res);
-    });
   }
 
   edit() {
