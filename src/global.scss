@@ -360,6 +360,17 @@ textarea, input {
   }
 }
 
+.switch-org--form-field {
+  .mat-form-field-wrapper {
+    border-radius: 4px;
+  }
+
+  .mat-form-field-outline-start, .mat-form-field-outline-end {
+    border: none !important;
+    border-radius: 4px;
+  }
+}
+
 .ccc-popup {
   .fy-popup {
     &--header {

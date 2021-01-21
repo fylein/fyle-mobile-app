@@ -6,15 +6,24 @@ $org-thumb-header: #333;
 $org-thumb-text: #666;
 
 .switch-org {
+  &--toolbar {
+    --background: #f5f5f5;
+  }
+
   &--form-field {
+    font-size: 11px;
     width: 100%;
+    padding: 4px 8px 4px 8px;
+    background-color: $header-input;
   }
 
   &--search-icon {
     font-size: 14px;
-    padding-right: 6px;
-    color: #aaa;
+    padding-right: 10px;
+    color: #aaaaaa;
+    font-weight: bolder;
   }
+
   &--search-input {
     font-size: 14px;
 
@@ -28,6 +37,7 @@ $org-thumb-text: #666;
     font-size: 16px;
     font-weight: 500;
     padding: 8px 0;
+    color: #222222;
     background-color: $header-background;
     border: 1px solid $header-border;
   }

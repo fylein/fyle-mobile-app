@@ -938,16 +938,6 @@ export class MyAddEditTripPage implements OnInit {
       }
     });
 
-    // this.fg.valueChanges.subscribe(formValue => {
-    //   formValue.cities.forEach((city, index) => {
-    //     if (index + 1 <= formValue.cities.length) {
-    //       if (!(moment(city.onward_dt).format('y-MM-DD') < moment(formValue.cities[index + 1]).format('y-MM-DD'))) {
-    //         console.log('this.fg.controls ->', this.fg.controls);
-    //       }
-    //     }
-    //   });
-    // });
-
     this.refreshTrips$.next();
   }
 
