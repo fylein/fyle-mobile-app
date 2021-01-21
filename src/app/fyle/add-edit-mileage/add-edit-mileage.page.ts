@@ -1213,9 +1213,9 @@ export class AddEditMileagePage implements OnInit {
           });
         } else {
           // to do edit
-          that.editExpense().subscribe((etxn) => {
-            if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id ) {
-              this.addToNewReport(etxn.tx.id);
+          that.editExpense().subscribe((tx) => {
+            if (that.fg.controls.add_to_new_report.value && tx && tx.id ) {
+              this.addToNewReport(tx.id);
             } else {
               that.close();
             }
