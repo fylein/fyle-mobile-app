@@ -6,7 +6,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
-import { Router } from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay } from 'rxjs/operators';
 import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/team-reports-search-filter.component';
@@ -58,7 +58,8 @@ export class TeamReportsPage implements OnInit {
     private router: Router,
     private currencyService: CurrencyService,
     private popupService: PopupService,
-    private popoverConroller: PopoverController
+    private popoverConroller: PopoverController,
+    private activatedRoute: ActivatedRoute
   ) { }
 
   ngOnInit() {
@@ -183,8 +184,32 @@ export class TeamReportsPage implements OnInit {
     this.teamReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    this.clearFilters();
 
+    this.loadData$.subscribe(params => {
+      const queryParams: Params = { filters: JSON.stringify(this.filters) };
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams
+      });
+    });
+
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else if (this.activatedRoute.snapshot.params.state) {
+      const filters = {
+        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
+        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
+
+      this.filters = Object.assign({}, this.filters, filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else {
+      this.clearFilters();
+    }
   }
 
   setupNetworkWatcher() {
@@ -315,7 +340,7 @@ export class TeamReportsPage implements OnInit {
   }
 
   onReportClick(erpt: ExtendedReport) {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: erpt.rp_id }]);
+    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: erpt.rp_id, navigate_back: true }]);
   }
 
   async onDeleteReportClick(erpt: ExtendedReport) {

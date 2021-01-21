@@ -3,7 +3,7 @@ import { AgmGeocoder } from '@agm/core';
 import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize, catchError } from 'rxjs/operators';
 import { Plugins } from '@capacitor/core';
 import { ModalController } from '@ionic/angular';
-import { Observable, fromEvent, of, from, forkJoin, noop } from 'rxjs';
+import {Observable, fromEvent, of, from, forkJoin, noop, throwError} from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -20,6 +20,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   @Input() header = '';
   loader = false;
   value = '';
+  lookupFailed = false;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
@@ -65,6 +66,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
           }),
           catchError(() => {
             that.loader = false;
+            that.lookupFailed = true;
             return [];
           })
         );
@@ -151,6 +153,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         });
       }),
       map(this.formatGeocodeResponse),
+      catchError((err) => {
+        this.lookupFailed = true;
+        return throwError(err);
+      }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe((selection) => {
       this.modalController.dismiss({

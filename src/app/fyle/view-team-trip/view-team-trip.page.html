@@ -70,15 +70,14 @@
             Approvals
           </div>
           <div class="trip-request--element-value">
-            <span *ngFor="let activeApproval of activeApprovals$ | async as list">
+            <div *ngFor="let activeApproval of activeApprovals$ | async as list">
               <span>
                 {{activeApproval.approver_name}}
               </span>
               <span class="text-capitalize">
                 ({{ activeApproval.state | tripState }})
               </span>
-
-            </span>
+            </div>
           </div>
         </div>
         <div class="trip-request--element">

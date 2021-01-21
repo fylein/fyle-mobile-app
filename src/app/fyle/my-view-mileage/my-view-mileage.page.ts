@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, IonContent } from '@ionic/angular';
 import { from, Observable } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -74,15 +74,18 @@ export class MyViewMileagePage implements OnInit {
     );
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
+      tap(res => console.log('\n\n\n 1 ->', res)),
       switchMap(res => {
         return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
       }),
+      tap(res => console.log('\n\n\n 2 ->', res)),
       map(res => {
         return res.map(customProperties => {
           customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
           return customProperties;
         });
-      })
+      }),
+      tap(res => console.log('\n\n\n 3 ->', res))
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);

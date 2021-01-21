@@ -86,9 +86,9 @@
   &--element {
     display: flex;
     border-bottom: 1px solid #e0e0e0;
-    padding: 10px 0;
+    padding: 16px 0;
 
-    &:last-child { 
+    &:last-child {
       border-bottom: 0;
     }
   }
@@ -121,7 +121,7 @@
   }
 
   &--card-action-text {
-    
+
     &__comment {
       color: #0077ee;
       display: inline-block;
@@ -146,7 +146,7 @@
   &--common-action-block {
     display: flex;
     padding: 4px 0;
-    
+
     p {
       display: inline-block;
       vertical-align: middle;
