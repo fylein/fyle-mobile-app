@@ -3,7 +3,7 @@ import {CorporateCreditCardExpenseService} from '../../core/services/corporate-c
 import {ActivatedRoute, Router} from '@angular/router';
 import {from, Observable} from 'rxjs';
 import {CorporateCardExpense} from '../../core/models/corporate-card-expense.model';
-import {finalize, map, switchMap} from 'rxjs/operators';
+import {finalize, map, shareReplay, switchMap} from 'rxjs/operators';
 import {TxnDetail} from '../../core/models/txn-detail.model';
 import {PopupService} from '../../core/services/popup.service';
 import {LoaderService} from '../../core/services/loader.service';
@@ -38,7 +38,8 @@ export class CccClassifiedActionsPage implements OnInit {
       switchMap(() => {
         return this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
       }),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
     );
 
     this.matchedExpense$ = this.cccExpense$.pipe(map(cccExpense => cccExpense.txn_details));

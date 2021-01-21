@@ -8,4 +8,5 @@ export interface PopupConfig {
   secondaryCta?: {
     text: string
   };
+  cssClass?: string;
 }

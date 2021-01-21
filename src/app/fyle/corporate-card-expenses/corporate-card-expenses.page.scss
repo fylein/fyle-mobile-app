@@ -179,16 +179,16 @@
     height: 100%;
     align-items: center;
     text-align: center;
+    margin: 12px;
 
     &-img {
       margin: 32px;
     }
 
     &-header {
-      margin: 12px;
       font-size: 16px;
       display: block;
-      margin-bottom: 16px;
+      margin: 12px 12px 16px;
       color: #4a4a4a;
       line-height: 1.5;
       font-weight: 500;
