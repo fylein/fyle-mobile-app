@@ -790,7 +790,7 @@
           appFormButtonValidation [loading]="saveExpenseLoader" [loadingText]="'SAVING'">
           Save
         </ion-button>
-        <ion-button *ngIf="mode === 'add'" (click)="saveAndNewExpense()" class="add-edit-expense--primary-cta"
+        <ion-button *ngIf="mode === 'add' && !navigateBack" (click)="saveAndNewExpense()" class="add-edit-expense--primary-cta"
                     fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value"
                     appFormButtonValidation [loading]="saveAndNewExpenseLoader" [loadingText]="'SAVING'">
           Save & New
