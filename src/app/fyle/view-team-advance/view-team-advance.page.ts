@@ -7,8 +7,8 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { from, Subject } from 'rxjs';
-import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, take } from 'rxjs/operators';
+import { from, Subject, forkJoin } from 'rxjs';
+import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, take, tap } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { PopoverController } from '@ionic/angular';
 import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';
@@ -16,6 +16,8 @@ import { ApproveAdvanceComponent } from './approve-advance/approve-advance.compo
 import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.component';
 import { RejectAdvanceComponent } from './reject-advance/reject-advance.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -32,6 +34,7 @@ export class ViewTeamAdvancePage implements OnInit {
   advanceRequestCustomFields$: Observable<CustomField[]>;
   refreshApprovers$ = new Subject();
   showAdvanceActions$: Observable<boolean>;
+  customFields$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -40,7 +43,9 @@ export class ViewTeamAdvancePage implements OnInit {
     private router: Router,
     private popupService: PopupService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
+    private authService: AuthService
   ) { }
 
   ionViewWillEnter() {
@@ -52,10 +57,10 @@ export class ViewTeamAdvancePage implements OnInit {
           switchMap(() => {
             return this.advanceRequestService.getAdvanceRequest(id);
           })
-        )
+        );
       }),
       finalize(() => from(this.loaderService.hideLoader())),
-      // shareReplay()
+      shareReplay(1)
     );
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(
@@ -93,11 +98,39 @@ export class ViewTeamAdvancePage implements OnInit {
       }, [] as File[])
     );
 
-    this.advanceRequestCustomFields$ = this.advanceRequest$.pipe(
+    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
+
+    this.advanceRequestCustomFields$ = forkJoin({
+      advanceRequest: this.advanceRequest$.pipe(take(1)),
+      customFields: this.customFields$,
+      eou: from(this.authService.getEou())
+    }).pipe(
+      tap(res => console.log('tap ->', res)),
       map(res => {
-        return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.areq_custom_field_values));
+        if (res.eou.ou.org_id === res.advanceRequest.ou_org_id) {
+          let customFieldValues = [];
+          if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
+            customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+          }
+
+          res.customFields.map(customField => {
+            customFieldValues.filter(customFieldValue => {
+              if (customField.id === customFieldValue.id) {
+                customField.value = customFieldValue.value;
+              }
+            });
+          });
+          return res.customFields;
+
+        } else {
+          return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+        }
       })
     );
+
+    this.advanceRequestCustomFields$.subscribe(res => {
+      console.log('res =>', res);
+    });
   }
 
   edit() {
