@@ -1244,6 +1244,7 @@ export class AddEditExpensePage implements OnInit {
         }
         return tfcMap;
       }),
+      tap(console.log),
       shareReplay(1)
     );
 

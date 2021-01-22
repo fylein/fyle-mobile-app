@@ -1,21 +1,26 @@
 .fy-select-vendor {
-    border: none;
-    width: 100%;
-    &--label-content {
-      margin: 0 8px 0 0;
-      font-size: 16px;
-      min-width: 120px;
-      color: #ababab;
-      font-weight: 500;
-      line-height: 1.5;
-      white-space: nowrap;
-      &__invalid {
-        color: red;
-      }
-    }
+  border: none;
+  width: 100%;
+  background-color: inherit;
+  font-size: 16px;
+  font-weight: 500;
 
-    &--label {
-      display: flex;
-      align-items: center;
+  &--label-content {
+    margin: 0 8px 0 0;
+    font-size: 16px;
+    min-width: 120px;
+    color: #ababab;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+
+    &__invalid {
+      color: red;
     }
   }
+
+  &--label {
+    display: flex;
+    align-items: center;
+  }
+}
