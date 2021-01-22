@@ -240,7 +240,7 @@ export class SignInPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.emailSet = this.fg.value.email;
+    this.emailSet = !!this.fg.value.email;
   }
 
   async ngOnInit() {

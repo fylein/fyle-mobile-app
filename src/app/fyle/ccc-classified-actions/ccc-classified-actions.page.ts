@@ -73,7 +73,9 @@ export class CccClassifiedActionsPage implements OnInit {
       },
       secondaryCta: {
         text: 'Cancel'
-      }
+      },
+      cssClass: 'ccc-popup',
+      showCancelButton: false
     });
 
     if (popupResult === 'primary') {
@@ -93,7 +95,9 @@ export class CccClassifiedActionsPage implements OnInit {
       },
       secondaryCta: {
         text: 'Cancel'
-      }
+      },
+      cssClass: 'ccc-popup',
+      showCancelButton: false
     });
 
     if (popupResult === 'primary') {
