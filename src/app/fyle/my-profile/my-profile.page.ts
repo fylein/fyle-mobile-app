@@ -347,6 +347,8 @@ export class MyProfilePage implements OnInit {
     const { data } = await otpPopover.onWillDismiss();
     if (data && data.isSuccess) {
       return true;
+    } else {
+      return false;
     }
   }
 

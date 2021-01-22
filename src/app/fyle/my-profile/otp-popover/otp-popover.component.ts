@@ -3,7 +3,7 @@ import { PopoverController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import {switchMap, tap} from 'rxjs/operators';
+import {finalize, switchMap, tap} from 'rxjs/operators';
 import { from } from 'rxjs';
 import {TrackingService} from '../../../core/services/tracking.service';
 
@@ -63,6 +63,9 @@ export class OtpPopoverComponent implements OnInit {
       tap(() => this.trackingService.activated({Asset: 'Mobile'})),
       switchMap(() => {
         return from(this.loaderService.showLoader('Mobile verified', 1000));
+      }),
+      finalize(() => {
+        that.isApiCallInProgress = false;
       })
     ).subscribe(
       () => {
@@ -72,11 +75,8 @@ export class OtpPopoverComponent implements OnInit {
         if (err.error.message === 'Invalid OTP') {
           that.otpInfoClass = 'text-danger';
           that.otpInfoMessage = 'Incorrect OTP';
-          this.popoverController.dismiss({isSuccess: false});
         }
-      },
-      () => {
-        that.isApiCallInProgress = false;
-      });
+      }
+    );
   }
 }
