@@ -54,7 +54,7 @@
           Amount
         </div>
         <div class="view-advances--element-value">
-          {{advanceRequest.areq_amount | currency: advanceRequest.areq_currency :true}}
+          {{advanceRequest.areq_amount | currency: advanceRequest.areq_currency : 'symbol-narrow'}}
         </div>
       </div>
 

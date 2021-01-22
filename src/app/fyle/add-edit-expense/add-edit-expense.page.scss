@@ -124,7 +124,7 @@
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
-    text-align: right;
+    text-align: left;
   }
 
   &--text {
@@ -175,6 +175,7 @@
     border: 0;
     line-height: 1;
     border-bottom: 1px solid #e0e0e0;
+
     &:last-child {
       border-bottom: 0;
     }
@@ -201,6 +202,7 @@
   }
 
   &--comment {
+    border-radius: 4px;
     border: 1px solid #e0e0e0;
     padding: 12px;
     margin-bottom: 10px;
@@ -211,6 +213,7 @@
     align-items: center;
     padding: 12px;
     border: 1px solid #e0e0e0;
+    border-radius: 4px;
   }
 
   &--delete-icon {
@@ -275,6 +278,7 @@
   &--receipt-currency-container {
     display: flex;
     align-items: flex-start;
+    width: 100%;
   }
 
   &--receipt-image-subheader {
@@ -287,6 +291,7 @@
   }
 
   &--review-go-left {
+    position: absolute;
     float: left;
     width: 45px;
     height: 76px;
@@ -302,6 +307,8 @@
   }
 
   &--review-go-right {
+    position: absolute;
+    right: 0;
     float: right;
     width: 45px;
     height: 76px;

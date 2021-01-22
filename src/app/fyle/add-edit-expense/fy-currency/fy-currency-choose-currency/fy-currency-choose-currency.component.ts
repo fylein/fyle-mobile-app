@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, map, finalize, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { RecentLocalStorageItemsService } from '../../../../core/services/recent-local-storage-items.service';
+import {OfflineService} from '../../../../core/services/offline.service';
 
 @Component({
   selector: 'app-fy-currency-choose-currency',
@@ -21,7 +22,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   value;
 
   constructor(
-    private currencyService: CurrencyService,
+    private offlineService: OfflineService,
     private modalController: ModalController,
     private loaderService: LoaderService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
@@ -37,7 +38,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   ngOnInit() {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => {
-        return this.currencyService.getAll();
+        return this.offlineService.getCurrencies();
       }),
       map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
       finalize(() => {

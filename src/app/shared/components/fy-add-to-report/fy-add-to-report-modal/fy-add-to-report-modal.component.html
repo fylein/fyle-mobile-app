@@ -31,7 +31,7 @@
             {{selectedOption.value.rp.created_at | date: 'dd MMMM yyyy'}}
           </div>
           <div class="selection-modal--list-element-amount">
-            {{selectedOption.value.rp.amount | currency: selectedOption.value.rp.currency}}
+            {{selectedOption.value.rp.amount | currency: selectedOption.value.rp.currency: 'symbol-narrow'}}
           </div>
         </div>
         <div class="selection-modal--list-element-purpose">
@@ -49,7 +49,7 @@
           {{filteredListItem.value.rp.created_at | date: 'dd MMMM yyyy'}}
         </div>
         <div class="selection-modal--list-element-amount">
-          {{filteredListItem.value.rp.amount | currency: filteredListItem.value.rp.currency}}
+          {{filteredListItem.value.rp.amount | currency: filteredListItem.value.rp.currency: 'symbol-narrow'}}
         </div>
       </div>
       <div class="selection-modal--list-element-purpose">

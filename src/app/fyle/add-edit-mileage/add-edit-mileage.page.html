@@ -68,8 +68,8 @@
                 This mileage has violated a critical policy. You cannot create a report with this mileage.
               </ng-container>
               <ng-template #justAmountCapped>
-                Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency}} was capped
-                to {{etxn.tx.amount | currency: etxn.tx.currency}} due to policy <span
+                Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped
+                to {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy <span
                 *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
               </ng-template>
             </div>
@@ -80,7 +80,7 @@
               <div class="add-edit-mileage--amount">
                 <p class="mb-0">Amount</p>
                 <p class="add-edit-mileage--amount-value mb-0">
-                  {{amount$|async | currency: homeCurrency}}
+                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
                 </p>
               </div>
               <div class="add-edit-mileage--rate">
@@ -97,7 +97,7 @@
                   </ng-template>
                 </p>
                 <p class="add-edit-mileage--rate-value mb-0 text-right">
-                  {{rate$|async | currency: homeCurrency}}
+                  {{rate$|async | currency: homeCurrency: 'symbol-narrow'}}
                 </p>
               </div>
             </div>

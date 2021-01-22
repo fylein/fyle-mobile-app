@@ -19,7 +19,7 @@
 
     <div class="view-per-diem--policy-info-container" *ngIf="isAmountCapped$|async">
       <p class="view-per-diem--policy-info-text" *ngIf="isCriticalPolicyViolated$|async">This expense has violated a critical policy. You cannot create a report with this expense.</p>
-      <p class="view-per-diem--policy-info-text" *ngIf="!(isCriticalPolicyViolated$|async)">Claimed amount {{extendedPerDiem.tx_user_amount | currency: extendedPerDiem.tx_currency}} was capped to {{extendedPerDiem.tx_amount | currency: extendedPerDiem.tx_currency}} due to policy.</p>
+      <p class="view-per-diem--policy-info-text" *ngIf="!(isCriticalPolicyViolated$|async)">Claimed amount {{extendedPerDiem.tx_user_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} was capped to {{extendedPerDiem.tx_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} due to policy.</p>
     </div>
 
     <app-currency [etxn]="extendedPerDiem"></app-currency>
@@ -43,7 +43,7 @@
       <div class="view-per-diem--element" *ngIf="perDiemRate$|async as perDiemRate">
         <div class="view-per-diem--element-label">Per Diem Type</div>
         <div class="view-per-diem--element-value">
-          {{perDiemRate.name}} ({{ perDiemRate.rate | currency: perDiemRate.currency }} per day)
+          {{perDiemRate.name}} ({{ perDiemRate.rate | currency: perDiemRate.currency: 'symbol-narrow' }} per day)
         </div>
       </div>
 

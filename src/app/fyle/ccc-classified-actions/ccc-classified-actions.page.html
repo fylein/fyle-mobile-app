@@ -49,7 +49,7 @@
       </ng-container>
       <ng-template #cannotUnmatch>
         <div class="ccc-classified-actions--alert-container">
-          <app-fy-alert [message]="'This is a matched transaction and has been reconciled.'" 
+          <app-fy-alert [message]="'This is a matched transaction and has been reconciled.'"
             class="ccc-classified-actions--alert-container" [type]="'information'"></app-fy-alert>
         </div>
       </ng-template>
@@ -102,7 +102,7 @@
             <div class="ccc-classified-actions--input-container">
               <div class="ccc-classified-actions--input-container-title">Amount</div>
               <div class="ccc-classified-actions--input-container-value">
-                {{txn.amount | currency: txn.currency}}
+                {{txn.amount | currency: txn.currency: 'symbol-narrow'}}
               </div>
             </div>
             <div class="ccc-classified-actions--input-container">
