@@ -14,7 +14,7 @@
       Enter your details below
     </div>
     <form [formGroup]="fg">
-      <mat-form-field class="sign-in--form-field mat-form-field-no-padding" appearance="outline" *ngIf="!emailSet">
+      <mat-form-field class="signin-signup-fields sign-in--form-field mat-form-field-no-padding" appearance="outline" *ngIf="!emailSet">
         <input id="sign-in--email" (keyup.enter)="checkIfEmailExists()" formControlName="email" type="email" matInput placeholder="Work Email">
       </mat-form-field>
       <div class="sign-in--error" *ngIf="fg.controls.email.touched && !fg.controls.email.valid && !fg.controls.email.value">
@@ -40,7 +40,7 @@
         </ion-grid>
       </div>
 
-      <mat-form-field class="sign-in--form-field mat-form-field-no-padding" appearance="outline" *ngIf="emailSet">
+      <mat-form-field class="signin-signup-fields sign-in--form-field mat-form-field-no-padding" appearance="outline" *ngIf="emailSet">
         <input id="sign-in--password" (keyup.enter)="signInUser()" formControlName="password" [type]="hide ? 'password': 'text'" matInput
           placeholder="Password">
         <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
