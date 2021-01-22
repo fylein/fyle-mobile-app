@@ -175,7 +175,6 @@
     border: 0;
     line-height: 1;
     border-bottom: 1px solid #e0e0e0;
-    display: inline-flex;
 
     &:last-child {
       border-bottom: 0;
@@ -292,6 +291,7 @@
   }
 
   &--review-go-left {
+    position: absolute;
     float: left;
     width: 45px;
     height: 76px;
@@ -307,6 +307,8 @@
   }
 
   &--review-go-right {
+    position: absolute;
+    right: 0;
     float: right;
     width: 45px;
     height: 76px;
