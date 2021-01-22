@@ -216,77 +216,79 @@
       <!-- Trip information block ends -->
 
       <!-- Aditional information block starts -->
-      <div *ngIf="customFields$|async as customFields" class="add-edit-trip--elements-wrapper">
-        <div class="add-edit-trip--wrapper-title">
-          Aditional information
-        </div>
-        <div class="add-edit-trip--element-container">
-          <div *ngFor="let customInput of customFields">
-            <form [formGroup]="customInput.control">
-              <div *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'"
-                   class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
-                <div [ngClass]="{'add-edit-trip--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                     class="add-edit-trip--text-label">
-                  {{customInput.input_name | ellipsis: 20}}
-                  <span *ngIf="customInput.mandatory">
-                    *
-                  </span>
+      <ng-container *ngIf="customFields$|async as customFields">
+        <div *ngIf="customFields.length > 0" class="add-edit-trip--elements-wrapper">
+          <div class="add-edit-trip--wrapper-title">
+            Aditional information
+          </div>
+          <div class="add-edit-trip--element-container">
+            <div *ngFor="let customInput of customFields">
+              <form [formGroup]="customInput.control">
+                <div *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'"
+                      class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                  <div [ngClass]="{'add-edit-trip--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
+                        class="add-edit-trip--text-label">
+                    {{customInput.input_name | ellipsis: 20}}
+                    <span *ngIf="customInput.mandatory">
+                      *
+                    </span>
+                  </div>
+                  <input *ngIf="customInput.input_type === 'TEXT'" class="add-edit-trip--text-input" formControlName="value"
+                          type="text">
+  
+                  <input *ngIf="customInput.input_type === 'NUMBER'" class="add-edit-trip--text-input" formControlName="value" inputmode="decimal"
+                          type="number">
+  
+                  <input *ngIf="customInput.input_type === 'DATE'" class="add-edit-trip--date-input" formControlName="value"
+                          type="date">
                 </div>
-                <input *ngIf="customInput.input_type === 'TEXT'" class="add-edit-trip--text-input" formControlName="value"
-                       type="text">
-
-                <input *ngIf="customInput.input_type === 'NUMBER'" class="add-edit-trip--text-input" formControlName="value" inputmode="decimal"
-                       type="number">
-
-                <input *ngIf="customInput.input_type === 'DATE'" class="add-edit-trip--date-input" formControlName="value"
-                       type="date">
-              </div>
-
-              <div *ngIf="customInput.input_type === 'BOOLEAN'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
-                <div class="add-edit-trip--checkbox">
-                  <mat-checkbox color="primary" formControlName="value">
-                    {{customInput.input_name | ellipsis: 20 }}
-                  </mat-checkbox>
+  
+                <div *ngIf="customInput.input_type === 'BOOLEAN'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                  <div class="add-edit-trip--checkbox">
+                    <mat-checkbox color="primary" formControlName="value">
+                      {{customInput.input_name | ellipsis: 20 }}
+                    </mat-checkbox>
+                  </div>
                 </div>
-              </div>
-
-              <div *ngIf="customInput.input_type === 'LOCATION'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
-                <app-fy-location [mandatory]="customInput.mandatory" [label]="customInput.input_name" formControlName="value"></app-fy-location>
-              </div>
-
-              <div *ngIf="customInput.input_type === 'SELECT'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
-                <app-fy-select 
-                  [mandatory]="customInput.mandatory"
-                  [label]="customInput.input_name" 
-                  [options]="customInput.options"
-                  formControlName="value">
-                </app-fy-select>
-              </div>
-
-              <div *ngIf="customInput.input_type === 'MULTI_SELECT'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
-                <app-fy-multiselect 
-                  [mandatory]="customInput.mandatory"
-                  [label]="customInput.input_name" 
-                  [options]="customInput.options"
-                  formControlName="value">
-                </app-fy-multiselect>
-              </div>
-
-              <div *ngIf="customInput.input_type === 'USER_LIST'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
-                <app-fy-userlist 
-                  [mandatory]="customInput.mandatory"
-                  [label]="customInput.input_name" 
-                  formControlName="value">
-                </app-fy-userlist>
-              </div>
-
-              <div *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid" class="add-edit-trip--mandatory-text">
-                Please add {{customInput.input_name}}
-              </div>
-            </form>
+  
+                <div *ngIf="customInput.input_type === 'LOCATION'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                  <app-fy-location [mandatory]="customInput.mandatory" [label]="customInput.input_name" formControlName="value"></app-fy-location>
+                </div>
+  
+                <div *ngIf="customInput.input_type === 'SELECT'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                  <app-fy-select 
+                    [mandatory]="customInput.mandatory"
+                    [label]="customInput.input_name" 
+                    [options]="customInput.options"
+                    formControlName="value">
+                  </app-fy-select>
+                </div>
+  
+                <div *ngIf="customInput.input_type === 'MULTI_SELECT'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                  <app-fy-multiselect 
+                    [mandatory]="customInput.mandatory"
+                    [label]="customInput.input_name" 
+                    [options]="customInput.options"
+                    formControlName="value">
+                  </app-fy-multiselect>
+                </div>
+  
+                <div *ngIf="customInput.input_type === 'USER_LIST'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                  <app-fy-userlist 
+                    [mandatory]="customInput.mandatory"
+                    [label]="customInput.input_name" 
+                    formControlName="value">
+                  </app-fy-userlist>
+                </div>
+  
+                <div *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid" class="add-edit-trip--mandatory-text">
+                  Please add {{customInput.input_name}}
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
+      </ng-container>
       <!-- Aditional information block ends -->
       <div>
         <div *ngIf="isHotelEnabled$|async" class="add-edit-trip--other-requests">
