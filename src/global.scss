@@ -297,6 +297,12 @@ textarea, input {
   background-color: transparent;
 }
 
+.signin-signup-fields {
+  .mat-form-field-flex {
+    padding: 6px 24px !important;
+  }
+}
+
 .expense-report-search {
   width: 100%;
 
