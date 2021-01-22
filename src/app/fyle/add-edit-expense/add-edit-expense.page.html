@@ -803,7 +803,6 @@
         <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary"
           appFormButtonValidation [loading]="saveAndNextExpenseLoader" [loadingText]="'SAVING'">
           {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
-          <!-- {{vm.reviewList.length > 0 && !(vm.activeIndex === vm.reviewList.length - 1) ? 'Save and Next' : 'Save'}} -->
         </ion-button>
       </ion-buttons>
     </ion-toolbar>
