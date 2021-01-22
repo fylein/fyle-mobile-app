@@ -171,6 +171,7 @@
                 [options]="paymentModes"
                 [selectionElement]="paymentMode"
                 [nullOption]="false"
+                [disabled]="isExpenseBankTxn"
                 [selectModalHeader]="'Choose Payment Mode'">
               </app-fy-select>
               <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">

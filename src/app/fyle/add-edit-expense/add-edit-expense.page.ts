@@ -119,6 +119,7 @@ export class AddEditExpensePage implements OnInit {
   tfcDefaultValues$: Observable<any>;
   expenseStartTime;
   navigateBack = false;
+  isExpenseBankTxn = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -774,6 +775,7 @@ export class AddEditExpensePage implements OnInit {
       map((dependencies) => {
         const {orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData, recentCurrency} = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
+        this.isExpenseBankTxn = bankTxn;
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
         if (!bankTxn) {
