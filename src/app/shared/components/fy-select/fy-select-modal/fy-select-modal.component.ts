@@ -24,6 +24,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() selectModalHeader = '';
   @Input() showSaveButton = false;
   @Input() placeholder = '';
+  @Input() defaultLabelProp;
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -59,14 +60,27 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
             if (this.customInput) {
               initial.push({ label: searchText, value: searchText, selected: false});
             }
+            let extraOption = [];
+            if (this.currentSelection && this.defaultLabelProp) {
+              const selectedOption = this.options.find(option => isEqual(option.value, this.currentSelection));
+              if (!selectedOption) {
+                extraOption = extraOption.concat({
+                  label: this.currentSelection[this.defaultLabelProp],
+                  value: this.currentSelection,
+                  selected: false
+                });
+              }
+            }
 
             return initial.concat(this.options
+              .concat(extraOption)
               .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
               .sort((element1, element2) => element1.label.localeCompare(element2.label))
               .map(option => {
                 option.selected = isEqual(option.value, this.currentSelection);
                 return option;
-              }));
+              })
+            );
           }
         )
       );

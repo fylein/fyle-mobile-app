@@ -150,9 +150,9 @@
               </div>
               <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
                      (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
-              <div class="add-edit-expense--error" *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid">
-                Please select a date.
-              </div>
+            </div>
+            <div class="add-edit-expense--error" *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid">
+              Please select a date.
             </div>
           </ng-container>
 
@@ -302,13 +302,14 @@
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                 <div class="add-edit-expense--internal-block">
                   <app-fy-select
-                  formControlName="category"
+                    formControlName="category"
                     [label]="fg.controls.category.value? 'Category':'Select Category'"
                     [mandatory]="transactionMandatoyFields.category"
                     [options]="categories"
                     [cacheName]="'recentCategoryList'"
                     [selectModalHeader]="'Choose Category'"
                     [subheader]="'All Categories'"
+                    [defaultLabelProp]="'displayName'"
                   >
                   </app-fy-select>
                 </div>

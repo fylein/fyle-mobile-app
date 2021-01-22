@@ -34,6 +34,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() selectModalHeader = '';
   @Input() showSaveButton = false;
   @Input() placeholder = '';
+  @Input() defaultLabelProp;
 
   private innerValue;
   displayValue;
@@ -71,11 +72,13 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       this.innerValue = v;
       if (this.options) {
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
-        if (selectedOption) {
-          this.displayValue = selectedOption && selectedOption.label;
-        } else if (typeof this.innerValue === 'string'){
+        if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
-        } else {
+        } else if (selectedOption) {
+          this.displayValue = selectedOption.label;
+        } else if (this.innerValue && this.defaultLabelProp) {
+          this.displayValue = this.innerValue[this.defaultLabelProp];
+        }  else {
           this.displayValue = '';
         }
       }
@@ -98,7 +101,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         enableSearch: this.enableSearch,
         selectModalHeader: this.selectModalHeader || 'Select Item',
         placeholder: this.placeholder,
-        showSaveButton: this.showSaveButton
+        showSaveButton: this.showSaveButton,
+        defaultLabelProp: this.defaultLabelProp
       }
     });
 
@@ -122,10 +126,13 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       this.innerValue = value;
       if (this.options) {
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
-        if (selectedOption) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
+
+        if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
+        } else if (selectedOption) {
+          this.displayValue = selectedOption.label;
+        } else if (this.innerValue && this.defaultLabelProp) {
+          this.displayValue = this.innerValue[this.defaultLabelProp];
         } else {
           this.displayValue = '';
         }
