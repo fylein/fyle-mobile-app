@@ -18,7 +18,7 @@
     <div class="sign-up--form-subheader">
       We just need your work email address.
     </div>
-    <mat-form-field class="sign-up--form-field mat-form-field-no-padding" appearance="outline" *ngIf="!emailSet">
+    <mat-form-field class="sign-up--form-field signin-signup-fields mat-form-field-no-padding" appearance="outline" *ngIf="!emailSet">
       <input pattern="\S+@\S+\.\S{2,}" [(ngModel)]="userEmail" (keyup)="onEmailChange($event)" type="email" matInput placeholder="Work Email" required #emailInput="ngModel">
     </mat-form-field>
     <div class="sign-up--form-field-error" *ngIf="emailInputElement?.control?.touched && !emailInputElement?.control?.valid && !emailInputElement?.control?.value">

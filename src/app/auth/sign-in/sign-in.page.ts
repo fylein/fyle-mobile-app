@@ -190,6 +190,7 @@ export class SignInPage implements OnInit {
         finalize(() => this.passwordLoading = false)
       ).subscribe(() => {
         this.pushNotificationService.initPush();
+        this.fg.reset();
         this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
       });
     } else {
@@ -236,6 +237,10 @@ export class SignInPage implements OnInit {
     const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
     this.trackingService.eventTrack('Added Login Info', {Asset: 'Mobile', label: deviceInfo.appVersion});
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
+  }
+
+  ionViewWillEnter() {
+    this.emailSet = !!this.fg.value.email;
   }
 
   async ngOnInit() {

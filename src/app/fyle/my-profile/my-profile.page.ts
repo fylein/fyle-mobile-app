@@ -333,6 +333,25 @@ export class MyProfilePage implements OnInit {
     );
   }
 
+  async verifyOtp() {
+    const otpPopover = await this.popoverController.create({
+      componentProps: {
+        phoneNumber: this.mobileNumber
+      },
+      component: OtpPopoverComponent,
+      cssClass: 'dialog-popover'
+    })
+
+    await otpPopover.present();
+
+    const { data } = await otpPopover.onWillDismiss();
+    if (data && data.isSuccess) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   openOtpPopover() {
     this.verifyMobileLoading = true;
     const that = this;
@@ -348,15 +367,7 @@ export class MyProfilePage implements OnInit {
         }
       }),
       switchMap((resp) => {
-        return of(that.popoverController.create({
-          componentProps: {
-            phoneNumber: that.mobileNumber
-          },
-          component: OtpPopoverComponent,
-          cssClass: 'dialog-popover'
-        }).then(popOver => {
-          return popOver.present();
-        }));
+        return this.verifyOtp();
       }),
       catchError((error) => {
         if (error.type === 'plusMissingError') {
