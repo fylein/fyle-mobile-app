@@ -90,6 +90,10 @@
 
 <ion-footer class="ion-no-border">
   <ion-toolbar mode="md">
+    <div class="split-expense--error-message-block" *ngIf="showErrorBlock">
+      <p class="split-expense--error-message">{{errorMessage}}</p>
+    </div>
+
     <div class="split-expense--sub-footer" *ngIf="amount">
       <div class="split-expense--sub-footer__total">Total:
         <span class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}/{{amount}}</span>
@@ -108,7 +112,8 @@
             </ion-button>
           </ion-col>
           <ion-col size="6">
-            <ion-button class="split-expense--primary-cta" fill="solid" color="fyle-primary" (click)="save()">
+            <ion-button class="split-expense--primary-cta" fill="solid" color="fyle-primary" (click)="save()"
+            appFormButtonValidation [loading]="saveSplitExpenseLoading" [loadingText]="'SPLITTING'">
               SPLIT
             </ion-button>
           </ion-col>

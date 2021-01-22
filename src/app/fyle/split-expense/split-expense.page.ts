@@ -36,6 +36,9 @@ export class SplitExpensePage implements OnInit {
   maxDate: string;
   minDate: string;
   selectedCCCTransaction: any;
+  saveSplitExpenseLoading: boolean;
+  errorMessage: string;
+  showErrorBlock: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -47,7 +50,7 @@ export class SplitExpensePage implements OnInit {
     private popoverController: PopoverController,
     private transactionService: TransactionService,
     private fileService: FileService,
-    private navController: NavController
+    private navController: NavController,
   ) { }
 
   ngOnInit() {
@@ -166,11 +169,20 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
+
   save() {
     if (this.splitExpensesFormArray.valid) {
+      this.showErrorBlock = false;
       if (this.amount && this.amount > 0 && this.amount !== this.totalSplitAmount ) {
         // Todo: show Error block
+        this.showErrorBlock = true;
+        this.errorMessage = 'Total split amount should be ' + this.amount + '.';
+        setTimeout(() => {
+          this.showErrorBlock = false;
+        }, 2500);
+        return;
       }
+      this.saveSplitExpenseLoading = true;
       const generatedSplitEtxn = [];
       this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
         generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
@@ -198,7 +210,8 @@ export class SplitExpensePage implements OnInit {
         }),
       ).subscribe(
         () => this.showSplitExpenseStatusPopup(true),
-        () => this.showSplitExpenseStatusPopup(false)
+        () => this.showSplitExpenseStatusPopup(false),
+        () => this.saveSplitExpenseLoading = false
       );
 
     } else {
