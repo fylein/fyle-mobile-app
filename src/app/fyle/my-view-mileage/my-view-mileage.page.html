@@ -19,17 +19,17 @@
 
     <div class="view-mileage--policy-info-container" *ngIf="isAmountCapped$|async">
       <p class="view-mileage--policy-info-text" *ngIf="isCriticalPolicyViolated$|async">This expense has violated a critical policy. You cannot create a report with this expense.</p>
-      <p class="view-mileage--policy-info-text" *ngIf="!(isCriticalPolicyViolated$|async)">Claimed amount {{extendedMileage.tx_user_amount | currency: extendedMileage.tx_currency}} was capped to {{extendedMileage.tx_amount | currency: extendedMileage.tx_currency}} due to policy.</p>
+      <p class="view-mileage--policy-info-text" *ngIf="!(isCriticalPolicyViolated$|async)">Claimed amount {{extendedMileage.tx_user_amount | currency: extendedMileage.tx_currency: 'symbol-narrow'}} was capped to {{extendedMileage.tx_amount | currency: extendedMileage.tx_currency: 'symbol-narrow'}} due to policy.</p>
     </div>
 
     <div class="view-mileage--mileage-amount-rate-block">
       <div class="view-mileage--amount-currency-block">
         <p class="view-mileage--amount-header">Amount</p>
-        <p class="view-mileage--amount-currency">{{extendedMileage.tx_amount | currency:extendedMileage.tx_currency}}</p>
+        <p class="view-mileage--amount-currency">{{extendedMileage.tx_amount | currency:extendedMileage.tx_currency: 'symbol-narrow'}}</p>
       </div>
       <div class="view-mileage--rate-block text-right">
         <p class="view-mileage--rate-header text-capitalize">Rate / <span>{{extendedMileage.tx_distance_unit}}</span></p>
-        <p class="view-mileage--rate">{{extendedMileage.tx_mileage_rate | currency:extendedMileage.tx_currency}}</p>
+        <p class="view-mileage--rate">{{extendedMileage.tx_mileage_rate | currency:extendedMileage.tx_currency: 'symbol-narrow'}}</p>
       </div>
     </div>
 

@@ -20,7 +20,7 @@
         <div class="match-expense-popover--input-container">
           <div class="match-expense-popover--input-container-title">Amount</div>
           <div class="match-expense-popover--input-container-value">
-            {{txn.tx_amount | currency: txn.tx_currency}}
+            {{txn.tx_amount | currency: txn.tx_currency: 'symbol-narrow'}}
           </div>
         </div>
         <div class="match-expense-popover--input-container">
