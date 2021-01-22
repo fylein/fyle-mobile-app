@@ -27,19 +27,23 @@
 
 <ion-content>
   <div class="add-edit-expense--review-nav" *ngIf="reviewList?.length && !focusState">
-    <button class="add-edit-expense--review-go-left" [disabled]="+activeIndex === 0" (click)="goToPrev()"
+    <div>
+      <button class="add-edit-expense--review-go-left" [disabled]="+activeIndex === 0" (click)="goToPrev()"
       [ngClass]="{'add-edit-expense--review-go-left__disabled': +activeIndex === 0}">
       <mat-icon>
         keyboard_arrow_left
       </mat-icon>
-    </button>
-    <button class="add-edit-expense--review-go-right" [disabled]="+activeIndex === reviewList?.length - 1"
+      </button>
+    </div>
+    <div>
+      <button class="add-edit-expense--review-go-right" [disabled]="+activeIndex === reviewList?.length - 1"
       (click)="goToNext()"
       [ngClass]="{'add-edit-expense--review-go-right__disabled': +activeIndex === reviewList?.length - 1}">
       <mat-icon>
         keyboard_arrow_right
       </mat-icon>
-    </button>
+      </button>
+    </div>
   </div>
   <ng-container *ngIf="fg">
     <div class="add-edit-expense--duplicate-pointer-container">
@@ -81,13 +85,12 @@
           </ng-container>
         </ng-container>
 
-        <div>
-          <ng-container *ngIf="etxn$|async as etxn">
-            <div *ngIf="reviewList?.length > 0">
-              <app-fy-preview-attachments [txnId]="etxn.tx.id"></app-fy-preview-attachments>
-            </div>
-          </ng-container>
-        </div>
+        <ng-container *ngIf="etxn$|async as etxn">
+          <div *ngIf="reviewList?.length > 0">
+            <app-fy-preview-attachments [txnId]="etxn.tx.id"></app-fy-preview-attachments>
+          </div>
+        </ng-container>
+
         <div class="add-edit-expense--receipt-currency-container">
           <div *ngIf="!reviewList?.length || canAttachReceipts" class="add-edit-expense--receipt">
             <div class="add-edit-expense--receipt-image" *ngIf="attachmentUploadInProgress">
@@ -794,13 +797,13 @@
         <ion-button *ngIf="mode === 'add' && !navigateBack" (click)="saveAndNewExpense()" class="add-edit-expense--primary-cta"
                     fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value"
                     appFormButtonValidation [loading]="saveAndNewExpenseLoader" [loadingText]="'SAVING'">
-          Save & New
+          Save and New
         </ion-button>
       </ion-buttons>
       <ion-buttons *ngIf="reviewList">
         <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary"
           appFormButtonValidation [loading]="saveAndNextExpenseLoader" [loadingText]="'SAVING'">
-          Save & Next
+          {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
         </ion-button>
       </ion-buttons>
     </ion-toolbar>

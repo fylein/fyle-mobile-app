@@ -1,6 +1,6 @@
 {
-  "appId": "com.fylehq.production",
-  "appName": "Fyle v2 Alpha",
+  "appId": "com.ionicframework.fyle595781.staging",
+  "appName": "Fyle Staging",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

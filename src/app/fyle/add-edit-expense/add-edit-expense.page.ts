@@ -1422,8 +1422,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goToPrev() {
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
-
+    this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     if (this.reviewList[+this.activeIndex - 1]) {
       this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe(etxn => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
@@ -1432,8 +1431,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goToNext() {
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
-
+    this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     if (this.reviewList[+this.activeIndex + 1]) {
       this.transactionService.getETxn(this.reviewList[+this.activeIndex + 1]).subscribe(etxn => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
@@ -1590,7 +1588,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+    this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
 
     this.title = 'Add Expense';
