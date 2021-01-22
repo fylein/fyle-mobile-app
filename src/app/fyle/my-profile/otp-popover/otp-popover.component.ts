@@ -66,12 +66,13 @@ export class OtpPopoverComponent implements OnInit {
       })
     ).subscribe(
       () => {
-        this.popoverController.dismiss();
+        this.popoverController.dismiss({isSuccess: true});
       },
       (err) => {
-        if (err.data.message === 'Invalid OTP') {
+        if (err.error.message === 'Invalid OTP') {
           that.otpInfoClass = 'text-danger';
           that.otpInfoMessage = 'Incorrect OTP';
+          this.popoverController.dismiss({isSuccess: false});
         }
       },
       () => {
