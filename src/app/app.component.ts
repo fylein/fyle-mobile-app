@@ -461,6 +461,11 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    if ((window as any) && (window as any).localStorage) {
+      const lstorage = (window as any).localStorage;
+      Object.keys(lstorage).filter(key => key.match(/^fyle/)).forEach(key => lstorage.removeItem(key));
+    }
+
     from(this.deviceService.getDeviceInfo()).subscribe(res => {
       if (res.platform === 'android' || res.platform === 'ios') {
         this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
