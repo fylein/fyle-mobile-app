@@ -20,7 +20,7 @@
         </div>
         <div class="advance-requests--advance-amount">
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
-            Amount:  {{advanceRequest.amount | currency:homeCurrency}}
+            Amount:  {{advanceRequest.amount | currency:homeCurrency: 'symbol-narrow'}}
           </ng-container>
         </div>
       </div>
@@ -31,7 +31,7 @@
             <div class="advance-requests--element-label">Amount</div>
             <div class="advance-requests--element-value">
               <ng-container *ngIf="advanceRequest.amount">
-                {{advanceRequest.amount | currency:homeCurrency}}
+                {{advanceRequest.amount | currency:homeCurrency: 'symbol-narrow'}}
               </ng-container>
               <ng-container *ngIf="!advanceRequest.amount">_</ng-container>
             </div>
