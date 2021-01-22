@@ -263,6 +263,7 @@
   }
 
   &--review-go-left {
+    position: absolute;
     float: left;
     width: 45px;
     height: 76px;
@@ -278,6 +279,8 @@
   }
 
   &--review-go-right {
+    position: absolute;
+    right: 0;
     float: right;
     width: 45px;
     height: 76px;
