@@ -398,13 +398,15 @@ textarea, input {
   }
 }
 
-mat-tab-group {
-  .mat-tab-body-wrapper {
-    position: inherit !important;
-    display: block !important;
-
-    .mat-tab-body.mat-tab-body-active {
+.other-details--container {
+  mat-tab-group {
+    .mat-tab-body-wrapper {
       position: inherit !important;
+      display: block !important;
+  
+      .mat-tab-body.mat-tab-body-active {
+        position: inherit !important;
+      }
     }
-  }
+  }  
 }

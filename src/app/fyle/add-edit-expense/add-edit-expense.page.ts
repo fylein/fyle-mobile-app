@@ -1423,9 +1423,6 @@ export class AddEditExpensePage implements OnInit {
 
   goToPrev() {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
-    console.log('asdbkajsdn ->', typeof this.activeIndex);
-    let x = ((this.reviewList.length) - 1);
-    console.log('reviewList ->', typeof x);
     if (this.reviewList[+this.activeIndex - 1]) {
       this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe(etxn => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
