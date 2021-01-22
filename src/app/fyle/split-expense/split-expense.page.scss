@@ -193,4 +193,18 @@ $background-color: #fff;
     background-color: #fff;
     box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1) !important;
   }
+
+  &--error-message-block {
+    width: 100%;
+    bottom: 80px;
+    left: 0;
+    background: rgba(221, 0, 0, 0.7);
+    color: #fff;
+    padding: 16px;
+  }
+
+  &--error-message {
+    font-size: 16px;
+    margin: 0 !important;
+  }
 }
