@@ -300,6 +300,14 @@
             </ng-container>
           </ng-container>
 
+          <div class="add-edit-expense--internal-block" *ngIf="fg.controls.project.value">
+            <mat-checkbox color="primary" formControlName="billable">
+            <span class="add-edit-expense--checkbox">
+              Billable
+            </span>
+            </mat-checkbox>
+          </div>
+
 
           <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
             <ng-container *ngIf="filteredCategories$|async as categories">
@@ -647,13 +655,6 @@
       </ng-container>
 
       <div class="add-edit-expense--primary-block">
-        <div class="add-edit-expense--internal-block" *ngIf="fg.controls.project.value">
-          <mat-checkbox color="primary" formControlName="billable">
-            <span class="add-edit-expense--checkbox">
-              Billable
-            </span>
-          </mat-checkbox>
-        </div>
 
         <ng-container *ngIf="costCenters$|async as costCenters">
           <ng-container *ngIf="txnFields$|async as txnFields">

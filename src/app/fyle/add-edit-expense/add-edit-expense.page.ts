@@ -1309,6 +1309,14 @@ export class AddEditExpensePage implements OnInit {
             ) {
               control.setValidators(Validators.required);
             }
+          } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
+            if (this.fg.value.category &&
+              this.fg.value.category.fyle_category &&
+              ['Taxi'].includes(this.fg.value.category.fyle_category) &&
+              !(orgSettings.projects && orgSettings.projects.enabled && !isConnected)
+            ) {
+              control.setValidators(Validators.required);
+            }
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
