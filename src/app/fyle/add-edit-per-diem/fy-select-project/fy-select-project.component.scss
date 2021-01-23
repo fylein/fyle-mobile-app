@@ -1,6 +1,9 @@
 .fy-select-project {
   border: none;
   width: 100%;
+  background-color: inherit;
+  font-size: 16px;
+  font-weight: 500;
   &--label-content {
     margin: 0 8px 0 0;
     font-size: 16px;

@@ -1220,7 +1220,7 @@ export class AddEditPerDiemPage implements OnInit {
             amount: amountData.amount,
             orig_currency: amountData.orig_currency,
             orig_amount: amountData.orig_amount,
-            project_id: formValue.project && formValue.project.id,
+            project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
             org_user_id: etxn.tx.org_user_id,

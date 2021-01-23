@@ -305,7 +305,6 @@
               </ng-container>
             </ng-container>
 
-
             <div *ngIf="fg.controls.project.value" class="add-edit-mileage--internal-block">
               <mat-checkbox color="primary" formControlName="billable">
                 <span class="add-edit-mileage--checkbox">
@@ -313,8 +312,7 @@
                 </span>
               </mat-checkbox>
             </div>
-
-
+            
             <ng-container *ngIf="filteredCategories$|async as subCategories">
               <ng-container *ngIf="subCategories.length > 0">
                 <div class="add-edit-mileage--internal-block">
