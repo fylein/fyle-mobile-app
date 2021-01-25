@@ -9,12 +9,27 @@ $org-thumb-text: #666;
   &--form-field {
     font-size: 11px;
     width: 100%;
-    padding: 4px;
+    padding: 4px 8px 4px 8px;
     background-color: $header-input;
+  }
+
+  &--toolbar {
+    --background: #f5f5f5;
   }
 
   &--search-icon {
     font-size: 14px;
+    padding-right: 10px;
+    color: #aaaaaa;
+    font-weight: bolder;
+  }
+
+  &--search-input {
+    font-size: 14px;
+
+    &::placeholder {
+      color: #ababab;
+    }
   }
 
   &--toolbar-header {
