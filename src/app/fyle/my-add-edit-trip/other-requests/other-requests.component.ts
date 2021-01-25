@@ -882,7 +882,7 @@ export class OtherRequestsComponent implements OnInit {
           const details = this.formBuilder.group({
             amount: [null, Validators.required],
             currency: [res.preferredCurrency || res.homeCurrency, Validators.required],
-            purpose: [null, Validators.required],
+            purpose: [this.fgValues.purpose, Validators.required],
             custom_field_values: new FormArray([]),
             notes: [null]
           });

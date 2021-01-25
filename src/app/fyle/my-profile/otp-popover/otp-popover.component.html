@@ -29,14 +29,14 @@
         RESEND OTP
       </ng-container>
       <ng-template #waitMessage>
-        PLEASE WAIT
+        RESEND OTP - PLEASE WAIT
       </ng-template>
     </button>
   </div>
 
   <div class="otp-popover--buttons">
     <button mat-flat-button color="primary" class="otp-popover--button"
-      [disabled]="!otpNumber.valid || isApiCallInProgress" (click)="verifyOtp($event)">
+      [ngClass]="{'otp-popover--primary-disabled': !otpNumber.valid || isApiCallInProgress}" (click)="verifyOtp($event)">
       VERIFY OTP
     </button>
   </div>

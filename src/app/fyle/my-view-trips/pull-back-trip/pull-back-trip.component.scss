@@ -2,20 +2,20 @@ $details-color: #ababab;
 
 .pull-back {
   &--header {
-    letter-spacing: 1.4px;
     padding: 16px;
     display: flex;
     justify-content: space-between;
   }
 
   &--title {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 700;
   }
 
   &--cancel {
     color: #0077ee;
-    font-weight: 700;
+    font-weight: 500;
+    font-size: 16pxl
   }
 
   &--details {
@@ -28,6 +28,10 @@ $details-color: #ababab;
 
   &--form {
     padding: 0 16px;
+  }
+
+  &--disabled {
+    opacity: 0.2;
   }
 
   &--form-input {

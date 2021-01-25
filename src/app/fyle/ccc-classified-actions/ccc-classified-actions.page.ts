@@ -23,6 +23,7 @@ export class CccClassifiedActionsPage implements OnInit {
   canUnmarkPersonal$: Observable<boolean>;
   canUndoDismissal$: Observable<boolean>;
   collectedBack$: Observable<boolean>;
+  pageState: string;
 
   constructor(
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -34,6 +35,10 @@ export class CccClassifiedActionsPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    if (this.activatedRoute.snapshot.params.pageState) {
+      this.pageState = this.activatedRoute.snapshot.params.pageState;
+    }
+
     this.cccExpense$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
@@ -82,8 +87,12 @@ export class CccClassifiedActionsPage implements OnInit {
       await this.loaderService.showLoader();
       await this.corporateCreditCardExpenseService.unmarkPersonal(cccExpense.group_id).toPromise();
       await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      this.router.navigate(['/', 'enterprise', 'ccc_classify_actions', {cccTransactionId: cccExpense.id}]);
     }
+  }
+
+  close() {
+    this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', {pageState: this.pageState}]);
   }
 
   async undoDismissal(cccExpense: CorporateCardExpense) {
@@ -104,7 +113,7 @@ export class CccClassifiedActionsPage implements OnInit {
       await this.loaderService.showLoader();
       await this.corporateCreditCardExpenseService.undoDismissedCreditTransaction(cccExpense.id).toPromise();
       await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      this.router.navigate(['/', 'enterprise', 'ccc_classify_actions', {cccTransactionId: cccExpense.id}]);
     }
   }
 
@@ -126,7 +135,7 @@ export class CccClassifiedActionsPage implements OnInit {
       await this.loaderService.showLoader();
       await this.transactionService.unmatchCCCExpense(cccExpense.txn_details[0].id, cccExpense.id).toPromise();
       await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      this.router.navigate(['/', 'enterprise', 'ccc_classify_actions', {cccTransactionId: cccExpense.id}]);
     }
   }
 }

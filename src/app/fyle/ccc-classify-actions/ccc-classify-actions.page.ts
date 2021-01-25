@@ -21,6 +21,7 @@ export class CccClassifyActionsPage implements OnInit {
 
   cccExpense$: Observable<CorporateCardExpense>;
   expenseSuggestions$: Observable<ExpenseSuggestion[]>;
+  pageState: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -36,7 +37,15 @@ export class CccClassifyActionsPage implements OnInit {
   ngOnInit() {
   }
 
+  close() {
+    this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', {pageState: this.pageState}]);
+  }
+
   ionViewWillEnter() {
+    if (this.activatedRoute.snapshot.params.pageState) {
+      this.pageState = this.activatedRoute.snapshot.params.pageState;
+    }
+
     this.cccExpense$ = this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
     this.expenseSuggestions$ = this.cccExpense$.pipe(
       switchMap(cccExpense => {
@@ -75,7 +84,7 @@ export class CccClassifyActionsPage implements OnInit {
       await this.loaderService.showLoader();
       await this.corporateCreditCardExpenseService.dismissCreditTransaction(cccTxn.id).toPromise();
       await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', {pageState: this.pageState}]);
     }
   }
 
@@ -101,7 +110,7 @@ export class CccClassifyActionsPage implements OnInit {
       await this.loaderService.showLoader();
       await this.corporateCreditCardExpenseService.markPersonal(cccTxn.id).toPromise();
       await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', {pageState: this.pageState}]);
     }
   }
 

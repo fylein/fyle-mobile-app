@@ -4,11 +4,11 @@ import {LoaderService} from '../../core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from '../../core/services/date.service';
 import {CurrencyService} from '../../core/services/currency.service';
-import {ActivatedRoute, Params, Router} from '@angular/router';
+import {ActivatedRoute, Params, Router, NavigationEnd} from '@angular/router';
 import {TransactionsOutboxService} from '../../core/services/transactions-outbox.service';
 import {OfflineService} from '../../core/services/offline.service';
 import {PopupService} from '../../core/services/popup.service';
-import {debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, takeUntil} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, takeUntil, filter} from 'rxjs/operators';
 import {BehaviorSubject, concat, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject} from 'rxjs';
 import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
 import {CorporateCardExpense} from '../../core/models/corporate-card-expense.model';
@@ -82,6 +82,7 @@ export class CorporateCardExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
@@ -176,6 +177,10 @@ export class CorporateCardExpensesPage implements OnInit {
         );
       })
     );
+
+    if (this.activatedRoute.snapshot.params.pageState) {
+      this.baseState = this.activatedRoute.snapshot.params.pageState;
+    }
 
     this.cardTransactions$ = this.loadData$.pipe(
       switchMap(params => {
@@ -366,9 +371,9 @@ export class CorporateCardExpensesPage implements OnInit {
 
   goToTransaction(cccTxn) {
     if (this.baseState === 'unclassified') {
-      this.router.navigate(['/', 'enterprise', 'ccc_classify_actions', { cccTransactionId: cccTxn.id }]);
+      this.router.navigate(['/', 'enterprise', 'ccc_classify_actions', { cccTransactionId: cccTxn.id, pageState: this.baseState }]);
     } else {
-      this.router.navigate(['/', 'enterprise', 'ccc_classified_actions', { cccTransactionId: cccTxn.id }]);
+      this.router.navigate(['/', 'enterprise', 'ccc_classified_actions', { cccTransactionId: cccTxn.id, pageState: this.baseState }]);
     }
   }
 }

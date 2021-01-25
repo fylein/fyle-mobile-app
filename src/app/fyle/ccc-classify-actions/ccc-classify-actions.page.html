@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar class="ccc-classify-actions--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-button [routerLink]="['/','enterprise','corporate_card_expenses']" routerLinkActive="router-link-active">
+      <ion-button (click)="close()">
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>
@@ -41,16 +41,16 @@
     </div>
 
     <div class="ccc-classify-actions--action" (click)="addExpenseManually(cccExpense)" matRipple>
-      <mat-icon svgIcon="fy-add-new-expense"></mat-icon>
+      <mat-icon class="ccc-classify-actions--icon" svgIcon="fy-add-new-expense"></mat-icon>
       <div >Create Expense</div>
     </div>
 
     <div class="ccc-classify-actions--action" (click)="openMarkPersonalPopover(cccExpense)" *ngIf="cccExpense.amount >= 0" matRipple>
-      <mat-icon svgIcon="fy-individual"></mat-icon>
+      <mat-icon  class="ccc-classify-actions--icon" svgIcon="fy-individual"></mat-icon>
       <div >Classify as Personal</div>
     </div>
     <div class="ccc-classify-actions--action" (click)="openDismissalPopover(cccExpense)" *ngIf="cccExpense.amount < 0" matRipple>
-      <mat-icon svgIcon="fy-dismiss"></mat-icon>
+      <mat-icon class="ccc-classify-actions--icon" svgIcon="fy-dismiss"></mat-icon>
       <div >Dismiss Transaction</div>
     </div>
   </ng-container>
@@ -79,7 +79,6 @@
   </ng-container>
   <ng-template #loadingSuggestions>
     <div class="ccc-classify-actions--classify-container">
-      <div class="ccc-classify-actions--classify-container-header">Select a Matching Expense</div>
       <div *ngFor="let n of [1,2,3,4,5]" class="ccc-classify-actions--classify-container-shimmers">
         <ion-skeleton-text class="ccc-classify-actions--classify-container-shimmer ccc-classify-actions--classify-container-shimmer__medium"></ion-skeleton-text>
         <ion-skeleton-text class="ccc-classify-actions--classify-container-shimmer ccc-classify-actions--classify-container-shimmer__small"></ion-skeleton-text>

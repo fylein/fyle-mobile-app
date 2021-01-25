@@ -121,28 +121,28 @@
             </div>
   
             <div *ngIf="customInput.type === 'LOCATION'">
-              <app-fy-location [label]="customInput.name" formControlName="value">
+              <app-fy-location [label]="customInput.name" [mandatory]="customInput.mandatory" formControlName="value">
               </app-fy-location>
             </div>
   
             <div *ngIf="customInput.type === 'SELECT'">
-              <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value">
+              <app-fy-select [label]="customInput.name" [mandatory]="customInput.mandatory" [options]="customInput.options" formControlName="value">
               </app-fy-select>
             </div>
   
             <div *ngIf="customInput.type === 'MULTI_SELECT'">
-              <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value">
+              <app-fy-multiselect [label]="customInput.name" [mandatory]="customInput.mandatory" [options]="customInput.options" formControlName="value">
               </app-fy-multiselect>
             </div>
   
             <div *ngIf="customInput.type === 'USER_LIST'">
-              <app-fy-userlist [label]="customInput.name" formControlName="value">
+              <app-fy-userlist [label]="customInput.name" [mandatory]="customInput.mandatory" formControlName="value">
               </app-fy-userlist>
             </div>
           </form>
         </div>
         <div *ngIf="fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid" class="add-edit-advance-request--mandatory-text">
-          Please add this field.
+          Please add {{customInput.name}}.
         </div>
       </ng-container>
     </div>

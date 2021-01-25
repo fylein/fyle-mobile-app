@@ -59,7 +59,7 @@
           </div>
           <div class="advance-requests--element-value"
             *ngIf="customField.type==='TEXT' || customField.type === 'SELECT' || customField.type === 'NUMBER'">
-            {{customField.value || '_'}}
+            {{customField.value || '-'}}
           </div>
           <div class="advance-requests--element-value" *ngIf="customField.type==='BOOLEAN'">
             {{customField.value ? 'Yes' : 'No'}}

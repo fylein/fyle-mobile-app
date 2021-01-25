@@ -54,6 +54,9 @@ export class OtpPopoverComponent implements OnInit {
   }
 
   verifyOtp(event) {
+    if (!this.otp || this.isApiCallInProgress) {
+      return;
+    }
     const that = this;
     that.isApiCallInProgress = true;
     that.orgUserService.checkMobileVerificationCode(that.otp).pipe(

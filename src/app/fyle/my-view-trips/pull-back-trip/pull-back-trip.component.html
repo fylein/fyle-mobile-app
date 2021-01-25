@@ -17,7 +17,7 @@
     </mat-form-field>
   </div>
   <div class="pull-back--primary-cta">
-    <button [disabled]="reason.trim().length === 0" mat-flat-button color="primary" (click)="pullBackTrip()">
+    <button [ngClass]="{'pull-back--disabled': reason.trim().length === 0}" mat-flat-button color="primary" (click)="pullBackTrip()">
       PULL BACK TRIP
     </button>
   </div>

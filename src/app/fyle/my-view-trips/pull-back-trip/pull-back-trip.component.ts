@@ -21,6 +21,9 @@ export class PullBackTripComponent implements OnInit {
   }
 
   pullBackTrip() {
+    if (this.reason.trim().length === 0) {
+      return;
+    }
     this.popoverController.dismiss({
       reason: this.reason
     });

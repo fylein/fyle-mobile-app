@@ -20,6 +20,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() selectionElement: TemplateRef<ElementRef>;
 
   recentrecentlyUsedItems$: Observable<any[]>;
+  value;
 
   constructor(
     private modalController: ModalController,
@@ -64,6 +65,13 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     }),
     map(projects => [{ label: 'None', value: null }].concat(projects.map(project => ({ label: project.projectv2_name, value: project }))))
   );
+  }
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
   }
 
   ngAfterViewInit() {
