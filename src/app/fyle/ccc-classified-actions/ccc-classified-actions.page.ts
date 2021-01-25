@@ -35,10 +35,6 @@ export class CccClassifiedActionsPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.activatedRoute.snapshot.params.pageState) {
-      this.pageState = this.activatedRoute.snapshot.params.pageState;
-    }
-
     this.cccExpense$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
@@ -89,10 +85,6 @@ export class CccClassifiedActionsPage implements OnInit {
       await this.loaderService.hideLoader();
       this.router.navigate(['/', 'enterprise', 'ccc_classify_actions', {cccTransactionId: cccExpense.id}]);
     }
-  }
-
-  close() {
-    this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', {pageState: this.pageState}]);
   }
 
   async undoDismissal(cccExpense: CorporateCardExpense) {

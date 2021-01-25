@@ -37,10 +37,6 @@ export class CccClassifyActionsPage implements OnInit {
   ngOnInit() {
   }
 
-  close() {
-    this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', {pageState: this.pageState}]);
-  }
-
   ionViewWillEnter() {
     if (this.activatedRoute.snapshot.params.pageState) {
       this.pageState = this.activatedRoute.snapshot.params.pageState;
@@ -84,7 +80,7 @@ export class CccClassifyActionsPage implements OnInit {
       await this.loaderService.showLoader();
       await this.corporateCreditCardExpenseService.dismissCreditTransaction(cccTxn.id).toPromise();
       await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', {pageState: this.pageState}]);
+      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
     }
   }
 
@@ -110,7 +106,7 @@ export class CccClassifyActionsPage implements OnInit {
       await this.loaderService.showLoader();
       await this.corporateCreditCardExpenseService.markPersonal(cccTxn.id).toPromise();
       await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', {pageState: this.pageState}]);
+      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
     }
   }
 

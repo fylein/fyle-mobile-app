@@ -88,7 +88,7 @@ export class AppComponent implements OnInit {
         text: 'CANCEL'
       },
       primaryCta: {
-        text: 'OKAY'
+        text: 'OK'
       },
       showCancelButton: false
     });

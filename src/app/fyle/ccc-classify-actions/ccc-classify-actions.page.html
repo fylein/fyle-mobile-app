@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar class="ccc-classify-actions--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-button (click)="close()">
+      <ion-button [routerLink]="['/','enterprise','corporate_card_expenses', {pageState: 'unclassified'}]" routerLinkActive="router-link-active">
         <mat-icon>close</mat-icon>
       </ion-button>
     </ion-buttons>

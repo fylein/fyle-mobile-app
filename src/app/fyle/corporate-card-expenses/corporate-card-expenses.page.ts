@@ -178,9 +178,7 @@ export class CorporateCardExpensesPage implements OnInit {
       })
     );
 
-    if (this.activatedRoute.snapshot.params.pageState) {
-      this.baseState = this.activatedRoute.snapshot.params.pageState;
-    }
+    this.baseState = this.activatedRoute.snapshot.params.pageState || 'unclassified';
 
     this.cardTransactions$ = this.loadData$.pipe(
       switchMap(params => {
