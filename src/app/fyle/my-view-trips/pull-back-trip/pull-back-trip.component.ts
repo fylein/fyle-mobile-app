@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 })
 export class PullBackTripComponent implements OnInit {
   reason = '';
+  showError = false;
 
   constructor(
     private popoverController: PopoverController
@@ -21,7 +22,9 @@ export class PullBackTripComponent implements OnInit {
   }
 
   pullBackTrip() {
+    this.showError = false;
     if (this.reason.trim().length === 0) {
+      this.showError = true;
       return;
     }
     this.popoverController.dismiss({

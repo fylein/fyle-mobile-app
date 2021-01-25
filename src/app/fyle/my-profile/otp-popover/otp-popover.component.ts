@@ -54,7 +54,11 @@ export class OtpPopoverComponent implements OnInit {
   }
 
   verifyOtp(event) {
+    this.otpInfoMessage = '';
+    this.otpInfoClass = '';
     if (!this.otp || this.isApiCallInProgress) {
+      this.otpInfoMessage = 'Please enter OTP';
+      this.otpInfoClass = 'text-danger';
       return;
     }
     const that = this;

@@ -30,6 +30,10 @@ $details-color: #ababab;
     padding: 0 16px;
   }
 
+  &--error-message {
+    color: red;
+  }
+
   &--disabled {
     opacity: 0.2;
   }
