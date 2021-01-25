@@ -416,7 +416,7 @@
         <div class="add-edit-expense--primary-block" *ngIf="mode=='add' && taxSettings?.enabled && taxSettings?.groups?.length > 0">
           <div class="add-edit-expense--internal-block">
             <app-fy-select
-              [label]="taxSettings.name || 'Tax Group'"
+              [label]="fg.controls.tax.value ? (taxSettings.name || 'Tax Group') : ('Select ' + (taxSettings.name || 'Tax Group'))"
               [options]="taxSettings?.groups"
               formControlName="tax"
               [selectModalHeader]="'Select ' + (taxSettings.name || 'Tax Group')"
