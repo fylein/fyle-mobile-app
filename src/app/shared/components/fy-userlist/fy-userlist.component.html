@@ -10,7 +10,7 @@
   <ng-container *ngIf="eouc$|async as eouc">
     <input [disabled]="!eouc" class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
   </ng-container>
-  <mat-icon>
+  <mat-icon class="fy-select--icon">
     chevron_right
   </mat-icon>
 </label>
