@@ -190,7 +190,7 @@
     </div>
     <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency">
       <div class="my-profile--card-title my-profile--card-title__lite">
-        Select Currency
+        {{orgUserSettings.currency_settings.preferred_currency  ? 'Currency' : 'Select Currency' }}
       </div>
       <div class="my-profile--notifications-arrow my-profile--notifications-arrow__lite">
         <span class="my-profile--currency-value">
