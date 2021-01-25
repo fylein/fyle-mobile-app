@@ -32,9 +32,10 @@
         <div class="split-expense--internal-block" *ngIf="splitType === 'categories'">
           <div *ngIf="categories$|async as categories">
             <app-fy-select 
-              [label]="'Select Category'" 
+              [label]="splitExpenseForm.controls.category.value? 'Category' : 'Select Category'"
               formControlName="category" 
               [options]="categories"
+              [mandatory]="true"
               [cacheName]="'splitExpenseCategoryCache'">
             </app-fy-select>
           </div>
@@ -42,8 +43,9 @@
 
         <div class="split-expense--internal-block" *ngIf="splitType === 'projects'">
           <app-fy-select-project 
-            [label]="'Select Project'" 
+            [label]="splitExpenseForm.controls.project.value? 'Project' : 'Select Project'"
             formControlName="project"
+            [mandatory]="true"
             [cacheName]="'splitExpenseProjectCache'">
           </app-fy-select-project>
         </div>
@@ -51,9 +53,10 @@
         <div class="split-expense--internal-block" *ngIf="splitType === 'cost centers'">
           <div *ngIf="costCenters$|async as costCenters">
             <app-fy-select 
-              [label]="'Select Cost Centers'" 
+              [label]="splitExpenseForm.controls.cost_center.value? 'Cost Centers' : 'Select Cost Centers'"
               formControlName="cost_center" 
               [options]="costCenters"
+              [mandatory]="true"
               [cacheName]="'splitExpenseCostCenterCache'">
             </app-fy-select>
           </div>
