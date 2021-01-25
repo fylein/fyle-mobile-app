@@ -21,6 +21,7 @@ export class CccClassifyActionsPage implements OnInit {
 
   cccExpense$: Observable<CorporateCardExpense>;
   expenseSuggestions$: Observable<ExpenseSuggestion[]>;
+  pageState: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -37,6 +38,10 @@ export class CccClassifyActionsPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    if (this.activatedRoute.snapshot.params.pageState) {
+      this.pageState = this.activatedRoute.snapshot.params.pageState;
+    }
+
     this.cccExpense$ = this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
     this.expenseSuggestions$ = this.cccExpense$.pipe(
       switchMap(cccExpense => {

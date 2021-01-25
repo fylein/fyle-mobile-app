@@ -32,6 +32,10 @@ $details-color: #ababab;
     padding: 8px 24px;
   }
 
+  &--primary-disabled {
+    opacity: 0.2;
+  }  
+
   &--buttons {
     display: flex;
     justify-content: center;

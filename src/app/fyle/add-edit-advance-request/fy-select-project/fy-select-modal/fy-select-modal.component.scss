@@ -24,6 +24,11 @@ $list-element-color: #333;
     line-height: 1.3;
   }
 
+  &--clear-button {
+    background: transparent;
+    color: black;
+  }
+
   &--header {
     margin: 0;
     padding: 10px 15px;

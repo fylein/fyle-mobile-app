@@ -276,7 +276,7 @@ input:focus, textarea:focus{
 mat-checkbox {
   .mat-checkbox-layout {
     .mat-checkbox-inner-container {
-      padding: 9px !important;
+      padding: 8px !important;
     }
   }
 }
@@ -366,7 +366,7 @@ textarea, input {
   }
 }
 
-.switch-org--form-field {
+.switch-org--form-field, .delegated--form-field {
   .mat-form-field-wrapper {
     border-radius: 4px;
   }

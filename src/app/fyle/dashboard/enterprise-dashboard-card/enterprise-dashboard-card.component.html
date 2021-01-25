@@ -9,9 +9,9 @@
           <p class="dashboard-card--title m-0 text-capitalize" [textContent]="item.title"></p>
           <p class="dashboard-card--card-count">
             <span *ngIf="item.title !== 'trips'"> {{stats && stats.total_count || 0}}
-              {{ 1 > 1 ? item.subTitle + 's' : item.subTitle }}</span>
+              {{ stats?.total_count > 1 ? item.subTitle + 's' : item.subTitle }}</span>
             <span *ngIf="item.title === 'trips'"> {{stats && stats.count || 0 }}
-              {{ 1 > 1 ? item.subTitle + 's' : item.subTitle }}</span>
+              {{ stats?.total_count > 1 ? item.subTitle + 's' : item.subTitle }}</span>
           </p>
         </div>
       </ion-col>

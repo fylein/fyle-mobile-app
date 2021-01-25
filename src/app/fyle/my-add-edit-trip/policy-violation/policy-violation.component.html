@@ -1,6 +1,6 @@
-<ion-header mode="md" >
-  <ion-toolbar class="policy-violation--toolbar">
-    <ion-title mode="ios">
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="policy-violation--toolbar">
+    <ion-title mode="md" class="policy-violation--title">
       Policy Violated
     </ion-title>
   </ion-toolbar>
@@ -9,8 +9,7 @@
 <ion-content>
   <div class="policy-violation--body">
     <div class="policy-violation--header">
-      This expense falls outside the guidelines of your company’s policy. Please contact your admin for any
-      clarifications.
+      This expense falls outside the guidelines of your company’s policy.
     </div>
 
     <ul class="policy-violation--list">
@@ -31,7 +30,7 @@
 <ion-footer>
   <ion-toolbar mode="md">
     <ion-buttons class="policy-violation--buttons">
-      <ion-button fill="clear" expand="full" color="fyle-primary" (click)="cancel()">
+      <ion-button fill="clear" expand="full" color="accent" (click)="cancel()">
         Cancel
       </ion-button>
       <ion-button fill="clear" expand="full" color="fyle-primary" (click)="continue()">

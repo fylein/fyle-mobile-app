@@ -27,6 +27,7 @@ import * as Sentry from '@sentry/angular';
 import {PushNotificationService} from './core/services/push-notification.service';
 import {TrackingService} from './core/services/tracking.service';
 import {LoginInfoService} from './core/services/login-info.service';
+import { PopupService } from './core/services/popup.service';
 
 const {App} = Plugins;
 
@@ -71,7 +72,8 @@ export class AppComponent implements OnInit {
     private screenOrientation: ScreenOrientation,
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
-    private loginInfoService: LoginInfoService
+    private loginInfoService: LoginInfoService,
+    private popupService: PopupService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -79,22 +81,21 @@ export class AppComponent implements OnInit {
   }
 
   async showAppCloseAlert() {
-    const alert = await this.alertController.create({
+    const popupResults = await this.popupService.showPopup({
       header: 'Exit Fyle App',
       message: 'Are you sure you want to exit the app?',
-      buttons: [
-        {
-          text: 'Cancel',
-        }, {
-          text: 'Okay',
-          handler: () => {
-            App.exitApp();
-          }
-        }
-      ]
+      secondaryCta: {
+        text: 'CANCEL'
+      },
+      primaryCta: {
+        text: 'OK'
+      },
+      showCancelButton: false
     });
 
-    await alert.present();
+    if (popupResults === 'primary') {
+      App.exitApp();
+    }
   }
 
   registerBackButtonAction() {

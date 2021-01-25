@@ -227,10 +227,11 @@
   }
 
   &--add-stop {
-    padding: 8px 0;
     color: #f36;
     display: flex;
     align-items: center;
+    font-size: 12px;
+    font-weight: 600;
   }
 
   &--amount-value {

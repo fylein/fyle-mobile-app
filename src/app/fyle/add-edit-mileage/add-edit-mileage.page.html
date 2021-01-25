@@ -147,12 +147,13 @@
                 </ng-container>
               </ng-container>
             </ng-container>
-            <div (click)="addMileageLocation()" *ngIf="mileage_locations.controls.length < 10"
-                 class="add-edit-mileage--add-stop">
-              <mat-icon>
-                add
-              </mat-icon>
-              Add stop
+            <div class="add-edit-mileage--internal-block"  *ngIf="mileage_locations.controls.length < 10" >
+              <div (click)="addMileageLocation()" class="add-edit-mileage--add-stop">
+                <mat-icon>
+                  add
+                </mat-icon>
+                ADD STOP
+              </div>
             </div>
             <app-fy-alert *ngIf="mileage_locations.controls.length === 10"
                           [message]="'You can add a maximum of 10 locations'" [type]="'information'">
