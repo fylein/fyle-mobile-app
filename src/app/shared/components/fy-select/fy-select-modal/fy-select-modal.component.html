@@ -30,7 +30,7 @@
         <div (click)="onElementSelect(filteredListItem)" *ngIf="!filteredListItem.value && filteredListItem.label.length > 0" class="selection-modal--list-element"
              matRipple>
           <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-            <div>
+            <div class="selection-modal--label">
               {{label}}
             </div>
             <mat-icon *ngIf="selected">
@@ -51,7 +51,7 @@
            class="selection-modal--list-element"
            matRipple>
         <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-          <div>
+          <div class="selection-modal--label">
             {{label}}
           </div>
           <mat-icon *ngIf="selected">
@@ -72,7 +72,7 @@
         <div (click)="onElementSelect(filteredListItem)" *ngIf="filteredListItem.label.length > 0" class="selection-modal--list-element"
              matRipple>
           <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-            <div>
+            <div class="selection-modal--label">
               {{label}}
             </div>
             <mat-icon *ngIf="selected">

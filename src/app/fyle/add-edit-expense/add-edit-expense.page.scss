@@ -1,3 +1,5 @@
+$red: #f00;
+
 .add-edit-expense {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
@@ -14,16 +16,27 @@
     justify-content: space-around;
   }
 
+  &--footer-toolbar {
+    padding: 0 12px;
+  }
+
   &--primary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: uppercase;
     font-weight: 700;
     border-radius: 8px;
-    margin: 14px;
     width: 100%;
-    margin: 12px 8px;
+    margin: 12px 0;
     --border-radius: 4px !important;
+
+    &:first-child {
+      margin-right: 4px;
+    }
+
+    &:last-child {
+      margin-left: 4px;
+    }
   }
 
   &--receipt-currency {
@@ -93,7 +106,7 @@
   }
 
   &--currency {
-    margin: 12px 0 12px 12px;
+    margin: 12px 0 0 12px;
   }
 
   &--form {
@@ -114,7 +127,7 @@
     white-space: nowrap;
     min-width: 120px;
     &__invalid {
-      color: red;
+      color: $red;
     }
   }
 
@@ -143,7 +156,7 @@
     display: flex;
     min-width: 120px;
     &__invalid {
-      color: red;
+      color: $red;
     }
   }
 
@@ -175,6 +188,10 @@
     border: 0;
     line-height: 1;
     border-bottom: 1px solid #e0e0e0;
+
+    &__invalid {
+      border-color: $red;
+    }
 
     &:last-child {
       border-bottom: 0;
@@ -481,6 +498,6 @@
   }
 
   &--error {
-    color: red;
+    color: $red;
   }
 }
