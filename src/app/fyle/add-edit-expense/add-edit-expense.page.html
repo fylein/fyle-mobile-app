@@ -161,7 +161,8 @@
 
           <ng-container *ngIf="paymentModes$|async as paymentModes">
             <div *ngIf="paymentModes.length > 1"
-                 class="add-edit-expense--payment-modes add-edit-expense--internal-block">
+                 class="add-edit-expense--payment-modes add-edit-expense--internal-block"
+                 [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}">
               <app-fy-select
                 [mandatory]="true"
                 [subheader]="'All Payment Modes'"
