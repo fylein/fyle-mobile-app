@@ -1,6 +1,7 @@
 export interface ExtendedStatus {
   isSelfComment?: boolean;
   isBotComment?: boolean;
+  isOthersComment?: boolean;
   st_advance_request_id?: string;
   st_comment: string;
   st_created_at: Date;
