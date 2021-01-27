@@ -90,6 +90,7 @@ export class ViewCommentComponent implements OnInit {
             return res.map(status => {
               status.isBotComment = status && (status.st_org_user_id === 'SYSTEM');
               status.isSelfComment = status && eou && eou.ou && (status.st_org_user_id === eou.ou.id);
+              status.isOthersComment = status && eou && eou.ou && (status.st_org_user_id !== eou.ou.id);
               return status;
             });
           }),

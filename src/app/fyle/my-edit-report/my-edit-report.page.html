@@ -20,7 +20,7 @@
       <input class="my-edit-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required (ngModelChange)="setPurposeChanged()">
     </div>
 
-    <div class="my-edit-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)">
+    <div class="my-edit-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)  && extendedReport.rp_state === 'DRAFT'">
       <span>Select a trip to associate with report:</span>
       <div class="my-edit-report--select-trip">
         <app-fy-select [label]="selectedTripRequest? 'Trip' : 'Select a Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest">
