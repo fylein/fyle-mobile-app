@@ -1,6 +1,6 @@
 .exchange-rate-modal {
   margin: 24px;
-  padding: 12px;
+  padding: 0 12px;
   border: 1px solid #e5e5e5;
   border-radius: 4px;
   &--label {
@@ -21,7 +21,7 @@
   }
 
   &--form-control {
-    padding: 12px;
+    padding: 16px 0;
     border-bottom: 1px solid #e5e5e5;
     display: flex;
     align-items: center;
