@@ -58,11 +58,23 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     const choose = this.activatedRoute.snapshot.params.choose && JSON.parse(this.activatedRoute.snapshot.params.choose);
 
     if (!choose) {
-      from(this.proceed()).subscribe(noop);
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => {
+            return from(this.proceed());
+          })
+        )
+        .subscribe(noop);
     } else {
       this.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
-          from(this.proceed()).subscribe(noop);
+          from(this.loaderService.showLoader())
+            .pipe(
+              switchMap(() => {
+                return from(this.proceed());
+              })
+            )
+            .subscribe(noop);
         }
       });
     }
@@ -75,18 +87,15 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
 
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return forkJoin(
-          [
-            offlineData$,
-            pendingDetails$,
-            eou$,
-            roles$,
-            isOnline$
-          ]
-        );
-      }),
+    forkJoin(
+      [
+        offlineData$,
+        pendingDetails$,
+        eou$,
+        roles$,
+        isOnline$
+      ]
+    ).pipe(
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(aggregatedResults => {
       const [
@@ -145,7 +154,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       switchMap(() => {
         return this.orgService.switchOrg(org.id);
       }),
-      finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(() => {
       this.clearRecentLocalStorageCache();
       from(this.proceed()).subscribe(noop);
@@ -153,6 +161,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       await this.storageService.clearAll();
       this.userEventService.logout();
       globalCacheBusterNotifier.next();
+      await this.loaderService.hideLoader();
     });
   }
 
