@@ -1,26 +1,28 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
-import { Observable, fromEvent, iif, of, from } from 'rxjs';
-import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, tap, concatMap } from 'rxjs/operators';
-import { isEqual } from 'lodash';
-import { ProjectsService } from 'src/app/core/services/projects.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import {Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef} from '@angular/core';
+import {Observable, fromEvent, iif, of, from} from 'rxjs';
+import {ModalController} from '@ionic/angular';
+import {map, startWith, distinctUntilChanged, switchMap, tap, concatMap} from 'rxjs/operators';
+import {isEqual} from 'lodash';
+import {ProjectsService} from 'src/app/core/services/projects.service';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
+
 @Component({
   selector: 'app-fy-select-modal',
-  templateUrl: './fy-select-modal.component.html',
-  styleUrls: ['./fy-select-modal.component.scss'],
+  templateUrl: './fy-select-project-modal.component.html',
+  styleUrls: ['./fy-select-project-modal.component.scss'],
 })
-export class FySelectModalComponent implements OnInit, AfterViewInit {
+export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() currentSelection: any;
-  @Input() categoryIds: string[];
   @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
   @Input() cacheName;
   @Input() selectionElement: TemplateRef<ElementRef>;
-  value;
+  @Input() categoryIds: string[];
+
   recentrecentlyUsedItems$: Observable<any[]>;
+  value;
 
   constructor(
     private modalController: ModalController,
@@ -29,7 +31,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     private offlineService: OfflineService,
     private authService: AuthService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
 
@@ -47,7 +50,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       concatMap((allowedProjectIds) => {
         return from(this.authService.getEou()).pipe(
           switchMap((eou => {
-            return this.projectService.getByParamsUnformatted
+              return this.projectService.getByParamsUnformatted
               ({
                 orgId: eou.ou.org_id,
                 active: true,
@@ -56,16 +59,36 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
                 isIndividualProjectEnabled: !!allowedProjectIds,
                 projectIds: allowedProjectIds,
                 searchNameText,
-                orgCategoryIds: this.categoryIds,
                 offset: 0,
                 limit: 20
               });
-          }
+            }
           ))
         );
       }),
-      map(projects => [{ label: 'None', value: null }].concat(projects.map(project => ({ label: project.project_name, value: project }))))
+      map(projects => {
+          const currentElement = [];
+          if (this.currentSelection && !projects.some(project => project.project_id === this.currentSelection.project_id)) {
+            currentElement.push({
+              label: this.currentSelection.project_name, value: this.currentSelection
+            });
+          }
+
+          return [
+            {label: 'None', value: null}
+          ].concat(currentElement).concat(
+            projects.map(project => ({label: project.project_name, value: project}))
+          );
+        }
+      )
     );
+  }
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
   }
 
   ngAfterViewInit() {
@@ -90,9 +113,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       map((options: any) => {
         return options
           .map(option => {
-          option.selected = isEqual(option.value, this.currentSelection);
-          return option;
-        });
+            option.selected = isEqual(option.value, this.currentSelection);
+            return option;
+          });
       })
     );
     this.cdr.detectChanges();
@@ -107,12 +130,5 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
     this.modalController.dismiss(option);
-  }
-
-  clearValue() {
-    this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
-    searchInput.value = '';
-    searchInput.dispatchEvent(new Event('keyup'));
   }
 }

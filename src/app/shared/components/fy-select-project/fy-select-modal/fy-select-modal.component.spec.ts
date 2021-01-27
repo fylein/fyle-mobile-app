@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FySelectProjectComponent } from './fy-select-project.component';
+import { FySelectModalComponent } from './fy-select-project-modal.component';
 
-describe('FySelectProjectComponent', () => {
-  let component: FySelectProjectComponent;
-  let fixture: ComponentFixture<FySelectProjectComponent>;
+describe('FySelectModalComponent', () => {
+  let component: FySelectModalComponent;
+  let fixture: ComponentFixture<FySelectModalComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FySelectProjectComponent ],
+      declarations: [ FySelectModalComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FySelectProjectComponent);
+    fixture = TestBed.createComponent(FySelectModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

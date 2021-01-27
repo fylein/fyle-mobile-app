@@ -1,9 +1,8 @@
-import { Component, OnInit, forwardRef, Input, OnDestroy, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, ControlValueAccessor, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
-import { isEqual } from 'lodash';
-import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
+import {Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef, ElementRef} from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
+import {noop} from 'rxjs';
+import {ModalController} from '@ionic/angular';
+import {FyProjectSelectModalComponent} from './fy-select-modal/fy-select-project-modal.component';
 
 @Component({
   selector: 'app-fy-select-project',
@@ -21,8 +20,10 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   private ngControl: NgControl;
 
   @Input() mandatory = false;
-  @Input() categoryIds: string[] = [];
   @Input() label = 'Project';
+  @Input() cacheName;
+  @Input() selectionElement: TemplateRef<ElementRef>;
+  @Input() categoryIds: string[] = [];
 
   private innerValue;
   displayValue;
@@ -69,17 +70,19 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   }
 
   async openModal() {
-    const currencyModal = await this.modalController.create({
-      component: FySelectModalComponent,
+    const projectModal = await this.modalController.create({
+      component: FyProjectSelectModalComponent,
       componentProps: {
         currentSelection: this.value,
+        cacheName: this.cacheName,
+        selectionElement: this.selectionElement,
         categoryIds: this.categoryIds
       }
     });
 
-    await currencyModal.present();
+    await projectModal.present();
 
-    const { data } = await currencyModal.onWillDismiss();
+    const { data } = await projectModal.onWillDismiss();
 
     if (data) {
       this.value = data.value;

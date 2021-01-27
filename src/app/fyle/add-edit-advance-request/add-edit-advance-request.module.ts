@@ -14,8 +14,6 @@ import { FyCurrencyExchangeRateComponent } from './fy-currency/fy-currency-excha
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { FySelectProjectComponent } from './fy-select-project/fy-select-project.component';
-import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
@@ -46,8 +44,6 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
-    FySelectProjectComponent,
-    FySelectModalComponent,
     PolicyViolationDialogComponent,
     CameraOptionsPopupComponent,
     ViewAttachmentsComponent,

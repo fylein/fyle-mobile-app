@@ -59,6 +59,8 @@ import {FyAddToReportComponent} from './components/fy-add-to-report/fy-add-to-re
 import {FyAddToReportModalComponent} from './components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { FySelectVendorComponent } from './components/fy-select-vendor/fy-select-vendor.component';
 import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
+import {FyProjectSelectModalComponent} from './components/fy-select-project/fy-select-modal/fy-select-project-modal.component';
+import {FySelectProjectComponent} from './components/fy-select-project/fy-select-project.component';
 
 @NgModule({
   declarations: [
@@ -103,7 +105,9 @@ import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-s
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
     FyAddToReportModalComponent,
-    FormButtonValidationDirective
+    FormButtonValidationDirective,
+    FySelectProjectComponent,
+    FyProjectSelectModalComponent
   ],
   imports: [
     CommonModule,
@@ -154,7 +158,9 @@ import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-s
     FyFlagExpenseComponent,
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
-    FyAddToReportComponent
+    FyAddToReportComponent,
+    FySelectProjectComponent,
+    FyProjectSelectModalComponent
   ],
   providers: [
     DecimalPipe,
