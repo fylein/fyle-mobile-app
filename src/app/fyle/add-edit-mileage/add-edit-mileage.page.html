@@ -465,7 +465,7 @@
                       </div>
                       <div class="add-edit-expense--duplicate-reason-select">
                         <app-fy-select
-                          [label]="'Select your Reason'"
+                          [label]="fg.controls.duplicate_detection_reason.value ? 'Reason' : 'Select your Reason'"
                           [options]="duplicateDetectionReasons"
                           [selectModalHeader]="'Select Reason'"
                           formControlName="duplicate_detection_reason">

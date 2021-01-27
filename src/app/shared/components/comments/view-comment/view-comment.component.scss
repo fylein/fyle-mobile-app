@@ -31,22 +31,18 @@
 
   &--profile {
     position: absolute;
-    width: 45px;
-    height: 45px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     border: 1px solid #aaa;
-    padding: 8px;
+    padding: 6px;
     font-size: 20px;
     text-align: center;
-    line-height: 1.3;
+    line-height: 1.6;
 
     &__user-profile {
       border-color: #fff;
     }
-  }
-
-  &--commenter-name {
-    color: black;
   }
 
   &--name-time-container{
@@ -63,6 +59,10 @@
 
   &--showbot-container {
     display: flex;
+  }
+
+  &--commenter-name {
+    color: black;
   }
 
   &--showbot-checkbox {

@@ -104,7 +104,7 @@ export class ProjectsService {
   }
 
   filterById(projectId, projects) {
-    var matchingProject;
+    let matchingProject;
 
     projects.some((project) => {
       if (project.id === projectId) {
@@ -114,7 +114,7 @@ export class ProjectsService {
     });
 
     return matchingProject;
-  };
+  }
 
   getAllowedOrgCategoryIds(project, activeCategoryList) {
     let categoryList = [];
