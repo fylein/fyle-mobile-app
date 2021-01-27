@@ -60,7 +60,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
       this.innerValue = v;
       const selectedOption = this.innerValue;
       if (selectedOption) {
-        this.displayValue = selectedOption.projectv2_name;
+        this.displayValue = selectedOption.project_name;
       } else {
         this.displayValue = '';
       }
@@ -97,7 +97,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
       this.innerValue = value;
       const selectedOption = this.innerValue;
       if (selectedOption) {
-        this.displayValue = selectedOption.projectv2_name;
+        this.displayValue = selectedOption.project_name;
       } else {
         this.displayValue = '';
       }

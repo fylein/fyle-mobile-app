@@ -5,7 +5,7 @@
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     border-radius: 4px;
     min-height: 120px;
-    margin: 12px;
+    margin: 16px;
     padding: 12px;
     margin-top: 0;
 
@@ -29,7 +29,7 @@
 
   &--date {
     display: flex;
-    margin: 8px 12px;
+    margin: 8px 16px;
     color: #ababab;
     font-size: 16px;
   }
@@ -90,7 +90,7 @@
   }
 
   &--decorator {
-    margin: 0 12px;
+    margin: 0 16px;
     background: #ababab;
     color: #fff;
     font-size: 16px;
