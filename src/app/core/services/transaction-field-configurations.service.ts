@@ -131,8 +131,8 @@ export class TransactionFieldConfigurationsService {
   }
 
   getDefaultTxnFieldValues(txnFields) {
-    var defaultValues = {};
-    for (var configurationColumn in txnFields) {
+    const defaultValues = {};
+    for (const configurationColumn in txnFields) {
       if (txnFields.hasOwnProperty(configurationColumn)) {
         if (txnFields[configurationColumn].default_value) {
           defaultValues[configurationColumn] = txnFields[configurationColumn].default_value;
@@ -141,6 +141,5 @@ export class TransactionFieldConfigurationsService {
     }
 
     return defaultValues;
-  };
-
+  }
 }
