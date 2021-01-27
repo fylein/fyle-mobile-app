@@ -681,7 +681,7 @@
 
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction">
-          <app-fy-alert [type]="'information'"
+          <app-fy-alert [type]="'card'"
                         [message]="'Automatically created from your company\'s card feed'">
           </app-fy-alert>
         </ng-container>
@@ -689,7 +689,7 @@
 
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="etxn.tx && etxn.tx.amount < 0 && !!etxn.tx.corporate_credit_card_expense_group_id">
-          <app-fy-alert [type]="'information'"
+          <app-fy-alert [type]="'card'"
                         [message]="'Expense created due to reversal of card transaction.'">
           </app-fy-alert>
         </ng-container>
