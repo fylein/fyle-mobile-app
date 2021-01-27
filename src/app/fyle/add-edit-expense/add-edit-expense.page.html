@@ -275,7 +275,6 @@
         </ng-container>
 
         <div class="add-edit-expense--primary-block">
-
           <app-fy-alert
             *ngIf="(isCCCAccountSelected$|async) && !selectedCCCTransaction && canChangeMatchingCCCTransaction && !(transactionInReport$|async)"
             [type]="'warning'"
@@ -291,7 +290,8 @@
                       [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                       [mandatory]="transactionMandatoyFields.project"
                       [cacheName]="'expenseProjectCache'"
-                      formControlName="project"></app-fy-select-project>
+                      formControlName="project">
+                    </app-fy-select-project>
                   </div>
                   <div class="add-edit-expense--error" *ngIf="fg.controls.project.touched && !fg.controls.project.valid">
                     Please select a project.
@@ -576,6 +576,7 @@
           </div>
         </ng-container>
       </ng-container>
+
       <ng-container *ngIf="isConnected$|async as isConnected">
         <div class="add-edit-expense--primary-block">
           <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
@@ -655,10 +656,9 @@
         </div>
       </ng-container>
 
-      <div class="add-edit-expense--primary-block">
-
-        <ng-container *ngIf="costCenters$|async as costCenters">
-          <ng-container *ngIf="txnFields$|async as txnFields">
+      <ng-container *ngIf="costCenters$|async as costCenters">
+        <ng-container *ngIf="txnFields$|async as txnFields">
+          <div class="add-edit-expense--primary-block" *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
             <div class="add-edit-expense--internal-block"
               *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView">
               <app-fy-select formControlName="costCenter" [mandatory]="txnFields.cost_center_id?.mandatory"
@@ -671,9 +671,9 @@
             <div class="add-edit-expense--error" *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid">
               Please select {{ txnFields.cost_center_id?.title }}
             </div>
-          </ng-container>
+          </div>
         </ng-container>
-      </div>
+      </ng-container>
 
       <app-fy-alert *ngIf="isNotReimbursable$|async" [type]="'information'"
         [message]="'This expense will not be reimbursed as it has already been paid by your company.'">
@@ -722,7 +722,7 @@
               </div>
               <div class="add-edit-expense--duplicate-reason-select">
                 <app-fy-select
-                  [label]="'Select your Reason'"
+                  [label]="fg.controls.duplicate_detection_reason.value ? 'Reason' : 'Select your Reason'"
                   formControlName="duplicate_detection_reason"
                   [options]="duplicateDetectionReasons">
                 </app-fy-select>
@@ -795,11 +795,11 @@
     <ion-toolbar mode="md" class="add-edit-expense--footer-toolbar">
       <ion-buttons *ngIf="!reviewList">
         <ion-button (click)="saveExpense()" class="add-edit-expense--primary-cta" fill="solid" color="fyle-primary"
-          appFormButtonValidation [loading]="saveExpenseLoader" [loadingText]="'SAVING'">
+          appFormButtonValidation [loading]="saveExpenseLoader" [disabled]="saveExpenseLoader || saveAndNewExpenseLoader" [loadingText]="'SAVING'">
           Save
         </ion-button>
         <ion-button *ngIf="mode === 'add' && !navigateBack" (click)="saveAndNewExpense()" class="add-edit-expense--primary-cta"
-                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value"
+                    fill="solid" color="fyle-primary" [disabled]="fg.controls.add_to_new_report.value || (saveExpenseLoader || saveAndNewExpenseLoader)"
                     appFormButtonValidation [loading]="saveAndNewExpenseLoader" [loadingText]="'SAVING'">
           Save and New
         </ion-button>
