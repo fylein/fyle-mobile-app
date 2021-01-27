@@ -861,7 +861,7 @@ export class AddEditExpensePage implements OnInit {
             currency: imageData && imageData.parsedResponse && imageData.parsedResponse.currency,
             category: imageData && imageData.parsedResponse && imageData.parsedResponse.category,
             date: (imageData && imageData.parsedResponse && imageData.parsedResponse.date) ? new Date(imageData.parsedResponse.date) : null,
-            vendor: imageData && imageData.parsedResponse && imageData.parsedResponse.vendor,
+            vendor: imageData && imageData.parsedResponse && imageData.parsedResponse.vendor_name,
             invoice_dt: imageData && imageData.parsedResponse && imageData.parsedResponse.invoice_dt || null
           };
 
@@ -1390,7 +1390,8 @@ export class AddEditExpensePage implements OnInit {
           }),
           map(categories => categories.map(category => ({label: category.displayName, value: category})))
         );
-      })
+      }),
+      shareReplay(1)
     );
 
     this.filteredCategories$.subscribe(categories => {
@@ -2560,8 +2561,12 @@ export class AddEditExpensePage implements OnInit {
     } else if (fileInfo && fileInfo.type && fileInfo.type.indexOf('pdf') > -1) {
       fileType = 'pdf';
     }
-    return from(this.transactionOutboxService.parseReceipt(base64Image, fileType)).pipe(
-      map((imageData: any) => {
+
+    return forkJoin({
+      imageData: from(this.transactionOutboxService.parseReceipt(base64Image, fileType)),
+      filteredCategories: this.filteredCategories$.pipe(take(1))
+    }).pipe(
+      map(({imageData, filteredCategories}) => {
         const extractedData = {
           amount: imageData && imageData.data && imageData.data.amount,
           currency: imageData && imageData.data && imageData.data.currency,
@@ -2591,11 +2596,13 @@ export class AddEditExpensePage implements OnInit {
           })
         }
 
-       // etxn.tx.vendor = extractedData.vendor;
-
-
-        debugger;
-        // this.fg.controls.
+        if (extractedData.category) {
+          const categoryName = extractedData.category || 'Unspecified';
+          const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
+          this.fg.patchValue({
+            category: category.value
+          })
+        }
       })
     ).subscribe(noop)
   }
