@@ -27,8 +27,8 @@ $completed: #25ae88;
       content: "∙";
       position: absolute;
       font-size: 90px;
-      left: -24px;
-      top: -2px;
+      left: -40px;
+      top: -8px;
     }
 
     &__completed {
@@ -37,8 +37,8 @@ $completed: #25ae88;
         content: "∙";
         position: absolute;
         font-size: 90px;
-        left: -24px;
-        top: -2px;
+        left: -40px;
+        top: -8px;
       }
     }
   }
@@ -51,7 +51,7 @@ $completed: #25ae88;
   &--checkbox-container {
     display: flex;
     align-items: center;
-    padding: 12px 24px;
+    padding: 12px;
   }
 
   &--checkbox-label {

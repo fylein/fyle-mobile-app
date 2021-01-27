@@ -1,4 +1,4 @@
-import {ErrorHandler, NgModule} from '@angular/core';
+import {APP_INITIALIZER, ErrorHandler, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {RouteReuseStrategy} from '@angular/router';
 import {IonicModule, IonicRouteStrategy} from '@ionic/angular';
@@ -17,6 +17,10 @@ import {SharedModule} from './shared/shared.module';
 import {CurrencyPipe} from '@angular/common';
 import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
 import * as Sentry from '@sentry/angular';
+import {ConfigService} from './core/services/config.service';
+import {RouterAuthService} from './core/services/router-auth.service';
+import {TokenService} from './core/services/token.service';
+import {StorageService} from './core/services/storage.service';
 
 @NgModule({
   declarations: [
@@ -51,7 +55,20 @@ import * as Sentry from '@sentry/angular';
         showDialog: false,
       })
     },
-    CurrencyPipe
+    CurrencyPipe,
+    ConfigService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (configService: ConfigService) =>
+        () => configService.loadConfigurationData(),
+      deps: [
+        ConfigService,
+        RouterAuthService,
+        TokenService,
+        StorageService
+      ],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })
