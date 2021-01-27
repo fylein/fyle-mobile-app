@@ -189,6 +189,10 @@ $red: #f00;
     line-height: 1;
     border-bottom: 1px solid #e0e0e0;
 
+    &_special {
+      border-bottom: 0;
+    }
+
     &__invalid {
       border-color: $red;
     }
