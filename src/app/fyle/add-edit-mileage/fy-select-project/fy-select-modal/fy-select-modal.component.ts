@@ -19,7 +19,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
   @Input() cacheName;
   @Input() selectionElement: TemplateRef<ElementRef>;
-
+  value;
   recentrecentlyUsedItems$: Observable<any[]>;
 
   constructor(
@@ -107,5 +107,12 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
     this.modalController.dismiss(option);
+  }
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
   }
 }

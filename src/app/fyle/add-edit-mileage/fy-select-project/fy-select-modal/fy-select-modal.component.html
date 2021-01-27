@@ -13,11 +13,14 @@
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
-      <input #searchBar id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search">
+      <input #searchBar id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value">
+      <button (click)="clearValue()" class="selection-modal--clear-button" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+        <mat-icon>close</mat-icon>
+      </button>
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
-
+git status
 <ion-content>
   <div class="selection-modal--container">
     <div class="selection-modal--recently-used-block" *ngIf="cacheName && (recentrecentlyUsedItems$|async)?.length > 0">
