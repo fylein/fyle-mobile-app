@@ -33,7 +33,7 @@ export class AddExpensePopoverComponent implements OnInit {
   ngOnInit() {
   }
 
-  async takeAutoFylePicture(openCamera, mode) {
+  async takeAutoFylePicture(mode) {
     try {
       const image = await Camera.getPhoto({
         quality: 90,
@@ -64,7 +64,7 @@ export class AddExpensePopoverComponent implements OnInit {
 
         if (mode === 'bulk') {
           this.bulkAutoCount++;
-          await this.takeAutoFylePicture(true, 'bulk');
+          await this.takeAutoFylePicture('bulk');
         } else {
           await this.popoverController.dismiss({
             reload: true
@@ -91,12 +91,12 @@ export class AddExpensePopoverComponent implements OnInit {
       const {data} = await fyleModePopover.onDidDismiss();
 
       if (data && data.mode === 'bulk') {
-        await this.takeAutoFylePicture(true, 'bulk');
-      } else {
-        await this.takeAutoFylePicture(true, 'single');
+        await this.takeAutoFylePicture( 'bulk');
+      } else if (data && data.mode === 'single') {
+        await this.takeAutoFylePicture( 'single');
       }
     } else {
-      await this.takeAutoFylePicture(true, 'single');
+      await this.takeAutoFylePicture( 'single');
     }
   }
 
