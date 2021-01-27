@@ -2538,6 +2538,54 @@ export class AddEditExpensePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
+  parseFile(fileInfo) {
+    const base64Image = fileInfo && fileInfo.url.split(';base64,')[1];
+    let fileType = null;
+    if (fileInfo && fileInfo.type && fileInfo.type.indexOf('image') > -1) {
+      fileType = 'image';
+    } else if (fileInfo && fileInfo.type && fileInfo.type.indexOf('pdf') > -1) {
+      fileType = 'pdf';
+    }
+    return from(this.transactionOutboxService.parseReceipt(base64Image, fileType)).pipe(
+      map((imageData: any) => {
+        const extractedData = {
+          amount: imageData && imageData.data && imageData.data.amount,
+          currency: imageData && imageData.data && imageData.data.currency,
+          category: imageData && imageData.data && imageData.data.category,
+          date: imageData && imageData.data && imageData.data.date,
+          vendor: imageData && imageData.data && imageData.data.vendor_name,
+          invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
+        };
+
+        //Todo: check with foregin currency
+        this.fg.patchValue({
+          currencyObj: {
+            amount: extractedData.amount,
+            currency: extractedData.currency,
+          },
+        })
+
+        if (extractedData.date) {
+          this.fg.patchValue({
+            dateOfSpend:extractedData.date
+          })
+        }
+
+        if (extractedData.vendor) {
+          this.fg.patchValue({
+            vendor_id:  {display_name: extractedData.vendor} 
+          })
+        }
+
+       // etxn.tx.vendor = extractedData.vendor;
+
+
+        debugger;
+        // this.fg.controls.
+      })
+    ).subscribe(noop)
+  }
+
   async addAttachments(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -2553,12 +2601,16 @@ export class AddEditExpensePage implements OnInit {
 
     if (data) {
       if (this.mode === 'add') {
-        this.newExpenseDataUrls.push({
+        const fileInfo = {
           type: data.type,
           url: data.dataUrl,
           thumbnail: data.dataUrl
-        });
+        }
+        this.newExpenseDataUrls.push(fileInfo);
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
+        if (this.attachedReceiptsCount === 1) {
+          this.parseFile(fileInfo);
+        }
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
           switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
