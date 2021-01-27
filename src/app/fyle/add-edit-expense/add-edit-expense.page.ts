@@ -2553,6 +2553,21 @@ export class AddEditExpensePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
+  async getParsedReceipt(base64Image, fileType) {
+    const parsedData: any = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
+    const homeCurrency = await this.offlineService.getHomeCurrency().toPromise();
+
+    if (parsedData && parsedData.data && parsedData.data.currency && homeCurrency !== parsedData.data.currency) {
+      parsedData.exchangeRate = await this.currencyService.getExchangeRate(
+        parsedData.data.currency, 
+        homeCurrency,
+        parsedData.data.date ? new Date(parsedData.data.date) : new Date()
+      ).toPromise();
+    }
+    
+    return parsedData;
+  }
+
   parseFile(fileInfo) {
     const base64Image = fileInfo && fileInfo.url.split(';base64,')[1];
     let fileType = null;
@@ -2563,48 +2578,62 @@ export class AddEditExpensePage implements OnInit {
     }
 
     return forkJoin({
-      imageData: from(this.transactionOutboxService.parseReceipt(base64Image, fileType)),
-      filteredCategories: this.filteredCategories$.pipe(take(1))
-    }).pipe(
-      map(({imageData, filteredCategories}) => {
-        const extractedData = {
-          amount: imageData && imageData.data && imageData.data.amount,
-          currency: imageData && imageData.data && imageData.data.currency,
-          category: imageData && imageData.data && imageData.data.category,
-          date: imageData && imageData.data && imageData.data.date,
-          vendor: imageData && imageData.data && imageData.data.vendor_name,
-          invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
-        };
+      imageData: from(this.getParsedReceipt(base64Image, fileType)),
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
+      homeCurrency: this.offlineService.getHomeCurrency()
+    }).subscribe(({imageData, filteredCategories, homeCurrency}) => {
+      const extractedData = {
+        amount: imageData && imageData.data && imageData.data.amount,
+        currency: imageData && imageData.data && imageData.data.currency,
+        category: imageData && imageData.data && imageData.data.category,
+        date: imageData && imageData.data && imageData.data.date,
+        vendor: imageData && imageData.data && imageData.data.vendor_name,
+        invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
+      };
 
-        //Todo: check with foregin currency
+      if (extractedData.amount && extractedData.currency) {
+
+        let currencyObj = {
+          amount: null,
+          currency: homeCurrency,
+          orig_amount: null,
+          orig_currency: null
+        }
+
+        if (homeCurrency !== extractedData.currency && imageData.exchangeRate) {
+          currencyObj.orig_amount = extractedData.amount;
+          currencyObj.orig_currency = extractedData.currency;
+          currencyObj.amount = imageData.exchangeRate * extractedData.amount;
+          currencyObj.currency = homeCurrency;
+        } else {
+          currencyObj.amount = extractedData.amount;
+        }
+
         this.fg.patchValue({
-          currencyObj: {
-            amount: extractedData.amount,
-            currency: extractedData.currency,
-          },
+          currencyObj
         })
+      }
 
-        if (extractedData.date) {
-          this.fg.patchValue({
-            dateOfSpend:extractedData.date
-          })
-        }
+      if (extractedData.date) {
+        this.fg.patchValue({
+          dateOfSpend:extractedData.date
+        })
+      }
 
-        if (extractedData.vendor) {
-          this.fg.patchValue({
-            vendor_id:  {display_name: extractedData.vendor} 
-          })
-        }
+      if (extractedData.vendor) {
+        this.fg.patchValue({
+          vendor_id:  {display_name: extractedData.vendor} 
+        })
+      }
 
-        if (extractedData.category) {
-          const categoryName = extractedData.category || 'Unspecified';
-          const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
-          this.fg.patchValue({
-            category: category.value
-          })
-        }
-      })
-    ).subscribe(noop)
+      if (extractedData.category) {
+        const categoryName = extractedData.category || 'Unspecified';
+        const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
+        this.fg.patchValue({
+          category: category && category.value
+        })
+      }
+    });
   }
 
   async addAttachments(event) {
