@@ -40,7 +40,7 @@ import {CorporateCreditCardExpenseSuggestionsService} from '../../core/services/
 import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
 import {MatchTransactionComponent} from './match-transaction/match-transaction.component';
 import {TrackingService} from '../../core/services/tracking.service';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -525,7 +525,7 @@ export class AddEditExpensePage implements OnInit {
       costCenters: this.costCenters$,
       projects: this.offlineService.getProjects()
     }).subscribe(async res => {
-      const orgSettings =  res.orgSettings$;
+      const orgSettings = res.orgSettings$;
       const areCostCentersAvailable = res.costCenters.length > 0;
       const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
 
@@ -773,7 +773,17 @@ export class AddEditExpensePage implements OnInit {
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache'))
     }).pipe(
       map((dependencies) => {
-        const {orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData, recentCurrency} = dependencies;
+        const {
+          orgSettings,
+          orgUserSettings,
+          categories,
+          homeCurrency,
+          accounts,
+          eou,
+          instaFyleSettings,
+          imageData,
+          recentCurrency
+        } = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         this.isExpenseBankTxn = !!bankTxn;
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
@@ -936,7 +946,7 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return of(null);
         }
-    }));
+      }));
 
     const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
       return iif(() => etxn.tx.org_category_id,
@@ -1006,7 +1016,7 @@ export class AddEditExpensePage implements OnInit {
             orgSettings: this.offlineService.getOrgSettings(),
             costCenters: this.costCenters$
           }).pipe(
-            map(({ orgSettings, costCenters }) => {
+            map(({orgSettings, costCenters}) => {
               if (orgSettings.cost_centers.enabled) {
                 if (costCenters.length === 1 && this.mode === 'add') {
                   return costCenters[0].value.id;
@@ -1523,8 +1533,8 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.duplicateDetectionReasons = [
-      { label: 'Different expense', value: 'Different expense' },
-      { label: 'Other', value: 'Other' }
+      {label: 'Different expense', value: 'Different expense'},
+      {label: 'Other', value: 'Other'}
     ];
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
@@ -2170,7 +2180,7 @@ export class AddEditExpensePage implements OnInit {
         catchError(err => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-              map(etxn => ({ etxn }))
+              map(etxn => ({etxn}))
             );
           }
           if (err.type === 'criticalPolicyViolations') {
@@ -2402,7 +2412,7 @@ export class AddEditExpensePage implements OnInit {
         catchError(err => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-              map(etxn => ({ etxn }))
+              map(etxn => ({etxn}))
             );
           }
 
