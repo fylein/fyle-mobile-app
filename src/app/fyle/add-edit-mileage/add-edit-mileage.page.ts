@@ -529,7 +529,7 @@ export class AddEditMileagePage implements OnInit {
                     name: [customField.name],
                     value: [
                       customField.value,
-                      isConnected && customField.type !== 'BOOLEAN' && customField.mandatory && Validators.required
+                      isConnected && customField.type !== 'BOOLEAN' && customField.type !== 'USER_LIST' && customField.mandatory && Validators.required
                     ]
                   })
                 );

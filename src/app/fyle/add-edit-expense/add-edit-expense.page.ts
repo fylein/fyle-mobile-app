@@ -1248,13 +1248,16 @@ export class AddEditExpensePage implements OnInit {
         if (tfcMap) {
           for (const tfc of Object.keys(tfcMap)) {
             if (tfcMap[tfc].values && tfcMap[tfc].values.length > 0) {
-              tfcMap[tfc].values = tfcMap[tfc].values.map(value => ({label: value, value}));
+              if (tfc === 'vendor_id') {
+                tfcMap[tfc].values = tfcMap[tfc].values.map(value => ({label: value, value: { display_name: value}}));
+              } else {
+                tfcMap[tfc].values = tfcMap[tfc].values.map(value => ({label: value, value}));
+              }
             }
           }
         }
         return tfcMap;
       }),
-      tap(console.log),
       shareReplay(1)
     );
 
