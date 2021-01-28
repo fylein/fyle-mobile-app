@@ -1,3 +1,5 @@
+$red: #f00;
+
 .add-edit-mileage {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
@@ -139,6 +141,10 @@
     border-bottom: 1px solid #e0e0e0;
     &:last-child {
       border-bottom: 0;
+    }
+
+    &__invalid {
+      border-color: $red;
     }
   }
 

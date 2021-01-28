@@ -2402,7 +2402,7 @@ export class AddEditExpensePage implements OnInit {
                         type: 'criticalPolicyViolations',
                         policyViolations: criticalPolicyViolations,
                         etxn
-                      })
+                      });
                     } else {
                       return policyViolations$;
                     }
@@ -2566,12 +2566,12 @@ export class AddEditExpensePage implements OnInit {
 
     if (parsedData && parsedData.data && parsedData.data.currency && homeCurrency !== parsedData.data.currency) {
       parsedData.exchangeRate = await this.currencyService.getExchangeRate(
-        parsedData.data.currency, 
+        parsedData.data.currency,
         homeCurrency,
         parsedData.data.date ? new Date(parsedData.data.date) : new Date()
       ).toPromise();
     }
-    
+
     return parsedData;
   }
 
@@ -2629,7 +2629,7 @@ export class AddEditExpensePage implements OnInit {
 
       if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
         this.fg.patchValue({
-          vendor_id:  {display_name: extractedData.vendor} 
+          vendor_id:  {display_name: extractedData.vendor}
         })
       }
 
