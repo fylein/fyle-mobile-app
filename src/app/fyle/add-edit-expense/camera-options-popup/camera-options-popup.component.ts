@@ -42,7 +42,8 @@ export class CameraOptionsPopupComponent implements OnInit {
     if (image) {
       this.popoverController.dismiss({
         type: image.format,
-        dataUrl: image.dataUrl
+        dataUrl: image.dataUrl,
+        actionSource: 'camera'
       });
     } else {
       this.closeClicked();
@@ -62,7 +63,8 @@ export class CameraOptionsPopupComponent implements OnInit {
         const dataUrl = await that.fileService.readFile(file);
         that.popoverController.dismiss({
           type: file.type,
-          dataUrl
+          dataUrl,
+          actionSource: 'gallery_upload'
         });
       } else {
         that.closeClicked();
