@@ -52,6 +52,13 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       }),
       startWith([{ label: 'None', value: null }]),
       map((vendors: any[]) => {
+        if (!vendors.some(vendor => isEqual(vendor.value, this.currentSelection))) {
+          vendors = vendors.concat({
+            label: this.currentSelection.display_name, 
+            value: this.currentSelection
+          })
+        }
+
         return vendors.map(vendor => {
           if (isEqual(vendor.value, this.currentSelection)) {
             vendor.selected = true;

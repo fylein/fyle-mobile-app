@@ -364,22 +364,17 @@ export class TransactionsOutboxService {
     return this.syncInProgress;
   }
 
-  parseReceipt(data): Promise<ParsedReceipt> {
+  parseReceipt(data, fileType?): Promise<ParsedReceipt> {
     const url = this.ROOT_ENDPOINT + '/data_extraction/extract';
     let suggestedCurrency = null;
-    // res = {
-    //   amount: 100,
-    //   category: 'food',
-    //   currency: 'KWD'
-    // };
+    const fileName = (fileType && fileType === 'pdf') ? '000.pdf' : '000.jpeg';
 
-    // return $q.when(res);
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
     return this.offlineService.getHomeCurrency().toPromise().then((homeCurrency) => {
       suggestedCurrency = homeCurrency;
       return this.httpClient.post(url, {
         files: [{
-          name: '000.jpeg',
+          name: fileName,
           content: data
         }],
         suggested_currency: suggestedCurrency
@@ -388,7 +383,7 @@ export class TransactionsOutboxService {
     }).catch((err) => {
       return this.httpClient.post(url, {
         files: [{
-          name: '000.jpeg',
+          name: fileName,
           content: data
         }],
         suggested_currency: suggestedCurrency

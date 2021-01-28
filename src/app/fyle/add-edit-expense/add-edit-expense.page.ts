@@ -861,7 +861,7 @@ export class AddEditExpensePage implements OnInit {
             currency: imageData && imageData.parsedResponse && imageData.parsedResponse.currency,
             category: imageData && imageData.parsedResponse && imageData.parsedResponse.category,
             date: (imageData && imageData.parsedResponse && imageData.parsedResponse.date) ? new Date(imageData.parsedResponse.date) : null,
-            vendor: imageData && imageData.parsedResponse && imageData.parsedResponse.vendor,
+            vendor: imageData && imageData.parsedResponse && imageData.parsedResponse.vendor_name,
             invoice_dt: imageData && imageData.parsedResponse && imageData.parsedResponse.invoice_dt || null
           };
 
@@ -1393,7 +1393,8 @@ export class AddEditExpensePage implements OnInit {
           }),
           map(categories => categories.map(category => ({label: category.displayName, value: category})))
         );
-      })
+      }),
+      shareReplay(1)
     );
 
     this.filteredCategories$.subscribe(categories => {
@@ -2555,6 +2556,89 @@ export class AddEditExpensePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
+  async getParsedReceipt(base64Image, fileType) {
+    const parsedData: any = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
+    const homeCurrency = await this.offlineService.getHomeCurrency().toPromise();
+
+    if (parsedData && parsedData.data && parsedData.data.currency && homeCurrency !== parsedData.data.currency) {
+      parsedData.exchangeRate = await this.currencyService.getExchangeRate(
+        parsedData.data.currency, 
+        homeCurrency,
+        parsedData.data.date ? new Date(parsedData.data.date) : new Date()
+      ).toPromise();
+    }
+    
+    return parsedData;
+  }
+
+  parseFile(fileInfo) {
+    const base64Image = fileInfo && fileInfo.url.split(';base64,')[1];
+    let fileType = null;
+    if (fileInfo && fileInfo.type && fileInfo.type.indexOf('image') > -1) {
+      fileType = 'image';
+    } else if (fileInfo && fileInfo.type && fileInfo.type.indexOf('pdf') > -1) {
+      fileType = 'pdf';
+    }
+
+    return forkJoin({
+      imageData: from(this.getParsedReceipt(base64Image, fileType)),
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
+      homeCurrency: this.offlineService.getHomeCurrency()
+    }).subscribe(({imageData, filteredCategories, homeCurrency}) => {
+      const extractedData = {
+        amount: imageData && imageData.data && imageData.data.amount,
+        currency: imageData && imageData.data && imageData.data.currency,
+        category: imageData && imageData.data && imageData.data.category,
+        date: imageData && imageData.data && imageData.data.date,
+        vendor: imageData && imageData.data && imageData.data.vendor_name,
+        invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
+      };
+
+      if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
+
+        let currencyObj = {
+          amount: null,
+          currency: homeCurrency,
+          orig_amount: null,
+          orig_currency: null
+        }
+
+        if (homeCurrency !== extractedData.currency && imageData.exchangeRate) {
+          currencyObj.orig_amount = extractedData.amount;
+          currencyObj.orig_currency = extractedData.currency;
+          currencyObj.amount = imageData.exchangeRate * extractedData.amount;
+          currencyObj.currency = homeCurrency;
+        } else {
+          currencyObj.amount = extractedData.amount;
+        }
+
+        this.fg.patchValue({
+          currencyObj
+        })
+      }
+
+      if (extractedData.date) {
+        this.fg.patchValue({
+          dateOfSpend:extractedData.date
+        })
+      }
+
+      if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
+        this.fg.patchValue({
+          vendor_id:  {display_name: extractedData.vendor} 
+        })
+      }
+
+      if (!this.fg.controls.category.value && extractedData.category) {
+        const categoryName = extractedData.category || 'Unspecified';
+        const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
+        this.fg.patchValue({
+          category: category && category.value
+        })
+      }
+    });
+  }
+
   async addAttachments(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -2570,12 +2654,20 @@ export class AddEditExpensePage implements OnInit {
 
     if (data) {
       if (this.mode === 'add') {
-        this.newExpenseDataUrls.push({
+        const fileInfo = {
           type: data.type,
           url: data.dataUrl,
           thumbnail: data.dataUrl
-        });
+        }
+        this.newExpenseDataUrls.push(fileInfo);
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
+        this.isConnected$.pipe(
+          take(1)
+        ).subscribe((isConnected) => {
+          if (isConnected && data.actionSource === 'gallery_upload' && this.attachedReceiptsCount === 1) {
+            this.parseFile(fileInfo);
+          }
+        });
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
           switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
