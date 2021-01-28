@@ -2659,12 +2659,12 @@ export class AddEditExpensePage implements OnInit {
         this.newExpenseDataUrls.push(fileInfo);
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(
-          map(isConnected => {
-            if (isConnected && data.actionSource === 'gallery_upload' && this.attachedReceiptsCount === 1) {
-              this.parseFile(fileInfo);
-            }
-          })
-        ).subscribe(noop);
+          take(1)
+        ).subscribe((isConnected) => {
+          if (isConnected && data.actionSource === 'gallery_upload' && this.attachedReceiptsCount === 1) {
+            this.parseFile(fileInfo);
+          }
+        });
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
           switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
