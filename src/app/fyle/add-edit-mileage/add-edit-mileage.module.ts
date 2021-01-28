@@ -11,10 +11,6 @@ import { AddEditMileagePage } from './add-edit-mileage.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { FySelectVehicleComponent } from './fy-select-vehicle/fy-select-vehicle.component';
-
-import { FySelectProjectComponent } from './fy-select-project/fy-select-project.component';
-
-import { FySelectModalComponent } from './fy-select-project/fy-select-modal/fy-select-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -43,8 +39,6 @@ import { CriticalPolicyViolationComponent } from './critical-policy-violation/cr
   declarations: [
     AddEditMileagePage,
     FySelectVehicleComponent,
-    FySelectProjectComponent,
-    FySelectModalComponent,
     CriticalPolicyViolationComponent,
     PolicyViolationComponent
   ]
