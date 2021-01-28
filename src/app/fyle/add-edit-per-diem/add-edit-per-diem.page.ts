@@ -1354,7 +1354,11 @@ export class AddEditPerDiemPage implements OnInit {
                   map(this.policyService.getCriticalPolicyRules),
                   switchMap(criticalPolicyViolations => {
                     if (criticalPolicyViolations.length > 0) {
-                      return throwError(new Error('Critical Policy Violated'));
+                      return throwError({
+                        type: 'criticalPolicyViolations',
+                        policyViolations: criticalPolicyViolations,
+                        etxn
+                      });
                     } else {
                       return policyViolations$;
                     }

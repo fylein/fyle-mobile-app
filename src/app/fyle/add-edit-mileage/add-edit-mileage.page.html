@@ -128,7 +128,7 @@
               <ng-container formArrayName="mileage_locations">
                 <ng-container
                   *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
-                  <div class="add-edit-mileage--internal-block">
+                  <div class="add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': control.touched && !control.valid}">
                     <app-fy-location
                       [formControlName]="i"
                       [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Select Stop ' + (i) + ' Location'))): (isFirst ? (control.value ? 'Start' : 'Select From Location'): (control.value ? 'End' :'Select To Location'))"
@@ -162,7 +162,7 @@
 
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="txnFields?.distance?.canView">
-                <div class="add-edit-mileage--text add-edit-mileage--internal-block">
+                <div class="add-edit-mileage--text add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}">
                   <div [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
                        class="add-edit-mileage--text-label">
                     {{ fg.controls.distance.value > 0 ? 'Distance ' : 'Enter Distance ' }}
@@ -201,7 +201,7 @@
 
             <ng-container *ngIf="paymentModes$|async as paymentModes">
               <div *ngIf="paymentModes.length > 1"
-                   class="add-edit-mileage--payment-modes add-edit-mileage--internal-block">
+                   class="add-edit-mileage--payment-modes add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}">
                 <app-fy-select
                   [enableSearch]="false"
                   [label]="fg.value.paymentMode? 'Payment Mode' : 'Select Payment Mode'"
@@ -252,7 +252,7 @@
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="txnFields.purpose?.canView">
                 <div *ngIf="txnFields.purpose?.type === 'TEXT'"
-                     class="add-edit-mileage--text add-edit-mileage--internal-block">
+                     class="add-edit-mileage--text add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                   <div [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
                        class="add-edit-mileage--text-label">
                     <div>
@@ -288,7 +288,7 @@
                 <ng-container
                   *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
                   <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
-                    <div class="add-edit-mileage--internal-block">
+                    <div class="add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.project.touched && !fg.controls.project.valid}">
                       <app-fy-select-project
                         [cacheName]="'mileageProjectCache'"
                         [categoryIds]="projectCategoryIds"
@@ -313,10 +313,10 @@
                 </span>
               </mat-checkbox>
             </div>
-            
+
             <ng-container *ngIf="filteredCategories$|async as subCategories">
               <ng-container *ngIf="subCategories.length > 0">
-                <div class="add-edit-mileage--internal-block">
+                <div class="add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.sub_category.touched && !fg.controls.sub_category.valid}">
                   <app-fy-select [cacheName]="'mileageSubCategoryName'"
                                  [label]="etxn?.tx?.org_category_id ? 'Sub Category' : 'Select Sub Category'"
                                  [mandatory]="true"
@@ -337,7 +337,7 @@
 
 
             <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
-              <div *ngIf="customInput.type !== 'USER_LIST'" class="add-edit-mileage--internal-block">
+              <div *ngIf="customInput.type !== 'USER_LIST'" class="add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                 <form [formGroup]="customInput.control">
                   <div *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'"
                        class="add-edit-mileage--text">
@@ -408,7 +408,7 @@
             <ng-container *ngIf="costCenters$|async as costCenters">
               <ng-container *ngIf="txnFields$|async as txnFields">
                 <div *ngIf="costCenters.length > 0 && txnFields?.cost_center_id?.canView"
-                     class="add-edit-mileage--internal-block">
+                     class="add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}">
                   <app-fy-select [cacheName]="'mileageCostCenterCache'"
                                  [label]="fg.controls.costCenter.value ? 'Cost Center' : 'Select Cost Center'"
                                  [mandatory]="txnFields.cost_center_id.mandatory"

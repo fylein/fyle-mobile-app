@@ -20,22 +20,21 @@
           {{stats?.total_amount || 0 | humanizeCurrency: homeCurrency:2}}</div>
       </ion-col>
     </ion-row>
-
-    <div class="dashboard-card--needs-attention dashboard-card--need-attention-block"
-      *ngIf="needsAttentionStats && needsAttentionStats.count && needsAttentionStats.count > 0">
-      <div class="dashboard-card--need-attention-curve-container">
-        <mat-icon class="dashboard-card--icon-curve" svgIcon="curve"></mat-icon>
-        <div class="dashboard-card--need-attention-text text-right">
-          <mat-icon class="dashboard-card--icon-warning" svgIcon="warning"></mat-icon>
-          <div class="text-ellipsis">
-            {{ needsAttentionStats.count || 0 }}
-            {{ needsAttentionStats.count > 1 ? item.subTitle + 's' : item.subTitle }}
-            {{needsAttentionStats.count > 1 ? 'need' : 'needs'}} your attention
-          </div>
+  </ion-grid>
+  <div class="dashboard-card--needs-attention dashboard-card--need-attention-block"
+  *ngIf="needsAttentionStats && needsAttentionStats.count && needsAttentionStats.count > 0">
+    <div class="dashboard-card--need-attention-curve-container">
+      <mat-icon class="dashboard-card--icon-curve" svgIcon="curve"></mat-icon>
+      <div class="dashboard-card--need-attention-text text-right">
+        <mat-icon class="dashboard-card--icon-warning" svgIcon="warning"></mat-icon>
+        <div class="text-ellipsis">
+          {{ needsAttentionStats.count || 0 }}
+          {{ needsAttentionStats.count > 1 ? item.subTitle + 's' : item.subTitle }}
+          {{needsAttentionStats.count > 1 ? 'need' : 'needs'}} your attention
         </div>
       </div>
     </div>
-  </ion-grid>
+  </div>
 </div>
 
 <div class="dashboard-card--expanded-view full-width" *ngIf="expandedCard === item.title">

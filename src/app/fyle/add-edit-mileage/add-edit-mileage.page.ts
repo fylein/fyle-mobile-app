@@ -1532,11 +1532,14 @@ export class AddEditMileagePage implements OnInit {
             if (isConnected) {
               const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
               return policyViolations$.pipe(
-
                 map(this.policyService.getCriticalPolicyRules),
                 switchMap(criticalPolicyViolations => {
                   if (criticalPolicyViolations.length > 0) {
-                    return throwError(new Error('Critical Policy Violated'));
+                    return throwError({
+                      type: 'criticalPolicyViolations',
+                      policyViolations: criticalPolicyViolations,
+                      etxn
+                    });
                   }
                   else {
                     return policyViolations$;
@@ -1778,7 +1781,11 @@ export class AddEditMileagePage implements OnInit {
                   map(this.policyService.getCriticalPolicyRules),
                   switchMap(criticalPolicyViolations => {
                     if (criticalPolicyViolations.length > 0) {
-                      return throwError(new Error('Critical Policy Violated'));
+                      return throwError({
+                        type: 'criticalPolicyViolations',
+                        policyViolations: criticalPolicyViolations,
+                        etxn
+                      });
                     }
                     else {
                       return policyViolations$;

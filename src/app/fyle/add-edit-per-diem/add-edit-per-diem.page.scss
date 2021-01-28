@@ -1,3 +1,5 @@
+$red: #f00;
+
 .add-edit-per-diem {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
@@ -57,7 +59,6 @@
   &--receipt {
     align-items: center;
     text-align: center;
-    margin: 12px 4px;
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -65,7 +66,7 @@
     padding: 20px 8px;
     border-radius: 4px;
     color: #ababab;
-    margin-left: 0;
+    margin: 12px 4px 12px 0;
   }
 
   &--currency {
@@ -157,6 +158,10 @@
     border-bottom: 1px solid #e0e0e0;
     &:last-child {
       border-bottom: 0;
+    }
+
+    &__invalid {
+      border-color: $red;
     }
   }
 
