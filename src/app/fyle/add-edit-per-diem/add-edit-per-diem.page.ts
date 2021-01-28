@@ -644,7 +644,9 @@ export class AddEditPerDiemPage implements OnInit {
                 customFieldsFormArray.push(
                   this.fb.group({
                     name: [customField.name],
-                    value: [customField.value, isConnected && customField.mandatory && Validators.required]
+                    value: [
+                      customField.value,
+                      isConnected && customField.type !== 'BOOLEAN' && customField.type !== 'USER_LIST' && customField.mandatory && Validators.required]
                   })
                 );
               }
