@@ -2591,7 +2591,7 @@ export class AddEditExpensePage implements OnInit {
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
 
-      if (extractedData.amount && extractedData.currency) {
+      if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
         let currencyObj = {
           amount: null,
@@ -2620,13 +2620,13 @@ export class AddEditExpensePage implements OnInit {
         })
       }
 
-      if (extractedData.vendor) {
+      if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
         this.fg.patchValue({
           vendor_id:  {display_name: extractedData.vendor} 
         })
       }
 
-      if (extractedData.category) {
+      if (!this.fg.controls.category.value && extractedData.category) {
         const categoryName = extractedData.category || 'Unspecified';
         const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
         this.fg.patchValue({
