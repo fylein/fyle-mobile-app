@@ -11,8 +11,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatTabsModule} from '@angular/material/tabs';
 import {OtherRequestsComponent} from './other-requests/other-requests.component';
 import {SavePopoverComponent} from './save-popover/save-popover.component';
-import {FySelectProjectComponent} from './fy-select-project/fy-select-project.component';
-import {FySelectModalComponent} from './fy-select-project/fy-select-modal/fy-select-modal.component';
 import {MatInputModule} from '@angular/material/input';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 
@@ -32,8 +30,6 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
   ],
   declarations: [
     MyAddEditTripPage,
-    FySelectModalComponent,
-    FySelectProjectComponent,
     OtherRequestsComponent,
     SavePopoverComponent,
     PolicyViolationComponent

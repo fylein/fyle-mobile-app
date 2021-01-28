@@ -1,7 +1,6 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 import {IonicModule} from '@ionic/angular';
-
-import {ErrorComponent} from './error.component';
+import {ErrorComponent} from '../../sign-in/error/error.component';
 
 describe('ErrorComponent', () => {
   let component: ErrorComponent;

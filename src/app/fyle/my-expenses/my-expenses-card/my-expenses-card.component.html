@@ -8,18 +8,18 @@
     </div>
   </div>
   <div class="my-expenses-card" [ngClass]="{'my-expenses-card--non-selectable': (selectionMode && ((isDraft && baseState !== 'draft') || isCriticalPolicyViolated))}">
-    <div class="my-expenses-card--decorator" *ngIf="expense.tx_state === 'DRAFT'">
+    <div class="my-expenses-card--decorator" *ngIf="expense.tx_state === 'DRAFT' && canOpenCard">
       Draft
     </div>
-    <div class="my-expenses-card--decorator" *ngIf="expense.tx_user_review_needed && !isDraft">
+    <div class="my-expenses-card--decorator" *ngIf="expense.tx_user_review_needed && !isDraft && canOpenCard">
       Needs Review
     </div>
     <div class="my-expenses-card--decorator my-expenses-card--decorator__policy-violation"
-      *ngIf="expense.tx_id && isPolicyViolated && !isCriticalPolicyViolated">
+      *ngIf="expense.tx_id && isPolicyViolated && !isCriticalPolicyViolated && canOpenCard">
       Policy Violation
     </div>
     <div class="my-expenses-card--decorator my-expenses-card--decorator__critical-policy-violation"
-      *ngIf="expense.tx_id && isCriticalPolicyViolated">
+      *ngIf="expense.tx_id && isCriticalPolicyViolated && canOpenCard">
       Critical Policy Violation
     </div>
 
