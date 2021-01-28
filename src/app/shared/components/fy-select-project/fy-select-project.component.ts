@@ -23,7 +23,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   @Input() label = 'Project';
   @Input() cacheName;
   @Input() selectionElement: TemplateRef<ElementRef>;
-  @Input() categoryIds: string[] = [];
+  @Input() categoryIds: string[];
 
   private innerValue;
   displayValue;

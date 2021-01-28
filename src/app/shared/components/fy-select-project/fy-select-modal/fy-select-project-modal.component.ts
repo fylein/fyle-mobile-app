@@ -57,6 +57,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
                 sortDirection: 'asc',
                 sortOrder: 'project_name',
                 isIndividualProjectEnabled: !!allowedProjectIds,
+                orgCategoryIds: this.categoryIds,
                 projectIds: allowedProjectIds,
                 searchNameText,
                 offset: 0,
