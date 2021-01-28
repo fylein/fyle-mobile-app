@@ -127,7 +127,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   }
 
   onElementSelect(option) {
-    if (this.cacheName) {
+    if (this.cacheName && option.value) {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
     this.modalController.dismiss(option);

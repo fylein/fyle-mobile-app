@@ -20,7 +20,7 @@
         <span class="report-summary--currency">
           {{homeCurrency}}
         </span>
-        <span class="report-summary--amount">{{selectedTotalAmount}}</span>
+        <span class="report-summary--amount">{{selectedTotalAmount| number: '1.2-2'}}</span>
       </p>
       <p class="report-summary--purpose">{{purpose}}</p>
       <p class="report-summary--info-text">Contains {{selectedTotalTxns}} expenses</p>
