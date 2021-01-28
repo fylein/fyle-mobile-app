@@ -75,6 +75,8 @@ $header-text: #aaa;
   }
 
   &--validation {
+    vertical-align: middle;
+
     &__correct {
       color: green;
     }
