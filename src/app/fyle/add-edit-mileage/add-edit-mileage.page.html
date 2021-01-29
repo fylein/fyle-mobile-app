@@ -113,11 +113,11 @@
             </ng-container>
 
             <ng-container *ngIf="txnFields$|async as txnFields">
-              <div *ngIf="txnFields?.txn_dt?.canView" class="add-edit-mileage--date add-edit-mileage--internal-block">
+              <div *ngIf="txnFields?.txn_dt?.canView" class="add-edit-mileage--date add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}">
                 <div [ngClass]="{'add-edit-mileage--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                      class="add-edit-mileage--date-label">
                   Start Date
-                  <span ng-if="txnFields?.txn_dt?.mandatory">*</span>
+                  <span *ngIf="txnFields?.txn_dt?.mandatory">*</span>
                 </div>
                 <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input"
                        formControlName="dateOfSpend" type="date">
@@ -294,6 +294,7 @@
                         [categoryIds]="projectCategoryIds"
                         [label]="fg.value.project ? 'Project' : 'Select Project'"
                         [mandatory]="transactionMandatoyFields.project"
+                        [defaultValue]="true"
                         formControlName="project"
                       ></app-fy-select-project>
                     </div>

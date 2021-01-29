@@ -80,7 +80,7 @@
               <div *ngIf="etxn$|async as etxn" class="add-edit-per-diem--currency">
                 <div *ngIf="homeCurrency$|async as homeCurrency">
                   <app-fy-currency [disabled]="true" [homeCurrency]="homeCurrency"
-                                   [txnDt]="etxn?.tx?.txn_dt" formControlName="currencyObj">
+                                   [txnDt]="etxn?.tx?.txn_dt" [formControl]="fg.controls.currencyObj">
                   </app-fy-currency>
                 </div>
               </div>
@@ -271,6 +271,7 @@
                               [categoryIds]="projectCategoryIds"
                               [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                               [mandatory]="transactionMandatoyFields?.project"
+                              [defaultValue]="true"
                               formControlName="project">
                             </app-fy-select-project>
                           </div>
