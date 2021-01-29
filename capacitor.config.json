@@ -7,7 +7,6 @@
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 5000,
-      "showSpinner": false,
       "androidScaleType": "CENTER_CROP"
     }
   },

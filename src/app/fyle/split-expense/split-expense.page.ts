@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
@@ -297,6 +297,18 @@ export class SplitExpensePage implements OnInit {
 
   }
 
+  customDateValidator(control: AbstractControl) {
+    const today = new Date();
+    const minDate = moment(new Date('Jan 1, 2001'));
+    const maxDate = moment(new Date(today)).add(1, 'day');
+    const passedInDate = control.value && moment(new Date(control.value));
+    if (passedInDate) {
+      return passedInDate.isBetween(minDate, maxDate) ? null : {
+        invalidDateSelection: true
+      };
+    }
+  }
+
   add(amount?, currency?, percentage?, txnDt?) {
     if (!txnDt) {
       const dateOfTxn = this.transaction?.txn_dt;
@@ -308,7 +320,7 @@ export class SplitExpensePage implements OnInit {
       amount: [amount, Validators.required],
       currency: [currency, ],
       percentage: [percentage, ],
-      txn_dt: [txnDt, Validators.required]
+      txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])]
     });
 
     if (this.splitType === 'categories') {

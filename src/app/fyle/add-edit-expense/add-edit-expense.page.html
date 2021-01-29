@@ -150,11 +150,11 @@
                 {{txnFields.txn_dt?.title || 'Date of Spend'}}
                 <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
               </div>
-              <input class="add-edit-expense--date-input" matInput type="date" formControlName="dateOfSpend" disabled
+              <input class="add-edit-expense--date-input" type="date" formControlName="dateOfSpend"
                      (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
             </div>
             <div class="add-edit-expense--error" *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid">
-              Please select a date.
+              Please select a valid date.
             </div>
           </ng-container>
 

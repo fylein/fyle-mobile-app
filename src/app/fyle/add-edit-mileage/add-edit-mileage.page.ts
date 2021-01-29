@@ -632,12 +632,24 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  customDateValidator(control: AbstractControl) {
+    const today = new Date();
+    const minDate = moment(new Date('Jan 1, 2001'));
+    const maxDate = moment(new Date(today)).add(1, 'day');
+    const passedInDate = control.value && moment(new Date(control.value));
+    if (passedInDate) {
+      return passedInDate.isBetween(minDate, maxDate) ? null : {
+        invalidDateSelection: true
+      };
+    }
+  }
+
   ionViewWillEnter() {
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     this.fg = this.fb.group({
       mileage_vehicle_type: [],
-      dateOfSpend: [],
+      dateOfSpend: [, this.customDateValidator],
       mileage_locations: new FormArray([]),
       distance: [, Validators.required],
       round_trip: [],
@@ -849,7 +861,11 @@ export class AddEditMileagePage implements OnInit {
         const control = keyToControlMap[txnFieldKey];
 
         if (txnFields[txnFieldKey].mandatory) {
-          control.setValidators(isConnected ? Validators.required : null);
+          if (txnFieldKey === 'txn_dt') {
+            control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
+          } else {
+            control.setValidators(isConnected ? Validators.required : null);
+          }
         }
         control.updateValueAndValidity();
       }
