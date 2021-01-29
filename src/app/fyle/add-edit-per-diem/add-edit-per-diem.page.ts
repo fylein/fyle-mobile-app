@@ -658,6 +658,16 @@ export class AddEditPerDiemPage implements OnInit {
       );
   }
 
+  customDateValidator(control: AbstractControl) {
+    const fromDt = moment(new Date(this.fg.value.from_dt)).format('y-MM-D');
+    const passedInDate = control.value && moment(new Date(control.value));
+    if (passedInDate) {
+      return passedInDate.isAfter(fromDt) ? null : {
+        invalidDateSelection: true
+      };
+    }
+  }
+
   ionViewWillEnter() {
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
@@ -677,7 +687,7 @@ export class AddEditPerDiemPage implements OnInit {
       purpose: [],
       num_days: [, Validators.required],
       report: [],
-      from_dt: [],
+      from_dt: [, this.customDateValidator.bind(this)],
       to_dt: [],
       custom_inputs: new FormArray([]),
       add_to_new_report: [],
@@ -870,7 +880,11 @@ export class AddEditPerDiemPage implements OnInit {
         const control = keyToControlMap[txnFieldKey];
 
         if (txnFields[txnFieldKey].mandatory) {
-          control.setValidators(isConnected ? Validators.required : null);
+          if (txnFieldKey === 'to_dt') {
+            control.setValidators(isConnected ? Validators.compose([this.customDateValidator.bind(this), Validators.required]) : null);
+          } else {
+            control.setValidators(isConnected ? Validators.required : null);
+          }
         }
         control.updateValueAndValidity();
       }
