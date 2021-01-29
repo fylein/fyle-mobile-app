@@ -782,9 +782,14 @@ export class AddEditPerDiemPage implements OnInit {
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
-    this.isConnected$.subscribe(isConnected => {
+    combineLatest([
+      this.isConnected$,
+      this.filteredCategories$,
+    ]).pipe(
+      distinctUntilChanged((a, b) => isEqual(a, b)),
+    ).subscribe(([isConnected, filteredCategories]) => {
       this.fg.controls.sub_category.clearValidators();
-      if (isConnected) {
+      if (isConnected && filteredCategories && filteredCategories.length) {
         this.fg.controls.sub_category.setValidators(Validators.required);
       }
       this.fg.controls.sub_category.updateValueAndValidity();
@@ -870,7 +875,11 @@ export class AddEditPerDiemPage implements OnInit {
         const control = keyToControlMap[txnFieldKey];
 
         if (txnFields[txnFieldKey].mandatory) {
-          control.setValidators(isConnected ? Validators.required : null);
+          control.setValidators((isConnected || txnFieldKey === 'num_days') ? Validators.required : null);
+        } else {
+          if (txnFieldKey === 'num_days') {
+            control.setValidators(Validators.required);
+          }
         }
         control.updateValueAndValidity();
       }
