@@ -41,9 +41,9 @@
     <div class="setup-account--password-rules">
       <div>
         <span>
-          <ion-icon *ngIf="lengthValidationDisplay$|async" class="setup-account--validation__correct"
+          <ion-icon *ngIf="lengthValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"></ion-icon>
-          <ion-icon *ngIf="!(lengthValidationDisplay$|async)" class="setup-account--validation__incorrect"
+          <ion-icon *ngIf="!(lengthValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"></ion-icon>
         </span>
         <span>
@@ -52,9 +52,9 @@
       </div>
       <div>
         <span>
-          <ion-icon *ngIf="uppercaseValidationDisplay$|async" class="setup-account--validation__correct"
+          <ion-icon *ngIf="uppercaseValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"></ion-icon>
-          <ion-icon *ngIf="!(uppercaseValidationDisplay$|async)" class="setup-account--validation__incorrect"
+          <ion-icon *ngIf="!(uppercaseValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"></ion-icon>
         </span>
         <span>
@@ -63,9 +63,9 @@
       </div>
       <div>
         <span>
-          <ion-icon *ngIf="numberValidationDisplay$|async" class="setup-account--validation__correct"
+          <ion-icon *ngIf="numberValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"></ion-icon>
-          <ion-icon *ngIf="!(numberValidationDisplay$|async)" class="setup-account--validation__incorrect"
+          <ion-icon *ngIf="!(numberValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"></ion-icon>
         </span>
         <span>
@@ -74,9 +74,9 @@
       </div>
       <div>
         <span>
-          <ion-icon *ngIf="specialCharValidationDisplay$|async" class="setup-account--validation__correct"
+          <ion-icon *ngIf="specialCharValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"></ion-icon>
-          <ion-icon *ngIf="!(specialCharValidationDisplay$|async)" class="setup-account--validation__incorrect"
+          <ion-icon *ngIf="!(specialCharValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"></ion-icon>
         </span>
         <span>

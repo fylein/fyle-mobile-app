@@ -9,6 +9,10 @@ $item-border-color: #e0e0e0;
     padding: 4px 16px;
   }
 
+  &--close {
+    padding-right: 12px;
+  }
+
   &--elements-wrapper {
     margin: 16px 0;
     border: 1px solid #e5e5e5;

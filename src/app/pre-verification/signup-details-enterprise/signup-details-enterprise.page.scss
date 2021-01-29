@@ -127,16 +127,17 @@ $completed: #25ae88;
   }
 
   &--validation {
+    position: relative;
+    font-size: 16px;
+    vertical-align: middle;
+
     &__correct {
       color: green;
-      position: relative;
-      top: 2px;
+      
     }
 
     &__incorrect {
       color: red;
-      position: relative;
-      top: 2px;
     }
   }
 
