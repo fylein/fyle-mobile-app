@@ -154,7 +154,7 @@
                      (keydown)="$event.preventDefault()" [min]="minDate" [max]="maxDate">
             </div>
             <div class="add-edit-expense--error" *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid">
-              Please select a date.
+              Please select a valid date.
             </div>
           </ng-container>
 
