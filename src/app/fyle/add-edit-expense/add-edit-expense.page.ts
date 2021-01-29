@@ -621,12 +621,25 @@ export class AddEditExpensePage implements OnInit {
             this.fg.controls.project.updateValueAndValidity();
           }
         }
-
-        if (transactionMandatoyFields.category) {
-          this.fg.controls.category.setValidators(Validators.required);
-          this.fg.controls.category.updateValueAndValidity();
-        }
       });
+
+    combineLatest([
+      this.isConnected$,
+      this.filteredCategories$,
+      this.transactionMandatoyFields$
+    ]).pipe(
+      distinctUntilChanged((a, b) => isEqual(a, b))
+    ).subscribe(([isConnected, filteredCategories, transactionMandatoyFields]) => {
+      if (isConnected) {
+        if (transactionMandatoyFields.category && filteredCategories.length) {
+          this.fg.controls.category.setValidators(Validators.required);
+        } else {
+          this.fg.controls.category.clearValidators();
+        }
+        this.fg.controls.category.updateValueAndValidity();
+
+      }
+    });
   }
 
   setupBalanceFlag() {
@@ -1637,7 +1650,6 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.setupCostCenters();
-    this.setupTransactionMandatoryFields();
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
@@ -1771,6 +1783,8 @@ export class AddEditExpensePage implements OnInit {
     this.setupFilteredCategories(activeCategories$);
 
     this.setupTfc();
+
+    this.setupTransactionMandatoryFields();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map(txnFields => {

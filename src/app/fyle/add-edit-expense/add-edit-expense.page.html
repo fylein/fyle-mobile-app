@@ -289,6 +289,7 @@
                       [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                       [mandatory]="transactionMandatoyFields.project"
                       [cacheName]="'expenseProjectCache'"
+                      [defaultValue]="true"
                       formControlName="project">
                     </app-fy-select-project>
                   </div>
@@ -312,22 +313,24 @@
           <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
             <ng-container *ngIf="filteredCategories$|async as categories">
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-                <div class="add-edit-expense--internal-block" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}">
-                  <app-fy-select
-                    formControlName="category"
-                    [label]="fg.controls.category.value? 'Category':'Select Category'"
-                    [mandatory]="transactionMandatoyFields.category"
-                    [options]="categories"
-                    [cacheName]="'recentCategoryList'"
-                    [selectModalHeader]="'Choose Category'"
-                    [subheader]="'All Categories'"
-                    [defaultLabelProp]="'displayName'"
-                  >
-                  </app-fy-select>
-                </div>
-                <div class="add-edit-expense--error" *ngIf="fg.controls.category.touched && !fg.controls.category.valid">
-                  Please select a category.
-                </div>
+                <ng-container *ngIf="categories.length">
+                  <div class="add-edit-expense--internal-block" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}">
+                    <app-fy-select
+                      formControlName="category"
+                      [label]="fg.controls.category.value? 'Category':'Select Category'"
+                      [mandatory]="transactionMandatoyFields.category"
+                      [options]="categories"
+                      [cacheName]="'recentCategoryList'"
+                      [selectModalHeader]="'Choose Category'"
+                      [subheader]="'All Categories'"
+                      [defaultLabelProp]="'displayName'"
+                    >
+                    </app-fy-select>
+                  </div>
+                  <div class="add-edit-expense--error" *ngIf="fg.controls.category.touched && !fg.controls.category.valid">
+                    Please select a category.
+                  </div>
+                </ng-container>
               </ng-container>
             </ng-container>
           </ng-container>

@@ -24,6 +24,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   @Input() cacheName;
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
+  @Input() defaultValue = false;
 
   private innerValue;
   displayValue;
@@ -76,7 +77,8 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         currentSelection: this.value,
         cacheName: this.cacheName,
         selectionElement: this.selectionElement,
-        categoryIds: this.categoryIds
+        categoryIds: this.categoryIds,
+        defaultValue: this.defaultValue
       }
     });
 

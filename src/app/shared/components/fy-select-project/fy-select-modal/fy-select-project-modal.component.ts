@@ -20,6 +20,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() cacheName;
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
+  @Input() defaultValue = false;
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;
@@ -39,6 +40,17 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   }
 
   getProjects(searchNameText) {
+    const defaultProject$ = this.offlineService.getOrgUserSettings().pipe(
+      switchMap(orgUserSettings => {
+        if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
+          return this.projectService.getbyId(orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id);
+        } else {
+          return of(null);
+        }
+      })
+    );
+
+
     return this.offlineService.getOrgSettings().pipe(
       switchMap((orgSettings) => {
         return iif(
@@ -66,6 +78,21 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
             }
           ))
         );
+      }),
+      switchMap(projects => {
+        if (this.defaultValue) {
+          return defaultProject$.pipe(
+            map(defaultProject => {
+              if (defaultProject && !projects.some(project => project.project_id === defaultProject.project_id)) {
+                projects.push(defaultProject);
+              }
+
+              return projects;
+            })
+          );
+        } else {
+          return of(projects);
+        }
       }),
       map(projects => {
           const currentElement = [];

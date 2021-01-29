@@ -773,11 +773,17 @@ export class AddEditPerDiemPage implements OnInit {
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
-    this.filteredCategories$.subscribe(subCategories => {
-      if (!subCategories.length) {
-        this.fg.controls.sub_category.clearValidators();
-        this.fg.controls.sub_category.updateValueAndValidity();
+    combineLatest([
+      this.isConnected$,
+      this.filteredCategories$,
+    ]).pipe(
+      distinctUntilChanged((a, b) => isEqual(a, b)),
+    ).subscribe(([isConnected, filteredCategories]) => {
+      this.fg.controls.sub_category.clearValidators();
+      if (isConnected && filteredCategories && filteredCategories.length) {
+        this.fg.controls.sub_category.setValidators(Validators.required);
       }
+      this.fg.controls.sub_category.updateValueAndValidity();
     });
 
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
@@ -884,12 +890,19 @@ export class AddEditPerDiemPage implements OnInit {
         const control = keyToControlMap[txnFieldKey];
 
         if (txnFields[txnFieldKey].mandatory) {
+          if (txnFieldKey === 'num_days') {
+            control.setValidators(Validators.required);
+          }
+
           if (txnFieldKey === 'to_dt') {
             control.setValidators(isConnected ? Validators.compose([this.customDateValidator.bind(this), Validators.required]) : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
         } else {
+          if (txnFieldKey === 'num_days') {
+            control.setValidators(Validators.required);
+          }
           if (txnFieldKey === 'to_dt') {
             control.setValidators(isConnected ? this.customDateValidator.bind(this) : null);
           }
