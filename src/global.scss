@@ -289,10 +289,6 @@ mat-tab-group {
   }
 }
 
-input[type="date"] {
-  background: white;
-}
-
 textarea, input {
   background-color: transparent;
 }
@@ -412,8 +408,13 @@ textarea, input {
   }
 }
 
+input[type="date"] {
+  -webkit-appearance: none;
+}
+
 input[type="date"]::after {
   font-family: 'Material Icons';
   content: 'date_range' !important;
   -webkit-font-feature-settings: 'liga';
+  margin-left: auto;
 }
