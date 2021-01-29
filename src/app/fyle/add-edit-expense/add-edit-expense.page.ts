@@ -1155,8 +1155,8 @@ export class AddEditExpensePage implements OnInit {
           paymentMode: paymentMode || defaultPaymentMode
         });
 
-        this.fg.controls.custom_inputs.setValue(customInputValues);
-      }, 400);
+        this.fg.controls.custom_inputs.patchValue(customInputValues);
+      }, 600);
 
       this.attachedReceiptsCount = etxn.tx.num_files;
       this.canAttachReceipts = this.attachedReceiptsCount === 0;
@@ -1867,6 +1867,7 @@ export class AddEditExpensePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
+            source_account_id: this.fg.value.paymentMode.acc.id,
             billable: this.fg.value.billable,
             skip_reimbursement: this.fg.value.paymentMode &&
               this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&

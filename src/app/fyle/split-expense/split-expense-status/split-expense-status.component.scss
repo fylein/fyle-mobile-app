@@ -4,19 +4,22 @@
   }
 
   &--popup-icon-container {
-    position: relative;
+    display: flex;
+    justify-content: center;
   }
 
   &--success-popup-icon {
     font-size: 100px;
     color: #15cf6a;
-    margin-left: 72px;
+    height: auto;
+    width: auto;
   }
 
   &--failure-popup-icon {
     font-size: 100px;
     color: #ff9494;
-    margin-left: 72px;
+    height: auto;
+    width: auto;
   }
 
   &--popup-heading {

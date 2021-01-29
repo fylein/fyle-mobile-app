@@ -17,7 +17,6 @@ export class SplitExpenseStatusComponent implements OnInit {
 
   goToMyExpenses() {
     this.popoverController.dismiss();
-    this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
   retry() {

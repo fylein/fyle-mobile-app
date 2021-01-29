@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
@@ -51,6 +51,7 @@ export class SplitExpensePage implements OnInit {
     private transactionService: TransactionService,
     private fileService: FileService,
     private navController: NavController,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -113,7 +114,7 @@ export class SplitExpensePage implements OnInit {
         currency: splitExpenseValue.currency,
         amount: splitExpenseValue.amount,
         source: 'MOBILE'
-    }
+    };
   }
 
   uploadFiles(files) {
@@ -143,9 +144,9 @@ export class SplitExpensePage implements OnInit {
           map(() => {
             return txnIds;
           })
-        )
+        );
       })
-    )
+    );
 
   }
 
@@ -158,6 +159,13 @@ export class SplitExpensePage implements OnInit {
     });
 
     await splitExpenseStatusPopup.present();
+
+    const { data } = await splitExpenseStatusPopup.onWillDismiss();
+
+    if (isSplitSuccessful) {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    }
+
   }
 
   getAttachedFiles(transactionId) {
@@ -174,7 +182,6 @@ export class SplitExpensePage implements OnInit {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
       if (this.amount && this.amount > 0 && this.amount !== this.totalSplitAmount ) {
-        // Todo: show Error block
         this.showErrorBlock = true;
         this.errorMessage = 'Total split amount should be ' + this.amount + '.';
         setTimeout(() => {
@@ -195,12 +202,12 @@ export class SplitExpensePage implements OnInit {
           return this.createAndLinkTxnsWithFiles(generatedSplitEtxn);
         }),
         concatMap((res) => {
-          let observables$ = [];
+          const observables$ = [];
           if (this.transaction.id) {
-            observables$.push(this.transactionService.delete(this.transaction.id))
+            observables$.push(this.transactionService.delete(this.transaction.id));
           }
           if (this.transaction.corporate_credit_card_expense_group_id) {
-            observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id))
+            observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
           }
 
           if (observables$.length === 0) {
@@ -277,7 +284,7 @@ export class SplitExpensePage implements OnInit {
       this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
 
       let amount1 = this.amount > 0.0001 ? this.amount * 0.6 : null; // 60% split
-      let amount2 = this.amount > 0.0001 ? this.amount * 0.4 : null; //40% split
+      let amount2 = this.amount > 0.0001 ? this.amount * 0.4 : null; // 40% split
       const percentage1 = this.amount ? 60 : null;
       const percentage2 = this.amount ? 40 : null;
       amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
