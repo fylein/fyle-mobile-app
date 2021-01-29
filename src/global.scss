@@ -323,7 +323,7 @@ textarea, input {
 }
 
 .mat-form-field-appearance-outline .mat-form-field-infix {
-  padding: 0.5em 0 1em 0;
+  padding: 0.3em 0 1em 0;
 }
 
 .selection-modal--form-field {
@@ -406,13 +406,8 @@ textarea, input {
 
 .other-details--container {
   mat-tab-group {
-    .mat-tab-body-wrapper {
-      position: inherit !important;
-      display: block !important;
-  
-      .mat-tab-body.mat-tab-body-active {
-        position: inherit !important;
-      }
+    .mat-tab-body-content {
+      overflow-x: hidden;
     }
   }  
 }
