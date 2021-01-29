@@ -256,7 +256,7 @@ export class TransactionsOutboxService {
         entry.transaction.id = resp.id;
         if (comments && comments.length > 0) {
           comments.forEach((comment) => {
-            that.statusService.post('transactions', resp.id, { comment }, true);
+            that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
           });
         }
         if (entry.receiptsData) {
