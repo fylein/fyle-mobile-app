@@ -419,6 +419,6 @@ textarea, input {
 
 input[type="date"]::after {
   font-family: 'Material Icons';
-  content: 'date_range';
+  content: 'date_range' !important;
   -webkit-font-feature-settings: 'liga';
 }
