@@ -72,7 +72,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       this.innerValue = v;
       if (this.options) {
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
-        if (selectedOption) {
+        if (selectedOption && selectedOption.label) {
           this.displayValue = selectedOption.label;
         } else if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
@@ -127,7 +127,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       if (this.options) {
         const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
 
-        if (selectedOption) {
+        if (selectedOption && selectedOption.label) {
           this.displayValue = selectedOption.label;
         } else if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;

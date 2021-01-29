@@ -924,7 +924,6 @@ export class MyAddEditTripPage implements OnInit {
     this.fg.valueChanges.subscribe(formValue => {
       // removing errors after fields value are touched
       this.cities.value.forEach((city, index) => {
-        console.log('ksladn -> ', this.cities.controls[index]['controls'].onward_dt);
         let errors = this.cities.controls[index]['controls'].onwerrorsard_dt.errors;
         if (errors) {
           delete errors.incorrect;
