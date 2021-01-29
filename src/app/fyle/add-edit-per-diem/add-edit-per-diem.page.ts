@@ -405,6 +405,7 @@ export class AddEditPerDiemPage implements OnInit {
 
         return tfcMap;
       }),
+      tap(console.log),
       shareReplay(1)
     );
   }
@@ -659,6 +660,9 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   customDateValidator(control: AbstractControl) {
+    if (!this.fg) {
+      return;
+    }
     const fromDt = moment(new Date(this.fg.value.from_dt)).format('y-MM-D');
     const passedInDate = control.value && moment(new Date(control.value));
     if (passedInDate) {
@@ -687,8 +691,8 @@ export class AddEditPerDiemPage implements OnInit {
       purpose: [],
       num_days: [, Validators.required],
       report: [],
-      from_dt: [, this.customDateValidator.bind(this)],
-      to_dt: [],
+      from_dt: [],
+      to_dt: [, this.customDateValidator.bind(this)],
       custom_inputs: new FormArray([]),
       add_to_new_report: [],
       duplicate_detection_reason: [],
@@ -884,6 +888,10 @@ export class AddEditPerDiemPage implements OnInit {
             control.setValidators(isConnected ? Validators.compose([this.customDateValidator.bind(this), Validators.required]) : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
+          }
+        } else {
+          if (txnFieldKey === 'to_dt') {
+            control.setValidators(isConnected ? this.customDateValidator.bind(this) : null);
           }
         }
         control.updateValueAndValidity();
