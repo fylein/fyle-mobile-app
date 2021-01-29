@@ -925,18 +925,18 @@ export class MyAddEditTripPage implements OnInit {
       // removing errors after fields value are touched
       this.cities.value.forEach((city, index) => {
         console.log('ksladn -> ', this.cities.controls[index]['controls'].onward_dt);
-        let a = this.cities.controls[index]['controls'].onward_dt.errors;
-        if (a) {
-          delete a.incorrect;
-          this.cities.controls[index]['controls'].onward_dt.setErrors(a);
+        let errors = this.cities.controls[index]['controls'].onwerrorsard_dt.errors;
+        if (errors) {
+          delete errors.incorrect;
+          this.cities.controls[index]['controls'].onward_dt.setErrors(errors);
         }
       });
 
       if (this.tripType === 'ROUND' && this.cities.controls.length && this.cities.controls[0]['controls'].return_date) {
-        let a = this.cities.controls[0]['controls'].return_date.errors;
-        if (a) {
-          delete a.incorrect;
-          this.cities.controls[0]['controls'].return_date.setErrors(a);
+        let errors = this.cities.controls[0]['controls'].return_date.errors;
+        if (errors) {
+          delete errors.incorrect;
+          this.cities.controls[0]['controls'].return_date.setErrors(errors);
         }
       }
 
