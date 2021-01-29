@@ -78,10 +78,10 @@ export class MyViewReportPage implements OnInit {
     let vendorName = etxn.tx_vendor || 'Expense';
 
     if (category === 'mileage') {
-      vendorName = etxn.tx_distance;
+      vendorName = etxn.tx_distance || 0;
       vendorName += ' ' + etxn.tx_distance_unit;
     } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days;
+      vendorName = etxn.tx_num_days || 0;
       vendorName += ' Days';
     }
 

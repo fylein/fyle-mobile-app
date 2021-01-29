@@ -137,12 +137,14 @@ $background-color: #fff;
   }
 
   &--add-more-button {
-    transition: opacity 0.1s;
     padding: 0 6px 10px 6px;
-    min-width: initial;
+    min-width: inherit;
     border-color: transparent;
     background: none;
     color: #ff3366;
+    &:focus {
+      outline: 0;
+    }
   }
 
   &--add-more-icon {
