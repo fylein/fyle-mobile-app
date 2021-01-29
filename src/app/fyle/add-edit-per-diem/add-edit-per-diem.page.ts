@@ -663,7 +663,7 @@ export class AddEditPerDiemPage implements OnInit {
     if (!this.fg) {
       return;
     }
-    const fromDt = moment(new Date(this.fg.value.from_dt)).format('y-MM-D');
+    const fromDt = moment(new Date(this.fg.value.from_dt));
     const passedInDate = control.value && moment(new Date(control.value));
     if (passedInDate) {
       return passedInDate.isAfter(fromDt) ? null : {

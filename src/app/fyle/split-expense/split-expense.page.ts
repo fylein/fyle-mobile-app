@@ -299,8 +299,8 @@ export class SplitExpensePage implements OnInit {
 
   customDateValidator(control: AbstractControl) {
     const today = new Date();
-    const minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
-    const maxDate = moment(new Date(today)).add(1, 'day').format('y-MM-D');
+    const minDate = moment(new Date('Jan 1, 2001'));
+    const maxDate = moment(new Date(today)).add(1, 'day');
     const passedInDate = control.value && moment(new Date(control.value));
     if (passedInDate) {
       return passedInDate.isBetween(minDate, maxDate) ? null : {
