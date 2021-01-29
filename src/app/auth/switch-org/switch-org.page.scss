@@ -60,7 +60,9 @@ $org-thumb-text: #666;
   &--org-element {
     padding: 4px;
     border-bottom: 1px solid $header-border;
+
     &-name {
+      margin-top: 4px;
       font-size: 16px;
       color: $org-thumb-header;
     }
