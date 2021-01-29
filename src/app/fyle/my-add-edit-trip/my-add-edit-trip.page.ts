@@ -924,11 +924,20 @@ export class MyAddEditTripPage implements OnInit {
     this.fg.valueChanges.subscribe(formValue => {
       // removing errors after fields value are touched
       this.cities.value.forEach((city, index) => {
-        this.cities.controls[index]['controls'].onward_dt.setErrors(null);
+        console.log('ksladn -> ', this.cities.controls[index]['controls'].onward_dt);
+        let a = this.cities.controls[index]['controls'].onward_dt.errors;
+        if (a) {
+          delete a.incorrect;
+          this.cities.controls[index]['controls'].onward_dt.setErrors(a);
+        }
       });
 
       if (this.tripType === 'ROUND' && this.cities.controls.length && this.cities.controls[0]['controls'].return_date) {
-        this.cities.controls[0]['controls'].return_date.setErrors(null);
+        let a = this.cities.controls[0]['controls'].return_date.errors;
+        if (a) {
+          delete a.incorrect;
+          this.cities.controls[0]['controls'].return_date.setErrors(a);
+        }
       }
 
       if (formValue.tripType === 'MULTI_CITY') {
