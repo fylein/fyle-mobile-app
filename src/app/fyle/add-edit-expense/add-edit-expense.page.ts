@@ -1330,6 +1330,8 @@ export class AddEditExpensePage implements OnInit {
             ) {
               control.setValidators(Validators.required);
             }
+          } else if (txnFieldKey === 'txn_dt') {
+            control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
@@ -1516,6 +1518,18 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  customDateValidator(control: AbstractControl) {
+    const today = new Date();
+    const minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
+    const maxDate = moment(new Date(today)).add(1,'day').format('y-MM-D');
+    const passedInDate = control.value && moment(new Date(control.value));
+    if (passedInDate) {
+      return passedInDate.isBetween(minDate, maxDate) ? null : {
+        invalidDateSelection: true
+      };
+    }
+  }
+
   ionViewWillEnter() {
     this.newExpenseDataUrls = [];
 
@@ -1526,7 +1540,7 @@ export class AddEditExpensePage implements OnInit {
       paymentMode: [, Validators.required],
       project: [],
       category: [],
-      dateOfSpend: [],
+      dateOfSpend: [, this.customDateValidator],
       vendor_id: [, this.merchantValidator],
       purpose: [],
       report: [],
@@ -2600,12 +2614,12 @@ export class AddEditExpensePage implements OnInit {
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
-        let currencyObj = {
+        const currencyObj = {
           amount: null,
           currency: homeCurrency,
           orig_amount: null,
           orig_currency: null
-        }
+        };
 
         if (homeCurrency !== extractedData.currency && imageData.exchangeRate) {
           currencyObj.orig_amount = extractedData.amount;
@@ -2618,19 +2632,19 @@ export class AddEditExpensePage implements OnInit {
 
         this.fg.patchValue({
           currencyObj
-        })
+        });
       }
 
       if (extractedData.date) {
         this.fg.patchValue({
-          dateOfSpend:extractedData.date
-        })
+          dateOfSpend: extractedData.date
+        });
       }
 
       if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
         this.fg.patchValue({
           vendor_id:  {display_name: extractedData.vendor}
-        })
+        });
       }
 
       if (!this.fg.controls.category.value && extractedData.category) {
@@ -2638,7 +2652,7 @@ export class AddEditExpensePage implements OnInit {
         const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
         this.fg.patchValue({
           category: category && category.value
-        })
+        });
       }
     });
   }
@@ -2662,7 +2676,8 @@ export class AddEditExpensePage implements OnInit {
           type: data.type,
           url: data.dataUrl,
           thumbnail: data.dataUrl
-        }
+        };
+
         this.newExpenseDataUrls.push(fileInfo);
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(

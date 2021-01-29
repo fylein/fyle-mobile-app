@@ -410,6 +410,7 @@ textarea, input {
 
 input[type="date"] {
   -webkit-appearance: none;
+  width: 100%;
 }
 
 input[type="date"]::after {
@@ -417,4 +418,5 @@ input[type="date"]::after {
   content: 'date_range' !important;
   -webkit-font-feature-settings: 'liga';
   margin-left: auto;
+  width: auto !important;
 }
