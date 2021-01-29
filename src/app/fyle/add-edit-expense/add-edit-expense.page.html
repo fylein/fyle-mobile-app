@@ -143,7 +143,6 @@
             <div class="add-edit-expense--split-expense-title">Split Expense</div>
           </div>
         </div>
-
         <div class="add-edit-expense--primary-block">
           <ng-container *ngIf="txnFields$|async as txnFields">
             <div class="add-edit-expense--date add-edit-expense--internal-block"  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}" *ngIf="txnFields.txn_dt?.canView">
