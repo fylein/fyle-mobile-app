@@ -409,10 +409,16 @@ textarea, input {
     .mat-tab-body-wrapper {
       position: inherit !important;
       display: block !important;
-  
+
       .mat-tab-body.mat-tab-body-active {
         position: inherit !important;
       }
     }
-  }  
+  }
+}
+
+input[type="date"]::after {
+  font-family: 'Material Icons';
+  content: 'date_range' !important;
+  -webkit-font-feature-settings: 'liga';
 }
