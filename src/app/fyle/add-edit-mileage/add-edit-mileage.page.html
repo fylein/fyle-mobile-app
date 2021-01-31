@@ -530,11 +530,14 @@
     <ion-toolbar mode="md">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
-          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid">
+          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid" 
+            appFormButtonValidation [loading]="saveMileageLoader" [loadingText]="'SAVING'"
+            [disabled]="saveMileageLoader || saveAndNewMileageLoader">
             Save
           </ion-button>
-          <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'" [disabled]="fg.controls.add_to_new_report.value"
-                      class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid">
+          <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'" [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
+            class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid"
+            appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'SAVING'">
             Save & New
           </ion-button>
         </ion-buttons>
@@ -543,7 +546,7 @@
       <div *ngIf="reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
           <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" color="fyle-primary"
-                      fill="solid">
+            fill="solid" appFormButtonValidation [loading]="saveAndNextMileageLoader" [loadingText]="'SAVING'">
             Save & Next
           </ion-button>
         </ion-buttons>

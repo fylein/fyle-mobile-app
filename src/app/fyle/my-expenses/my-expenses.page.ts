@@ -62,6 +62,7 @@ export class MyExpensesPage implements OnInit {
   simpleSearchText = '';
   allExpenseCountHeader$: Observable<number>;
   navigateBack = false;
+  openAddExpenseListLoader = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -567,6 +568,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async addNewExpense() {
+    this.openAddExpenseListLoader = true;
     forkJoin({
       isInstaFyleEnabled: this.isInstaFyleEnabled$,
       isMileageEnabled: this.isMileageEnabled$,
@@ -589,6 +591,7 @@ export class MyExpensesPage implements OnInit {
         });
 
         await addExpensePopover.present();
+        this.openAddExpenseListLoader = false;
 
         const {data} = await addExpensePopover.onDidDismiss();
 

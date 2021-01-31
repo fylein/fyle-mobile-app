@@ -72,6 +72,9 @@ export class AddEditMileagePage implements OnInit {
   comments$: Observable<any>;
   expenseStartTime;
   navigateBack = false;
+  saveMileageLoader = false;
+  saveAndNewMileageLoader = false;
+  saveAndNextMileageLoader = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1220,7 +1223,7 @@ export class AddEditMileagePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe((etxn) => {
+          that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
             if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id ) {
               this.addToNewReport(etxn.tx.id);
             } else {
@@ -1229,7 +1232,7 @@ export class AddEditMileagePage implements OnInit {
           });
         } else {
           // to do edit
-          that.editExpense().subscribe((tx) => {
+          that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
             if (that.fg.controls.add_to_new_report.value && tx && tx.id ) {
               this.addToNewReport(tx.id);
             } else {
@@ -1271,13 +1274,13 @@ export class AddEditMileagePage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(() => {
+          that.addExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
             this.trackingService.clickSaveAddNew({Asset: 'Mobile'});
             this.reloadCurrentRoute();
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(() => {
+          that.editExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
             that.close();
           });
         }
@@ -1304,7 +1307,7 @@ export class AddEditMileagePage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense().subscribe(() => {
+        that.addExpense('SAVE_AND_NEXT_MILEAGE').subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -1313,7 +1316,7 @@ export class AddEditMileagePage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense().subscribe(() => {
+        that.editExpense('SAVE_AND_NEXT_MILEAGE').subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -1513,7 +1516,11 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  editExpense() {
+  editExpense(redirectedFrom) {
+    this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
+    this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
+    this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+
     const customFields$ = this.getCustomFields();
 
     this.trackPolicyCorrections();
@@ -1536,11 +1543,8 @@ export class AddEditMileagePage implements OnInit {
       shareReplay(1)
     );
 
-    return from(this.loaderService.showLoader())
+    return from(this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$))
       .pipe(
-        switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
-        }),
         switchMap(etxn => {
           return this.isConnected$.pipe(
             take(1),
@@ -1592,10 +1596,7 @@ export class AddEditMileagePage implements OnInit {
             );
           }
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+            return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
@@ -1609,10 +1610,7 @@ export class AddEditMileagePage implements OnInit {
               })
             );
           } else if (err.type === 'policyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-              }),
+            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
@@ -1738,11 +1736,19 @@ export class AddEditMileagePage implements OnInit {
           // }
           return transaction;
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
+          this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
+          this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+        })
       );
   }
 
-  addExpense() {
+  addExpense(redirectedFrom) {
+    this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
+    this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
+    this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+
     const customFields$ = this.getCustomFields();
 
     const calculatedDistance$ = this.isConnected$
@@ -1781,11 +1787,8 @@ export class AddEditMileagePage implements OnInit {
         shareReplay(1)
       );
 
-    return from(this.loaderService.showLoader())
+    return from(this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$))
       .pipe(
-        switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$);
-        }),
         switchMap(etxn => {
           return this.isConnected$.pipe(
             take(1),
@@ -1839,10 +1842,7 @@ export class AddEditMileagePage implements OnInit {
             );
           }
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+            return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
@@ -1856,11 +1856,8 @@ export class AddEditMileagePage implements OnInit {
               })
             );
           } else if (err.type === 'policyViolations') {
-            return from(this.loaderService.hideLoader())
+            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription))
               .pipe(
-                switchMap(() => {
-                  return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-                }),
                 switchMap((continueWithTransaction) => {
                   if (continueWithTransaction) {
                     return from(this.loaderService.showLoader())
@@ -1922,7 +1919,11 @@ export class AddEditMileagePage implements OnInit {
               })
             );
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.saveMileageLoader = false;
+          this.saveAndNewMileageLoader = false;
+          this.saveAndNextMileageLoader = false;
+        })
       );
   }
 

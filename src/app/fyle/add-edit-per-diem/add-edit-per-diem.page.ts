@@ -87,6 +87,8 @@ export class AddEditPerDiemPage implements OnInit {
   comments$: Observable<any>;
   expenseStartTime;
   navigateBack = false;
+  savePerDiemLoader = false;
+  saveAndNextPerDiemLoader = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1355,7 +1357,10 @@ export class AddEditPerDiemPage implements OnInit {
     return data;
   }
 
-  addExpense() {
+  addExpense(redirectedFrom) {
+    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
+    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
+
     const customFields$ = this.customInputs$.pipe(
       take(1),
       map(customInputs => {
@@ -1374,11 +1379,8 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    return from(this.loaderService.showLoader())
+    return from(this.generateEtxnFromFg(this.etxn$, customFields$))
       .pipe(
-        switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$);
-        }),
         switchMap(etxn => {
           return this.isConnected$.pipe(
             take(1),
@@ -1506,7 +1508,10 @@ export class AddEditPerDiemPage implements OnInit {
 
               }));
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.savePerDiemLoader = false;
+          this.saveAndNextPerDiemLoader = false;
+        })
       );
   }
 
@@ -1531,7 +1536,10 @@ export class AddEditPerDiemPage implements OnInit {
     });
   }
 
-  editExpense() {
+  editExpense(redirectedFrom) {
+
+    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
+    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
 
     this.trackPolicyCorrections();
 
@@ -1553,11 +1561,8 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    return from(this.loaderService.showLoader())
+    return from(this.generateEtxnFromFg(this.etxn$, customFields$))
       .pipe(
-        switchMap(() => {
-          return this.generateEtxnFromFg(this.etxn$, customFields$);
-        }),
         switchMap(etxn => {
           const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
           return policyViolations$.pipe(
@@ -1599,10 +1604,7 @@ export class AddEditPerDiemPage implements OnInit {
             );
           }
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+            return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
@@ -1616,10 +1618,7 @@ export class AddEditPerDiemPage implements OnInit {
               })
             );
           } else if (err.type === 'policyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-              }),
+            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
@@ -1719,7 +1718,10 @@ export class AddEditPerDiemPage implements OnInit {
             }),
           );
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
+          this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
+        })
       );
   }
 
@@ -1748,7 +1750,7 @@ export class AddEditPerDiemPage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe((res: any) => {
+          that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
             if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
               this.addToNewReport(res.transaction.id);
             } else {
@@ -1756,7 +1758,7 @@ export class AddEditPerDiemPage implements OnInit {
             }
           });
         } else {
-          that.editExpense().subscribe((res) => {
+          that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
             if (that.fg.controls.add_to_new_report.value && res && res.id) {
               this.addToNewReport(res.id);
             } else {
@@ -1799,12 +1801,12 @@ export class AddEditPerDiemPage implements OnInit {
     ).subscribe(invalidPaymentMode => {
       if (that.fg.valid && !invalidPaymentMode) {
         if (that.mode === 'add') {
-          that.addExpense().subscribe(() => {
+          that.addExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
             this.reloadCurrentRoute();
           });
         } else {
           // to do edit
-          that.editExpense().subscribe(() => {
+          that.editExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
             that.goBack();
           });
         }
@@ -1831,7 +1833,7 @@ export class AddEditPerDiemPage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense().subscribe(() => {
+        that.addExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -1840,7 +1842,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense().subscribe(() => {
+        that.editExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
