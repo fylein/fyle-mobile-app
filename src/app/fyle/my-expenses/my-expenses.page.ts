@@ -559,9 +559,13 @@ export class MyExpensesPage implements OnInit {
     this.loadData$.next(params);
   }
 
-  setState(state: string) {
+  async setState(state: string) {
+    await this.loaderService.showLoader('Loading expenses', 1500);
     this.baseState = state;
     this.currentPageNumber = 1;
+    if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
+      delete this.filters.state;
+    }
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
   }
