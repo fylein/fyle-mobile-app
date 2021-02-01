@@ -66,7 +66,8 @@ export class OrgUserService {
   getAllCompanyEouc() {
     return this.getCompanyEouCount().pipe(
       switchMap(res => {
-        return range(0, res.count / 50);
+        const count = res.count > 50 ? res.count / 50 : 1;
+        return range(0, count);
       }),
       concatMap(page => {
         return this.getCompanyEouc({ offset: 50 * page, limit: 50 });

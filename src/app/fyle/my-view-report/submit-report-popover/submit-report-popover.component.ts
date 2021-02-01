@@ -40,13 +40,13 @@ export class SubmitReportPopoverComponent implements OnInit {
     }).subscribe(({ orgSettings, orgUserSettings, approvedButUnreportedTripRequests }) => {
       const canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled));
       const isTripRequestsEnabled = orgSettings.trip_requests.enabled;
-      this.showTripRequestWarning = (canAssociateTripRequests || !isTripRequestsEnabled) && !this.erpt.rp_trip_request_id && approvedButUnreportedTripRequests && approvedButUnreportedTripRequests.length > 0
+      this.showTripRequestWarning = (canAssociateTripRequests || !isTripRequestsEnabled) && !this.erpt.rp_trip_request_id && approvedButUnreportedTripRequests && approvedButUnreportedTripRequests.length > 0;
     });
   }
 
   getCriticalPolicyViolations(etxns) {
-    let count = 0
-    etxns.forEach(function (etxn) {
+    let count = 0;
+    etxns.forEach(function(etxn) {
       if (etxn.tx_policy_flag && isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001) {
         count = count + 1;
       }
@@ -57,15 +57,15 @@ export class SubmitReportPopoverComponent implements OnInit {
   getNumIssues(etxns) {
     let count = 0;
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (let i = 0; i < etxns.length; i++) {
+      let etxn = etxns[i];
       if (etxn.tx_policy_flag) {
         count = count + 1;
       }
     }
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (let i = 0; i < etxns.length; i++) {
+      let etxn = etxns[i];
       if (etxn.tx_manual_flag) {
         count = count + 1;
       }
@@ -80,27 +80,27 @@ export class SubmitReportPopoverComponent implements OnInit {
 
   filterCriticalViolations(etxn) {
     return etxn.tx_policy_flag && isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-  };
+  }
 
   excludeCriticalViolations(etxn) {
     return !etxn.tx.policy_flag && !(isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001);
-  };
+  }
 
   submitReportAfterReview(event) {
     event.preventDefault();
     event.stopPropagation();
     this.submitReportLoading = true;
 
-    var txnIdsCriticalViolations = this.etxns.filter(
+    const txnIdsCriticalViolations = this.etxns.filter(
       etxn => this.filterCriticalViolations(etxn)
-    ).map(function (etxn) {
+    ).map((etxn) => {
       return etxn.tx_id;
     });
 
 
     iif(() => txnIdsCriticalViolations.length > 0, this.transactionService.removeTxnsFromRptInBulk(txnIdsCriticalViolations), of(null)).pipe(
       concatMap(() => {
-        return this.reportService.submit(this.erpt.rp_id)
+        return this.reportService.submit(this.erpt.rp_id);
       }),
       finalize(() => {
         this.submitReportLoading = false;

@@ -70,7 +70,7 @@ export class CorporateCreditCardExpenseService {
     return this.getv2CardTransactionsCount(config.queryParams).pipe(
       switchMap(count => {
         count = count > 50 ? count / 50 : 1;
-        return range(0, count / 50);
+        return range(0, count);
       }),
       concatMap(page => {
         return this.getv2CardTransactions({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
