@@ -13,6 +13,7 @@ import {isEqual} from 'lodash';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
 import { TransactionService } from './transaction.service';
+import { HttpParams } from '@angular/common/http';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -379,17 +380,13 @@ export class ReportService {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
     }
-
-    return range(0, rptIds.length / 50).pipe(
+    const count = rptIds.length > 50 ? rptIds.length / 50 : 1;
+    return range(0,  count).pipe(
       map(page => {
-        return {
-          params: {
-            report_ids: rptIds.slice(50 * page, 50)
-          }
-        };
+        return rptIds.slice((page - 1) * 50, page * 50);
       }),
-      concatMap(params => {
-        return this.apiService.get('/reports/approvers', params);
+      switchMap(rpIds => {
+        return this.apiService.get('/reports/approvers', { params: {report_ids: rpIds} });
       }),
       reduce((acc, curr) => {
         return acc.concat(curr);

@@ -65,14 +65,13 @@
           Instafyle is taking longer than expected due to a bad network, please add the details manually
         </div>
 
-        <ng-container *ngIf="mode === 'edit'">
-          <ng-container *ngIf="comments$|async as comments">
-            <app-fy-policy-violation-info (click)="scrollCommentsIntoView()"
-                                          [estatuses]="comments"></app-fy-policy-violation-info>
-          </ng-container>
-        </ng-container>
-
         <ng-container *ngIf="etxn$|async as etxn">
+          <ng-container *ngIf="mode === 'edit' && etxn.tx_policy_flag">
+            <ng-container *ngIf="comments$|async as comments">
+              <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
+            </ng-container>
+          </ng-container>
+
           <ng-container *ngIf="isAmountCapped$|async">
             <div class="add-edit-expense--critical-policy">
               <ng-container *ngIf="isCriticalPolicyViolated$|async;else justAmountCapped">
