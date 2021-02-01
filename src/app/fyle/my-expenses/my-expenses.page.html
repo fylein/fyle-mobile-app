@@ -158,14 +158,15 @@
 
   <ng-container *ngIf="isConnected$|async; else isNotConnected">
     <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-      <app-my-expenses-card (addTransactionToNewReport)="onAddTransactionToNewReport($event)" (addTransactionToReport)="onAddTransactionToReport($event)" (cardClickedForSelection)="selectExpense($event)"
-                            (deleteTransaction)="onDeleteExpenseClick($event)" (goToTransaction)="goToTransaction($event)"
-                            [baseState]="baseState"
-                            [dateComparatorProp]="'tx_txn_dt'"
-                            [expense]="expense"
-                            [prevExpense]="list[i-1]"
-                            [selectedElements]="selectedElements"
-                            [selectionMode]="selectionMode">
+      <app-my-expenses-card 
+        (addTransactionToNewReport)="onAddTransactionToNewReport($event)" (addTransactionToReport)="onAddTransactionToReport($event)" (cardClickedForSelection)="selectExpense($event)"
+        (deleteTransaction)="onDeleteExpenseClick($event)" (goToTransaction)="goToTransaction($event)"
+        [baseState]="baseState"
+        [dateComparatorProp]="'tx_txn_dt'"
+        [expense]="expense"
+        [prevExpense]="list[i-1]"
+        [selectedElements]="selectedElements"
+        [selectionMode]="selectionMode">
       </app-my-expenses-card>
     </div>
 
@@ -175,10 +176,11 @@
     </ion-infinite-scroll>
   </ng-container>
   <ng-template #isNotConnected>
-    <app-fy-zero-state [header]="'You\'re not connected to internet'"
-                       [image]="'../../../assets/images/zero-states/offline.svg'"
-                       [message]="'You can still add expenses, we\'ll sync them to your account once you\'re connected to the internet again.'"
-                       [submessage]="'You can\'t access existing expenses or reports without internet connectivity.'">
+    <app-fy-zero-state 
+      [header]="'You\'re not connected to internet'"
+      [image]="'../../../assets/images/zero-states/offline.svg'"
+      [message]="'You can still add expenses, we\'ll sync them to your account once you\'re connected to the internet again.'"
+      [submessage]="'You can\'t access existing expenses or reports without internet connectivity.'">
     </app-fy-zero-state>
   </ng-template>
 </ion-content>
@@ -211,8 +213,7 @@
     </div>
     <ion-toolbar *ngIf="baseState === 'all' && !selectionMode && filters?.state !== 'NEEDS_RECEIPT'" mode="md">
       <ion-button (click)="addNewExpense()" class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block"
-                  fill="solid"
-                  mode="md">
+                  fill="solid" mode="md" appFormButtonValidation [loading]="openAddExpenseListLoader">
         ADD NEW EXPENSE
       </ion-button>
     </ion-toolbar>

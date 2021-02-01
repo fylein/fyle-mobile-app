@@ -522,13 +522,14 @@
   <ion-footer *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0">
     <ion-toolbar mode="md">
       <ion-buttons *ngIf="!reviewList">
-        <ion-button (click)="savePerDiem()" class="add-edit-per-diem--primary-cta" color="fyle-primary" fill="solid">
+        <ion-button (click)="savePerDiem()" class="add-edit-per-diem--primary-cta" color="fyle-primary" fill="solid"
+          appFormButtonValidation [loading]="savePerDiemLoader" [loadingText]="'SAVING'">
           Save
         </ion-button>
       </ion-buttons>
       <ion-buttons *ngIf="reviewList">
-        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-per-diem--primary-cta" color="fyle-primary"
-                    fill="solid">
+        <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-per-diem--primary-cta" color="fyle-primary" 
+          fill="solid" appFormButtonValidation [loading]="saveAndNextPerDiemLoader" [loadingText]="'SAVING'">
           Save & Next
         </ion-button>
       </ion-buttons>
