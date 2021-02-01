@@ -270,8 +270,8 @@ export class MyProfilePage implements OnInit {
 
   ionViewWillEnter() {
     this.reset();
-    from(this.tokenService.getClusterDomain()).subscribe(res => {
-      this.clusterDomain = res;
+    from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
+      this.clusterDomain = clusterDomain;
     });
   }
 

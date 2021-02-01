@@ -148,8 +148,8 @@ export class MyExpensesPage implements OnInit {
   ionViewWillEnter() {
     this.loaderService.showLoader('Loading Expenses...', 1000);
 
-    from(this.tokenService.getClusterDomain()).subscribe(res => {
-      this.clusterDomain = res;
+    from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
+      this.clusterDomain = clusterDomain;
     });
 
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;

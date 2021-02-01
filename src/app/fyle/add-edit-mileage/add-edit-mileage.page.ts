@@ -652,8 +652,8 @@ export class AddEditMileagePage implements OnInit {
 
   ionViewWillEnter() {
 
-    from(this.tokenService.getClusterDomain()).subscribe(res => {
-      this.clusterDomain = res;
+    from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
+      this.clusterDomain = clusterDomain;
     });
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;

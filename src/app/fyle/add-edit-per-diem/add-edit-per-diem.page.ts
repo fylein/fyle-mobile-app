@@ -684,8 +684,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
 
-    from(this.tokenService.getClusterDomain()).subscribe(res => {
-      this.clusterDomain = res;
+    from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
+      this.clusterDomain = clusterDomain;
     });
 
     this.fg = this.fb.group({
