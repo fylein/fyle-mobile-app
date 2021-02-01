@@ -28,6 +28,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { DateService } from 'src/app/core/services/date.service';
 import {TrackingService} from '../../core/services/tracking.service';
+import { TokenService } from 'src/app/core/services/token.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -75,6 +76,7 @@ export class AddEditMileagePage implements OnInit {
   saveMileageLoader = false;
   saveAndNewMileageLoader = false;
   saveAndNextMileageLoader = false;
+  clusterDomain: string;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -113,7 +115,8 @@ export class AddEditMileagePage implements OnInit {
     private popupService: PopupService,
     private navController: NavController,
     private dateService: DateService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private tokenService: TokenService
   ) { }
 
   ngOnInit() {
@@ -648,6 +651,11 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+
+    from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
+      this.clusterDomain = clusterDomain;
+    });
+
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     this.fg = this.fb.group({

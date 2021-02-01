@@ -42,6 +42,7 @@ import {PopupService} from 'src/app/core/services/popup.service';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import { CurrencyPipe } from '@angular/common';
+import { TokenService } from 'src/app/core/services/token.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -89,6 +90,7 @@ export class AddEditPerDiemPage implements OnInit {
   navigateBack = false;
   savePerDiemLoader = false;
   saveAndNextPerDiemLoader = false;
+  clusterDomain: string;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -125,7 +127,8 @@ export class AddEditPerDiemPage implements OnInit {
     private duplicateDetectionService: DuplicateDetectionService,
     private navController: NavController,
     private trackingService: TrackingService,
-    private currencyPipe: CurrencyPipe
+    private currencyPipe: CurrencyPipe,
+    private tokenService: TokenService
   ) {
   }
 
@@ -319,7 +322,7 @@ export class AddEditPerDiemPage implements OnInit {
   async showCannotEditActivityDialog() {
     const popupResult = await this.popupService.showPopup({
       header: 'Cannot Edit Activity Expense!',
-      message: 'To edit this activity expense, you need to login to web version of Fyle app at <a href=""https://in1.fylehq.com>https://in1.fylehq.com</a>',
+      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.clusterDomain}">${this.clusterDomain}</a>`,
       primaryCta: {
         text: 'Close'
       },
@@ -680,6 +683,10 @@ export class AddEditPerDiemPage implements OnInit {
     const today = new Date();
     this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+
+    from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
+      this.clusterDomain = clusterDomain;
+    });
 
     this.fg = this.fb.group({
       currencyObj: [{
