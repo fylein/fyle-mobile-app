@@ -968,7 +968,16 @@ export class AddEditExpensePage implements OnInit {
       return iif(() => etxn.tx.org_category_id,
         allCategories$.pipe(
           map(categories => categories
-            .find(category => category.id === etxn.tx.org_category_id))), of(null));
+            .filter(category => {
+              if (!category.fyle_category) {
+                return true;
+              } else {
+                return ['activity', 'mileage', 'per diem', 'unspecified'].indexOf(category.fyle_category.toLowerCase()) === -1;
+              }
+            })
+            .find(category => category.id === etxn.tx.org_category_id)
+          ),
+          ), of(null));
     }));
     const selectedReport$ = this.etxn$.pipe(switchMap(etxn => {
       return iif(() => etxn.tx.report_id, this.reports$.pipe(
@@ -1537,7 +1546,7 @@ export class AddEditExpensePage implements OnInit {
   customDateValidator(control: AbstractControl) {
     const today = new Date();
     const minDate = moment(new Date('Jan 1, 2001'));
-    const maxDate = moment(new Date(today)).add(1,'day');
+    const maxDate = moment(new Date(today)).add(1, 'day');
     const passedInDate = control.value && moment(new Date(control.value));
     if (passedInDate) {
       return passedInDate.isBetween(minDate, maxDate) ? null : {
@@ -1800,9 +1809,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.taxSettings$ = orgSettings$.pipe(
-      tap(orgSettings => console.log('before ->', orgSettings)),
       map(orgSettings => orgSettings.tax_settings),
-      tap(orgSettings => console.log('after ->', orgSettings)),
       map(taxsSettings => ({
           ...taxsSettings,
           groups: taxsSettings.groups && taxsSettings.groups.map(tax => ({label: tax.name, value: tax}))
