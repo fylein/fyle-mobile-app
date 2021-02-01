@@ -41,6 +41,7 @@ import {CorporateCreditCardExpenseService} from '../../core/services/corporate-c
 import {MatchTransactionComponent} from './match-transaction/match-transaction.component';
 import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
+import { TokenService } from 'src/app/core/services/token.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -120,6 +121,7 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
+  clusterDomain: string;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -156,7 +158,8 @@ export class AddEditExpensePage implements OnInit {
     private corporateCreditCardExpenseSuggestionService: CorporateCreditCardExpenseSuggestionsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private trackingService: TrackingService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private tokenService: TokenService
   ) {
   }
 
@@ -1496,7 +1499,7 @@ export class AddEditExpensePage implements OnInit {
   async showCannotEditActivityDialog() {
     const popupResult = await this.popupService.showPopup({
       header: 'Cannot Edit Activity Expense!',
-      message: 'To edit this activity expense, you need to login to web version of Fyle app at <a href=""https://in1.fylehq.com>https://in1.fylehq.com</a>',
+      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.clusterDomain}">${this.clusterDomain}</a>`,
       primaryCta: {
         text: 'Close'
       },
@@ -1545,6 +1548,10 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillEnter() {
     this.newExpenseDataUrls = [];
+
+    from(this.tokenService.getClusterDomain()).subscribe(res => {
+      this.clusterDomain = res;
+    });
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();

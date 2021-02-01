@@ -18,6 +18,7 @@ import {PopupService} from 'src/app/core/services/popup.service';
 import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
+import { TokenService } from 'src/app/core/services/token.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -63,6 +64,7 @@ export class MyExpensesPage implements OnInit {
   allExpenseCountHeader$: Observable<number>;
   navigateBack = false;
   openAddExpenseListLoader = false;
+  clusterDomain: string;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
@@ -80,7 +82,8 @@ export class MyExpensesPage implements OnInit {
     private offlineService: OfflineService,
     private popupService: PopupService,
     private trackingService: TrackingService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private tokenService: TokenService
   ) { }
 
   clearText() {
@@ -144,6 +147,11 @@ export class MyExpensesPage implements OnInit {
 
   ionViewWillEnter() {
     this.loaderService.showLoader('Loading Expenses...', 1000);
+
+    from(this.tokenService.getClusterDomain()).subscribe(res => {
+      this.clusterDomain = res;
+    });
+
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
     this.simpleSearchText = '';
@@ -637,7 +645,7 @@ export class MyExpensesPage implements OnInit {
   async showCannotEditActivityDialog() {
     const popupResult = await this.popupService.showPopup({
       header: 'Cannot Edit Activity Expense!',
-      message: 'To edit this activity expense, you need to login to web version of Fyle app at <a href=""https://in1.fylehq.com>https://in1.fylehq.com</a>',
+      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.clusterDomain}">${this.clusterDomain}</a>`,
       primaryCta: {
         text: 'Close'
       },
