@@ -819,20 +819,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
-    this.transactionMandatoyFields$
-      .pipe(
-        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {}))
-      )
-      .subscribe((transactionMandatoyFields) => {
-        if (transactionMandatoyFields.project) {
-          this.fg.controls.project.setValidators(Validators.required);
-          this.fg.controls.project.updateValueAndValidity();
-        }
-      });
-
-
-    this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
-
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
     );
@@ -840,6 +826,39 @@ export class AddEditPerDiemPage implements OnInit {
     this.individualProjectIds$ = orgUserSettings$.pipe(
       map((orgUserSettings: any) => orgUserSettings.project_ids || [])
     );
+
+    this.transactionMandatoyFields$
+      .pipe(
+        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
+        switchMap((transactionMandatoyFields) => {
+          return forkJoin({
+            individualProjectIds: this.individualProjectIds$,
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
+          }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+            return {
+              transactionMandatoyFields,
+              individualProjectIds,
+              isIndividualProjectsEnabled
+            };
+          }));
+        })
+      )
+      .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled}) => {
+        if (isIndividualProjectsEnabled) {
+          if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
+            this.fg.controls.project.setValidators(Validators.required);
+            this.fg.controls.project.updateValueAndValidity();
+          }
+        } else {
+          if (transactionMandatoyFields.project) {
+            this.fg.controls.project.setValidators(Validators.required);
+            this.fg.controls.project.updateValueAndValidity();
+          }
+        }
+      });
+
+
+    this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
@@ -1931,6 +1950,17 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     }
+  }
+
+  getFormValidationErrors() {
+    Object.keys(this.fg.controls).forEach(key => {
+      const controlErrors: ValidationErrors = this.fg.get(key).errors;
+      if (controlErrors != null) {
+        Object.keys(controlErrors).forEach(keyError => {
+          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+        });
+      }
+    });
   }
 }
 

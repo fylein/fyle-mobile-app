@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {ApiService} from './api.service';
 import {NetworkService} from './network.service';
 import {StorageService} from './storage.service';
-import {concatMap, map, reduce, shareReplay, switchMap, switchMapTo, tap} from 'rxjs/operators';
+import {concatMap, map, reduce, shareReplay, switchMap, tap} from 'rxjs/operators';
 import {from, of, range, Subject} from 'rxjs';
 import {AuthService} from './auth.service';
 import {ApiV2Service} from './api-v2.service';
@@ -12,8 +12,7 @@ import {OfflineService} from 'src/app/core/services/offline.service';
 import {isEqual} from 'lodash';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
-import { TransactionService } from './transaction.service';
-import {HttpParams} from '@angular/common/http';
+import {TransactionService} from './transaction.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
