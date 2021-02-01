@@ -27,7 +27,7 @@ export class ApiService {
     return this.httpClient.delete<any>(this.ROOT_ENDPOINT + '/api' + url, data);
   }
 
-  get(url: string, config = {}) {
+  get(url: string, config: { params?: any } = {}) {
     return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/api' + url, config);
   }
 }

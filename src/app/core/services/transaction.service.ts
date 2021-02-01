@@ -223,7 +223,8 @@ export class TransactionService {
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap(res => {
-        return range(0, res.count / 50);
+        const count = res.count > 50 ? res.count / 50 : 1;
+        return range(0, count);
       }),
       concatMap(page => {
         return this.getETxnc({ offset: 50 * page, limit: 50, params });
@@ -242,7 +243,8 @@ export class TransactionService {
       switchMap(eou => {
         return this.getMyETxncCount('eq.' + eou.ou.id).pipe(
           switchMap(res => {
-            return range(0, res.count / 50);
+            const count = res.count > 50 ? res.count / 50 : 1;
+            return range(0, count);
           }),
           concatMap(page => {
             return this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id });
@@ -549,17 +551,18 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$
   })
   removeTxnsFromRptInBulk(txnIds, comment?) {
-    return range(0, txnIds.length / 50).pipe(
+    const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
+    return range(0, count).pipe(
       concatMap(page => {
         const data: any = {
-          ids: txnIds.slice((page - 1) * 50, page * 50)
+          ids: txnIds.slice((page) * 50, (page + 1) * 50)
         };
 
         if (comment) {
           data.comment = comment;
         }
 
-        return this.apiService.post('/transactions/remove_report/bulk', data)
+        return this.apiService.post('/transactions/remove_report/bulk', data);
       }),
       reduce((acc, curr) => {
         return acc.concat(curr);

@@ -13,6 +13,7 @@ import {isEqual} from 'lodash';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
 import { TransactionService } from './transaction.service';
+import {HttpParams} from '@angular/common/http';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -240,7 +241,7 @@ export class ReportService {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap(count => {
         count = count > 50 ? count / 50 : 1;
-        return range(0, count / 50);
+        return range(0, count);
       }),
       concatMap(page => {
         return this.getMyReports({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
@@ -267,7 +268,7 @@ export class ReportService {
     return this.getTeamReportsCount().pipe(
       switchMap(count => {
         count = count > 50 ? count / 50 : 1;
-        return range(0, count / 50);
+        return range(0, count);
       }),
       concatMap(page => {
         return this.getTeamReports({ offset: 50 * page, limit: 50, ...config.queryParams, order: config.order });
@@ -379,17 +380,13 @@ export class ReportService {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
     }
-
-    return range(0, rptIds.length / 50).pipe(
+    const count = rptIds.length > 50 ? rptIds.length / 50 : 1;
+    return range(0,  count).pipe(
       map(page => {
-        return {
-          params: {
-            report_ids: rptIds.slice(50 * page, 50)
-          }
-        };
+        return rptIds.slice((page) * 50, (page + 1) * 50);
       }),
-      concatMap(params => {
-        return this.apiService.get('/reports/approvers', params);
+      concatMap(rptIds => {
+        return this.apiService.get('/reports/approvers', { params: {report_ids: rptIds} });
       }),
       reduce((acc, curr) => {
         return acc.concat(curr);
