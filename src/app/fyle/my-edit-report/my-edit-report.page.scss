@@ -9,7 +9,10 @@ $background-color: #fff;
     border-bottom: 1px solid $item-border-color;
 
     &-closebutton{
-      height: 65px;
+      color: #0077ee;
+      text-transform: capitalize;
+      font-weight: 400;
+      font-size: 16px;
     }
 
     &-title {
