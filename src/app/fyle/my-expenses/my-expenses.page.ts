@@ -65,8 +65,10 @@ export class MyExpensesPage implements OnInit {
   navigateBack = false;
   openAddExpenseListLoader = false;
   clusterDomain: string;
+  isNewUser$: Observable<boolean>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  
 
   constructor(
     private networkService: NetworkService,
@@ -302,6 +304,12 @@ export class MyExpensesPage implements OnInit {
       }),
       tap(count => console.log({ count })),
       shareReplay(1)
+    );
+
+    this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(
+      map(res => {
+        return res.count === 0;
+      })
     );
 
     const paginatedScroll$ = this.myExpenses$.pipe(

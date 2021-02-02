@@ -113,12 +113,17 @@
     <img alt="Create First Expenses" class="my-expenses--zero-state-img"
          src="../../../assets/images/zero-states/expenses.svg">
     <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
-      This is the home to all your Expenses
+      <ng-container *ngIf="isNewUser$|async; else isOldUser">
+        This is the home to all your Expenses 
+      </ng-container>
+      <ng-template #isOldUser>
+        All your expenses are reported
+      </ng-template>
     </div>
     <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-subheader">
       Create your first expense to see how it looks
     </div>
-    <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-action-button-container">
+    <div *ngIf="!(filters?.state || filters?.date) && isNewUser$|async" class="my-expenses--zero-state-action-button-container">
       <div class="my-expenses--zero-state-action-button">Create Expense</div>
     </div>
 
