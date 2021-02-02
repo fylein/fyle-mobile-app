@@ -99,7 +99,7 @@ export class CameraOverlayPage implements OnInit {
         from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings) => {
 
           if (imageBase64Strings.length > 0) {
-            this.loaderService.showLoader('Processing....');
+            this.loaderService.showLoader('Processing....', 2000);
             imageBase64Strings.forEach((base64String, key) => {
               const base64PictureData = 'data:image/jpeg;base64,' + base64String;
               this.addExpenseToQueue('GALLERY_UPLOAD', base64PictureData);
@@ -137,7 +137,7 @@ export class CameraOverlayPage implements OnInit {
     await galleryUploadSuccessPopup.present();
 
     const { data } = await galleryUploadSuccessPopup.onWillDismiss();
-    this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
   addExpenseToQueue(source, imageBase64String) {
@@ -190,7 +190,7 @@ export class CameraOverlayPage implements OnInit {
       this.trackBulkUpload(this.captureCount);
       this.showGalleryUploadSuccessPopup(this.captureCount);
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 

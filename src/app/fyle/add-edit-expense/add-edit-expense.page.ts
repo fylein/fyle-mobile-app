@@ -504,7 +504,7 @@ export class AddEditExpensePage implements OnInit {
         splitType,
         txn: JSON.stringify(res.tx),
         currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-        fileObjs: res.dataUrls,
+        fileObjs: JSON.stringify(res.dataUrls),
         selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
       }]);
     });
@@ -657,7 +657,17 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getPaymentModes() {
-    const accounts$ = this.offlineService.getAccounts();
+    const accounts$ = this.isConnected$.pipe(
+      take(1),
+      switchMap(isConnected => {
+        if(isConnected) {
+          return this.accountsService.getEMyAccounts();
+        } else {
+          return this.offlineService.getAccounts();
+        }
+
+      })
+    )
     const orgSettings$ = this.offlineService.getOrgSettings();
 
     return forkJoin({

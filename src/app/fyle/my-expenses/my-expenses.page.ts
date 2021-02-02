@@ -65,8 +65,10 @@ export class MyExpensesPage implements OnInit {
   navigateBack = false;
   openAddExpenseListLoader = false;
   clusterDomain: string;
+  isNewUser$: Observable<boolean>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  
 
   constructor(
     private networkService: NetworkService,
@@ -265,6 +267,12 @@ export class MyExpensesPage implements OnInit {
       }),
       tap(count => console.log({ count })),
       shareReplay(1)
+    );
+
+    this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(
+      map(res => {
+        return res.count === 0;
+      })
     );
 
     const paginatedScroll$ = this.myExpenses$.pipe(
@@ -550,7 +558,11 @@ export class MyExpensesPage implements OnInit {
       isMileageEnabled: this.isMileageEnabled$,
       isPerDiemEnabled: this.isPerDiemEnabled$,
       isBulkFyleEnabled: this.isBulkFyleEnabled$
-    }).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
+    }).pipe(
+      finalize(() => {
+        this.openAddExpenseListLoader = false;
+      })
+    ).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
       if (!(isInstaFyleEnabled || isMileageEnabled || isPerDiemEnabled)) {
         this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
           persist_filters: true
@@ -569,7 +581,6 @@ export class MyExpensesPage implements OnInit {
         });
 
         await addExpensePopover.present();
-        this.openAddExpenseListLoader = false;
 
         const {data} = await addExpensePopover.onDidDismiss();
 
