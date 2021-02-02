@@ -1,5 +1,8 @@
 <ion-header mode="md">
   <ion-toolbar class="add-edit-expense--toolbar">
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
     <ion-title *ngIf="mode" class="page-title" mode="md">
       <div *ngIf="mode === 'add'">
         Add Expense
@@ -14,7 +17,7 @@
       </div>
     </ion-title>
 
-    <ion-buttons slot="end">
+    <ion-buttons *ngIf="!navigateBack" slot="end">
       <ion-button (click)="showClosePopup()" mode="md">
         <mat-icon slot="icon-only">close</mat-icon>
       </ion-button>
