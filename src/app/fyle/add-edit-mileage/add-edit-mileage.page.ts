@@ -1152,7 +1152,11 @@ export class AddEditMileagePage implements OnInit {
 
   close() {
     if (this.mode === 'add') {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      if (this.activatedRoute.snapshot.params.persist_filters) {
+        this.navController.back();
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     } else {
       if (!this.reviewList || this.reviewList.length === 0) {
         this.navController.back();
@@ -1250,11 +1254,9 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  reloadCurrentRoute() {
-    const currentUrl = this.router.url;
-    this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
-      this.router.navigate([currentUrl]);
-    });
+  async reloadCurrentRoute() {
+    await this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true});
+    await this.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
   }
 
   saveAndNewExpense() {

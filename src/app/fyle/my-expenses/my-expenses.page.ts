@@ -211,10 +211,11 @@ export class MyExpensesPage implements OnInit {
           defaultState = 'in.(DRAFT)';
         }
 
-        const queryParams = params.queryParams || {};
+        let queryParams = params.queryParams || {};
+
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
-
+        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return this.transactionService.getMyExpensesCount(queryParams).pipe(
           switchMap((count) => {
@@ -242,51 +243,13 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    const simpleSearchAllDataPipe = this.loadData$.pipe(
-      switchMap(params => {
-        const queryParams = params.queryParams || {};
-
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-
-        if (this.baseState === 'draft') {
-          queryParams.tx_state = defaultState;
-        } else {
-          queryParams.tx_state = queryParams.tx_state || defaultState;
-        }
-
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-
-        return this.transactionService.getAllExpenses({
-          queryParams,
-          order: orderByParams
-        }).pipe(
-          map(expenses => expenses.filter(expense => {
-            return Object.values(expense)
-              .map(value => value && value.toString().toLowerCase())
-              .filter(value => !!value)
-              .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
-          }))
-        );
-      })
-    );
-
-    this.myExpenses$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
-      }),
+    this.myExpenses$ = paginatedPipe.pipe(
       shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
-        const queryParams = params.queryParams || {};
+        let queryParams = params.queryParams || {};
 
         let defaultState;
         if (this.baseState === 'all') {
@@ -297,7 +260,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
-
+        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
       tap(count => console.log({ count })),
@@ -305,17 +268,18 @@ export class MyExpensesPage implements OnInit {
     );
 
     const paginatedScroll$ = this.myExpenses$.pipe(
-      switchMap(erpts => {
+      switchMap(etxns => {
         return this.count$.pipe(
           map(count => {
-            return count > erpts.length;
-          }));
+            return count > etxns.length;
+          })
+        );
       })
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
+      switchMap(_ => {
+        return paginatedScroll$;
       })
     );
 
@@ -588,7 +552,9 @@ export class MyExpensesPage implements OnInit {
       isBulkFyleEnabled: this.isBulkFyleEnabled$
     }).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
       if (!(isInstaFyleEnabled || isMileageEnabled || isPerDiemEnabled)) {
-        this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+        this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+          persist_filters: true
+        }]);
       } else {
 
         const addExpensePopover = await this.popoverController.create({
@@ -669,12 +635,30 @@ export class MyExpensesPage implements OnInit {
       return;
     }
     if (category === 'mileage') {
-      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.tx_id }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.tx_id, persist_filters: true }]);
     } else if (category === 'per diem') {
-      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.tx_id }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.tx_id, persist_filters: true }]);
     } else {
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id, persist_filters: true }]);
     }
+  }
+
+  extendQueryParamsForTextSearch(queryParams, simpleSearchText) {
+    if (simpleSearchText === undefined || simpleSearchText.length < 1) {
+      return queryParams;
+    }
+
+    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => {
+      return word.trim().length > 0;
+    });
+    const lastElement = textArray[textArray.length - 1];
+    const arrayWithoutLastElement = textArray.slice(0, -1);
+
+    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => {
+      return agg + ' & ' + curr;
+    }, '').concat(lastElement).concat(':*');
+
+    return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
   }
 
   onAddTransactionToNewReport(expense) {

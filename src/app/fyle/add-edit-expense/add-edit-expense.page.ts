@@ -198,10 +198,14 @@ export class AddEditExpensePage implements OnInit {
 
   goBack() {
     const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    if (bankTxn) {
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+    if (this.activatedRoute.snapshot.params.persist_filters) {
+      this.navController.back();
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      if (bankTxn) {
+        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     }
   }
 
@@ -1169,8 +1173,6 @@ export class AddEditExpensePage implements OnInit {
           this.setCategoryFromVendor(vendor.default_category);
         }
       });
-
-      this.fg.controls.category.valueChanges.subscribe(console.log);
     });
   }
 
@@ -2007,11 +2009,9 @@ export class AddEditExpensePage implements OnInit {
   //   return invalidControls;
   // }
 
-  reloadCurrentRoute() {
-    const currentUrl = this.router.url;
-    this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true}).then(() => {
-      this.router.navigate([currentUrl]);
-    });
+  async reloadCurrentRoute() {
+    await this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true});
+    await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
   addToNewReport(txnId: string) {
