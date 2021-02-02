@@ -186,10 +186,14 @@ export class AddEditExpensePage implements OnInit {
 
   goBack() {
     const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    if (bankTxn) {
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
-    } else {
+    if (this.navigateBack) {
       this.navController.back();
+    } else {
+      if (bankTxn) {
+        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     }
   }
 
@@ -515,7 +519,7 @@ export class AddEditExpensePage implements OnInit {
         splitType,
         txn: JSON.stringify(res.tx),
         currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-        fileObjs: res.dataUrls,
+        fileObjs: JSON.stringify(res.dataUrls),
         selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
       }]);
     });

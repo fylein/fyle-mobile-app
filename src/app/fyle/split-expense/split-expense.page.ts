@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
-import { forkJoin, iif, Observable, of } from 'rxjs';
+import { forkJoin, from, iif, Observable, of } from 'rxjs';
 import { concatMap, map, switchMap} from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -13,6 +13,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { SplitExpenseStatusComponent } from './split-expense-status/split-expense-status.component';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -51,7 +52,8 @@ export class SplitExpensePage implements OnInit {
     private transactionService: TransactionService,
     private fileService: FileService,
     private navController: NavController,
-    private router: Router
+    private router: Router,
+    private transactionsOutboxService: TransactionsOutboxService
   ) { }
 
   ngOnInit() {
@@ -117,9 +119,27 @@ export class SplitExpensePage implements OnInit {
     };
   }
 
+  uploadNewFiles (files) {
+    const fileObjs = [];
+    files.map(file => {
+      fileObjs.push(from(this.transactionsOutboxService.fileUpload(file.url, file.type)));
+    })
+
+    return iif(
+      () => fileObjs.length !== 0,
+      forkJoin(fileObjs),
+      of(null)
+    );
+  };
+
   uploadFiles(files) {
     if (!this.transaction.id) {
-      return of(null);
+      return this.uploadNewFiles(files).pipe(
+        map(files => {
+          this.fileObjs = files;
+          return this.fileObjs;
+        })
+      )
     } else {
       return this.getAttachedFiles(this.transaction.id);
     }
@@ -246,7 +266,7 @@ export class SplitExpensePage implements OnInit {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
       this.splitType = this.activatedRoute.snapshot.params.splitType;
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
-      this.fileUrls = this.activatedRoute.snapshot.params.fileObjs;
+      this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
 
       if (this.splitType === 'categories') {
