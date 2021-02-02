@@ -1163,6 +1163,21 @@ export class AddEditExpensePage implements OnInit {
       if (etxn.dataUrls && etxn.dataUrls.length) {
         this.newExpenseDataUrls = etxn.dataUrls;
       }
+
+      this.fg.controls.vendor_id.valueChanges.subscribe(vendor => {
+        if (this.fg.controls.category.pristine && !this.fg.controls.category.value && vendor && vendor.default_category) {
+          this.setCategoryFromVendor(vendor.default_category);
+        }
+      });
+
+      this.fg.controls.category.valueChanges.subscribe(console.log);
+    });
+  }
+
+  setCategoryFromVendor(defaultCategory) {
+    this.getActiveCategories().subscribe(categories => {
+      const category = categories.find(innerCategory => innerCategory.fyle_category === defaultCategory);
+      this.fg.controls.category.patchValue(category);
     });
   }
 
