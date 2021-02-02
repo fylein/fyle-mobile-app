@@ -45,7 +45,6 @@
             <div class="transportation-requests--element">
               <div class="transportation-requests--element-label">Preferred timing</div>
               <div class="transportation-requests--element-value">
-                <!-- {{eTransportationRequest.tr | json}} -->
                 {{ eTransportationRequest.tr && eTransportationRequest.tr.preferred_timing_formatted && eTransportationRequest.tr.preferred_timing_formatted.length > 0 ? eTransportationRequest.tr.preferred_timing_formatted[0].label : '-'}}
               </div>
             </div>

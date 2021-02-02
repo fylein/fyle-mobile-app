@@ -476,7 +476,15 @@ export class ReportService {
         comment
       }
     };
-    return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy);
+    return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy).pipe(
+      switchMap((res) => {
+        return this.clearCache().pipe(
+          map(() => {
+            return res;
+          })
+        );
+      })
+    );
   }
 
   @CacheBuster({

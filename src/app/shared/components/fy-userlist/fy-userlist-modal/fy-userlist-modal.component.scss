@@ -20,6 +20,14 @@ $list-element-color: #333;
     line-height: 1.3;
   }
 
+  &--approver-details {
+    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 280px;
+  }
+
   &--header {
     margin: 0;
     padding: 10px 15px;

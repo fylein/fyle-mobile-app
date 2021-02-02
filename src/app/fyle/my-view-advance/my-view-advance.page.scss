@@ -65,7 +65,7 @@
   }
 
   &--element-label {
-    min-width: 120px;
+    min-width: 130px;
     max-width: 30%;
     margin: 0 8px 0 0;
     font-size: 16px;
@@ -78,6 +78,9 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
+    color: #444444;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   &--advance-request-block {
