@@ -2007,7 +2007,7 @@ export class AddEditExpensePage implements OnInit {
   // }
 
   reloadCurrentRoute() {
-    const currentUrl = this.router.url;
+    const currentUrl = this.router.url.split('?')[0];
     this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true}).then(() => {
       this.router.navigate([currentUrl]);
     });
