@@ -189,7 +189,7 @@ export class AddEditExpensePage implements OnInit {
     if (bankTxn) {
       this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      this.navController.back();
     }
   }
 
