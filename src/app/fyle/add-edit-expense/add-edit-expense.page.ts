@@ -668,7 +668,17 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getPaymentModes() {
-    const accounts$ = this.offlineService.getAccounts();
+    const accounts$ = this.networkService.isOnline().pipe(
+      take(1),
+      switchMap(isConnected => {
+        if(isConnected) {
+          return this.accountsService.getEMyAccounts();
+        } else {
+          return this.offlineService.getAccounts()
+        }
+
+      })
+    )
     const orgSettings$ = this.offlineService.getOrgSettings();
 
     return forkJoin({
