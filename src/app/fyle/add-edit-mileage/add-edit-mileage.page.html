@@ -490,25 +490,6 @@
             </div>
 
 
-            <ng-container *ngIf="isConnected$">
-              <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-                <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
-                  <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
-                    <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-
-                      <app-fy-alert
-                        *ngIf="transactionMandatoyFields.project && individualProjectIds.length === 0"
-                        [type]="'warning'"
-                        [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
-                      </app-fy-alert>
-
-                    </ng-container>
-                  </ng-container>
-                </ng-container>
-              </ng-container>
-            </ng-container>
-
-
             <ng-container *ngIf="etxn$|async as etxn">
               <div (click)="deleteExpense()"
                    *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete" class="add-edit-mileage--delete" matRipple>
@@ -519,6 +500,24 @@
                   Delete Expense
                 </div>
               </div>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngIf="isConnected$">
+            <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+              <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
+                <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
+                  <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
+
+                    <app-fy-alert
+                      *ngIf="transactionMandatoyFields.project && individualProjectIds.length === 0"
+                      [type]="'warning'"
+                      [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
+                    </app-fy-alert>
+
+                  </ng-container>
+                </ng-container>
+              </ng-container>
             </ng-container>
           </ng-container>
         </form>
@@ -534,7 +533,7 @@
     <ion-toolbar mode="md">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
-          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid" 
+          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid"
             appFormButtonValidation [loading]="saveMileageLoader" [loadingText]="'SAVING'"
             [disabled]="saveMileageLoader || saveAndNewMileageLoader">
             Save

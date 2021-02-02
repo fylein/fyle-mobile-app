@@ -1,34 +1,47 @@
-import { Component, OnInit, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, FormControl } from '@angular/forms';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { from, forkJoin, iif, of, combineLatest, Observable, throwError, concat } from 'rxjs';
-import { switchMap, finalize, map, filter, distinctUntilChanged, take, startWith, shareReplay, tap, concatMap, catchError, debounceTime } from 'rxjs/operators';
-import { isEqual, isNumber, cloneDeep } from 'lodash';
+import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {combineLatest, concat, forkJoin, from, iif, Observable, of, throwError} from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  take,
+  tap
+} from 'rxjs/operators';
+import {cloneDeep, isEqual, isNumber} from 'lodash';
 import * as moment from 'moment';
-import { TransactionFieldConfigurationsService } from 'src/app/core/services/transaction-field-configurations.service';
-import { AccountsService } from 'src/app/core/services/accounts.service';
-import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { ProjectsService } from 'src/app/core/services/projects.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { MileageService } from 'src/app/core/services/mileage.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { PolicyService } from 'src/app/core/services/policy.service';
-import { StatusService } from 'src/app/core/services/status.service';
-import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
-import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { DateService } from 'src/app/core/services/date.service';
+import {TransactionFieldConfigurationsService} from 'src/app/core/services/transaction-field-configurations.service';
+import {AccountsService} from 'src/app/core/services/accounts.service';
+import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
+import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
+import {ReportService} from 'src/app/core/services/report.service';
+import {ProjectsService} from 'src/app/core/services/projects.service';
+import {TransactionService} from 'src/app/core/services/transaction.service';
+import {AuthService} from 'src/app/core/services/auth.service';
+import {MileageService} from 'src/app/core/services/mileage.service';
+import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
+import {PolicyService} from 'src/app/core/services/policy.service';
+import {StatusService} from 'src/app/core/services/status.service';
+import {DataTransformService} from 'src/app/core/services/data-transform.service';
+import {ModalController, NavController} from '@ionic/angular';
+import {CriticalPolicyViolationComponent} from './critical-policy-violation/critical-policy-violation.component';
+import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
+import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
+import {NetworkService} from 'src/app/core/services/network.service';
+import {PopupService} from 'src/app/core/services/popup.service';
+import {DateService} from 'src/app/core/services/date.service';
 import {TrackingService} from '../../core/services/tracking.service';
-import { TokenService } from 'src/app/core/services/token.service';
+import {TokenService} from 'src/app/core/services/token.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -77,6 +90,7 @@ export class AddEditMileagePage implements OnInit {
   saveAndNewMileageLoader = false;
   saveAndNextMileageLoader = false;
   clusterDomain: string;
+  initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -216,7 +230,9 @@ export class AddEditMileagePage implements OnInit {
     return this.offlineService.getOrgSettings().pipe(
       map(orgSettings => {
         const isAmountCurrencyTxnDtPresent =
-          this.fg.value.distance && !!this.fg.value.dateOfSpend && (this.fg.value.mileage_locations && this.fg.value.mileage_locations.filter(l => !!l).length);
+          this.fg.value.distance &&
+          !!this.fg.value.dateOfSpend &&
+          (this.fg.value.mileage_locations && this.fg.value.mileage_locations.filter(l => !!l).length);
         return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
       })
     );
@@ -237,42 +253,8 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getDuplicates() {
-    return this.etxn$.pipe(
-      switchMap(etxn => {
-        return this.duplicateDetectionService.getDuplicates(etxn.tx.id);
-      })
-    );
-  }
 
   getPossibleDuplicates() {
-    const currentTxn$ = this.generateEtxnFromFg(this.etxn$, this.getCustomFields(), this.getCalculateDistance());
-    const isSameTxn$ = forkJoin({
-      oldTxn: this.etxn$,
-      currentTxn: currentTxn$
-    }).pipe(
-      map(({ oldTxn, currentTxn }) => {
-        const oldTxnClone = cloneDeep(oldTxn);
-        const currentTxnClone = cloneDeep(currentTxn);
-        // safe hack - can clean off later on
-        oldTxnClone.tx.custom_properties = null;
-        currentTxnClone.tx.custom_properties = null;
-        oldTxnClone.tx.locations = null;
-        currentTxnClone.tx.locations = null;
-        oldTxnClone.tx.txn_dt = oldTxnClone.tx.txn_dt && moment(oldTxnClone.tx.txn_dt).format('y-MM-DD');
-        currentTxnClone.tx.txn_dt = currentTxnClone.tx.txn_dt && moment(currentTxnClone.tx.txn_dt).format('y-MM-DD');
-
-        return isEqual(oldTxnClone.tx, currentTxnClone.tx);
-      })
-    );
-
-    // TODO: Verify with policy team - getDuplicates never executes in old mobile app
-    // return isSameTxn$.pipe(
-    //   switchMap((isSameTxn) => {
-    //     return iif(() => isSameTxn, this.getDuplicates(), this.checkForDuplicates());
-    //   })
-    // );
-
     return this.checkForDuplicates();
   }
 
@@ -470,21 +452,20 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getCustomInputs() {
-    let initialFetch = true;
+    this.initialFetch = true;
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
           let selectedCategory$;
-          if (initialFetch) {
+          if (this.initialFetch) {
             selectedCategory$ = this.etxn$.pipe(
               switchMap(etxn => {
                 return iif(() => etxn.tx.org_category_id,
                   this.offlineService.getAllCategories().pipe(
                     map(categories => categories
-                      .find(category => category.id === etxn.tx.org_category_id))), of(null));
+                      .find(innerCategory => innerCategory.id === etxn.tx.org_category_id))), of(null));
               }));
-            initialFetch = false;
           } else {
             selectedCategory$ = of(category);
           }
@@ -1121,6 +1102,8 @@ export class AddEditMileagePage implements OnInit {
           this.mileage_locations.push(new FormControl(location, mileageConfig.location_mandatory && Validators.required));
         });
       }
+
+      this.initialFetch = false;
 
       setTimeout(() => {
         this.fg.controls.custom_inputs.setValue(customInputValues);
