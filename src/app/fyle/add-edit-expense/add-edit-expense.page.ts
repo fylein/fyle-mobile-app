@@ -966,6 +966,7 @@ export class AddEditExpensePage implements OnInit {
     const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
       return iif(() => etxn.tx.org_category_id,
         allCategories$.pipe(
+          tap(console.log),
           map(categories => categories
             .filter(category => {
               if (!category.fyle_category) {

@@ -112,7 +112,7 @@
   <div *ngIf="((count$ | async) === 0) && isConnected$|async" class="my-expenses--zero-state">
     <img alt="Create First Expenses" class="my-expenses--zero-state-img"
          src="../../../assets/images/zero-states/expenses.svg">
-    <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
+    <div *ngIf="!(filters?.state || filters?.date) && simpleSearchText && simpleSearchText.length === 0" class="my-expenses--zero-state-header">
       <ng-container *ngIf="isNewUser$|async; else isOldUser">
         No expenses to show!
       </ng-container>
@@ -133,7 +133,7 @@
       <div class="my-expenses--zero-state-action-button">Create your first expense</div>
     </div>
 
-    <div *ngIf="(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
+    <div *ngIf="(filters?.state || filters?.date || (simpleSearchText && simpleSearchText.length === 0))" class="my-expenses--zero-state-header">
       You do not have any expenses for the selected filter(s)
     </div>
   </div>
@@ -169,7 +169,7 @@
 
   <ng-container *ngIf="isConnected$|async; else isNotConnected">
     <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-      <app-my-expenses-card 
+      <app-my-expenses-card
         (addTransactionToNewReport)="onAddTransactionToNewReport($event)" (addTransactionToReport)="onAddTransactionToReport($event)" (cardClickedForSelection)="selectExpense($event)"
         (deleteTransaction)="onDeleteExpenseClick($event)" (goToTransaction)="goToTransaction($event)"
         [baseState]="baseState"
@@ -187,7 +187,7 @@
     </ion-infinite-scroll>
   </ng-container>
   <ng-template #isNotConnected>
-    <app-fy-zero-state 
+    <app-fy-zero-state
       [header]="'You\'re not connected to internet'"
       [image]="'../../../assets/images/zero-states/offline.svg'"
       [message]="'You can still add expenses, we\'ll sync them to your account once you\'re connected to the internet again.'"
