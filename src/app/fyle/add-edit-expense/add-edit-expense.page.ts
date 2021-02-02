@@ -186,14 +186,10 @@ export class AddEditExpensePage implements OnInit {
 
   goBack() {
     const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    if (this.navigateBack) {
-      this.navController.back();
+    if (bankTxn) {
+      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
     } else {
-      if (bankTxn) {
-        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 
@@ -2021,7 +2017,7 @@ export class AddEditExpensePage implements OnInit {
   // }
 
   reloadCurrentRoute() {
-    const currentUrl = this.router.url.split('?')[0];
+    const currentUrl = this.router.url;
     this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true}).then(() => {
       this.router.navigate([currentUrl]);
     });
