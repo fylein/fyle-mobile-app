@@ -84,6 +84,24 @@ export class MyReportsPage implements OnInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  extendQueryParamsForTextSearch(queryParams, simpleSearchText) {
+    if (simpleSearchText === undefined || simpleSearchText.length < 1) {
+      return queryParams;
+    }
+
+    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => {
+      return word.trim().length > 0;
+    });
+    const lastElement = textArray[textArray.length - 1];
+    const arrayWithoutLastElement = textArray.slice(0, -1);
+
+    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => {
+      return agg + ' & ' + curr;
+    }, '').concat(lastElement).concat(':*');
+
+    return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
+  }
+
   ionViewWillEnter() {
     this.loaderService.showLoader('loading reports...', 1000);
     this.setupNetworkWatcher();
@@ -117,14 +135,25 @@ export class MyReportsPage implements OnInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
+        let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return this.reportService.getMyReports({
-          offset: (params.pageNumber - 1) * 10,
-          limit: 10,
-          queryParams,
-          order: orderByParams
-        });
+        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        return this.reportService.getMyReportsCount(params.queryParams).pipe(
+          switchMap(count => {
+            if (count > ((params.pageNumber - 1) * 10)) {
+              return this.reportService.getMyReports({
+                offset: (params.pageNumber - 1) * 10,
+                limit: 10,
+                queryParams,
+                order: orderByParams
+              });
+            } else {
+              return of({
+                data: []
+              });
+            }
+          })
+        );
       }),
       map(res => {
         if (this.currentPageNumber === 1) {
@@ -135,35 +164,14 @@ export class MyReportsPage implements OnInit {
       })
     );
 
-    const simpleSearchAllDataPipe = this.loadData$.pipe(
-      switchMap(params => {
-        const queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-
-        return this.reportService.getAllExtendedReports({
-          queryParams,
-          order: orderByParams
-        }).pipe(
-          map(erpts => erpts.filter(erpt => {
-            return Object.values(erpt)
-              .map(value => value && value.toString().toLowerCase())
-              .filter(value => !!value)
-              .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
-          }))
-        );
-      })
-    );
-
-    this.myReports$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
-      }),
+    this.myReports$ = paginatedPipe.pipe(
       shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
-        return this.reportService.getMyReportsCount(params.queryParams);
+        const queryParams = this.extendQueryParamsForTextSearch(params, params.searchString);
+        return this.reportService.getMyReportsCount(queryParams);
       }),
       shareReplay(1)
     );
@@ -178,8 +186,8 @@ export class MyReportsPage implements OnInit {
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
+      switchMap(_ => {
+        return paginatedScroll$;
       })
     );
 

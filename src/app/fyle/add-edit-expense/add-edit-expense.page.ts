@@ -1,14 +1,26 @@
-import {Component, OnInit, EventEmitter, ElementRef, ViewChild, Input} from '@angular/core';
-import {Observable, of, iif, forkJoin, from, combineLatest, throwError, noop, concat, merge, EMPTY} from 'rxjs';
+import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, throwError} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-  concatMap, switchMap, map, startWith, shareReplay,
-  distinctUntilChanged, take, tap, finalize, filter, debounceTime, catchError, reduce, delay, timeout
+  catchError,
+  concatMap,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  map,
+  reduce,
+  shareReplay,
+  startWith,
+  switchMap,
+  take,
+  tap,
+  timeout
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {AuthService} from 'src/app/core/services/auth.service';
-import {FormBuilder, FormGroup, FormArray, Validators, FormControl, ValidationErrors, AbstractControl} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {CategoriesService} from 'src/app/core/services/categories.service';
 import {ProjectsService} from 'src/app/core/services/projects.service';
 import {DateService} from 'src/app/core/services/date.service';
@@ -17,16 +29,15 @@ import {TransactionFieldConfigurationsService} from 'src/app/core/services/trans
 import {ReportService} from 'src/app/core/services/report.service';
 import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
 import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
-import {isEqual, cloneDeep, isNumber} from 'lodash';
+import {cloneDeep, isEqual, isNumber} from 'lodash';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {DataTransformService} from 'src/app/core/services/data-transform.service';
 import {PolicyService} from 'src/app/core/services/policy.service';
 import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
-import * as _ from 'lodash';
 import {SplitExpensePopoverComponent} from './split-expense-popover/split-expense-popover.component';
-import {ModalController, PopoverController, NavController} from '@ionic/angular';
+import {ModalController, NavController, PopoverController} from '@ionic/angular';
 import {CriticalPolicyViolationComponent} from './critical-policy-violation/critical-policy-violation.component';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {StatusService} from 'src/app/core/services/status.service';
@@ -41,7 +52,7 @@ import {CorporateCreditCardExpenseService} from '../../core/services/corporate-c
 import {MatchTransactionComponent} from './match-transaction/match-transaction.component';
 import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
-import { TokenService } from 'src/app/core/services/token.service';
+import {TokenService} from 'src/app/core/services/token.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -122,6 +133,7 @@ export class AddEditExpensePage implements OnInit {
   navigateBack = false;
   isExpenseBankTxn = false;
   clusterDomain: string;
+  initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -186,10 +198,14 @@ export class AddEditExpensePage implements OnInit {
 
   goBack() {
     const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    if (bankTxn) {
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+    if (this.activatedRoute.snapshot.params.persist_filters) {
+      this.navController.back();
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      if (bankTxn) {
+        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     }
   }
 
@@ -444,33 +460,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getPossibleDuplicates() {
-    const currentTxn$ = this.generateEtxnFromFg(this.etxn$, this.getCustomFields());
-    const isSameTxn$ = forkJoin({
-      oldTxn: this.etxn$,
-      currentTxn: currentTxn$
-    }).pipe(
-      map(({oldTxn, currentTxn}) => {
-        const oldTxnClone = cloneDeep(oldTxn);
-        const currentTxnClone = cloneDeep(currentTxn);
-        // safe hack - can clean off later on
-        oldTxnClone.tx.custom_properties = null;
-        currentTxnClone.tx.custom_properties = null;
-        oldTxnClone.tx.locations = null;
-        currentTxnClone.tx.locations = null;
-        oldTxnClone.tx.txn_dt = oldTxnClone.tx.txn_dt && moment(oldTxnClone.tx.txn_dt).format('y-MM-DD');
-        currentTxnClone.tx.txn_dt = currentTxnClone.tx.txn_dt && moment(currentTxnClone.tx.txn_dt).format('y-MM-DD');
-
-        return isEqual(oldTxnClone.tx, currentTxnClone.tx);
-      })
-    );
-
-    // TODO: Verify with policy team - getDuplicates never executes in old mobile app
-    // return isSameTxn$.pipe(
-    //   switchMap((isSameTxn) => {
-    //     return iif(() => isSameTxn, this.getDuplicates(), this.checkForDuplicates());
-    //   })
-    // );
-
     return this.checkForDuplicates();
   }
 
@@ -1162,6 +1151,8 @@ export class AddEditExpensePage implements OnInit {
         emitEvent: false
       });
 
+      this.initialFetch = false;
+
       setTimeout(() => {
         this.fg.patchValue({
           paymentMode: paymentMode || defaultPaymentMode
@@ -1176,17 +1167,30 @@ export class AddEditExpensePage implements OnInit {
       if (etxn.dataUrls && etxn.dataUrls.length) {
         this.newExpenseDataUrls = etxn.dataUrls;
       }
+
+      this.fg.controls.vendor_id.valueChanges.subscribe(vendor => {
+        if (this.fg.controls.category.pristine && !this.fg.controls.category.value && vendor && vendor.default_category) {
+          this.setCategoryFromVendor(vendor.default_category);
+        }
+      });
+    });
+  }
+
+  setCategoryFromVendor(defaultCategory) {
+    this.getActiveCategories().subscribe(categories => {
+      const category = categories.find(innerCategory => innerCategory.fyle_category === defaultCategory);
+      this.fg.controls.category.patchValue(category);
     });
   }
 
   setupCustomFields() {
-    let initialFetch = true;
+    this.initialFetch = true;
     this.customInputs$ = this.fg.controls.category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
           let selectedCategory$;
-          if (initialFetch) {
+          if (this.initialFetch) {
             selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
               return iif(
                 () => etxn.tx.org_category_id,
@@ -1197,7 +1201,6 @@ export class AddEditExpensePage implements OnInit {
                 of(null)
               );
             }));
-            initialFetch = false;
           } else {
             selectedCategory$ = of(category);
           }
@@ -2006,11 +2009,9 @@ export class AddEditExpensePage implements OnInit {
   //   return invalidControls;
   // }
 
-  reloadCurrentRoute() {
-    const currentUrl = this.router.url;
-    this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true}).then(() => {
-      this.router.navigate([currentUrl]);
-    });
+  async reloadCurrentRoute() {
+    await this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true});
+    await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
   addToNewReport(txnId: string) {

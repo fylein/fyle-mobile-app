@@ -114,18 +114,24 @@ export class AddExpensePopoverComponent implements OnInit {
   async createExpense(event) {
     await this.popoverController.dismiss();
     this.trackingService.eventTrack('Click Add Expense', {Asset: 'Mobile'});
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+      persist_filters: true
+    }]);
   }
 
   async createMileage(event) {
     this.trackingService.eventTrack('Click Add Mileage', {Asset: 'Mobile'});
     await this.popoverController.dismiss();
-    this.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
+    this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
+      persist_filters: true
+    }]);
   }
 
   async createPerDiem(event) {
     await this.popoverController.dismiss();
-    this.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
+    this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
+      persist_filters: true
+    }]);
   }
 
 }

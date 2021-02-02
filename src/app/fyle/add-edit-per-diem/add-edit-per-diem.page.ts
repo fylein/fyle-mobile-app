@@ -1,29 +1,29 @@
-import {Component, OnInit, EventEmitter, ViewChild, ElementRef} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, forkJoin, iif, of, combineLatest, from, throwError, noop, concat} from 'rxjs';
+import {combineLatest, concat, forkJoin, from, iif, Observable, of, throwError} from 'rxjs';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {
-  switchMap,
-  map,
-  startWith,
-  tap,
-  shareReplay,
-  distinctUntilChanged,
-  filter,
-  take,
-  finalize,
   catchError,
   concatMap,
-  debounceTime
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  take,
+  tap
 } from 'rxjs/operators';
-import {FormBuilder, FormGroup, Validators, FormArray, ValidationErrors, AbstractControl} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {TransactionFieldConfigurationsService} from 'src/app/core/services/transaction-field-configurations.service';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {DateService} from 'src/app/core/services/date.service';
 import * as moment from 'moment';
 import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
 import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
-import {isEqual, isNumber, cloneDeep} from 'lodash';
+import {cloneDeep, isEqual, isNumber} from 'lodash';
 import {CurrencyService} from 'src/app/core/services/currency.service';
 import {ReportService} from 'src/app/core/services/report.service';
 import {ProjectsService} from 'src/app/core/services/projects.service';
@@ -41,8 +41,8 @@ import {NetworkService} from 'src/app/core/services/network.service';
 import {PopupService} from 'src/app/core/services/popup.service';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
 import {TrackingService} from '../../core/services/tracking.service';
-import { CurrencyPipe } from '@angular/common';
-import { TokenService } from 'src/app/core/services/token.service';
+import {CurrencyPipe} from '@angular/common';
+import {TokenService} from 'src/app/core/services/token.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -91,6 +91,7 @@ export class AddEditPerDiemPage implements OnInit {
   savePerDiemLoader = false;
   saveAndNextPerDiemLoader = false;
   clusterDomain: string;
+  initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -158,7 +159,11 @@ export class AddEditPerDiemPage implements OnInit {
 
   goBack() {
     if (this.mode === 'add') {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      if (this.activatedRoute.snapshot.params.persist_filters) {
+        this.navController.back();
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     } else {
       if (!this.reviewList || this.reviewList.length === 0) {
         this.navController.back();
@@ -175,7 +180,6 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   canGetDuplicates() {
-    // TODO: Verify for per diem
     return this.offlineService.getOrgSettings().pipe(
       map(orgSettings => {
         const isAmountPresent = isNumber(this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount);
@@ -217,51 +221,6 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPossibleDuplicates() {
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map(customInputs => {
-        return customInputs.map((customInput, i) => {
-          return {
-            id: customInput.id,
-            mandatory: customInput.mandatory,
-            name: customInput.name,
-            options: customInput.options,
-            placeholder: customInput.placeholder,
-            prefix: customInput.prefix,
-            type: customInput.type,
-            value: this.fg.value.custom_inputs[i].value
-          };
-        });
-      })
-    );
-
-    const currentTxn$ = this.generateEtxnFromFg(this.etxn$, customFields$);
-    const isSameTxn$ = forkJoin({
-      oldTxn: this.etxn$,
-      currentTxn: currentTxn$
-    }).pipe(
-      map(({oldTxn, currentTxn}) => {
-        const oldTxnClone = cloneDeep(oldTxn);
-        const currentTxnClone = cloneDeep(currentTxn);
-        // safe hack - can clean off later on
-        oldTxnClone.tx.custom_properties = null;
-        currentTxnClone.tx.custom_properties = null;
-        oldTxnClone.tx.locations = null;
-        currentTxnClone.tx.locations = null;
-        oldTxnClone.tx.txn_dt = oldTxnClone.tx.txn_dt && moment(oldTxnClone.tx.txn_dt).format('y-MM-DD');
-        currentTxnClone.tx.txn_dt = currentTxnClone.tx.txn_dt && moment(currentTxnClone.tx.txn_dt).format('y-MM-DD');
-
-        return isEqual(oldTxnClone.tx, currentTxnClone.tx);
-      })
-    );
-
-    // TODO: Verify with policy team - getDuplicates never executes in old mobile app
-    // return isSameTxn$.pipe(
-    //   switchMap((isSameTxn) => {
-    //     return iif(() => isSameTxn, this.getDuplicates(), this.checkForDuplicates());
-    //   })
-    // );
-
     return this.checkForDuplicates();
   }
 
@@ -590,20 +549,19 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getCustomInputs() {
-    let initialFetch = true;
+    this.initialFetch = true;
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
           let selectedCategory$;
-          if (initialFetch) {
+          if (this.initialFetch) {
             selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
               return iif(() => etxn.tx.org_category_id,
                 this.offlineService.getAllCategories().pipe(
                   map(categories => categories
                     .find(category => category.id === etxn.tx.org_category_id))), of(null));
             }));
-            initialFetch = false;
           } else {
             selectedCategory$ = of(category);
           }
@@ -1225,6 +1183,8 @@ export class AddEditPerDiemPage implements OnInit {
         costCenter
       });
 
+      this.initialFetch = false;
+
       setTimeout(() => {
         this.fg.controls.custom_inputs.patchValue(customInputValues);
       }, 1000);
@@ -1812,11 +1772,9 @@ export class AddEditPerDiemPage implements OnInit {
     });
   }
 
-  reloadCurrentRoute() {
-    const currentUrl = this.router.url;
-    this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true}).then(() => {
-      this.router.navigate([currentUrl]);
-    });
+  async reloadCurrentRoute() {
+    await this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true});
+    await this.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
   }
 
   saveAndNewExpense() {
