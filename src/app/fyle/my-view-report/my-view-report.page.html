@@ -32,14 +32,14 @@
               <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
                 {{ap.state | reportState | titlecase}}
                 <span class="view-reports--card-body__highlight"
-                  *ngIf="ap.approved_at">,{{ ap.approved_at | date: 'MMM dd, yyyy' }}</span>
+                  *ngIf="ap.approved_at">, {{ ap.approved_at | date: 'MMM dd, yyyy' }}</span>
               </span>
               ){{last ? '' : ', '}}
             </span>
           </span>
         </div>
         <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
-          {{erpt.rp_state | reportState | uppercase}}
+          {{erpt.rp_state | reportState | uppercase | snakeCaseToSpaceCase}}
         </div>
       </div>
 

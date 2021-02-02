@@ -24,14 +24,14 @@
         Please enter a valid email.
       </div>
       <div *ngIf="emailSet">
-        <ion-grid>
+        <ion-grid fixed>
           <ion-row>
-            <ion-col>
-              <span class="sign-in--email-frozen-text" id="sign-in--email-label">
+            <ion-col size="9">
+              <div class="sign-in--email-frozen-text" id="sign-in--email-label">
                 {{fg.controls.email.value}}
-              </span>
+              </div>
             </ion-col>
-            <ion-col class="sign-in--edit-email">
+            <ion-col size="3" class="sign-in--edit-email">
               <a id="sign-in--change" (click)="emailSet = false">
                 Change
               </a>
@@ -41,7 +41,7 @@
       </div>
 
       <mat-form-field class="signin-signup-fields sign-in--form-field mat-form-field-no-padding" appearance="outline" *ngIf="emailSet">
-        <input id="sign-in--password" (keyup.enter)="signInUser()" formControlName="password" [type]="hide ? 'password': 'text'" matInput
+        <input id="sign-in--password" (keyup.enter)="signInUser()" [disabled]="passwordLoading" formControlName="password" [type]="hide ? 'password': 'text'" matInput
           placeholder="Password">
         <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
           {{hide ? 'visibility' : 'visibility_off'}}
