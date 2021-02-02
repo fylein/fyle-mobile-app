@@ -99,7 +99,7 @@ export class CameraOverlayPage implements OnInit {
         from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings) => {
 
           if (imageBase64Strings.length > 0) {
-            this.loaderService.showLoader('Processing....');
+            this.loaderService.showLoader('Processing....', 2000);
             imageBase64Strings.forEach((base64String, key) => {
               const base64PictureData = 'data:image/jpeg;base64,' + base64String;
               this.addExpenseToQueue('GALLERY_UPLOAD', base64PictureData);
