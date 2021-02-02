@@ -91,6 +91,7 @@ export class AddEditPerDiemPage implements OnInit {
   savePerDiemLoader = false;
   saveAndNextPerDiemLoader = false;
   clusterDomain: string;
+  initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -544,20 +545,19 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getCustomInputs() {
-    let initialFetch = true;
+    this.initialFetch = true;
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
         switchMap((category) => {
           let selectedCategory$;
-          if (initialFetch) {
+          if (this.initialFetch) {
             selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
               return iif(() => etxn.tx.org_category_id,
                 this.offlineService.getAllCategories().pipe(
                   map(categories => categories
                     .find(category => category.id === etxn.tx.org_category_id))), of(null));
             }));
-            initialFetch = false;
           } else {
             selectedCategory$ = of(category);
           }
@@ -1178,6 +1178,8 @@ export class AddEditPerDiemPage implements OnInit {
         duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
         costCenter
       });
+
+      this.initialFetch = false;
 
       setTimeout(() => {
         this.fg.controls.custom_inputs.patchValue(customInputValues);
