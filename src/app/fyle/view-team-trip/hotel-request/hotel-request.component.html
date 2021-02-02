@@ -15,12 +15,12 @@
   <div *ngFor="let eHotelRequest of hotelRequests">
     <div class="hotel-requests--card">
       <div (click)="eHotelRequest.isOpened = !eHotelRequest.isOpened" matRipple class="hotel-requests--header">
-        <div>Hotel in {{eHotelRequest.hr.city.city}}</div>
-        <div class="info">{{eHotelRequest.hr.check_in_dt | date: 'MMMM dd, yyyy'}} -
+        <div class="hotel-requests--hotel-city">Hotel in {{eHotelRequest.hr.city.city}}</div>
+        <div class="hotel-requests--booking-date">{{eHotelRequest.hr.check_in_dt | date: 'MMMM dd, yyyy'}} -
           {{eHotelRequest.hr.check_out_dt | date: 'MMMM dd, yyyy'}}</div>
       </div>
 
-      <div *ngIf="eHotelRequest.isOpened">
+      <div class="hotel-requests--content" *ngIf="eHotelRequest.isOpened">
         <div class="hotel-requests--element">
           <div class="hotel-requests--element-label">
             ID
@@ -45,16 +45,11 @@
         </div>
 
         <div class="hotel-requests--element">
-          <div>Budget</div>
-          <div *ngIf="eHotelRequest.hr.currency && eHotelRequest.hr.amount">
-            <div class="hotel-requests--element-label">
-              {{eHotelRequest.hr.currency}}
-            </div>
-            <div class="hotel-requests--element-value">
-              eHotelRequest.hr.amount
-            </div>
+          <div class="hotel-requests--element-label">Budget</div>
+          <div class="hotel-requests--element-value" *ngIf="eHotelRequest.hr.currency && eHotelRequest.hr.amount">
+            {{eHotelRequest.hr.currency}} {{eHotelRequest.hr.amount}}
           </div>
-          <div *ngIf="!eHotelRequest.hr.currency || !eHotelRequest.hr.amount">
+          <div *ngIf="!eHotelRequest.hr.currency && !eHotelRequest.hr.amount">
             -
           </div>
         </div>

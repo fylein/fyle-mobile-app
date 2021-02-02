@@ -75,6 +75,8 @@ $text-light: #ababab;
     border-radius: 4px;
     display: inline-block;
     color: white;
+    font-weight: 500;
+
     &__draft {
       background: $trips_draft_color;
     }
@@ -126,12 +128,11 @@ $text-light: #ababab;
 
   &--duration {
     color: $text-light;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   &--trip-type {
     color: $text-light;
-    margin-top: 4px;
     margin-bottom: 12px;
   }
 }

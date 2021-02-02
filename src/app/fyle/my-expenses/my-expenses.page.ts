@@ -625,7 +625,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     if (popupResults === 'primary') {
-      from(this.loaderService.showLoader()).pipe(
+      from(this.loaderService.showLoader('', 2500)).pipe(
         switchMap(() => {
           return this.transactionService.delete(etxn.tx_id);
         }),
