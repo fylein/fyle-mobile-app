@@ -121,7 +121,7 @@ export class SplitExpensePage implements OnInit {
 
   uploadNewFiles (files) {
     const fileObjs = [];
-    files.map(file => {
+    files.forEach(file => {
       fileObjs.push(from(this.transactionsOutboxService.fileUpload(file.url, file.type)));
     })
 

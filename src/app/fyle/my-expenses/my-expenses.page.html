@@ -125,8 +125,8 @@
         You do not have any expenses yet. Add an expense to get started.
       </ng-container>
       <ng-template #isOldUser>
-        Add a new expense using the button below or InstaFyle a paper receipt.<br><br>
-        You can find old expenses inside their respective reports.
+        <p>Add a new expense using the button below or InstaFyle a paper receipt.</p>
+        <p>You can find old expenses inside their respective reports.</p>
       </ng-template>
     </div>
     <div *ngIf="!(filters?.state || filters?.date) && isNewUser$|async" class="my-expenses--zero-state-action-button-container">

@@ -674,7 +674,7 @@ export class AddEditExpensePage implements OnInit {
         if(isConnected) {
           return this.accountsService.getEMyAccounts();
         } else {
-          return this.offlineService.getAccounts()
+          return this.offlineService.getAccounts();
         }
 
       })

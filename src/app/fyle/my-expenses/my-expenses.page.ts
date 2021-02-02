@@ -594,7 +594,11 @@ export class MyExpensesPage implements OnInit {
       isMileageEnabled: this.isMileageEnabled$,
       isPerDiemEnabled: this.isPerDiemEnabled$,
       isBulkFyleEnabled: this.isBulkFyleEnabled$
-    }).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
+    }).pipe(
+      finalize(() => {
+        this.openAddExpenseListLoader = false;
+      })
+    ).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
       if (!(isInstaFyleEnabled || isMileageEnabled || isPerDiemEnabled)) {
         this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
       } else {
@@ -611,7 +615,6 @@ export class MyExpensesPage implements OnInit {
         });
 
         await addExpensePopover.present();
-        this.openAddExpenseListLoader = false;
 
         const {data} = await addExpensePopover.onDidDismiss();
 
