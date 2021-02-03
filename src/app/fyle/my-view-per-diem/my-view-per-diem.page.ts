@@ -12,6 +12,7 @@ import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import {NetworkService} from '../../core/services/network.service';
+import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
   selector: 'app-my-view-per-diem',
@@ -31,6 +32,7 @@ export class MyViewPerDiemPage implements OnInit {
   policyViloations$: Observable<any>;
   isConnected$: Observable<boolean>;
   onPageExit = new Subject();
+  comments$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -42,7 +44,8 @@ export class MyViewPerDiemPage implements OnInit {
     private policyService: PolicyService,
     private navController: NavController,
     private networkService: NetworkService,
-    private router: Router
+    private router: Router,
+    private statusService: StatusService
   ) { }
 
   isNumber(val) {
@@ -126,6 +129,7 @@ export class MyViewPerDiemPage implements OnInit {
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    this.comments$ = this.statusService.find('transactions', id);
 
     // this.policyViloations$.subscribe(res => {
     //   debugger;
