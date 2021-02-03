@@ -10,6 +10,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
   selector: 'app-my-view-mileage',
@@ -26,6 +27,7 @@ export class MyViewMileagePage implements OnInit {
   isCriticalPolicyViolated$: Observable<boolean>;
   isAmountCapped$: Observable<boolean>;
   policyViloations$: Observable<any>;
+  comments$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -34,7 +36,8 @@ export class MyViewMileagePage implements OnInit {
     private offlineService : OfflineService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
-    private navController: NavController
+    private navController: NavController,
+    private statusService: StatusService
   ) { }
 
   isNumber(val) {
@@ -74,21 +77,19 @@ export class MyViewMileagePage implements OnInit {
     );
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      tap(res => console.log('\n\n\n 1 ->', res)),
       switchMap(res => {
         return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
       }),
-      tap(res => console.log('\n\n\n 2 ->', res)),
       map(res => {
         return res.map(customProperties => {
           customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
           return customProperties;
         });
-      }),
-      tap(res => console.log('\n\n\n 3 ->', res))
+      })
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
       map(res => {

@@ -33,6 +33,7 @@ export class MyViewExpensePage implements OnInit {
   orgSettings: any;
   attachments$: Observable<any>;
   isConnected$: Observable<boolean>;
+  comments$: Observable<any>;
 
   onPageExit = new Subject();
 
@@ -134,6 +135,7 @@ export class MyViewExpensePage implements OnInit {
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(txId);
+    this.comments$ = this.statusService.find('transactions', txId);
 
     this.isAmountCapped$ = this.etxn$.pipe(
       map(etxn => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))

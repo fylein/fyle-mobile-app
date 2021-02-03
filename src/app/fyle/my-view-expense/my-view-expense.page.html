@@ -11,18 +11,10 @@
 
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
-    <div *ngIf="etxn && policyViloations$ | async">
-      <span *ngIf="policyViloations$ | async as policyViloations" (click)="scrollCommentsIntoView()">
-        <div class="view-expense--policy-container" *ngIf="policyViloations && etxn.tx_policy_flag">
-          <span>
-            <mat-icon class="view-expense--policy-container-warning-icon">warning</mat-icon>
-          </span>
-          <span>
-            {{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this expense
-          </span>
-        </div>
-      </span>
-    </div>
+
+    <ng-container *ngIf="comments$|async as comments">
+      <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
+    </ng-container>
 
     <div class="view-expense--policy-container" *ngIf="isAmountCapped$|async">
       <ng-template [ngIf]="isCriticalPolicyViolated$|async" [ngIfElse]="crititcalPolicyNotiolated">
