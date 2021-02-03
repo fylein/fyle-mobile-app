@@ -68,7 +68,7 @@ export class MyExpensesPage implements OnInit {
   isNewUser$: Observable<boolean>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
-  
+
 
   constructor(
     private networkService: NetworkService,
@@ -263,6 +263,7 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        console.log(queryParams);
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
       tap(count => console.log({ count })),

@@ -171,7 +171,7 @@ export class MyReportsPage implements OnInit {
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
         const queryParams = this.extendQueryParamsForTextSearch(params, params.searchString);
-        return this.reportService.getMyReportsCount(queryParams);
+        return this.reportService.getMyReportsCount(queryParams.queryParams);
       }),
       shareReplay(1)
     );
