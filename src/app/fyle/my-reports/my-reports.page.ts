@@ -267,7 +267,7 @@ export class MyReportsPage implements OnInit {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.reportService.clearCache().subscribe(() => {
+    this.reportService.clearTransactionCache().subscribe(() => {
       this.loadData$.next(params);
       if (event) {
         event.target.complete();

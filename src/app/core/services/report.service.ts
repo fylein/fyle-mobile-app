@@ -37,6 +37,13 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$
   })
   clearCache() {
+    return of(null);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  clearTransactionCache() {
     return this.transactionService.clearCache();
   }
 
@@ -222,7 +229,7 @@ export class ReportService {
   delete(rptId) {
     return this.apiService.delete('/reports/' + rptId).pipe(
      switchMap((res) => {
-       return this.clearCache().pipe(
+       return this.clearTransactionCache().pipe(
          map(() => {
            return res;
          })
@@ -442,14 +449,18 @@ export class ReportService {
   addTransactions(rptId, txnIds) {
     return this.apiService.post('/reports/' + rptId + '/txns', {
       ids: txnIds
-    });
+    }).pipe(
+      tap(()=>{
+        this.clearTransactionCache();
+      })
+    );
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
   createDraft(report) {
-    return this.apiService.post('/reports', report);
+    return this.apiService.post('/reports', report)
   }
 
   @CacheBuster({
@@ -478,7 +489,7 @@ export class ReportService {
     };
     return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy).pipe(
       switchMap((res) => {
-        return this.clearCache().pipe(
+        return this.clearTransactionCache().pipe(
           map(() => {
             return res;
           })
