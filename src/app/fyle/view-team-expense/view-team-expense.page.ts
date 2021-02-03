@@ -1,12 +1,12 @@
 import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
-import {Observable, from, forkJoin, Subject, combineLatest, concat} from 'rxjs';
+import {Observable, from, forkJoin, Subject, combineLatest, concat, noop} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil} from 'rxjs/operators';
+import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil, scan, take} from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -155,7 +155,8 @@ export class ViewTeamExpensePage implements OnInit {
           res[0].tx_custom_properties = res[1];
           return res[0];
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
+        shareReplay(1)
       );
 
     this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
@@ -200,6 +201,7 @@ export class ViewTeamExpensePage implements OnInit {
     );
 
     const editExpenseAttachments = this.etxn$.pipe(
+      take(1),
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx_id)),
       switchMap(fileObjs => {
         return from(fileObjs);
@@ -220,7 +222,7 @@ export class ViewTeamExpensePage implements OnInit {
 
     this.attachments$ = editExpenseAttachments;
     this.updateFlag$.next();
-    this.attachments$.subscribe(console.log);
+    this.attachments$.subscribe(noop);
   }
 
   getReceiptExtension(name) {

@@ -2,7 +2,7 @@
   <div class="split-expense--header">
     <ion-toolbar class="ion-no-border split-expense--header-toolbar">
       <ion-buttons mode="md" slot="end">
-        <ion-button class="split-expense--header-closebutton" (click)="goBack()">
+        <ion-button class="split-expense--header-closebutton" (click)="goBack()" [disabled]="saveSplitExpenseLoading">
           <mat-icon>close</mat-icon>
         </ion-button>
       </ion-buttons>
@@ -114,7 +114,8 @@
       <ion-grid>
         <ion-row>
           <ion-col size="6">
-            <ion-button class="split-expense--primary-cta" fill="outline" color="fyle-primary" (click)="goBack()">
+            <ion-button class="split-expense--primary-cta" fill="outline" color="fyle-primary" (click)="goBack()"
+              [disabled]="saveSplitExpenseLoading">
               CANCEL
             </ion-button>
           </ion-col>
