@@ -1,6 +1,6 @@
 import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {combineLatest, concat, forkJoin, from, iif, Observable, of, throwError} from 'rxjs';
+import {combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError} from 'rxjs';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {
   catchError,
@@ -755,11 +755,13 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
       map(allowedPerDiemRates => allowedPerDiemRates.map(rate => {
-        const rateName = rate.name + ' (' + this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + 'per day )';
-        return ({label: rateName, value: rate});
-      }
-      ))
+          const rateName = rate.name + ' (' + this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + 'per day )';
+          return ({label: rateName, value: rate});
+        })
+      )
     );
+
+    this.allowedPerDiemRateOptions$.subscribe(console.log);
 
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
       filter(isConnected => !!isConnected),

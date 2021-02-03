@@ -499,9 +499,6 @@ export class TransactionService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
-  })
   getETxn(txnId) {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
