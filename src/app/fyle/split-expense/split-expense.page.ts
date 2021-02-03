@@ -122,6 +122,11 @@ export class SplitExpensePage implements OnInit {
   uploadNewFiles (files) {
     const fileObjs = [];
     files.forEach(file => {
+      if (file.type && (file.type.indexOf('image') > -1 || file.type.indexOf('jpeg') > -1 || file.type.indexOf('jpg') > -1 || file.type.indexOf('png') > -1)) {
+        file.type = 'image';
+      } else if (file.type && file.type.indexOf('pdf') > -1) {
+        file.type = 'pdf';
+      }
       fileObjs.push(from(this.transactionsOutboxService.fileUpload(file.url, file.type)));
     })
 
