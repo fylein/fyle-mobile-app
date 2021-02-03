@@ -15,6 +15,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import {ReportService} from './report.service';
 
 const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({

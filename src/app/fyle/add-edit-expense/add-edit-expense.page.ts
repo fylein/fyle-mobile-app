@@ -722,8 +722,6 @@ export class AddEditExpensePage implements OnInit {
               ...extractedDetails
             };
 
-            // TODO: Check and Add image coordinates
-
             if (extractedDetails.parsedResponse) {
               return this.offlineService.getHomeCurrency().pipe(
                 switchMap(homeCurrency => {
@@ -735,7 +733,7 @@ export class AddEditExpensePage implements OnInit {
                         new Date(extractedDetails.parsedResponse.date) :
                         new Date()
                     ).pipe(
-                      catchError(err => null),
+                      catchError(err => of(null)),
                       map(exchangeRate => {
                         return {
                           ...instaFyleImageData,
@@ -1132,6 +1130,8 @@ export class AddEditExpensePage implements OnInit {
           }
         });
       }
+
+      console.log({ report });
 
       this.fg.patchValue({
         project,
