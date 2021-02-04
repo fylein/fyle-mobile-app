@@ -319,22 +319,28 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.allExpenseCountHeader$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_state: 'in.(COMPLETE,DRAFT)',
-      tx_report_id: 'is.null'
-    }).pipe(
+    this.allExpenseCountHeader$ = this.loadData$.pipe(
+      switchMap(() => {
+        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_state: 'in.(COMPLETE,DRAFT)',
+          tx_report_id: 'is.null'
+        })
+      }),
       map(stats => {
         const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
         return count && count.function_value;
       })
     );
 
-    this.draftExpensesCount$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_report_id: 'is.null',
-      tx_state: 'in.(DRAFT)'
-    }).pipe(
+    this.draftExpensesCount$ = this.loadData$.pipe(
+      switchMap(() => {
+        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_report_id: 'is.null',
+          tx_state: 'in.(DRAFT)'
+        })
+      }),
       map(stats => {
         const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
         return count && count.function_value;
