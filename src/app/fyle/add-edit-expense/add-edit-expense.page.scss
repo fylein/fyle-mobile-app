@@ -309,6 +309,7 @@ $red: #f00;
   &--review-nav {
     position: sticky;
     top: 30vh;
+    z-index: 9999;
   }
 
   &--review-go-left {

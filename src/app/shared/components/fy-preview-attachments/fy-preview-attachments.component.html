@@ -19,7 +19,13 @@
           </pinch-zoom>
 
           <div class="preview-attachments--image" *ngIf="attachment?.type === 'pdf'">
-            <pdf-viewer [page]="1" [src]="attachment?.url" [render-text]="true" [zoom]="0.5"></pdf-viewer>
+            <pdf-viewer [page]="1" [src]="attachment?.url" [render-text]="true" [zoom]="zoomScale"></pdf-viewer>
+
+            <div class="preview-attachments--pdf-controls">
+              <mat-icon class="preview-attachments--seconady-action-icons" (click)="zoomIn()">add_circle</mat-icon>
+              <mat-icon class="preview-attachments--seconady-action-icons" (click)="zoomOut()">remove_circle</mat-icon>
+              <mat-icon class="preview-attachments--seconady-action-icons" (click)="resetZoom()">zoom_out_map</mat-icon>
+            </div>
           </div>
         </div>
       </ion-slide>
