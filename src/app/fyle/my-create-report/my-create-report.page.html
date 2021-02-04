@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div class="my-create-report--report-card" *ngIf="!isTripRequestsEnabled">
+    <div class="my-create-report--report-card" *ngIf="!isTripRequestsEnabled && readyToReportEtxns?.length > 0">
       <p class="my-create-report--report-title">Trip Request ID</p>
       <input class="my-create-report--text-trip" type="text" placeholder="Enter Trip Request ID" [(ngModel)]="tripRequestId">
     </div>
