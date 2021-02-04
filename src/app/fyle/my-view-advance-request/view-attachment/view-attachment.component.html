@@ -24,12 +24,18 @@
     <ng-container *ngFor="let attachment of attachments">
       <ion-slide>
         <div>
-          <pinch-zoom *ngIf="attachment?.file_type !== 'pdf'" class="view-attachments--container">
-            <img [src]="attachment?.file_download_url" />
+          <pinch-zoom *ngIf="attachment?.type !== 'pdf'" class="view-attachments--container">
+            <img [src]="attachment?.url" />
           </pinch-zoom>
 
           <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
-            <pdf-viewer [page]="1" [src]="attachment?.file_download_url" [render-text]="true" [zoom]="0.5"></pdf-viewer>
+            <pdf-viewer [page]="1" [src]="attachment?.url" [render-text]="true" [zoom]="zoomScale"></pdf-viewer>
+
+            <div class="view-attachments--pdf-controls">
+              <mat-icon class="view-attachments--seconady-action-icons" (click)="zoomIn()">add_circle</mat-icon>
+              <mat-icon class="view-attachments--seconady-action-icons" (click)="zoomOut()">remove_circle</mat-icon>
+              <mat-icon class="view-attachments--seconady-action-icons" (click)="resetZoom()">zoom_out_map</mat-icon>
+            </div>
           </div>
         </div>
       </ion-slide>

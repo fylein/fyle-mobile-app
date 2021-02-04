@@ -40,6 +40,39 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService
   ) { }
 
+  getReceiptExtension(name) {
+    let res = null;
+
+    if (name) {
+      const filename = name.toLowerCase();
+      const idx = filename.lastIndexOf('.');
+
+      if (idx > -1) {
+        res = filename.substring(idx + 1, filename.length);
+      }
+    }
+
+    return res;
+  }
+
+  getReceiptDetails(file) {
+    const ext = this.getReceiptExtension(file.name);
+    const res = {
+      type: 'unknown',
+      thumbnail: 'img/fy-receipt.svg'
+    };
+
+    if (ext && (['pdf'].indexOf(ext) > -1)) {
+      res.type = 'pdf';
+      res.thumbnail = 'img/fy-pdf.svg';
+    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+      res.type = 'image';
+      res.thumbnail = file.url;
+    }
+
+    return res;
+  }
+
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
@@ -58,11 +91,14 @@ export class MyViewAdvanceRequestPage implements OnInit {
       switchMap(res => {
         return from(res);
       }),
-      concatMap(file => {
-        return this.fileService.downloadUrl(file.id).pipe(
-          map(url => {
-            file.file_download_url = url;
-            return file as File;
+      concatMap((fileObj: any) => {
+        return this.fileService.downloadUrl(fileObj.id).pipe(
+          map(downloadUrl => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
           })
         )
       }),
