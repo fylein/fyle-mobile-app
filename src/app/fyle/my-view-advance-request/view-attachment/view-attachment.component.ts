@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import {PopupService} from '../../../core/services/popup.service';
 import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
@@ -13,6 +14,7 @@ export class ViewAttachmentComponent implements OnInit {
   activeIndex = 0;
 
   @ViewChild('slides') imageSlides: any;
+  zoomScale: number;
 
   constructor(
     private modalController: ModalController,
@@ -20,17 +22,30 @@ export class ViewAttachmentComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.attachments.forEach(attachment => {
-      if (attachment.type === 'pdf') {
-        this.sanitizer.bypassSecurityTrustUrl(attachment.url);
-      }
-    });
-
+    this.zoomScale = 0.5;
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,
       },
     };
+
+    this.attachments.forEach(attachment => {
+      if (attachment.type === 'pdf') {
+        this.sanitizer.bypassSecurityTrustUrl(attachment.url);
+      }
+    });
+  }
+
+  zoomIn() {
+    this.zoomScale += 0.25;
+  }
+
+  zoomOut() {
+    this.zoomScale -= 0.25;
+  }
+
+  resetZoom() {
+    this.zoomScale = 0.5;
   }
 
   onDoneClick() {
