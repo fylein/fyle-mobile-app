@@ -16,6 +16,7 @@ export class FyPreviewAttachmentsComponent implements OnInit {
   sliderOptions: any;
   attachments$: Observable<any[]>;
   activeIndex = 0;
+  zoomScale: number;
 
   @ViewChild('slides') imageSlides: any;
 
@@ -57,7 +58,20 @@ export class FyPreviewAttachmentsComponent implements OnInit {
     return res;
   }
 
+  zoomIn() {
+    this.zoomScale += 0.25;
+  }
+
+  zoomOut() {
+    this.zoomScale -= 0.25;
+  }
+
+  resetZoom() {
+    this.zoomScale = 0.5;
+  }
+
   ngOnInit() {
+    this.zoomScale = 0.5;
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,

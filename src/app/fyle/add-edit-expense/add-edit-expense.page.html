@@ -441,7 +441,7 @@
       </div>
 
       <ng-container *ngIf="taxSettings$|async as taxSettings">
-        <div *ngIf="mode=='add' && taxSettings?.enabled && taxSettings?.groups?.length > 0"
+        <div *ngIf="taxSettings?.enabled && taxSettings?.groups?.length > 0"
              class="add-edit-expense--primary-block">
           <div class="add-edit-expense--internal-block">
             <app-fy-select
