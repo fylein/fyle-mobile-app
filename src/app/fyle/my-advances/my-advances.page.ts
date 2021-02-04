@@ -55,7 +55,7 @@ export class MyAdvancesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    throw new Error("broken aloo");
+    throw new Error("broken 1 in advance request");
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
