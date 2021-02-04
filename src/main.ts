@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/angular';
 Sentry.init({
   dsn: environment.SENTRY_DSN,
   tracesSampleRate: 1.0,
-  release: process.env.VERSION
+  release: 'please-replace-your-git-commit-version'
 });
 
 if (environment.production) {
