@@ -13,6 +13,7 @@ import { switchMap, finalize, shareReplay, map, concatMap } from 'rxjs/operators
 import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController } from '@ionic/angular';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
+import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
   selector: 'app-view-team-per-diem',
@@ -34,6 +35,7 @@ export class ViewTeamPerDiemPage implements OnInit {
   canDelete$: Observable<any>;
   reportId;
   updateFlag$ = new Subject();
+  comments$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -46,6 +48,7 @@ export class ViewTeamPerDiemPage implements OnInit {
     private reportService: ReportService,
     private router: Router,
     private popoverController: PopoverController,
+    private statusService: StatusService
   ) { }
 
   isNumber(val) {
@@ -136,6 +139,7 @@ export class ViewTeamPerDiemPage implements OnInit {
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    this.comments$ = this.statusService.find('transactions', id);
 
     // this.policyViloations$.subscribe(res => {
     //   debugger;

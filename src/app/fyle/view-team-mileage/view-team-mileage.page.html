@@ -11,12 +11,12 @@
 
 <ion-content>
   <div class="view-mileage--container" *ngIf="extendedMileage$|async as extendedMileage">
-    <div class="view-mileage--policy-info-container" (click)="scrollCommentsIntoView()"
-      *ngIf="extendedMileage.tx_policy_flag && policyViloations$|async as policyViloations">
-      <mat-icon class="view-mileage--policy-warning-icon">warning</mat-icon>
-      <span>{{policyViloations.length}} policy violation{{ policyViloations.length >1 ? 's' : ''}} with this
-        expense</span>
-    </div>
+
+    <ng-container *ngIf="extendedMileage.tx_policy_flag">
+      <ng-container *ngIf="comments$|async as comments">
+        <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
+      </ng-container>
+    </ng-container>
 
     <div class="view-mileage--policy-info-container" *ngIf="isAmountCapped$|async">
       <p class="view-mileage--policy-info-text" *ngIf="isCriticalPolicyViolated$|async">This expense has violated a

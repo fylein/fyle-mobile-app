@@ -127,6 +127,7 @@
     display: flex;
     min-width: 120px;
     max-width: 120px;
+
     &__invalid {
       color: red;
     }
@@ -185,7 +186,14 @@
       vertical-align: middle;
       font-size: 16px;
       margin: 0 0 0 16px;
+    }
+
+    &__comment {
       color: #0077ee;
+    }
+
+    &__delete {
+      color: #f00;
     }
 
     mat-icon {
