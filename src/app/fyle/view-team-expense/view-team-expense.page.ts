@@ -40,6 +40,7 @@ export class ViewTeamExpensePage implements OnInit {
   updateFlag$ = new Subject();
   isConnected$: Observable<boolean>;
   onPageExit = new Subject();
+  comments$: Observable<any>;
 
   constructor(
     private loaderService: LoaderService,
@@ -167,6 +168,8 @@ export class ViewTeamExpensePage implements OnInit {
         return comments.filter(this.isPolicyComment);
       })
     );
+
+    this.comments$ = this.statusService.find('transactions', txId);
 
     this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
       map(etxn => {

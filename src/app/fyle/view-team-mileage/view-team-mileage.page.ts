@@ -13,6 +13,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import { PopoverController, IonContent } from '@ionic/angular';
 import {NetworkService} from '../../core/services/network.service';
+import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
   selector: 'app-view-team-mileage',
@@ -35,6 +36,7 @@ export class ViewTeamMileagePage implements OnInit {
   reportId;
   isConnected$: Observable<boolean>;
   onPageExit = new Subject();
+  comments$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -46,7 +48,8 @@ export class ViewTeamMileagePage implements OnInit {
     private reportService: ReportService,
     private popoverController: PopoverController,
     private router: Router,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private statusService: StatusService
   ) { }
 
   ionViewWillLeave() {
@@ -169,6 +172,7 @@ export class ViewTeamMileagePage implements OnInit {
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
       map(res => {

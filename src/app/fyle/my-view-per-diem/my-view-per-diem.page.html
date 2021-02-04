@@ -12,8 +12,10 @@
 <ion-content>
   <div class="view-per-diem--container" *ngIf="extendedPerDiem$|async as extendedPerDiem">
 
-    <ng-container *ngIf="comments$|async as comments">
-      <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
+     <ng-container *ngIf="extendedPerDiem.tx_policy_flag">
+      <ng-container *ngIf="comments$|async as comments">
+        <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
+      </ng-container>
     </ng-container>
 
     <div class="view-per-diem--policy-info-container" *ngIf="isAmountCapped$|async">
