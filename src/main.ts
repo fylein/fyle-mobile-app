@@ -9,7 +9,8 @@ import * as Sentry from '@sentry/angular';
 
 Sentry.init({
   dsn: environment.SENTRY_DSN,
-  tracesSampleRate: 1.0
+  tracesSampleRate: 1.0,
+  release: 'please-replace-your-git-commit-version'
 });
 
 if (environment.production) {
@@ -21,3 +22,4 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 
 // Call the element loader after the platform has been bootstrapped
 defineCustomElements(window);
+''
