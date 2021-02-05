@@ -512,6 +512,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
+      await this.loaderService.showLoader('Loading Expenses...', 1000);
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -533,6 +534,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await sortPopover.onWillDismiss();
     if (data) {
+      await this.loaderService.showLoader('Loading Expenses...', 1000);
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
