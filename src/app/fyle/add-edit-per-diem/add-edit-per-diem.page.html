@@ -317,7 +317,7 @@
                         <div [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.sub_category.touched && !fg.controls.sub_category.valid}"
                              class="add-edit-per-diem--internal-block">
                           <app-fy-select
-                            [cacheName]="'perDielSubCategoryCache'"
+                            [cacheName]="'perDiemSubCategoryCache'"
                             [label]="fg.controls.sub_category.value ? 'Sub Category' : 'Select Sub Category'"
                             [mandatory]="true"
                             [options]="subCategories"
