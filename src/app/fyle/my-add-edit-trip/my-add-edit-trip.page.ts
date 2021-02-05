@@ -150,9 +150,11 @@ export class MyAddEditTripPage implements OnInit {
         const formContainer = this.formContainer.nativeElement as HTMLElement;
         if (formContainer) {
           const invalidElement = formContainer.querySelector('.ng-invalid');
-          invalidElement.scrollIntoView({
-            behavior: 'smooth'
-          });
+          if (invalidElement) {
+            invalidElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
         }
         return;
       } else {
@@ -174,9 +176,11 @@ export class MyAddEditTripPage implements OnInit {
       const formContainer = this.formContainer.nativeElement as HTMLElement;
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }
@@ -574,9 +578,11 @@ export class MyAddEditTripPage implements OnInit {
         const formContainer = this.formContainer.nativeElement as HTMLElement;
         if (formContainer) {
           const invalidElement = formContainer.querySelector('.ng-invalid');
-          invalidElement.scrollIntoView({
-            behavior: 'smooth'
-          });
+          if (invalidElement) {
+            invalidElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
         }
         return;
       } else {
@@ -587,9 +593,11 @@ export class MyAddEditTripPage implements OnInit {
       const formContainer = this.formContainer.nativeElement as HTMLElement;
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }

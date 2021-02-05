@@ -771,14 +771,6 @@ export class AddEditPerDiemPage implements OnInit {
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
-    this.isConnected$.subscribe(isConnected => {
-      this.fg.controls.sub_category.clearValidators();
-      if (isConnected) {
-        this.fg.controls.sub_category.setValidators(Validators.required);
-      }
-      this.fg.controls.sub_category.updateValueAndValidity();
-    });
-
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
     );
@@ -1759,9 +1751,11 @@ export class AddEditPerDiemPage implements OnInit {
         const formContainer = that.formContainer.nativeElement as HTMLElement;
         if (formContainer) {
           const invalidElement = formContainer.querySelector('.ng-invalid');
-          invalidElement.scrollIntoView({
-            behavior: 'smooth'
-          });
+          if (invalidElement) {
+            invalidElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
         }
 
         if (invalidPaymentMode) {
@@ -1801,9 +1795,11 @@ export class AddEditPerDiemPage implements OnInit {
         const formContainer = that.formContainer.nativeElement as HTMLElement;
         if (formContainer) {
           const invalidElement = formContainer.querySelector('.ng-invalid');
-          invalidElement.scrollIntoView({
-            behavior: 'smooth'
-          });
+          if (invalidElement) {
+            invalidElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
         }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
@@ -1841,9 +1837,12 @@ export class AddEditPerDiemPage implements OnInit {
       const formContainer = that.formContainer.nativeElement as HTMLElement;
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
+
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }

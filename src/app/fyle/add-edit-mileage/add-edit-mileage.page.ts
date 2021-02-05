@@ -1240,9 +1240,11 @@ export class AddEditMileagePage implements OnInit {
         const formContainer = that.formContainer.nativeElement as HTMLElement;
         if (formContainer) {
           const invalidElement = formContainer.querySelector('.ng-invalid');
-          invalidElement.scrollIntoView({
-            behavior: 'smooth'
-          });
+          if (invalidElement) {
+            invalidElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
         }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
@@ -1282,9 +1284,11 @@ export class AddEditMileagePage implements OnInit {
         const formContainer = that.formContainer.nativeElement as HTMLElement;
         if (formContainer) {
           const invalidElement = formContainer.querySelector('.ng-invalid');
-          invalidElement.scrollIntoView({
-            behavior: 'smooth'
-          });
+          if (invalidElement) {
+            invalidElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
         }
         if (invalidPaymentMode) {
           that.invalidPaymentMode = true;
@@ -1322,9 +1326,11 @@ export class AddEditMileagePage implements OnInit {
       const formContainer = that.formContainer.nativeElement as HTMLElement;
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
-        invalidElement.scrollIntoView({
-          behavior: 'smooth'
-        });
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }

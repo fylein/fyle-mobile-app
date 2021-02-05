@@ -18,6 +18,9 @@
       <p class="my-create-report--report-title">Report Name*</p>
       <input class="my-create-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required>
     </div>
+    <div class="my-create-report--error-message" *ngIf="showReportNameError">
+      Please enter report name.
+    </div>
 
     <div *ngIf="readyToReportEtxns?.length === 0" class="my-create-report--zero-state">
       <img alt="Create First Expenses" class="my-create-report--zero-state-img"
