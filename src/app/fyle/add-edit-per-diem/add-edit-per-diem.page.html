@@ -287,6 +287,7 @@
                                class="add-edit-per-diem--internal-block">
                             <app-fy-select-project
                               [categoryIds]="projectCategoryIds"
+                              [cacheName]="'perDiemProjectCache'"
                               [defaultValue]="true"
                               [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                               [mandatory]="transactionMandatoyFields?.project"

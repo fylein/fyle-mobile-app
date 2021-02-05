@@ -167,6 +167,12 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
 
   clearRecentLocalStorageCache() {
     this.recentLocalStorageItemsService.clear('recent-currency-cache');
+    this.recentLocalStorageItemsService.clear('advanceProjectCache');
+    this.recentLocalStorageItemsService.clear('expenseProjectCache');
+    this.recentLocalStorageItemsService.clear('mileageProjectCache');
+    this.recentLocalStorageItemsService.clear('perDiemProjectCache');
+    this.recentLocalStorageItemsService.clear('tripProjectCache');
+    this.recentLocalStorageItemsService.clear('splitExpenseProjectCache');
   }
 
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
