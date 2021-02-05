@@ -251,7 +251,7 @@
       </ion-button>
     </ion-toolbar>
     <ion-toolbar *ngIf="baseState === 'draft'" mode="md">
-      <ion-button (click)="openReviewExpenses()" class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block"
+      <ion-button [disabled]="(count$ | async) === 0" (click)="openReviewExpenses()" class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block"
                   fill="solid"
                   mode="md">
         START REVIEW
