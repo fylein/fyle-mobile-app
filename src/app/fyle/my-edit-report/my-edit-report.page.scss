@@ -107,6 +107,10 @@ $background-color: #fff;
     padding: 16px;
   }
 
+  &--error-message {
+    color: #f00;
+  }
+
   &--non-reimbursable {
     color: #ababab;
     text-decoration: line-through;

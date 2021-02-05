@@ -37,6 +37,7 @@ export class MyCreateReportPage implements OnInit {
   tripRequestId: string;
   saveDraftReportLoading = false;
   saveReportLoading = false;
+  showReportNameError = false;
 
   constructor(
     private transactionService: TransactionService,
@@ -78,6 +79,11 @@ export class MyCreateReportPage implements OnInit {
   }
 
   async showReportSummaryPopover(action) {
+    this.showReportNameError = false;
+    if (this.reportTitle.trim().length <= 0) {
+      this.showReportNameError = true;
+      return;
+    }
     const homeCurrency = await this.homeCurrency$.toPromise();
 
     const reportSummaryPopover = await this.popoverController.create({

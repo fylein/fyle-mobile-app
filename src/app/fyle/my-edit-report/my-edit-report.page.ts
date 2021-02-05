@@ -45,6 +45,8 @@ export class MyEditReportPage implements OnInit {
   noOfTxnsInReport: number;
   selectedTotalAmount: number;
   selectedTotalTxns: number;
+  showReportNameError = false;
+  reportState: string;
 
   constructor(
     private router: Router,
@@ -176,6 +178,12 @@ export class MyEditReportPage implements OnInit {
   }
 
   saveReport() {
+    this.showReportNameError = false;
+    if (this.reportTitle.trim().length <= 0 && this.reportState === 'DRAFT') {
+      this.showReportNameError = true;
+      return;
+    }
+
     const report = {
       purpose: this.reportTitle,
       id: this.activatedRoute.snapshot.params.id,
@@ -302,6 +310,7 @@ export class MyEditReportPage implements OnInit {
     }).subscribe(({ extendedReport, orgSettings,  orgUserSettings, tripRequests}) => {
       this.reportTitle = extendedReport.rp_purpose;
       this.reportAmount = extendedReport.rp_amount;
+      this.reportState = extendedReport.rp_state;
       this.noOfTxnsInReport = extendedReport.rp_num_transactions;
       this.isTripRequestsEnabled = orgSettings.trip_requests.enabled;
       this.canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee ||
