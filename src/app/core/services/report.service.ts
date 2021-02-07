@@ -460,7 +460,15 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$
   })
   createDraft(report) {
-    return this.apiService.post('/reports', report)
+    return this.apiService.post('/reports', report).pipe(
+      switchMap((res) => {
+        return this.clearTransactionCache().pipe(
+          map(() => {
+            return res;
+          })
+        );
+      })
+    )
   }
 
   @CacheBuster({
@@ -471,7 +479,7 @@ export class ReportService {
       switchMap(newReport => {
         return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe(
           switchMap(res => {
-            return this.apiService.post('/reports/' + newReport.id + '/submit');
+            return this.submit(newReport.id);
           })
         );
       })
@@ -502,7 +510,15 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$
   })
   submit(rptId) {
-    return this.apiService.post('/reports/' + rptId + '/submit');
+    return this.apiService.post('/reports/' + rptId + '/submit').pipe(
+      switchMap((res) => {
+        return this.clearTransactionCache().pipe(
+          map(() => {
+            return res;
+          })
+        );
+      })
+    )
   }
 
   @CacheBuster({
