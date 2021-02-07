@@ -128,6 +128,9 @@
     </div>
     <div *ngIf="!(filters?.state || filters?.date)" class="my-expenses--zero-state-subheader">
       <ng-container *ngIf="isNewUser$|async; else isOldUser">
+        <p class="my-expenses--zero-state-subheader__title">
+          No expenses to show!
+        </p>
         You do not have any expenses yet. Add an expense to get started.
       </ng-container>
       <ng-template #isOldUser>
