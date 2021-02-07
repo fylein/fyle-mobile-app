@@ -131,7 +131,7 @@
                   <div class="add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': control.touched && !control.valid}">
                     <app-fy-location
                       [formControlName]="i"
-                      [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Select Stop ' + (i) + ' Location'))): (isFirst ? (control.value ? 'Start' : 'Select From Location'): (control.value ? 'End' :'Select To Location'))"
+                      [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Select Stop ' + (i) + ' Location'))): (isFirst ? (control.value ? 'Start' : 'Select From Location'): (control.value ? 'To' :'Select To Location'))"
                       [mandatory]="mileageConfig.location_mandatory">
                     <span *ngIf="i >= 2">
                       <mat-icon (click)="removeMileageLocation(i)" class="add-edit-mileage--remove-stop">
