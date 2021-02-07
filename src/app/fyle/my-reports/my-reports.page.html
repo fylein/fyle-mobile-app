@@ -100,7 +100,7 @@
 
 <ion-footer mode="md">
   <ng-container *ngIf="expensesAmountStats$|async as expensesAmountStats">
-    <ion-toolbar mode="md" *ngIf="expensesAmountStats.count > 0">
+    <ion-toolbar mode="md">
       <div class="my-reports--stats">
         <div class="my-reports--amount">
           <span class="my-reports--homeCurrency">{{homeCurrency$ | async}}</span>

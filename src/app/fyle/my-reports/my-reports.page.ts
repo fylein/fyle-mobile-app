@@ -199,19 +199,23 @@ export class MyReportsPage implements OnInit {
       });
     });
 
-    this.expensesAmountStats$ = this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_report_id: 'is.null',
-      tx_state: 'in.(COMPLETE)',
-      or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
-    }).pipe(
-      map(stats => {
-        const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
-        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
-        return {
-          sum: sum && sum.function_value || 0,
-          count: count && count.function_value || 0
-        };
+    this.expensesAmountStats$ = this.loadData$.pipe(
+      switchMap(_ => {
+        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_report_id: 'is.null',
+          tx_state: 'in.(COMPLETE)',
+          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
+        }).pipe(
+          map(stats => {
+            const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
+            const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+            return {
+              sum: sum && sum.function_value || 0,
+              count: count && count.function_value || 0
+            };
+          })
+        );
       })
     );
 
