@@ -915,7 +915,7 @@ export class AddEditMileagePage implements OnInit {
               }
             })
           );
-        })
+        }),shareReplay(1)
       )
       ,
       this.fg.valueChanges.pipe(
@@ -926,7 +926,7 @@ export class AddEditMileagePage implements OnInit {
               return orgSettings.mileage[vehicleType];
             })
           );
-        })
+        }),shareReplay(1)
       )
     );
 
@@ -1106,7 +1106,7 @@ export class AddEditMileagePage implements OnInit {
       this.initialFetch = false;
 
       setTimeout(() => {
-        this.fg.controls.custom_inputs.setValue(customInputValues);
+        this.fg.controls.custom_inputs.patchValue(customInputValues);
         this.formInitializedFlag = true;
       }, 1000);
     });
@@ -1440,7 +1440,8 @@ export class AddEditMileagePage implements OnInit {
       calculatedDistance: calculatedDistance$.pipe(take(1)),
       amount: this.amount$.pipe(take(1)),
       homeCurrency: this.homeCurrency$.pipe(take(1)),
-      mileageConfig: this.mileageConfig$.pipe(take(1))
+      mileageConfig: this.mileageConfig$.pipe(take(1)),
+      rate: this.rate$.pipe(take(1))
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
@@ -1449,6 +1450,7 @@ export class AddEditMileagePage implements OnInit {
         const amount = res.amount;
         const skipReimbursement = this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT'
           && !this.fg.value.paymentMode.acc.isReimbursable;
+        const rate = res.rate;
 
         const formValue = this.fg.value;
 
@@ -1457,6 +1459,7 @@ export class AddEditMileagePage implements OnInit {
             ...etxn.tx,
             mileage_vehicle_type: formValue.mileage_vehicle_type,
             mileage_is_round_trip: formValue.round_trip,
+            mileage_rate: rate || etxn.tx.mileage_rate,
             source_account_id: formValue.paymentMode.acc.id,
             billable: formValue.billable,
             distance: +formValue.distance,
