@@ -14,7 +14,8 @@ $inquiry-color: #4848ad;
   }
 
   &--card {
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
     margin: 20px 0;
     padding: 16px;
     border-radius: 4px;
@@ -23,6 +24,7 @@ $inquiry-color: #4848ad;
       display: flex;
       justify-content: flex-start;
       align-items: center;
+      box-shadow: none;
     }
 
     &__zero-state {
