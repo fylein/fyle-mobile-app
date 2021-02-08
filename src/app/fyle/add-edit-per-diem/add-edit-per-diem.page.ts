@@ -1699,8 +1699,8 @@ export class AddEditPerDiemPage implements OnInit {
           );
         }),
         finalize(() => {
-          this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-          this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
+          this.savePerDiemLoader = false;
+          this.saveAndNextPerDiemLoader = false;
         })
       );
   }
