@@ -631,6 +631,15 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
+  customDistanceValidator(control: AbstractControl) {
+    const passedInDistance = control.value && +control.value;
+    if (passedInDistance !== null) {
+      return (passedInDistance > 0) ? null : {
+        invalidDistance: true
+      };
+    }
+  }
+
   ionViewWillEnter() {
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
@@ -696,7 +705,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.setupNetworkWatcher();
 
-    this.txnFields$ = this.getTransactionFields();
+    this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
     this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
@@ -855,6 +864,8 @@ export class AddEditMileagePage implements OnInit {
         if (txnFields[txnFieldKey].mandatory) {
           if (txnFieldKey === 'txn_dt') {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
+          } else if (txnFieldKey === 'distance') {
+            control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
@@ -1718,27 +1729,6 @@ export class AddEditMileagePage implements OnInit {
               }
             }),
           );
-        }),
-        map((transaction) => {
-          // remove after confirming mileage cannot be ccc expenses
-          // if (transaction.corporate_credit_card_expense_group_id && vm.selectedCCCTransaction && vm.selectedCCCTransaction.id) {
-          //   if (transaction.corporate_credit_card_expense_group_id !== vm.selectedCCCTransaction.id) {
-          //     this.transactionService.unmatchCCCExpense(transaction.id, matchedCCCTransaction.id).then(function () {
-          //       this.transactionService.matchCCCExpense(transaction.id, vm.selectedCCCTransaction.id);
-          //     });
-          //   }
-          // }
-
-          // //Case is for unmatching a matched expense
-          // if (!vm.selectedCCCTransaction && transaction.corporate_credit_card_expense_group_id) {
-          //   this.transactionService.unmatchCCCExpense(transaction.id, matchedCCCTransaction.id);
-          // }
-
-          // //Case is for matching a normal(unmatched) expense for the first time(edit)
-          // if (vm.selectedCCCTransaction && !transaction.corporate_credit_card_expense_group_id) {
-          //   this.transactionService.matchCCCExpense(transaction.id, vm.selectedCCCTransaction.id);
-          // }
-          return transaction;
         }),
         finalize(() => {
           this.saveMileageLoader = false;
