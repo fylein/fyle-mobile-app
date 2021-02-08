@@ -88,11 +88,12 @@
         </div>
       </div>
 
-
-      <ng-container *ngIf="(reportApprovals$|async) as reportApprovals">
-          <app-fy-modify-approver [approverList]="getApproverEmails(reportApprovals)" [object]="erpt" [id]="erpt.rp_id"
-          [from]="'TEAM_REPORTS'" [title]="'Modify Approvers'" (notify)='onUpdateApprover($event)'>
-        </app-fy-modify-approver>
+      <ng-container *ngIf="reportApprovals$|async as reportApprovals">
+        <ng-container *ngIf="this.actions$|async as actions">
+          <app-fy-modify-approver *ngIf="reportApprovals.length > 0 && actions.can_add_approver" [approverList]="getApproverEmails(reportApprovals)" [object]="erpt" [id]="erpt.rp_id"
+            [from]="'TEAM_REPORTS'" [title]="'Modify Approvers'" (notify)='onUpdateApprover($event)'>
+          </app-fy-modify-approver>
+        </ng-container>
       </ng-container>
 
     </div>

@@ -33,7 +33,7 @@
       <div>
         Reason for sending back report *
       </div>
-      <textarea class="send-back--textarea" name="reason" [(ngModel)]="sendBackReason" required #sendBackInput="ngModel"></textarea>
+      <textarea class="send-back--textarea" placeholder="Please enter a reson" name="reason" [(ngModel)]="sendBackReason" required #sendBackInput="ngModel"></textarea>
       <div class="send-back--validation" *ngIf="!sendBackInput.valid && sendBackInput.touched">
         Please enter a reason.
       </div>

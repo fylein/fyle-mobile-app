@@ -124,6 +124,12 @@ $details-color: #ababab;
     margin-top: 8px;
     height: 75px;
     border-radius: 4px;
+    color: black;
+    padding: 4px;
+
+    &::placeholder {
+      color: #ababab;
+    }
   }
 
   &--validation {
