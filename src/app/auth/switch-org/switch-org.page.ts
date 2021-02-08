@@ -155,6 +155,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
         return this.orgService.switchOrg(org.id);
       }),
     ).subscribe(() => {
+      globalCacheBusterNotifier.next();
       this.clearRecentLocalStorageCache();
       from(this.proceed()).subscribe(noop);
     }, async (err) => {

@@ -97,21 +97,6 @@ export class MyExpensesPage implements OnInit {
 
   ngOnInit() {
     this.setupNetworkWatcher();
-
-    this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
-      map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
-    );
-
-    this.isBulkFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
-      map(orgUserSettings => orgUserSettings && orgUserSettings.bulk_fyle_settings && orgUserSettings.bulk_fyle_settings.enabled)
-    );
-
-    this.isMileageEnabled$ = this.offlineService.getOrgSettings().pipe(
-      map(orgSettings => orgSettings.mileage.enabled)
-    );
-    this.isPerDiemEnabled$ = this.offlineService.getOrgSettings().pipe(
-      map(orgSettings => orgSettings.per_diem.enabled)
-    );
   }
 
   formatTransactions(transactions) {
@@ -148,6 +133,21 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
+      map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
+    );
+
+    this.isBulkFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
+      map(orgUserSettings => orgUserSettings && orgUserSettings.bulk_fyle_settings && orgUserSettings.bulk_fyle_settings.enabled)
+    );
+
+    this.isMileageEnabled$ = this.offlineService.getOrgSettings().pipe(
+      map(orgSettings => orgSettings.mileage.enabled)
+    );
+    this.isPerDiemEnabled$ = this.offlineService.getOrgSettings().pipe(
+      map(orgSettings => orgSettings.per_diem.enabled)
+    );
+
     this.loaderService.showLoader('Loading Expenses...', 1000);
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {

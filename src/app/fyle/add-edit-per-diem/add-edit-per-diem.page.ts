@@ -931,9 +931,7 @@ export class AddEditPerDiemPage implements OnInit {
           if (toDate.isSame(fromDate)) {
             this.fg.controls.num_days.setValue(1);
           } else if (toDate.isAfter(fromDate)){
-            this.fg.controls.num_days.setValue(toDate.diff(fromDate, 'day') + 1, {
-              emitEvent: false
-            });
+            this.fg.controls.num_days.setValue(toDate.diff(fromDate, 'day') + 1);
           }
         }
       });
@@ -948,7 +946,9 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe(([fromDt, numDays]) => {
         if (fromDt && numDays && numDays > 0) {
           const fromDate = moment(new Date(fromDt));
-          this.fg.controls.to_dt.setValue(fromDate.add((+numDays - 1), 'day').format('y-MM-DD'));
+          this.fg.controls.to_dt.setValue(fromDate.add((+numDays - 1), 'day').format('y-MM-DD'),{
+            emitEvent: false
+          });
         }
       });
 
