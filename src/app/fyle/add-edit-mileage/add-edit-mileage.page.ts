@@ -645,6 +645,36 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
+  getMileageConfig() {
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings()
+    }).pipe(
+      map(({orgSettings, orgUserMileageSettings}) => {
+        const mileageConfig = orgSettings.mileage;
+        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
+        if (orgUserMileageSettings.length > 0) {
+          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
+
+          orgUserMileageSettings.forEach((mileageLabel) => {
+            const i = allVehicleTypes.indexOf(mileageLabel);
+            if (i > -1) {
+              allVehicleTypes.splice(i, 1);
+            }
+          });
+
+          allVehicleTypes.forEach((vehicleType) => {
+            delete mileageConfig[vehicleType];
+          });
+
+        }
+
+        return mileageConfig;
+      }),
+      shareReplay(1)
+    );
+  }
+
   ionViewWillEnter() {
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
@@ -727,32 +757,7 @@ export class AddEditMileagePage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
-    this.mileageConfig$ = forkJoin({
-      orgSettings: this.offlineService.getOrgSettings(),
-      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings()
-    }).pipe(
-      map(({orgSettings, orgUserMileageSettings}) => {
-        const mileageConfig = orgSettings.mileage;
-        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
-        if (orgUserMileageSettings.length > 0) {
-          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
-
-          orgUserMileageSettings.forEach((mileageLabel) => {
-            const i = allVehicleTypes.indexOf(mileageLabel);
-            if (i > -1) {
-              allVehicleTypes.splice(i, 1);
-            }
-          });
-
-          allVehicleTypes.forEach((vehicleType) => {
-            delete mileageConfig[vehicleType];
-          });
-
-          return mileageConfig
-        }
-      }),
-      shareReplay(1)
-    );
+    this.mileageConfig$ = this.getMileageConfig();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
@@ -1095,7 +1100,6 @@ export class AddEditMileagePage implements OnInit {
         }));
       })
     );
-
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return combineLatest([

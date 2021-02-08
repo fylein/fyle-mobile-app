@@ -137,7 +137,7 @@
                           </div>
                         </div>
                         <input [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
-                               [min]="fg.controls.from_dt.value" class="add-edit-per-diem--date-input"
+                               [min]="minPerDiemDate" class="add-edit-per-diem--date-input"
                                formControlName="to_dt"
                                name="toDate"
                                type="date">
