@@ -591,26 +591,30 @@ export class AddEditExpensePage implements OnInit {
       switchMap((transactionMandatoyFields) => {
         return forkJoin({
           individualProjectIds: this.individualProjectIds$,
-          isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
-        }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+          isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+          orgSettings: this.offlineService.getOrgSettings()
+        }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => {
           return {
             transactionMandatoyFields,
             individualProjectIds,
-            isIndividualProjectsEnabled
+            isIndividualProjectsEnabled,
+            orgSettings
           };
         }));
       })
     )
-      .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled}) => {
-        if (isIndividualProjectsEnabled) {
-          if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
-            this.fg.controls.project.setValidators(Validators.required);
-            this.fg.controls.project.updateValueAndValidity();
-          }
-        } else {
-          if (transactionMandatoyFields.project) {
-            this.fg.controls.project.setValidators(Validators.required);
-            this.fg.controls.project.updateValueAndValidity();
+      .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => {
+        if (orgSettings.projects.enabled) {
+          if (isIndividualProjectsEnabled) {
+            if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
+              this.fg.controls.project.setValidators(Validators.required);
+              this.fg.controls.project.updateValueAndValidity();
+            }
+          } else {
+            if (transactionMandatoyFields.project) {
+              this.fg.controls.project.setValidators(Validators.required);
+              this.fg.controls.project.updateValueAndValidity();
+            }
           }
         }
       });
@@ -1357,7 +1361,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
-              !(orgSettings.projects && orgSettings.projects.enabled && !isConnected)
+              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
             ) {
               control.setValidators(Validators.required);
             }
@@ -1365,7 +1369,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Taxi'].includes(this.fg.value.category.fyle_category) &&
-              !(orgSettings.projects && orgSettings.projects.enabled && !isConnected)
+              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
             ) {
               control.setValidators(Validators.required);
             }

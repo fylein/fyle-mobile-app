@@ -788,26 +788,30 @@ export class AddEditPerDiemPage implements OnInit {
         switchMap((transactionMandatoyFields) => {
           return forkJoin({
             individualProjectIds: this.individualProjectIds$,
-            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
-          }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+            orgSettings: this.offlineService.getOrgSettings()
+          }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => {
             return {
               transactionMandatoyFields,
               individualProjectIds,
-              isIndividualProjectsEnabled
+              isIndividualProjectsEnabled,
+              orgSettings
             };
           }));
         })
       )
-      .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled}) => {
-        if (isIndividualProjectsEnabled) {
-          if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
-            this.fg.controls.project.setValidators(Validators.required);
-            this.fg.controls.project.updateValueAndValidity();
-          }
-        } else {
-          if (transactionMandatoyFields.project) {
-            this.fg.controls.project.setValidators(Validators.required);
-            this.fg.controls.project.updateValueAndValidity();
+      .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => {
+        if (orgSettings.projects.enabled) {
+          if (isIndividualProjectsEnabled) {
+            if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
+              this.fg.controls.project.setValidators(Validators.required);
+              this.fg.controls.project.updateValueAndValidity();
+            }
+          } else {
+            if (transactionMandatoyFields.project) {
+              this.fg.controls.project.setValidators(Validators.required);
+              this.fg.controls.project.updateValueAndValidity();
+            }
           }
         }
       });
