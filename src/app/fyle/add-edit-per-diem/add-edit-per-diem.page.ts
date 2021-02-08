@@ -92,6 +92,7 @@ export class AddEditPerDiemPage implements OnInit {
   saveAndNextPerDiemLoader = false;
   clusterDomain: string;
   initialFetch;
+  individualPerDiemRatesEnabled$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -684,6 +685,12 @@ export class AddEditPerDiemPage implements OnInit {
         (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
     }));
 
+    this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
+      map(orgSettings => {
+        return orgSettings.per_diem.enable_individual_per_diem_rates;
+      })
+    );
+
     this.setupNetworkWatcher();
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
@@ -725,7 +732,7 @@ export class AddEditPerDiemPage implements OnInit {
             return false;
           }
         } else {
-          return true;
+          return perDiemRates.length > 0;
         }
       })
     );
