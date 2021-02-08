@@ -4,7 +4,7 @@
       <ion-menu-button class="advance-request--menubutton" auto-hide="false"></ion-menu-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title">
-      Team Advances
+      Advance Requests
     </ion-title>
     <ion-buttons mode="md" slot="end">
       <button mat-button class="advance-request--option" [matMenuTriggerFor]="menu">Filter</button>
@@ -16,7 +16,7 @@
             <ion-label>Pending</ion-label>
           </div>
       </button>
-      <button mat-menu-item (click)="changeState('APPROVED')">          
+      <button mat-menu-item (click)="changeState('APPROVED')">
         <div class="advance-request--select-state">
           <ion-checkbox class="advance-request--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'APPROVED'" slot="start"></ion-checkbox>
           <ion-label>Approved</ion-label>

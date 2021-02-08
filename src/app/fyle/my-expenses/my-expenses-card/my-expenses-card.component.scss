@@ -57,6 +57,15 @@
     margin-left: 8px;
     font-weight: 700;
     color: #4a4a4a;
+    display: flex;
+  }
+
+  &--extracted-amount {
+    color: #ababab;
+  }
+
+  &--flash {
+    color: #ff9900;
   }
 
   &--vendor {
