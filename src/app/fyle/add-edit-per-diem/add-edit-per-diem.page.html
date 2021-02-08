@@ -137,7 +137,7 @@
                           </div>
                         </div>
                         <input [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
-                               [min]="fg.controls.from_dt.value" class="add-edit-per-diem--date-input"
+                               [min]="minPerDiemDate" class="add-edit-per-diem--date-input"
                                formControlName="to_dt"
                                name="toDate"
                                type="date">
@@ -428,7 +428,7 @@
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="reports$|async as reports">
                       <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                        <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
+                        <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-add-to-report *ngIf="reports.length > 0"
                                                   [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
@@ -577,7 +577,7 @@
       <ion-buttons *ngIf="reviewList">
         <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-per-diem--primary-cta" color="fyle-primary"
           fill="solid" appFormButtonValidation [loading]="saveAndNextPerDiemLoader" [loadingText]="'SAVING'">
-          Save & Next
+          {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
         </ion-button>
       </ion-buttons>
     </ion-toolbar>

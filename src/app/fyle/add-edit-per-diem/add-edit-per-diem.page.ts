@@ -137,6 +137,16 @@ export class AddEditPerDiemPage implements OnInit {
   ngOnInit() {
   }
 
+  get minPerDiemDate() {
+    return this.fg.controls.from_dt.value && moment(this.fg.controls.from_dt.value).subtract(1, 'day').format('y-MM-D');
+  }
+
+  get showSaveAndNext() {
+    return this.activeIndex !== null &&
+      this.reviewList !== null &&
+      +this.activeIndex === (this.reviewList.length - 1);
+  }
+
   async closePopup() {
     if (this.fg.touched) {
       const popupResults = await this.popupService.showPopup({
@@ -159,24 +169,10 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   goBack() {
-    if (this.mode === 'add') {
-      if (this.activatedRoute.snapshot.params.persist_filters) {
-        this.navController.back();
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+    if (this.activatedRoute.snapshot.params.persist_filters) {
+      this.navController.back();
     } else {
-      if (!this.reviewList || this.reviewList.length === 0) {
-        this.navController.back();
-      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
-        if (+this.activeIndex === 0) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
-          this.goToPrev();
-        }
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 
@@ -630,7 +626,7 @@ export class AddEditPerDiemPage implements OnInit {
     const fromDt = moment(new Date(this.fg.value.from_dt));
     const passedInDate = control.value && moment(new Date(control.value));
     if (passedInDate) {
-      return passedInDate.isAfter(fromDt) ? null : {
+      return (passedInDate.isSame(fromDt) || passedInDate.isAfter(fromDt)) ? null : {
         invalidDateSelection: true
       };
     }
@@ -657,7 +653,7 @@ export class AddEditPerDiemPage implements OnInit {
       sub_category: [],
       per_diem_rate: [, Validators.required],
       purpose: [],
-      num_days: [, Validators.required],
+      num_days: [, Validators.compose([Validators.required, Validators.min(0)])],
       report: [],
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
@@ -878,7 +874,7 @@ export class AddEditPerDiemPage implements OnInit {
 
         if (txnFields[txnFieldKey].mandatory) {
           if (txnFieldKey === 'num_days') {
-            control.setValidators(Validators.required);
+            control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
           }
 
           if (txnFieldKey === 'to_dt') {
@@ -888,7 +884,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         } else {
           if (txnFieldKey === 'num_days') {
-            control.setValidators(Validators.required);
+            control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
           }
           if (txnFieldKey === 'to_dt') {
             control.setValidators(isConnected ? this.customDateValidator.bind(this) : null);
@@ -932,7 +928,13 @@ export class AddEditPerDiemPage implements OnInit {
         if (fromDt && toDt) {
           const fromDate = moment(new Date(fromDt));
           const toDate = moment(new Date(toDt));
-          this.fg.controls.num_days.setValue(toDate.diff(fromDate, 'day') + 1);
+          if (toDate.isSame(fromDate)) {
+            this.fg.controls.num_days.setValue(1);
+          } else if (toDate.isAfter(fromDate)){
+            this.fg.controls.num_days.setValue(toDate.diff(fromDate, 'day') + 1, {
+              emitEvent: false
+            });
+          }
         }
       });
 
@@ -944,7 +946,7 @@ export class AddEditPerDiemPage implements OnInit {
         distinctUntilChanged((a, b) => isEqual(a, b))
       )
       .subscribe(([fromDt, numDays]) => {
-        if (fromDt && numDays) {
+        if (fromDt && numDays && numDays > 0) {
           const fromDate = moment(new Date(fromDt));
           this.fg.controls.to_dt.setValue(fromDate.add((+numDays - 1), 'day').format('y-MM-DD'));
         }

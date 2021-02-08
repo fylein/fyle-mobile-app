@@ -429,7 +429,7 @@
               <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
               <ng-container *ngIf="reports$|async as reports">
                 <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                  <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length)">
+                  <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
                     <div class="add-edit-mileage--internal-block add-edit-mileage--new-report-block">
                       <app-fy-add-to-report *ngIf="reports.length > 0"
                                             [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
@@ -550,7 +550,7 @@
         <ion-buttons>
           <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" color="fyle-primary"
             fill="solid" appFormButtonValidation [loading]="saveAndNextMileageLoader" [loadingText]="'SAVING'">
-            Save & Next
+            {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
           </ion-button>
         </ion-buttons>
       </div>

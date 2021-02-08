@@ -136,6 +136,11 @@ export class AddEditMileagePage implements OnInit {
   ngOnInit() {
   }
 
+  get showSaveAndNext() {
+    return this.activeIndex !== null &&
+      this.reviewList !== null &&
+      +this.activeIndex === (this.reviewList.length - 1);
+  }
 
 
   get mileage_locations() {
@@ -640,6 +645,36 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
+  getMileageConfig() {
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings()
+    }).pipe(
+      map(({orgSettings, orgUserMileageSettings}) => {
+        const mileageConfig = orgSettings.mileage;
+        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
+        if (orgUserMileageSettings.length > 0) {
+          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
+
+          orgUserMileageSettings.forEach((mileageLabel) => {
+            const i = allVehicleTypes.indexOf(mileageLabel);
+            if (i > -1) {
+              allVehicleTypes.splice(i, 1);
+            }
+          });
+
+          allVehicleTypes.forEach((vehicleType) => {
+            delete mileageConfig[vehicleType];
+          });
+
+        }
+
+        return mileageConfig;
+      }),
+      shareReplay(1)
+    );
+  }
+
   ionViewWillEnter() {
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
@@ -722,9 +757,7 @@ export class AddEditMileagePage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
-    this.mileageConfig$ = this.offlineService.getOrgSettings().pipe(
-      map(orgSettings => orgSettings.mileage)
-    );
+    this.mileageConfig$ = this.getMileageConfig();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
@@ -1067,7 +1100,6 @@ export class AddEditMileagePage implements OnInit {
         }));
       })
     );
-
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return combineLatest([
@@ -1164,24 +1196,10 @@ export class AddEditMileagePage implements OnInit {
   }
 
   close() {
-    if (this.mode === 'add') {
-      if (this.activatedRoute.snapshot.params.persist_filters) {
-        this.navController.back();
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+    if (this.activatedRoute.snapshot.params.persist_filters) {
+      this.navController.back();
     } else {
-      if (!this.reviewList || this.reviewList.length === 0) {
-        this.navController.back();
-      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
-        if (+this.activeIndex === 0) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
-          this.goToPrev();
-        }
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 
