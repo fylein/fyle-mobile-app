@@ -420,7 +420,7 @@
           <ng-container *ngIf="isConnected$|async as isConnected">
             <ng-container *ngIf="etxn$|async as etxn">
               <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !(reviewList?.length) && !isDraftExpense">
+                <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !isDraftExpense">
                   <ng-container *ngIf="reports$|async as reports">
                     <div class="add-edit-expense--internal-block">
                       <app-fy-add-to-report *ngIf="reports.length > 0"
