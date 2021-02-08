@@ -44,18 +44,20 @@
               {{expense.tx_currency || expense?.tx_extracted_data?.currency}}
             </div>
             <div class="my-expenses-card--amount">
-              <div *ngIf="amountIsNumber || extractedAmountIsNumber" [ngClass]="{'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement }">
+              <div *ngIf="amountIsNumber || extractedAmountIsNumber" [ngClass]="{
+              'my-expenses-card--non-reimbursable my-expenses-card--non-reimbursable-amount': expense.tx_skip_reimbursement ,
+              'my-expenses-card--extracted-amount': !expense.tx_amount && expense?.tx_extracted_data?.amount && !selectionMode
+              }">
                 {{(expense.tx_amount || expense?.tx_extracted_data?.amount) | number:'1.2-2'}}
               </div>
               <div *ngIf="!amountIsNumber && !extractedAmountIsNumber">
                 --
               </div>
-              <div *ngIf="!expense.tx_amount && expense?.tx_extracted_data?.amount && !selectionMode">
-                <!-- <i class="icon ion-flash icon-flash" (click)="onToggleFlashMode()"></i> -->
-                <mat-icon>
-                  flash
+              <ng-container *ngIf="!expense.tx_amount && expense?.tx_extracted_data?.amount && !selectionMode">
+                <mat-icon class="my-expenses-card--flash">
+                  bolt
                 </mat-icon>
-              </div>
+              </ng-container>
             </div>
           </div>
 

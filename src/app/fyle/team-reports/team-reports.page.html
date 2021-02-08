@@ -26,7 +26,9 @@
             <mat-icon class="reports--filter-button-icon" *ngIf="filters?.sortDir === 'asc'" svgIcon="fy-sort-ascending"></mat-icon>
             <mat-icon class="reports--filter-button-icon" *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'" svgIcon="fy-sort-descending"></mat-icon>
           </button>
-          <button mat-icon-button class="reports--filter-button" (click)="openFilters()">
+          <button mat-icon-button class="reports--filter-button"
+                  [ngClass]="{'reports--filter-button__applied': filters?.state || filters?.date}"
+                  (click)="openFilters()">
             <mat-icon class="reports--filter-button-icon" svgIcon="fy-filter"></mat-icon>
           </button>
         </ion-buttons>
@@ -36,7 +38,7 @@
       <div>Filtered by
         <span [ngSwitch]="filters?.state">
           <span *ngSwitchCase="'MYQUEUE'">My Queue</span>
-          <span *ngSwitchCase="'ALL'">All</span>
+          <span *ngSwitchCase="'ALL'">All Reports</span>
           <span *ngSwitchDefault></span>
         </span>
         <span *ngIf="filters?.state && filters?.date">,</span>
