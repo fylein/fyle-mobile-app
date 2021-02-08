@@ -915,7 +915,8 @@ export class AddEditMileagePage implements OnInit {
               }
             })
           );
-        }),shareReplay(1)
+        }),
+        shareReplay(1)
       )
       ,
       this.fg.valueChanges.pipe(
@@ -926,7 +927,8 @@ export class AddEditMileagePage implements OnInit {
               return orgSettings.mileage[vehicleType];
             })
           );
-        }),shareReplay(1)
+        }),
+        shareReplay(1)
       )
     );
 
@@ -1739,9 +1741,9 @@ export class AddEditMileagePage implements OnInit {
           return transaction;
         }),
         finalize(() => {
-          this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
-          this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
-          this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+          this.saveMileageLoader = false;
+          this.saveAndNewMileageLoader = false;
+          this.saveAndNextMileageLoader = false;
         })
       );
   }
