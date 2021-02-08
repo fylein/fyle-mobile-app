@@ -550,7 +550,7 @@
         <ion-buttons>
           <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" color="fyle-primary"
             fill="solid" appFormButtonValidation [loading]="saveAndNextMileageLoader" [loadingText]="'SAVING'">
-            Save & Next
+            {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
           </ion-button>
         </ion-buttons>
       </div>

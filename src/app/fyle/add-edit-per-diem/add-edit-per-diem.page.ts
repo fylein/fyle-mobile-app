@@ -137,6 +137,12 @@ export class AddEditPerDiemPage implements OnInit {
   ngOnInit() {
   }
 
+  get showSaveAndNext() {
+    return this.activeIndex !== null &&
+      this.reviewList !== null &&
+      +this.activeIndex === (this.reviewList.length - 1);
+  }
+
   async closePopup() {
     if (this.fg.touched) {
       const popupResults = await this.popupService.showPopup({
@@ -159,24 +165,10 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   goBack() {
-    if (this.mode === 'add') {
-      if (this.activatedRoute.snapshot.params.persist_filters) {
-        this.navController.back();
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+    if (this.activatedRoute.snapshot.params.persist_filters) {
+      this.navController.back();
     } else {
-      if (!this.reviewList || this.reviewList.length === 0) {
-        this.navController.back();
-      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
-        if (+this.activeIndex === 0) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
-          this.goToPrev();
-        }
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 
