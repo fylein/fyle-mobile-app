@@ -28,6 +28,7 @@ export class ViewTeamReportPage implements OnInit {
   reportApprovals$: Observable<any>;
   refreshApprovals$ = new Subject();
   tripRequest$: Observable<ExtendedTripRequest>;
+  actions$: Observable<any>;
   hideAllExpenses = true;
   sharedWithLimit = 3;
 
@@ -170,11 +171,11 @@ export class ViewTeamReportPage implements OnInit {
       shareReplay(1)
     );
 
-    const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+    this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
 
-    this.canEdit$ = actions$.pipe(map(actions => actions.can_edit));
-    this.canDelete$ = actions$.pipe(map(actions => actions.can_delete));
-    this.canResubmitReport$ = actions$.pipe(map(actions => actions.can_resubmit));
+    this.canEdit$ = this.actions$.pipe(map(actions => actions.can_edit));
+    this.canDelete$ = this.actions$.pipe(map(actions => actions.can_delete));
+    this.canResubmitReport$ = this.actions$.pipe(map(actions => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
 
