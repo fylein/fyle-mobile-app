@@ -293,26 +293,21 @@
       <div>
         <div *ngIf="isHotelEnabled$|async" class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox [disabled]="mode === 'edit' && hasAppliedForOtherRequests" class="add-edit-trip--other-requests-checkbox"
-                          color="primary" formControlName="hotelRequest"></mat-checkbox>
+            <mat-checkbox [disabled]="isHotelRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" color="primary" formControlName="hotelRequest"></mat-checkbox>
             Request Hotel
           </label>
         </div>
 
         <div *ngIf="isTransportationEnabled$|async" class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox [disabled]="mode === 'edit' && hasAppliedForOtherRequests" class="add-edit-trip--other-requests-checkbox"
-                          color="primary"
-                          formControlName="transportationRequest"></mat-checkbox>
+            <mat-checkbox [disabled]="isTransportationRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" color="primary" formControlName="transportationRequest"></mat-checkbox>
             Request Transportation
           </label>
         </div>
 
         <div *ngIf="isAdvanceEnabled$|async" class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox [disabled]="mode === 'edit' && hasAppliedForOtherRequests" class="add-edit-trip--other-requests-checkbox" color="primary"
-                          formControlName="advanceRequest"
-                          id="advanceRequest"></mat-checkbox>
+            <mat-checkbox [disabled]="isAdvanceRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" color="primary" formControlName="advanceRequest" id="advanceRequest"></mat-checkbox>
             Request Advance
           </label>
         </div>

@@ -55,7 +55,9 @@ export class MyAddEditTripPage implements OnInit {
   tripRequest$: Observable<any>;
   customFieldValues;
   refreshTrips$ = new Subject();
-  hasAppliedForOtherRequests: boolean;
+  isTransportationRequestAlreadyAdded: boolean;
+  isHotelRequestAlreadyAdded: boolean;
+  isAdvanceRequestAlreadyAdded: boolean;
   saveTripAsDraftLoading = false;
   submitTripLoading = false;
 
@@ -797,7 +799,9 @@ export class MyAddEditTripPage implements OnInit {
           this.fg.get('hotelRequest').setValue(hotelRequest.length > 0 ? true : false);
           this.fg.get('advanceRequest').setValue(advanceRequest.length > 0 ? true : false);
 
-          this.hasAppliedForOtherRequests = transportRequest.length > 0 || hotelRequest.length > 0 || advanceRequest.length > 0;
+          this.isTransportationRequestAlreadyAdded = transportRequest.length > 0;
+          this.isHotelRequestAlreadyAdded = hotelRequest.length > 0;
+          this.isAdvanceRequestAlreadyAdded = advanceRequest.length > 0;
         }),
         finalize(() => this.loaderService.hideLoader())
       ).subscribe(noop);
