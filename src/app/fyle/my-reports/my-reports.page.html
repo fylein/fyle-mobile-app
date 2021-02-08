@@ -73,17 +73,17 @@
   <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
     <img class="my-reports--zero-state-img" src="../../../assets/images/zero-states/reports.svg"
       alt="Create First Reports">
-    <div *ngIf="!(filters?.state || filters?.date)" class="my-reports--zero-state-header">
+    <div *ngIf="!(filters?.state || filters?.date || searchText)" class="my-reports--zero-state-header">
       This is the home to all your Reports
     </div>
-    <div *ngIf="!(filters?.state || filters?.date)" class="my-reports--zero-state-subheader">
+    <div *ngIf="!(filters?.state || filters?.date || searchText)" class="my-reports--zero-state-subheader">
       Create your first report to see how it looks
     </div>
-    <div *ngIf="!(filters?.state || filters?.date)" class="my-reports--zero-state-action-button-container">
+    <div *ngIf="!(filters?.state || filters?.date || searchText)" class="my-reports--zero-state-action-button-container">
       <div class="my-reports--zero-state-action-button">Create Report</div>
     </div>
 
-    <div *ngIf="(filters?.state || filters?.date)" class="my-reports--zero-state-header">
+    <div *ngIf="(filters?.state || filters?.date || searchText)" class="my-reports--zero-state-header">
       You do not have any reports for the selected filter(s)
     </div>
   </div>
