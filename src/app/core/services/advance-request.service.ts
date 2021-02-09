@@ -170,7 +170,7 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$
   })
-  getTeamadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any, filter: any }> = {
+  getTeamAdvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any, filter: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {},
@@ -188,8 +188,8 @@ export class AdvanceRequestService {
 
         return this.apiv2Service.get('/advance_requests', {
           params: {
-            offset: config.offset,
-            limit: config.limit,
+            offset: config.offset || 0,
+            limit: config.limit || 10,
             order: 'areq_created_at.desc',
             areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
             ...defaultParams,
@@ -235,7 +235,7 @@ export class AdvanceRequestService {
   }
 
   getTeamAdvanceRequestsCount(queryParams: {}, filter: any) {
-    return this.getTeamadvanceRequests({
+    return this.getTeamAdvanceRequests({
       offset: 0,
       limit: 1,
       queryParams,

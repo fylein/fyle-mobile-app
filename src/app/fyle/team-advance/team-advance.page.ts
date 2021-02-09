@@ -48,7 +48,7 @@ export class TeamAdvancePage implements OnInit {
 
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
-            return this.advanceRequestService.getTeamadvanceRequests({
+            return this.advanceRequestService.getTeamAdvanceRequests({
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
@@ -84,13 +84,14 @@ export class TeamAdvancePage implements OnInit {
           areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}']
         };
 
-        return this.advanceRequestService.getTeamAdvanceRequestsCount(
-          {
+        return this.advanceRequestService.getTeamAdvanceRequests({
+          queryParams: {
             ...extraParams
           },
-          state
-        );
+          filter: state
+        });
       }),
+      map(advanceRequest => advanceRequest.count),
       shareReplay(1)
     );
 
