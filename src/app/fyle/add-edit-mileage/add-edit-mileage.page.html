@@ -164,7 +164,7 @@
               <ng-container *ngIf="txnFields?.distance?.canView">
                 <div class="add-edit-mileage--text add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}">
                   <div [ngClass]="{'add-edit-mileage--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
-                       class="add-edit-mileage--text-label">
+                       class="add-edit-mileage--text-label text-ellipsis">
                     {{ fg.controls.distance.value > 0 ? 'Distance ' : 'Enter Distance ' }}
                     <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
                       <span class="add-edit-mileage--text-label__unit"> ({{ etxn.tx.distance_unit }})</span>
