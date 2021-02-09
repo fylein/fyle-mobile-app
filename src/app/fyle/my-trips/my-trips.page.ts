@@ -59,7 +59,8 @@ export class MyTripsPage implements OnInit {
       shareReplay(1)
     );
 
-    this.count$ = this.tripRequestsService.getMyTripsCount().pipe(
+    this.count$ = this.tripRequestsService.getMyTrips().pipe(
+      map(trip => trip.count),
       shareReplay(1)
     );
 

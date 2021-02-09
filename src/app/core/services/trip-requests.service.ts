@@ -41,8 +41,8 @@ export class TripRequestsService {
       switchMap(eou => {
         return this.apiv2Service.get('/trip_requests', {
           params: {
-            offset: config.offset,
-            limit: config.limit,
+            offset: config.offset || 0,
+            limit: config.limit || 10,
             trp_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams
           }
