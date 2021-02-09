@@ -78,7 +78,7 @@
     </div>
 
     <div class="my-edit-report--expense-list" *ngIf="reportedEtxns$|async as reportedEtxns">
-      <p class="my-edit-report--expense-list-title">Report Expenses</p>
+      <p class="my-edit-report--expense-list-title" *ngIf="reportedEtxns.length">Report Expenses</p>
       <div *ngFor="let reportedEtxn of reportedEtxns; let i = index;">
 
         <div class="my-edit-report--expense-card">
@@ -105,6 +105,19 @@
           </div>
         </div>
       </div>
+
+      <!-- zero state -->
+    <div class="my-edit-report--report-card my-edit-report--report-card_no-shadow"  *ngIf="!reportedEtxns.length">
+      <div class="my-edit-report--zero-state">
+        <div class="my-edit-report--zero-state-img-container">
+          <img class="my-edit-report--zero-state-img" [src]="'../../../assets/images/zero-states/expenses.svg'" alt="zero-state">
+        </div>
+        <div class="my-edit-report--zero-state-text">
+          No expense in this report.
+        </div>
+      </div>
+    </div>
+
     </div>
   </div>
 </ion-content>
@@ -112,7 +125,8 @@
 <ion-footer>
   <ion-toolbar mode="md">
     <ng-container *ngIf="extendedReport$|async as extendedReport">
-      <ion-button *ngIf="(extendedReport.rp_state === 'DRAFT') || ((noOfTxnsInReport + selectedTotalTxns) > 0 && extendedReport.rp_state !== 'DRAFT')" class="my-edit-report--primary-cta" fill="solid" color="fyle-primary" expand="block" [disabled]="!isReportEdited" (click)="saveReport()">
+      <ion-button *ngIf="(extendedReport.rp_state === 'DRAFT') || ((noOfTxnsInReport + selectedTotalTxns) > 0 && extendedReport.rp_state !== 'DRAFT')" class="my-edit-report--primary-cta" fill="solid" color="fyle-primary" expand="block" [disabled]="!isReportEdited" (click)="saveReport()"
+        appFormButtonValidation [loading]="saveReoprtLoading" [loadingText]="'SAVING'">
         Save Report
       </ion-button>
       <ion-button *ngIf="((noOfTxnsInReport + selectedTotalTxns) === 0 && extendedReport.rp_state !== 'DRAFT')" class="my-edit-report--primary-cta" fill="solid" color="fyle-primary" expand="block" [disabled]="!isReportEdited" (click)="deleteReport()">

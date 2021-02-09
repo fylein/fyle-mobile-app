@@ -47,6 +47,7 @@ export class MyEditReportPage implements OnInit {
   selectedTotalTxns: number;
   showReportNameError = false;
   reportState: string;
+  saveReoprtLoading = false;
 
   constructor(
     private router: Router,
@@ -179,6 +180,7 @@ export class MyEditReportPage implements OnInit {
 
   saveReport() {
     this.showReportNameError = false;
+    this.saveReoprtLoading = true;
     if (this.reportTitle.trim().length <= 0 && this.reportState === 'DRAFT') {
       this.showReportNameError = true;
       return;
@@ -210,6 +212,7 @@ export class MyEditReportPage implements OnInit {
         );
       }),
       finalize(() => {
+        this.saveReoprtLoading = false;
         this.addedExpensesIdList = [];
         this.deleteExpensesIdList = [];
         this.router.navigate(['/', 'enterprise', 'my_reports']);

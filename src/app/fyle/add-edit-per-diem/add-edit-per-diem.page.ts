@@ -526,7 +526,7 @@ export class AddEditPerDiemPage implements OnInit {
         );
       }),
       map(
-        categories => categories.map(category => ({label: category.displayName, value: category}))
+        categories => categories.map(category => ({label: category.sub_category, value: category}))
       )
     );
 
