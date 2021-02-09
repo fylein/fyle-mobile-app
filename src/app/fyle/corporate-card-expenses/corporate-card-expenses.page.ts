@@ -198,19 +198,20 @@ export class CorporateCardExpensesPage implements OnInit {
 
         const queryParams = params.queryParams || {};
         queryParams.state = queryParams.state || defaultState;
-        return this.corporateCreditCardExpenseService.getv2CardTransactionsCount(queryParams);
+        return this.corporateCreditCardExpenseService.getv2CardTransactions(queryParams);
       }),
+      map(res => res.count),
       shareReplay(1)
     );
 
+    this.unclassifiedExpensesCountHeader$ = this.corporateCreditCardExpenseService.getv2CardTransactions({queryParams: { state: 'in.(INITIALIZED)'}}).pipe(
+      map(res => res.count)
+    );
 
-    this.unclassifiedExpensesCountHeader$ = this.corporateCreditCardExpenseService.getv2CardTransactionsCount({
-      state: 'in.(INITIALIZED)'
-    });
+    this.classifiedExpensesCountHeader$ = this.corporateCreditCardExpenseService.getv2CardTransactions({queryParams: {state: 'in.(IN_PROGRESS,SETTLED)'}}).pipe(
+      map(res => res.count)
+    );
 
-    this.classifiedExpensesCountHeader$ = this.corporateCreditCardExpenseService.getv2CardTransactionsCount({
-      state: 'in.(IN_PROGRESS,SETTLED)'
-    });
 
     const paginatedScroll$ = this.cardTransactions$.pipe(
       switchMap(cardTxns => {

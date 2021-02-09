@@ -27,11 +27,15 @@ export class CorporateCreditCardExpenseService {
     return this.apiService.get('/extended_corporate_credit_card_expenses/stats', {params});
   }
 
-  getv2CardTransactions(config: { offset: number; queryParams: any; limit: number; order?: string }) {
+  getv2CardTransactions(config: Partial<{ offset: number; queryParams: any; limit: number; order?: string }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
       return this.apiV2Service.get('/corporate_card_transactions', {
         params: {
-          offset: config.offset,
-          limit: config.limit,
+          offset: config.offset || 0,
+          limit: config.limit || 10,
           order: `${config.order || 'txn_dt.desc'},id.desc`,
           ...config.queryParams
         }
