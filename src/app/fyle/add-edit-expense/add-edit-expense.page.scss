@@ -156,7 +156,11 @@ $red: #f00;
     line-height: 2;
     white-space: nowrap;
     display: flex;
-    max-width: 170px;
+    min-width: 120px;
+
+    &__large {
+      max-width: 170px;
+    }
 
     &__invalid {
       color: $red;
@@ -169,7 +173,11 @@ $red: #f00;
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
-    max-width: calc(100% - 120px);
+    min-width: calc(100% - 120px);
+
+    &__large {
+      min-width: calc(100% - 170px);
+    }
   }
 
   &--checkbox {

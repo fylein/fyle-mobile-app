@@ -534,12 +534,12 @@
                  class="add-edit-expense--internal-block add-edit-expense--text">
               <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'" class="add-edit-expense--text">
                 <div [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
-                     class="add-edit-expense--text-label">
+                     class="add-edit-expense--text-label add-edit-expense--text-label__large">
                   {{fg.controls.train_travel_class.value ? txnFields.train_travel_class?.title : 'Enter ' + txnFields.train_travel_class?.title}}
                   <span>*</span>
                 </div>
                 <input (blur)="focusState = false" (focus)="focusState = true" [disabled]="!txnFields.train_travel_class?.canEdit"
-                       class="add-edit-expense--text-input" formControlName="train_travel_class"
+                       class="add-edit-expense--text-input add-edit-expense--text-input__large" formControlName="train_travel_class"
                        type="text">
               </span>
 
@@ -558,7 +558,7 @@
                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
                  class="add-edit-expense--internal-block add-edit-expense--text">
               <div *ngIf="txnFields.bus_travel_class?.type === 'TEXT'" [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
-                   class="add-edit-expense--text-label">
+                   class="add-edit-expense--text-label add-edit-expense--text-label__large">
                 {{fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title}}
                 <div *ngIf="txnFields.bus_travel_class?.mandatory">
                   *
@@ -566,7 +566,7 @@
               </div>
               <input (blur)="focusState = false" (focus)="focusState = true"
                      *ngIf="txnFields.bus_travel_class?.type === 'TEXT'" [disabled]="!txnFields.bus_travel_class?.canEdit"
-                     class="add-edit-expense--text-input" formControlName="bus_travel_class"
+                     class="add-edit-expense--text-input add-edit-expense--text-input__large" formControlName="bus_travel_class"
                      type="text">
               <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" [disabled]="!txnFields.bus_travel_class?.canEdit"
                              [label]="fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
