@@ -33,7 +33,7 @@ export class AdvanceService {
   @Cacheable({
     cacheBusterObserver: advancesCacheBuster$
   })
-  getMyadvances(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+  getMyAdvances(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
@@ -42,8 +42,8 @@ export class AdvanceService {
       switchMap(eou => {
         return this.apiv2Service.get('/advances', {
           params: {
-            offset: config.offset,
-            limit: config.limit,
+            offset: config.offset || 0,
+            limit: config.limit || 10,
             assignee_ou_id: 'eq.' + eou.ou.id,
             ...config.queryParams
           }
@@ -65,7 +65,7 @@ export class AdvanceService {
   }
 
   getMyAdvancesCount(queryParams = {}) {
-    return this.getMyadvances({
+    return this.getMyAdvances({
       offset: 0,
       limit: 1,
       queryParams
