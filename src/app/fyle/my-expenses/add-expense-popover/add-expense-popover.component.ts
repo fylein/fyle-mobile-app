@@ -80,6 +80,7 @@ export class AddExpensePopoverComponent implements OnInit {
 
   async doAutoFyle() {
     if (this.isBulkFyleEnabled) {
+      await this.popoverController.dismiss();
       this.isAutoFyling = true;
       const fyleModePopover = await this.popoverController.create({
         component: FyleModeComponent,
