@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import * as moment from 'moment';
@@ -15,6 +15,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { ReportSummaryComponent } from './report-summary/report-summary.component';
 import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
+import {NgModel} from '@angular/forms';
 
 
 @Component({
@@ -38,6 +39,7 @@ export class MyCreateReportPage implements OnInit {
   saveDraftReportLoading = false;
   saveReportLoading = false;
   showReportNameError = false;
+  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
 
   constructor(
     private transactionService: TransactionService,
@@ -174,7 +176,7 @@ export class MyCreateReportPage implements OnInit {
     this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
     this.selectedTotalTxns = txnIds.length;
 
-    if (txnIds.length > 0) {
+    if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
       return this.reportService.getReportPurpose({ids: txnIds}).pipe(
         map(res => {
           return res;
