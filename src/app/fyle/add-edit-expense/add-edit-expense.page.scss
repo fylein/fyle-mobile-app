@@ -125,8 +125,7 @@ $red: #f00;
     font-weight: 500;
     line-height: 1.5;
     white-space: nowrap;
-    display: flex;
-    max-width: 170px;
+    min-width: 120px;
 
     &__invalid {
       color: $red;
