@@ -219,7 +219,8 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return this.transactionService.getMyExpensesCount(queryParams).pipe(
+        return this.transactionService.getMyExpenses(queryParams).pipe(
+          map(res => res.count),
           switchMap((count) => {
             if (count > ((params.pageNumber - 1) * 10)) {
               return this.transactionService.getMyExpenses({
@@ -264,8 +265,9 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
         console.log(queryParams);
-        return this.transactionService.getMyExpensesCount(queryParams);
+        return this.transactionService.getMyExpenses(queryParams)
       }),
+      map(res => res.count),
       tap(count => console.log({ count })),
       shareReplay(1)
     );

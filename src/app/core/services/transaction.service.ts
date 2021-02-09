@@ -288,8 +288,8 @@ export class TransactionService {
       switchMap(eou => {
         return this.apiV2Service.get('/expenses', {
           params: {
-            offset: config.offset,
-            limit: config.limit,
+            offset: config.offset || 0,
+            limit: config.limit || 10,
             order: `${config.order || 'tx_txn_dt.desc'},tx_id.desc`,
             tx_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams

@@ -113,6 +113,9 @@ export class ReportService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
   getMyReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
     offset: 0,
     limit: 10,
@@ -122,8 +125,8 @@ export class ReportService {
       switchMap(eou => {
         return this.apiv2Service.get('/reports', {
           params: {
-            offset: config.offset,
-            limit: config.limit,
+            offset: config.offset || 0,
+            limit: config.limit || 10,
             order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
             rp_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams
