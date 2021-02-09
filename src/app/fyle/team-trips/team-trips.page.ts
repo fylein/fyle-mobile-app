@@ -86,21 +86,15 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
           trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
         };
 
-        return this.tripRequestsService.getTeamTripsCount(
-          {
+        return this.tripRequestsService.getTeamTrips({
+          queryParams: {
             ...extraParams
           }
-        );
+        });
       }),
+      map(trip => trip.count),
       shareReplay(1)
     );
-
-    // this.tripRequestsService.getTeamTripsCount({
-    //   trp_approval_state: ['in.(APPROVAL_PENDING)'],
-    //   trp_state: 'eq.APPROVAL_PENDING'
-    // }).pipe(
-    //   shareReplay()
-    // );
 
     this.isInfiniteScrollRequired$ = this.teamTripRequests$.pipe(
       concatMap(teamTrips => {
