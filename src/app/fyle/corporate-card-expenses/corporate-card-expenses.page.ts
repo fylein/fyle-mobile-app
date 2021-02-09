@@ -198,7 +198,7 @@ export class CorporateCardExpensesPage implements OnInit {
 
         const queryParams = params.queryParams || {};
         queryParams.state = queryParams.state || defaultState;
-        return this.corporateCreditCardExpenseService.getv2CardTransactions(queryParams);
+        return this.corporateCreditCardExpenseService.getv2CardTransactions({queryParams});
       }),
       map(res => res.count),
       shareReplay(1)
