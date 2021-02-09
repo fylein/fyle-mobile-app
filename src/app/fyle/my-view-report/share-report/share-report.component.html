@@ -4,24 +4,24 @@
       Share Report
     </div>
     <div class="share-report--cancel" (click)="cancel()">
-      Cancel
+      CLOSE
     </div>
   </div>
 
   <div class="share-report--details">
-    Share report via email.
+    Share report with:
   </div>
   <div class="share-report--form">
     <mat-form-field appearance="outline" class="share-report--form-input mat-form-field-no-padding">
-      <input matInput type="email" placeholder="Enter email" [(ngModel)]="email" email #emailInput="ngModel"/>
+      <input matInput type="email" placeholder="Email ID" [(ngModel)]="email" email #emailInput="ngModel"/>
     </mat-form-field>
-  </div>
-  <div class="share-report--validation" *ngIf="emailInput.touched && emailInput.invalid">
-    Please enter a valid email
+    <div *ngIf="emailValidation" class="share-report--error">
+      Please enter an email.
+    </div>
   </div>
   <div class="share-report--primary-cta">
-    <button [disabled]="email.trim().length === 0" mat-flat-button color="primary" (click)="shareReport(emailInput)">
-      Share Report
+    <button mat-flat-button color="primary" (click)="shareReport(emailInput)">
+      SHARE
     </button>
   </div>
 </div>

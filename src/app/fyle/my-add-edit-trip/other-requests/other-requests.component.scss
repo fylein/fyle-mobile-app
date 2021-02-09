@@ -61,7 +61,6 @@
     line-height: 2;
     white-space: nowrap;
     min-width: 120px;
-    max-width: 120px;
 
     &__invalid {
       color: red;
@@ -80,7 +79,7 @@
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
-    max-width: calc(100% - 120px);
+    min-width: calc(100% - 120px);
   }
 
   &--date-input {

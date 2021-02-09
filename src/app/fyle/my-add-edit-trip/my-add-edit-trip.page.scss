@@ -89,7 +89,7 @@ $item-border-color: #e0e0e0;
     line-height: 2;
     white-space: nowrap;
     display: flex;
-    min-width: 120px;
+    max-width: 170px;
 
     &__invalid {
       color: red;
@@ -102,7 +102,7 @@ $item-border-color: #e0e0e0;
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
-    max-width: calc(100% - 120px);
+    max-width: calc(100% - 170px);
   }
 
   &--date-input {
