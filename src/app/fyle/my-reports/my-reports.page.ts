@@ -138,7 +138,7 @@ export class MyReportsPage implements OnInit {
         let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getMyReports(queryParams).pipe(
+        return this.reportService.getMyReports({queryParams}).pipe(
           map(res => res.count),
           switchMap(count => {
             if (count > ((params.pageNumber - 1) * 10)) {
@@ -173,7 +173,7 @@ export class MyReportsPage implements OnInit {
       switchMap(params => {
         let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getMyReports(queryParams);
+        return this.reportService.getMyReports({queryParams});
       }),
       map(res => res.count),
       shareReplay(1)

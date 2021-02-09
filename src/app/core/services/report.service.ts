@@ -167,8 +167,8 @@ export class ReportService {
       switchMap(eou => {
         return this.apiv2Service.get('/reports', {
           params: {
-            offset: config.offset,
-            limit: config.limit,
+            offset: config.offset || 0,
+            limit: config.limit || 10,
             approved_by: 'cs.{' + eou.ou.id + '}',
             order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
             ...config.queryParams

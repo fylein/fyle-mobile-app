@@ -265,7 +265,7 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
         console.log(queryParams);
-        return this.transactionService.getMyExpenses(queryParams)
+        return this.transactionService.getMyExpenses({queryParams})
       }),
       map(res => res.count),
       tap(count => console.log({ count })),

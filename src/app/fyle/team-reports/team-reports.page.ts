@@ -160,8 +160,9 @@ export class TeamReportsPage implements OnInit {
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
         const queryParams = params.queryParams;
-        return this.reportService.getTeamReportsCount(queryParams);
+        return this.reportService.getTeamReports({queryParams});
       }),
+      map(res => res.count),
       shareReplay(1)
     );
 
