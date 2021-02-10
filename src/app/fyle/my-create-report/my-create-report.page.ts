@@ -82,7 +82,7 @@ export class MyCreateReportPage implements OnInit {
 
   async showReportSummaryPopover(action) {
     this.showReportNameError = false;
-    if (this.reportTitle && this.reportTitle.trim().length <= 0) {
+    if (this.reportTitle.trim().length <= 0) {
       this.showReportNameError = true;
       return;
     }
