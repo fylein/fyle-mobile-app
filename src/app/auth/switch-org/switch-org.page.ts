@@ -1,7 +1,7 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {forkJoin, from, fromEvent, noop, Observable} from 'rxjs';
-import {distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap} from 'rxjs/operators';
+import {distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap, take} from 'rxjs/operators';
 import {Org} from 'src/app/core/models/org.model';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -39,39 +39,48 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     private networkService: NetworkService,
     private orgService: OrgService,
     private userEventService: UserEventService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private cdRef: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
   }
 
+  ngAfterViewChecked() {
+    this.cdRef.detectChanges();
+  }
+
   ionViewWillEnter() {
-    this.searchInput = '';
-    this.isLoading = true;
-    this.orgs$ = this.offlineService.getOrgs().pipe(
+    const that = this;
+    that.searchInput = '';
+    that.isLoading = true;
+    that.orgs$ = that.offlineService.getOrgs().pipe(
       shareReplay(1),
-      finalize(() => {
-        this.isLoading = false;
-      })
     );
 
-    const choose = this.activatedRoute.snapshot.params.choose && JSON.parse(this.activatedRoute.snapshot.params.choose);
+    that.orgs$.subscribe(() => {
+      console.log("----------------1-----------");
+      that.isLoading = false;
+      that.cdRef.detectChanges();
+    })
+
+    const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
 
     if (!choose) {
-      from(this.loaderService.showLoader())
+      from(that.loaderService.showLoader())
         .pipe(
           switchMap(() => {
-            return from(this.proceed());
+            return from(that.proceed());
           })
         )
         .subscribe(noop);
     } else {
-      this.orgs$.subscribe((orgs) => {
+      that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
-          from(this.loaderService.showLoader())
+          from(that.loaderService.showLoader())
             .pipe(
               switchMap(() => {
-                return from(this.proceed());
+                return from(that.proceed());
               })
             )
             .subscribe(noop);

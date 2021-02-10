@@ -100,7 +100,7 @@ export class RouterAuthService {
     await this.newRefreshToken(data.refresh_token);
     await this.setClusterDomain(data.cluster_domain);
     const resp = await this.fetchAccessToken(data.refresh_token);
-    this.newAccessToken(resp.access_token);
+    await this.newAccessToken(resp.access_token);
     return data;
   }
 
