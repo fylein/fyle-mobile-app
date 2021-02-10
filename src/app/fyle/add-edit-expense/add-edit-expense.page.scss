@@ -54,6 +54,7 @@ $red: #f00;
     color: #ababab;
     margin-left: 0;
     margin-top: 12px;
+    margin-right: 12px;
   }
 
   &--receipt-image {
@@ -106,7 +107,7 @@ $red: #f00;
   }
 
   &--currency {
-    margin: 12px 0 0 12px;
+    margin: 12px 0 0 0;
   }
 
   &--form {

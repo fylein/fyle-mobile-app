@@ -95,18 +95,10 @@
       min-width: 90px;
       padding-right: 16px;
     }
-
-    &-vendor {
-
-    }
-
-    &-purpose {
-
-    }
   }
 
   &--header {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
     line-height: 2.7;
   }
@@ -138,6 +130,7 @@
 
   &--input-container-value {
     color: #4a4a4a;
+    font-weight: 500;
   }
 
   &--input-container-shimmers {

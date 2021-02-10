@@ -26,7 +26,7 @@ import {NgModel} from '@angular/forms';
 export class MyCreateReportPage implements OnInit {
 
   readyToReportEtxns: Expense[];
-  reportTitle: string;
+  reportTitle = '';
   homeCurrency$: Observable<string>;
   selectedTotalAmount = 0;
   selectedTotalTxns = 0;
