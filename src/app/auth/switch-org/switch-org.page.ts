@@ -59,7 +59,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     );
 
     that.orgs$.subscribe(() => {
-      console.log("----------------1-----------");
       that.isLoading = false;
       that.cdRef.detectChanges();
     })

@@ -126,12 +126,10 @@ export class SignInPage implements OnInit {
       );
 
       basicSignIn$.subscribe(() => {
-        console.log("-----------1---------");
         this.emailSet = true;
       });
 
       saml$.subscribe((res) => {
-        console.log("-----------2---------");
         this.handleSamlSignIn(res);
       });
     } else {
