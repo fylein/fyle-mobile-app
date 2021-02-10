@@ -368,6 +368,7 @@
                 [label]="(fg.controls.vendor_id?.value) ? txnFields.vendor_id?.title : 'Select ' + txnFields.vendor_id?.title"
                 [mandatory]="txnFields.vendor_id?.mandatory"
                 [options]="txnFields.vendor_id?.values"
+                [nullOption]="!txnFields.vendor_id?.mandatory"
                 formControlName="vendor_id">
               </app-fy-select>
             </div>
