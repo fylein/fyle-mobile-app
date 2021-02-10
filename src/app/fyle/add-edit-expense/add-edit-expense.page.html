@@ -259,11 +259,8 @@
 
               <div *ngIf="selectedCCCTransaction && !isLoadingSuggestions" class="add-edit-expense--matched-expense">
                 <div class="add-edit-expense--matched-expense-value">
-                  <div class="add-edit-expense--matched-currency">
-                    {{selectedCCCTransaction.currency}}
-                  </div>
-                  <div class="add-edit-expense--matched-amount">
-                    {{selectedCCCTransaction.amount}}
+                  <div>
+                    <span class="add-edit-expense--matched-currency">{{selectedCCCTransaction.currency}}</span> <span class="add-edit-expense--matched-amount">{{selectedCCCTransaction.amount}}</span>
                   </div>
                 </div>
                 <div class="add-edit-expense--matched-expense-txn-dt">

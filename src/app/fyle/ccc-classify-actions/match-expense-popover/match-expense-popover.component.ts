@@ -15,8 +15,9 @@ import {Router} from '@angular/router';
 })
 export class MatchExpensePopoverComponent implements OnInit {
 
+  @Input() expenseId: string;
+  @Input() CCCEId: string;
   @Input() splitGroupId: string;
-  @Input() cccGroupId: string;
 
   matchedExpense$: Observable<Expense>;
 
@@ -41,7 +42,7 @@ export class MatchExpensePopoverComponent implements OnInit {
 
   async matchExpense() {
     await this.loaderService.showLoader();
-    await this.corporateCreditCardExpenseService.markPersonal(this.cccGroupId);
+    await this.transactionService.matchCCCExpense(this.expenseId, this.CCCEId).toPromise();
     await this.loaderService.hideLoader();
     await this.popoverController.dismiss();
     await this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);

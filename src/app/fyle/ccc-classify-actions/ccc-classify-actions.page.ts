@@ -116,8 +116,9 @@ export class CccClassifyActionsPage implements OnInit {
       component: MatchExpensePopoverComponent,
       cssClass: 'dialog-popover',
       componentProps: {
-        splitGroupId: expense.split_group_id,
-        cccGroupId: cccExpense.group_id
+        expenseId: expense.id,
+        CCCEId: cccExpense.id,
+        splitGroupId: expense.split_group_id
       }
     });
 
