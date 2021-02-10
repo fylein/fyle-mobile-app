@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {RouterAuthService} from 'src/app/core/services/router-auth.service';
-import {from, throwError, Observable} from 'rxjs';
+import {from, throwError, Observable, of} from 'rxjs';
 import {PopoverController} from '@ionic/angular';
 import {ErrorComponent} from './error/error.component';
-import {shareReplay, catchError, filter, finalize, switchMap, map, concatMap, tap} from 'rxjs/operators';
+import {shareReplay, catchError, filter, finalize, switchMap, map, concatMap, tap, take} from 'rxjs/operators';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {Router, ActivatedRoute} from '@angular/router';
@@ -48,7 +48,7 @@ export class SignInPage implements OnInit {
   ) {
   }
 
-  checkSAMLResponseAndSignInUser(data) {
+  async checkSAMLResponseAndSignInUser(data) {
     if (data && data.error) {
       const err = {
         status: parseInt(data.response_status_code, 10)
@@ -57,7 +57,7 @@ export class SignInPage implements OnInit {
       this.handleError(err);
     } else {
       // Login Success
-      this.routerAuthService.handleSignInResponse(data);
+      await this.routerAuthService.handleSignInResponse(data);
       const samlNewRefreshToken$ = this.authService.newRefreshToken(data.refresh_token);
 
       samlNewRefreshToken$.pipe(
@@ -78,11 +78,11 @@ export class SignInPage implements OnInit {
   handleSamlSignIn(res) {
     const url = res.idp_url + '&RelayState=MOBILE';
     const browser = this.inAppBrowser.create(url, '_blank', 'location=yes');
-    browser.on('loadstop').subscribe(event => {
+    browser.on('loadstop').pipe(take(1)).subscribe(event => {
       const getResponse = setInterval(() => {
         browser.executeScript({
           code: 'try{document.getElementById("fyle-login-response").innerHTML;}catch(err){}'
-        }).then((responseData) => {
+        }).then(async (responseData) => {
           const response = responseData && responseData[0];
           let data = '';
 
@@ -93,7 +93,7 @@ export class SignInPage implements OnInit {
           if (data) {
             clearInterval(getResponse);
             browser.close();
-            this.checkSAMLResponseAndSignInUser(data);
+            await this.checkSAMLResponseAndSignInUser(data);
           }
         });
       }, 1000);
@@ -201,6 +201,13 @@ export class SignInPage implements OnInit {
   googleSignIn() {
     this.googleSignInLoading = true;
     from(this.googleAuthService.login()).pipe(
+      switchMap((googleAuthResponse) => {
+        if (googleAuthResponse.accessToken) {
+          return of(googleAuthResponse);
+        } else {
+          return throwError({});
+        }
+      }),
       map(googleAuthResponse => {
         from(this.loaderService.showLoader('Signing you in...', 10000));
         return googleAuthResponse;

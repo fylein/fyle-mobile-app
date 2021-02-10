@@ -2197,7 +2197,6 @@ export class PermissionsService {
 
     const filteredRoles$ = roles$.pipe(
       map(roles => {
-        roles = JSON.parse(roles); // need to do this because jwthelper return all values as string,and converting it to an array
         if (roles.indexOf('SUPER_ADMIN') > -1) {
           roles.splice(roles.indexOf('SUPER_ADMIN'), 1);
         }
