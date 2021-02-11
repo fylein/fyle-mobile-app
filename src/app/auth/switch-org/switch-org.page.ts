@@ -164,7 +164,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       }),
     ).subscribe(() => {
       globalCacheBusterNotifier.next();
-      this.clearRecentLocalStorageCache();
+      this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
       from(this.proceed()).subscribe(noop);
     }, async (err) => {
       await this.storageService.clearAll();
@@ -174,33 +174,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     });
   }
 
-  clearRecentLocalStorageCache() {
-    this.recentLocalStorageItemsService.clear('advanceProjectCache');
-
-    this.recentLocalStorageItemsService.clear('expenseProjectCache');
-
-    this.recentLocalStorageItemsService.clear('mileageProjectCache');
-    this.recentLocalStorageItemsService.clear('mileageSubCategoryName');
-    this.recentLocalStorageItemsService.clear('mileageCostCenterCache');
-
-    this.recentLocalStorageItemsService.clear('perDiemProjectCache');
-    this.recentLocalStorageItemsService.clear('perDiemCostCenterCache');
-    this.recentLocalStorageItemsService.clear('perDiemSubCategoryCache');
-
-    this.recentLocalStorageItemsService.clear('tripProjectCache');
-    this.recentLocalStorageItemsService.clear('tripsRecentPurposeList');
-    this.recentLocalStorageItemsService.clear('recentTripRequestsList');
-
-    this.recentLocalStorageItemsService.clear('splitExpenseProjectCache');
-    this.recentLocalStorageItemsService.clear('splitExpenseCategoryCache');
-    this.recentLocalStorageItemsService.clear('splitExpenseCostCenterCache');
-
-    this.recentLocalStorageItemsService.clear('recent-currency-cache');
-    this.recentLocalStorageItemsService.clear('recentCategoryList');
-    this.recentLocalStorageItemsService.clear('recentCostCenterList');
-    this.recentLocalStorageItemsService.clear('recentPurposeList');
-    this.recentLocalStorageItemsService.clear('recentNotesList');
-  }
+  
 
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
     return orgs.filter(org => {
