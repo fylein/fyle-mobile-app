@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { RecentlyUsed } from '../models/recently_used.model';
 import {ApiService} from './api.service';
 
 @Injectable({
@@ -10,7 +12,7 @@ export class RecentlyUsedItemsService {
     private apiService: ApiService
   ) { }
 
-  getRecentlyUsedV2 () {
+  getRecentlyUsedV2():Observable<RecentlyUsed> {
     return this.apiService.get('/recently_used');
   }
 }

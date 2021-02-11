@@ -54,6 +54,7 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
+import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -64,7 +65,7 @@ export class AddEditExpensePage implements OnInit {
   etxn$: Observable<any>;
   paymentModes$: Observable<any[]>;
   pickRecentCurrency$: Observable<any>;
-  recentlyUsedValues$: Observable<any>;
+  recentlyUsedValues$: Observable<RecentlyUsed>;
   isCreatedFromCCC = false;
   paymentAccount$: Observable<any>;
   isCCCAccountSelected$: Observable<boolean>;
@@ -1661,10 +1662,6 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
-
-    this.recentlyUsedValues$.subscribe(values => {
-      const recentlyUsedValues$ = values;
-    });
 
     this.setupNetworkWatcher();
 
