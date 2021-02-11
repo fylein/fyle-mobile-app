@@ -13,6 +13,9 @@
     line-height: 1.5;
     white-space: nowrap;
     min-width: 120px;
+    max-width: 170px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     &__invalid {
       color: red;

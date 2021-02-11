@@ -8,13 +8,14 @@
   &--label-content {
     margin: 0 8px 0 0;
     min-width: 120px;
-    max-width: 120px;
     font-size: 16px;
     color: #ababab;
     font-weight: 500;
     line-height: 1.5;
+    max-width: 170px;
+    text-overflow: ellipsis;
+    overflow: hidden;
     white-space: nowrap;
-    display: table;
 
     &__invalid {
       color: red;
