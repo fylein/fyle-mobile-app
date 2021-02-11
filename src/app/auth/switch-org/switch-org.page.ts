@@ -174,8 +174,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     });
   }
 
-  
-
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
     return orgs.filter(org => {
       return Object.values(org)

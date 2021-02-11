@@ -61,6 +61,7 @@ export class DelegatedAccountsPage implements OnInit {
         })
       ).subscribe(() => {
         globalCacheBusterNotifier.next();
+        this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       });
     } else {
