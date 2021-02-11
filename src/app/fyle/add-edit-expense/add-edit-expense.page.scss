@@ -126,7 +126,12 @@ $red: #f00;
     font-weight: 500;
     line-height: 1.5;
     white-space: nowrap;
-    min-width: 120px;
+    max-width: 120px;
+    display: flex;
+
+    &__large {
+      max-width: 170px;
+    }
 
     &__invalid {
       color: $red;
@@ -156,10 +161,13 @@ $red: #f00;
     line-height: 2;
     white-space: nowrap;
     display: flex;
+    max-width: 170px;
     min-width: 120px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     &__large {
-      min-width: 170px;
+      max-width: 170px;
     }
 
     &__invalid {

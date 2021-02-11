@@ -64,12 +64,15 @@ $red: #f00;
 
   &--date-label {
     margin: 0 8px 0 0;
-    min-width: 145px;
     font-size: 16px;
     color: #ababab;
     font-weight: 500;
     line-height: 1.5;
     white-space: nowrap;
+    min-width: 120px;
+    max-width: 170px;
+    display: flex;
+
     &__invalid {
       color: red;
     }
@@ -94,12 +97,15 @@ $red: #f00;
   &--text-label {
     margin: 0 8px 0 0;
     font-size: 16px;
-    min-width: 145px;
     color: #ababab;
     font-weight: 500;
-    line-height: 2;
+    line-height: 1.5;
     white-space: nowrap;
+    min-width: 120px;
     display: flex;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 170px;
 
     &__invalid {
       color: red;
