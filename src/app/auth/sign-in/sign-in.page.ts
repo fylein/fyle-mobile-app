@@ -70,6 +70,7 @@ export class SignInPage implements OnInit {
         })
       ).subscribe(() => {
         this.pushNotificationService.initPush();
+        this.fg.reset();
         this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
       });
     }
@@ -229,6 +230,7 @@ export class SignInPage implements OnInit {
       })
     ).subscribe(() => {
       this.pushNotificationService.initPush();
+      this.fg.reset();
       this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
     });
   }
