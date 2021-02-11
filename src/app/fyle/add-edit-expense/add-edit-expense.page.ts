@@ -332,7 +332,8 @@ export class AddEditExpensePage implements OnInit {
         component: MatchTransactionComponent,
         componentProps: {
           matchingCCCTransactions: this.matchingCCCTransactions,
-          mode: this.mode
+          mode: this.mode,
+          selectedCCCTransaction: this.selectedCCCTransaction
         }
       });
 

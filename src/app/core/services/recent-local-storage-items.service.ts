@@ -35,6 +35,35 @@ export class RecentLocalStorageItemsService {
     await this.storageService.delete(cacheName);
   }
 
+  clearRecentLocalStorageCache() {
+    this.clear('advanceProjectCache');
+
+    this.clear('expenseProjectCache');
+
+    this.clear('mileageProjectCache');
+    this.clear('mileageSubCategoryName');
+    this.clear('mileageCostCenterCache');
+
+    this.clear('perDiemProjectCache');
+    this.clear('perDiemCostCenterCache');
+    this.clear('perDiemSubCategoryCache');
+
+    this.clear('tripProjectCache');
+    this.clear('tripsRecentPurposeList');
+    this.clear('recentTripRequestsList');
+
+    this.clear('splitExpenseProjectCache');
+    this.clear('splitExpenseCategoryCache');
+    this.clear('splitExpenseCostCenterCache');
+
+    this.clear('recent-currency-cache');
+    this.clear('recentCategoryList');
+    this.clear('recentCostCenterList');
+    this.clear('recentPurposeList');
+    this.clear('recentNotesList');
+    this.clear('recentVendorList');
+  }
+
   indexOfItem(recentItemsArray, item, property?) {
     for (let i = 0, len = recentItemsArray.length; i < len; i++) {
       if (recentItemsArray[i][property] === item[property]) {

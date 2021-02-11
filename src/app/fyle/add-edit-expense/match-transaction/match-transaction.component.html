@@ -13,7 +13,7 @@
 
 <ion-content>
   <div>
-    <div class="match-transaction--card" *ngFor="let cccExpense of matchingCCCTransactions" matRipple (click)="selectCCCExpense(cccExpense)">
+    <div class="match-transaction--card" [ngClass]="{'match-transaction--card__selected': selectedCCCTransaction?.id === cccExpense?.id}" *ngFor="let cccExpense of matchingCCCTransactions" matRipple (click)="selectCCCExpense(cccExpense)">
       <div>
         <span class="match-transaction--matched-currency">
           {{cccExpense.currency}}
@@ -31,7 +31,7 @@
         </div>
       </div>
     </div>
-    <div class="match-transaction--card-zero" matRipple (click)="selectNotInList()">
+    <div class="match-transaction--card-zero" [ngClass]="{'match-transaction--card__selected': selectedCCCTransaction === null}" matRipple (click)="selectNotInList()">
       Transaction not in this list
     </div>
   </div>

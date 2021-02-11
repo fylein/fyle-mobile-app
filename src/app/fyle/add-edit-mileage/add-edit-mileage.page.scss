@@ -289,6 +289,10 @@ $red: #f00;
     &__disabled {
       opacity: 0.2;
     }
+
+    &:focus {
+      outline: none;
+    }
   }
 
   &--review-go-right {
@@ -306,6 +310,10 @@ $red: #f00;
     opacity: 0.8;
     &__disabled {
       opacity: 0.2;
+    }
+
+    &:focus {
+      outline: none;
     }
   }
 
