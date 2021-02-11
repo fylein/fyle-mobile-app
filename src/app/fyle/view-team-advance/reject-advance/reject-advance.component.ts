@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-reject-advance',
@@ -9,6 +10,8 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 })
 export class RejectAdvanceComponent implements OnInit {
   rejectReason = '';
+  showReasonError = false;
+  rejectLoading = false;
 
   @Input() areq;
 
@@ -24,19 +27,28 @@ export class RejectAdvanceComponent implements OnInit {
   }
 
   reject(event) {
-    var status = {
-      comment: this.rejectReason
-    };
+    this.showReasonError = false;
+    if (this.rejectReason.trim().length > 0) {
 
-    var statusPayload = {
-      status: status,
-      notify: false
-    };
+      this.rejectLoading = true;
+      const status = {
+        comment: this.rejectReason
+      };
 
-    this.advanceRequestService.reject(this.areq.areq_id, statusPayload).subscribe(_ => {
-      this.popoverController.dismiss({
-        goBack: true
-      })
-    });
+      const statusPayload = {
+        status,
+        notify: false
+      };
+
+      this.advanceRequestService.reject(this.areq.areq_id, statusPayload).pipe(
+        finalize(() => this.rejectLoading = false)
+      ).subscribe(_ => {
+        this.popoverController.dismiss({
+          goBack: true
+        });
+      });
+    } else {
+      this.showReasonError = true;
+    }
   }
 }
