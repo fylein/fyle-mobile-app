@@ -38,9 +38,6 @@ export class HelpPage implements OnInit {
           return user.filter(userInternal => userInternal.ou.roles.indexOf('ADMIN') > -1 && userInternal.ou.status === 'ACTIVE');
         }
       ),
-      map(users => {
-        return this.orgUserService.sortExtendedOrgUsersByName(users);
-      }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe((orgAdmins) => {
       this.orgAdmins = orgAdmins;
