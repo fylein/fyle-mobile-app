@@ -45,7 +45,7 @@ export class AppComponent implements OnInit {
   isSwitchedToDelegator;
   isConnected$: Observable<boolean>;
   allowedActions$: Observable<any>;
-  eou = null;
+  eou;
   device;
 
   constructor(
@@ -109,7 +109,6 @@ export class AppComponent implements OnInit {
   initializeApp() {
     // tslint:disable-next-line:max-line-length
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
-    // this.menuController.swipeGesture(false);
     App.addListener('appUrlOpen', (data) => {
       this.zone.run(() => {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
@@ -153,10 +152,6 @@ export class AppComponent implements OnInit {
       if (!res.supported && environment.production) {
         const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
         const eou = await this.authService.getEou();
-
-        // if (eou) {
-        //   this.menuController.swipeGesture(true);
-        // }
 
         this.trackingService.eventTrack('Auto Logged out', {
           Asset: 'Mobile',
