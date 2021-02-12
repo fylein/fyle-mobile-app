@@ -61,6 +61,7 @@ import { FySelectVendorComponent } from './components/fy-select-vendor/fy-select
 import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import {FyProjectSelectModalComponent} from './components/fy-select-project/fy-select-modal/fy-select-project-modal.component';
 import {FySelectProjectComponent} from './components/fy-select-project/fy-select-project.component';
+import { FyAutoFocusDirective } from './directive/fy-auto-focus.directive';
 
 @NgModule({
   declarations: [
@@ -107,7 +108,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FyAddToReportModalComponent,
     FormButtonValidationDirective,
     FySelectProjectComponent,
-    FyProjectSelectModalComponent
+    FyProjectSelectModalComponent,
+    FyAutoFocusDirective
   ],
   imports: [
     CommonModule,
@@ -160,7 +162,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
     FySelectProjectComponent,
-    FyProjectSelectModalComponent
+    FyProjectSelectModalComponent,
+    FyAutoFocusDirective
   ],
   providers: [
     DecimalPipe,
