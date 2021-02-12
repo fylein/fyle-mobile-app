@@ -12,7 +12,6 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  @ViewChild('searchBar') input: ElementRef;
   @Input() currentSelection: any;
   @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -80,7 +79,6 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     );
 
     this.cdr.detectChanges();
-    this.input.nativeElement.focus();
   }
 
   onDoneClick() {
