@@ -173,4 +173,21 @@ export class OrgUserService {
   checkMobileVerificationCode(otp) {
     return this.apiService.post('/orgusers/check_mobile_verification_code', otp);
   }
+
+  sortExtendedOrgUsersByName(extendedOrgUsers: ExtendedOrgUser[]) {
+    return extendedOrgUsers.sort((a, b) => {
+      const user1 = a.us.full_name.toUpperCase();
+      const user2 = b.us.full_name.toUpperCase();
+
+
+      if (user1 < user2) {
+        return -1;
+      }
+
+      if (user1 > user2) {
+        return 1;
+      }
+      return 0;
+    });
+  }
 }
