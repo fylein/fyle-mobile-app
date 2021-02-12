@@ -86,7 +86,9 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   }
 
   onElementSelect(option) {
-    this.recentLocalStorageItemsService.post('recentVendorList', option, 'label');
+    if (option.value) {
+      this.recentLocalStorageItemsService.post('recentVendorList', option, 'label');
+    }
     this.modalController.dismiss(option);
   }
 

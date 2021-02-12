@@ -6,6 +6,8 @@ describe('new App', () => {
   beforeEach(() => {
     page = new AppPage();
   });
+
+
   describe('default screen', () => {
     beforeEach(() => {
       page.navigateTo('/Inbox');
@@ -14,4 +16,6 @@ describe('new App', () => {
       expect(page.getParagraphText()).toContain('Inbox');
     });
   });
+
+
 });
