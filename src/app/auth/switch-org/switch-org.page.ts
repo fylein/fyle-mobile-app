@@ -14,6 +14,7 @@ import {UserEventService} from 'src/app/core/services/user-event.service';
 import {globalCacheBusterNotifier} from 'ts-cacheable';
 import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { MenuController } from '@ionic/angular';
 
 @Component({
   selector: 'app-swicth-org',
@@ -41,6 +42,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     private userEventService: UserEventService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private cdRef: ChangeDetectorRef,
+    private menuController: MenuController
   ) { }
 
   ngOnInit() {
@@ -52,6 +54,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
 
   ionViewWillEnter() {
     const that = this;
+    that.menuController.swipeGesture(false);
     that.searchInput = '';
     that.isLoading = true;
     that.orgs$ = that.offlineService.getOrgs().pipe(
@@ -165,6 +168,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     ).subscribe(() => {
       globalCacheBusterNotifier.next();
       this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+      this.menuController.swipeGesture(true);
       from(this.proceed()).subscribe(noop);
     }, async (err) => {
       await this.storageService.clearAll();

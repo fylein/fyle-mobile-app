@@ -102,17 +102,16 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
         return this.orgUserService.excludeByStatus(eouc, 'DISABLED');
       }),
       map(eouc => {
-        if (this.from === 'TRIP_REQUEST') {
-          return eouc.filter(approver => {
-            return this.approverList.indexOf(approver.us.email) < 0;
-          });
-        }
-
-        if (this.from === 'ADVANCE_REQUEST') {
-          return eouc.filter(approver => {
-            return this.approverList.indexOf(approver.us.email) < 0;
-          });
-        }
+        eouc.sort((a, b) => {
+          if (a.us.email < b.us.email) {
+            return -1;
+          } else {
+            return 1;
+          }
+        });
+        return eouc.filter(approver => {
+          return this.approverList.indexOf(approver.us.email) < 0;
+        }).sort();
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     );
