@@ -203,6 +203,26 @@ export class MyExpensesPage implements OnInit {
         this.loadData$.next(currentParams);
       });
 
+      this.count$ = this.loadData$.pipe(
+        switchMap(params => {
+          let queryParams = params.queryParams || {};
+  
+          let defaultState;
+          if (this.baseState === 'all') {
+            defaultState = 'in.(COMPLETE,DRAFT)';
+          } else if (this.baseState === 'draft') {
+            defaultState = 'in.(DRAFT)';
+          }
+  
+          queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+          queryParams.tx_state = queryParams.tx_state || defaultState;
+          queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+          return this.transactionService.getMyExpenses({queryParams})
+        }),
+        map(res => res.count),
+        shareReplay(1)
+      );
+
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         let defaultState;
@@ -245,26 +265,6 @@ export class MyExpensesPage implements OnInit {
     );
 
     this.myExpenses$ = paginatedPipe.pipe(
-      shareReplay(1)
-    );
-
-    this.count$ = this.loadData$.pipe(
-      switchMap(params => {
-        let queryParams = params.queryParams || {};
-
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
-        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.transactionService.getMyExpenses({queryParams})
-      }),
-      map(res => res.count),
       shareReplay(1)
     );
 
