@@ -123,10 +123,13 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
         return this.orgUserService.excludeByStatus(eouc, 'DISABLED');
       }),
       map(eouc => {
+        // sorting approver list
+        eouc.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
+
         return eouc.map(eou => {
           eou.checked = this.approverList.indexOf(eou.us.email) > -1;
           return eou;
-        });
+        }).sort((a, b) => a.checked > b.checked ? -1 : 1);
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     );
@@ -137,6 +140,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
           this.selectedApprovers.push(approver);
         }
       });
+
       this.intialSelectedApprovers = [...this.selectedApprovers];
       this.equals = this.checkDifference(this.intialSelectedApprovers, this.selectedApprovers);
     });

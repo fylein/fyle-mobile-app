@@ -122,7 +122,7 @@
       
                 <div *ngIf="customInput.type === 'LOCATION'">
                   <app-fy-location 
-                    [label]="customInput.name" 
+                    [label]="customInput.name | ellipsis: 11" 
                     [mandatory]="customInput.mandatory" 
                     formControlName="value">
                   </app-fy-location>
@@ -130,7 +130,7 @@
       
                 <div *ngIf="customInput.type === 'SELECT'">
                   <app-fy-select 
-                    [label]="customInput.name" 
+                    [label]="customInput.name | ellipsis: 11" 
                     [mandatory]="customInput.mandatory" 
                     [options]="customInput.options" 
                     formControlName="value">
@@ -139,7 +139,7 @@
       
                 <div *ngIf="customInput.type === 'MULTI_SELECT'">
                   <app-fy-multiselect 
-                    [label]="customInput.name" 
+                    [label]="customInput.name | ellipsis: 11" 
                     [mandatory]="customInput.mandatory" 
                     [options]="customInput.options" 
                     formControlName="value">
@@ -148,7 +148,7 @@
       
                 <div *ngIf="customInput.type === 'USER_LIST'">
                   <app-fy-userlist 
-                    [label]="customInput.name" 
+                    [label]="customInput.name | ellipsis: 11" 
                     [mandatory]="customInput.mandatory" 
                     formControlName="value">
                   </app-fy-userlist>

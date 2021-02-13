@@ -4,6 +4,7 @@
   background-color: inherit;
   font-size: 16px;
   font-weight: 500;
+
   &--label-content {
     margin: 0 8px 0 0;
     font-size: 16px;
@@ -11,7 +12,11 @@
     font-weight: 500;
     line-height: 1.5;
     white-space: nowrap;
-    min-width: 145px;
+    min-width: 120px;
+    max-width: 170px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
     &__invalid {
       color: red;
     }

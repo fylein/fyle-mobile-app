@@ -54,6 +54,7 @@ $red: #f00;
     color: #ababab;
     margin-left: 0;
     margin-top: 12px;
+    margin-right: 12px;
   }
 
   &--receipt-image {
@@ -106,7 +107,7 @@ $red: #f00;
   }
 
   &--currency {
-    margin: 12px 0 0 12px;
+    margin: 12px 0 0 0;
   }
 
   &--form {
@@ -125,7 +126,13 @@ $red: #f00;
     font-weight: 500;
     line-height: 1.5;
     white-space: nowrap;
-    min-width: 120px;
+    max-width: 120px;
+    display: flex;
+
+    &__large {
+      max-width: 170px;
+    }
+
     &__invalid {
       color: $red;
     }
@@ -154,7 +161,13 @@ $red: #f00;
     line-height: 2;
     white-space: nowrap;
     display: flex;
+    max-width: 170px;
     min-width: 120px;
+
+    &__large {
+      max-width: 170px;
+    }
+
     &__invalid {
       color: $red;
     }
@@ -166,7 +179,11 @@ $red: #f00;
     font-weight: 500;
     line-height: 1.5;
     height: 24px;
-    max-width: calc(100% - 120px);
+    min-width: calc(100% - 120px);
+
+    &__large {
+      min-width: calc(100% - 170px);
+    }
   }
 
   &--checkbox {
@@ -326,6 +343,10 @@ $red: #f00;
     &__disabled {
       opacity: 0.2;
     }
+
+    &:focus {
+      outline: none;
+    }
   }
 
   &--review-go-right {
@@ -343,6 +364,10 @@ $red: #f00;
     opacity: 0.8;
     &__disabled {
       opacity: 0.2;
+    }
+
+    &:focus {
+      outline: none;
     }
   }
 

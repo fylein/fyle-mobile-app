@@ -14,7 +14,7 @@ $details-color: #ababab;
 
   &--close-button {
     margin-right: 20px;
-    font-size: 16px;
+    font-size: 14px;
     color: #0077ee;
   }
 
@@ -58,6 +58,7 @@ $details-color: #ababab;
       --border-radius: 4px;
       display: inline-block;
       margin-top: 10px;
+      font-weight: 700;
     }
   }
 }

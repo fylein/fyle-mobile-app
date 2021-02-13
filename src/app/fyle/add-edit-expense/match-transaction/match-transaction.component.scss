@@ -6,6 +6,10 @@
     border-radius: 4px;
     padding: 10px 16px;
     min-height: 72px;
+
+    &__selected {
+      border-color: #ff3366 !important;
+    }
   }
 
   &--card-zero {

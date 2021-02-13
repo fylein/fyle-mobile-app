@@ -91,7 +91,7 @@ export class CccClassifyActionsPage implements OnInit {
         '        will collect this amount from you based on your company\'s policy. Do you wish to classify this as a\n' +
         '        personal transaction?',
       primaryCta: {
-        text: 'Classify As Personal'
+        text: 'Classing as Personal'
       },
       secondaryCta: {
         text: 'Cancel'
@@ -116,8 +116,9 @@ export class CccClassifyActionsPage implements OnInit {
       component: MatchExpensePopoverComponent,
       cssClass: 'dialog-popover',
       componentProps: {
-        splitGroupId: expense.split_group_id,
-        cccGroupId: cccExpense.group_id
+        expenseId: expense.id,
+        CCCEId: cccExpense.id,
+        splitGroupId: expense.split_group_id
       }
     });
 

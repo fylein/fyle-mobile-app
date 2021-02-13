@@ -2,20 +2,18 @@ $details-color: #ababab;
 
 .share-report {
   &--header {
-    letter-spacing: 1.4px;
     padding: 16px;
     display: flex;
     justify-content: space-between;
   }
 
   &--title {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 700;
   }
 
   &--cancel {
     color: #0077ee;
-    font-weight: 700;
   }
 
   &--details {
@@ -33,12 +31,17 @@ $details-color: #ababab;
     width: 100%;
   }
 
+  &--error {
+    color: red;
+  }
+
   &--primary-cta {
     padding: 16px;
+
     .mat-button-base {
       width: 100%;
       font-weight: 700;
-      min-height: 47px;
+      min-height: 48px;
     }
   }
 

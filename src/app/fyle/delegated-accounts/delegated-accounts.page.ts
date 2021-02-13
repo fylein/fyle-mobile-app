@@ -6,6 +6,7 @@ import {OfflineService} from 'src/app/core/services/offline.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {concatMap, finalize, catchError, map, startWith, distinctUntilChanged, switchMap, tap, shareReplay} from 'rxjs/operators';
 import {globalCacheBusterNotifier} from 'ts-cacheable';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -24,12 +25,15 @@ export class DelegatedAccountsPage implements OnInit {
     private router: Router,
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) {
   }
 
   switchToDelegatee(eou) {
     from(this.loaderService.showLoader('Switching Account')).pipe(
       concatMap(() => {
+        globalCacheBusterNotifier.next();
+        this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
         return this.orgUserService.switchToDelegator(eou.ou);
       }),
       finalize(async () => {
@@ -57,6 +61,7 @@ export class DelegatedAccountsPage implements OnInit {
         })
       ).subscribe(() => {
         globalCacheBusterNotifier.next();
+        this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       });
     } else {

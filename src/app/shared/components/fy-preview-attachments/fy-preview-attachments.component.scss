@@ -15,6 +15,15 @@
     z-index: 99;
   }
 
+  &--container {
+    min-height: 320px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+
   // &--slider {
   //   margin: 0;
   //   padding: 0;
@@ -41,7 +50,7 @@
   &--go-forward {
     position: absolute;
     top: 20vh;
-    left: 72vw;
+    left: 80vw;
     background-color: rgba(0, 0, 0, 0.5);
     text-align: center;
     border-radius: 50%;

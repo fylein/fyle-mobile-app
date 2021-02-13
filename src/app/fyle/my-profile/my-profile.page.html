@@ -70,8 +70,8 @@
   </div>
 
 
-
-  <div class="my-profile--blocks">
+  <!-- Commented out now because PN is not working -->
+  <!-- <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Notifications</span>
     <div class="my-profile--card my-profile--card__action my-profile--card-item my-profile--manage-notif"
       [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
@@ -82,7 +82,7 @@
         <mat-icon>keyboard_arrow_right</mat-icon>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <ng-container *ngIf="myETxnc$|async as myETxnc">
     <div class="my-profile--blocks">
@@ -241,7 +241,7 @@
       <p class="my-profile--card-title">You can do so much more!</p>
       <div class="my-profile--cards-content  my-profile--toggle-container">
         <div class="my-profile--toggle-label my-profile--toggle-label__full">
-          Login to Fyle from your desktop <a (click)="openWebAppLink('app')" href="{{clusterDomain}}">using our web app</a> to update your profile information, setup additional email IDs and much more.
+          Login to Fyle from your desktop <a (click)="openWebAppLink('app')" href="{{ROUTER_API_ENDPOINT}}">using our web app</a> to update your profile information, setup additional email IDs and much more.
         </div>
       </div>
     </div>

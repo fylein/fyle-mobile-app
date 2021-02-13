@@ -259,11 +259,8 @@
 
               <div *ngIf="selectedCCCTransaction && !isLoadingSuggestions" class="add-edit-expense--matched-expense">
                 <div class="add-edit-expense--matched-expense-value">
-                  <div class="add-edit-expense--matched-currency">
-                    {{selectedCCCTransaction.currency}}
-                  </div>
-                  <div class="add-edit-expense--matched-amount">
-                    {{selectedCCCTransaction.amount}}
+                  <div>
+                    <span class="add-edit-expense--matched-currency">{{selectedCCCTransaction.currency}}</span> <span class="add-edit-expense--matched-amount">{{selectedCCCTransaction.amount}}</span>
                   </div>
                 </div>
                 <div class="add-edit-expense--matched-expense-txn-dt">
@@ -371,6 +368,7 @@
                 [label]="(fg.controls.vendor_id?.value) ? txnFields.vendor_id?.title : 'Select ' + txnFields.vendor_id?.title"
                 [mandatory]="txnFields.vendor_id?.mandatory"
                 [options]="txnFields.vendor_id?.values"
+                [nullOption]="!txnFields.vendor_id?.mandatory"
                 formControlName="vendor_id">
               </app-fy-select>
             </div>
@@ -381,9 +379,8 @@
 
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="txnFields.purpose?.canView">
-              <div *ngIf="txnFields.purpose?.type === 'TEXT'"
-                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                   class="add-edit-expense--text add-edit-expense--internal-block">
+              <div *ngIf="txnFields.purpose?.type === 'TEXT'" class="add-edit-expense--text add-edit-expense--internal-block"
+                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                 <div [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
                      class="add-edit-expense--text-label">
                   <div>
@@ -398,17 +395,18 @@
                        class="add-edit-expense--text-input add-edit-expense--internal-block"
                        formControlName="purpose">
               </div>
-              <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block">
-                <app-fy-select [cacheName]="'recentPurposeList'"
-                               [disabled]="!txnFields.purpose?.canEdit"
-                               [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
-                               [mandatory]="txnFields.purpose?.mandatory"
-                               [nullOption]="txnFields.purpose?.mandatory ? false : true"
-                               [options]="txnFields.purpose?.values"
-                               [selectModalHeader]="'Enter '+ txnFields.purpose?.title"
-                               [subheader]="'All ' + txnFields.purpose?.title"
-                               formControlName="purpose"
-                >
+              <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block"
+                [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
+                <app-fy-select 
+                  [cacheName]="'recentPurposeList'"
+                  [disabled]="!txnFields.purpose?.canEdit"
+                  [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
+                  [mandatory]="txnFields.purpose?.mandatory"
+                  [nullOption]="txnFields.purpose?.mandatory ? false : true"
+                  [options]="txnFields.purpose?.values"
+                  [selectModalHeader]="'Enter '+ txnFields.purpose?.title"
+                  [subheader]="'All ' + txnFields.purpose?.title"
+                  formControlName="purpose">
                 </app-fy-select>
               </div>
               <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid" class="add-edit-expense--error">
@@ -466,14 +464,14 @@
         <ng-container *ngIf="isConnected$|async as isConnected">
           <div *ngIf="isProjectsEnabled$|async as isProjectsEnabled" class="add-edit-expense--primary-block">
             <div *ngIf="txnFields.location1?.canView && txnFields.location1?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
-                 class="add-edit-expense--internal-block">
+                 class="add-edit-expense--internal-block" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid}">
               <app-fy-location [label]="fg.controls.location_1.value ? txnFields.location1?.title : 'Select ' + txnFields.location1?.title"
                                [mandatory]="txnFields.location1?.mandatory"
                                formControlName="location_1"></app-fy-location>
             </div>
 
             <div *ngIf="txnFields.location2?.canView && txnFields.location2?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
-                 class="add-edit-expense--internal-block">
+                 class="add-edit-expense--internal-block" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_2.touched && !fg.controls.location_2.valid}">
               <app-fy-location [label]="fg.controls.location_2.value ? txnFields.location2?.title : 'Select ' + txnFields.location2?.title"
                                [mandatory]="txnFields.location2?.mandatory"
                                formControlName="location_2"></app-fy-location>
@@ -483,7 +481,7 @@
                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
                  class="add-edit-expense--date add-edit-expense--internal-block">
               <div [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
-                   class="add-edit-expense--date-label">
+                   class="add-edit-expense--date-label add-edit-expense--date-label__large">
                 {{fg.controls.from_dt.value ? txnFields.from_dt?.title : 'Select ' + txnFields.from_dt?.title}}
                 <span>*</span>
               </div>
@@ -495,7 +493,7 @@
                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
                  class="add-edit-expense--date add-edit-expense--internal-block">
               <div [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
-                   class="add-edit-expense--date-label">
+                   class="add-edit-expense--date-label add-edit-expense--date-label__large">
                 {{fg.controls.to_dt.value ? txnFields.to_dt?.title : 'Select ' + txnFields.to_dt?.title}}
                 <span>*</span>
               </div>
@@ -504,7 +502,7 @@
             </div>
 
             <div *ngIf="txnFields.flight_journey_travel_class?.canView && txnFields.flight_journey_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
-                 class="add-edit-expense--date add-edit-expense--internal-block">
+                 class="add-edit-expense--date add-edit-expense--internal-block" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid}">
               <app-fy-select
                 *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
                 [disabled]="!txnFields.flight_journey_travel_class?.canEdit"
@@ -517,15 +515,15 @@
             </div>
 
             <div *ngIf="txnFields.flight_return_travel_class?.canView && txnFields.flight_return_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
-                 class="add-edit-expense--internal-block">
+                 class="add-edit-expense--internal-block" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid}">
               <app-fy-select *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                             [disabled]="!txnFields.flight_return_travel_class?.canEdit"
-                             [label]="fg.controls.flight_return_travel_class.value ? txnFields.flight_return_travel_class?.title : 'Select ' + txnFields.flight_return_travel_class?.title"
-                             [mandatory]="txnFields.flight_return_travel_class?.mandatory"
-                             [options]="txnFields.flight_journey_travel_class?.values"
-                             [selectModalHeader]="'Choose Travel Class'"
-                             formControlName="flight_return_travel_class"
-                             name="flightReturnClass">
+                  [disabled]="!txnFields.flight_return_travel_class?.canEdit"
+                  [label]="fg.controls.flight_return_travel_class.value ? txnFields.flight_return_travel_class?.title : 'Select ' + txnFields.flight_return_travel_class?.title"
+                  [mandatory]="txnFields.flight_return_travel_class?.mandatory"
+                  [options]="txnFields.flight_journey_travel_class?.values"
+                  [selectModalHeader]="'Choose Travel Class'"
+                  formControlName="flight_return_travel_class"
+                  name="flightReturnClass">
               </app-fy-select>
             </div>
 
@@ -534,12 +532,12 @@
                  class="add-edit-expense--internal-block add-edit-expense--text">
               <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'" class="add-edit-expense--text">
                 <div [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
-                     class="add-edit-expense--text-label">
+                     class="add-edit-expense--text-label add-edit-expense--text-label__large">
                   {{fg.controls.train_travel_class.value ? txnFields.train_travel_class?.title : 'Enter ' + txnFields.train_travel_class?.title}}
                   <span>*</span>
                 </div>
                 <input (blur)="focusState = false" (focus)="focusState = true" [disabled]="!txnFields.train_travel_class?.canEdit"
-                       class="add-edit-expense--text-input" formControlName="train_travel_class"
+                       class="add-edit-expense--text-input add-edit-expense--text-input__large" formControlName="train_travel_class"
                        type="text">
               </span>
 
@@ -558,7 +556,7 @@
                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
                  class="add-edit-expense--internal-block add-edit-expense--text">
               <div *ngIf="txnFields.bus_travel_class?.type === 'TEXT'" [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
-                   class="add-edit-expense--text-label">
+                   class="add-edit-expense--text-label add-edit-expense--text-label__large">
                 {{fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title}}
                 <div *ngIf="txnFields.bus_travel_class?.mandatory">
                   *
@@ -566,14 +564,16 @@
               </div>
               <input (blur)="focusState = false" (focus)="focusState = true"
                      *ngIf="txnFields.bus_travel_class?.type === 'TEXT'" [disabled]="!txnFields.bus_travel_class?.canEdit"
-                     class="add-edit-expense--text-input" formControlName="bus_travel_class"
+                     class="add-edit-expense--text-input add-edit-expense--text-input__large" formControlName="bus_travel_class"
                      type="text">
-              <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" [disabled]="!txnFields.bus_travel_class?.canEdit"
-                             [label]="fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
-                             [mandatory]="txnFields.bus_travel_class?.mandatory"
-                             [options]="txnFields.bus_travel_class?.values"
-                             [selectModalHeader]="'Choose Travel Class'"
-                             formControlName="bus_travel_class" hide-none="true"></app-fy-select>
+              <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" 
+                [disabled]="!txnFields.bus_travel_class?.canEdit"
+                [label]="fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
+                [mandatory]="txnFields.bus_travel_class?.mandatory"
+                [options]="txnFields.bus_travel_class?.values"
+                [selectModalHeader]="'Choose Travel Class'"
+                formControlName="bus_travel_class" hide-none="true">
+              </app-fy-select>
             </div>
 
             <div *ngIf="fg.value?.category?.fyle_category === 'Hotel'" class="add-edit-expense--internal-block">

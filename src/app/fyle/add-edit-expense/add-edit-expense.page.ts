@@ -332,7 +332,8 @@ export class AddEditExpensePage implements OnInit {
         component: MatchTransactionComponent,
         componentProps: {
           matchingCCCTransactions: this.matchingCCCTransactions,
-          mode: this.mode
+          mode: this.mode,
+          selectedCCCTransaction: this.selectedCCCTransaction
         }
       });
 
@@ -1072,7 +1073,7 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    from(this.loaderService.showLoader('loading expense...', 15000)).pipe(
+    from(this.loaderService.showLoader('Loading expense...', 15000)).pipe(
       switchMap(() => {
         return forkJoin({
           etxn: this.etxn$,
@@ -1624,7 +1625,7 @@ export class AddEditExpensePage implements OnInit {
       if (bankTxn.flow && bankTxn.flow === 'newCCCFlow') {
         cccAccountNumber = this.selectedCCCTransaction.corporate_credit_card_account_number;
       }
-      this.cardEndingDigits = cccAccountNumber.slice(-4);
+      this.cardEndingDigits = cccAccountNumber && cccAccountNumber.slice(-4);
       this.selectedCCCTransaction.corporate_credit_card_account_number = cccAccountNumber;
       this.isCreatedFromCCC = true;
     }

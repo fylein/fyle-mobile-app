@@ -74,8 +74,12 @@ export class AuthService {
         accessToken => {
           if (accessToken) {
             const tokenPayload = this.jwtHelperService.decodeToken(accessToken);
-            const roles = tokenPayload.roles;
-            return roles;
+            try {
+              const roles = JSON.parse(tokenPayload.roles);
+              return roles;
+            } catch (e) {
+              return [];
+            }
           } else {
             return [];
           }

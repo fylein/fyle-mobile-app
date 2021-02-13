@@ -21,6 +21,26 @@ $background-color: #fff;
       font-weight: 700;
     }
   }
+
+  &--zero-state {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+
+    &-img {
+      margin-top: 34px;
+      margin-left: 12px;
+      height: 150px;
+    }
+
+    &-text {
+      margin-top: 10px;
+      color: #464d57;
+    }
+  }
+
   &--container {
     padding: 15px;
   }
@@ -29,8 +49,13 @@ $background-color: #fff;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
     border-radius: 4px;
     margin-bottom: 24px;
-    border: 1px solid #fff;
+    border: 1px solid #e0e0e0;
     padding: 10px;
+
+    &_no-shadow {
+      box-shadow: none !important;
+      border: 1px solid #e5e5e5;
+    }
   }
 
   &--report-title {

@@ -5,8 +5,8 @@ $details-color: #ababab;
   flex-direction: column;
   height: 100%;
   justify-content: space-between;
+
   &--header {
-    padding: 0px 24px;
     padding-top: 16px;
     display: flex;
     justify-content: space-between;
@@ -14,12 +14,15 @@ $details-color: #ababab;
 
   &--header-text {
     font-size: 24px;
+    line-height: 1.3;
     font-weight: 700;
   }
 
   &--header-cancel {
     color: #0077ee;
     font-weight: 400;
+    font-size: 16px;
+    text-transform: capitalize;
   }
 
   &--body {
@@ -38,9 +41,9 @@ $details-color: #ababab;
 
   &--button {
     width: 100%;
-    margin: 4px 24px;
-    margin-bottom: 12px;
+    margin: 12px;
     height: 48px;
+    font-weight: 600;
   }
 
   &--primary-cta {
@@ -106,6 +109,8 @@ $details-color: #ababab;
     display: block;
     width: 100%;
     border: 1px solid #e0e0e0;
+    color: #000;
+    font-weight: normal;
     margin-top: 8px;
     height: 75px;
     border-radius: 4px;

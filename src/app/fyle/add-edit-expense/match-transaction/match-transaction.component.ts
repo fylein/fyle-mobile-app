@@ -12,6 +12,7 @@ export class MatchTransactionComponent implements OnInit {
 
   @Input() matchingCCCTransactions: CorporateCardExpense[];
   @Input() mode: string;
+  @Input() selectedCCCTransaction: CorporateCardExpense;
 
   constructor(
     private modalController: ModalController,

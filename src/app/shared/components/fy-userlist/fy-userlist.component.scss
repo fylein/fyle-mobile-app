@@ -3,6 +3,7 @@
     width: 100%;
     font-weight: 500;
     font-size: 16px;
+
     &--label-content {
       margin: 0 8px 0 0;
       font-size: 16px;
@@ -11,6 +12,10 @@
       line-height: 1.5;
       white-space: nowrap;
       min-width: 120px;
+      max-width: 170px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+
       &__invalid {
         color: red;
       }
