@@ -156,7 +156,7 @@ export class AppComponent implements OnInit {
         this.trackingService.eventTrack('Auto Logged out', {
           Asset: 'Mobile',
           lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
-          user_email: eou.us.email,
+          user_email: eou && eou.us && eou.us.email,
           appVersion: deviceInfo.appVersion
         });
 
