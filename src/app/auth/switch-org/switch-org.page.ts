@@ -40,7 +40,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     private orgService: OrgService,
     private userEventService: UserEventService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private cdRef: ChangeDetectorRef,
+    private cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
