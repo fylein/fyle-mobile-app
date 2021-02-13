@@ -251,6 +251,7 @@ export class MyExpensesPage implements OnInit {
 
     this.count$ = paginatedPipe.pipe(
       map(res => res.count),
+      shareReplay(1)
     )
 
     this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(
