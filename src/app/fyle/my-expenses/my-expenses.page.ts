@@ -190,38 +190,17 @@ export class MyExpensesPage implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
-      .pipe(
-        map((event: any) => event.srcElement.value as string),
-        distinctUntilChanged(),
-        debounceTime(400)
-      ).subscribe((searchString) => {
-        const currentParams = this.loadData$.getValue();
-        currentParams.searchString = searchString;
-        this.currentPageNumber = 1;
-        currentParams.pageNumber = this.currentPageNumber;
-        this.loadData$.next(currentParams);
-      });
-
-      this.count$ = this.loadData$.pipe(
-        switchMap(params => {
-          let queryParams = params.queryParams || {};
-  
-          let defaultState;
-          if (this.baseState === 'all') {
-            defaultState = 'in.(COMPLETE,DRAFT)';
-          } else if (this.baseState === 'draft') {
-            defaultState = 'in.(DRAFT)';
-          }
-  
-          queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-          queryParams.tx_state = queryParams.tx_state || defaultState;
-          queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
-          return this.transactionService.getMyExpenses({queryParams})
-        }),
-        map(res => res.count),
-        shareReplay(1)
-      );
+    fromEvent(this.simpleSearchInput.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value as string),
+      distinctUntilChanged(),
+      debounceTime(400)
+    ).subscribe((searchString) => {
+      const currentParams = this.loadData$.getValue();
+      currentParams.searchString = searchString;
+      this.currentPageNumber = 1;
+      currentParams.pageNumber = this.currentPageNumber;
+      this.loadData$.next(currentParams);
+    });
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
@@ -238,7 +217,8 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return this.count$.pipe(
+        return this.transactionService.getMyExpenses({queryParams}).pipe(
+          map(res => res.count),
           switchMap((count) => {
             if (count > ((params.pageNumber - 1) * 10)) {
               return this.transactionService.getMyExpenses({
@@ -249,24 +229,29 @@ export class MyExpensesPage implements OnInit {
               });
             } else {
              return of({
-               data: []
+               data: [],
+               count: 0
              });
             }
         })
         );
       }),
+    );
+
+    this.myExpenses$ = paginatedPipe.pipe(
       map(res => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
-    );
-
-    this.myExpenses$ = paginatedPipe.pipe(
+      }),
       shareReplay(1)
     );
+
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
+    )
 
     this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(
       map(res => {
