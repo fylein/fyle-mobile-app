@@ -665,14 +665,14 @@ export class AddEditExpensePage implements OnInit {
     const accounts$ = this.isConnected$.pipe(
       take(1),
       switchMap(isConnected => {
-        if(isConnected) {
+        if (isConnected) {
           return this.accountsService.getEMyAccounts();
         } else {
           return this.offlineService.getAccounts();
         }
 
       })
-    )
+    );
     const orgSettings$ = this.offlineService.getOrgSettings();
 
     return forkJoin({
@@ -1869,7 +1869,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
+  generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$
@@ -1897,6 +1897,13 @@ export class AddEditExpensePage implements OnInit {
           costCenter.cost_center_code = this.fg.value.costCenter.code;
         }
 
+        const policyProps: any = {};
+
+        if (isPolicyEtxn) {
+          policyProps.org_category = this.fg.value.category && this.fg.value.category.name;
+          policyProps.sub_category = this.fg.value.category && this.fg.value.category.sub_category;
+        }
+
         return {
           tx: {
             ...etxn.tx,
@@ -1918,7 +1925,8 @@ export class AddEditExpensePage implements OnInit {
             purpose: this.fg.value.purpose,
             locations: locations || [],
             custom_properties: customProperties || [],
-            num_files: this.activatedRoute.snapshot.params.dataUrl ? 1 : 0,
+            num_files: isPolicyEtxn ? this.newExpenseDataUrls.length : (this.activatedRoute.snapshot.params.dataUrl ? 1 : 0),
+            ...policyProps,
             org_user_id: etxn.tx.org_user_id,
             from_dt: this.fg.value.from_dt && new Date(this.fg.value.from_dt),
             to_dt: this.fg.value.to_dt && new Date(this.fg.value.to_dt),
@@ -2225,7 +2233,7 @@ export class AddEditExpensePage implements OnInit {
 
     const customFields$ = this.getCustomFields();
 
-    return this.generateEtxnFromFg(this.etxn$, customFields$)
+    return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(
         switchMap(etxn => {
           const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
@@ -2256,7 +2264,9 @@ export class AddEditExpensePage implements OnInit {
                   etxn
                 });
               } else {
-                return of({etxn});
+                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                  map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+                );
               }
             })
           );
@@ -2264,7 +2274,7 @@ export class AddEditExpensePage implements OnInit {
         catchError(err => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-              map(etxn => ({etxn}))
+              map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
             );
           }
           if (err.type === 'criticalPolicyViolations') {
@@ -2276,7 +2286,9 @@ export class AddEditExpensePage implements OnInit {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
                     switchMap(() => {
-                      return of({etxn: err.etxn});
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+                      );
                     })
                   );
                 } else {
@@ -2293,7 +2305,9 @@ export class AddEditExpensePage implements OnInit {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
                     switchMap(() => {
-                      return of({etxn: err.etxn, comment: continueWithTransaction.comment});
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+                      );
                     })
                   );
                 } else {
@@ -2452,7 +2466,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.trackAddExpense();
 
-    return this.generateEtxnFromFg(this.etxn$, customFields$)
+    return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(
         switchMap(etxn => {
           return this.isConnected$.pipe(
@@ -2488,12 +2502,16 @@ export class AddEditExpensePage implements OnInit {
                         etxn
                       });
                     } else {
-                      return of({etxn, comment: null});
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+                      );
                     }
                   })
                 );
               } else {
-                return of({etxn, comment: null});
+                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                  map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+                );
               }
             }));
         }),
@@ -2513,7 +2531,9 @@ export class AddEditExpensePage implements OnInit {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
                     switchMap(() => {
-                      return of({etxn: err.etxn});
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+                      );
                     })
                   );
                 } else {
@@ -2532,7 +2552,9 @@ export class AddEditExpensePage implements OnInit {
                     return from(this.loaderService.showLoader())
                       .pipe(
                         switchMap(() => {
-                          return of({etxn: err.etxn, comment: continueWithTransaction.comment});
+                          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                            map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+                          );
                         })
                       );
                   } else {
