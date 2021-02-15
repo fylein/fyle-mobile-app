@@ -192,17 +192,18 @@ export class MyExpensesPage implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value as string),
-      distinctUntilChanged(),
-      debounceTime(400)
-    ).subscribe((searchString) => {
-      const currentParams = this.loadData$.getValue();
-      currentParams.searchString = searchString;
-      this.currentPageNumber = 1;
-      currentParams.pageNumber = this.currentPageNumber;
-      this.loadData$.next(currentParams);
-    });
+    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+      .pipe(
+        map((event: any) => event.srcElement.value as string),
+        distinctUntilChanged(),
+        debounceTime(400)
+      ).subscribe((searchString) => {
+        const currentParams = this.loadData$.getValue();
+        currentParams.searchString = searchString;
+        this.currentPageNumber = 1;
+        currentParams.pageNumber = this.currentPageNumber;
+        this.loadData$.next(currentParams);
+      });
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
