@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
+import {BehaviorSubject, concat, empty, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
@@ -20,6 +20,7 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { filter } from 'lodash';
 
 @Component({
   selector: 'app-my-expenses',
@@ -220,25 +221,17 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return this.transactionService.getMyExpenses({queryParams}).pipe(
-          map(res => res.count),
-          switchMap((count) => {
-            if (count > ((params.pageNumber - 1) * 10)) {
-              return this.transactionService.getMyExpenses({
-                offset: (params.pageNumber - 1) * 10,
-                limit: 10,
-                queryParams,
-                order: orderByParams
-              });
-            } else {
-             return of({
-               data: [],
-               count: 0
-             });
-            }
-        })
-        );
+        return this.transactionService.getMyExpenses({
+          offset: (params.pageNumber - 1) * 10,
+          limit: 10,
+          queryParams,
+          order: orderByParams
+        });
       }),
+      catchError(() => {
+        return EMPTY;
+      }),
+      shareReplay(1),
     );
 
     this.myExpenses$ = paginatedPipe.pipe(
