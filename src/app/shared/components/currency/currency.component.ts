@@ -4,6 +4,7 @@ import {OfflineService} from 'src/app/core/services/offline.service';
 import {filter, map, switchMap} from 'rxjs/operators';
 import {Observable, of} from 'rxjs';
 import {Expense} from '../../../core/models/expense.model';
+import { cloneDeep } from 'lodash';
 
 
 @Component({
@@ -15,6 +16,7 @@ export class CurrencyComponent implements OnInit {
 
   @Input() options: any;
   @Input() etxn: Expense;
+  extnInternal: Expense;
 
   showExchangeRate$: Observable<boolean>;
   calculatedExchangeRate$: Observable<number>;
@@ -28,6 +30,7 @@ export class CurrencyComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.extnInternal = cloneDeep(this.etxn);
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
 
     this.showExchangeRate$ = this.homeCurrency$.pipe(
@@ -56,11 +59,11 @@ export class CurrencyComponent implements OnInit {
           isHomeCurrency = this.etxn.tx_currency === homeCurrency;
 
           if (!isHomeCurrency) {
-            this.etxn.tx_orig_currency = this.etxn.tx_currency;
-            this.etxn.tx_currency = homeCurrency;
-            this.etxn.tx_orig_amount = this.etxn.tx_amount;
+            this.extnInternal.tx_orig_currency = this.etxn.tx_currency;
+            this.extnInternal.tx_currency = homeCurrency;
+            this.extnInternal.tx_orig_amount = this.etxn.tx_amount;
 
-            return this.currencyService.getExchangeRate(this.etxn.tx_orig_currency, homeCurrency, this.etxn.tx_txn_dt);
+            return this.currencyService.getExchangeRate(this.extnInternal.tx_orig_currency, homeCurrency, this.extnInternal.tx_txn_dt);
           }
         }
       })
