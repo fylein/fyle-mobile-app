@@ -44,6 +44,7 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
+import {LocationService} from 'src/app/core/services/location.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -134,7 +135,8 @@ export class AddEditMileagePage implements OnInit {
     private dateService: DateService,
     private trackingService: TrackingService,
     private tokenService: TokenService,
-    private recentlyUsedItemsService: RecentlyUsedItemsService
+    private recentlyUsedItemsService: RecentlyUsedItemsService,
+    private locationService: LocationService
   ) { }
 
   ngOnInit() {
