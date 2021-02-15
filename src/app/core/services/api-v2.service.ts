@@ -22,4 +22,22 @@ export class ApiV2Service {
   get(url: string, config = {}) {
     return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/v2' + url, config);
   }
+
+  extendQueryParamsForTextSearch(queryParams, simpleSearchText) {
+    if (simpleSearchText === undefined || simpleSearchText.length < 1) {
+      return queryParams;
+    }
+
+    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => {
+      return word.trim().length > 0;
+    });
+    const lastElement = textArray[textArray.length - 1];
+    const arrayWithoutLastElement = textArray.slice(0, -1);
+
+    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => {
+      return agg + ' & ' + curr;
+    }, '').concat(lastElement).concat(':*');
+
+    return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
+  }
 }

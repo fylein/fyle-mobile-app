@@ -12,6 +12,7 @@ import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareRepl
 import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/team-reports-search-filter.component';
 import { TeamReportsSortFilterComponent } from './team-reports-sort-filter/team-reports-sort-filter.component';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -59,7 +60,8 @@ export class TeamReportsPage implements OnInit {
     private currencyService: CurrencyService,
     private popupService: PopupService,
     private popoverConroller: PopoverController,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private apiV2Service: ApiV2Service
   ) { }
 
   ngOnInit() {
@@ -104,8 +106,9 @@ export class TeamReportsPage implements OnInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams;
+        let queryParams = params.queryParams;
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getTeamReports({
           offset: (params.pageNumber - 1) * 10,
           limit: 10,
@@ -122,40 +125,14 @@ export class TeamReportsPage implements OnInit {
       })
     );
 
-    const simpleSearchAllDataPipe = this.loadData$.pipe(
-      switchMap(params => {
-        const queryParams = params.queryParams;
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.getAllTeamExtendedReports({
-              queryParams,
-              order: orderByParams
-            }).pipe(
-              map(erpts => erpts.filter(erpt => {
-                return Object.values(erpt)
-                  .map(value => value && value.toString().toLowerCase())
-                  .filter(value => !!value)
-                  .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
-              }))
-            );
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        );
-      })
-    );
-
-    this.teamReports$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
-      }),
+    this.teamReports$ = paginatedPipe.pipe(
       shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
-        const queryParams = params.queryParams;
+        let queryParams = params.queryParams;
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getTeamReportsCount(queryParams);
       }),
       shareReplay(1)
