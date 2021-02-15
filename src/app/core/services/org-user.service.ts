@@ -163,7 +163,7 @@ export class OrgUserService {
 
   async isSwitchedToDelegator() {
     const accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
-    return !!accessToken.proxy_org_user_id;
+    return accessToken && !!accessToken.proxy_org_user_id;
   }
 
   verifyMobile() {
