@@ -77,6 +77,24 @@ export class TeamReportsPage implements OnInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  extendQueryParamsForTextSearch(queryParams, simpleSearchText) {
+    if (simpleSearchText === undefined || simpleSearchText.length < 1) {
+      return queryParams;
+    }
+
+    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => {
+      return word.trim().length > 0;
+    });
+    const lastElement = textArray[textArray.length - 1];
+    const arrayWithoutLastElement = textArray.slice(0, -1);
+
+    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => {
+      return agg + ' & ' + curr;
+    }, '').concat(lastElement).concat(':*');
+
+    return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
+  }
+
   ionViewWillEnter() {
     this.loadData$ = new BehaviorSubject({
       pageNumber: 1,
@@ -104,8 +122,9 @@ export class TeamReportsPage implements OnInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams;
+        let queryParams = params.queryParams;
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getTeamReports({
           offset: (params.pageNumber - 1) * 10,
           limit: 10,
@@ -122,40 +141,14 @@ export class TeamReportsPage implements OnInit {
       })
     );
 
-    const simpleSearchAllDataPipe = this.loadData$.pipe(
-      switchMap(params => {
-        const queryParams = params.queryParams;
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.getAllTeamExtendedReports({
-              queryParams,
-              order: orderByParams
-            }).pipe(
-              map(erpts => erpts.filter(erpt => {
-                return Object.values(erpt)
-                  .map(value => value && value.toString().toLowerCase())
-                  .filter(value => !!value)
-                  .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
-              }))
-            );
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        );
-      })
-    );
-
-    this.teamReports$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
-      }),
+    this.teamReports$ = paginatedPipe.pipe(
       shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
-        const queryParams = params.queryParams;
+        let queryParams = params.queryParams;
+        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getTeamReportsCount(queryParams);
       }),
       shareReplay(1)
