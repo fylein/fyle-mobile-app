@@ -12,6 +12,7 @@ import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareRepl
 import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/team-reports-search-filter.component';
 import { TeamReportsSortFilterComponent } from './team-reports-sort-filter/team-reports-sort-filter.component';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -59,7 +60,8 @@ export class TeamReportsPage implements OnInit {
     private currencyService: CurrencyService,
     private popupService: PopupService,
     private popoverConroller: PopoverController,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private apiV2Service: ApiV2Service
   ) { }
 
   ngOnInit() {
@@ -75,24 +77,6 @@ export class TeamReportsPage implements OnInit {
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
-  }
-
-  extendQueryParamsForTextSearch(queryParams, simpleSearchText) {
-    if (simpleSearchText === undefined || simpleSearchText.length < 1) {
-      return queryParams;
-    }
-
-    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => {
-      return word.trim().length > 0;
-    });
-    const lastElement = textArray[textArray.length - 1];
-    const arrayWithoutLastElement = textArray.slice(0, -1);
-
-    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => {
-      return agg + ' & ' + curr;
-    }, '').concat(lastElement).concat(':*');
-
-    return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
   }
 
   ionViewWillEnter() {
@@ -124,7 +108,7 @@ export class TeamReportsPage implements OnInit {
       switchMap((params) => {
         let queryParams = params.queryParams;
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getTeamReports({
           offset: (params.pageNumber - 1) * 10,
           limit: 10,
@@ -148,7 +132,7 @@ export class TeamReportsPage implements OnInit {
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
         let queryParams = params.queryParams;
-        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getTeamReportsCount(queryParams);
       }),
       shareReplay(1)
