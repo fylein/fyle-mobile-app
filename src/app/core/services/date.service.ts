@@ -127,6 +127,10 @@ export class DateService {
       data.txn_dt = this.getUTCDate(new Date(data.txn_dt));
     }
 
+    if (data.tx_txn_dt) {
+      data.tx_txn_dt = this.getUTCDate(new Date(data.tx_txn_dt));
+    }
+
     if (data.created_at) {
       data.created_at = this.getUTCDate(new Date(data.created_at));
     }

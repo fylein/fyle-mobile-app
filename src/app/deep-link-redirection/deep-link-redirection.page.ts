@@ -37,7 +37,7 @@ export class DeepLinkRedirectionPage implements OnInit {
   }
 
   async redirectToAdvReqModule() {
-    await this.loaderService.showLoader('loading....');
+    await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
     this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).subscribe((res) => {
       const id = res.advance.id || res.areq.id;
@@ -57,7 +57,7 @@ export class DeepLinkRedirectionPage implements OnInit {
   }
 
   async redirectToExpenseModule() {
-    await this.loaderService.showLoader('loading....');
+    await this.loaderService.showLoader('Loading....');
     this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).subscribe((res) => {
       const category = res.tx.org_category && res.tx.org_category.toLowerCase();
 
@@ -77,7 +77,7 @@ export class DeepLinkRedirectionPage implements OnInit {
   }
 
   async redirectToReportModule() {
-    await this.loaderService.showLoader('loading....');
+    await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
 
     this.reportService.getERpt(this.activatedRoute.snapshot.params.id).subscribe((res) => {

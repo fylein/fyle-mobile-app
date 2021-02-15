@@ -74,19 +74,19 @@ export class TransactionFieldConfigurationsService {
         if (configurations && configurations.length > 0) {
           configurations.some((configuration) => {
             if (orgCategoryId && projectId) {
-              if (configuration.org_category_ids.indexOf(orgCategoryId) > -1 && configuration.project_ids.indexOf(projectId) > -1) {
+              if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1 && configuration.project_ids && configuration.project_ids.indexOf(projectId) > -1) {
                 filteredField = configuration;
 
                 return true;
               }
             } else if (orgCategoryId) {
-              if (configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
+              if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
                 filteredField = configuration;
 
                 return true;
               }
             } else if (projectId) {
-              if (configuration.project_ids.indexOf(projectId) > -1) {
+              if (configuration.project_ids && configuration.project_ids.indexOf(projectId) > -1) {
                 filteredField = configuration;
 
                 return true;

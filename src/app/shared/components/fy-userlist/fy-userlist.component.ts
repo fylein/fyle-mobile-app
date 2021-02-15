@@ -56,7 +56,7 @@ export class FyUserlistComponent implements OnInit {
     this.eouc$ = this.orgUserService.getAllCompanyEouc();
 
     this.eouc$.pipe(
-      map(eous => eous.map(eou => ({ label: eou.us.email, value: eou.us.email })))
+      map(eous => eous.map(eou => ({ label: `${eou.us.full_name} (${eou.us.email})`, value: eou.us.email })))
     ).subscribe((options) => {
       this.options = options;
     });

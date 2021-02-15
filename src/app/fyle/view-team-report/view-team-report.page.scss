@@ -41,6 +41,17 @@ $inquiry-color: #4848ad;
     }
   }
 
+  &--alert-block {
+    display: flex;
+    margin: 10px 0;
+    align-items: center;
+  }
+
+  &--alert-icon {
+    color: red;
+    font-size: 16px;
+  }
+
   &--divider {
     border-top: 1px solid #e5e5e5;
     margin: 16px 0;

@@ -1,13 +1,13 @@
 <div class="currency-component">
-  <div class="currency-component--currency-block clearfix" *ngIf="(etxn.tx_orig_amount && etxn.tx_orig_currency); else plainAmount">
+  <div class="currency-component--currency-block clearfix" *ngIf="(extnInternal.tx_orig_amount && extnInternal.tx_orig_currency); else plainAmount">
     <div class="currency-component--currency-input">
       <input name="currency" type="text" class="currency-component--currency-input-currency"
-             [(ngModel)]="etxn.tx_orig_currency" placeholder="Currency"
+             [(ngModel)]="extnInternal.tx_orig_currency" placeholder="Currency"
              [disabled]="true" readonly>
     </div>
     <div class="currency-component--amount-input">
       <input inputmode="decimal" type="number" class="currency-component--amount-input-amount"
-             [(ngModel)]="etxn.tx_orig_amount" name="amount" placeholder="Amount"
+             [(ngModel)]="extnInternal.tx_orig_amount" name="amount" placeholder="Amount"
              [disabled]="true">
     </div>
   </div>
@@ -16,12 +16,12 @@
     <div class="currency-component--currency-block clearfix">
       <div class="currency-component--currency-input">
         <input name="currency" type="text" class="currency-component--currency-input-currency"
-               [(ngModel)]="etxn.tx_currency" placeholder="Currency"
+               [(ngModel)]="extnInternal.tx_currency" placeholder="Currency"
                [disabled]="true" readonly>
       </div>
       <div class="currency-component--amount-input">
         <input inputmode="decimal" type="number" class="currency-component--amount-input-amount"
-               [(ngModel)]="etxn.tx_amount" name="amount" placeholder="Amount"
+               [(ngModel)]="extnInternal.tx_amount" name="amount" placeholder="Amount"
                [disabled]="true">
       </div>
     </div>
@@ -33,10 +33,10 @@
         <ng-container *ngIf="amountConvertedToHomeCurrency$|async as amountConvertedToHomeCurrency">
           <div class="currency-component--conversion">
             <div class="currency-component--converted-amount">
-              {{homeCurrency}} {{amountConvertedToHomeCurrency | number: '1.0-0'}}
+              {{extnInternal.tx_currency}} {{amountConvertedToHomeCurrency | number: '1.0-2'}}
             </div>
             <div class="currency-component--exchange-rate">
-              at {{calculatedExchangeRate | number: '1.0-6'}} {{homeCurrency}} / {{etxn.tx_orig_currency || etxn.tx_currency}}
+              at {{calculatedExchangeRate | number: '1.0-7'}} {{extnInternal.tx_currency}} / {{extnInternal.tx_orig_currency}} 
             </div>
           </div>
         </ng-container>

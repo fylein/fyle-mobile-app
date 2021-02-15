@@ -91,7 +91,7 @@ export class CccClassifyActionsPage implements OnInit {
         '        will collect this amount from you based on your company\'s policy. Do you wish to classify this as a\n' +
         '        personal transaction?',
       primaryCta: {
-        text: 'Classify As Personal'
+        text: 'Classing as Personal'
       },
       secondaryCta: {
         text: 'Cancel'

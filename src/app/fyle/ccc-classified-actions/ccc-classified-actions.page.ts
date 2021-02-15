@@ -68,7 +68,7 @@ export class CccClassifiedActionsPage implements OnInit {
   async unmarkExpense(cccExpense: CorporateCardExpense) {
     const popupResult = await this.popupService.showPopup({
       header: 'Are you sure you want to Unmark',
-      message: 'This transaction will be moved back to the  tab where you can classify it later. Are you sure you want to proceed?<strong>Unclassified</strong>',
+      message: 'This transaction will be moved back to the <strong>Unclassified</strong> tab where you can classify it later. Are you sure you want to proceed?',
       primaryCta: {
         text: 'Yes, Unmark'
       },

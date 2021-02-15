@@ -163,7 +163,7 @@ export class OrgUserService {
 
   async isSwitchedToDelegator() {
     const accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
-    return !!accessToken.proxy_org_user_id;
+    return accessToken && !!accessToken.proxy_org_user_id;
   }
 
   verifyMobile() {
@@ -171,6 +171,10 @@ export class OrgUserService {
   }
 
   checkMobileVerificationCode(otp) {
-    return this.apiService.post('/orgusers/check_mobile_verification_code', otp);
+    return this.apiService.postWithConfig('/orgusers/check_mobile_verification_code', otp, {
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      }
+    });
   }
 }

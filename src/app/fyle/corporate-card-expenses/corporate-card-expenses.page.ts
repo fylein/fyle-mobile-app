@@ -125,16 +125,12 @@ export class CorporateCardExpensesPage implements OnInit {
         queryParams.state = queryParams.state || defaultState;
 
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return from(this.loaderService.showLoader()).pipe(switchMap(() => {
-            return this.corporateCreditCardExpenseService.getv2CardTransactions({
-              offset: (params.pageNumber - 1) * 10,
-              limit: 10,
-              queryParams,
-              order: orderByParams
-            });
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        );
+        return this.corporateCreditCardExpenseService.getv2CardTransactions({
+          offset: (params.pageNumber - 1) * 10,
+          limit: 10,
+          queryParams,
+          order: orderByParams
+        });
       }),
       map(res => {
         if (this.currentPageNumber === 1) {
@@ -269,7 +265,9 @@ export class CorporateCardExpensesPage implements OnInit {
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
-    event.target.complete();
+    setTimeout(() => {
+      event.target.complete();
+    }, 1000);
   }
 
   doRefresh(event?) {
