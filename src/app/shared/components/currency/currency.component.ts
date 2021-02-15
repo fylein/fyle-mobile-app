@@ -40,16 +40,28 @@ export class CurrencyComponent implements OnInit {
       })
     );
 
+    // TODO cleanup
     this.calculatedExchangeRate$ = this.homeCurrency$.pipe(
       switchMap(homeCurrency => {
-        if (this.etxn.tx_orig_amount) {
-          if (this.etxn.tx_currency === homeCurrency) {
+
+        let isHomeCurrency: boolean;
+
+        if (this.etxn.tx_orig_amount && this.etxn.tx_orig_currency) {
+          isHomeCurrency = this.etxn.tx_orig_currency === homeCurrency;
+
+          if (!isHomeCurrency) {
             return of(this.etxn.tx_amount / this.etxn.tx_orig_amount);
-          } else {
-            return this.currencyService.getExchangeRate(this.etxn.tx_orig_currency, homeCurrency, this.etxn.tx_txn_dt);
           }
         } else {
-          return this.currencyService.getExchangeRate(this.etxn.tx_currency, homeCurrency, this.etxn.tx_txn_dt);
+          isHomeCurrency = this.etxn.tx_currency === homeCurrency;
+
+          if (!isHomeCurrency) {
+            this.etxn.tx_orig_currency = this.etxn.tx_currency;
+            this.etxn.tx_currency = homeCurrency;
+            this.etxn.tx_orig_amount = this.etxn.tx_amount;
+
+            return this.currencyService.getExchangeRate(this.etxn.tx_currency, homeCurrency, this.etxn.tx_txn_dt);
+          }
         }
       })
     );

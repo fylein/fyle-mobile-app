@@ -33,10 +33,10 @@
         <ng-container *ngIf="amountConvertedToHomeCurrency$|async as amountConvertedToHomeCurrency">
           <div class="currency-component--conversion">
             <div class="currency-component--converted-amount">
-              {{homeCurrency}} {{amountConvertedToHomeCurrency | number: '1.0-0'}}
+              {{etxn.tx_currency}} {{amountConvertedToHomeCurrency | number: '1.0-2'}}
             </div>
             <div class="currency-component--exchange-rate">
-              at {{calculatedExchangeRate | number: '1.0-6'}} {{homeCurrency}} / {{etxn.tx_orig_currency || etxn.tx_currency}}
+              at {{calculatedExchangeRate | number: '1.0-7'}} {{etxn.tx_currency}} / {{etxn.tx_orig_currency}} 
             </div>
           </div>
         </ng-container>
