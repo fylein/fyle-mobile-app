@@ -60,7 +60,7 @@ export class CurrencyComponent implements OnInit {
             this.etxn.tx_currency = homeCurrency;
             this.etxn.tx_orig_amount = this.etxn.tx_amount;
 
-            return this.currencyService.getExchangeRate(this.etxn.tx_currency, homeCurrency, this.etxn.tx_txn_dt);
+            return this.currencyService.getExchangeRate(this.etxn.tx_orig_currency, homeCurrency, this.etxn.tx_txn_dt);
           }
         }
       })
