@@ -61,15 +61,33 @@
 
       <div class="view-reports--card" *ngIf="erpt.rp_num_transactions !== 0">
         <div>
-          <div>
-            <span class="view-reports--currency">
-              {{erpt.rp_currency}}
-            </span>
-            <span class="view-reports--amount">
-              {{erpt.rp_amount | number:'1.2-2'}}
-            </span>
-          </div>
-          <div class="view-reports--count">Contains {{erpt.rp_num_transactions}} expenses</div>
+          <ng-container *ngIf="etxns$|async as etxn">
+            <div>
+              <span class="view-reports--currency">
+                {{erpt.rp_currency}}
+              </span>
+              <span class="view-reports--amount">
+                <ng-container *ngIf="etxn.length !== erpt.rp_num_transactions">
+                  <ng-container *ngIf="etxnAmountSum$|async as etxnAmountSum">
+                    {{etxnAmountSum | number:'1.2-2'}}
+                  </ng-container>
+                </ng-container>
+                <ng-container *ngIf="etxn.length === erpt.rp_num_transactions">
+                  {{erpt.rp_amount | number:'1.2-2'}}
+                </ng-container>
+              </span>
+            </div>
+            <ng-container *ngIf="etxn.length !== erpt.rp_num_transactions">
+              <div class="view-reports--alert-block">
+                <div>
+                  <mat-icon class="view-reports--alert-icon">info_outline</mat-icon>
+                </div>
+                <div>This is the total of the expenses from this report that require your approval.</div>
+              </div>
+            </ng-container>
+
+            <div class="view-reports--count">Contains {{etxn.length}} expenses</div>
+          </ng-container>
           <div class="view-reports--view-hide-btn" (click)="hideAllExpenses = !hideAllExpenses">
             <span *ngIf="hideAllExpenses">View All</span>
             <span *ngIf="!hideAllExpenses">Hide All</span>

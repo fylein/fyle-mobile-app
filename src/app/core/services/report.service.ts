@@ -559,4 +559,16 @@ export class ReportService {
   removeApprover(rptId, approvalId) {
     return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
   }
+
+  getReportETxnc(rptId, orgUserId) {
+    const data: any = {
+      params: {}
+    };
+
+    if (orgUserId) {
+      data.params.approver_id = orgUserId;
+    }
+
+    return this.apiService.get('/erpts/' + rptId + '/etxns', data);
+  }
 }

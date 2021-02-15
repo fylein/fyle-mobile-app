@@ -163,8 +163,6 @@ $red: #f00;
     display: flex;
     max-width: 170px;
     min-width: 120px;
-    text-overflow: ellipsis;
-    overflow: hidden;
 
     &__large {
       max-width: 170px;
@@ -345,6 +343,10 @@ $red: #f00;
     &__disabled {
       opacity: 0.2;
     }
+
+    &:focus {
+      outline: none;
+    }
   }
 
   &--review-go-right {
@@ -362,6 +364,10 @@ $red: #f00;
     opacity: 0.8;
     &__disabled {
       opacity: 0.2;
+    }
+
+    &:focus {
+      outline: none;
     }
   }
 

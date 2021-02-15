@@ -29,7 +29,7 @@ export class HelpPage implements OnInit {
 
   openContactSupportDialog() {
     this.contactSupportLoading = true;
-    from(this.loaderService.showLoader('Please wait')).pipe(
+    from(this.loaderService.showLoader('Please wait', 10000)).pipe(
       switchMap(() => {
         return this.orgUserService.getAllCompanyEouc();
       }),
@@ -59,7 +59,7 @@ export class HelpPage implements OnInit {
       component: SupportDialogPage,
       componentProps: {
         type: dialogType,
-        adminEous: this.orgAdmins && this.orgAdmins.splice(0, 5) || []
+        adminEous: this.orgAdmins && this.orgAdmins.sort((a, b) => a.us.email < b.us.email ? -1 : 1).splice(0, 5) || []
       }
     });
 

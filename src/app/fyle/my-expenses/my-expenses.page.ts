@@ -19,6 +19,7 @@ import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-
 import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -85,7 +86,8 @@ export class MyExpensesPage implements OnInit {
     private popupService: PopupService,
     private trackingService: TrackingService,
     private storageService: StorageService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private apiV2Service: ApiV2Service
   ) { }
 
   clearText() {
@@ -217,7 +219,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
-        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return this.transactionService.getMyExpensesCount(queryParams).pipe(
           switchMap((count) => {
@@ -262,7 +264,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
-        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         console.log(queryParams);
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
@@ -661,24 +663,6 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id, persist_filters: true }]);
     }
-  }
-
-  extendQueryParamsForTextSearch(queryParams, simpleSearchText) {
-    if (simpleSearchText === undefined || simpleSearchText.length < 1) {
-      return queryParams;
-    }
-
-    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => {
-      return word.trim().length > 0;
-    });
-    const lastElement = textArray[textArray.length - 1];
-    const arrayWithoutLastElement = textArray.slice(0, -1);
-
-    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => {
-      return agg + ' & ' + curr;
-    }, '').concat(lastElement).concat(':*');
-
-    return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
   }
 
   onAddTransactionToNewReport(expense) {

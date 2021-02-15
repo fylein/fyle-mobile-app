@@ -15,6 +15,7 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -67,7 +68,8 @@ export class MyReportsPage implements OnInit {
     private popupService: PopupService,
     private transactionService: TransactionService,
     private popoverController: PopoverController,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private apiV2Service: ApiV2Service
   ) { }
 
   ngOnInit() {
@@ -84,26 +86,8 @@ export class MyReportsPage implements OnInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  extendQueryParamsForTextSearch(queryParams, simpleSearchText) {
-    if (simpleSearchText === undefined || simpleSearchText.length < 1) {
-      return queryParams;
-    }
-
-    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => {
-      return word.trim().length > 0;
-    });
-    const lastElement = textArray[textArray.length - 1];
-    const arrayWithoutLastElement = textArray.slice(0, -1);
-
-    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => {
-      return agg + ' & ' + curr;
-    }, '').concat(lastElement).concat(':*');
-
-    return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
-  }
-
   ionViewWillEnter() {
-    this.loaderService.showLoader('loading reports...', 1000);
+    this.loaderService.showLoader('Loading reports...', 1000);
     this.setupNetworkWatcher();
 
     this.searchText = '';
@@ -137,7 +121,7 @@ export class MyReportsPage implements OnInit {
       switchMap((params) => {
         let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getMyReportsCount(queryParams).pipe(
           switchMap(count => {
             if (count > ((params.pageNumber - 1) * 10)) {
@@ -171,7 +155,7 @@ export class MyReportsPage implements OnInit {
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
         let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
-        queryParams = this.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getMyReportsCount(queryParams);
       }),
       shareReplay(1)

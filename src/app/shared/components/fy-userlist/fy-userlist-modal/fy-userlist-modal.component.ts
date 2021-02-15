@@ -43,7 +43,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
             option.selected = this.currentSelections.includes(option.value);
           }
           return option;
-        })
+        }).sort((a, b) => a.value < b.value ? -1 : 1).sort((a, b) => !!a.selected > !!b.selected ? -1 : 1)
       ),
     );
     this.cdr.detectChanges();

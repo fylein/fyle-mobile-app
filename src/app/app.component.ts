@@ -4,7 +4,7 @@ import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
 import {map, switchMap, shareReplay} from 'rxjs/operators';
-import {Router} from '@angular/router';
+import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {OrgUserService} from 'src/app/core/services/org-user.service';
@@ -156,7 +156,7 @@ export class AppComponent implements OnInit {
         this.trackingService.eventTrack('Auto Logged out', {
           Asset: 'Mobile',
           lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
-          user_email: eou.us.email,
+          user_email: eou && eou.us && eou.us.email,
           appVersion: deviceInfo.appVersion
         });
 
@@ -227,6 +227,7 @@ export class AppComponent implements OnInit {
       this.isSwitchedToDelegator = res.isSwitchedToDelegator;
       const isConnected = res.isConnected;
       this.eou = res.eou;
+
 
       if (res.eou) {
         Sentry.setUser({
@@ -495,6 +496,15 @@ export class AppComponent implements OnInit {
     });
 
     this.setupNetworkWatcher();
+
+    this.router.events.subscribe((ev) => {
+      if (ev instanceof NavigationEnd) {
+        this.menuController.swipeGesture(false);
+        if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
+          this.menuController.swipeGesture(true);
+        } 
+      }
+    });
   }
 
 }

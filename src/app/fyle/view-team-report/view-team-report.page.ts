@@ -40,6 +40,7 @@ export class ViewTeamReportPage implements OnInit {
   isConnected$: Observable<boolean>;
   onPageExit = new Subject();
   navigateBack = false;
+  etxnAmountSum$: Observable<any>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -156,10 +157,7 @@ export class ViewTeamReportPage implements OnInit {
 
     this.etxns$ = from(this.authService.getEou()).pipe(
       switchMap(eou => {
-        return this.transactionService.getAllETxnc({
-          tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
-          order: 'tx_txn_dt.desc,tx_id.desc'
-        });
+        return this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id);
       }),
       map(
         etxns => etxns.map(etxn => {
@@ -169,6 +167,14 @@ export class ViewTeamReportPage implements OnInit {
         })
       ),
       shareReplay(1)
+    );
+
+    this.etxnAmountSum$ = this.etxns$.pipe(
+      map(etxns => {
+        return etxns.reduce((acc, curr) => {
+          return acc + curr.tx_amount;
+        }, 0);
+      })
     );
 
     this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
