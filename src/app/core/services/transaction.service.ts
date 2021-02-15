@@ -305,7 +305,7 @@ export class TransactionService {
       }),
       map(res => ({
         ...res,
-        data: res.data.map(this.dateService.fixDates)
+        data: res.data.map(datum => this.dateService.fixDates(datum))
       }))
     );
   }
