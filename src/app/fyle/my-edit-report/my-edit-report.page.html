@@ -43,15 +43,15 @@
 
     <div class="my-edit-report--report-info">
       <div>
-        <span class="my-edit-report--report-info-currency">{{extendedReport.rp_currency}}</span> 
+        <span class="my-edit-report--report-info-currency">{{extendedReport.rp_currency}}</span>
         <span class="my-edit-report--report-info-amount"> {{(reportAmount + selectedTotalAmount).toFixed(2)}} </span>
       </div>
-      <p class="my-edit-report--report-info-no-of-txns">Contain {{noOfTxnsInReport + selectedTotalTxns}} expenses</p>
+      <p class="my-edit-report--report-info-no-of-txns">Contain {{noOfTxnsInReport + selectedTotalTxns}} expense <ng-container *ngIf="(noOfTxnsInReport + selectedTotalTxns)>1">s</ng-container></p>
     </div>
 
     <div class="my-edit-report--expense-list" *ngIf="addedExpensesIdList.length > 0">
       <p class="my-edit-report--expense-list-title">Selected Expenses To Add</p>
-      
+
       <div *ngFor="let unReportedEtxn of unReportedEtxns; let i = index;">
         <div *ngIf="addedExpensesIdList.indexOf(unReportedEtxn.tx_id) > -1">
           <div class="my-edit-report--expense-card">
@@ -66,7 +66,7 @@
                     <span class="my-edit-report--expense-card-amount" [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : unReportedEtxn.tx_skip_reimbursement}">{{unReportedEtxn.tx_amount}}</span>
                   </span>
                 </ion-row>
-    
+
                 <ion-row class="my-edit-report--expense-card-vendor">{{unReportedEtxn.vendorDetails}}</ion-row>
                 <ion-row class="my-edit-report--expense-card-category">{{unReportedEtxn.tx_org_category}}</ion-row>
               </ion-col>
@@ -93,7 +93,7 @@
                   <span class="my-edit-report--expense-card-amount" [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : reportedEtxn.tx_skip_reimbursement}">{{reportedEtxn.tx_amount | number: '1.0-2'}}</span>
                 </span>
               </ion-row>
-  
+
               <ion-row class="my-edit-report--expense-card-vendor">{{reportedEtxn.vendorDetails}}</ion-row>
               <ion-row class="my-edit-report--expense-card-category">{{reportedEtxn.tx_org_category}}</ion-row>
             </ion-col>

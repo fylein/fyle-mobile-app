@@ -502,7 +502,7 @@ export class AppComponent implements OnInit {
         this.menuController.swipeGesture(false);
         if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
           this.menuController.swipeGesture(true);
-        } 
+        }
       }
     });
   }
