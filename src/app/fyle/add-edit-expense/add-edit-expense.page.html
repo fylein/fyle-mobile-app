@@ -379,9 +379,8 @@
 
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="txnFields.purpose?.canView">
-              <div *ngIf="txnFields.purpose?.type === 'TEXT'"
-                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                   class="add-edit-expense--text add-edit-expense--internal-block">
+              <div *ngIf="txnFields.purpose?.type === 'TEXT'" class="add-edit-expense--text add-edit-expense--internal-block"
+                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                 <div [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
                      class="add-edit-expense--text-label">
                   <div>
@@ -396,17 +395,18 @@
                        class="add-edit-expense--text-input add-edit-expense--internal-block"
                        formControlName="purpose">
               </div>
-              <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block">
-                <app-fy-select [cacheName]="'recentPurposeList'"
-                               [disabled]="!txnFields.purpose?.canEdit"
-                               [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
-                               [mandatory]="txnFields.purpose?.mandatory"
-                               [nullOption]="txnFields.purpose?.mandatory ? false : true"
-                               [options]="txnFields.purpose?.values"
-                               [selectModalHeader]="'Enter '+ txnFields.purpose?.title"
-                               [subheader]="'All ' + txnFields.purpose?.title"
-                               formControlName="purpose"
-                >
+              <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block"
+                [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
+                <app-fy-select 
+                  [cacheName]="'recentPurposeList'"
+                  [disabled]="!txnFields.purpose?.canEdit"
+                  [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
+                  [mandatory]="txnFields.purpose?.mandatory"
+                  [nullOption]="txnFields.purpose?.mandatory ? false : true"
+                  [options]="txnFields.purpose?.values"
+                  [selectModalHeader]="'Enter '+ txnFields.purpose?.title"
+                  [subheader]="'All ' + txnFields.purpose?.title"
+                  formControlName="purpose">
                 </app-fy-select>
               </div>
               <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid" class="add-edit-expense--error">
@@ -517,13 +517,13 @@
             <div *ngIf="txnFields.flight_return_travel_class?.canView && txnFields.flight_return_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
                  class="add-edit-expense--internal-block" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid}">
               <app-fy-select *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                             [disabled]="!txnFields.flight_return_travel_class?.canEdit"
-                             [label]="fg.controls.flight_return_travel_class.value ? txnFields.flight_return_travel_class?.title : 'Select ' + txnFields.flight_return_travel_class?.title"
-                             [mandatory]="txnFields.flight_return_travel_class?.mandatory"
-                             [options]="txnFields.flight_journey_travel_class?.values"
-                             [selectModalHeader]="'Choose Travel Class'"
-                             formControlName="flight_return_travel_class"
-                             name="flightReturnClass">
+                  [disabled]="!txnFields.flight_return_travel_class?.canEdit"
+                  [label]="fg.controls.flight_return_travel_class.value ? txnFields.flight_return_travel_class?.title : 'Select ' + txnFields.flight_return_travel_class?.title"
+                  [mandatory]="txnFields.flight_return_travel_class?.mandatory"
+                  [options]="txnFields.flight_journey_travel_class?.values"
+                  [selectModalHeader]="'Choose Travel Class'"
+                  formControlName="flight_return_travel_class"
+                  name="flightReturnClass">
               </app-fy-select>
             </div>
 
@@ -566,12 +566,14 @@
                      *ngIf="txnFields.bus_travel_class?.type === 'TEXT'" [disabled]="!txnFields.bus_travel_class?.canEdit"
                      class="add-edit-expense--text-input add-edit-expense--text-input__large" formControlName="bus_travel_class"
                      type="text">
-              <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" [disabled]="!txnFields.bus_travel_class?.canEdit"
-                             [label]="fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
-                             [mandatory]="txnFields.bus_travel_class?.mandatory"
-                             [options]="txnFields.bus_travel_class?.values"
-                             [selectModalHeader]="'Choose Travel Class'"
-                             formControlName="bus_travel_class" hide-none="true"></app-fy-select>
+              <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" 
+                [disabled]="!txnFields.bus_travel_class?.canEdit"
+                [label]="fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
+                [mandatory]="txnFields.bus_travel_class?.mandatory"
+                [options]="txnFields.bus_travel_class?.values"
+                [selectModalHeader]="'Choose Travel Class'"
+                formControlName="bus_travel_class" hide-none="true">
+              </app-fy-select>
             </div>
 
             <div *ngIf="fg.value?.category?.fyle_category === 'Hotel'" class="add-edit-expense--internal-block">

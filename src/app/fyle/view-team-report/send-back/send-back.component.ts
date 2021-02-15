@@ -51,8 +51,8 @@ export class SendBackComponent implements OnInit {
 
 
   sendBack(ngmodel: NgModel) {
-    this.sendBackLoading = true;
     if (ngmodel.valid) {
+      this.sendBackLoading = true;
       const status = {
         comment: this.sendBackReason
       };

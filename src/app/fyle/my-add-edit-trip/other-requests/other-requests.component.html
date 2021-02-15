@@ -146,7 +146,7 @@
                        *ngIf="customInput.input_type === 'LOCATION'">
                         <app-fy-location 
                           [mandatory]="customInput.mandatory" 
-                          [label]="customInput.input_name" 
+                          [label]="customInput.input_name | ellipsis: 11" 
                           formControlName="value">
                         </app-fy-location>
                       </div>
@@ -156,7 +156,7 @@
                        *ngIf="customInput.input_type === 'SELECT'">
                         <app-fy-select 
                           [mandatory]="customInput.mandatory" 
-                          [label]="customInput.input_name" 
+                          [label]="customInput.input_name | ellipsis: 11" 
                           [options]="customInput.input_options" 
                           formControlName="value">
                         </app-fy-select>
@@ -167,7 +167,7 @@
                       *ngIf="customInput.input_type === 'MULTI_SELECT'">
                         <app-fy-multiselect 
                           [mandatory]="customInput.mandatory" 
-                          [label]="customInput.input_name" 
+                          [label]="customInput.input_name | ellipsis: 11" 
                           [options]="customInput.input_options" 
                           formControlName="value">
                         </app-fy-multiselect>
@@ -178,7 +178,7 @@
                        *ngIf="customInput.input_type === 'USER_LIST'">
                         <app-fy-userlist 
                           [mandatory]="customInput.mandatory" 
-                          [label]="customInput.input_name" 
+                          [label]="customInput.input_name | ellipsis: 11" 
                           formControlName="value">
                         </app-fy-userlist>
                       </div>
@@ -324,25 +324,25 @@
                       <div class="other-details--text"
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'LOCATION'">
-                        <app-fy-location [label]="customInput.input_name" formControlName="value"></app-fy-location>
+                        <app-fy-location [label]="customInput.input_name | ellipsis: 11" formControlName="value"></app-fy-location>
                       </div>
         
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'SELECT'">
-                        <app-fy-select [label]="customInput.input_name" [options]="customInput.input_options" formControlName="value"></app-fy-select>
+                        <app-fy-select [label]="customInput.input_name | ellipsis: 11" [options]="customInput.input_options" formControlName="value"></app-fy-select>
                       </div>
         
                       <div class="other-details--text"
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'MULTI_SELECT'">
-                        <app-fy-multiselect [label]="customInput.input_name" [options]="customInput.input_options" formControlName="value"></app-fy-multiselect>
+                        <app-fy-multiselect [label]="customInput.input_name | ellipsis: 11" [options]="customInput.input_options" formControlName="value"></app-fy-multiselect>
                       </div>
         
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'USER_LIST'">
-                        <app-fy-userlist [label]="customInput.input_name" formControlName="value"></app-fy-userlist>
+                        <app-fy-userlist [label]="customInput.input_name | ellipsis: 11" formControlName="value"></app-fy-userlist>
                       </div>
 
                       <div *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid" class="other-details--mandatory-text">
@@ -458,25 +458,25 @@
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'LOCATION'">
-                        <app-fy-location [label]="customInput.name" formControlName="value"></app-fy-location>
+                        <app-fy-location [label]="customInput.name | ellipsis: 11" formControlName="value"></app-fy-location>
                       </div>
         
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'SELECT'">
-                        <app-fy-select [label]="customInput.name" [options]="customInput.options" formControlName="value"></app-fy-select>
+                        <app-fy-select [label]="customInput.name | ellipsis: 11" [options]="customInput.options" formControlName="value"></app-fy-select>
                       </div>
         
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'MULTI_SELECT'">
-                        <app-fy-multiselect [label]="customInput.name" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
+                        <app-fy-multiselect [label]="customInput.name | ellipsis: 11" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
                       </div>
         
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'USER_LIST'">
-                        <app-fy-userlist [label]="customInput.name" formControlName="value"></app-fy-userlist>
+                        <app-fy-userlist [label]="customInput.name | ellipsis: 11" formControlName="value"></app-fy-userlist>
                       </div>
 
                       <div *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid" class="other-details--mandatory-text">

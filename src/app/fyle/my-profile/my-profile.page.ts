@@ -22,6 +22,7 @@ import { OtpPopoverComponent } from './otp-popover/otp-popover.component';
 import { Plugins } from '@capacitor/core';
 import { TokenService } from 'src/app/core/services/token.service';
 import {TrackingService} from '../../core/services/tracking.service';
+import { environment } from 'src/environments/environment';
 
 const { Browser } = Plugins;
 
@@ -57,6 +58,7 @@ export class MyProfilePage implements OnInit {
   clusterDomain: string;
   verifyMobileLoading = false;
   saveProfileLoading = false;
+  ROUTER_API_ENDPOINT: string;
 
   constructor(
     private authService: AuthService,
@@ -273,6 +275,8 @@ export class MyProfilePage implements OnInit {
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
     });
+
+    this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
   }
 
   reset() {
@@ -392,7 +396,7 @@ export class MyProfilePage implements OnInit {
   openWebAppLink(location) {
     let link;
     if (location === 'app') {
-      link = this.clusterDomain;
+      link = this.ROUTER_API_ENDPOINT;
     } else if (location === 'whatsapp') {
       link = 'https://www.fylehq.com/help/en/articles/3432961-create-expense-using-whatsapp';
     } else if (location === 'sms') {

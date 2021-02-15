@@ -350,7 +350,7 @@ export class TransactionsOutboxService {
     });
 
     return this.syncDeferred;
-  };
+  }
 
   createTxnAndUploadBase64File(transaction, base64Content) {
     return this.transactionService.upsert(transaction).pipe(
