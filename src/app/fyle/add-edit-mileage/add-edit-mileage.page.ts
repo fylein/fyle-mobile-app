@@ -42,6 +42,8 @@ import {PopupService} from 'src/app/core/services/popup.service';
 import {DateService} from 'src/app/core/services/date.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import {TokenService} from 'src/app/core/services/token.service';
+import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
+import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -90,6 +92,7 @@ export class AddEditMileagePage implements OnInit {
   saveAndNewMileageLoader = false;
   saveAndNextMileageLoader = false;
   clusterDomain: string;
+  recentlyUsedValues$: Observable<RecentlyUsed>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -130,7 +133,8 @@ export class AddEditMileagePage implements OnInit {
     private navController: NavController,
     private dateService: DateService,
     private trackingService: TrackingService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private recentlyUsedItemsService: RecentlyUsedItemsService
   ) { }
 
   ngOnInit() {
@@ -539,11 +543,17 @@ export class AddEditMileagePage implements OnInit {
     const defaultVehicle$ = forkJoin({
       vehicleType: this.transactionService.getDefaultVehicleType(),
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      orgSettings: this.offlineService.getOrgSettings()
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$
     }).pipe(
       map(
-        ({ vehicleType, orgUserMileageSettings, orgSettings }) => {
-          if (orgUserMileageSettings.length > 0) {
+        ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue }) => {
+          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                              && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
+          if (isRecentVehicleTypePresent) {
+            vehicleType = recentValue.recent_vehicle_types[0];
+          } else if (orgUserMileageSettings.length > 0) {
             const isVehicleTypePresent = orgUserMileageSettings.indexOf(vehicleType);
 
             if (isVehicleTypePresent === -1) {
@@ -739,6 +749,7 @@ export class AddEditMileagePage implements OnInit {
     }));
 
     this.setupNetworkWatcher();
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
 
     this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
     this.paymentModes$ = this.getPaymentModes();
