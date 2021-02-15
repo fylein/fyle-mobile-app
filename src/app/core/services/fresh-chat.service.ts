@@ -62,7 +62,7 @@ export class FreshChatService {
     (window as any).fcWidget.init({
       token: environment.FRESHCHAT_TOKEN,
       host: 'https://wchat.in.freshchat.com',
-      externalId: eou && eou.ou.id,
+      externalId: eou.ou.id,
       restoreId: inAppChatRestoreId                            // that id is used to restore chat for the user
     });
 
