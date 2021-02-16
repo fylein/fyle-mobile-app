@@ -578,31 +578,24 @@ export class MyExpensesPage implements OnInit {
         this.openAddExpenseListLoader = false;
       })
     ).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
-      if (!(isInstaFyleEnabled || isMileageEnabled || isPerDiemEnabled)) {
-        this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
-          persist_filters: true
-        }]);
-      } else {
+      const addExpensePopover = await this.popoverController.create({
+        component: AddExpensePopoverComponent,
+        componentProps: {
+          isInstaFyleEnabled,
+          isMileageEnabled,
+          isPerDiemEnabled,
+          isBulkFyleEnabled
+        },
+        cssClass: 'dialog-popover'
+      });
 
-        const addExpensePopover = await this.popoverController.create({
-          component: AddExpensePopoverComponent,
-          componentProps: {
-            isInstaFyleEnabled,
-            isMileageEnabled,
-            isPerDiemEnabled,
-            isBulkFyleEnabled
-          },
-          cssClass: 'dialog-popover'
-        });
+      await addExpensePopover.present();
 
-        await addExpensePopover.present();
+      const {data} = await addExpensePopover.onDidDismiss();
 
-        const {data} = await addExpensePopover.onDidDismiss();
-
-        if (data && data.reload) {
-          this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-          this.doRefresh();
-        }
+      if (data && data.reload) {
+        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+        this.doRefresh();
       }
     });
   }
