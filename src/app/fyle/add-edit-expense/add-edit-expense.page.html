@@ -622,7 +622,7 @@
                      class="add-edit-expense--text ">
                   <div [ngClass]="{'add-edit-expense--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        class="add-edit-expense--text-label">
-                    {{customInput.name | ellipsis: 20}}
+                    {{customInput.name | ellipsis: 11}}
                     <span *ngIf="customInput.mandatory">
                     *
                   </span>
