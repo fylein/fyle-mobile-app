@@ -20,6 +20,7 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-my-expenses',
@@ -69,6 +70,7 @@ export class MyExpensesPage implements OnInit {
   isNewUser$: Observable<boolean>;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  ROUTER_API_ENDPOINT: any;
 
 
   constructor(
@@ -155,6 +157,8 @@ export class MyExpensesPage implements OnInit {
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
     });
+
+    this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
 
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
@@ -637,7 +641,7 @@ export class MyExpensesPage implements OnInit {
   async showCannotEditActivityDialog() {
     const popupResult = await this.popupService.showPopup({
       header: 'Cannot Edit Activity Expense!',
-      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.clusterDomain}">${this.clusterDomain}</a>`,
+      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.ROUTER_API_ENDPOINT}">${this.ROUTER_API_ENDPOINT}</a>`,
       primaryCta: {
         text: 'Close'
       },
