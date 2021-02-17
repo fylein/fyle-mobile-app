@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
-import {combineLatest, concat, forkJoin, from, iif, Observable, of, throwError} from 'rxjs';
+import {combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError} from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -753,6 +753,19 @@ export class AddEditMileagePage implements OnInit {
     this.setupNetworkWatcher();
     this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
 
+    forkJoin({
+      recentValue: this.recentlyUsedItemsService.getRecentlyUsedV2(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+    }).pipe(
+      map(res => { 
+        if (res.orgUserSettings.expense_form_autofills && res.orgUserSettings.expense_form_autofills.allowed && res.orgUserSettings.expense_form_autofills.enabled 
+          && res.recentValue && res.recentValue.recent_vehicle_types && res.recentValue.recent_vehicle_types.length > 0) {
+            // console.log("check vehcile", )
+            this.fg.controls.mileage_vehicle_type.setValue(res.recentValue.recent_vehicle_types[0]);
+          }
+      })
+    ).subscribe(noop)
+
     this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
     this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
@@ -826,6 +839,9 @@ export class AddEditMileagePage implements OnInit {
       }),
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
+
+
+
 
     this.transactionMandatoyFields$
       .pipe(
