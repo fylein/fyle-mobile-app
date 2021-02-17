@@ -344,7 +344,7 @@
                        class="add-edit-mileage--text">
                     <div [ngClass]="{'add-edit-mileage--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                          class="add-edit-mileage--text-label">
-                      {{customInput.name | ellipsis: 20}}
+                      {{customInput.name | ellipsis: 11}}
                       <span *ngIf="customInput.mandatory">
                         *
                       </span>
@@ -363,7 +363,7 @@
                   <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-mileage--checkbox">
                     <label>
                       <mat-checkbox color="primary" formControlName="value">
-                        {{customInput.name | ellipsis: 20 }}
+                        {{customInput.name | ellipsis: 35 }}
                         <span *ngIf="customInput.mandatory">*</span>
                       </mat-checkbox>
                     </label>

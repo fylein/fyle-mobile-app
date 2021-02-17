@@ -1876,9 +1876,35 @@ export class AddEditExpensePage implements OnInit {
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
+    const editExpenseAttachments = etxn$.pipe(
+      switchMap((etxn: any) => this.fileService.findByTransactionId(etxn.tx.id)),
+      switchMap((fileObjs: any) => {
+        return from(fileObjs);
+      }),
+      concatMap((fileObj: any) => {
+        return this.fileService.downloadUrl(fileObj.id).pipe(
+          map(downloadUrl => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        );
+      }),
+      reduce((acc, curr) => acc.concat(curr), [])
+    );
+
+    const addExpenseAttachments = of(this.newExpenseDataUrls.map(fileObj => {
+      fileObj.type = (fileObj.type === 'application/pdf' || fileObj.type === 'pdf') ? 'pdf' : 'image';
+      return fileObj;
+    }));
+
+    const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
     return forkJoin({
       etxn: etxn$,
-      customProperties: standardisedCustomProperties$
+      customProperties: standardisedCustomProperties$,
+      attachments: attachements$
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
@@ -1931,7 +1957,7 @@ export class AddEditExpensePage implements OnInit {
             purpose: this.fg.value.purpose,
             locations: locations || [],
             custom_properties: customProperties || [],
-            num_files: isPolicyEtxn ? this.newExpenseDataUrls.length : (this.activatedRoute.snapshot.params.dataUrl ? 1 : 0),
+            num_files: isPolicyEtxn ? (res.attachments && res.attachments.length) : (this.activatedRoute.snapshot.params.dataUrl ? 1 : 0),
             ...policyProps,
             org_user_id: etxn.tx.org_user_id,
             from_dt: this.fg.value.from_dt && new Date(this.fg.value.from_dt),

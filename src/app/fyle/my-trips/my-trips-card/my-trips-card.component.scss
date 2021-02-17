@@ -26,6 +26,7 @@ $text-light: #ababab;
   &--body {
     margin: 4px 16px 16px 16px;
     padding: 12px;
+    border-radius: 4px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     display: flex;
   }

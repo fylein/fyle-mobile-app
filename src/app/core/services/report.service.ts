@@ -139,7 +139,7 @@ export class ReportService {
       }),
       map(res => ({
         ...res,
-        data: res.data.map(this.dateService.fixDates)
+        data: res.data.map(datum => this.dateService.fixDates(datum))
       }))
     );
   }
@@ -181,7 +181,7 @@ export class ReportService {
       }),
       map(res => ({
         ...res,
-        data: res.data.map(this.dateService.fixDates)
+        data: res.data.map(datum => this.dateService.fixDates(datum))
       }))
     );
   }

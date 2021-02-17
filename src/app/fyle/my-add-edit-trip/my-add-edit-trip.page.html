@@ -228,7 +228,7 @@
                       class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                   <div [ngClass]="{'add-edit-trip--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                         class="add-edit-trip--text-label">
-                    {{customInput.input_name | ellipsis: 20}}
+                    {{customInput.input_name | ellipsis: 11}}
                     <span *ngIf="customInput.mandatory">
                       *
                     </span>
@@ -246,7 +246,7 @@
                 <div *ngIf="customInput.input_type === 'BOOLEAN'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                   <div class="add-edit-trip--checkbox">
                     <mat-checkbox color="primary" formControlName="value">
-                      {{customInput.input_name | ellipsis: 20 }}
+                      {{customInput.input_name | ellipsis: 35 }}
                     </mat-checkbox>
                   </div>
                 </div>
