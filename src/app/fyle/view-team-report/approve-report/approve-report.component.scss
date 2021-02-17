@@ -5,6 +5,7 @@ $details-color: #ababab;
   flex-direction: column;
   height: 100%;
   justify-content: space-between;
+
   &--header {
     padding: 0px 24px;
     padding-top: 16px;
@@ -29,6 +30,7 @@ $details-color: #ababab;
     font-weight: 500;
     line-height: 1.5;
     padding: 8px 24px;
+    font-weight: 400;
   }
 
   &--buttons {
@@ -41,6 +43,7 @@ $details-color: #ababab;
     height: 48px;
     margin: 4px 24px;
     margin-bottom: 12px;
+    font-weight: 600;
   }
 
   &--primary-cta {
@@ -88,12 +91,6 @@ $details-color: #ababab;
     font-size: 16px;
     color: #ababab;
     line-height: 1.5;
-  }
-
-  &--expense-card-critical {
-  }
-
-  &--expense-card-all-critical {
   }
 
   &--trip-request-warning {

@@ -123,7 +123,16 @@ export class ViewTeamReportPage implements OnInit {
     );
 
     this.erpt$.subscribe(res => {
-      this.isReportReported = ['APPROVER_PENDING'].indexOf(res.rp_state) > -1;
+      /**
+       * if current user is remove from approver, erpt call will go again to fetch current report details
+       * so checking if report details are available in erpt than continue execution
+       * else redirect them to team reports
+       */
+      if (res) {
+        this.isReportReported = ['APPROVER_PENDING'].indexOf(res.rp_state) > -1;
+      } else {
+        this.router.navigate(['/', 'enterprise', 'team_reports']);
+      }
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(

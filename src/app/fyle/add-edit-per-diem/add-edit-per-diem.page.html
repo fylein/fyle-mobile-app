@@ -254,12 +254,18 @@
                         <div
                           [ngClass]="{'add-edit-per-diem--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
                           class="add-edit-per-diem--text-label">
-                          {{ fg.controls.purpose.value ? txnFields?.purpose.title : 'Enter ' + txnFields?.purpose.title }}
+                          {{ (fg.controls.purpose.value ? txnFields?.purpose.title : 'Enter ' + txnFields?.purpose.title)| slice: 0:15 }}
                           <div *ngIf="txnFields?.purpose?.mandatory">*</div>
                         </div>
-                        <input [disabled]="!txnFields?.purpose.canEdit" class="add-edit-per-diem--text-input"
-                               formControlName="purpose"
-                               name="purpose" type="text">
+                        
+                        <input 
+                          [disabled]="!txnFields.purpose?.canEdit" 
+                          [placeholder]="'Enter '+txnFields.purpose?.title | slice: 0:15"
+                          [required]="txnFields.purpose?.mandatory" 
+                          [title]="'Enter'+txnFields.purpose?.title"
+                          class="add-edit-per-diem--text-input"
+                          formControlName="purpose">
+                        
                       </div>
                       <div *ngIf="txnFields?.purpose.type === 'SELECT'" class="add-edit-per-diem--internal-block">
                         <app-fy-select
@@ -344,7 +350,7 @@
                           <div
                             [ngClass]="{'add-edit-per-diem--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                             class="add-edit-per-diem--text-label">
-                            {{customInput.name | ellipsis: 20}}
+                            {{customInput.name | ellipsis: 11}}
                             <span *ngIf="customInput.mandatory">
                               *
                             </span>
@@ -366,7 +372,7 @@
                         <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-per-diem--checkbox">
                           <label>
                             <mat-checkbox color="primary" formControlName="value">
-                              {{customInput.name | ellipsis: 20 }}
+                              {{customInput.name | ellipsis: 35 }}
                               <span *ngIf="customInput.mandatory">*</span>
                             </mat-checkbox>
                           </label>

@@ -47,7 +47,7 @@
           {{hide ? 'visibility' : 'visibility_off'}}
         </mat-icon>
       </mat-form-field>
-      <div class="sign-in--error" *ngIf="fg.controls.password.touched && !fg.controls.password.valid && !fg.controls.password.value">
+      <div class="sign-in--error" *ngIf="fg.controls.password.touched && !fg.controls.password.valid && !fg.controls.password.value && emailSet">
         Please enter your password
       </div>
     </form>

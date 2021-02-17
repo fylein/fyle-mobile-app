@@ -179,6 +179,39 @@ export class DateService {
     return data;
   }
 
+  // Use this method if you are getting api response from V2.
+  fixDatesV2(data) {
+    if (data.tx_txn_dt) {
+      data.tx_txn_dt = new Date(data.tx_txn_dt);
+    }
+
+    if (data.due_at) {
+      data.due_at = new Date(data.due_at);
+    }
+
+    if (data.updated_at) {
+      data.updated_at = new Date(data.updated_at);
+    }
+
+    if (data.invoice_dt) {
+      data.invoice_dt = new Date(data.invoice_dt);
+    }
+
+    if (data.approved_at) {
+      data.approved_at = new Date(data.approved_at);
+    }
+
+    if (data.paid_at) {
+      data.paid_at = new Date(data.paid_at);
+    }
+
+    if (data.reimbursed_at) {
+      data.reimbursed_at = new Date(data.reimbursed_at);
+    }
+
+    return data;
+  }
+
   parseISOLocal(s) {
     var b = s.split(/\D/);
     return new Date(b[0], b[1] - 1, b[2]);
