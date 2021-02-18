@@ -49,6 +49,17 @@ export class TrackingService {
     }
   }
 
+  // external APIs
+  onSignin(email, properties) {
+    if (this.tracking) {
+      this.tracking.identify(email, {
+        $email: email
+      });
+    }
+
+    this.eventTrack('Signin', properties);
+  }
+
   onLogout() {
   }
 
