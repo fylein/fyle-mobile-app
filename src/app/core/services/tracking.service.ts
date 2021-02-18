@@ -27,29 +27,6 @@ export class TrackingService {
       this.identityEmail = email;
     }
   }
-  // end hack
-
-  // external APIs
-  onSignup(email, properties) {
-    if (this.tracking) {
-      this.tracking.identify(email, {
-        $email: email
-      });
-    }
-
-    this.eventTrack('Signup', properties);
-  }
-
-  // external APIs
-  canSignup(email, asset, properties) {
-    if (this.tracking) {
-      this.tracking.identify(email, {
-        $email: email
-      });
-    }
-
-    this.eventTrack('Signup Started', properties);
-  }
 
   // deprecated - use updateSegmentProfile
   uploadCtUserProfile(data) {
@@ -61,17 +38,6 @@ export class TrackingService {
     if (this.tracking) {
       this.tracking.identify(data);
     }
-  }
-
-  // external APIs
-  onSignin(email, properties) {
-    if (this.tracking) {
-      this.tracking.identify(email, {
-        $email: email
-      });
-    }
-
-    this.eventTrack('Signin', properties);
   }
 
   onStateChange(toState, toParams, fromState, fromParams) {
