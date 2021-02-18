@@ -586,15 +586,49 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
+    const autofillLocation$ = forkJoin({
+      eou: this.authService.getEou(),
+      currentLocation: this.locationService.getCurrentLocation(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(
+        ({ eou, currentLocation, orgUserSettings, recentValue }) => {
+          const isRecentLocationPresent = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                              && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
+          if (isRecentLocationPresent && this.mode === 'add') {
+            const location = recentValue.recent_start_locations[0];
+            return forkJoin({
+              autocompletePredictions: this.locationService.getAutocompletePredictions(location, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`)
+            }).pipe(
+              map(
+                ({ autocompletePredictions }) => {
+                  const predictedLocations = autocompletePredictions.predictions;
+                  return this.locationService.getGeocode(predictedLocations[0].place_id, predictedLocations[0].description).pipe(
+                    map(({ location }) => {
+                      if (location && location.length > 0) {
+                        return location;
+                      }
+                    })
+                  )
+                }
+              )
+            )
+          }
+        }
+      )
+    );
+
     return forkJoin({
       mileageContainer: this.getMileageCategories(),
       homeCurrency: this.homeCurrency$,
       orgSettings: this.offlineService.getOrgSettings(),
       defaultVehicleType: defaultVehicle$,
       defaultMileageRate: defaultMileage$,
-      currentEou: this.authService.getEou()
+      currentEou: this.authService.getEou(),
+      autofillLocation: autofillLocation$
     }).pipe(
-      map(({ mileageContainer, homeCurrency, orgSettings, defaultVehicleType, defaultMileageRate, currentEou }) => {
+      map(({ mileageContainer, homeCurrency, orgSettings, defaultVehicleType, defaultMileageRate, currentEou, autofillLocation }) => {
         const distanceUnit = orgSettings.mileage.unit;
         return {
           tx: {
@@ -619,7 +653,7 @@ export class AddEditMileagePage implements OnInit {
             fyle_category: 'Mileage',
             org_user_id: currentEou.ou.id,
             locations: [
-              null,
+              autofillLocation,
               null
             ],
             custom_properties: []
@@ -752,19 +786,6 @@ export class AddEditMileagePage implements OnInit {
 
     this.setupNetworkWatcher();
     this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
-
-    forkJoin({
-      recentValue: this.recentlyUsedItemsService.getRecentlyUsedV2(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-    }).pipe(
-      map(res => { 
-        if (res.orgUserSettings.expense_form_autofills && res.orgUserSettings.expense_form_autofills.allowed && res.orgUserSettings.expense_form_autofills.enabled 
-          && res.recentValue && res.recentValue.recent_vehicle_types && res.recentValue.recent_vehicle_types.length > 0) {
-            // console.log("check vehcile", )
-            this.fg.controls.mileage_vehicle_type.setValue(res.recentValue.recent_vehicle_types[0]);
-          }
-      })
-    ).subscribe(noop)
 
     this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
     this.paymentModes$ = this.getPaymentModes();
@@ -1964,6 +1985,7 @@ export class AddEditMileagePage implements OnInit {
               })
             );
         }),
+
         finalize(() => {
           this.saveMileageLoader = false;
           this.saveAndNewMileageLoader = false;
