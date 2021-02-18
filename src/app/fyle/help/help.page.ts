@@ -7,6 +7,7 @@ import { filter, tap, map, switchMap, finalize, take } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { from, of } from 'rxjs';
 import {TrackingService} from '../../core/services/tracking.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 const { Browser } =  Plugins;
 
@@ -24,23 +25,30 @@ export class HelpPage implements OnInit {
     private modalController: ModalController,
     private orgUserService: OrgUserService,
     private loaderService: LoaderService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private authService: AuthService
     ) { }
 
   openContactSupportDialog() {
     this.contactSupportLoading = true;
     from(this.loaderService.showLoader('Please wait', 10000)).pipe(
       switchMap(() => {
-        return this.orgUserService.getAllCompanyEouc();
+        return this.authService.getEou();
       }),
-      map(user =>
-        {
-          return user.filter(userInternal => userInternal.ou.roles.indexOf('ADMIN') > -1 && userInternal.ou.status === 'ACTIVE');
-        }
-      ),
+      switchMap(eou => {
+        return this.orgUserService.getEmployeesByParams({
+          select: 'us_full_name,us_email',
+          ou_org_id: 'eq.' + eou.ou.org_id,
+          ou_roles: 'like.%' + 'ADMIN%',
+          ou_status: 'eq.' + '"ACTIVE"',
+          ou_id: 'not.eq.' + eou.ou.id,
+          order: 'us_full_name.asc,ou_id',
+          limit: 5
+        });
+      }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe((orgAdmins) => {
-      this.orgAdmins = orgAdmins;
+      this.orgAdmins = orgAdmins.data;
       this.presentSupportModal('contact_support');
     });
   }
@@ -59,7 +67,7 @@ export class HelpPage implements OnInit {
       component: SupportDialogPage,
       componentProps: {
         type: dialogType,
-        adminEous: this.orgAdmins && this.orgAdmins.sort((a, b) => a.us.email < b.us.email ? -1 : 1).splice(0, 5) || []
+        adminEous: this.orgAdmins
       }
     });
 
