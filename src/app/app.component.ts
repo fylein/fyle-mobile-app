@@ -29,6 +29,8 @@ import {TrackingService} from './core/services/tracking.service';
 import {LoginInfoService} from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
 
+import {AppcuesService} from './core/services/appcues.service';
+
 const {App} = Plugins;
 
 @Component({
@@ -73,7 +75,8 @@ export class AppComponent implements OnInit {
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private appcuesService: AppcuesService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -238,6 +241,7 @@ export class AppComponent implements OnInit {
       }
 
       this.freshchatService.setupNetworkWatcher();
+      this.appcuesService.setupNetworkWatcher();
 
       // TODO: remove nested subscribe - mini tech debt
       if (isConnected) {
