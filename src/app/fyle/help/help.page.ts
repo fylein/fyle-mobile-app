@@ -33,7 +33,7 @@ export class HelpPage implements OnInit {
     this.contactSupportLoading = true;
     from(this.loaderService.showLoader('Please wait', 10000)).pipe(
       switchMap(() => {
-        return this.authService.getEou();
+        return from(this.authService.getEou());
       }),
       switchMap(eou => {
         return this.orgUserService.getEmployeesByParams({
