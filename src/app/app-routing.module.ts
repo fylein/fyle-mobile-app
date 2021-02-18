@@ -18,10 +18,6 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'pre_verification',
-    loadChildren: () => import('./pre-verification/pre-verification-routing.module').then(m => m.PreVerificationRoutingModule)
-  },
-  {
     path: 'enterprise',
     loadChildren: () => import('./fyle/fyle-routing.module').then(m => m.FyleRoutingModule),
     canActivate: [AuthGuard]
