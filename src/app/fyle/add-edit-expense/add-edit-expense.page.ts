@@ -64,7 +64,6 @@ import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 export class AddEditExpensePage implements OnInit {
   etxn$: Observable<any>;
   paymentModes$: Observable<any[]>;
-  pickRecentCurrency$: Observable<any>;
   recentlyUsedValues$: Observable<RecentlyUsed>;
   isCreatedFromCCC = false;
   paymentAccount$: Observable<any>;
@@ -792,7 +791,8 @@ export class AddEditExpensePage implements OnInit {
       eou: eou$,
       instaFyleSettings: instaFyleSettings$,
       imageData: this.getInstaFyleImageData(),
-      recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache'))
+      recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
+      recentValue: this.recentlyUsedValues$
     }).pipe(
       map((dependencies) => {
         const {
@@ -804,7 +804,8 @@ export class AddEditExpensePage implements OnInit {
           eou,
           instaFyleSettings,
           imageData,
-          recentCurrency
+          recentCurrency,
+          recentValue
         } = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         this.isExpenseBankTxn = !!bankTxn;
@@ -834,6 +835,9 @@ export class AddEditExpensePage implements OnInit {
             if (orgUserSettings.currency_settings.preferred_currency) {
               etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
             }
+          } else if (orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
+                     && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
+            etxn.tx.currency = recentValue.recent_currencies[0];
           } else {
             etxn.tx.currency = recentCurrency && recentCurrency[0] && recentCurrency[0].shortCode || etxn.tx.currency;
           }
@@ -1722,16 +1726,6 @@ export class AddEditExpensePage implements OnInit {
     const activeCategories$ = this.getActiveCategories();
 
     this.paymentModes$ = this.getPaymentModes();
-
-    this.pickRecentCurrency$ = orgUserSettings$.pipe(
-      map(orgUserSettings => {
-        if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
-          return orgUserSettings.currency_settings.preferred_currency && '';
-        } else {
-          return 'true';
-        }
-      })
-    );
 
     this.paymentAccount$ = accounts$.pipe(
       map((accounts) => {
