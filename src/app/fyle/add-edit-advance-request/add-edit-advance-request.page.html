@@ -35,8 +35,8 @@
         </div>
 
         <div (click)="viewAttachments()" *ngIf="(dataUrls && dataUrls.length > 0) && !attachmentUploadInProgress">
-          <div *ngIf="dataUrls[0].type.indexOf('image') > -1" class="add-edit-advance-request--receipt-background" [ngStyle]="{'background-image': 'url(' + dataUrls[0].thumbnail + ')'}"></div>
-          <div *ngIf="dataUrls[0].type.indexOf('pdf') > -1">
+          <div *ngIf="dataUrls[0]?.type.indexOf('image') > -1" class="add-edit-advance-request--receipt-background" [ngStyle]="{'background-image': 'url(' + dataUrls[0]?.thumbnail + ')'}"></div>
+          <div *ngIf="dataUrls[0]?.type.indexOf('pdf') > -1">
             <img src="assets/images/fy-pdf.svg" alt="">
           </div>
           <div *ngIf="dataUrls.length > 1" class="add-edit-advance-request--receipt-count-container">
