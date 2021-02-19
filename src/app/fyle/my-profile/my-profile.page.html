@@ -48,7 +48,7 @@
 
         <div *ngIf="eou.ou.employee_id" class="my-profile--mobile my-profile--card-item">
           <div class="my-profile--mobile-label">
-            ID
+            Emp. ID
           </div>
           <div class="my-profile--mobile-value">
             {{eou.ou.employee_id | ellipsis: 15}}
@@ -83,6 +83,85 @@
       </div>
     </div>
   </div> -->
+
+  <div class="my-profile--blocks">
+    <span class="my-profile--blocks-header">Preferences</span>
+    <!-- Instafyle card start -->
+    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.insta_fyle_settings?.allowed">
+      <div class="my-profile--card-title">
+        Instafyle
+      </div>
+
+      <div class="my-profile--cards-content my-profile--toggle-container">
+        <div class="my-profile--toggle-label"> Turn paper receipts to expenses with our in-app camera. </div>
+        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+          [(ngModel)]="orgUserSettings.insta_fyle_settings.enabled" (ionChange)="toggleAutoExtraction()"></ion-toggle>
+      </div>
+    </div>
+
+    <!-- BulkFyle card start -->
+    <div class="my-profile--cards" *ngIf="orgUserSettings?.bulk_fyle_settings?.allowed">
+      <div class="my-profile--card my-profile--card__action">
+        <div class="my-profile--card-title">Bulkfyle</div>
+        <div class="my-profile--cards-content my-profile--toggle-container">
+          <span class="my-profile--toggle-label"> Scan and submit multiple paper receipts at once. </span>
+          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+            [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled" (ionChange)="toggleBulkMode()"></ion-toggle>
+        </div>
+      </div>
+    </div>
+
+    <!-- Currency preference card start -->
+  <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_currency_settings?.enabled">
+    <div class="my-profile--card-title">Default Currency</div>
+    <div class="my-profile--cards-content my-profile--toggle-container">
+      <div class="my-profile--toggle-label">
+        Select the default currency to be used for creating expenses.
+      </div>
+      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+        [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
+    </div>
+    <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency">
+      <div class="my-profile--card-title my-profile--card-title__lite">
+        {{orgUserSettings.currency_settings.preferred_currency  ? 'Currency' : 'Select Currency' }}
+      </div>
+      <div class="my-profile--notifications-arrow my-profile--notifications-arrow__lite">
+        <span class="my-profile--currency-value">
+          {{preferredCurrency$|async}}
+        </span>
+        <mat-icon>keyboard_arrow_right</mat-icon>
+      </div>
+    </div>
+  </div>
+
+    <!-- Whatsapp card start -->
+    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.whatsapp_fyle_settings?.allowed">
+      <div class="my-profile--card-title">Fyle via Whatsapp</div>
+      <div class="my-profile--cards-content my-profile--toggle-container">
+        <div class="my-profile--toggle-label">
+          Send your receipts to our whatsapp number to create expenses automatically.
+        </div>
+        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+          [(ngModel)]="orgUserSettings.whatsapp_fyle_settings.enabled" (ionChange)="toggleWhatsappSettings()">
+        </ion-toggle>
+      </div>
+      <div>
+        <a class="my-profile--see-more my-profile--see-more__decore" (click)="openWebAppLink('whatsapp')">Read More</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="my-profile--card" *ngIf="orgUserSettings?.sms_fyle_settings?.allowed">
+    <div class="my-profile--cards-header">
+      Fyle via SMS
+    </div>
+
+    <div class="my-profile--cards-content">
+      <span class="my-profile--toggle-label">Send your receipts to our mobile number to create expenses automatically.</span>
+      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+        [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled" (ionChange)="toggleSmsSettings()"></ion-toggle>
+    </div>
+  </div>
 
   <ng-container *ngIf="myETxnc$|async as myETxnc">
     <div class="my-profile--blocks">
@@ -134,98 +213,6 @@
     </div>
   </ng-container>
 
-  <div class="my-profile--blocks">
-    <span class="my-profile--blocks-header">Preferences</span>
-    <!-- Instafyle card start -->
-    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.insta_fyle_settings?.allowed">
-      <div class="my-profile--card-title">
-        Instafyle
-      </div>
-
-      <div class="my-profile--cards-content my-profile--toggle-container">
-        <div class="my-profile--toggle-label"> Scan paper receipts to automatically create expenses. </div>
-        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
-          [(ngModel)]="orgUserSettings.insta_fyle_settings.enabled" (ionChange)="toggleAutoExtraction()"></ion-toggle>
-      </div>
-    </div>
-
-    <!-- BulkFyle card start -->
-    <div class="my-profile--cards" *ngIf="orgUserSettings?.bulk_fyle_settings?.allowed">
-      <div class="my-profile--card my-profile--card__action">
-        <div class="my-profile--card-title">Bulkfyle</div>
-        <div class="my-profile--cards-content my-profile--toggle-container">
-          <span class="my-profile--toggle-label"> Submit multiple paper receipts in one go. </span>
-          <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
-            [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled" (ionChange)="toggleBulkMode()"></ion-toggle>
-        </div>
-      </div>
-    </div>
-
-    <!-- Whatsapp card start -->
-    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.whatsapp_fyle_settings?.allowed">
-      <div class="my-profile--card-title">WhatsApp</div>
-      <div class="my-profile--cards-content my-profile--toggle-container">
-        <div class="my-profile--toggle-label">
-          Use the daily messaging app to track your expenses on the go.
-        </div>
-        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
-          [(ngModel)]="orgUserSettings.whatsapp_fyle_settings.enabled" (ionChange)="toggleWhatsappSettings()">
-        </ion-toggle>
-      </div>
-      <div>
-        <a class="my-profile--see-more my-profile--see-more__decore" (click)="openWebAppLink('whatsapp')">Read More</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Currency preference card start -->
-  <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_currency_settings?.enabled">
-    <div class="my-profile--card-title">Currency Preference</div>
-    <div class="my-profile--cards-content my-profile--toggle-container">
-      <div class="my-profile--toggle-label">
-        Choose your preferred currency for creating expenses, trips and advance requests.
-      </div>
-      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
-        [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
-    </div>
-    <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency">
-      <div class="my-profile--card-title my-profile--card-title__lite">
-        {{orgUserSettings.currency_settings.preferred_currency  ? 'Currency' : 'Select Currency' }}
-      </div>
-      <div class="my-profile--notifications-arrow my-profile--notifications-arrow__lite">
-        <span class="my-profile--currency-value">
-          {{preferredCurrency$|async}}
-        </span>
-        <mat-icon>keyboard_arrow_right</mat-icon>
-      </div>
-    </div>
-  </div>
-
-  <div class="my-profile--card" *ngIf="orgUserSettings?.sms_fyle_settings?.allowed">
-    <div class="my-profile--cards-header">
-      SMS
-    </div>
-
-    <div class="my-profile--cards-content">
-      <span class="my-profile--toggle-label">One SMS to track and turn receipts into expenses</span>
-      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
-        [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled" (ionChange)="toggleSmsSettings()"></ion-toggle>
-    </div>
-  </div>
-
-  <ng-container *ngIf="eou$|async as eou">
-    <ng-container *ngIf="org$|async as org">
-      <div class="my-profile--card my-profile--card__action" *ngIf="!org.lite && eou.ou.roles.indexOf('ADMIN') > -1">
-        <div class="my-profile--card-title">Mileage Logs</div>
-        <div class="my-profile--cards-content  my-profile--toggle-container">
-          <div class="my-profile--toggle-label my-profile--toggle-label__full">
-            Please login to the web application at <a (click)="openWebAppLink('app')">{{ROUTER_API_ENDPOINT}}</a> to change mileage settings.
-          </div>
-        </div>
-      </div>
-    </ng-container>
-  </ng-container>
-
   <div class="my-profile--card my-profile--card-item" (click)="logOut()" matRipple>
     <div class="my-profile--logout-block">
       <mat-icon svgIcon="ionic-log-out-outline" class="my-profile--logout-block_icon"></mat-icon>
@@ -238,10 +225,10 @@
       <mat-icon class="my-profile--settings-icon_icon" svgIcon="settings"></mat-icon>
     </div>
     <div>
-      <p class="my-profile--card-title">You can do so much more!</p>
+      <p class="my-profile--card-title">You can do much more!</p>
       <div class="my-profile--cards-content  my-profile--toggle-container">
         <div class="my-profile--toggle-label my-profile--toggle-label__full">
-          Login to Fyle from your desktop <a (click)="openWebAppLink('app')" href="{{ROUTER_API_ENDPOINT}}">using our web app</a> to update your profile information, setup additional email IDs and much more.
+          Log in <a (click)="openWebAppLink('app')" href="{{ROUTER_API_ENDPOINT}}">to our web app</a> to automate tasks, set up recurring expenses, manage notifications, change password, and much more.
         </div>
       </div>
     </div>
