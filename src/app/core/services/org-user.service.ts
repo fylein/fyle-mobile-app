@@ -11,7 +11,6 @@ import {DataTransformService} from './data-transform.service';
 import {StorageService} from './storage.service';
 import {Cacheable, globalCacheBusterNotifier, CacheBuster} from 'ts-cacheable';
 import {TrackingService} from './tracking.service';
-import { ApiV2Service } from './api-v2.service';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -27,8 +26,7 @@ export class OrgUserService {
     private authService: AuthService,
     private dataTransformService: DataTransformService,
     private storageService: StorageService,
-    private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service
+    private trackingService: TrackingService
   ) { }
 
 
@@ -78,10 +76,6 @@ export class OrgUserService {
         return acc.concat(curr);
       }, [] as ExtendedOrgUser[])
     );
-  }
-
-  getEmployeesByParams(params) {
-    return this.apiV2Service.get('/employees', {params});
   }
 
   getCompanyEouCount(): Observable<{ count: number }> {
