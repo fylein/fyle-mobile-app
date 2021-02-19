@@ -86,9 +86,9 @@
     <div *ngIf="etxn.tx_fyle_category === 'Hotel'">
       hotel
       <div class="view-expense--element-block">
-        <div class="view-expense--element" *ngIf="etxn.tx_locations[0].display">
+        <div class="view-expense--element" *ngIf="etxn.tx_locations[0]?.display">
           <div class="view-expense--element-label">City</div>
-          <div class="view-expense--element-value">{{ etxn.tx_locations[0].display }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_locations[0]?.display }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_from_dt">
           <div class="view-expense--element-label">Check-In</div>

@@ -1,7 +1,7 @@
 <div *ngIf="policyViolations.length > 0" class="policy-violation-info--container">
   <mat-icon class="policy-violation-info--icon">warning</mat-icon>
   <span class="policy-violation-info--text" *ngIf="policyViolations.length === 1">
-    {{policyViolations[0].st_comment }}
+    {{policyViolations[0]?.st_comment }}
   </span>
   <span class="policy-violation-info--text" *ngIf="policyViolations.length > 1">{{policyViolations.length}} policy violations with this expense</span>
 </div>
