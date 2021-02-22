@@ -17,13 +17,15 @@ import * as moment from 'moment';
 import { TokenService } from '../services/token.service';
 import { AuthService } from '../services/auth.service';
 import { RouterAuthService } from '../services/router-auth.service';
+import { DeviceService } from '../services/device.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
   constructor(
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
-    private routerAuthService: RouterAuthService
+    private routerAuthService: RouterAuthService,
+    private deviceService: DeviceService
   ) { }
 
   secureUrl(url) {
@@ -88,6 +90,17 @@ export class HttpConfigInterceptor implements HttpInterceptor {
               return throwError(error);
             })
           );
+        }),switchMap(res => {
+          return from(this.deviceService.getDeviceInfo()).pipe(
+            switchMap(deviceInfo => {
+              console.log(deviceInfo);
+              request = request.clone({ headers: request.headers.set('X-App-Version', (deviceInfo && deviceInfo.appVersion || '1.2.3')) });
+              //request = request.clone({ headers: request.headers.set('X-OS-Version', deviceInfo && deviceInfo.osVersion) });
+              //request = request.clone({ headers: request.headers.set('X-Device-Model', deviceInfo && deviceInfo.model) });
+
+              return next.handle(request);
+            })
+          )
         })
       );
   }
