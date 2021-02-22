@@ -92,7 +92,7 @@ export const dummyExepensesV2Response1: exepensesV2Response = {
     tx_activity_details: null,
     tx_activity_policy_pending: null,
     tx_admin_amount: null,
-    tx_amount: 10,
+    tx_amount: null,
     tx_billable: false,
     tx_boolean_column1: null,
     tx_boolean_column2: null,
@@ -247,6 +247,6 @@ export const dummyExepensesV2Response1: exepensesV2Response = {
 }
 
 
-export function getDummyExpenses() : exepensesV2Response[] {
-  return dummyExepensesV2Response1 as unknown as exepensesV2Response[];
+export function getDummyExpenses() : exepensesV2Response {
+  return dummyExepensesV2Response1;
 }
