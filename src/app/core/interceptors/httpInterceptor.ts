@@ -8,7 +8,7 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 
-import { Observable, throwError, from } from 'rxjs';
+import { Observable, throwError, from, forkJoin } from 'rxjs';
 import { map, catchError, switchMap, mergeMap, concatMap } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
@@ -71,12 +71,17 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return from(this.tokenService.getAccessToken())
-      .pipe(
-        concatMap(token => {
+    return forkJoin({
+      token: from(this.tokenService.getAccessToken()),
+      deviceInfo: from(this.deviceService.getDeviceInfo())
+    }).pipe(
+        concatMap(({token, deviceInfo}) => {
           if (token && this.secureUrl(request.url)) {
             request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
           }
+          request = request.clone({ headers: request.headers.set('X-App-Version', (deviceInfo && deviceInfo.appVersion || '1.2.3')) });
+          //request = request.clone({ headers: request.headers.set('X-OS-Version', deviceInfo && deviceInfo.osVersion) });
+          //request = request.clone({ headers: request.headers.set('X-Device-Model', deviceInfo && deviceInfo.model) });
           return next.handle(request).pipe(
             catchError((error) => {
               if (error instanceof HttpErrorResponse && this.expiringSoon(token)) {
@@ -90,17 +95,6 @@ export class HttpConfigInterceptor implements HttpInterceptor {
               return throwError(error);
             })
           );
-        }),switchMap(res => {
-          return from(this.deviceService.getDeviceInfo()).pipe(
-            switchMap(deviceInfo => {
-              console.log(deviceInfo);
-              request = request.clone({ headers: request.headers.set('X-App-Version', (deviceInfo && deviceInfo.appVersion || '1.2.3')) });
-              //request = request.clone({ headers: request.headers.set('X-OS-Version', deviceInfo && deviceInfo.osVersion) });
-              //request = request.clone({ headers: request.headers.set('X-Device-Model', deviceInfo && deviceInfo.model) });
-
-              return next.handle(request);
-            })
-          )
         })
       );
   }
