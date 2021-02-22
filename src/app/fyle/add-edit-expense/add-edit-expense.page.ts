@@ -2647,6 +2647,8 @@ export class AddEditExpensePage implements OnInit {
 
                   if (entry) {
                     return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
+                  } else if (this.activatedRoute.snapshot.params.bankTxn) {
+                    return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
                   } else {
                     let receiptsData = null;
                     if (this.receiptsData) {
