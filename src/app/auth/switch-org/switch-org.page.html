@@ -12,7 +12,7 @@
 <ion-content>
   <div>
     <div class="switch-org--header">
-      Select an account to switch to it
+      Select an Organization to switch to it
     </div>
     <div id="switch-org-list" *ngIf="!isLoading">
       <div matRipple (click)="switchToOrg(org)" class="switch-org--org-element" [attr.id]="'org-' + org.id" *ngFor="let org of filteredOrgs$ | async as list">

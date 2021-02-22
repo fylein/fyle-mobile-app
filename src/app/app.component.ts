@@ -316,9 +316,9 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'my_profile']
           },
           {
-            title: 'Switch Accounts',
+            title: 'My Organizations',
             isVisible: (orgs.length > 1),
-            icon: 'fy-switch-new',
+            icon: 'fy-my-organizations',
             route: ['/', 'auth', 'switch_org', {choose: true}]
           },
           {
@@ -328,7 +328,7 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'delegated_accounts']
           },
           {
-            title: 'Switch to own account',
+            title: 'Switch back to my account',
             isVisible: this.isSwitchedToDelegator,
             icon: 'fy-switch',
             route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}]
@@ -425,9 +425,9 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'my_profile'],
           },
           {
-            title: 'Switch Accounts',
+            title: 'My Organizations',
             isVisible: (orgs.length > 1),
-            icon: 'fy-switch-new',
+            icon: 'fy-my-organizations',
             route: ['/', 'auth', 'switch_org', {choose: true}],
             disabled: true
           },
@@ -439,7 +439,7 @@ export class AppComponent implements OnInit {
             disabled: true
           },
           {
-            title: 'Switch to own account',
+            title: 'Switch back to my account',
             isVisible: this.isSwitchedToDelegator,
             icon: 'fy-switch',
             route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}],
