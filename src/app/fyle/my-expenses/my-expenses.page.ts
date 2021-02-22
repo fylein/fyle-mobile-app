@@ -22,7 +22,7 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
 
-@Component({ 
+@Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
