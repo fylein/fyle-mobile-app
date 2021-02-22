@@ -1,12 +1,15 @@
-import { HttpClientModule } from '@angular/common/http';
-import { DebugElement } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { CUSTOM_ELEMENTS_SCHEMA, DebugElement } from '@angular/core';
+import { async, ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
 import { exception } from 'console';
 import { of } from 'rxjs';
 import { getDummyExpenses } from 'server/test';
+import {click} from 'server/test-utils';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -25,14 +28,16 @@ fdescribe('MyExpensesCardComponent', () => {
     const ReportServiceSpy = jasmine.createSpyObj('ReportService', ['getAllOpenReportsCount']);
     TestBed.configureTestingModule({
       declarations: [ MyExpensesCardComponent ],
+      schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
         SharedModule,
-        HttpClientModule
+        HttpClientModule,
+        MatRippleModule
       ],
       providers: [
-        {provide: ReportService, useValue: ReportServiceSpy}
+        {provide: ReportService, useValue: ReportServiceSpy},
       ]
     }).compileComponents();
 
@@ -45,7 +50,7 @@ fdescribe('MyExpensesCardComponent', () => {
       tx_amount: 0
     };
     reportService.getAllOpenReportsCount.and.returnValue(of(0));
-    debugElement = fixture.debugElement;
+    debugElement = fixture.debugElement; 
   }));
 
   it('should create', () => {
@@ -84,6 +89,20 @@ fdescribe('MyExpensesCardComponent', () => {
     const policyViolatedBlock = debugElement.query(By.css(".my-expenses-card--decorator__critical-policy-violation"));
     expect(policyViolatedBlock).toBeTruthy('Policy violated block not available');
   });
+
+  it('should display Add to new report when clicked on 3 dots', async(() => {
+    component.selectionMode = false;
+    fixture.detectChanges();
+    const moreActionButton = debugElement.queryAll(By.css(".my-expenses-card--more"));
+    click(moreActionButton[0].parent);
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      const addToNewReportBlock = debugElement.query(By.css(".my-expenses-card-menu--action__comments"));
+      expect(addToNewReportBlock.nativeElement.textContent).toMatch('Add to New Report', 'Can\'t find Add to new Report');
+    });
+    
+  }));
 
 
 
