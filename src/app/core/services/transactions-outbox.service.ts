@@ -227,6 +227,11 @@ export class TransactionsOutboxService {
     return this.dataExtractionQueue;
   }
 
+  deleteOfflineExpense(index) {
+    this.queue.splice(index, 1);
+    this.saveQueue();
+  }
+
   syncEntry(entry) {
     const that = this;
     const fileObjPromiseArray = [];

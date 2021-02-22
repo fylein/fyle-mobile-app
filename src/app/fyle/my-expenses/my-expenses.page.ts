@@ -22,7 +22,7 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
 
-@Component({
+@Component({ 
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
@@ -621,6 +621,24 @@ export class MyExpensesPage implements OnInit {
         })
       ).subscribe(noop);
     }
+  }
+
+  async onDeleteOfflineExpenseClick(etxn: Expense, index) {
+    const popupResults = await this.popupService.showPopup({
+      header: 'Delete Expense',
+      message: 'Are you sure you want to delete this expense?',
+      primaryCta: {
+        text: 'Delete'
+      }
+    });
+
+    if (popupResults === 'primary') {
+      await this.loaderService.showLoader('Deleting Offline Expense', 2500);
+      this.transactionOutboxService.deleteOfflineExpense(index);
+      await this.loaderService.hideLoader();
+      this.doRefresh();
+    }
+    console.log(etxn, index);
   }
 
   selectExpense(expense: Expense) {
