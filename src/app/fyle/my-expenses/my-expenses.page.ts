@@ -255,6 +255,10 @@ export class MyExpensesPage implements OnInit {
       shareReplay(1)
     );
 
+    this.myExpenses$.subscribe(res => {
+      debugger;
+    })
+
     this.count$ = this.loadData$.pipe(
       switchMap(params => {
         let queryParams = params.queryParams || {};
