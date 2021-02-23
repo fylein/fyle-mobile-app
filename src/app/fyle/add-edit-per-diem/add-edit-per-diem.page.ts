@@ -949,7 +949,7 @@ export class AddEditPerDiemPage implements OnInit {
       )
       .subscribe(([fromDt, numDays]) => {
         if (fromDt && numDays && numDays > 0) {
-          const fromDate = moment(new Date(fromDt));
+          const fromDate = moment(this.dateService.getUTCDate(new Date(fromDt)));
           this.fg.controls.to_dt.setValue(fromDate.add((+numDays - 1), 'day').format('y-MM-DD'),{
             emitEvent: false
           });
@@ -1256,8 +1256,8 @@ export class AddEditPerDiemPage implements OnInit {
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
             org_user_id: etxn.tx.org_user_id,
-            from_dt: formValue.from_dt && new Date(formValue.from_dt),
-            to_dt: formValue.from_dt && new Date(formValue.to_dt),
+            from_dt: formValue.from_dt && this.dateService.getUTCDate(new Date(formValue.from_dt)),
+            to_dt: formValue.from_dt && this.dateService.getUTCDate(new Date(formValue.to_dt)),
             category: null,
             num_days: formValue.num_days,
             cost_center_id: formValue.costCenter && formValue.costCenter.id,

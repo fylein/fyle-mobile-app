@@ -1499,7 +1499,7 @@ export class AddEditMileagePage implements OnInit {
             billable: formValue.billable,
             distance: +formValue.distance,
             org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
-            txn_dt: new Date(formValue.dateOfSpend),
+            txn_dt: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
             skip_reimbursement: skipReimbursement,
             source: 'MOBILE',
             currency: res.homeCurrency,
