@@ -1092,10 +1092,17 @@ export class AddEditExpensePage implements OnInit {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
-          return {
-            name: customInput.name,
-            value: (cpor && cpor.value) || null
-          };
+          if (customInput.type === 'DATE') {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null
+            };
+          } else {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value) || null
+            };
+          }
         });
 
       if (etxn.tx.amount && etxn.tx.currency) {
@@ -1243,6 +1250,7 @@ export class AddEditExpensePage implements OnInit {
             return customField;
           });
         }),
+
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
             take(1),
@@ -1902,7 +1910,14 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        const customProperties = res.customProperties;
+        let customProperties: any = res.customProperties;
+        customProperties = customProperties.map(customProperty => {
+          if (customProperty.type === 'DATE') {
+            customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
+          }
+          return customProperty;
+        });
+
         let locations;
         if (this.fg.value.location_1 && this.fg.value.location_2) {
           locations = [
@@ -1938,7 +1953,7 @@ export class AddEditExpensePage implements OnInit {
             skip_reimbursement: this.fg.value.paymentMode &&
               this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
               !this.fg.value.paymentMode.acc.isReimbursable,
-            txn_dt: this.fg.value.dateOfSpend && new Date(this.fg.value.dateOfSpend),
+            txn_dt: this.fg.value.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value.dateOfSpend)),
             currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,
             amount: this.fg.value.currencyObj && this.fg.value.currencyObj.amount,
             orig_currency: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_currency,
@@ -1954,8 +1969,8 @@ export class AddEditExpensePage implements OnInit {
             num_files: isPolicyEtxn ? (res.attachments && res.attachments.length) : (this.activatedRoute.snapshot.params.dataUrl ? 1 : 0),
             ...policyProps,
             org_user_id: etxn.tx.org_user_id,
-            from_dt: this.fg.value.from_dt && new Date(this.fg.value.from_dt),
-            to_dt: this.fg.value.to_dt && new Date(this.fg.value.to_dt),
+            from_dt: this.fg.value.from_dt && this.dateService.getUTCDate(new Date(this.fg.value.from_dt)),
+            to_dt: this.fg.value.to_dt && this.dateService.getUTCDate(new Date(this.fg.value.to_dt)),
             flight_journey_travel_class: this.fg.value.flight_journey_travel_class,
             flight_return_travel_class: this.fg.value.flight_return_travel_class,
             train_travel_class: this.fg.value.train_travel_class,
