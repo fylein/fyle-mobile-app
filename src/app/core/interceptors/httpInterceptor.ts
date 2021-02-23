@@ -82,7 +82,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           const appVersion = deviceInfo && deviceInfo.appVersion || '1.2.3';
           const osVersion = deviceInfo && deviceInfo.osVersion;
           const operatingSystem = deviceInfo && deviceInfo.operatingSystem;
-          let mobileModifiedappVersion = `fyle-mobile::${appVersion}::${osVersion}::${operatingSystem}`;
+          let mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
           request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
 
           return next.handle(request).pipe(
