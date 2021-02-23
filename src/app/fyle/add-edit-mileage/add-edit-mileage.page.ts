@@ -18,7 +18,7 @@ import {
   take,
   tap
 } from 'rxjs/operators';
-import {cloneDeep, isEqual, isNumber} from 'lodash';
+import {cloneDeep, isEmpty, isEqual, isNumber} from 'lodash';
 import * as moment from 'moment';
 import {TransactionFieldConfigurationsService} from 'src/app/core/services/transaction-field-configurations.service';
 import {AccountsService} from 'src/app/core/services/accounts.service';
@@ -471,20 +471,14 @@ export class AddEditMileagePage implements OnInit {
                     map(categories => categories
                       .find(innerCategory => innerCategory.id === etxn.tx.org_category_id))), of(null));
               }));
-          } else {
-            selectedCategory$ = of(category);
           }
 
-          if (this.mode === 'add') {
-            if (category) {
-              return of(category);
-            } else {
-              return this.getMileageCategories().pipe(
-                map(mileageContainer => mileageContainer.defaultMileageCategory)
-              );
-            }
+          if (category && !isEmpty(category)) {
+            return of(category);
           } else {
-            return selectedCategory$;
+            return this.getMileageCategories().pipe(
+              map(mileageContainer => mileageContainer.defaultMileageCategory)
+            );
           }
         }),
         tap(console.log),
@@ -1102,7 +1096,7 @@ export class AddEditMileagePage implements OnInit {
           return this.customFieldsService
             .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
         }));
-      })
+      }),tap((abc) => console.log("--------->",{abc}))
     );
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -1125,10 +1119,17 @@ export class AddEditMileagePage implements OnInit {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
-          return {
-            name: customInput.name,
-            value: (cpor && cpor.value) || null
-          };
+          if (customInput.type === 'DATE') {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null
+            };
+          } else {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value) || null
+            };
+          }
         });
 
       this.fg.patchValue({
@@ -1155,6 +1156,7 @@ export class AddEditMileagePage implements OnInit {
       this.initialFetch = false;
 
       setTimeout(() => {
+        console.log("-------->", customInputValues);
         this.fg.controls.custom_inputs.patchValue(customInputValues);
         this.formInitializedFlag = true;
       }, 1000);
@@ -1480,7 +1482,13 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        const customProperties = res.customProperties;
+        const customProperties: any = res.customProperties;
+        customProperties.map(customProperty => {
+          if (customProperty.type === 'DATE') {
+            customProperty.value = this.dateService.getUTCDate(new Date(customProperty.value));
+          }
+          return customProperty;
+        });
         const calculatedDistance = +res.calculatedDistance;
         const amount = res.amount;
         const skipReimbursement = this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT'

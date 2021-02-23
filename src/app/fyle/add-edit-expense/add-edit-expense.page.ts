@@ -1092,10 +1092,17 @@ export class AddEditExpensePage implements OnInit {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
-          return {
-            name: customInput.name,
-            value: (cpor && cpor.value) || null
-          };
+          if (customInput.type === 'DATE') {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null
+            };
+          } else {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value) || null
+            };
+          }
         });
 
       if (etxn.tx.amount && etxn.tx.currency) {
@@ -1243,6 +1250,7 @@ export class AddEditExpensePage implements OnInit {
             return customField;
           });
         }),
+
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
             take(1),
@@ -1902,7 +1910,14 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        const customProperties = res.customProperties;
+        const customProperties: any = res.customProperties;
+        customProperties.map(customProperty => {
+          if (customProperty.type === 'DATE') {
+            customProperty.value = this.dateService.getUTCDate(new Date(customProperty.value));
+          }
+          return customProperty;
+        });
+
         let locations;
         if (this.fg.value.location_1 && this.fg.value.location_2) {
           locations = [

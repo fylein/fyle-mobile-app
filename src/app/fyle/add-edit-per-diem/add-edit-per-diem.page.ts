@@ -23,7 +23,7 @@ import {DateService} from 'src/app/core/services/date.service';
 import * as moment from 'moment';
 import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
 import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
-import {cloneDeep, isEqual, isNumber} from 'lodash';
+import {cloneDeep, isEmpty, isEqual, isNumber} from 'lodash';
 import {CurrencyService} from 'src/app/core/services/currency.service';
 import {ReportService} from 'src/app/core/services/report.service';
 import {ProjectsService} from 'src/app/core/services/projects.service';
@@ -559,20 +559,14 @@ export class AddEditPerDiemPage implements OnInit {
                   map(categories => categories
                     .find(category => category.id === etxn.tx.org_category_id))), of(null));
             }));
-          } else {
-            selectedCategory$ = of(category);
           }
 
-          if (this.mode === 'add') {
-            if (category) {
-              return of(category);
-            } else {
-              return this.getPerDiemCategories().pipe(
-                map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
-              );
-            }
+          if (category && !isEmpty(category)) {
+            return of(category);
           } else {
-            return selectedCategory$;
+            return this.getPerDiemCategories().pipe(
+              map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
+            );
           }
         }),
         switchMap((category: any) => {
@@ -1169,10 +1163,17 @@ export class AddEditPerDiemPage implements OnInit {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
-          return {
-            name: customInput.name,
-            value: (cpor && cpor.value) || null
-          };
+          if (customInput.type === 'DATE') {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null
+            };
+          } else {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value) || null
+            };
+          }
         });
 
       this.fg.patchValue({
@@ -1219,7 +1220,13 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        const customProperties = res.customProperties;
+        const customProperties: any = res.customProperties;
+        customProperties.map(customProperty => {
+          if (customProperty.type === 'DATE') {
+            customProperty.value = this.dateService.getUTCDate(new Date(customProperty.value));
+          }
+          return customProperty;
+        });
         const skipReimbursement = this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT'
           && !this.fg.value.paymentMode.acc.isReimbursable;
 
