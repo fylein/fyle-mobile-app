@@ -1096,7 +1096,7 @@ export class AddEditMileagePage implements OnInit {
           return this.customFieldsService
             .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
         }));
-      }),tap((abc) => console.log("--------->",{abc}))
+      })
     );
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -1156,7 +1156,6 @@ export class AddEditMileagePage implements OnInit {
       this.initialFetch = false;
 
       setTimeout(() => {
-        console.log("-------->", customInputValues);
         this.fg.controls.custom_inputs.patchValue(customInputValues);
         this.formInitializedFlag = true;
       }, 1000);
