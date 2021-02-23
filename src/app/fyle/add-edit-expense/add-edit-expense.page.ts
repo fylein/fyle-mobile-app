@@ -1910,10 +1910,10 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        const customProperties: any = res.customProperties;
-        customProperties.map(customProperty => {
+        let customProperties: any = res.customProperties;
+        customProperties = customProperties.map(customProperty => {
           if (customProperty.type === 'DATE') {
-            customProperty.value = this.dateService.getUTCDate(new Date(customProperty.value));
+            customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
           }
           return customProperty;
         });
