@@ -1,7 +1,7 @@
 <div class="advance-card">
   <div class="advance-card--header">
     <span class="day">{{advanceRequest.areq_created_at | date: 'EEEE'}}</span>,
-    <span class="month-year">{{advanceRequest.areq_created_at | date: 'dd MMMM yyyy'}}</span>
+    <span class="month-year">{{advanceRequest.areq_created_at | date: 'MMMM dd, yyyy'}}</span>
   </div>
   <div class="advance-card--body" (click)="onGoToAdvances()" *ngIf="!actionOpened" matRipple>
     <div class="advance-card--info">
@@ -14,7 +14,7 @@
     </div>
 
     <div class="advance-card--status">
-      <div *ngIf="advanceRequest.areq_approved_at">Approved on {{advanceRequest.areq_approved_at | date: 'dd MMMM yyyy'}}</div>
+      <div *ngIf="advanceRequest.areq_approved_at">Approved on {{advanceRequest.areq_approved_at | date: 'MMMM dd, yyyy'}}</div>
       <div class="advance-card--pill" [class]="'advance-card--pill__'+internalState.state">{{internalState.name}}</div>
     </div>
   </div>

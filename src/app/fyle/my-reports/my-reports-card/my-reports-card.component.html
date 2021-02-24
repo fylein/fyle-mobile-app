@@ -1,5 +1,5 @@
 <div *ngIf="showDate" class="reports-card--date">
-  {{erpt.rp_created_at | date: 'EEEE, dd MMMM yyyy'}}
+  {{erpt.rp_created_at | date: 'EEEE, MMMM dd, yyyy'}}
 </div>
 <div class="reports-card--policy-violation" *ngIf="erpt.rp_manual_flag || erpt.rp_policy_flag">
   <span>Policy Violation</span>
@@ -27,7 +27,7 @@
     <div class="reports-card--no-transactions">Contains <span>{{erpt.rp_num_transactions}}</span> expenses</div>
     <div class="reports-card--approved-on"
       *ngIf="erpt.rp_approved_at && (['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1)">
-      Approved on <span>{{erpt.rp_approved_at | date: 'dd MMMM yyyy'}}</span>
+      Approved on <span>{{erpt.rp_approved_at | date: 'MMMM dd, yyyy'}}</span>
     </div>
   </div>
   <div class="reports-card--pill  reports-card--pill__{{erpt.rp_state | reportState}}">

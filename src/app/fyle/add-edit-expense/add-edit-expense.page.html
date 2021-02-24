@@ -155,7 +155,7 @@
                 <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
               </div>
               <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
-                     class="add-edit-expense--date-input" formControlName="dateOfSpend" type="date">
+                     class="add-edit-expense--date-input" formControlName="dateOfSpend" type="date" dateformat="M D, Y">
             </div>
             <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
                  class="add-edit-expense--error">

@@ -24,10 +24,10 @@
                   <p *ngIf="fgValues.cities[i]?.to_city.city">Hotel in 
                     {{ fgValues.cities[i]?.to_city.city }}
                     on 
-                    {{ fgValues.cities[i]?.onward_dt | date: 'dd MMM yyyy' }}
+                    {{ fgValues.cities[i]?.onward_dt | date: 'MMM dd, yyyy' }}
                     <span>
                       to 
-                      {{ otherDetailsForm.value.hotelDetails[i]?.checkOutDt | date: 'dd MMM yyyy' }}
+                      {{ otherDetailsForm.value.hotelDetails[i]?.checkOutDt | date: 'MMM dd, yyyy' }}
                     </span>
                   </p>
                 </strong>
@@ -211,10 +211,10 @@
                       {{ otherDetailsForm.value.transportDetails[i].toCity.city }}
                       on 
                       <span>
-                        {{ fgValues.cities[0]?.onward_dt | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[0]?.onward_dt | date: 'MMM dd, yyyy' }}
                       </span>
                       <span>
-                        {{ fgValues.cities[0]?.return_date | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[0]?.return_date | date: 'MMM dd, yyyy' }}
                       </span>
                     </p>
                   </span>
@@ -227,7 +227,7 @@
                       to 
                       {{ fgValues.cities[i]?.to_city.city }}
                       on 
-                      {{ fgValues.cities[i]?.onward_dt | date: 'dd MMM yyyy' }}
+                      {{ fgValues.cities[i]?.onward_dt | date: 'MMM dd, yyyy' }}
                     </p>
                   </span>
                 </strong>

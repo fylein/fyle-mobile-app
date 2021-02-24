@@ -4,7 +4,7 @@
       {{corporateCardExpense.txn_dt | date: 'EEEE'}}
     </span>
     <span *ngIf="corporateCardExpense.txn_dt">
-      {{corporateCardExpense.txn_dt | date: 'dd MMMM yyyy'}}
+      {{corporateCardExpense.txn_dt | date: 'MMMM dd, yyyy'}}
     </span>
   </div>
   <ng-container *ngIf="baseState==='unclassified'">

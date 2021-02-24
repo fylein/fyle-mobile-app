@@ -20,7 +20,7 @@
     <div class="report-list--list" *ngFor="let report of approverPendingReports$|async as approverPendingReports">
       <div class="report-list--report-tile" mat-ripple (click)="addTransactionToReport(report.rp_id)">
         <div class="report-list--date-amount-block">
-          <div class="report-list--date-amount-block-date">{{ report.rp_created_at|date: 'dd MMMM yyyy' }}</div>
+          <div class="report-list--date-amount-block-date">{{ report.rp_created_at|date: 'MMMM dd, yyyy' }}</div>
           <div class="report-list--date-amount-block-amount">{{ report.rp_amount | currency: report.rp_currency: 'symbol-narrow' }}</div>
         </div>
         <div class="report-list--purpose">{{report.rp_purpose}} ({{report.rp_state | snakeCaseToSpaceCase | titlecase}})</div>

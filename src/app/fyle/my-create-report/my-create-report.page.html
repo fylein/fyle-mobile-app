@@ -43,7 +43,7 @@
 
     <div *ngFor="let etxn of readyToReportEtxns as list; let i = index">
       <p class="my-create-report--expense-date" *ngIf="etxn.showDt">
-        <span>{{etxn.tx_txn_dt | date: 'EEEE, dd MMMM yyyy'}}</span>
+        <span>{{etxn.tx_txn_dt | date: 'EEEE, MMMM dd, yyyy'}}</span>
       </p>
       <ion-grid class="my-create-report--item-card" [ngClass]="{'my-create-report--item-card-selected': etxn.isSelected}" (click)="toggleTransaction(etxn)">
         <ion-row>

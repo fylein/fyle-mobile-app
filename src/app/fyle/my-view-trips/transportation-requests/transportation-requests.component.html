@@ -103,7 +103,7 @@
               </div>
     
               <div *ngIf="customField.type === 'DATE'" class="transportation-requests--element-value">
-                {{customField.value | date: 'dd, MMM yyyy'}}
+                {{customField.value | date: 'MMM dd, yyyy'}}
               </div>
               <div *ngIf="customField.type === 'BOOLEAN'" class="transportation-requests--element-value">
                 {{customField.value ? 'Yes' : 'No'}}
