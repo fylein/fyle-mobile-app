@@ -149,8 +149,8 @@ export class MyProfilePage implements OnInit {
   }
 
   getMyexpensesStatsCountBySourceMap(stats, source) {
-    let count = stats.find(stat => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1)
-    return count && count.value;
+    let count = stats.filter(stat => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1);
+    return count && count.reduce((acc, obj) => acc + obj.value, 0);
   }
 
   setMyExpensesCountBySource(stats) {
