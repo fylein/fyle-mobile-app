@@ -600,7 +600,7 @@ export class AddEditPerDiemPage implements OnInit {
                   this.fb.group({
                     name: [customField.name],
                     value: [
-                      customField.value,
+                      customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
                       isConnected && customField.type !== 'BOOLEAN' && customField.type !== 'USER_LIST' && customField.mandatory && Validators.required]
                   })
                 );

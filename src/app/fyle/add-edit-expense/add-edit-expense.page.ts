@@ -1263,7 +1263,7 @@ export class AddEditExpensePage implements OnInit {
                     name: [customField.name],
                     // Since in boolean, required validation is kinda unnecessary
                     value: [
-                      customField.value,
+                      customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
                       customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required
                     ]
                   })
@@ -1277,7 +1277,7 @@ export class AddEditExpensePage implements OnInit {
         shareReplay(1)
       );
   }
-
+  
   setupTfc() {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
