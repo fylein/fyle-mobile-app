@@ -108,6 +108,18 @@ export class OrgUserService {
     );
   }
 
+  getEmployeesBySearch(params) {
+    return this.getEmployeesByParams({
+      ...params, 
+      limit: 20,
+      order: 'us_full_name.asc,us_email.asc,ou_id',
+      or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING")'
+    }).pipe(
+      map(res => res.data.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser))
+    );
+  }
+
+
   exclude(eous: ExtendedOrgUser[], userIds: string[]) {
     return eous.filter((eou) => {
       return userIds.indexOf(eou.ou.id) === -1;
