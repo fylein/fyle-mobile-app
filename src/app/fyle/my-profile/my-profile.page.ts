@@ -165,7 +165,7 @@ export class MyProfilePage implements OnInit {
     return {
       total: totalCount,
       mobile: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'MOBILE'),
-      extension: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'GMAIL_EXTENSION'),
+      extension: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'GMAIL'),
       outlook: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'OUTLOOK'),
       email: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'EMAIL'),
       web: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'WEBAPP')
