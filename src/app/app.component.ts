@@ -47,6 +47,7 @@ export class AppComponent implements OnInit {
   allowedActions$: Observable<any>;
   eou;
   device;
+  dividerTitle: string;
 
   constructor(
     private platform: Platform,
@@ -453,6 +454,19 @@ export class AppComponent implements OnInit {
             disabled: true
           }
         ];
+      }
+
+      /* These below conditions have been added to place the divider in the sidenav:-
+        - if 'Advances' is enabled, the divider will be placed under 'Avances',
+        - else if 'Trips' is enabled, the divider will be placed under 'Trips',
+        - else it will be placed under 'Reports'
+      */
+      this.dividerTitle = 'Reports';
+      if (orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled))) {
+        this.dividerTitle = 'Trips';
+      }
+      if (orgSettings.advances.enabled || orgSettings.advance_requests.enabled) {
+        this.dividerTitle = 'Advances';
       }
     });
   }
