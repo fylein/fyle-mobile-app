@@ -815,16 +815,16 @@ export class MyAddEditTripPage implements OnInit {
     }
 
     this.eou$ = from(this.authService.getEou());
-    this.travelAgents$ = this.orgUserService.getAllCompanyEouc().pipe(
+    this.travelAgents$ = this.orgUserService.getEmployees({
+      ou_roles: 'like.%TRAVEL_AGENT%'
+    }).pipe(
       map(eous => {
         const travelAgents = [];
-        eous.filter(eou => {
-          if (eou.ou.roles.indexOf('TRAVEL_AGENT') > -1) {
-            travelAgents.push({
-              label: eou.us.full_name + '(' + eou.us.email + ')',
-              value: eou.ou.id
-            });
-          }
+        eous.some(eou => {
+          travelAgents.push({
+            label: eou.us.full_name + '(' + eou.us.email + ')',
+            value: eou.ou.id
+          });
         });
         return travelAgents;
       })

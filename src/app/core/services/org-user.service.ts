@@ -5,7 +5,7 @@ import {ApiService} from './api.service';
 import {User} from '../models/user.model';
 import {concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
 import {AuthService} from './auth.service';
-import {Observable, range, Subject} from 'rxjs';
+import {Observable, range, Subject, from} from 'rxjs';
 import {ExtendedOrgUser} from '../models/extended-org-user.model';
 import {DataTransformService} from './data-transform.service';
 import {StorageService} from './storage.service';
@@ -80,15 +80,31 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesByParams(params) {
-    return this.apiV2Service.get('/employees', {params});
-  }
-
   getCompanyEouCount(): Observable<{ count: number }> {
     return this.apiService.get('/eous/company/count').pipe(
       map(
         res => res as { count: number }
       )
+    );
+  }
+
+  getEmployeesByParams(params) {
+    return this.apiV2Service.get('/employees', {params});
+  }
+
+  getEmployees(params) {
+    return this.getEmployeesByParams({...params, limit: 1}).pipe(
+      switchMap(res => {
+        const count = res.count > 200 ? res.count / 200 : 1;
+        return range(0, count);
+      }),
+      concatMap(page => {
+        return this.getEmployeesByParams({ ...params ,offset: 200 * page, limit: 200 });
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr.data);
+      }, [] as ExtendedOrgUser[]),
+      map(eous => eous.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser))
     );
   }
 
