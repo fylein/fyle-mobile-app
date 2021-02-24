@@ -148,14 +148,27 @@ export class MyProfilePage implements OnInit {
     toast.present();
   }
 
-  setMyExpensesCountBySource(myETxnc) {
+  getMyexpensesStatsCountBySourceMap(stats, source) {
+    let count = stats.find(stat => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1)
+    return count && count.value;
+  }
+
+  setMyExpensesCountBySource(stats) {
+    const statsCountList = stats && stats[0].value.map(stat =>  {
+      return {  
+      value: stat.aggregates[0].function_value,
+      key: stat.key[0].column_value  
+      }
+    });
+    const totalCount = statsCountList.reduce((acc, obj) => acc + obj.value, 0);
+
     return {
-      total: myETxnc.length,
-      mobile: this.transactionService.getCountBySource(myETxnc, 'MOBILE'),
-      extension: this.transactionService.getCountBySource(myETxnc, 'GMAIL'),
-      outlook: this.transactionService.getCountBySource(myETxnc, 'OUTLOOK'),
-      email: this.transactionService.getCountBySource(myETxnc, 'EMAIL'),
-      web: this.transactionService.getCountBySource(myETxnc, 'WEBAPP')
+      total: totalCount,
+      mobile: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'MOBILE'),
+      extension: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'GMAIL_EXTENSION'),
+      outlook: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'OUTLOOK'),
+      email: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'EMAIL'),
+      web: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'WEBAPP')
     };
   }
 
@@ -284,9 +297,13 @@ export class MyProfilePage implements OnInit {
     const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
       shareReplay(1)
     );
-    this.myETxnc$ = this.transactionService.getAllMyETxnc().pipe(
-      map(etxnc => this.setMyExpensesCountBySource(etxnc))
-    );
+
+    this.myETxnc$ = this.transactionService.getTransactionStats('count(tx_id)', {
+      scalar: false,
+      dimension_1_1: 'tx_source'
+    }).pipe(
+      map(statsRes => this.setMyExpensesCountBySource(statsRes))
+    )
 
     this.org$ = this.offlineService.getCurrentOrg();
 
