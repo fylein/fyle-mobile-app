@@ -155,9 +155,9 @@ export class MyProfilePage implements OnInit {
 
   setMyExpensesCountBySource(stats) {
     const statsCountList = stats && stats[0].value.map(stat =>  {
-      return {  
-      value: stat.aggregates[0].function_value,
-      key: stat.key[0].column_value  
+      return {
+        value: stat.aggregates[0].function_value,
+        key: stat.key[0].column_value  
       }
     });
     const totalCount = statsCountList.reduce((acc, obj) => acc + obj.value, 0);
