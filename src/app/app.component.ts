@@ -457,7 +457,7 @@ export class AppComponent implements OnInit {
       }
 
       /* These below conditions have been added to place the divider in the sidenav:-
-        - if 'Advances' is enabled, the divider will be placed under 'Avances',
+        - if 'Advances' is enabled, the divider will be placed under 'Advances',
         - else if 'Trips' is enabled, the divider will be placed under 'Trips',
         - else it will be placed under 'Reports'
       */
