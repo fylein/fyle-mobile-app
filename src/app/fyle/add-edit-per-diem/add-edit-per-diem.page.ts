@@ -550,14 +550,16 @@ export class AddEditPerDiemPage implements OnInit {
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
-        switchMap((category) => {
-          let selectedCategory$;
+        switchMap(() => {
+          let category = this.fg.controls.sub_category.value;
           if (this.initialFetch) {
-            selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+            return this.etxn$.pipe(switchMap(etxn => {
               return iif(() => etxn.tx.org_category_id,
                 this.offlineService.getAllCategories().pipe(
                   map(categories => categories
-                    .find(category => category.id === etxn.tx.org_category_id))), of(null));
+                    .find(category => category.id === etxn.tx.org_category_id))), this.getPerDiemCategories().pipe(
+                      map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
+                    ));
             }));
           }
 
