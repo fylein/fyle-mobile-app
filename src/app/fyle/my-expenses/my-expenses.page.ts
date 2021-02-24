@@ -638,7 +638,6 @@ export class MyExpensesPage implements OnInit {
       await this.loaderService.hideLoader();
       this.doRefresh();
     }
-    console.log(etxn, index);
   }
 
   selectExpense(expense: Expense) {
