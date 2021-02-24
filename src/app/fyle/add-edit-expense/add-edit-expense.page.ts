@@ -2012,6 +2012,8 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
+        policyETxn.tx.corporate_credit_card_expense_group_id = this.selectedCCCTransaction ? true : false;
+
         return this.offlineService.getAllCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
