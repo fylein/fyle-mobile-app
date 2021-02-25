@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
-import {combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError} from 'rxjs';
+import {combineLatest, concat, forkJoin, from, iif, Observable, of, throwError} from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -612,11 +612,9 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       concatMap(( isPredictedLocation) => {
-        console.log("check result->", isPredictedLocation);
         if (isPredictedLocation) {
           return this.locationService.getGeocode(isPredictedLocation[0].place_id, isPredictedLocation[0].description).pipe(
             map((location) => {
-              console.log("check the predicted location->", location);
               if (location) {
                 return location;
               } else {
@@ -869,9 +867,6 @@ export class AddEditMileagePage implements OnInit {
       }),
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
-
-
-
 
     this.transactionMandatoyFields$
       .pipe(

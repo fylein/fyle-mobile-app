@@ -142,8 +142,17 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   getCurrentLocation() {
     from(this.loaderService.showLoader('Loading current location...', 10000)).pipe(
       switchMap(() => {
-        return this.locationService.getCurrentLocation();
+        return Geolocation.getCurrentPosition();
       }),
+      switchMap((coordinates) => {
+        return this.agmGeocode.geocode({
+          location: {
+            lat: coordinates.coords.latitude,
+            lng: coordinates.coords.longitude
+          }
+        });
+      }),
+      map(this.formatGeocodeResponse),
       catchError((err) => {
         this.lookupFailed = true;
         return throwError(err);

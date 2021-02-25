@@ -1,6 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from 'src/environments/environment';
+import {map} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -90,22 +92,5 @@ export class LocationService {
         return locationDetails;
       })
     );
-  }
-
-  getCurrentLocation() {
-    return from(Geolocation.getCurrentPosition({
-      timeout: 1000,
-      enableHighAccuracy: true
-      })).pipe(
-      switchMap((coordinates) => {
-        return this.agmGeocode.geocode({
-          location: {
-            lat: coordinates.coords.latitude,
-            lng: coordinates.coords.longitude
-          }
-        });
-      }),
-      map(this.formatGeocodeResponse)
-    )
   }
 }
