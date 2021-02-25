@@ -7,21 +7,21 @@
     <div class="trip-card--cities">
       <div class="trip-card--cities-container" *ngIf="tripRequest.trp_trip_type !== 'MULTI_CITY'">
         <div class="trip-card--cities-container-city">
-          {{(tripRequest.trp_trip_cities[0].from_city?.city || tripRequest.trp_trip_cities[0].from_city?.display)| ellipsis: 8}}
+          {{(tripRequest.trp_trip_cities[0]?.from_city?.city || tripRequest.trp_trip_cities[0]?.from_city?.display)| ellipsis: 8}}
         </div>
         <div class="trip-card--cities-container-city">
-          {{(tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1].to_city?.city || tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1].to_city?.display)| ellipsis: 8}}
+          {{(tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1]?.to_city?.city || tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1]?.to_city?.display)| ellipsis: 8}}
         </div>
       </div>
       <div class="trip-card--cities-container" *ngIf="tripRequest.trp_trip_type === 'MULTI_CITY'">
         <div class="trip-card--cities-container-city">
-          {{tripRequest.trp_trip_cities[0].from_city?.city || tripRequest.trp_trip_cities[0].from_city?.display | ellipsis: 8}}
+          {{tripRequest.trp_trip_cities[0]?.from_city?.city || tripRequest.trp_trip_cities[0]?.from_city?.display | ellipsis: 8}}
         </div>
         <div class="trip-card--cities-container-count">
           +{{tripRequest.trp_trip_cities.length - 2}}
         </div>
         <div class="trip-card--cities-container-city">
-          {{tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1].from_city?.city || tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1].from_city?.display| ellipsis: 8}}
+          {{tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1]?.from_city?.city || tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1]?.from_city?.display| ellipsis: 8}}
         </div>
       </div>
     </div>

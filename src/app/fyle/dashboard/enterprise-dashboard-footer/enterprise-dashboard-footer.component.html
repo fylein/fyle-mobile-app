@@ -6,9 +6,9 @@
           <div class="dashboard-footer--block" [ngClass]="'unit-action'">
             <div class="dashboard-footer--block-internal" (click)="actionFn(ctaList[0])">
               <div class="text-center">
-                <mat-icon class="text-center dashboard-footer--icon-card" svgIcon="{{ctaList[0].icon}}"></mat-icon>
+                <mat-icon class="text-center dashboard-footer--icon-card" svgIcon="{{ctaList[0]?.icon}}"></mat-icon>
               </div>
-              <div class="dashboard-footer--icon-text text-center">{{ctaList[0].name}}</div>
+              <div class="dashboard-footer--icon-text text-center">{{ctaList[0]?.name}}</div>
             </div>
           </div>
         </div>
