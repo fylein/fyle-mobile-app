@@ -211,7 +211,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
     return CCCEExpandedDetails$.pipe(
       map((res: any) => {
         res = this.isBlank(res);
-        res.title = 'Unmatched Expenses';
+        res.title = 'Unclassified Transaction' + (Number(res.total_count) > 1 ? 's' : '');
         res.warning = true;
 
         const stats = [res];
