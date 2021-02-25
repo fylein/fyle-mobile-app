@@ -255,7 +255,7 @@ export class MyCreateReportPage implements OnInit {
             etxns.forEach((etxn, i) => {
               etxn.vendorDetails = this.getVendorDetails(etxn);
               etxn.showDt = true;
-              if (i > 0 && (etxn.tx_txn_dt === etxns[i - 1].tx_txn_dt)) {
+              if (i > 0 && (etxn.tx_txn_dt && etxns[i - 1].tx_txn_dt && etxn.tx_txn_dt.toDateString() === etxns[i - 1].tx_txn_dt.toDateString())) {
                 etxn.showDt = false;
               }
               etxn.isSelected = true;
