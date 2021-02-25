@@ -94,7 +94,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.approverList$ = from(this.loaderService.showLoader('Loading Approvers', 10000)).pipe(
+    this.approverList$ = from(this.loaderService.showLoader('Loading Approvers')).pipe(
       switchMap(() => {
         return this.orgUserService.getEmployeesBySearch({});
       }),
@@ -113,10 +113,17 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText: any) => {
-        return this.approverList$.pipe(map(filteredApprovers => {
-          return filteredApprovers.filter(filteredApprover => {
-            return !searchText || filteredApprover.us.email.indexOf(searchText.toLowerCase()) > -1;
-          });
+
+        let params: any = {}
+        if (searchText) {
+          params.us_email = 'ilike.*' + searchText + '*'
+        } 
+
+        return this.orgUserService.getEmployeesBySearch(params).pipe(
+          map(filteredApprovers => {
+            return filteredApprovers.filter(filteredApprover => {
+              return !searchText || filteredApprover.us.email.indexOf(searchText.toLowerCase()) > -1;
+            });
        }));
       })
     );
