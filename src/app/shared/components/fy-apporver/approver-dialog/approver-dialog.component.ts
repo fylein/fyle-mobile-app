@@ -118,13 +118,14 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText: any) => {
 
-        let params: any = {
+        const params: any = {
           limit: 20,
           order: 'us_email.asc,ou_id',
-        }
+        };
+
         if (searchText) {
-          params.us_email = 'ilike.*' + searchText + '*'
-        } 
+          params.us_email = 'ilike.*' + searchText + '*';
+        }
 
         return this.orgUserService.getEmployeesBySearch(params).pipe(
           map(filteredApprovers => {

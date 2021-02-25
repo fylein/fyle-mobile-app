@@ -5,7 +5,9 @@ import {
   HttpResponse,
   HttpHandler,
   HttpEvent,
-  HttpErrorResponse
+  HttpErrorResponse,
+  HttpParams,
+  HttpParameterCodec
 } from '@angular/common/http';
 
 import { Observable, throwError, from } from 'rxjs';
@@ -74,6 +76,8 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         concatMap(token => {
           if (token && this.secureUrl(request.url)) {
             request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
+            const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
+            request = request.clone({params});
           }
           return next.handle(request).pipe(
             catchError((error) => {
@@ -90,5 +94,23 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           );
         })
       );
+  }
+}
+
+class CustomEncoder implements HttpParameterCodec {
+  encodeKey(key: string): string {
+    return encodeURIComponent(key);
+  }
+
+  encodeValue(value: string): string {
+    return encodeURIComponent(value);
+  }
+
+  decodeKey(key: string): string {
+    return decodeURIComponent(key);
+  }
+
+  decodeValue(value: string): string {
+    return decodeURIComponent(value);
   }
 }

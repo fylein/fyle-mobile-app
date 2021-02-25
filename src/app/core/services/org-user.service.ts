@@ -110,7 +110,7 @@ export class OrgUserService {
 
   getEmployeesBySearch(params) {
     return this.getEmployeesByParams({
-      ...params, 
+      ...params,
       or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")'
     }).pipe(
       map(res => res.data.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser))

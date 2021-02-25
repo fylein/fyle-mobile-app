@@ -7,13 +7,14 @@ import {switchMap, reduce, finalize, map, tap, mergeMap, concatMap, startWith, d
 import {ModifyApproverConfirmationPopoverComponent} from './modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
 import {ReportService} from 'src/app/core/services/report.service';
 import {isEqual} from 'lodash';
+import { HttpParameterCodec } from '@angular/common/http';
 
 @Component({
   selector: 'app-modify-approver-dialog',
   templateUrl: './modify-approver-dialog.component.html',
   styleUrls: ['./modify-approver-dialog.component.scss'],
 })
-export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
+export class ModifyApproverDialogComponent implements OnInit, AfterViewInit, HttpParameterCodec {
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() approverList;
@@ -22,6 +23,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
   @Input() object;
 
   approverList$: Observable<any>;
+  approverListCopy$: Observable<any>;
   searchedApprovers$: Observable<any>;
   selectedApprovers: any[] = [];
   intialSelectedApprovers: any[] = [];
@@ -117,22 +119,37 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
       this.loaderService.showLoader('Loading Approvers', 10000)
     ).pipe(
       switchMap(() => {
-        return this.orgUserService.getAllCompanyEouc();
+        const params: any = {
+          us_email: 'in.(' + this.approverList.join(',') + ')',
+          order: 'us_email.asc,ou_id',
+        };
+        return this.orgUserService.getEmployeesBySearch(params).pipe(
+          map(eouc => {
+            return eouc.map(eou => {
+              eou.checked = true;
+              return eou;
+            });
+          })
+        );
       }),
-      map(eouc => {
-        return this.orgUserService.excludeByStatus(eouc, 'DISABLED');
-      }),
-      map(eouc => {
-        // sorting approver list
-        eouc.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
-
-        return eouc.map(eou => {
-          eou.checked = this.approverList.indexOf(eou.us.email) > -1;
-          return eou;
-        }).sort((a, b) => a.checked > b.checked ? -1 : 1);
+      switchMap(selectedEous => {
+        const params: any = {
+          limit: 20,
+          order: 'us_email.asc,ou_id',
+        };
+        return this.orgUserService.getEmployeesBySearch(params).pipe(
+          map(eous => {
+            return selectedEous
+              .filter(selectedEou => -1 !== eous
+                .find(eou => selectedEou.us.email === eou.us.email))
+              .concat(eous);
+          })
+        );
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     );
+
+    this.approverListCopy$ = this.approverList$;
 
     this.approverList$.subscribe((eouc) => {
       eouc.forEach((approver) => {
@@ -152,11 +169,29 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText: any) => {
-        return this.approverList$.pipe(map(filteredApprovers => {
-          return filteredApprovers.filter(filteredApprover => {
-            return !searchText || filteredApprover.us.email.indexOf(searchText.toLowerCase()) > -1;
-          });
-        }));
+        if (!searchText) {
+          return this.approverListCopy$;
+        }
+
+        const params: any = {
+          limit: 20,
+          us_email: 'in.(' + this.approverList.join(',') + ')',
+          order: 'us_email.asc,ou_id',
+        };
+
+        if (searchText) {
+          params.us_email = 'ilike.*' + searchText + '*';
+        }
+
+        console.log('yoyo', params);
+        return this.orgUserService.getEmployeesBySearch(params).pipe(
+          map(eouc => {
+            return eouc.map(eou => {
+              eou.checked = this.approverList.indexOf(eou.us.email) > -1;
+              return eou;
+            });
+          })
+        );
       })
     );
   }
