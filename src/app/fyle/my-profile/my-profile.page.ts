@@ -23,6 +23,7 @@ import { Plugins } from '@capacitor/core';
 import { TokenService } from 'src/app/core/services/token.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import { environment } from 'src/environments/environment';
+import { StatsOneDResponse } from 'src/app/core/models/stats-one-dimension.model';
 
 const { Browser } = Plugins;
 
@@ -148,27 +149,27 @@ export class MyProfilePage implements OnInit {
     toast.present();
   }
 
-  getMyexpensesStatsCountBySourceMap(stats, source) {
-    let count = stats.filter(stat => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1);
-    return count && count.reduce((acc, obj) => acc + obj.value, 0);
+  getMyexpensesStatsCountBySource(stats: any[], source: string) {
+    const filteresStatsRes = stats.filter(stat => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1);
+    return filteresStatsRes.reduce((acc, statValue) => acc + statValue.value, 0);
   }
 
-  setMyExpensesCountBySource(stats) {
-    const statsCountList = stats && stats[0].value.map(stat =>  {
+  setMyExpensesCountBySource(statsRes: StatsOneDResponse) {
+    const statsCountList = statsRes.value.map(stat =>  {
       return {
-        value: stat.aggregates[0].function_value,
-        key: stat.key[0].column_value  
+        value: stat.aggregates.length && stat.aggregates[0].function_value,
+        key: stat.key.length && stat.key[0].column_value  
       }
     });
-    const totalCount = statsCountList.reduce((acc, obj) => acc + obj.value, 0);
+    const totalCount = statsCountList.reduce((acc, statValue) => acc + statValue.value, 0);
 
     return {
       total: totalCount,
-      mobile: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'MOBILE'),
-      extension: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'GMAIL'),
-      outlook: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'OUTLOOK'),
-      email: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'EMAIL'),
-      web: this.getMyexpensesStatsCountBySourceMap(statsCountList, 'WEBAPP')
+      mobile: this.getMyexpensesStatsCountBySource(statsCountList, 'MOBILE'),
+      extension: this.getMyexpensesStatsCountBySource(statsCountList, 'GMAIL'),
+      outlook: this.getMyexpensesStatsCountBySource(statsCountList, 'OUTLOOK'),
+      email: this.getMyexpensesStatsCountBySource(statsCountList, 'EMAIL'),
+      web: this.getMyexpensesStatsCountBySource(statsCountList, 'WEBAPP')
     };
   }
 
@@ -302,7 +303,7 @@ export class MyProfilePage implements OnInit {
       scalar: false,
       dimension_1_1: 'tx_source'
     }).pipe(
-      map(statsRes => this.setMyExpensesCountBySource(statsRes))
+      map(statsRes => this.setMyExpensesCountBySource(statsRes[0]))
     )
 
     this.org$ = this.offlineService.getCurrentOrg();
