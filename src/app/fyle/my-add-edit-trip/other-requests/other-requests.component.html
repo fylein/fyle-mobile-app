@@ -13,21 +13,21 @@
     <div class="other-details--container">
       <mat-tab-group>
         <!-- Hote Tab starts -->
-        <mat-tab *ngIf="otherRequests[0].hotel" label="Hotel">
+        <mat-tab *ngIf="otherRequests[0]?.hotel" label="Hotel">
           <ng-container formArrayName="hotelDetails">
             <div *ngFor="let control of hotelDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
               <div class="other-details--wrapper-title">
                 <strong>
-                  <p *ngIf="!(fgValues.cities[i].to_city.city)">
+                  <p *ngIf="!(fgValues.cities[i]?.to_city.city)">
                       City {{i + 1}}
                   </p>
-                  <p *ngIf="fgValues.cities[i].to_city.city">Hotel in 
-                    {{ fgValues.cities[i].to_city.city }}
+                  <p *ngIf="fgValues.cities[i]?.to_city.city">Hotel in 
+                    {{ fgValues.cities[i]?.to_city.city }}
                     on 
-                    {{ fgValues.cities[i].onward_dt | date: 'dd MMM yyyy' }}
+                    {{ fgValues.cities[i]?.onward_dt | date: 'dd MMM yyyy' }}
                     <span>
                       to 
-                      {{ otherDetailsForm.value.hotelDetails[i].checkOutDt | date: 'dd MMM yyyy' }}
+                      {{ otherDetailsForm.value.hotelDetails[i]?.checkOutDt | date: 'dd MMM yyyy' }}
                     </span>
                   </p>
                 </strong>
@@ -196,38 +196,38 @@
         <!-- Hote Tab over -->
 
         <!-- Transportation Tab starts -->
-        <mat-tab *ngIf="otherRequests[2].transportation" label="Transportation">
+        <mat-tab *ngIf="otherRequests[2]?.transportation" label="Transportation">
           <ng-container formArrayName="transportDetails">
             <div *ngFor="let control of transportDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
               <div class="other-details--wrapper-title">
                 <strong>
                   <span *ngIf="fgValues.tripType === 'ROUND'">
-                    <p *ngIf="!(fgValues.cities[0].from_city.city && fgValues.cities[0].to_city.city)">
+                    <p *ngIf="!(fgValues.cities[0]?.from_city.city && fgValues.cities[0]?.to_city.city)">
                       City {{i + 1}}
                     </p>
-                    <p *ngIf="fgValues.cities[0].from_city.city && fgValues.cities[0].to_city.city">
+                    <p *ngIf="fgValues.cities[0]?.from_city.city && fgValues.cities[0]?.to_city.city">
                       {{ otherDetailsForm.value.transportDetails[i].fromCity.city }}
                       to 
                       {{ otherDetailsForm.value.transportDetails[i].toCity.city }}
                       on 
                       <span>
-                        {{ fgValues.cities[0].onward_dt | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[0]?.onward_dt | date: 'dd MMM yyyy' }}
                       </span>
                       <span>
-                        {{ fgValues.cities[0].return_date | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[0]?.return_date | date: 'dd MMM yyyy' }}
                       </span>
                     </p>
                   </span>
                   <span *ngIf="fgValues.tripType !== 'ROUND'">
-                    <p *ngIf="!(fgValues.cities[i].from_city.city && fgValues.cities[i].to_city.city)">
+                    <p *ngIf="!(fgValues.cities[i]?.from_city.city && fgValues.cities[i]?.to_city.city)">
                       City {{i + 1}}
                     </p>
-                    <p *ngIf="fgValues.cities[i].from_city.city && fgValues.cities[i].to_city.city">
-                      {{ fgValues.cities[i].from_city.city }}
+                    <p *ngIf="fgValues.cities[i]?.from_city.city && fgValues.cities[i]?.to_city.city">
+                      {{ fgValues.cities[i]?.from_city.city }}
                       to 
-                      {{ fgValues.cities[i].to_city.city }}
+                      {{ fgValues.cities[i]?.to_city.city }}
                       on 
-                      {{ fgValues.cities[i].onward_dt | date: 'dd MMM yyyy' }}
+                      {{ fgValues.cities[i]?.onward_dt | date: 'dd MMM yyyy' }}
                     </p>
                   </span>
                 </strong>

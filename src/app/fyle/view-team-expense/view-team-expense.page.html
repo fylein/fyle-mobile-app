@@ -78,20 +78,20 @@
       </div>
     </div>
 
-    <div *ngIf="etxn.tx_fyle_category === 'Hotel'">
+    <div *ngIf="etxn.tx_fyle_category === 'Hotel' && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)">
       hotel
       <div class="view-expense--element-block">
-        <div class="view-expense--element" *ngIf="etxn.tx_locations[0].display">
+        <div class="view-expense--element" *ngIf="etxn.tx_locations[0]?.display">
           <div class="view-expense--element-label">City</div>
-          <div class="view-expense--element-value">{{ etxn.tx_locations[0].display }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_locations[0]?.display }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_from_dt">
           <div class="view-expense--element-label">Check-In</div>
-          <div class="view-expense--element-value">{{ etxn.tx_from_dt }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_from_dt | date: 'dd, MMM yyyy' }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_to_dt">
           <div class="view-expense--element-label">Check-Out</div>
-          <div class="view-expense--element-value">{{ etxn.tx_to_dt }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_to_dt | date: 'dd, MMM yyyy' }}</div>
         </div>
       </div>
     </div>
@@ -101,11 +101,11 @@
         *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class">
         <div class="view-expense--element" *ngIf="etxn.tx_from_dt">
           <div class="view-expense--element-label">Check-In</div>
-          <div class="view-expense--element-value">{{ etxn.tx_from_dt }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_from_dt | date: 'dd, MMM yyyy'  }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_to_dt">
           <div class="view-expense--element-label">Check-Out</div>
-          <div class="view-expense--element-value">{{ etxn.tx_to_dt }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_to_dt | date: 'dd, MMM yyyy'  }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_flight_journey_travel_class">
           <div class="view-expense--element-label">Onward Class</div>
