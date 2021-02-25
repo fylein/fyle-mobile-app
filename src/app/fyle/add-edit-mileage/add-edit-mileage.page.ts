@@ -45,6 +45,9 @@ import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 import {LocationService} from 'src/app/core/services/location.service';
+import { Plugins } from '@capacitor/core';
+
+const { Geolocation } = Plugins;
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -588,35 +591,47 @@ export class AddEditMileagePage implements OnInit {
 
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
-      currentLocation: this.locationService.getCurrentLocation(),
+      currentLocation: from(Geolocation.getCurrentPosition({
+        timeout: 10000,
+        enableHighAccuracy: true
+      })),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$
     }).pipe(
-      map(
-        ({ eou, currentLocation, orgUserSettings, recentValue }) => {
-          const isRecentLocationPresent = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                              && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
-          if (isRecentLocationPresent && this.mode === 'add') {
-            const location = recentValue.recent_start_locations[0];
-            return forkJoin({
-              autocompletePredictions: this.locationService.getAutocompletePredictions(location, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`)
-            }).pipe(
-              map(
-                ({ autocompletePredictions }) => {
-                  const predictedLocations = autocompletePredictions.predictions;
-                  return this.locationService.getGeocode(predictedLocations[0].place_id, predictedLocations[0].description).pipe(
-                    map(({ location }) => {
-                      if (location && location.length > 0) {
-                        return location;
-                      }
-                    })
-                  )
-                }
-              )
-            )
+      map(({ eou, currentLocation, orgUserSettings, recentValue }) => {
+        const isRecentLocationPresent = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                            && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
+        if (isRecentLocationPresent) {
+          const autocompleteLocationInfo = {
+            recentStartLocation: recentValue.recent_start_locations[0],
+            eou: eou,
+            currentLocation: currentLocation
           }
+          return autocompleteLocationInfo;
         }
-      )
+      }),
+      concatMap(({ recentStartLocation, eou, currentLocation }) => {
+        if (recentStartLocation && eou && currentLocation) {
+          return this.locationService.getAutocompletePredictions(recentStartLocation, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
+        } else {
+          return(null);
+        }
+      }),
+      concatMap(( isPredictedLocation) => {
+        console.log("check result->", isPredictedLocation);
+        if (isPredictedLocation) {
+          return this.locationService.getGeocode(isPredictedLocation[0].place_id, isPredictedLocation[0].description).pipe(
+            map((location) => {
+              console.log("check the predicted location->", location);
+              if (location) {
+                return location;
+              } else {
+                return(null);
+              }
+            })
+          )
+        }
+      })
     );
 
     return forkJoin({
