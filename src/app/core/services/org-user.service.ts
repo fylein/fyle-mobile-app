@@ -111,9 +111,6 @@ export class OrgUserService {
   getEmployeesBySearch(params) {
     return this.getEmployeesByParams({
       ...params, 
-      limit: 20,
-      order: 'us_email.asc,ou_id',
-      or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")'
     }).pipe(
       map(res => res.data.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser))
     );

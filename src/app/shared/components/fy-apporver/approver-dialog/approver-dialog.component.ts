@@ -96,7 +96,12 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.approverList$ = from(this.loaderService.showLoader('Loading Approvers')).pipe(
       switchMap(() => {
-        return this.orgUserService.getEmployeesBySearch({});
+        const params: any = {
+          limit: 20,
+          order: 'us_email.asc,ou_id',
+          or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")'
+        }
+        return this.orgUserService.getEmployeesBySearch(params);
       }),
       map(eouc => {
         return eouc.filter(approver => {
@@ -114,7 +119,11 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText: any) => {
 
-        let params: any = {}
+        let params: any = {
+          limit: 20,
+          order: 'us_email.asc,ou_id',
+          or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")'
+        }
         if (searchText) {
           params.us_email = 'ilike.*' + searchText + '*'
         } 
