@@ -313,7 +313,7 @@ export class AppComponent implements OnInit {
           {
             title: 'Settings',
             isVisible: true,
-            icon: 'fy-settings-o',
+            icon: 'fy-settings',
             route: ['/', 'enterprise', 'my_profile']
           },
           {
@@ -422,7 +422,7 @@ export class AppComponent implements OnInit {
           {
             title: 'Settings',
             isVisible: true,
-            icon: 'fy-settings-o',
+            icon: 'fy-settings',
             route: ['/', 'enterprise', 'my_profile'],
           },
           {
