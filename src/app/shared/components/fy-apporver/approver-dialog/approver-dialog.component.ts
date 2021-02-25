@@ -128,10 +128,10 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
         return this.orgUserService.getEmployeesBySearch(params).pipe(
           map(filteredApprovers => {
-            return filteredApprovers.filter(filteredApprover => {
-              return !searchText || filteredApprover.us.email.indexOf(searchText.toLowerCase()) > -1;
+            return filteredApprovers.filter(approver => {
+              return this.approverList.indexOf(approver.us.email) < 0;
             });
-       }));
+        }));
       })
     );
   }
