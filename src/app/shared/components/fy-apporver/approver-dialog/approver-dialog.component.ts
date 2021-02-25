@@ -99,7 +99,6 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
         const params: any = {
           limit: 20,
           order: 'us_email.asc,ou_id',
-          or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")'
         }
         return this.orgUserService.getEmployeesBySearch(params);
       }),
@@ -122,7 +121,6 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
         let params: any = {
           limit: 20,
           order: 'us_email.asc,ou_id',
-          or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")'
         }
         if (searchText) {
           params.us_email = 'ilike.*' + searchText + '*'
