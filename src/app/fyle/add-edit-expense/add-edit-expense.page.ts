@@ -1907,8 +1907,6 @@ export class AddEditExpensePage implements OnInit {
         etxn => isNumber(etxn.tx.policy_amount) && (etxn.tx.policy_amount < 0.0001)
       )
     );
-
-    // this.autoFillFields();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
