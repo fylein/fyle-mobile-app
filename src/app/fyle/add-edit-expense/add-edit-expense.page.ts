@@ -135,9 +135,9 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
-  doRecentOrgCategoryIdsExist: any;
-  recentCategories$: any;
-  autoFilledCategory: any;
+  doRecentOrgCategoryIdsExist: boolean;
+  recentCategories: any;
+  autoFilledCategory: boolean;
   clusterDomain: string;
   initialFetch;
 
@@ -721,7 +721,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       shareReplay(1)
     )
-  }
+  };
 
   getInstaFyleImageData() {
     if (this.activatedRoute.snapshot.params.dataUrl) {
@@ -1174,7 +1174,7 @@ export class AddEditExpensePage implements OnInit {
       const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
 
       if (isAutofillsEnabled && doRecentOrgCategoryIdsExist) {
-        this.recentCategories$ = recentCategories;
+        this.recentCategories = recentCategories;
       }
       // Check if category is extracted from instaFyle/autoFyle
       const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category && etxn.tx.fyle_category !== 'Unspecified';
