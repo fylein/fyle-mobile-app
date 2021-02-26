@@ -341,19 +341,6 @@ export class ViewTeamTripPage implements OnInit {
       })
     );
 
-    this.approvers$ = this.actions$.pipe(
-      filter(actions => actions.can_add_approver),
-      switchMap(() => {
-        return this.orgUserService.getAllCompanyEouc();
-      }),
-      withLatestFrom(this.approvals$, this.tripRequest$),
-      map((aggregatedRes) => {
-        const [eouc, approvals, tripRequest] = aggregatedRes;
-        const approversNotAllowed = this.getRestrictedApprovers(approvals, tripRequest);
-        return this.orgUserService.exclude(eouc, approversNotAllowed);
-      })
-    );
-
     this.transportationRequests$ = forkJoin([
       this.tripRequestsService.getTransportationRequests(id),
       this.allTripRequestCustomFields$,
