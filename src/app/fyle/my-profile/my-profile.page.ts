@@ -155,12 +155,7 @@ export class MyProfilePage implements OnInit {
   }
 
   setMyExpensesCountBySource(statsRes: StatsOneDResponse) {
-    const statsCountList = statsRes.value.map(stat =>  {
-      return {
-        value: stat.aggregates.length && stat.aggregates[0].function_value,
-        key: stat.key.length && stat.key[0].column_value  
-      }
-    });
+    const statsCountList = statsRes.getStatAggregatesByIdx(0);
     const totalCount = statsCountList.reduce((acc, statValue) => acc + statValue.value, 0);
 
     return {
