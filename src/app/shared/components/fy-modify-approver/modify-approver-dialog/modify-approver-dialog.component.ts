@@ -14,7 +14,7 @@ import { HttpParameterCodec } from '@angular/common/http';
   templateUrl: './modify-approver-dialog.component.html',
   styleUrls: ['./modify-approver-dialog.component.scss'],
 })
-export class ModifyApproverDialogComponent implements OnInit, AfterViewInit, HttpParameterCodec {
+export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() approverList;
@@ -45,8 +45,15 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit, Htt
 
   async saveUpdatedApproveList() {
     let reportApprovals = [];
-    const selectedApprovers = this.selectedApprovers.filter(approver => this.intialSelectedApprovers.indexOf(approver) === -1);
+
+    const selectedApprovers = this.selectedApprovers.filter(approver => {
+      return this.selectedApprovers.filter(apprv => {
+        return apprv.us.email !== approver.us.email;
+      });
+    });
+    // const selectedApprovers = this.selectedApprovers.filter(approver => this.intialSelectedApprovers.indexOf(approver) === -1);
     const removedApprovers = this.intialSelectedApprovers.filter(approver => this.selectedApprovers.indexOf(approver) === -1);
+
     this.reportService.getApproversByReportId(this.id).pipe(
       map(res => {
         reportApprovals = res.filter(eou => {
@@ -102,16 +109,17 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit, Htt
 
     if (!event.checked) {
       approver.checked = false;
-      const index = this.selectedApprovers.indexOf(approver);
+      const unSelectedApprover = this.selectedApprovers.find(selectedApprover => selectedApprover.us.email === approver.us.email);
+      const index = this.selectedApprovers.indexOf(unSelectedApprover);
       if (index > -1) {
         this.selectedApprovers.splice(index, 1);
       }
     }
-    this.equals = this.checkDifference(this.intialSelectedApprovers, this.selectedApprovers);
-  }
 
-  checkDifference(intialSelectedApprovers, selectedApprovers) {
-    return isEqual(intialSelectedApprovers, selectedApprovers);
+    this.intialSelectedApprovers.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
+    this.selectedApprovers.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
+
+    this.equals = isEqual(this.intialSelectedApprovers, this.selectedApprovers);
   }
 
   ngOnInit() {
@@ -159,7 +167,11 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit, Htt
       });
 
       this.intialSelectedApprovers = [...this.selectedApprovers];
-      this.equals = this.checkDifference(this.intialSelectedApprovers, this.selectedApprovers);
+
+      this.intialSelectedApprovers.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
+      this.selectedApprovers.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
+
+      this.equals = isEqual(this.intialSelectedApprovers, this.selectedApprovers);
     });
   }
 
