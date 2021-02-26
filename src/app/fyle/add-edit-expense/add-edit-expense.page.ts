@@ -835,7 +835,7 @@ export class AddEditExpensePage implements OnInit {
             if (orgUserSettings.currency_settings.preferred_currency) {
               etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
             }
-          } else if (orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
+          } else if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
                      && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
             etxn.tx.currency = recentValue.recent_currencies[0];
           } else {
