@@ -1216,7 +1216,7 @@ export class AddEditPerDiemPage implements OnInit {
        * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
        * 4. When there exists recently used cost center ids to auto-fill
        */
-      if (doRecentCostCenterIdsExist && !etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id)) {
+      if (doRecentCostCenterIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))) {
         const autoFillCostCenter = recentCostCenters && recentCostCenters[0];
 
         if (autoFillCostCenter) {
