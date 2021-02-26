@@ -81,7 +81,7 @@
         </div>
       </div>
 
-      <div *ngIf="(canOpenCard && !selectionMode) || canDeleteOfflineExpense" (click)="actionOpened = true">
+      <div *ngIf="(canOpenCard && !selectionMode) || (!isSyncInProgress && !expense.tx_id )" (click)="actionOpened = true">
         <mat-icon class="my-expenses-card--more">more_horiz</mat-icon>
       </div>
     </div>
@@ -95,7 +95,7 @@
         </div>
       </div>
 
-      <div class="my-expenses-card-menu--buttons" *ngIf="!canDeleteOfflineExpense">
+      <div class="my-expenses-card-menu--buttons" *ngIf="expense.tx_id">
         <div matRipple [matRippleDisabled]="(isDraft || isCriticalPolicyViolated)" class="my-expenses-card-menu--action my-expenses-card-menu--action__comments"
           (click)="onAddTransactionToReport()"
           [ngClass]="{'my-expenses-card-menu--action__disabled': (isDraft || isCriticalPolicyViolated)}">
@@ -113,7 +113,7 @@
         </div>
       </div>
 
-      <div class="my-expenses-card-menu--buttons" *ngIf="canDeleteOfflineExpense">
+      <div class="my-expenses-card-menu--buttons" *ngIf="!expense.tx_id">
         <div matRipple class="my-expenses-card-menu--action my-expenses-card-menu--action__delete my-expenses-card-menu--action__delete-offline"
         (click)="onDeleteTransaction()">
         <span>Delete</span>
