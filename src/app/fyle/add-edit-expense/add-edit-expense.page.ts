@@ -135,7 +135,6 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
-  isAutofillsEnabled: any;
   doRecentOrgCategoryIdsExist: any;
   recentCategories$: any;
   clusterDomain: string;
@@ -768,30 +767,6 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  autoFillFields() {
-    this.recentlyUsedValues$.subscribe(recentValue => {
-      // Autofill category
-      this.doRecentOrgCategoryIdsExist = this.isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
-
-      if (this.doRecentOrgCategoryIdsExist) {
-        this.recentCategories$ = this.filteredCategories$.pipe(
-          map(filteredValues => {
-            return filteredValues.filter(recentCategories => {
-              return recentValue.recent_org_category_ids.indexOf(recentCategories.value.id) > -1;
-            })
-          })
-        )
-
-        this.recentCategories$.subscribe(autoFillCategory => {
-          if (autoFillCategory.length > 0) {
-            console.log("check autofill->>", autoFillCategory[0]);
-            this.fg.controls.category.patchValue(autoFillCategory[0]);
-          }
-        })
-      }
-    })
-  }
-
   getNewExpenseObservable() {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
@@ -1115,11 +1090,13 @@ export class AddEditExpensePage implements OnInit {
           costCenter: selectedCostCenter$,
           customInputs: selectedCustomInputs$,
           homeCurrency: this.offlineService.getHomeCurrency(),
-          defaultPaymentMode: defaultPaymentMode$
+          defaultPaymentMode: defaultPaymentMode$,
+          orgUserSettings: this.offlineService.getOrgUserSettings(),
+          recentValue: this.recentlyUsedValues$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1172,6 +1149,28 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: null,
           }
         });
+      }
+
+      const isAutofillsEnabled = orgUserSettings && orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+
+      const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
+
+      if (doRecentOrgCategoryIdsExist) {
+        this.recentCategories$ = this.filteredCategories$.pipe(
+          map(filteredValues => {
+            return filteredValues.filter(recentCategories => {
+              return recentValue.recent_org_category_ids.indexOf(recentCategories.value.id) > -1;
+            })
+          })
+        )
+
+        this.recentCategories$.subscribe(autoFillCategory => {
+          if (autoFillCategory.length > 0 && !this.fg.controls.category.value) {
+            this.fg.patchValue({
+              category: autoFillCategory[0]
+            })
+          }
+        })
       }
 
       console.log({ report });
@@ -1697,12 +1696,6 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings.enabled;
     });
 
-    orgUserSettings$.subscribe(orgUserSettings => {
-      this.isAutofillsEnabled = orgUserSettings.expense_form_autofills && 
-      orgUserSettings.expense_form_autofills.allowed &&
-      orgUserSettings.expense_form_autofills.enabled;
-    })
-
     this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
 
     this.setupNetworkWatcher();
@@ -1915,7 +1908,7 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    this.autoFillFields();
+    // this.autoFillFields();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
