@@ -25,6 +25,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() showSaveButton = false;
   @Input() placeholder = '';
   @Input() defaultLabelProp;
+  @Input() recentlyUsed;
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -113,6 +114,11 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         });
       })
     );
+
+    if (this.recentlyUsed) {
+      this.recentrecentlyUsedItems$ = of(this.recentlyUsed);
+    }
+
     this.cdr.detectChanges();
   }
 

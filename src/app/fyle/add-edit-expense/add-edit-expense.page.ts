@@ -135,6 +135,9 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
+  isAutofillsEnabled: any;
+  doRecentOrgCategoryIdsExist: any;
+  recentCategories$: any;
   clusterDomain: string;
   initialFetch;
 
@@ -763,6 +766,30 @@ export class AddEditExpensePage implements OnInit {
     } else {
       return of(null);
     }
+  }
+
+  autoFillFields() {
+    this.recentlyUsedValues$.subscribe(recentValue => {
+      // Autofill category
+      this.doRecentOrgCategoryIdsExist = this.isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
+
+      if (this.doRecentOrgCategoryIdsExist) {
+        this.recentCategories$ = this.filteredCategories$.pipe(
+          map(filteredValues => {
+            return filteredValues.filter(recentCategories => {
+              return recentValue.recent_org_category_ids.indexOf(recentCategories.value.id) > -1;
+            })
+          })
+        )
+
+        this.recentCategories$.subscribe(autoFillCategory => {
+          if (autoFillCategory.length > 0) {
+            console.log("check autofill->>", autoFillCategory[0]);
+            this.fg.controls.category.patchValue(autoFillCategory[0]);
+          }
+        })
+      }
+    })
   }
 
   getNewExpenseObservable() {
@@ -1670,6 +1697,12 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings.enabled;
     });
 
+    orgUserSettings$.subscribe(orgUserSettings => {
+      this.isAutofillsEnabled = orgUserSettings.expense_form_autofills && 
+      orgUserSettings.expense_form_autofills.allowed &&
+      orgUserSettings.expense_form_autofills.enabled;
+    })
+
     this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
 
     this.setupNetworkWatcher();
@@ -1881,6 +1914,8 @@ export class AddEditExpensePage implements OnInit {
         etxn => isNumber(etxn.tx.policy_amount) && (etxn.tx.policy_amount < 0.0001)
       )
     );
+
+    this.autoFillFields();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
