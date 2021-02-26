@@ -1168,17 +1168,23 @@ export class AddEditExpensePage implements OnInit {
           }
         });
       }
-
+      // Check is auto-fills is enabled
       const isAutofillsEnabled = orgUserSettings && orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
-
+      // Check if recent categories exist
       const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
 
       if (isAutofillsEnabled && doRecentOrgCategoryIdsExist) {
         this.recentCategories$ = recentCategories;
       }
-
+      // Check if category is extracted from instaFyle/autoFyle
       const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category && etxn.tx.fyle_category !== 'Unspecified';
 
+      /* Autofill category during these cases:
+       * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
+       * 2. When there exists recently used category ids to auto-fill - mandatory
+       * 3. During add expense - When category field is empty - optional
+       * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
+       */
       if (doRecentOrgCategoryIdsExist && !etxn.tx.id || 
         (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
         const autoFillCategory = recentCategories && recentCategories[0];
@@ -2824,7 +2830,6 @@ export class AddEditExpensePage implements OnInit {
       }
 
       if ((!this.fg.controls.category.value || (this.autoFilledCategory)) && extractedData.category) {
-        console.log("check what is value", this.fg.controls.category.value);
         const categoryName = extractedData.category || 'Unspecified';
         const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
         this.fg.patchValue({

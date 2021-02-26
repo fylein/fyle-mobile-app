@@ -102,6 +102,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         );
     }
 
+    // Check if recently items exists from api and set, else, set the recent items from the localStorage
     if (this.recentlyUsed) {
       this.recentrecentlyUsedItems$ = of(this.recentlyUsed);
     } else {
