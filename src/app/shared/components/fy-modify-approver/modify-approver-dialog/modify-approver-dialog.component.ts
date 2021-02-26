@@ -47,12 +47,12 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
     let reportApprovals = [];
 
     const selectedApprovers = this.selectedApprovers.filter(approver => {
-      return this.selectedApprovers.filter(apprv => {
-        return apprv.us.email !== approver.us.email;
-      });
+      return !this.intialSelectedApprovers.find(x => x.us.email === approver.us.email);
     });
-    // const selectedApprovers = this.selectedApprovers.filter(approver => this.intialSelectedApprovers.indexOf(approver) === -1);
-    const removedApprovers = this.intialSelectedApprovers.filter(approver => this.selectedApprovers.indexOf(approver) === -1);
+
+    const removedApprovers = this.intialSelectedApprovers.filter(approver => {
+      return !this.selectedApprovers.find(x => x.us.email === approver.us.email);
+    });
 
     this.reportService.getApproversByReportId(this.id).pipe(
       map(res => {
@@ -182,7 +182,16 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText: any) => {
         if (!searchText) {
-          return this.approverListCopy$;
+          return this.approverListCopy$.pipe(
+            map(eouc => {
+              return eouc.map(eou => {
+                eou.checked = this.selectedApprovers
+                  .map(x => x.us.email)
+                  .indexOf(eou.us.email) > -1;
+                return eou;
+              });
+            })
+          );
         }
 
         const params: any = {
@@ -195,11 +204,12 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
           params.us_email = 'ilike.*' + searchText + '*';
         }
 
-        console.log('yoyo', params);
         return this.orgUserService.getEmployeesBySearch(params).pipe(
           map(eouc => {
             return eouc.map(eou => {
-              eou.checked = this.approverList.indexOf(eou.us.email) > -1;
+              eou.checked = this.selectedApprovers
+                .map(x => x.us.email)
+                .indexOf(eou.us.email) > -1;
               return eou;
             });
           })
