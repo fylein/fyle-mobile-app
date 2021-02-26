@@ -598,10 +598,12 @@ export class AddEditMileagePage implements OnInit {
         if (isRecentLocationPresent) {
           const autocompleteLocationInfo = {
             recentStartLocation: recentValue.recent_start_locations[0],
-            eou: eou,
-            currentLocation: currentLocation
+            eou,
+            currentLocation
           }
           return autocompleteLocationInfo;
+        } else {
+          return(null);
         }
       }),
       concatMap(({ recentStartLocation, eou, currentLocation }) => {
@@ -611,7 +613,7 @@ export class AddEditMileagePage implements OnInit {
           return(null);
         }
       }),
-      concatMap(( isPredictedLocation) => {
+      concatMap((isPredictedLocation) => {
         if (isPredictedLocation) {
           return this.locationService.getGeocode(isPredictedLocation[0].place_id, isPredictedLocation[0].description).pipe(
             map((location) => {
