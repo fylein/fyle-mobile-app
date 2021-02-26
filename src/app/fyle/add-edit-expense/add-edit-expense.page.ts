@@ -136,6 +136,9 @@ export class AddEditExpensePage implements OnInit {
   navigateBack = false;
   isExpenseBankTxn = false;
   clusterDomain: string;
+  doRecentCostCenterIdsExist: boolean;
+  recentCostCenters: any;
+  autoFilledCostCenter: boolean;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -581,6 +584,19 @@ export class AddEditExpensePage implements OnInit {
       })
     );
   }
+
+  getRecentlyUsedCostCenters() {
+    return forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(({costCenters, recentValue}) => {
+        return costCenters.filter(recentCostCenters => {
+          return recentValue.recent_cost_center_ids.indexOf(recentCostCenters.value.id) > -1;
+        })
+      })
+    )
+  };
 
   setupTransactionMandatoryFields() {
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
@@ -1088,11 +1104,14 @@ export class AddEditExpensePage implements OnInit {
           costCenter: selectedCostCenter$,
           customInputs: selectedCustomInputs$,
           homeCurrency: this.offlineService.getHomeCurrency(),
-          defaultPaymentMode: defaultPaymentMode$
+          defaultPaymentMode: defaultPaymentMode$,
+          orgUserSettings: this.offlineService.getOrgUserSettings(),
+          recentValue: this.recentlyUsedValues$,
+          recentCostCenters: this.getRecentlyUsedCostCenters()
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1145,6 +1164,30 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: null,
           }
         });
+      }
+
+      // Check is auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      // Check if recent cost centers exist
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
+        this.recentCostCenters = recentCostCenters;
+      }
+
+      /* Autofill cost center during these cases:
+       * 1. Autofills is allowed and enabled
+       * 2. During add expense - When cost center field is empty
+       * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
+       * 4. When there exists recently used cost center ids to auto-fill
+       */
+      if (doRecentCostCenterIdsExist && !etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id)) {
+        const autoFillCostCenter = recentCostCenters && recentCostCenters[0];
+
+        if (autoFillCostCenter) {
+          costCenter = autoFillCostCenter.value;
+          this.autoFilledCostCenter = autoFillCostCenter.value.id;
+        }
       }
 
       console.log({ report });

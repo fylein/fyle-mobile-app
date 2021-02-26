@@ -93,6 +93,10 @@ export class AddEditMileagePage implements OnInit {
   saveAndNextMileageLoader = false;
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
+  doRecentCostCenterIdsExist: boolean;
+  recentCostCenters: any;
+  autoFilledCostCenter: boolean;
+  recentlyUsedCostCenters$: Observable<any>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -872,6 +876,17 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(({costCenters, recentValue}) => {
+        return costCenters.filter(recentCostCenters => {
+          return recentValue.recent_cost_center_ids.indexOf(recentCostCenters.value.id) > -1;
+        })
+      })
+    );
+
     this.reports$ = this.reportService.getFilteredPendingReports({ state: 'edit' }).pipe(
       map(reports => reports.map(report => ({ label: report.rp.purpose, value: report })))
     );
@@ -1121,12 +1136,15 @@ export class AddEditMileagePage implements OnInit {
           selectedCostCenter$,
           selectedCustomInputs$,
           this.mileageConfig$,
-          defaultPaymentMode$
+          defaultPaymentMode$,
+          orgUserSettings$,
+          this.recentlyUsedValues$,
+          this.recentlyUsedCostCenters$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, recentValue, recentCostCenters]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1142,6 +1160,30 @@ export class AddEditMileagePage implements OnInit {
             };
           }
         });
+
+      // Check is auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      // Check if recent cost centers exist
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
+        this.recentCostCenters = recentCostCenters;
+      }
+
+      /* Autofill cost center during these cases:
+       * 1. Autofills is allowed and enabled
+       * 2. During add expense - When cost center field is empty
+       * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
+       * 4. When there exists recently used cost center ids to auto-fill
+       */
+      if (doRecentCostCenterIdsExist && !etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id)) {
+        const autoFillCostCenter = recentCostCenters && recentCostCenters[0];
+
+        if (autoFillCostCenter) {
+          costCenter = autoFillCostCenter.value;
+          this.autoFilledCostCenter = autoFillCostCenter.value.id;
+        }
+      }
 
       this.fg.patchValue({
         mileage_vehicle_type: etxn.tx.mileage_vehicle_type,

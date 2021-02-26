@@ -43,6 +43,8 @@ import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detecti
 import {TrackingService} from '../../core/services/tracking.service';
 import {CurrencyPipe} from '@angular/common';
 import {TokenService} from 'src/app/core/services/token.service';
+import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
+import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -93,6 +95,11 @@ export class AddEditPerDiemPage implements OnInit {
   clusterDomain: string;
   initialFetch;
   individualPerDiemRatesEnabled$: Observable<boolean>;
+  recentlyUsedValues$: Observable<RecentlyUsed>;
+  doRecentCostCenterIdsExist: boolean;
+  recentCostCenters: any;
+  autoFilledCostCenter: boolean;
+  recentlyUsedCostCenters$: Observable<any>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -130,7 +137,8 @@ export class AddEditPerDiemPage implements OnInit {
     private navController: NavController,
     private trackingService: TrackingService,
     private currencyPipe: CurrencyPipe,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private recentlyUsedItemsService: RecentlyUsedItemsService
   ) {
   }
 
@@ -684,6 +692,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.setupNetworkWatcher();
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -837,6 +846,17 @@ export class AddEditPerDiemPage implements OnInit {
           label: costCenter.name,
           value: costCenter
         }));
+      })
+    );
+
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(({costCenters, recentValue}) => {
+        return costCenters.filter(recentCostCenters => {
+          return recentValue.recent_cost_center_ids.indexOf(recentCostCenters.value.id) > -1;
+        })
       })
     );
 
@@ -1154,14 +1174,17 @@ export class AddEditPerDiemPage implements OnInit {
           selectedReport$,
           selectedCostCenter$,
           selectedCustomInputs$,
-          defaultPaymentMode$
+          defaultPaymentMode$,
+          orgUserSettings$,
+          this.recentlyUsedValues$,
+          this.recentlyUsedCostCenters$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(([
-                   etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode
-                 ]) => {
+                   etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode,
+                   orgUserSettings, recentValue, recentCostCenters]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1177,6 +1200,30 @@ export class AddEditPerDiemPage implements OnInit {
             };
           }
         });
+
+      // Check is auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      // Check if recent cost centers exist
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
+        this.recentCostCenters = recentCostCenters;
+      }
+
+      /* Autofill cost center during these cases:
+       * 1. Autofills is allowed and enabled
+       * 2. During add expense - When cost center field is empty
+       * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
+       * 4. When there exists recently used cost center ids to auto-fill
+       */
+      if (doRecentCostCenterIdsExist && !etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id)) {
+        const autoFillCostCenter = recentCostCenters && recentCostCenters[0];
+
+        if (autoFillCostCenter) {
+          costCenter = autoFillCostCenter.value;
+          this.autoFilledCostCenter = autoFillCostCenter.value.id;
+        }
+      }
 
       this.fg.patchValue({
         paymentMode: paymentMode || defaultPaymentMode,
