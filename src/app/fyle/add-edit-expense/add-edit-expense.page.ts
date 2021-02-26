@@ -137,6 +137,7 @@ export class AddEditExpensePage implements OnInit {
   isExpenseBankTxn = false;
   doRecentOrgCategoryIdsExist: any;
   recentCategories$: any;
+  autoFilledCategory: any;
   clusterDomain: string;
   initialFetch;
 
@@ -706,6 +707,22 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  getRecentlyUsedCategories() {
+    return forkJoin({
+      filteredCategories: this.filteredCategories$.pipe(
+        take(1)
+      ),
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(({filteredCategories, recentValue}) => {
+        return filteredCategories.filter(recentCategories => {
+          return recentValue.recent_org_category_ids.indexOf(recentCategories.value.id) > -1;
+        })
+      }),
+      shareReplay(1)
+    )
+  }
+
   getInstaFyleImageData() {
     if (this.activatedRoute.snapshot.params.dataUrl) {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
@@ -1092,11 +1109,12 @@ export class AddEditExpensePage implements OnInit {
           homeCurrency: this.offlineService.getHomeCurrency(),
           defaultPaymentMode: defaultPaymentMode$,
           orgUserSettings: this.offlineService.getOrgUserSettings(),
-          recentValue: this.recentlyUsedValues$
+          recentValue: this.recentlyUsedValues$,
+          recentCategories: this.getRecentlyUsedCategories()
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1155,22 +1173,20 @@ export class AddEditExpensePage implements OnInit {
 
       const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
 
-      if (doRecentOrgCategoryIdsExist) {
-        this.recentCategories$ = this.filteredCategories$.pipe(
-          map(filteredValues => {
-            return filteredValues.filter(recentCategories => {
-              return recentValue.recent_org_category_ids.indexOf(recentCategories.value.id) > -1;
-            })
-          })
-        )
+      if (isAutofillsEnabled && doRecentOrgCategoryIdsExist) {
+        this.recentCategories$ = recentCategories;
+      }
 
-        this.recentCategories$.subscribe(autoFillCategory => {
-          if (autoFillCategory.length > 0 && !this.fg.controls.category.value) {
-            this.fg.patchValue({
-              category: autoFillCategory[0]
-            })
-          }
-        })
+      const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category && etxn.tx.fyle_category !== 'Unspecified';
+
+      if (doRecentOrgCategoryIdsExist && !etxn.tx.id || 
+        (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
+        const autoFillCategory = recentCategories && recentCategories[0];
+
+        if (autoFillCategory) {
+          category = autoFillCategory.value;
+          this.autoFilledCategory = true;
+        }
       }
 
       console.log({ report });
@@ -1477,6 +1493,9 @@ export class AddEditExpensePage implements OnInit {
           }),
           map(categories => categories.map(category => ({label: category.displayName, value: category})))
         );
+      }),
+      tap(filterCategories => {
+        console.log({filterCategories});
       }),
       shareReplay(1)
     );
@@ -2804,7 +2823,8 @@ export class AddEditExpensePage implements OnInit {
         });
       }
 
-      if (!this.fg.controls.category.value && extractedData.category) {
+      if ((!this.fg.controls.category.value || (this.autoFilledCategory)) && extractedData.category) {
+        console.log("check what is value", this.fg.controls.category.value);
         const categoryName = extractedData.category || 'Unspecified';
         const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
         this.fg.patchValue({
