@@ -1,5 +1,5 @@
 import {Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef} from '@angular/core';
-import {Observable, fromEvent, iif, of, from, forkJoin} from 'rxjs';
+import {Observable, fromEvent, iif, of, from} from 'rxjs';
 import {ModalController} from '@ionic/angular';
 import {map, startWith, distinctUntilChanged, switchMap, tap, concatMap} from 'rxjs/operators';
 import {isEqual} from 'lodash';
@@ -22,7 +22,6 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
   @Input() recentlyUsed;
-  @Input() autoFillProject;
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;
