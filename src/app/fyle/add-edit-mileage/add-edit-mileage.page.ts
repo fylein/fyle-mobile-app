@@ -1184,7 +1184,7 @@ export class AddEditMileagePage implements OnInit {
         header: 'Unsaved Changes',
         message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
         primaryCta: {
-          text: 'DSICARD CHANGES'
+          text: 'DISCARD CHANGES'
         }
       });
 
