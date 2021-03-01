@@ -1202,9 +1202,9 @@ export class AddEditPerDiemPage implements OnInit {
         });
 
       // Check is auto-fills is enabled
-      const isAutofillsEnabled = orgUserSettings && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
       // Check if recent cost centers exist
-      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
 
       if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
         this.recentCostCenters = recentCostCenters;
