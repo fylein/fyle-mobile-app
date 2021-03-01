@@ -136,6 +136,10 @@ export class AddEditExpensePage implements OnInit {
   navigateBack = false;
   isExpenseBankTxn = false;
   clusterDomain: string;
+  doRecentProjectIdsExist: boolean;
+  recentProjects: any;
+  recentlyUsedProjects$: Observable<any>;
+  autoFillProject: any;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -582,6 +586,40 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  getRecentlyUsedProjects() {
+    return forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+        map(({orgUserSettings, recentValue}) => {
+          if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+              && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
+            return recentValue.recent_project_ids;
+          }
+        }),
+        concatMap((projectIds) => {
+          return from(this.authService.getEou()).pipe(
+            switchMap((eou) => {
+              const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
+              return this.projectService.getByParamsUnformatted
+                ({
+                  orgId: eou.ou.org_id,
+                  active: true,
+                  sortDirection: 'asc',
+                  sortOrder: 'project_name',
+                  orgCategoryIds: categoryId,
+                  projectIds: projectIds,
+                  searchNameText: null,
+                  offset: 0,
+                  limit: 10
+                });
+              }
+            )
+          );
+        })
+      );
+  };
+
   setupTransactionMandatoryFields() {
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
       filter(isConnected => !!isConnected),
@@ -952,12 +990,36 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.offlineService.getOrgSettings(),
-            orgUserSettings: this.offlineService.getOrgUserSettings()
+            orgUserSettings: this.offlineService.getOrgUserSettings(),
+            recentValue: this.recentlyUsedValues$,
+            recentProjects: this.getRecentlyUsedProjects()
           }).pipe(
-            map(({orgSettings, orgUserSettings}) => {
-              if (orgSettings.projects.enabled) {
-                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+            map(({orgSettings, orgUserSettings, recentValue, recentProjects}) => {
+              // Check is auto-fills is enabled
+              const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+              // Check if recent cost centers exist
+              const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+
+              if (isAutofillsEnabled && doRecentProjectIdsExist) {
+                this.recentProjects = recentProjects;
               }
+
+              /* Autofill project during these cases:
+              * 1. Autofills is allowed and enabled
+              * 2. During add expense - When project field is empty
+              * 3. During edit expense - When the expense is in draft state and there is no project already added
+              * 4. When there exists recently used project ids to auto-fill
+              */
+              if (doRecentProjectIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))) {
+                this.autoFillProject = recentProjects && recentProjects[0] && recentProjects[0].project_id;
+              }
+
+              // Giving priority to the default project preference
+              if (orgSettings.projects.enabled && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
+                this.autoFillProject =  orgUserSettings.preferences.default_project_id;
+              }
+
+              return this.autoFillProject;
             })
           );
         }

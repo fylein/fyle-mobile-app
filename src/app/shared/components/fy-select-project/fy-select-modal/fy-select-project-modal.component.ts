@@ -1,5 +1,5 @@
 import {Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef} from '@angular/core';
-import {Observable, fromEvent, iif, of, from} from 'rxjs';
+import {Observable, fromEvent, iif, of, from, forkJoin} from 'rxjs';
 import {ModalController} from '@ionic/angular';
 import {map, startWith, distinctUntilChanged, switchMap, tap, concatMap} from 'rxjs/operators';
 import {isEqual} from 'lodash';
@@ -21,6 +21,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
+  @Input() recentlyUsed;
+  @Input() autoFillProject;
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;
@@ -50,7 +52,6 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-
     return this.offlineService.getOrgSettings().pipe(
       switchMap((orgSettings) => {
         return iif(
@@ -68,7 +69,6 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
                 active: true,
                 sortDirection: 'asc',
                 sortOrder: 'project_name',
-                isIndividualProjectEnabled: !!allowedProjectIds,
                 orgCategoryIds: this.categoryIds,
                 projectIds: allowedProjectIds,
                 searchNameText,
@@ -137,15 +137,21 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-      map((options: any) => {
-        return options
-          .map(option => {
-            option.selected = isEqual(option.value, this.currentSelection);
-            return option;
-          });
-      })
-    );
+    if (this.recentlyUsed) {
+      this.recentrecentlyUsedItems$ = of(this.recentlyUsed).pipe(
+        map(recentItems => recentItems.map(item => ({label: item.project_name, value: item})))
+      );
+    } else {
+      this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+        map((options: any) => {
+          return options
+            .map(option => {
+              option.selected = isEqual(option.value, this.currentSelection);
+              return option;
+            });
+        })
+      );
+    }
     this.cdr.detectChanges();
   }
 
