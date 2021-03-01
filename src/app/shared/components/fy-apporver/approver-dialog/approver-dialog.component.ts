@@ -8,6 +8,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { ConfirmationCommentPopoverComponent } from './confirmation-comment-popover/confirmation-comment-popover.component';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import {ExtendedOrgUser} from '../../../../core/models/extended-org-user.model';
+import { Employee } from 'src/app/core/models/employee.model';
 
 
 @Component({
@@ -25,7 +26,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   value;
 
   approverList$: Observable<any>;
-  searchedApprovers$: Observable<ExtendedOrgUser[]>;
+  searchedApprovers$: Observable<Employee[]>;
   selectedApprovers: any[] = [];
   searchTerm;
 
@@ -59,7 +60,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       if (this.from === 'TRIP_REQUEST') {
         from(this.loaderService.showLoader()).pipe(
           switchMap(() => from(this.selectedApprovers)),
-          concatMap(approver => this.tripRequestsService.addApproverETripRequests(this.id, approver.us.email, data.message)),
+          concatMap(approver => this.tripRequestsService.addApproverETripRequests(this.id, approver.us_email, data.message)),
           reduce((acc, curr) => acc.concat(curr), []),
           finalize(() => from(this.loaderService.hideLoader()))
         ).subscribe(() => {
@@ -69,7 +70,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       if (this.from === 'ADVANCE_REQUEST') {
         from(this.loaderService.showLoader()).pipe(
           switchMap(() => from(this.selectedApprovers)),
-          concatMap(approver => this.advanceRequestService.addApprover(this.id, approver.us.email, data.message)),
+          concatMap(approver => this.advanceRequestService.addApprover(this.id, approver.us_email, data.message)),
           reduce((acc, curr) => acc.concat(curr), []),
           finalize(() => from(this.loaderService.hideLoader()))
         ).subscribe(() => {
@@ -99,12 +100,12 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
         const params: any = {
           limit: 20,
           order: 'us_email.asc,ou_id',
-        }
+        };
         return this.orgUserService.getEmployeesBySearch(params);
       }),
       map(eouc => {
         return eouc.filter(approver => {
-          return this.approverList.indexOf(approver.us.email) < 0;
+          return this.approverList.indexOf(approver.us_email) < 0;
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
@@ -130,7 +131,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
         return this.orgUserService.getEmployeesBySearch(params).pipe(
           map(filteredApprovers => {
             return filteredApprovers.filter(approver => {
-              return this.approverList.indexOf(approver.us.email) < 0;
+              return this.approverList.indexOf(approver.us_email) < 0;
             });
         }));
       })

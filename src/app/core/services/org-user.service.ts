@@ -12,6 +12,7 @@ import {StorageService} from './storage.service';
 import {Cacheable, globalCacheBusterNotifier, CacheBuster} from 'ts-cacheable';
 import {TrackingService} from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
+import { Employee } from '../models/employee.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -88,7 +89,12 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesByParams(params) {
+  getEmployeesByParams(params): Observable<{
+    count: number,
+    data: Employee[],
+    limit: number,
+    offset: number,
+    url: string}> {
     return this.apiV2Service.get('/employees', {params});
   }
 
@@ -99,12 +105,11 @@ export class OrgUserService {
         return range(0, count);
       }),
       concatMap(page => {
-        return this.getEmployeesByParams({ ...params ,offset: 200 * page, limit: 200 });
+        return this.getEmployeesByParams({ ...params, offset: 200 * page, limit: 200 });
       }),
       reduce((acc, curr) => {
         return acc.concat(curr.data);
-      }, [] as ExtendedOrgUser[]),
-      map(eous => eous.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser))
+      }, [] as Employee[])
     );
   }
 
@@ -113,7 +118,7 @@ export class OrgUserService {
       ...params,
       or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")'
     }).pipe(
-      map(res => res.data.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser))
+      map(res => res.data)
     );
   }
 

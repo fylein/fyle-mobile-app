@@ -8,6 +8,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { map } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import {FyUserlistModalComponent} from './fy-userlist-modal/fy-userlist-modal.component';
+import { Employee } from 'src/app/core/models/employee.model';
 
 @Component({
   selector: 'app-fy-userlist',
@@ -24,7 +25,7 @@ import {FyUserlistModalComponent} from './fy-userlist-modal/fy-userlist-modal.co
 export class FyUserlistComponent implements OnInit {
   private ngControl: NgControl;
 
-  eouc$: Observable<ExtendedOrgUser[]>;
+  eouc$: Observable<Employee[]>;
   @Input() options: { label: string, value: any }[];
   @Input() disabled = false;
   @Input() label = '';
@@ -52,14 +53,6 @@ export class FyUserlistComponent implements OnInit {
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
-
-    this.eouc$ = this.orgUserService.getAllCompanyEouc();
-
-    this.eouc$.pipe(
-      map(eous => eous.map(eou => ({ label: `${eou.us.full_name} (${eou.us.email})`, value: eou.us.email })))
-    ).subscribe((options) => {
-      this.options = options;
-    });
   }
 
   get value(): any {
@@ -84,7 +77,7 @@ export class FyUserlistComponent implements OnInit {
     const currencyModal = await this.modalController.create({
       component: FyUserlistModalComponent,
       componentProps: {
-        options: this.options,
+        // options: this.options,
         currentSelections: this.value
       }
     });

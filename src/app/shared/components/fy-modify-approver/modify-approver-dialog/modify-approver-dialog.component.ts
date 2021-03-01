@@ -47,18 +47,18 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
     let reportApprovals = [];
 
     const selectedApprovers = this.selectedApprovers.filter(approver => {
-      return !this.intialSelectedApprovers.find(x => x.us.email === approver.us.email);
+      return !this.intialSelectedApprovers.find(x => x.us_email === approver.us_email);
     });
 
     const removedApprovers = this.intialSelectedApprovers.filter(approver => {
-      return !this.selectedApprovers.find(x => x.us.email === approver.us.email);
+      return !this.selectedApprovers.find(x => x.us_email === approver.us_email);
     });
 
     this.reportService.getApproversByReportId(this.id).pipe(
       map(res => {
-        reportApprovals = res.filter(eou => {
+        reportApprovals = res.filter(approval => {
           return removedApprovers.some(removedApprover => {
-            return removedApprover.ou.id === eou.approver_id && eou.state !== 'APPROVAL_DONE';
+            return removedApprover.us_email === approval.approver_email && approval.state !== 'APPROVAL_DONE';
           });
         });
       })
@@ -86,7 +86,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
       from(changedOps).pipe(
         concatMap(res => {
           if (res.command === 'add') {
-            return this.reportService.addApprover(this.id, res.eou.us.email, data.message);
+            return this.reportService.addApprover(this.id, res.eou.us_email, data.message);
           } else {
             return this.reportService.removeApprover(this.id, res.eou.id);
           }
@@ -109,15 +109,16 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
 
     if (!event.checked) {
       approver.checked = false;
-      const unSelectedApprover = this.selectedApprovers.find(selectedApprover => selectedApprover.us.email === approver.us.email);
+      const unSelectedApprover = this.selectedApprovers.find(selectedApprover => selectedApprover.us_email === approver.us_email);
       const index = this.selectedApprovers.indexOf(unSelectedApprover);
       if (index > -1) {
         this.selectedApprovers.splice(index, 1);
       }
     }
 
-    this.intialSelectedApprovers.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
-    this.selectedApprovers.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
+    // soting this bcz loadash isEquals deep compares the object
+    this.intialSelectedApprovers.sort((a, b) => a.us_email < b.us_email ? -1 : 1);
+    this.selectedApprovers.sort((a, b) => a.us_email < b.us_email ? -1 : 1);
 
     this.equals = isEqual(this.intialSelectedApprovers, this.selectedApprovers);
   }
@@ -132,10 +133,10 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
           order: 'us_email.asc,ou_id',
         };
         return this.orgUserService.getEmployeesBySearch(params).pipe(
-          map(eouc => {
-            return eouc.map(eou => {
-              eou.checked = true;
-              return eou;
+          map(employees => {
+            return employees.map(employee => {
+              employee.checked = true;
+              return employee;
             });
           })
         );
@@ -146,11 +147,9 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
           order: 'us_email.asc,ou_id',
         };
         return this.orgUserService.getEmployeesBySearch(params).pipe(
-          map(eous => {
+          map(employees => {
             return selectedEous
-              .filter(selectedEou => -1 !== eous
-                .find(eou => selectedEou.us.email === eou.us.email))
-              .concat(eous);
+              .filter(selectedEou => !employees.find(employee => selectedEou.us_email === employee.us_email)).concat(employees);
           })
         );
       }),
@@ -161,17 +160,28 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
 
     this.approverList$.subscribe((eouc) => {
       eouc.forEach((approver) => {
-        if (this.approverList.indexOf(approver.us.email) > -1) {
+        if (this.approverList.indexOf(approver.us_email) > -1) {
           this.selectedApprovers.push(approver);
         }
       });
 
       this.intialSelectedApprovers = [...this.selectedApprovers];
 
-      this.intialSelectedApprovers.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
-      this.selectedApprovers.sort((a, b) => a.us.email < b.us.email ? -1 : 1);
+      // soting this bcz loadash isEquals deep compares the object
+      this.intialSelectedApprovers.sort((a, b) => a.us_email < b.us_email ? -1 : 1);
+      this.selectedApprovers.sort((a, b) => a.us_email < b.us_email ? -1 : 1);
 
       this.equals = isEqual(this.intialSelectedApprovers, this.selectedApprovers);
+    });
+  }
+
+  checkUpdatesInApproverList(eouc) {
+    return eouc.map(eou => {
+      eou.checked = this.selectedApprovers
+        .map(x => x.us_email)
+        .indexOf(eou.
+          email) > -1;
+      return eou;
     });
   }
 
@@ -186,8 +196,8 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
             map(eouc => {
               return eouc.map(eou => {
                 eou.checked = this.selectedApprovers
-                  .map(x => x.us.email)
-                  .indexOf(eou.us.email) > -1;
+                  .map(x => x.us_email)
+                  .indexOf(eou.us_email) > -1;
                 return eou;
               });
             })
@@ -207,9 +217,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
         return this.orgUserService.getEmployeesBySearch(params).pipe(
           map(eouc => {
             return eouc.map(eou => {
-              eou.checked = this.selectedApprovers
-                .map(x => x.us.email)
-                .indexOf(eou.us.email) > -1;
+              eou.checked = this.selectedApprovers.map(x => x.us.email).indexOf(eou.us_email) > -1;
               return eou;
             });
           })
