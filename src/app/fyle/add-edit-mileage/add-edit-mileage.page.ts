@@ -543,8 +543,8 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(
         ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue }) => {
-          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                              && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
+          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                             && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
           if (isRecentVehicleTypePresent) {
             vehicleType = recentValue.recent_vehicle_types[0];
           } else if (orgUserMileageSettings.length > 0) {
