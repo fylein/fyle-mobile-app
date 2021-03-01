@@ -229,7 +229,8 @@ export class TransactionsOutboxService {
 
   deleteOfflineExpense(index: number) {
     this.queue.splice(index, 1);
-    return this.saveQueue();
+    this.saveQueue()
+    return null;
   }
 
   syncEntry(entry) {

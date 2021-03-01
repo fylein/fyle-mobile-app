@@ -612,10 +612,10 @@ export class MyExpensesPage implements OnInit {
     if (popupResults === 'primary') {
       from(this.loaderService.showLoader('Deleting Expense', 2500)).pipe(
         switchMap(() => {
-          if (!etxn.tx_id) {
-            return this.transactionOutboxService.deleteOfflineExpense(index);
-          }
-          return this.transactionService.delete(etxn.tx_id);
+          return iif(() => !etxn.tx_id,
+            of(this.transactionOutboxService.deleteOfflineExpense(index)),
+            this.transactionService.delete(etxn.tx_id)
+          )
         }),
         tap(() => this.trackingService.deleteExpense({Asset: 'Mobile'})),
         finalize(async () => {
