@@ -200,6 +200,7 @@ export class AddEditExpensePage implements OnInit {
     const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
     if (this.activatedRoute.snapshot.params.persist_filters) {
       this.navController.back();
+      //this.navController.navigateBack
     } else {
       if (bankTxn) {
         this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
