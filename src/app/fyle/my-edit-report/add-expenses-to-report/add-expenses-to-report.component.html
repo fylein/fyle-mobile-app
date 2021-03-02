@@ -13,7 +13,7 @@
   <div class="add-expenses-to-report--container">
     <div *ngFor="let etxn of unReportedEtxns as list; let i = index">
       <p class="add-expenses-to-report--expense-date" *ngIf="etxn.showDt">
-        <span>{{etxn.tx_txn_dt | date: 'EEEE, MMMM dd yyyy'}}</span>
+        <span>{{etxn.tx_txn_dt | date: 'EEEE, MMMM dd, yyyy'}}</span>
       </p>
       <ion-grid class="add-expenses-to-report--item-card" [ngClass]="{'add-expenses-to-report--item-card-selected': etxn.isSelected}" (click)="toggleTransaction(etxn)">
         <ion-row>
