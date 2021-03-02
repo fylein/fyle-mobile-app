@@ -23,7 +23,7 @@
 
 <ion-content>
   <div class="selection-modal--container">
-    <div *ngIf="value">
+    <div *ngIf="value && value.trim().length">
       <div class="selection-modal--sub-title">New Merchant</div>
       <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
         <div>{{value}}</div>
