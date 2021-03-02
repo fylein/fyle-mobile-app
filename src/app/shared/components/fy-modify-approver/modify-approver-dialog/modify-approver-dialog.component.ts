@@ -6,7 +6,7 @@ import {ModalController, PopoverController} from '@ionic/angular';
 import {switchMap, reduce, finalize, map, tap, mergeMap, concatMap, startWith, distinctUntilChanged} from 'rxjs/operators';
 import {ModifyApproverConfirmationPopoverComponent} from './modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
 import {ReportService} from 'src/app/core/services/report.service';
-import {isEqual} from 'lodash';
+import { isEqual, cloneDeep } from 'lodash';
 import { HttpParameterCodec } from '@angular/common/http';
 
 @Component({
@@ -22,12 +22,9 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
   @Input() from;
   @Input() object;
 
-  approverList$: Observable<any>;
-  approverListCopy$: Observable<any>;
   searchedApprovers$: Observable<any>;
-  selectedApprovers: any[] = [];
   intialSelectedApprovers: any[] = [];
-  equals = false;
+  equals = true;
   value;
 
   constructor(
@@ -46,19 +43,19 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
   async saveUpdatedApproveList() {
     let reportApprovals = [];
 
-    const selectedApprovers = this.selectedApprovers.filter(approver => {
-      return !this.intialSelectedApprovers.find(x => x.us_email === approver.us_email);
+    const selectedApprovers = this.approverList.filter(approver => {
+      return !this.intialSelectedApprovers.find(x => x === approver);
     });
 
     const removedApprovers = this.intialSelectedApprovers.filter(approver => {
-      return !this.selectedApprovers.find(x => x.us_email === approver.us_email);
+      return !this.approverList.find(x => x === approver);
     });
 
     this.reportService.getApproversByReportId(this.id).pipe(
       map(res => {
         reportApprovals = res.filter(approval => {
           return removedApprovers.some(removedApprover => {
-            return removedApprover.us_email === approval.approver_email && approval.state !== 'APPROVAL_DONE';
+            return removedApprover === approval.approver_email && approval.state !== 'APPROVAL_DONE';
           });
         });
       })
@@ -78,15 +75,15 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
     const {data} = await saveApproverConfirmationPopover.onWillDismiss();
     if (data && data.message) {
 
-      const selectedApproversTemp = selectedApprovers.map(eou => ({eou, command: 'add'}));
+      const selectedApproversTemp = selectedApprovers.map(email => ({email, command: 'add'}));
       const reportApprovalsTemp = reportApprovals.map(eou => ({eou, command: 'remove'}));
 
       const changedOps = selectedApproversTemp.concat(reportApprovalsTemp);
 
       from(changedOps).pipe(
-        concatMap(res => {
+        concatMap((res: any) => {
           if (res.command === 'add') {
-            return this.reportService.addApprover(this.id, res.eou.us_email, data.message);
+            return this.reportService.addApprover(this.id, res.email, data.message);
           } else {
             return this.reportService.removeApprover(this.id, res.eou.id);
           }
@@ -101,88 +98,81 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onSelectApprover(approver, event) {
-    if (event.checked) {
-      approver.checked = true;
-      this.selectedApprovers.push(approver);
-    }
+  getDefaultApproversList() {
+    const params: any = {
+      order: 'us_email.asc,ou_id',
+      us_email: 'in.(' + this.approverList.join(',') + ')'
+    };
 
-    if (!event.checked) {
-      approver.checked = false;
-      const unSelectedApprover = this.selectedApprovers.find(selectedApprover => selectedApprover.us_email === approver.us_email);
-      const index = this.selectedApprovers.indexOf(unSelectedApprover);
-      if (index > -1) {
-        this.selectedApprovers.splice(index, 1);
-      }
-    }
-
-    // soting this bcz loadash isEquals deep compares the object
-    this.intialSelectedApprovers.sort((a, b) => a.us_email < b.us_email ? -1 : 1);
-    this.selectedApprovers.sort((a, b) => a.us_email < b.us_email ? -1 : 1);
-
-    this.equals = isEqual(this.intialSelectedApprovers, this.selectedApprovers);
-  }
-
-  ngOnInit() {
-    this.approverList$ = from(
-      this.loaderService.showLoader('Loading Approvers', 10000)
-    ).pipe(
-      switchMap(() => {
-        const params: any = {
-          us_email: 'in.(' + this.approverList.join(',') + ')',
-          order: 'us_email.asc,ou_id',
-        };
-        return this.orgUserService.getEmployeesBySearch(params).pipe(
-          map(employees => {
-            return employees.map(employee => {
-              employee.checked = true;
-              return employee;
-            });
-          })
-        );
+    return from(this.loaderService.showLoader('Loading...')).pipe(
+      switchMap(_ => {
+        return this.orgUserService.getEmployeesBySearch(params);
       }),
-      switchMap(selectedEous => {
-        const params: any = {
-          limit: 20,
-          order: 'us_email.asc,ou_id',
-        };
-        return this.orgUserService.getEmployeesBySearch(params).pipe(
-          map(employees => {
-            return selectedEous
-              .filter(selectedEou => !employees.find(employee => selectedEou.us_email === employee.us_email)).concat(employees);
-          })
-        );
+      map(eouc => {
+        return eouc.map(eou => {
+          eou.checked = this.approverList.indexOf(eou.us_email) > -1;
+          return eou;
+        });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     );
-
-    this.approverListCopy$ = this.approverList$;
-
-    this.approverList$.subscribe((eouc) => {
-      eouc.forEach((approver) => {
-        if (this.approverList.indexOf(approver.us_email) > -1) {
-          this.selectedApprovers.push(approver);
-        }
-      });
-
-      this.intialSelectedApprovers = [...this.selectedApprovers];
-
-      // soting this bcz loadash isEquals deep compares the object
-      this.intialSelectedApprovers.sort((a, b) => a.us_email < b.us_email ? -1 : 1);
-      this.selectedApprovers.sort((a, b) => a.us_email < b.us_email ? -1 : 1);
-
-      this.equals = isEqual(this.intialSelectedApprovers, this.selectedApprovers);
-    });
   }
 
-  checkUpdatesInApproverList(eouc) {
-    return eouc.map(eou => {
-      eou.checked = this.selectedApprovers
-        .map(x => x.us_email)
-        .indexOf(eou.
-          email) > -1;
-      return eou;
-    });
+  getSearchedApproversList(searchText: string) {
+    const params: any = {
+      limit: 20,
+      order: 'us_email.asc,ou_id',
+    };
+
+    if (searchText) {
+      params.us_email = 'ilike.*' + searchText + '*';
+    }
+
+    return this.orgUserService.getEmployeesBySearch(params).pipe(
+      map(eouc => {
+        return eouc.map(eou => {
+          eou.checked = this.approverList.indexOf(eou.us_email) > -1;
+          return eou;
+        });
+      })
+    );
+  }
+
+  getApproversList(searchText) {
+    if (searchText) {
+      return this.getSearchedApproversList(searchText);
+    } else {
+      return this.getDefaultApproversList().pipe(
+        switchMap(employees => {
+          return this.getSearchedApproversList(null).pipe(
+            map(searchedEmployees => {
+              searchedEmployees = searchedEmployees.filter(searchedEmployee => {
+                return !employees.find(employee => employee.us_email === searchedEmployee.us_email);
+              });
+              return employees.concat(searchedEmployees);
+            })
+          );
+        })
+      );
+    }
+  }
+
+  onSelectApprover(approver, event) {
+    if (event.checked) {
+      this.approverList.push(approver.us_email);
+    } else {
+      const index = this.approverList.indexOf(approver.us_email);
+      this.approverList.splice(index, 1);
+    }
+
+    this.approverList.sort((a, b) => a < b ? -1 : 1);
+
+    this.equals = isEqual(this.intialSelectedApprovers, this.approverList);
+  }
+
+  ngOnInit() {
+    this.intialSelectedApprovers = cloneDeep(this.approverList);
+    this.intialSelectedApprovers.sort((a, b) => a < b ? -1 : 1);
   }
 
   ngAfterViewInit() {
@@ -191,37 +181,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText: any) => {
-        if (!searchText) {
-          return this.approverListCopy$.pipe(
-            map(eouc => {
-              return eouc.map(eou => {
-                eou.checked = this.selectedApprovers
-                  .map(x => x.us_email)
-                  .indexOf(eou.us_email) > -1;
-                return eou;
-              });
-            })
-          );
-        }
-
-        const params: any = {
-          limit: 20,
-          us_email: 'in.(' + this.approverList.join(',') + ')',
-          order: 'us_email.asc,ou_id',
-        };
-
-        if (searchText) {
-          params.us_email = 'ilike.*' + searchText + '*';
-        }
-
-        return this.orgUserService.getEmployeesBySearch(params).pipe(
-          map(eouc => {
-            return eouc.map(eou => {
-              eou.checked = this.selectedApprovers.map(x => x.us.email).indexOf(eou.us_email) > -1;
-              return eou;
-            });
-          })
-        );
+        return this.getApproversList(searchText);
       })
     );
   }
