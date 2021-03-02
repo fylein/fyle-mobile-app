@@ -15,7 +15,6 @@ import {cloneDeep} from 'lodash';
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  // @Input() options: { label: string, value: any, selected?: boolean }[] = [];
   @Input() currentSelections: any[] = [];
   @Input() filteredOptions$: Observable<{ label: string, value: any, checked?: boolean }[]>;
   @Input() placeholder;
@@ -33,7 +32,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.filteredOptions$ = from(this.loaderService.showLoader('Loading...')).pipe(
+    this.userListCopy$ = from(this.loaderService.showLoader('Loading...')).pipe(
       switchMap(() => {
         const params: any = {
           us_email: 'in.(' + this.currentSelections.join(',') + ')',
@@ -43,6 +42,14 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
           map(employees => {
             return employees.map(employee => {
               employee.checked = true;
+
+              const ifEmployeeExist = this.selectedUsers.find(x => x.value === employee.us_email);
+              if (!ifEmployeeExist) {
+                this.selectedUsers.push({
+                  label: employee.us_full_name + `(${employee.us_email})`,
+                  value: employee.us_email,
+                  checked: employee.checked});
+              }
               return employee;
             });
           })
@@ -60,28 +67,18 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
                 return employee.us_email !== selectedEou.us_email;
               });
 
-              console.log('sanjkdasdnk ->', selectedEou);
               employees = employees.concat(selectedEou);
             });
-            console.log('last employees ->', employees);
             return employees;
           })
         );
       }),
       map(employees => employees.map(employee => {
-          const employeesFinal =  ({ label: `${employee.us_full_name} (${employee.checked})`,
-                    value: employee.us_email,
-                    checked: employee.checked
-                  });
-
-          return cloneDeep(employeesFinal);
+        return ({label: `${employee.us_full_name} (${employee.us_email})`, value: employee.us_email, checked: employee.checked});
         }
-      )),
-      tap(res => console.log('final ->', res)),
+      ).sort((a, b) => a.checked < b.checked ? -1 : 1)),
       finalize(() => from(this.loaderService.hideLoader()))
     );
-
-    this.userListCopy$ = this.filteredOptions$;
    }
 
   clearValue() {
@@ -101,9 +98,9 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
           return this.userListCopy$.pipe(
             map(eouc => {
               return eouc.map(eou => {
-                eou.checked = this.currentSelections.map(x => x.us_email).indexOf(eou.value) > -1;
+                eou.checked = this.selectedUsers.map(x => x.value).indexOf(eou.value) > -1;
                 return eou;
-              });
+              }).sort((a, b) => a.checked > b.checked ? -1 : 1);
             })
           );
         }
@@ -119,7 +116,12 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         }
 
         return this.orgUserService.getEmployeesBySearch(params).pipe(
-          map(eous => cloneDeep(eous).map(eou => ({ label: `${eou.us_full_name} (${eou.checked})`, value: eou.us_email, checked: eou.checked })))
+          map(eouc => {
+            return eouc.map(eou => {
+              eou.checked = this.selectedUsers.map(x => x.value).indexOf(eou.us_email) > -1;
+              return ({ label: `${eou.us_full_name} (${eou.us_email})`, value: eou.us_email, checked: eou.checked });
+            });
+          })
         );
         }
       )
@@ -132,7 +134,13 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   }
 
   onElementSelected(selectedOption) {
-    this.selectedUsers.push(selectedOption);
+    if (selectedOption.checked) {
+      this.selectedUsers.push(selectedOption);
+    } else {
+      const removedUser = this.selectedUsers.find(x => x.value === selectedOption.value);
+      const index = this.selectedUsers.indexOf(removedUser);
+      this.selectedUsers.splice(index, 1);
+    }
   }
 
   useSelected() {
