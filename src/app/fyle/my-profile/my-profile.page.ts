@@ -149,22 +149,17 @@ export class MyProfilePage implements OnInit {
     toast.present();
   }
 
-  getMyexpensesStatsCountBySource(stats: any[], source: string) {
-    const filteresStatsRes = stats.filter(stat => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1);
-    return filteresStatsRes.reduce((acc, statValue) => acc + statValue.value, 0);
-  }
-
   setMyExpensesCountBySource(statsRes: StatsOneDResponse) {
-    const statsCountList = statsRes.getStatAggregatesByIdx(0);
+    const statsCountList = statsRes.getStatAggregatesByIdx<number>(0);
     const totalCount = statsCountList.reduce((acc, statValue) => acc + statValue.value, 0);
 
     return {
       total: totalCount,
-      mobile: this.getMyexpensesStatsCountBySource(statsCountList, 'MOBILE'),
-      extension: this.getMyexpensesStatsCountBySource(statsCountList, 'GMAIL'),
-      outlook: this.getMyexpensesStatsCountBySource(statsCountList, 'OUTLOOK'),
-      email: this.getMyexpensesStatsCountBySource(statsCountList, 'EMAIL'),
-      web: this.getMyexpensesStatsCountBySource(statsCountList, 'WEBAPP')
+      mobile: StatsOneDResponse.getStatsCountBySource(statsCountList, 'MOBILE'),
+      extension: StatsOneDResponse.getStatsCountBySource(statsCountList, 'GMAIL'),
+      outlook: StatsOneDResponse.getStatsCountBySource(statsCountList, 'OUTLOOK'),
+      email: StatsOneDResponse.getStatsCountBySource(statsCountList, 'EMAIL'),
+      web: StatsOneDResponse.getStatsCountBySource(statsCountList, 'WEBAPP')
     };
   }
 
@@ -298,7 +293,7 @@ export class MyProfilePage implements OnInit {
       scalar: false,
       dimension_1_1: 'tx_source'
     }).pipe(
-      map(statsRes => this.setMyExpensesCountBySource(statsRes[0]))
+      map(statsRes => this.setMyExpensesCountBySource(new StatsOneDResponse(statsRes[0])))
     )
 
     this.org$ = this.offlineService.getCurrentOrg();
