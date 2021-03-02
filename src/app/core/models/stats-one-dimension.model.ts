@@ -1,9 +1,9 @@
 export class StatsOneDResponse {
 
-  constructor (obj: any) {
-    this.dimensions = obj.dimensions;
-    this.value = obj.value;
-    this.name = obj.name;
+  constructor (statObj: any) {
+    this.dimensions = statObj.dimensions;
+    this.name = statObj.name;
+    this.value = statObj.value;
   }
 
   dimensions: string[];
