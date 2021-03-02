@@ -101,11 +101,11 @@ export class AppComponent implements OnInit {
 
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(10, () => {
-      console.error("----------1-----------");
-      console.error(this.navController);
-      this.router.events.forEach((event) => {
-        console.log({event});
-      });
+      // console.error("----------1-----------");
+      // console.error(this.navController);
+      // this.router.events.forEach((event) => {
+      //   console.log({event});
+      // });
       
       if (this.router.url.includes('my_dashboard')) {
         this.showAppCloseAlert();

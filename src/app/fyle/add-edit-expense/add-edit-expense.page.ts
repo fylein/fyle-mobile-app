@@ -199,12 +199,13 @@ export class AddEditExpensePage implements OnInit {
   goBack() {
     const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
     if (this.activatedRoute.snapshot.params.persist_filters) {
+      console.log("-----------1----------------");
       this.navController.back();
-      //this.navController.navigateBack
     } else {
       if (bankTxn) {
         this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
       } else {
+        console.log("-----------2----------------");
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
