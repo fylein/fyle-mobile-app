@@ -317,9 +317,9 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'my_profile']
           },
           {
-            title: 'My Organizations',
+            title: 'Switch Organization',
             isVisible: (orgs.length > 1),
-            icon: 'fy-my-organizations',
+            icon: 'fy-switch-new',
             route: ['/', 'auth', 'switch_org', {choose: true}]
           },
           {
@@ -426,9 +426,9 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'my_profile'],
           },
           {
-            title: 'My Organizations',
+            title: 'Switch Organization',
             isVisible: (orgs.length > 1),
-            icon: 'fy-my-organizations',
+            icon: 'fy-switch-new',
             route: ['/', 'auth', 'switch_org', {choose: true}],
             disabled: true
           },
