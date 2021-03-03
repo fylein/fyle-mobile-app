@@ -595,6 +595,8 @@ export class AddEditExpensePage implements OnInit {
           if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
               && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
             return recentValue.recent_project_ids;
+          } else {
+            return(null);
           }
         }),
         concatMap((projectIds) => {
