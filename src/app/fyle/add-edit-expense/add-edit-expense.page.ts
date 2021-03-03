@@ -2012,7 +2012,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        policyETxn.tx.corporate_credit_card_expense_group_id = !!this.selectedCCCTransaction;
+        policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
         return this.offlineService.getAllCategories().pipe(
           map((categories: any[]) => {
