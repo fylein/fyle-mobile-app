@@ -3,11 +3,10 @@ import {Observable, from, noop, fromEvent} from 'rxjs';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {OrgUserService} from 'src/app/core/services/org-user.service';
 import {ModalController, PopoverController} from '@ionic/angular';
-import {switchMap, reduce, finalize, map, tap, mergeMap, concatMap, startWith, distinctUntilChanged} from 'rxjs/operators';
+import {switchMap, reduce, finalize, map, concatMap, startWith, distinctUntilChanged} from 'rxjs/operators';
 import {ModifyApproverConfirmationPopoverComponent} from './modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
 import {ReportService} from 'src/app/core/services/report.service';
 import { isEqual, cloneDeep } from 'lodash';
-import { HttpParameterCodec } from '@angular/common/http';
 
 @Component({
   selector: 'app-modify-approver-dialog',
@@ -125,7 +124,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
     };
 
     if (searchText) {
-      params.us_email = `ilike.*${searchText} *`;
+      params.us_email = `ilike.*${searchText}*`;
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(

@@ -2,11 +2,7 @@ import {Component, OnInit, forwardRef, Input, Injector} from '@angular/core';
 import {NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
 import { noop, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { isEqual } from 'lodash';
-import { FyMultiselectModalComponent } from '../fy-multiselect/fy-multiselect-modal/fy-multiselect-modal.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { map } from 'rxjs/operators';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import {FyUserlistModalComponent} from './fy-userlist-modal/fy-userlist-modal.component';
 import { Employee } from 'src/app/core/models/employee.model';
 
@@ -47,7 +43,6 @@ export class FyUserlistComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private orgUserService: OrgUserService,
     private injector: Injector
   ) { }
 
@@ -63,8 +58,7 @@ export class FyUserlistComponent implements OnInit {
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.innerValue && this.innerValue.length > 0) {
-        this.displayValue = this.innerValue
-            .join(',');
+        this.displayValue = this.innerValue.join(',');
       } else {
         this.displayValue = '';
       }
@@ -98,8 +92,7 @@ export class FyUserlistComponent implements OnInit {
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.innerValue && this.innerValue.length > 0) {
-        this.displayValue = this.innerValue
-            .join(',');
+        this.displayValue = this.innerValue.join(',');
       } else {
         this.displayValue = '';
       }

@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
-import { Observable, fromEvent, noop, from } from 'rxjs';
+import { Observable, fromEvent, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, tap, finalize, concatMap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
