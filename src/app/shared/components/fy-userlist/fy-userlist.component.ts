@@ -78,7 +78,7 @@ export class FyUserlistComponent implements OnInit {
       component: FyUserlistModalComponent,
       componentProps: {
         // options: this.options,
-        currentSelections: this.value
+        currentSelections: this.value || []
       }
     });
 
@@ -87,7 +87,7 @@ export class FyUserlistComponent implements OnInit {
     const { data } = await currencyModal.onWillDismiss();
 
     if (data) {
-      this.value = data.selected.map(selection => selection.value);
+      this.value = data.selected;
     }
   }
 

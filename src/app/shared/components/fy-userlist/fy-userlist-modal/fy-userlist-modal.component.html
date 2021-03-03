@@ -24,8 +24,10 @@
 
 <ion-content>
   <div class="selection-modal--container">
-    <mat-checkbox color="primary" class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" [(ngModel)]="filteredListItem.checked" (ngModelChange)="onElementSelected(filteredListItem)">
-    <span class="selection-modal--approver-details">{{filteredListItem.label}}</span>
+    <mat-checkbox color="primary" class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" [checked]="filteredListItem.checked" (change)="onElementSelected(filteredListItem, $event)">
+    <span class="selection-modal--approver-details">
+        {{filteredListItem.us_full_name}} ({{filteredListItem.us_email}})
+    </span>
     </mat-checkbox>
   </div>
 </ion-content>
