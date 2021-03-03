@@ -295,6 +295,7 @@
                         [label]="fg.value.project ? 'Project' : 'Select Project'"
                         [mandatory]="transactionMandatoyFields.project"
                         [defaultValue]="true"
+                        [recentlyUsed]="recentProjects"
                         formControlName="project"
                       ></app-fy-select-project>
                     </div>

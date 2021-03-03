@@ -15,7 +15,8 @@ import {
   switchMap,
   take,
   tap,
-  timeout
+  timeout,
+  withLatestFrom
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -596,30 +597,26 @@ export class AddEditExpensePage implements OnInit {
               && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
             return recentValue.recent_project_ids;
           } else {
-            return(null);
+            return [];
           }
         }),
-        concatMap((projectIds) => {
-          return from(this.authService.getEou()).pipe(
-            switchMap((eou) => {
-              const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
-              return this.projectService.getByParamsUnformatted
-                ({
-                  orgId: eou.ou.org_id,
-                  active: true,
-                  sortDirection: 'asc',
-                  sortOrder: 'project_name',
-                  orgCategoryIds: categoryId,
-                  projectIds: projectIds,
-                  searchNameText: null,
-                  offset: 0,
-                  limit: 10
-                });
-              }
-            )
-          );
+        withLatestFrom(from(this.authService.getEou())),
+        switchMap(([projectIds, eou]) => {
+          const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
+          return this.projectService.getByParamsUnformatted
+            ({
+              orgId: eou.ou.org_id,
+              active: true,
+              sortDirection: 'asc',
+              sortOrder: 'project_name',
+              orgCategoryIds: categoryId,
+              projectIds: projectIds,
+              searchNameText: null,
+              offset: 0,
+              limit: 10
+            });
         })
-      );
+    );
   };
 
   setupTransactionMandatoryFields() {
@@ -1013,7 +1010,7 @@ export class AddEditExpensePage implements OnInit {
               * 4. When there exists recently used project ids to auto-fill
               */
               if (doRecentProjectIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))) {
-                this.autoFillProject = recentProjects && recentProjects[0] && recentProjects[0].project_id;
+                this.autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0].project_id;
               }
 
               // Giving priority to the default project preference
