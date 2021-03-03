@@ -44,11 +44,11 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
     let reportApprovals = [];
 
     const selectedApprovers = this.approverList.filter(approver => {
-      return !this.intialSelectedApprovers.find(x => x === approver);
+      return !this.intialSelectedApprovers.find(intialSelectedApprover => intialSelectedApprover === approver);
     });
 
     const removedApprovers = this.intialSelectedApprovers.filter(approver => {
-      return !this.approverList.find(x => x === approver);
+      return !this.approverList.find(intialSelectedApprover => intialSelectedApprover === approver);
     });
 
     this.reportService.getApproversByReportId(this.id).pipe(
@@ -101,7 +101,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
   getDefaultApproversList() {
     const params: any = {
       order: 'us_email.asc,ou_id',
-      us_email: 'in.(' + this.approverList.join(',') + ')'
+      us_email: `in.(${this.approverList.join(',')})`
     };
 
     return from(this.loaderService.showLoader('Loading...')).pipe(
@@ -125,7 +125,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
     };
 
     if (searchText) {
-      params.us_email = 'ilike.*' + searchText + '*';
+      params.us_email = `ilike.*${searchText} *`;
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(

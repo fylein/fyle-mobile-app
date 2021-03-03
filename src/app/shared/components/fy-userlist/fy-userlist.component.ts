@@ -77,7 +77,6 @@ export class FyUserlistComponent implements OnInit {
     const currencyModal = await this.modalController.create({
       component: FyUserlistModalComponent,
       componentProps: {
-        // options: this.options,
         currentSelections: this.value || []
       }
     });

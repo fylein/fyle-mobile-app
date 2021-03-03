@@ -52,7 +52,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     };
 
     if (this.currentSelections.length > 0) {
-      params.us_email = 'in.(' + this.currentSelections.join(',') + ')';
+      params.us_email = `in.(${this.currentSelections.join(',')})`;
     } else {
       params.limit = 20;
     }
@@ -78,7 +78,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     };
 
     if (searchText) {
-      params.us_email = 'ilike.*' + searchText + '*';
+      params.us_email = `ilike.*${searchText}*`;
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(
