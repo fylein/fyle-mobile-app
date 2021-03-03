@@ -1370,7 +1370,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
-              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
+              isConnected
             ) {
               control.setValidators(Validators.required);
             }
@@ -1378,7 +1378,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Taxi'].includes(this.fg.value.category.fyle_category) &&
-              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
+              isConnected
             ) {
               control.setValidators(Validators.required);
             }
