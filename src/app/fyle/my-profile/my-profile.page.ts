@@ -150,16 +150,15 @@ export class MyProfilePage implements OnInit {
   }
 
   setMyExpensesCountBySource(statsRes: StatsOneDResponse) {
-    const statsCountList = statsRes.getStatAggregatesByIdx<number>(0);
-    const totalCount = statsCountList.reduce((acc, statValue) => acc + statValue.value, 0);
+    const totalCount = statsRes.getStatsTotalCount();
 
     return {
       total: totalCount,
-      mobile: StatsOneDResponse.getStatsCountBySource(statsCountList, 'MOBILE'),
-      extension: StatsOneDResponse.getStatsCountBySource(statsCountList, 'GMAIL'),
-      outlook: StatsOneDResponse.getStatsCountBySource(statsCountList, 'OUTLOOK'),
-      email: StatsOneDResponse.getStatsCountBySource(statsCountList, 'EMAIL'),
-      web: StatsOneDResponse.getStatsCountBySource(statsCountList, 'WEBAPP')
+      mobile: statsRes.getStatsCountBySource('MOBILE'),
+      extension: statsRes.getStatsCountBySource('GMAIL'),
+      outlook: statsRes.getStatsCountBySource('OUTLOOK'),
+      email: statsRes.getStatsCountBySource('EMAIL'),
+      web: statsRes.getStatsCountBySource('WEBAPP')
     };
   }
 

@@ -26,8 +26,13 @@ export class StatsOneDResponse {
       }
     });
   }
+  getStatsTotalCount(index = 0): number {
+    const stats = this.getStatAggregatesByIdx<number>(index);
+    return stats.reduce((acc, statValue) => acc + statValue.value, 0);
+  }
 
-  public static getStatsCountBySource(stats: {value: number; key: string}[], source: string) {
+  public getStatsCountBySource(source: string, index = 0) {
+    const stats = this.getStatAggregatesByIdx<number>(index);
     const filteresStatsRes = stats.filter(stat => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1);
     return filteresStatsRes.reduce((acc, statValue) => acc + statValue.value, 0);
   }
