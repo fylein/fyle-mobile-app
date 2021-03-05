@@ -11,7 +11,8 @@ import { ModifyApproverDialogComponent } from './modify-approver-dialog/modify-a
 export class FyModifyApproverComponent implements OnInit {
 
   @Input() approverList;
-  @Input() id;
+  @Input() id: string;
+  @Input() ownerEmail: string;
   @Input() from;
   @Input() title;
   @Input() object;
@@ -29,6 +30,7 @@ export class FyModifyApproverComponent implements OnInit {
         approverList: this.approverList,
         id: this.id,
         from: this.from,
+        ownerEmail: this.ownerEmail,
         object: this.object
       }
     });

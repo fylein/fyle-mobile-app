@@ -114,9 +114,13 @@ export class OrgUserService {
   }
 
   getEmployeesBySearch(params) {
+    if (params.or) {
+      params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
+    } else {
+      params.or = '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")';
+    }
     return this.getEmployeesByParams({
       ...params,
-      or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")'
     }).pipe(
       map(res => res.data)
     );

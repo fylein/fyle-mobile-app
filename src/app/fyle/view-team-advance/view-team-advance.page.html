@@ -138,6 +138,7 @@
           <app-fy-apporver
             [approverList]="getApproverEmails(activeApprovals)"
             [id]="advanceRequest.areq_id"
+            [ownerEmail]="advanceRequest.us_email"
             [from]="'ADVANCE_REQUEST'"
             [title]="'Add Approvers'"
             (notify)='onUpdateApprover($event)'>

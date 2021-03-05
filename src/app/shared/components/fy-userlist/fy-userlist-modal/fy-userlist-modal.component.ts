@@ -1,12 +1,11 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
 import { Observable, fromEvent, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, tap, finalize, concatMap } from 'rxjs/operators';
-import { isEqual } from 'lodash';
+import { map, startWith, distinctUntilChanged, switchMap, finalize, concatMap } from 'rxjs/operators';
+import { isEqual, cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import {cloneDeep} from 'lodash';
 
 @Component({
   selector: 'app-fy-userlist-modal',
@@ -78,7 +77,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     };
 
     if (searchText) {
-      params.us_email = `ilike.*${searchText}*`;
+      params.or = `(us_email.ilike.*${searchText}*,us_full_name.ilike.*${searchText}*)`;
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(

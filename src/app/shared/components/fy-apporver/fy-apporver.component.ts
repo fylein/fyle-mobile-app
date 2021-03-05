@@ -13,7 +13,8 @@ import { Router } from '@angular/router';
 export class FyApporverComponent implements OnInit {
 
   @Input() approverList;
-  @Input() id;
+  @Input() id: string;
+  @Input() ownerEmail: string;
   @Input() from;
   @Input() title;
 
@@ -31,7 +32,8 @@ export class FyApporverComponent implements OnInit {
       componentProps: {
         approverList: this.approverList,
         id: this.id,
-        from: this.from
+        from: this.from,
+        ownerEmail: this.ownerEmail
       }
     });
 

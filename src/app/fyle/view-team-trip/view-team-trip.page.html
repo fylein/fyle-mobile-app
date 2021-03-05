@@ -198,7 +198,8 @@
           <app-fy-apporver
             *ngIf="actions.can_add_approver"
             [approverList]="getApproverEmails(activeApprovals)"
-            [id]="tripRequest.trp_id"
+            [id]="tripRequest"
+            [ownerEmail]="tripRequest.us_email"
             [from]="'TRIP_REQUEST'"
             [title]="'Add Approvers'"
             (notify)='onUpdateApprover($event)'>

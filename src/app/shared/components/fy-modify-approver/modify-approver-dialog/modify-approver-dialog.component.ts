@@ -17,7 +17,8 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() approverList;
-  @Input() id;
+  @Input() id: string;
+  @Input() ownerEmail: string;
   @Input() from;
   @Input() object;
 
@@ -124,7 +125,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
     };
 
     if (searchText) {
-      params.us_email = `ilike.*${searchText}*`;
+      params.or = `(us_email.ilike.*${searchText}*,us_full_name.ilike.*${searchText}*)`;
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(
@@ -132,7 +133,7 @@ export class ModifyApproverDialogComponent implements OnInit, AfterViewInit {
         return eouc.map(eou => {
           eou.checked = this.approverList.indexOf(eou.us_email) > -1;
           return eou;
-        });
+        }).filter(employee => employee.us_email !== this.ownerEmail);
       })
     );
   }
