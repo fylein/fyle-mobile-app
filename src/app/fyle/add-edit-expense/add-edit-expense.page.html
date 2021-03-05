@@ -462,7 +462,7 @@
 
       <ng-container *ngIf="txnFields$|async as txnFields">
         <ng-container *ngIf="isConnected$|async as isConnected">
-          <div *ngIf="isProjectsEnabled$|async as isProjectsEnabled" class="add-edit-expense--primary-block">
+          <div class="add-edit-expense--primary-block">
             <div *ngIf="txnFields.location1?.canView && txnFields.location1?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
                  class="add-edit-expense--internal-block" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid}">
               <app-fy-location [label]="fg.controls.location_1.value ? txnFields.location1?.title : 'Select ' + txnFields.location1?.title"

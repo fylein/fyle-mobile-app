@@ -40,15 +40,20 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       distinctUntilChanged(),
       switchMap((searchText) => {
-        return this.vendorService.get(searchText).pipe(
-          map(vendors => vendors.map(vendor => ({
-            label: vendor.display_name,
-            value: vendor
-          }))
-          ),
-          catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
-          map(vendors => [{ label: 'None', value: null }].concat(vendors))
-        );
+        searchText = searchText.trim();
+        if (searchText) {
+          return this.vendorService.get(searchText).pipe(
+            map(vendors => vendors.map(vendor => ({
+              label: vendor.display_name,
+              value: vendor
+            }))
+            ),
+            catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
+            map(vendors => [{ label: 'None', value: null }].concat(vendors))
+          );
+        } else {
+          return [];
+        }
       }),
       startWith([{ label: 'None', value: null }]),
       map((vendors: any[]) => {
@@ -93,6 +98,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   }
 
   onNewSelect() {
+    this.value = this.value.trim();
     const newOption = { label: this.value, value: { display_name: this.value } };
     this.recentLocalStorageItemsService.post('recentVendorList', newOption, 'label');
     this.modalController.dismiss(newOption);

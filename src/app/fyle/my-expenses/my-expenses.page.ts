@@ -600,7 +600,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  async onDeleteExpenseClick(etxn: Expense) {
+  async onDeleteExpenseClick(etxn: Expense, index?: number) {
     const popupResults = await this.popupService.showPopup({
       header: 'Delete Expense',
       message: 'Are you sure you want to delete this expense?',
@@ -612,7 +612,10 @@ export class MyExpensesPage implements OnInit {
     if (popupResults === 'primary') {
       from(this.loaderService.showLoader('Deleting Expense', 2500)).pipe(
         switchMap(() => {
-          return this.transactionService.delete(etxn.tx_id);
+          return iif(() => !etxn.tx_id,
+            of(this.transactionOutboxService.deleteOfflineExpense(index)),
+            this.transactionService.delete(etxn.tx_id)
+          )
         }),
         tap(() => this.trackingService.deleteExpense({Asset: 'Mobile'})),
         finalize(async () => {
