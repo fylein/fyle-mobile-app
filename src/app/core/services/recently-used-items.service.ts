@@ -12,7 +12,7 @@ export class RecentlyUsedItemsService {
     private apiService: ApiService
   ) { }
 
-  getRecentlyUsedV2():Observable<RecentlyUsed> {
+  getRecentlyUsed():Observable<RecentlyUsed> {
     return this.apiService.get('/recently_used');
   }
 }
