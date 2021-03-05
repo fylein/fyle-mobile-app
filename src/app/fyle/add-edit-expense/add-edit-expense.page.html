@@ -151,12 +151,12 @@
                  class="add-edit-expense--date add-edit-expense--internal-block">
               <div [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                    class="add-edit-expense--date-label">
-                {{txnFields.txn_dt?.title || 'Date of Spend'}}
+                {{txnFields.txn_dt?.title || 'Date of SpendSpendSpendSpend'}}
                 <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
               </div>
-              <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
-                     class="add-edit-expense--date-input" formControlName="dateOfSpend" type="date">
-            </div>
+              <input appFormatDate [dateValue]="this.fg.value.dateOfSpend" (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
+                    class="add-edit-expense--date-input input-date-format" formControlName="dateOfSpend" type="date">
+                  </div>
             <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
                  class="add-edit-expense--error">
               Please select a valid date.
@@ -485,8 +485,7 @@
                 {{fg.controls.from_dt.value ? txnFields.from_dt?.title : 'Select ' + txnFields.from_dt?.title}}
                 <span>*</span>
               </div>
-              <input [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input" formControlName="from_dt" name="fromDt"
-                     type="date">
+              <input appFormatDate [dateValue]="fg.controls.from_dt.value" [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input" formControlName="from_dt" name="fromDt" type="date">
             </div>
 
             <div *ngIf="txnFields.to_dt?.canView && txnFields.to_dt?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -497,8 +496,7 @@
                 {{fg.controls.to_dt.value ? txnFields.to_dt?.title : 'Select ' + txnFields.to_dt?.title}}
                 <span>*</span>
               </div>
-              <input [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input" formControlName="to_dt" name="toDt"
-                     type="date">
+              <input appFormatDate [dateValue]="fg.controls.to_dt.value" [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input" formControlName="to_dt" name="toDt" type="date">
             </div>
 
             <div *ngIf="txnFields.flight_journey_travel_class?.canView && txnFields.flight_journey_travel_class?.mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -633,7 +631,7 @@
                   <input (blur)="focusState = false" (focus)="focusState = true" *ngIf="customInput.type === 'NUMBER'" class="add-edit-expense--text-input"
                          formControlName="value" inputmode="decimal" type="number">
 
-                  <input *ngIf="customInput.type === 'DATE'" class="add-edit-expense--date-input" formControlName="value"
+                  <input appFormatDate [dateValue]="customInput.control.value.value" *ngIf="customInput.type === 'DATE'" class="add-edit-expense--date-input" formControlName="value"
                          type="date">
                 </div>
 

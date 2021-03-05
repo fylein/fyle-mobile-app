@@ -428,3 +428,20 @@ input[type="date"]::after {
 .button-outline {
   --border-width: 1px;
 }
+
+.input-date-format {
+  position: relative;
+  &::before {
+    position: absolute;
+    left: 4px;
+    content: attr(data-date);
+    display: inline-block;
+  }
+  &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
+    display: none;
+  }
+  &::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 12px;
+  }
+}

@@ -113,8 +113,8 @@
                             *
                           </div>
                         </div>
-                        <input [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit" [min]="minDate"
-                               class="add-edit-per-diem--date-input"
+                        <input appFormatDate [dateValue]="fg.controls.from_dt.value" [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit" [min]="minDate"
+                               class="add-edit-per-diem--date-input input-date-format"
                                formControlName="from_dt"
                                type="date">
                       </div>
@@ -136,8 +136,8 @@
                             *
                           </div>
                         </div>
-                        <input [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
-                               [min]="minPerDiemDate" class="add-edit-per-diem--date-input"
+                        <input appFormatDate [dateValue]="fg.controls.to_dt.value" [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
+                               [min]="minPerDiemDate" class="add-edit-per-diem--date-input input-date-format"
                                formControlName="to_dt"
                                name="toDate"
                                type="date">
@@ -364,7 +364,7 @@
                                  inputmode="decimal"
                                  type="number">
 
-                          <input *ngIf="customInput.type === 'DATE'" class="add-edit-per-diem--date-input"
+                          <input appFormatDate [dateValue]="customInput.control.value.value" *ngIf="customInput.type === 'DATE'" class="add-edit-per-diem--date-input input-date-format"
                                  formControlName="value"
                                  type="date">
                         </div>
