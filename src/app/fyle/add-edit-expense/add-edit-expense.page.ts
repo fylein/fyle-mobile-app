@@ -709,9 +709,7 @@ export class AddEditExpensePage implements OnInit {
 
   getRecentlyUsedCategories() {
     return forkJoin({
-      filteredCategories: this.filteredCategories$.pipe(
-        take(1)
-      ),
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
       recentValue: this.recentlyUsedValues$
     }).pipe(
       map(({filteredCategories, recentValue}) => {
@@ -1168,10 +1166,10 @@ export class AddEditExpensePage implements OnInit {
           }
         });
       }
-      // Check is auto-fills is enabled
-      const isAutofillsEnabled = orgUserSettings && orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      // Check if auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
       // Check if recent categories exist
-      const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
+      const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
 
       if (isAutofillsEnabled && doRecentOrgCategoryIdsExist) {
         this.recentCategories = recentCategories;
