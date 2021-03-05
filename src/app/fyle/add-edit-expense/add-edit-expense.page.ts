@@ -135,7 +135,6 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
-  doRecentOrgCategoryIdsExist: boolean;
   recentCategories: any;
   autoFilledCategory: boolean;
   clusterDomain: string;
