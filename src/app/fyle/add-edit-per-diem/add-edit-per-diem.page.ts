@@ -96,8 +96,7 @@ export class AddEditPerDiemPage implements OnInit {
   initialFetch;
   individualPerDiemRatesEnabled$: Observable<boolean>;
   recentlyUsedValues$: Observable<RecentlyUsed>;
-  doRecentCostCenterIdsExist: boolean;
-  recentCostCenters: any;
+  recentCostCenters: [];
   autoFilledCostCenter: boolean;
   recentlyUsedCostCenters$: Observable<any>;
 
@@ -692,7 +691,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.setupNetworkWatcher();
-    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -1204,7 +1203,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         });
 
-      // Check is auto-fills is enabled
+      // Check if auto-fills is enabled
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
       // Check if recent cost centers exist
       const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;

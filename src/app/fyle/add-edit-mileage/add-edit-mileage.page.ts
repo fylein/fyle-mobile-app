@@ -93,8 +93,7 @@ export class AddEditMileagePage implements OnInit {
   saveAndNextMileageLoader = false;
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
-  doRecentCostCenterIdsExist: boolean;
-  recentCostCenters: any;
+  recentCostCenters: [];
   autoFilledCostCenter: boolean;
   recentlyUsedCostCenters$: Observable<any>;
   initialFetch;
@@ -1161,7 +1160,7 @@ export class AddEditMileagePage implements OnInit {
           }
         });
 
-      // Check is auto-fills is enabled
+      // Check if auto-fills is enabled
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
       // Check if recent cost centers exist
       const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
