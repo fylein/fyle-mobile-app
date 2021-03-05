@@ -543,8 +543,8 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(
         ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue }) => {
-          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                              && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
+          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                             && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
           if (isRecentVehicleTypePresent) {
             vehicleType = recentValue.recent_vehicle_types[0];
           } else if (orgUserMileageSettings.length > 0) {
@@ -743,7 +743,7 @@ export class AddEditMileagePage implements OnInit {
     }));
 
     this.setupNetworkWatcher();
-    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
 
     this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
     this.paymentModes$ = this.getPaymentModes();
@@ -1196,7 +1196,7 @@ export class AddEditMileagePage implements OnInit {
         header: 'Unsaved Changes',
         message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
         primaryCta: {
-          text: 'DSICARD CHANGES'
+          text: 'DISCARD CHANGES'
         }
       });
 
