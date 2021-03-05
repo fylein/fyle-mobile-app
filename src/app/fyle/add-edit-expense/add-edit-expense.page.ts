@@ -1435,7 +1435,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
-              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
+              isConnected
             ) {
               control.setValidators(Validators.required);
             }
@@ -1443,7 +1443,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Taxi'].includes(this.fg.value.category.fyle_category) &&
-              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
+              isConnected
             ) {
               control.setValidators(Validators.required);
             }
@@ -1566,8 +1566,8 @@ export class AddEditExpensePage implements OnInit {
               if (shouldExtractCategory && etxn.tx.extracted_data.category
                 && etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified') {
                 const categoryName = etxn.tx.extracted_data.category || 'unspecified';
-                const category = allCategories.find(innerCategory => innerCategory.name === categoryName);
-                etxn.tx.id = category.id;
+                const category = allCategories.find(innerCategory => innerCategory.name && innerCategory.name.toLowerCase() === categoryName.toLowerCase());
+                etxn.tx.org_category_id = category && category.id;
               }
               return of(etxn);
             })
@@ -1731,7 +1731,7 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings.enabled;
     });
 
-    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
 
     this.setupNetworkWatcher();
 
@@ -2078,6 +2078,8 @@ export class AddEditExpensePage implements OnInit {
             policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
           }
         }
+
+        policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
         return this.offlineService.getAllCategories().pipe(
           map((categories: any[]) => {

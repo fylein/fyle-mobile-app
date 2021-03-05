@@ -86,12 +86,6 @@ export class RouterAuthService {
     });
   }
 
-  canSignup(email: string) {
-    return this.routerApiService.post('/auth/basic/can_signup', {
-      email
-    });
-  }
-
   async handleSignInResponse(data) {
     // if (environment.NAME === 'dev') {
     //   data.cluster_domain = environment.CLUSTER_DOMAIN;
@@ -164,16 +158,4 @@ export class RouterAuthService {
     );
   }
 
-  basicSignup(email, fullName, title, mobile, signupParams, persona, password, region) {
-    return this.routerApiService.post('/auth/basic/signup', {
-      email,
-      password,
-      full_name: fullName,
-      title,
-      mobile,
-      signup_params: signupParams,
-      persona,
-      region
-    });
-  }
 }

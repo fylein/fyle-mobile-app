@@ -5,7 +5,9 @@ import {
   HttpResponse,
   HttpHandler,
   HttpEvent,
-  HttpErrorResponse
+  HttpErrorResponse,
+  HttpParams,
+  HttpParameterCodec
 } from '@angular/common/http';
 
 import { Observable, throwError, from, forkJoin } from 'rxjs';
@@ -78,6 +80,8 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         concatMap(({token, deviceInfo}) => {
           if (token && this.secureUrl(request.url)) {
             request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
+            const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
+            request = request.clone({params});
           }
           const appVersion = deviceInfo.appVersion || '0.0.0';
           const osVersion = deviceInfo.osVersion;
@@ -100,5 +104,23 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           );
         })
       );
+  }
+}
+
+class CustomEncoder implements HttpParameterCodec {
+  encodeKey(key: string): string {
+    return encodeURIComponent(key);
+  }
+
+  encodeValue(value: string): string {
+    return encodeURIComponent(value);
+  }
+
+  decodeKey(key: string): string {
+    return decodeURIComponent(key);
+  }
+
+  decodeValue(value: string): string {
+    return decodeURIComponent(value);
   }
 }

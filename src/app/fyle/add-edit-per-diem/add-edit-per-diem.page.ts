@@ -743,6 +743,9 @@ export class AddEditPerDiemPage implements OnInit {
           of(allowedPerDiemRates),
           perDiemRates$);
       }),
+      map(rates => {
+        return rates.filter(rate => rate.active);
+      }),
       map(rates => rates.map(rate => {
         rate.full_name = `${rate.name} (${rate.rate} ${rate.currency} per day)`;
         return rate;
