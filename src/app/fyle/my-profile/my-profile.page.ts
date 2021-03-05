@@ -227,7 +227,7 @@ export class MyProfilePage implements OnInit {
       .subscribe(noop);
   }
 
-  toggleAutofillsSettings() {
+  toggleAutofillSettings() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
       .pipe(
         map((res) => {
