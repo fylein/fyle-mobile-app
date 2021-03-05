@@ -227,6 +227,16 @@ export class MyProfilePage implements OnInit {
       .subscribe(noop);
   }
 
+  toggleAutofillsSettings() {
+    return this.orgUserSettingsService.post(this.orgUserSettings)
+      .pipe(
+        map((res) => {
+          console.log(res);
+        })
+      )
+      .subscribe(noop);
+  }
+
   toggleSmsSettings() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
       .pipe(
