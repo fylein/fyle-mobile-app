@@ -743,7 +743,7 @@ export class AddEditMileagePage implements OnInit {
     }));
 
     this.setupNetworkWatcher();
-    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
 
     this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
     this.paymentModes$ = this.getPaymentModes();
