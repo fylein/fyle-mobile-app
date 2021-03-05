@@ -117,8 +117,8 @@ export interface InAppChatSettings {
 }
 
 export interface ExpenseFormAutofills {
-    allowed: boolean;
-    enabled: boolean;
+  allowed: boolean;
+  enabled: boolean;
 }
 
 export interface OrgUserSettings {
