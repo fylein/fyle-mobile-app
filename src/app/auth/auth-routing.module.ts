@@ -8,10 +8,6 @@ const routes: Routes = [
     loadChildren: () => import('./sign-in/sign-in.module').then(m => m.SignInPageModule)
   },
   {
-    path: 'sign_up',
-    loadChildren: () => import('./sign-up/sign-up.module').then(m => m.SignUpPageModule)
-  },
-  {
     path: 'switch_org',
     loadChildren: () => import('./switch-org/switch-org.module').then(m => m.SwitchOrgPageModule),
     canActivate: [AuthGuard]
