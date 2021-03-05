@@ -1500,9 +1500,6 @@ export class AddEditExpensePage implements OnInit {
           map(categories => categories.map(category => ({label: category.displayName, value: category})))
         );
       }),
-      tap(filterCategories => {
-        console.log({filterCategories});
-      }),
       shareReplay(1)
     );
 
