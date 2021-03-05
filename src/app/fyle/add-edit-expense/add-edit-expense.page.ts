@@ -2012,6 +2012,8 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
+        policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
+
         return this.offlineService.getAllCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
