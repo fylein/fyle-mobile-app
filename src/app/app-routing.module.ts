@@ -5,7 +5,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'auth/sign_up',
+    redirectTo: 'auth/sign_in',
     pathMatch: 'full'
   },
   {
@@ -16,10 +16,6 @@ const routes: Routes = [
     path: 'post_verification',
     loadChildren: () => import('./post-verification/post-verification-routing.module').then(m => m.PostVerificationRoutingModule),
     canActivate: [AuthGuard]
-  },
-  {
-    path: 'pre_verification',
-    loadChildren: () => import('./pre-verification/pre-verification-routing.module').then(m => m.PreVerificationRoutingModule)
   },
   {
     path: 'enterprise',
