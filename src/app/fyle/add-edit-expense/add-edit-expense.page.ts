@@ -1670,7 +1670,7 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings.enabled;
     });
 
-    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsedV2();
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
 
     this.setupNetworkWatcher();
 
