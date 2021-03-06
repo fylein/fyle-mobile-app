@@ -249,7 +249,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
                     } else {
                       this.saveAdvanceLoading = false;
                     }
-                    return this.router.navigate(['/', 'enterprise', 'my_advances']);
+                    if (this.from === 'TEAM_ADVANCE') {
+                      return this.router.navigate(['/', 'enterprise', 'team_advance']);
+                    } else {
+                      return this.router.navigate(['/', 'enterprise', 'my_advances']);
+                    }
                   })
                 );
               }
