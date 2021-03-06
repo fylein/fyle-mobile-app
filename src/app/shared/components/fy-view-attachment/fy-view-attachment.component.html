@@ -1,7 +1,10 @@
+<p>
+  fy-view-attachment works!
+</p>
 <ion-header mode="md" >
   <ion-toolbar mode="md">
     <ion-title>
-      Receipt Preview
+      Receipt Preview (new)
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onDoneClick()">
@@ -42,3 +45,14 @@
     </ng-container>
   </ion-slides>
 </ion-content>
+
+<ion-footer *ngIf="edit">
+  <ion-toolbar mode="md">
+    <div class="view-attachments--cta-container">
+      <ion-button class="view-attachments--delete" fill="solid" color="fyle-primary" expand="full"
+      (click)="deleteAttachment()">
+        Delete attachment
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

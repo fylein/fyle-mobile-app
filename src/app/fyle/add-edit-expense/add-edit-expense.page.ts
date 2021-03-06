@@ -53,6 +53,7 @@ import {MatchTransactionComponent} from './match-transaction/match-transaction.c
 import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import {TokenService} from 'src/app/core/services/token.service';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -2914,9 +2915,10 @@ export class AddEditExpensePage implements OnInit {
     )
       .subscribe(async (attachments) => {
         const attachmentsModal = await this.modalController.create({
-          component: ViewAttachmentsComponent,
+          component: FyViewAttachmentComponent,
           componentProps: {
-            attachments
+            attachments,
+            edit: true
           }
         });
 

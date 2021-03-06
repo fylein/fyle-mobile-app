@@ -11,9 +11,9 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController, IonContent } from '@ionic/angular';
-import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import {NetworkService} from '../../core/services/network.service';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-view-team-expense',
@@ -292,7 +292,7 @@ export class ViewTeamExpensePage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(async (attachments) => {
       const attachmentsModal = await this.modalController.create({
-        component: ViewAttachmentComponent,
+        component: FyViewAttachmentComponent,
         componentProps: {
           attachments
         }
