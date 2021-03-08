@@ -55,6 +55,7 @@ import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
+import {OrgUserSettings} from 'src/app/core/models/org_user_settings.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -138,6 +139,7 @@ export class AddEditExpensePage implements OnInit {
   recentCategories: any;
   presetCategory: any;
   clusterDomain: string;
+  orgUserSettings$: Observable<OrgUserSettings>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -562,7 +564,7 @@ export class AddEditExpensePage implements OnInit {
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const orgUserSettings$ = this.orgUserSettings$;
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
@@ -712,9 +714,20 @@ export class AddEditExpensePage implements OnInit {
       recentValue: this.recentlyUsedValues$
     }).pipe(
       map(({filteredCategories, recentValue}) => {
-        return filteredCategories.filter(recentCategories => {
-          return recentValue.recent_org_category_ids.indexOf(recentCategories.value.id) > -1;
-        })
+        const categoriesList = filteredCategories.filter(category => {
+          return recentValue.recent_org_category_ids.indexOf(category.value.id) > -1;
+        });
+
+        // To retain the order of recent categories as most recent will be auto-filled
+        const recentCategoriesList = [];
+        recentValue.recent_org_category_ids.forEach(categoryId => {
+          categoriesList.filter(res => {
+            if (res.value.id === categoryId) {
+              recentCategoriesList.push(res);
+            }
+          });
+        });
+        return recentCategoriesList;
       })
     );
   };
@@ -782,12 +795,12 @@ export class AddEditExpensePage implements OnInit {
 
   getNewExpenseObservable() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const orgUserSettings$ = this.orgUserSettings$;
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
 
-    const instaFyleSettings$ = this.offlineService.getOrgUserSettings().pipe(
+    const instaFyleSettings$ = this.orgUserSettings$.pipe(
       map(orgUserSettings => orgUserSettings.insta_fyle_settings),
       map(instaFyleSettings => ({
         shouldExtractAmount: instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1,
@@ -967,7 +980,7 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.offlineService.getOrgSettings(),
-            orgUserSettings: this.offlineService.getOrgUserSettings()
+            orgUserSettings: this.orgUserSettings$
           }).pipe(
             map(({orgSettings, orgUserSettings}) => {
               if (orgSettings.projects.enabled) {
@@ -1024,7 +1037,7 @@ export class AddEditExpensePage implements OnInit {
     }));
 
     const defaultPaymentMode$ = forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettings$,
       paymentModes: this.paymentModes$
     }).pipe(
       map(({paymentModes, orgUserSettings}) => {
@@ -1104,7 +1117,7 @@ export class AddEditExpensePage implements OnInit {
           customInputs: selectedCustomInputs$,
           homeCurrency: this.offlineService.getHomeCurrency(),
           defaultPaymentMode: defaultPaymentMode$,
-          orgUserSettings: this.offlineService.getOrgUserSettings(),
+          orgUserSettings: this.orgUserSettings$,
           recentValue: this.recentlyUsedValues$,
           recentCategories: this.getRecentlyUsedCategories()
         });
@@ -1511,7 +1524,7 @@ export class AddEditExpensePage implements OnInit {
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap(etxn => {
-        const instaFyleSettings$ = this.offlineService.getOrgUserSettings().pipe(
+        const instaFyleSettings$ = this.orgUserSettings$.pipe(
           map(orgUserSettings => orgUserSettings.insta_fyle_settings)
         );
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
@@ -1698,7 +1711,7 @@ export class AddEditExpensePage implements OnInit {
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const allCategories$ = this.offlineService.getAllCategories();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
@@ -1720,7 +1733,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
 
-    this.individualProjectIds$ = orgUserSettings$.pipe(
+    this.individualProjectIds$ = this.orgUserSettings$.pipe(
       map((orgUserSettings: any) => orgUserSettings.project_ids || []),
       shareReplay(1)
     );
@@ -1775,7 +1788,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    this.pickRecentCurrency$ = orgUserSettings$.pipe(
+    this.pickRecentCurrency$ = this.orgUserSettings$.pipe(
       map(orgUserSettings => {
         if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
           return orgUserSettings.currency_settings.preferred_currency && '';
