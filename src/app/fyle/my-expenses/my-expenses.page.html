@@ -166,11 +166,12 @@
   </div>
 
   <div *ngFor="let expense of pendingTransactions as list; let i = index">
-    <app-my-expenses-card (addTransactionToNewReport)="onAddTransactionToNewReport($event)" (addTransactionToReport)="onAddTransactionToReport($event)" (deleteTransaction)="onDeleteExpenseClick($event)"
+    <app-my-expenses-card (addTransactionToNewReport)="onAddTransactionToNewReport($event)" (addTransactionToReport)="onAddTransactionToReport($event)" (deleteTransaction)="onDeleteExpenseClick($event, i)"
                           [canOpenCard]="false" [dateComparatorProp]="'tx_txn_dt'"
                           [expense]="expense"
                           [prevExpense]="list[i-1]"
-                          [skipDate]="true">
+                          [skipDate]="true"
+                          [isSyncInProgress]="syncing">
     </app-my-expenses-card>
   </div>
 
@@ -184,7 +185,8 @@
         [expense]="expense"
         [prevExpense]="list[i-1]"
         [selectedElements]="selectedElements"
-        [selectionMode]="selectionMode">
+        [selectionMode]="selectionMode"
+        [isSyncInProgress]="syncing">
       </app-my-expenses-card>
     </div>
 

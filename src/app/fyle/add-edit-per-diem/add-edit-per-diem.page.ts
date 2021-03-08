@@ -23,7 +23,7 @@ import {DateService} from 'src/app/core/services/date.service';
 import * as moment from 'moment';
 import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
 import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
-import {cloneDeep, isEqual, isNumber} from 'lodash';
+import {cloneDeep, isEmpty, isEqual, isNumber} from 'lodash';
 import {CurrencyService} from 'src/app/core/services/currency.service';
 import {ReportService} from 'src/app/core/services/report.service';
 import {ProjectsService} from 'src/app/core/services/projects.service';
@@ -550,29 +550,25 @@ export class AddEditPerDiemPage implements OnInit {
     return this.fg.controls.sub_category.valueChanges
       .pipe(
         startWith({}),
-        switchMap((category) => {
-          let selectedCategory$;
+        switchMap(() => {
+          let category = this.fg.controls.sub_category.value;
           if (this.initialFetch) {
-            selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+            return this.etxn$.pipe(switchMap(etxn => {
               return iif(() => etxn.tx.org_category_id,
                 this.offlineService.getAllCategories().pipe(
                   map(categories => categories
-                    .find(category => category.id === etxn.tx.org_category_id))), of(null));
+                    .find(category => category.id === etxn.tx.org_category_id))), this.getPerDiemCategories().pipe(
+                      map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
+                    ));
             }));
-          } else {
-            selectedCategory$ = of(category);
           }
 
-          if (this.mode === 'add') {
-            if (category) {
-              return of(category);
-            } else {
-              return this.getPerDiemCategories().pipe(
-                map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
-              );
-            }
+          if (category && !isEmpty(category)) {
+            return of(category);
           } else {
-            return selectedCategory$;
+            return this.getPerDiemCategories().pipe(
+              map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
+            );
           }
         }),
         switchMap((category: any) => {
@@ -606,7 +602,7 @@ export class AddEditPerDiemPage implements OnInit {
                   this.fb.group({
                     name: [customField.name],
                     value: [
-                      customField.value,
+                      customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
                       isConnected && customField.type !== 'BOOLEAN' && customField.type !== 'USER_LIST' && customField.mandatory && Validators.required]
                   })
                 );
@@ -703,6 +699,9 @@ export class AddEditPerDiemPage implements OnInit {
           () => allowedPerDiemRates.length > 0 || orgSettings.per_diem.enable_individual_per_diem_rates,
           of(allowedPerDiemRates),
           perDiemRates$);
+      }),
+      map(rates => {
+        return rates.filter(rate => rate.active);
       }),
       map(rates => rates.map(rate => {
         rate.full_name = `${rate.name} (${rate.rate} ${rate.currency} per day)`;
@@ -949,7 +948,7 @@ export class AddEditPerDiemPage implements OnInit {
       )
       .subscribe(([fromDt, numDays]) => {
         if (fromDt && numDays && numDays > 0) {
-          const fromDate = moment(new Date(fromDt));
+          const fromDate = moment(this.dateService.getUTCDate(new Date(fromDt)));
           this.fg.controls.to_dt.setValue(fromDate.add((+numDays - 1), 'day').format('y-MM-DD'),{
             emitEvent: false
           });
@@ -1169,10 +1168,17 @@ export class AddEditPerDiemPage implements OnInit {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
-          return {
-            name: customInput.name,
-            value: (cpor && cpor.value) || null
-          };
+          if (customInput.type === 'DATE') {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null
+            };
+          } else {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value) || null
+            };
+          }
         });
 
       this.fg.patchValue({
@@ -1219,7 +1225,13 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        const customProperties = res.customProperties;
+        let customProperties: any = res.customProperties;
+        customProperties = customProperties.map(customProperty => {
+          if (customProperty.type === 'DATE') {
+            customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
+          }
+          return customProperty;
+        });
         const skipReimbursement = this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT'
           && !this.fg.value.paymentMode.acc.isReimbursable;
 
@@ -1256,8 +1268,8 @@ export class AddEditPerDiemPage implements OnInit {
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
             org_user_id: etxn.tx.org_user_id,
-            from_dt: formValue.from_dt && new Date(formValue.from_dt),
-            to_dt: formValue.from_dt && new Date(formValue.to_dt),
+            from_dt: formValue.from_dt && this.dateService.getUTCDate(new Date(formValue.from_dt)),
+            to_dt: formValue.from_dt && this.dateService.getUTCDate(new Date(formValue.to_dt)),
             category: null,
             num_days: formValue.num_days,
             cost_center_id: formValue.costCenter && formValue.costCenter.id,

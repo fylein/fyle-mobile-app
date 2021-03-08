@@ -18,7 +18,7 @@ import {
   take,
   tap
 } from 'rxjs/operators';
-import {cloneDeep, isEqual, isNumber} from 'lodash';
+import {cloneDeep, isEmpty, isEqual, isNumber} from 'lodash';
 import * as moment from 'moment';
 import {TransactionFieldConfigurationsService} from 'src/app/core/services/transaction-field-configurations.service';
 import {AccountsService} from 'src/app/core/services/accounts.service';
@@ -471,20 +471,14 @@ export class AddEditMileagePage implements OnInit {
                     map(categories => categories
                       .find(innerCategory => innerCategory.id === etxn.tx.org_category_id))), of(null));
               }));
-          } else {
-            selectedCategory$ = of(category);
           }
 
-          if (this.mode === 'add') {
-            if (category) {
-              return of(category);
-            } else {
-              return this.getMileageCategories().pipe(
-                map(mileageContainer => mileageContainer.defaultMileageCategory)
-              );
-            }
+          if (category && !isEmpty(category)) {
+            return of(category);
           } else {
-            return selectedCategory$;
+            return this.getMileageCategories().pipe(
+              map(mileageContainer => mileageContainer.defaultMileageCategory)
+            );
           }
         }),
         tap(console.log),
@@ -520,7 +514,7 @@ export class AddEditMileagePage implements OnInit {
                   this.fb.group({
                     name: [customField.name],
                     value: [
-                      customField.value,
+                      customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
                       isConnected && customField.type !== 'BOOLEAN' && customField.type !== 'USER_LIST' && customField.mandatory && Validators.required
                     ]
                   })
@@ -1125,10 +1119,17 @@ export class AddEditMileagePage implements OnInit {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
-          return {
-            name: customInput.name,
-            value: (cpor && cpor.value) || null
-          };
+          if (customInput.type === 'DATE') {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null
+            };
+          } else {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value) || null
+            };
+          }
         });
 
       this.fg.patchValue({
@@ -1184,7 +1185,7 @@ export class AddEditMileagePage implements OnInit {
         header: 'Unsaved Changes',
         message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
         primaryCta: {
-          text: 'DSICARD CHANGES'
+          text: 'DISCARD CHANGES'
         }
       });
 
@@ -1480,7 +1481,13 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        const customProperties = res.customProperties;
+        let customProperties: any = res.customProperties;
+        customProperties = customProperties.map(customProperty => {
+          if (customProperty.type === 'DATE') {
+            customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
+          }
+          return customProperty;
+        });
         const calculatedDistance = +res.calculatedDistance;
         const amount = res.amount;
         const skipReimbursement = this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT'
@@ -1499,7 +1506,7 @@ export class AddEditMileagePage implements OnInit {
             billable: formValue.billable,
             distance: +formValue.distance,
             org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
-            txn_dt: new Date(formValue.dateOfSpend),
+            txn_dt: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
             skip_reimbursement: skipReimbursement,
             source: 'MOBILE',
             currency: res.homeCurrency,
