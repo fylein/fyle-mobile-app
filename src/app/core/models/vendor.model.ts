@@ -5,8 +5,8 @@ export interface Vendor {
   display_name?: string;
   other_names?: string;
   creator_id: string;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
   default_category?: any;
   verified?: boolean; 
 }
