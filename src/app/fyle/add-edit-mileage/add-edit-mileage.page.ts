@@ -593,8 +593,8 @@ export class AddEditMileagePage implements OnInit {
       recentValue: this.recentlyUsedValues$
     }).pipe(
       map(({ eou, currentLocation, orgUserSettings, recentValue }) => {
-        const isRecentLocationPresent = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                            && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
+        const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                        && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
         if (isRecentLocationPresent) {
           const autocompleteLocationInfo = {
             recentStartLocation: recentValue.recent_start_locations[0],
@@ -603,27 +603,29 @@ export class AddEditMileagePage implements OnInit {
           }
           return autocompleteLocationInfo;
         } else {
-          return(null);
+          return of(null);
         }
       }),
-      concatMap(({ recentStartLocation, eou, currentLocation }) => {
-        if (recentStartLocation && eou && currentLocation) {
-          return this.locationService.getAutocompletePredictions(recentStartLocation, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
+      concatMap((autocompleteLocationInfo: any) => {
+        if (autocompleteLocationInfo && autocompleteLocationInfo.recentStartLocation && autocompleteLocationInfo.eou && autocompleteLocationInfo.currentLocation) {
+          return this.locationService.getAutocompletePredictions(autocompleteLocationInfo.recentStartLocation, autocompleteLocationInfo.eou.us.id, `${autocompleteLocationInfo.currentLocation.coords.latitude},${autocompleteLocationInfo.currentLocation.coords.longitude}`);
         } else {
-          return(null);
+          return of(null);
         }
       }),
-      concatMap((isPredictedLocation) => {
+      concatMap(isPredictedLocation => {
         if (isPredictedLocation) {
           return this.locationService.getGeocode(isPredictedLocation[0].place_id, isPredictedLocation[0].description).pipe(
             map((location) => {
               if (location) {
                 return location;
               } else {
-                return(null);
+                return of(null);
               }
             })
           )
+        } else {
+          return of(null);
         }
       })
     );
