@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Cacheable } from 'ts-cacheable';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
+import {CostCenter} from '../models/cost-center.model';
 
 const costCentersCacheBuster$ = new Subject<void>();
 
@@ -17,7 +18,7 @@ export class CostCentersService {
   @Cacheable({
     cacheBusterObserver: costCentersCacheBuster$
   })
-  getAllActive() {
+  getAllActive(): Observable<CostCenter[]> {
     const data = {
       params: {
         active_only: true
