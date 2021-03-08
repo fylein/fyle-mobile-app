@@ -856,20 +856,24 @@ export class AddEditPerDiemPage implements OnInit {
       recentValue: this.recentlyUsedValues$
     }).pipe(
       map(({costCenters, recentValue}) => {
-        const costCentersList = costCenters.filter(costCenter => {
-          return recentValue.recent_cost_center_ids.indexOf(costCenter.value.id) > -1;
-        });
-
-        // To retain the order of recent cost centers as most recent will be auto-filled
-        const recentCostCentersList = [];
-        recentValue.recent_cost_center_ids.forEach(costCenterId => {
-          costCentersList.filter(res => {
-            if (res.value.id === costCenterId) {
-              recentCostCentersList.push(res);
-            }
+        if (recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0) {
+          const costCentersList = costCenters.filter(costCenter => {
+            return recentValue.recent_cost_center_ids.indexOf(costCenter.value.id) > -1;
           });
-        });
-        return recentCostCentersList;
+  
+          // To retain the order of recent cost centers as most recent will be auto-filled
+          const recentCostCentersList = [];
+          recentValue.recent_cost_center_ids.forEach(costCenterId => {
+            costCentersList.filter(res => {
+              if (res.value.id === costCenterId) {
+                recentCostCentersList.push(res);
+              }
+            });
+          });
+          return recentCostCentersList;
+        } else {
+          return [];
+        }
       })
     );
 
