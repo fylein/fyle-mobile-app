@@ -1,14 +1,12 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef, Input } from '@angular/core';
 import { AgmGeocoder } from '@agm/core';
 import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize, catchError } from 'rxjs/operators';
-import { Plugins } from '@capacitor/core';
 import { ModalController } from '@ionic/angular';
 import {Observable, fromEvent, of, from, forkJoin, noop, throwError} from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
-const { Geolocation } = Plugins;
 @Component({
   selector: 'app-fy-location-modal',
   templateUrl: './fy-location-modal.component.html',
@@ -49,18 +47,18 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((searchText) => {
+        console.log("---1--->", new Date().toLocaleTimeString());
         that.loader = true;
         return forkJoin({
           eou: that.authService.getEou(),
-          currentLocation: from(Geolocation.getCurrentPosition({
-            timeout: 10000,
-            enableHighAccuracy: true
-          }))
+          currentLocation: that.locationService.getCurrentLocation(false)
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
+            console.log("---2--->", new Date().toLocaleTimeString());
             return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
           }),
           map((res) => {
+            console.log("---3--->", new Date().toLocaleTimeString());
             that.loader = false;
             return res;
           }),
@@ -142,9 +140,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   getCurrentLocation() {
     from(this.loaderService.showLoader('Loading current location...', 10000)).pipe(
       switchMap(() => {
-        return Geolocation.getCurrentPosition();
+        return this.locationService.getCurrentLocation(true);
       }),
       switchMap((coordinates) => {
+        console.log("---1--->", coordinates);
         return this.agmGeocode.geocode({
           location: {
             lat: coordinates.coords.latitude,
