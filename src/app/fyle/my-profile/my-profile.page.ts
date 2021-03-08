@@ -23,6 +23,7 @@ import { Plugins } from '@capacitor/core';
 import { TokenService } from 'src/app/core/services/token.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import { environment } from 'src/environments/environment';
+import { StatsOneDResponse } from 'src/app/core/models/stats-one-dimension.model';
 
 const { Browser } = Plugins;
 
@@ -148,14 +149,16 @@ export class MyProfilePage implements OnInit {
     toast.present();
   }
 
-  setMyExpensesCountBySource(myETxnc) {
+  setMyExpensesCountBySource(statsRes: StatsOneDResponse) {
+    const totalCount = statsRes.getStatsTotalCount();
+
     return {
-      total: myETxnc.length,
-      mobile: this.transactionService.getCountBySource(myETxnc, 'MOBILE'),
-      extension: this.transactionService.getCountBySource(myETxnc, 'GMAIL'),
-      outlook: this.transactionService.getCountBySource(myETxnc, 'OUTLOOK'),
-      email: this.transactionService.getCountBySource(myETxnc, 'EMAIL'),
-      web: this.transactionService.getCountBySource(myETxnc, 'WEBAPP')
+      total: totalCount,
+      mobile: statsRes.getStatsCountBySource('MOBILE'),
+      extension: statsRes.getStatsCountBySource('GMAIL'),
+      outlook: statsRes.getStatsCountBySource('OUTLOOK'),
+      email: statsRes.getStatsCountBySource('EMAIL'),
+      web: statsRes.getStatsCountBySource('WEBAPP')
     };
   }
 
@@ -284,9 +287,13 @@ export class MyProfilePage implements OnInit {
     const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
       shareReplay(1)
     );
-    this.myETxnc$ = this.transactionService.getAllMyETxnc().pipe(
-      map(etxnc => this.setMyExpensesCountBySource(etxnc))
-    );
+
+    this.myETxnc$ = this.transactionService.getTransactionStats('count(tx_id)', {
+      scalar: false,
+      dimension_1_1: 'tx_source'
+    }).pipe(
+      map(statsRes => this.setMyExpensesCountBySource(new StatsOneDResponse(statsRes[0])))
+    )
 
     this.org$ = this.offlineService.getCurrentOrg();
 
