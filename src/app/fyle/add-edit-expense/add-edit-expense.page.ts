@@ -1092,10 +1092,17 @@ export class AddEditExpensePage implements OnInit {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
-          return {
-            name: customInput.name,
-            value: (cpor && cpor.value) || null
-          };
+          if (customInput.type === 'DATE') {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null
+            };
+          } else {
+            return {
+              name: customInput.name,
+              value: (cpor && cpor.value) || null
+            };
+          }
         });
 
       if (etxn.tx.amount && etxn.tx.currency) {
@@ -1243,6 +1250,7 @@ export class AddEditExpensePage implements OnInit {
             return customField;
           });
         }),
+
         switchMap((customFields: any[]) => {
           return this.isConnected$.pipe(
             take(1),
@@ -1255,7 +1263,7 @@ export class AddEditExpensePage implements OnInit {
                     name: [customField.name],
                     // Since in boolean, required validation is kinda unnecessary
                     value: [
-                      customField.value,
+                      customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
                       customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required
                     ]
                   })
@@ -1269,7 +1277,7 @@ export class AddEditExpensePage implements OnInit {
         shareReplay(1)
       );
   }
-
+  
   setupTfc() {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
@@ -1362,7 +1370,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
-              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
+              isConnected
             ) {
               control.setValidators(Validators.required);
             }
@@ -1370,7 +1378,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Taxi'].includes(this.fg.value.category.fyle_category) &&
-              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
+              isConnected
             ) {
               control.setValidators(Validators.required);
             }
@@ -1493,8 +1501,8 @@ export class AddEditExpensePage implements OnInit {
               if (shouldExtractCategory && etxn.tx.extracted_data.category
                 && etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified') {
                 const categoryName = etxn.tx.extracted_data.category || 'unspecified';
-                const category = allCategories.find(innerCategory => innerCategory.name === categoryName);
-                etxn.tx.id = category.id;
+                const category = allCategories.find(innerCategory => innerCategory.name && innerCategory.name.toLowerCase() === categoryName.toLowerCase());
+                etxn.tx.org_category_id = category && category.id;
               }
               return of(etxn);
             })
@@ -1902,7 +1910,14 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        const customProperties = res.customProperties;
+        let customProperties: any = res.customProperties;
+        customProperties = customProperties.map(customProperty => {
+          if (customProperty.type === 'DATE') {
+            customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
+          }
+          return customProperty;
+        });
+
         let locations;
         if (this.fg.value.location_1 && this.fg.value.location_2) {
           locations = [
@@ -1938,7 +1953,7 @@ export class AddEditExpensePage implements OnInit {
             skip_reimbursement: this.fg.value.paymentMode &&
               this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
               !this.fg.value.paymentMode.acc.isReimbursable,
-            txn_dt: this.fg.value.dateOfSpend && new Date(this.fg.value.dateOfSpend),
+            txn_dt: this.fg.value.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value.dateOfSpend)),
             currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,
             amount: this.fg.value.currencyObj && this.fg.value.currencyObj.amount,
             orig_currency: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_currency,
@@ -1954,8 +1969,8 @@ export class AddEditExpensePage implements OnInit {
             num_files: isPolicyEtxn ? (res.attachments && res.attachments.length) : (this.activatedRoute.snapshot.params.dataUrl ? 1 : 0),
             ...policyProps,
             org_user_id: etxn.tx.org_user_id,
-            from_dt: this.fg.value.from_dt && new Date(this.fg.value.from_dt),
-            to_dt: this.fg.value.to_dt && new Date(this.fg.value.to_dt),
+            from_dt: this.fg.value.from_dt && this.dateService.getUTCDate(new Date(this.fg.value.from_dt)),
+            to_dt: this.fg.value.to_dt && this.dateService.getUTCDate(new Date(this.fg.value.to_dt)),
             flight_journey_travel_class: this.fg.value.flight_journey_travel_class,
             flight_return_travel_class: this.fg.value.flight_return_travel_class,
             train_travel_class: this.fg.value.train_travel_class,
@@ -1996,6 +2011,8 @@ export class AddEditExpensePage implements OnInit {
             policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
           }
         }
+
+        policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
         return this.offlineService.getAllCategories().pipe(
           map((categories: any[]) => {
@@ -2645,8 +2662,18 @@ export class AddEditExpensePage implements OnInit {
                     return data;
                   });
 
+                  /**
+                   * NOTE: expense will be sync only if we are redirected to expense page, or else it will be in the outbox (storage service)
+                   * if (this.fg.value.add_to_new_report i.e entry) is present we will sync to the expense page list
+                   * else if (if the expense is created from ccc page) we need to sync expense than only 
+                   *        the count on ccc page for classified and unclassified expense will be updated
+                   * else (this will be the case of normal expense) we are adding entry but not syncing as it will be 
+                   *        redirected to expense page at the end and sync will take place
+                   */
                   if (entry) {
                     return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
+                  } else if (this.activatedRoute.snapshot.params.bankTxn) {
+                    return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
                   } else {
                     let receiptsData = null;
                     if (this.receiptsData) {

@@ -5,10 +5,12 @@ import {
   HttpResponse,
   HttpHandler,
   HttpEvent,
-  HttpErrorResponse
+  HttpErrorResponse,
+  HttpParams,
+  HttpParameterCodec
 } from '@angular/common/http';
 
-import { Observable, throwError, from } from 'rxjs';
+import { Observable, throwError, from, forkJoin } from 'rxjs';
 import { map, catchError, switchMap, mergeMap, concatMap } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
@@ -17,13 +19,15 @@ import * as moment from 'moment';
 import { TokenService } from '../services/token.service';
 import { AuthService } from '../services/auth.service';
 import { RouterAuthService } from '../services/router-auth.service';
+import { DeviceService } from '../services/device.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
   constructor(
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
-    private routerAuthService: RouterAuthService
+    private routerAuthService: RouterAuthService,
+    private deviceService: DeviceService
   ) { }
 
   secureUrl(url) {
@@ -69,12 +73,22 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return from(this.tokenService.getAccessToken())
-      .pipe(
-        concatMap(token => {
+    return forkJoin({
+      token: from(this.tokenService.getAccessToken()),
+      deviceInfo: from(this.deviceService.getDeviceInfo())
+    }).pipe(
+        concatMap(({token, deviceInfo}) => {
           if (token && this.secureUrl(request.url)) {
             request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
+            const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
+            request = request.clone({params});
           }
+          const appVersion = deviceInfo.appVersion || '0.0.0';
+          const osVersion = deviceInfo.osVersion;
+          const operatingSystem = deviceInfo.operatingSystem;
+          const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
+          request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
+
           return next.handle(request).pipe(
             catchError((error) => {
               if (error instanceof HttpErrorResponse && this.expiringSoon(token)) {
@@ -90,5 +104,23 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           );
         })
       );
+  }
+}
+
+class CustomEncoder implements HttpParameterCodec {
+  encodeKey(key: string): string {
+    return encodeURIComponent(key);
+  }
+
+  encodeValue(value: string): string {
+    return encodeURIComponent(value);
+  }
+
+  decodeKey(key: string): string {
+    return decodeURIComponent(key);
+  }
+
+  decodeValue(value: string): string {
+    return decodeURIComponent(value);
   }
 }
