@@ -229,11 +229,6 @@ export class MyProfilePage implements OnInit {
 
   toggleAutofillSettings() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
-      .pipe(
-        map((res) => {
-          console.log(res);
-        })
-      )
       .subscribe(noop);
   }
 
