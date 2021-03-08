@@ -2,7 +2,8 @@ import {Injectable} from '@angular/core';
 import {ApiService} from './api.service';
 import {map} from 'rxjs/operators';
 import {Cacheable} from 'ts-cacheable';
-import {Subject} from 'rxjs';
+import {Subject, Observable} from 'rxjs';
+import { OrgCategory } from '../models/org-categories.model';
 
 const categoriesCacheBuster$ = new Subject<void>();
 
@@ -17,7 +18,7 @@ export class CategoriesService {
     private apiService: ApiService
   ) { }
 
-  sortCategories(categories) {
+  sortCategories(categories: OrgCategory[]) {
     return categories.sort((a, b) => {
       const category1 = a.name.toUpperCase();
       const category2 = b.name.toUpperCase();
@@ -54,7 +55,7 @@ export class CategoriesService {
     });
   }
 
-  addDisplayName(categories: any[]) {
+  addDisplayName(categories: OrgCategory[]) {
     return categories.map((category) => {
       let displayName = category.name;
 
@@ -69,14 +70,14 @@ export class CategoriesService {
   @Cacheable({
     cacheBusterObserver: categoriesCacheBuster$
   })
-  getAll() {
+  getAll(): Observable<OrgCategory[]> {
     return this.apiService.get('/org_categories').pipe(
       map(this.sortCategories),
       map(this.addDisplayName)
     );
   }
 
-  filterRequired(categoryList) {
+  filterRequired(categoryList: OrgCategory[]) {
     return categoryList.filter((category) => {
       if (!category.fyle_category) {
         return true;

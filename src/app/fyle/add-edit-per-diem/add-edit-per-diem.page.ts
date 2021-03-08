@@ -77,7 +77,7 @@ export class AddEditPerDiemPage implements OnInit {
   isAmountCapped$: Observable<boolean>;
   isAmountDisabled$: Observable<boolean>;
   isCriticalPolicyViolated$: Observable<boolean>;
-  projectCategoryIds$: Observable<string[]>;
+  projectCategoryIds$: Observable<number[]>;
   filteredCategories$: Observable<any>;
   isConnected$: Observable<boolean>;
   invalidPaymentMode = false;
@@ -454,7 +454,7 @@ export class AddEditPerDiemPage implements OnInit {
         const perDiemCategories = categories
           .filter(category => category.enabled)
           .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
-          .map(category => category.id as string);
+          .map(category => category.id as number);
 
         return perDiemCategories;
       })
