@@ -136,7 +136,7 @@ export class AddEditExpensePage implements OnInit {
   navigateBack = false;
   isExpenseBankTxn = false;
   recentCategories: any;
-  autoFilledCategory: boolean;
+  presetCategory: any;
   clusterDomain: string;
   initialFetch;
 
@@ -715,9 +715,8 @@ export class AddEditExpensePage implements OnInit {
         return filteredCategories.filter(recentCategories => {
           return recentValue.recent_org_category_ids.indexOf(recentCategories.value.id) > -1;
         })
-      }),
-      shareReplay(1)
-    )
+      })
+    );
   };
 
   getInstaFyleImageData() {
@@ -1174,7 +1173,7 @@ export class AddEditExpensePage implements OnInit {
         this.recentCategories = recentCategories;
       }
       // Check if category is extracted from instaFyle/autoFyle
-      const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category && etxn.tx.fyle_category !== 'Unspecified';
+      const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
 
       /* Autofill category during these cases:
        * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
@@ -1184,11 +1183,11 @@ export class AddEditExpensePage implements OnInit {
        */
       if (doRecentOrgCategoryIdsExist && !etxn.tx.id || 
         (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
-        const autoFillCategory = recentCategories && recentCategories[0];
+        const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
 
         if (autoFillCategory) {
           category = autoFillCategory.value;
-          this.autoFilledCategory = true;
+          this.presetCategory = autoFillCategory.value.id;
         }
       }
 
@@ -2825,7 +2824,8 @@ export class AddEditExpensePage implements OnInit {
         });
       }
 
-      if ((!this.fg.controls.category.value || (this.autoFilledCategory)) && extractedData.category) {
+      // If category is auto-filled and there exists extracted category, priority is given to extracted category
+      if ((!this.fg.controls.category.value || (this.presetCategory)) && extractedData.category) {
         const categoryName = extractedData.category || 'Unspecified';
         const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
         this.fg.patchValue({
