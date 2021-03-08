@@ -65,7 +65,7 @@ export class AppComponent implements OnInit {
     private domSanitizer: DomSanitizer,
     private networkService: NetworkService,
     private alertController: AlertController,
-    private freshchatService: FreshChatService,
+    private freshChatService: FreshChatService,
     private zone: NgZone,
     private deepLinkService: DeepLinkService,
     private splashScreen: SplashScreen,
@@ -126,7 +126,8 @@ export class AppComponent implements OnInit {
   }
 
   openHelp() {
-    this.freshchatService.openLiveChatSupport();
+    this.menuController.close(); // Closing menu button before opening FreshDesk chat
+    this.freshChatService.openLiveChatSupport();
   }
 
   redirect(route) {
@@ -237,7 +238,7 @@ export class AppComponent implements OnInit {
         });
       }
 
-      this.freshchatService.setupNetworkWatcher();
+      this.freshChatService.setupNetworkWatcher();
 
       // TODO: remove nested subscribe - mini tech debt
       if (isConnected) {
@@ -491,7 +492,7 @@ export class AppComponent implements OnInit {
 
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut({Asset: 'Mobile'});
-      this.freshchatService.destory();
+      this.freshChatService.destory();
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
 
