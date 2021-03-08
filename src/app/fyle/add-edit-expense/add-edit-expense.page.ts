@@ -137,7 +137,7 @@ export class AddEditExpensePage implements OnInit {
   isExpenseBankTxn = false;
   clusterDomain: string;
   recentCostCenters: any[];
-  autoFilledCostCenter: boolean;
+  presetCostCenter: any;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -1185,7 +1185,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (autoFillCostCenter) {
           costCenter = autoFillCostCenter.value;
-          this.autoFilledCostCenter = autoFillCostCenter.value.id;
+          this.presetCostCenter = autoFillCostCenter.value.id;
         }
       }
 

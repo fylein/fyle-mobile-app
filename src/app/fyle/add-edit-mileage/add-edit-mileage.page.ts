@@ -94,7 +94,7 @@ export class AddEditMileagePage implements OnInit {
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
   recentCostCenters: [];
-  autoFilledCostCenter: boolean;
+  presetCostCenter: any;
   recentlyUsedCostCenters$: Observable<any>;
   initialFetch;
 
@@ -1180,7 +1180,7 @@ export class AddEditMileagePage implements OnInit {
 
         if (autoFillCostCenter) {
           costCenter = autoFillCostCenter.value;
-          this.autoFilledCostCenter = autoFillCostCenter.value.id;
+          this.presetCostCenter = autoFillCostCenter.value.id;
         }
       }
 
