@@ -15,8 +15,7 @@ import {
   switchMap,
   take,
   tap,
-  timeout,
-  withLatestFrom
+  timeout
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
