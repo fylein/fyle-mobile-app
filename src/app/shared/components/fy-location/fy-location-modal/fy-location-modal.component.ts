@@ -47,19 +47,15 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((searchText) => {
-        console.log("---1--->", new Date().toLocaleTimeString());
         that.loader = true;
         return forkJoin({
           eou: that.authService.getEou(),
           currentLocation: that.locationService.getCurrentLocation(false)
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
-            console.log("---2--->", new Date().toLocaleTimeString());
-            console.log("---location--->", currentLocation);
             return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
           }),
           map((res) => {
-            console.log("---3--->", new Date().toLocaleTimeString());
             that.loader = false;
             return res;
           }),
@@ -144,7 +140,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         return this.locationService.getCurrentLocation(true);
       }),
       switchMap((coordinates) => {
-        console.log("---1--->", coordinates);
         return this.agmGeocode.geocode({
           location: {
             lat: coordinates.coords.latitude,
