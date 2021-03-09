@@ -1174,7 +1174,7 @@ export class AddEditMileagePage implements OnInit {
        * 4. When there exists recently used cost center ids to auto-fill
        */
       if (doRecentCostCenterIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))) {
-        const autoFillCostCenter = recentCostCenters && recentCostCenters[0];
+        const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
 
         if (autoFillCostCenter) {
           costCenter = autoFillCostCenter.value;
