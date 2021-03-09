@@ -2917,7 +2917,7 @@ export class AddEditExpensePage implements OnInit {
           component: FyViewAttachmentComponent,
           componentProps: {
             attachments,
-            edit: true
+            canEdit: true
           }
         });
 

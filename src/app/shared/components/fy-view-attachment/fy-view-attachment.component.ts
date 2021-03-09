@@ -16,7 +16,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   sliderOptions: any;
   @Input() attachments: any[];
-  @Input() edit: boolean = false;
+  @Input() canEdit = false;
   activeIndex = 0;
 
   @ViewChild('slides') imageSlides: any;

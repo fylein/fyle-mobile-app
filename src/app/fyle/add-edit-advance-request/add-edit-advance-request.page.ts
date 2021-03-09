@@ -363,7 +363,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       component: FyViewAttachmentComponent,
       componentProps: {
         attachments,
-        edit: true
+        canEdit: true
       }
     });
 
