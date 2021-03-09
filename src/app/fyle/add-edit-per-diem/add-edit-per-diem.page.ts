@@ -1096,8 +1096,7 @@ export class AddEditPerDiemPage implements OnInit {
         }),
         switchMap((res: any) => {
           if (res.recentProjectIds && res.perDiemCategoryIds && res.eou) {
-            return this.projectService.getByParamsUnformatted
-            ({
+            return this.projectService.getByParamsUnformatted({
               orgId: res.eou.ou.org_id,
               active: true,
               sortDirection: 'asc',
