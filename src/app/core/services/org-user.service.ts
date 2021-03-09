@@ -83,9 +83,7 @@ export class OrgUserService {
 
   getCompanyEouCount(): Observable<{ count: number }> {
     return this.apiService.get('/eous/company/count').pipe(
-      map(
-        res => res as { count: number }
-      )
+      map(res => res as { count: number })
     );
   }
 
@@ -98,7 +96,7 @@ export class OrgUserService {
     return this.apiV2Service.get('/employees', {params});
   }
 
-  getEmployees(params) {
+  getEmployees(params): Observable<Employee[]>{
     return this.getEmployeesByParams({...params, limit: 1}).pipe(
       switchMap(res => {
         const count = res.count > 200 ? res.count / 200 : 1;
@@ -113,7 +111,7 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesBySearch(params) {
+  getEmployeesBySearch(params): Observable<Employee[]> {
     if (params.or) {
       params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
     } else {
@@ -137,7 +135,7 @@ export class OrgUserService {
   getCurrent() {
     return this.apiService.get('/eous/current').pipe(
       map(eou => {
-        return this.dataTransformService.unflatten(eou);;
+        return this.dataTransformService.unflatten(eou);
       })
     );
   }
