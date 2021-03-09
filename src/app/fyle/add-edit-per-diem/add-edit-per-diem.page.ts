@@ -344,46 +344,6 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  getRecentlyUsedProjects() {
-    return forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-      recentValue: this.recentlyUsedValues$,
-      perDiemCategoryIds: this.projectCategoryIds$,
-      eou: this.authService.getEou()
-    }).pipe(
-        map(({orgUserSettings, recentValue, perDiemCategoryIds, eou}) => {
-          if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-              && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
-            return {
-              recentProjectIds: recentValue.recent_project_ids,
-              perDiemCategoryIds: perDiemCategoryIds,
-              eou: eou
-            }
-          } else {
-            return of(null);
-          }
-        }),
-        switchMap((res: any) => {
-          if (res && res.recentProjectIds && res.perDiemCategoryIds && res.eou) {
-            return this.projectService.getByParamsUnformatted
-            ({
-              orgId: res.eou.ou.org_id,
-              active: true,
-              sortDirection: 'asc',
-              sortOrder: 'project_name',
-              orgCategoryIds: res.perDiemCategoryIds,
-              projectIds: res.recentProjectIds,
-              searchNameText: null,
-              offset: 0,
-              limit: 10
-            });
-          } else {
-            return of(null);
-          }
-        })
-    );
-  };
-
   getTransactionFields() {
     return this.fg.valueChanges.pipe(
       startWith({}),
