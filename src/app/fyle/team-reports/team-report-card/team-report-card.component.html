@@ -1,5 +1,5 @@
 <p *ngIf="showDate" class="reports-card--date">
-  {{erpt.rp_created_at | date: 'EEEE, MMMM dd, yyyy'}}
+  {{erpt.rp_created_at | date: 'EEEE, MMM dd, yyyy'}}
 </p>
 <div class="reports-card--policy-violation" *ngIf="erpt.rp_manual_flag || erpt.rp_policy_flag">
   <span>Policy Violation</span>

@@ -17,7 +17,7 @@
       <div class="transportation-requests--header" (click)="eTransportationRequest.isOpened = !eTransportationRequest.isOpened">
         <div class="transportation-requests--transport-mode">{{eTransportationRequest.tr.transport_mode}} from {{eTransportationRequest.tr.from_city.city}} to
           {{eTransportationRequest.tr.to_city.city}}</div>
-        <div class="transportation-requests--transport-date">on {{eTransportationRequest.tr.onward_dt | date: 'MMMM dd, yyyy'}}</div>
+        <div class="transportation-requests--transport-date">on {{eTransportationRequest.tr.onward_dt | date: 'MMM dd, yyyy'}}</div>
       </div>
       <div class="transportation-requests--content">
         <div *ngIf="eTransportationRequest.isOpened">
@@ -38,7 +38,7 @@
             <div class="transportation-requests--element">
               <div class="transportation-requests--element-label">Travel Date</div>
               <div class="transportation-requests--element-value">
-                {{(eTransportationRequest.tr.onward_dt | date: 'MMMM dd, yyyy') || '-'}}
+                {{(eTransportationRequest.tr.onward_dt | date: 'MMM dd, yyyy') || '-'}}
               </div>
             </div>
     

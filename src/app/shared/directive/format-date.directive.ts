@@ -1,3 +1,5 @@
+// @Link:  https://stackoverflow.com/a/31162426
+
 import { Directive, Input, ElementRef, OnChanges } from '@angular/core';
 import * as moment from 'moment';
 

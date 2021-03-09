@@ -428,18 +428,26 @@ input[type="date"]::after {
 .button-outline {
   --border-width: 1px;
 }
-
+/*
+using this class for all input type of date, the input value will be showin in format dd/mm/yyy by default
+and hiding the default value and showing the desired formatted value set by format-date.directive - 
+value set to date-date attribute.
+ref - https://stackoverflow.com/a/31162426
+*/
 .input-date-format {
   position: relative;
+
   &::before {
     position: absolute;
     left: 4px;
     content: attr(data-date);
     display: inline-block;
   }
+
   &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
     display: none;
   }
+
   &::-webkit-calendar-picker-indicator {
     position: absolute;
     right: 12px;

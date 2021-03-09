@@ -1,10 +1,10 @@
 <div>
   <div class="my-expenses-card--date" *ngIf="showDt && !skipDate">
     <div *ngIf="expense.tx_txn_dt">
-      {{expense.tx_txn_dt | date: 'EEEE, MMMM dd, yyyy'}}
+      {{expense.tx_txn_dt | date: 'EEEE, MMM dd, yyyy'}}
     </div>
     <div *ngIf="!expense.tx_txn_dt">
-      {{expense.tx_created_at | date: 'EEEE, MMMM dd, yyyy'}}
+      {{expense.tx_created_at | date: 'EEEE, MMM dd, yyyy'}}
     </div>
   </div>
   <div class="my-expenses-card" [ngClass]="{'my-expenses-card--non-selectable': (selectionMode && ((isDraft && baseState !== 'draft') || isCriticalPolicyViolated))}">

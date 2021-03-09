@@ -1,7 +1,7 @@
 <div class="trip-card">
   <div class="trip-card--header">
     <span class="day">{{tripRequest.trp_created_at | date: 'EEEE'}}</span>,
-    <span class="month-year">{{tripRequest.trp_created_at | date: 'MMMM dd, yyyy'}}</span>
+    <span class="month-year">{{tripRequest.trp_created_at | date: 'MMM dd, yyyy'}}</span>
   </div>
   <div class="trip-card--body" matRipple (click)="onTripClick()">
     <div class="trip-card--cities">

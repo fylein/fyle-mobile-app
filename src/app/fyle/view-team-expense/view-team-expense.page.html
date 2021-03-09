@@ -105,7 +105,7 @@
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_to_dt">
           <div class="view-expense--element-label">Check-Out</div>
-          <div class="view-expense--element-value">{{ etxn.tx_to_dt | date: 'MMM dd yyyy'  }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_to_dt | date: 'MMM dd, yyyy'  }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_flight_journey_travel_class">
           <div class="view-expense--element-label">Onward Class</div>
