@@ -55,6 +55,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
             console.log("---2--->", new Date().toLocaleTimeString());
+            console.log("---location--->", currentLocation);
             return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
           }),
           map((res) => {
