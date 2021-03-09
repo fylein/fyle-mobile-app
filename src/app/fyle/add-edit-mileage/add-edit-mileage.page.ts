@@ -77,7 +77,7 @@ export class AddEditMileagePage implements OnInit {
   amount$: Observable<number>;
   mileageConfig$: Observable<any>;
   rate$: Observable<number>;
-  projectCategoryIds$: Observable<string[]>;
+  projectCategoryIds$: Observable<number[]>;
   duplicates$: Observable<any>;
   duplicateBoxOpen = false;
   isConnected$: Observable<boolean>;
@@ -315,14 +315,14 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  getProjectCategoryIds(): Observable<string[]> {
+  getProjectCategoryIds(): Observable<number[]> {
     return this.offlineService.getAllCategories().pipe(
       map((categories) => {
 
         const mileageCategories = categories
           .filter(category => category.enabled)
           .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1)
-          .map(category => category.id as string);
+          .map(category => category.id);
 
         return mileageCategories;
       })

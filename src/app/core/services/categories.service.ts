@@ -3,7 +3,7 @@ import {ApiService} from './api.service';
 import {map} from 'rxjs/operators';
 import {Cacheable} from 'ts-cacheable';
 import {Subject, Observable} from 'rxjs';
-import { OrgCategory } from '../models/org-categories.model';
+import { OrgCategory } from '../models/org-category.model';
 
 const categoriesCacheBuster$ = new Subject<void>();
 

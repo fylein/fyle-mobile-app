@@ -19,7 +19,7 @@ import {PermissionsService} from './permissions.service';
 import {Org} from '../models/org.model';
 import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 import {OrgUserService} from './org-user.service';
-import { OrgCategory } from '../models/org-categories.model';
+import { OrgCategory } from '../models/org-category.model';
 
 @Injectable({
   providedIn: 'root'
