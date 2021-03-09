@@ -107,6 +107,6 @@ export class LocationService {
     return from(Geolocation.getCurrentPosition({
       timeout: 10000,
       enableHighAccuracy
-    }))
+    }));
   }
 }
