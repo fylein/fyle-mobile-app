@@ -22,6 +22,7 @@ import { ViewAttachmentsComponent } from './view-attachments/view-attachments.co
 import { PopupService } from 'src/app/core/services/popup.service';
 import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { Project } from 'src/app/core/models/project.model';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -35,7 +36,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   mode: string;
   fg: FormGroup;
   homeCurrency$: Observable<any>;
-  projects$: Observable<[]>;
+  projects$: Observable<Project[]>;
   customFields$: Observable<any>;
   attachmentUploadInProgress: boolean;
   dataUrls: any[];

@@ -22,6 +22,7 @@ import {ProjectsService} from 'src/app/core/services/projects.service';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {TripRequestPolicyService} from 'src/app/core/services/trip-request-policy.service';
 import {StatusService} from '../../core/services/status.service';
+import { Project } from 'src/app/core/models/project.model';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -51,7 +52,7 @@ export class MyAddEditTripPage implements OnInit {
   travelAgents$: Observable<any>;
   customFields$: Observable<any>;
   isProjectsEnabled$: Observable<boolean>;
-  projects$: Observable<[]>;
+  projects$: Observable<Project[]>;
   tripRequest$: Observable<any>;
   customFieldValues;
   refreshTrips$ = new Subject();

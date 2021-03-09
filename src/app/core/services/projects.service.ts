@@ -4,6 +4,9 @@ import {ApiV2Service} from './api-v2.service';
 import {map} from 'rxjs/operators';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable} from 'ts-cacheable';
+import { Project } from '../models/project.model';
+import { ExtendedProject } from '../models/extended-project.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +19,7 @@ export class ProjectsService {
     private dataTransformService: DataTransformService
   ) { }
 
-  getAllActive() {
+  getAllActive(): Observable<Project[]> {
     const data = {
       params: {
         active_only: true
@@ -39,7 +42,7 @@ export class ProjectsService {
         project_id: `eq.${projectId}`
       }
     }).pipe(
-      map(res => res.data[0])
+      map(res => res.data[0] as ExtendedProject)
     );
   }
 
@@ -84,7 +87,7 @@ export class ProjectsService {
     return this.apiV2Service.get('/projects', {
       params
     }).pipe(
-      map(res => res.data)
+      map(res => res.data as ExtendedProject[])
     );
   }
 
@@ -103,7 +106,7 @@ export class ProjectsService {
       );
   }
 
-  filterById(projectId, projects) {
+  filterById(projectId, projects: Project[]) {
     let matchingProject;
 
     projects.some((project) => {
@@ -116,7 +119,7 @@ export class ProjectsService {
     return matchingProject;
   }
 
-  getAllowedOrgCategoryIds(project, activeCategoryList) {
+  getAllowedOrgCategoryIds(project: ExtendedProject, activeCategoryList) {
     let categoryList = [];
     if (project) {
       categoryList = activeCategoryList.filter((category) => {
