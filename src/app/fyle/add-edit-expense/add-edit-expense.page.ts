@@ -138,6 +138,7 @@ export class AddEditExpensePage implements OnInit {
   clusterDomain: string;
   recentCostCenters: any[];
   presetCostCenter: number;
+  recentlyUsedCostCenters$: Observable<any>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -584,34 +585,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentlyUsedCostCenters() {
-    return forkJoin({
-      costCenters: this.costCenters$,
-      recentValue: this.recentlyUsedValues$
-    }).pipe(
-      map(({costCenters, recentValue}) => {
-        if (recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0) {
-          const costCentersList = costCenters.filter(costCenter => {
-            return recentValue.recent_cost_center_ids.indexOf(costCenter.value.id) > -1;
-          });
-  
-          // To retain the order of recent cost centers as most recent will be auto-filled
-          const recentCostCentersList = [];
-          recentValue.recent_cost_center_ids.forEach(costCenterId => {
-            costCentersList.filter(res => {
-              if (res.value.id === costCenterId) {
-                recentCostCentersList.push(res);
-              }
-            });
-          });
-          return recentCostCentersList;
-        } else {
-          return [];
-        }
-      })
-    );
-  };
-
   setupTransactionMandatoryFields() {
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
       filter(isConnected => !!isConnected),
@@ -1038,6 +1011,15 @@ export class AddEditExpensePage implements OnInit {
       ), of(null));
     }));
 
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(({costCenters, recentValue}) => {
+        return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
+      })
+    );
+
     const defaultPaymentMode$ = forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       paymentModes: this.paymentModes$
@@ -1121,7 +1103,7 @@ export class AddEditExpensePage implements OnInit {
           defaultPaymentMode: defaultPaymentMode$,
           orgUserSettings: this.offlineService.getOrgUserSettings(),
           recentValue: this.recentlyUsedValues$,
-          recentCostCenters: this.getRecentlyUsedCostCenters()
+          recentCostCenters: this.recentlyUsedCostCenters$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))

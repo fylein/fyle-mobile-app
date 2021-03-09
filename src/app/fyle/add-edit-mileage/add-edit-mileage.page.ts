@@ -880,24 +880,7 @@ export class AddEditMileagePage implements OnInit {
       recentValue: this.recentlyUsedValues$
     }).pipe(
       map(({costCenters, recentValue}) => {
-        if (recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0) {
-          const costCentersList = costCenters.filter(costCenter => {
-            return recentValue.recent_cost_center_ids.indexOf(costCenter.value.id) > -1;
-          });
-  
-          // To retain the order of recent cost centers as most recent will be auto-filled
-          const recentCostCentersList = [];
-          recentValue.recent_cost_center_ids.forEach(costCenterId => {
-            costCentersList.filter(res => {
-              if (res.value.id === costCenterId) {
-                recentCostCentersList.push(res);
-              }
-            });
-          });
-          return recentCostCentersList;
-        } else {
-          return [];
-        }
+        return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
       })
     );
 
