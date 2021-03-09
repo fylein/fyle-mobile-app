@@ -4,7 +4,7 @@ export interface CostCenter {
   updated_at: Date;
   name: string;
   code?: string;
-  active?: boolean;
+  active: boolean;
   org_id: string;
   description?: string;  
 }
