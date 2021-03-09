@@ -136,8 +136,8 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
-  recentCategories: any;
-  presetCategory: any;
+  recentCategories: any[];
+  presetCategory: number;
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
   initialFetch;
