@@ -95,7 +95,7 @@ export class AddEditMileagePage implements OnInit {
   recentlyUsedValues$: Observable<RecentlyUsed>;
   recentProjects: any[];
   presetProject: number;
-  recentlyUsedProjects: Observable<any>;
+  recentlyUsedProjects$: Observable<any>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -1048,41 +1048,15 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
-    const recentlyUsedProjects$ = forkJoin({
+    this.recentlyUsedProjects$ = forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$,
       mileageCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou()
     }).pipe(
-        map(({orgUserSettings, recentValue, mileageCategoryIds, eou}) => {
-          if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-              && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
-            return {
-              recentProjectIds: recentValue.recent_project_ids,
-              mileageCategoryIds: mileageCategoryIds,
-              eou: eou
-            }
-          } else {
-            return of(null);
-          }
-        }),
-        switchMap((res: any) => {
-          if (res && res.recentProjectIds && res.mileageCategoryIds && res.eou) {
-            return this.projectService.getByParamsUnformatted({
-              orgId: res.eou.ou.org_id,
-              active: true,
-              sortDirection: 'asc',
-              sortOrder: 'project_name',
-              orgCategoryIds: res.mileageCategoryIds,
-              projectIds: res.recentProjectIds,
-              searchNameText: null,
-              offset: 0,
-              limit: 10
-            });
-          } else {
-            return of(null);
-          }
-        })
+      switchMap(({orgUserSettings, recentValue, mileageCategoryIds, eou}) => {
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects(orgUserSettings, recentValue, eou, mileageCategoryIds);
+      })
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
@@ -1164,7 +1138,7 @@ export class AddEditMileagePage implements OnInit {
           defaultPaymentMode$,
           orgUserSettings$,
           this.recentlyUsedValues$,
-          recentlyUsedProjects$
+          this.recentlyUsedProjects$
         ]);
       }),
       take(1),
@@ -1193,6 +1167,7 @@ export class AddEditMileagePage implements OnInit {
 
       if (isAutofillsEnabled && doRecentProjectIdsExist) {
         this.recentProjects = recentProjects;
+        console.log("check both projects", this.recentProjects, recentProjects);
       }
 
       /* Autofill project during these cases:

@@ -96,6 +96,7 @@ export class AddEditPerDiemPage implements OnInit {
   initialFetch;
   individualPerDiemRatesEnabled$: Observable<boolean>;
   recentlyUsedValues$: Observable<RecentlyUsed>;
+  recentlyUsedProjects$: Observable<any>;
   recentProjects: any[];
   presetProject: number;
 
@@ -1076,38 +1077,14 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
-    const recentlyUsedProjects$ = forkJoin({
+    this.recentlyUsedProjects$ = forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$,
       perDiemCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou()
     }).pipe(
-        map(({orgUserSettings, recentValue, perDiemCategoryIds, eou}) => {
-          if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-              && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
-            return {
-              recentProjectIds: recentValue.recent_project_ids,
-              perDiemCategoryIds: perDiemCategoryIds,
-              eou: eou
-            }
-          } else {
-            return of(null);
-          }
-        }),
-        switchMap((res: any) => {
-          if (res.recentProjectIds && res.perDiemCategoryIds && res.eou) {
-            return this.projectService.getByParamsUnformatted({
-              orgId: res.eou.ou.org_id,
-              active: true,
-              sortDirection: 'asc',
-              sortOrder: 'project_name',
-              orgCategoryIds: res.perDiemCategoryIds,
-              projectIds: res.recentProjectIds,
-              searchNameText: null,
-              offset: 0,
-              limit: 10
-            });
-          }
+        switchMap(({orgUserSettings, recentValue, perDiemCategoryIds, eou}) => {
+          return this.recentlyUsedItemsService.getRecentlyUsedProjects(orgUserSettings, recentValue, eou, perDiemCategoryIds);
         })
     );
 
@@ -1202,7 +1179,7 @@ export class AddEditPerDiemPage implements OnInit {
           defaultPaymentMode$,
           orgUserSettings$,
           this.recentlyUsedValues$,
-          recentlyUsedProjects$
+          this.recentlyUsedProjects$
         ]);
       }),
       take(1),

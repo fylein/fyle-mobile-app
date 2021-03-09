@@ -136,9 +136,9 @@ export class AddEditExpensePage implements OnInit {
   navigateBack = false;
   isExpenseBankTxn = false;
   clusterDomain: string;
-  doRecentProjectIdsExist: boolean;
   recentProjects: any[];
   presetProject: number;
+  recentlyUsedProjects$: Observable<any>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -584,44 +584,6 @@ export class AddEditExpensePage implements OnInit {
       })
     );
   }
-
-  getRecentlyUsedProjects() {
-    return forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-      recentValue: this.recentlyUsedValues$,
-      eou: this.authService.getEou()
-    }).pipe(
-        map(({orgUserSettings, recentValue, eou}) => {
-          if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-              && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
-            return {
-              recentProjectIds: recentValue.recent_project_ids,
-              eou: eou
-            }
-          } else {
-            return of(null);
-          }
-        }),
-        switchMap((res: any) => {
-          if (res && res.recentProjectIds && res.eou) {
-            const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
-            return this.projectService.getByParamsUnformatted({
-              orgId: res.eou.ou.org_id,
-              active: true,
-              sortDirection: 'asc',
-              sortOrder: 'project_name',
-              orgCategoryIds: categoryId,
-              projectIds: res.recentProjectIds,
-              searchNameText: null,
-              offset: 0,
-              limit: 10
-            });
-          } else {
-            return of(null);
-          }
-        })
-    );
-  };
 
   setupTransactionMandatoryFields() {
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
@@ -1080,6 +1042,17 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
+    this.recentlyUsedProjects$ = forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$,
+      eou: this.authService.getEou()
+    }).pipe(
+      switchMap(({orgUserSettings, recentValue, eou}) => {
+        const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects(orgUserSettings, recentValue, eou, categoryId);
+      })
+    );
+
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         if (etxn.tx.cost_center_id) {
@@ -1132,7 +1105,7 @@ export class AddEditExpensePage implements OnInit {
           defaultPaymentMode: defaultPaymentMode$,
           orgUserSettings: this.offlineService.getOrgUserSettings(),
           recentValue: this.recentlyUsedValues$,
-          recentProjects: this.getRecentlyUsedProjects()
+          recentProjects: this.recentlyUsedProjects$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
