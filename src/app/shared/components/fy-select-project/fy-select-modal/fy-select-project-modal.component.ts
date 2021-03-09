@@ -21,7 +21,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
-  @Input() recentlyUsed;
+  @Input() recentlyUsed: any[];
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;

@@ -138,8 +138,8 @@ export class AddEditExpensePage implements OnInit {
   isExpenseBankTxn = false;
   clusterDomain: string;
   doRecentProjectIdsExist: boolean;
-  recentProjects: any;
-  presetProject: any;
+  recentProjects: any[];
+  presetProject: number;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -589,30 +589,37 @@ export class AddEditExpensePage implements OnInit {
   getRecentlyUsedProjects() {
     return forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      recentValue: this.recentlyUsedValues$
+      recentValue: this.recentlyUsedValues$,
+      eou: this.authService.getEou()
     }).pipe(
-        map(({orgUserSettings, recentValue}) => {
+        map(({orgUserSettings, recentValue, eou}) => {
           if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
               && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
-            return recentValue.recent_project_ids;
+            return {
+              recentProjectIds: recentValue.recent_project_ids,
+              eou: eou
+            }
           } else {
-            return [];
+            return of(null);
           }
         }),
-        withLatestFrom(from(this.authService.getEou())),
-        switchMap(([projectIds, eou]) => {
-          const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
-          return this.projectService.getByParamsUnformatted({
-            orgId: eou.ou.org_id,
-            active: true,
-            sortDirection: 'asc',
-            sortOrder: 'project_name',
-            orgCategoryIds: categoryId,
-            projectIds,
-            searchNameText: null,
-            offset: 0,
-            limit: 10
-          });
+        switchMap((res: any) => {
+          if (res && res.recentProjectIds && res.eou) {
+            const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
+            return this.projectService.getByParamsUnformatted({
+              orgId: res.eou.ou.org_id,
+              active: true,
+              sortDirection: 'asc',
+              sortOrder: 'project_name',
+              orgCategoryIds: categoryId,
+              projectIds: res.recentProjectIds,
+              searchNameText: null,
+              offset: 0,
+              limit: 10
+            });
+          } else {
+            return of(null);
+          }
         })
     );
   };

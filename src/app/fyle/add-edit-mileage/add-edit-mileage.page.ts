@@ -93,8 +93,8 @@ export class AddEditMileagePage implements OnInit {
   saveAndNextMileageLoader = false;
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
-  recentProjects: any;
-  presetProject: any;
+  recentProjects: any[];
+  presetProject: number;
   recentlyUsedProjects: Observable<any>;
   initialFetch;
 

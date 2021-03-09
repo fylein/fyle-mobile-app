@@ -96,8 +96,8 @@ export class AddEditPerDiemPage implements OnInit {
   initialFetch;
   individualPerDiemRatesEnabled$: Observable<boolean>;
   recentlyUsedValues$: Observable<RecentlyUsed>;
-  recentProjects: any;
-  presetProject: any;
+  recentProjects: any[];
+  presetProject: number;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;

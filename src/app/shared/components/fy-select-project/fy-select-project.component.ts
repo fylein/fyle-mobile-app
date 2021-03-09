@@ -25,7 +25,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
-  @Input() recentlyUsed;
+  @Input() recentlyUsed: any[];
 
   private innerValue;
   displayValue;
