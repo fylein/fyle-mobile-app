@@ -63,7 +63,7 @@
       <div (click)="openMatchExpensePopover(expense)" *ngFor="let expense of expenseSuggestions"
            class="ccc-classify-actions--classify-details">
         <div class="ccc-classify-actions--classify-details-date">
-          {{expense.txn_dt | date:'MMM d, yyyy'}}
+          {{expense.txn_dt | date:'MMM dd, yyyy'}}
         </div>
         <div class="ccc-classify-actions--classify-details-amount">
           {{expense.amount | currency:expense.currency: 'symbol-narrow'}}
