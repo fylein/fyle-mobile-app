@@ -28,7 +28,7 @@
       [ngClass]="{'my-expenses-card--body__disabled': isDraft && selectionMode && baseState !== 'draft', 'my-expenses-card--body__selected': isSelected}">
       <div class="my-expenses-card--body-internal">
         <div class="my-expenses-card--icon-container" *ngIf="!selectionMode">
-          <app-fy-category-icon [category]="expense.tx_fyle_category"></app-fy-category-icon>
+          <app-fy-category-icon [category]="(expense.tx_extracted_data && expense.tx_extracted_data.category && expense.tx_fyle_category === 'Unspecified' ? (expense.tx_extracted_data.category) : expense.tx_fyle_category)"></app-fy-category-icon>
         </div>
         <div class="my-expenses-card--selection-icon" *ngIf="selectionMode && !isSelected">
           <ion-checkbox mode="ios" checked="false" [disabled]="isDraft && selectionMode && baseState !== 'draft'"></ion-checkbox>
