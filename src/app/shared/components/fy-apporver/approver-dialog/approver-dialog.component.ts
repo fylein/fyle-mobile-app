@@ -10,6 +10,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { Employee } from 'src/app/core/models/employee.model';
 import { isEqual, cloneDeep } from 'lodash';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { ReportService } from 'src/app/core/services/report.service';
 
 
 @Component({
@@ -41,7 +42,8 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     private tripRequestsService: TripRequestsService,
     private popoverController: PopoverController,
     private advanceRequestService: AdvanceRequestService,
-    private authService: AuthService
+    private authService: AuthService,
+    private reportService: ReportService
   ) { }
 
   closeApproverModal() {
@@ -64,26 +66,24 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
     const { data } = await saveApproverConfirmationPopover.onWillDismiss();
     if (data && data.message) {
-      if (this.from === 'TRIP_REQUEST') {
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => from(newAddedApprovers)),
-          concatMap(approver => this.tripRequestsService.addApproverETripRequests(this.id, approver, data.message)),
-          reduce((acc, curr) => acc.concat(curr), []),
-          finalize(() => from(this.loaderService.hideLoader()))
-        ).subscribe(() => {
-          this.modalController.dismiss({reload: true});
-        });
-      }
-      if (this.from === 'ADVANCE_REQUEST') {
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => from(newAddedApprovers)),
-          concatMap(approver => this.advanceRequestService.addApprover(this.id, approver, data.message)),
-          reduce((acc, curr) => acc.concat(curr), []),
-          finalize(() => from(this.loaderService.hideLoader()))
-        ).subscribe(() => {
-          this.modalController.dismiss({reload: true});
-        });
-      }
+      from(this.loaderService.showLoader()).pipe(
+        switchMap(() => from(newAddedApprovers)),
+        concatMap(approver => {
+          if (this.from === 'TRIP_REQUEST') {
+            return this.tripRequestsService.addApproverETripRequests(this.id, approver, data.message);
+          }
+          if (this.from === 'ADVANCE_REQUEST')  {
+            return this.advanceRequestService.addApprover(this.id, approver, data.message);
+          }
+          if (this.from === 'TEAM_REPORTS') {
+            return this.reportService.addApprover(this.id, approver, data.message);
+          }
+        }),
+        reduce((acc, curr) => acc.concat(curr), []),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(() => {
+        this.modalController.dismiss({reload: true});
+      });
     }
   }
 

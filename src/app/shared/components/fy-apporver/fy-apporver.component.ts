@@ -39,15 +39,9 @@ export class FyApporverComponent implements OnInit {
 
     await approversListModal.present();
 
-    // TODO: Cleanup @madhav (this is used in tripa and advance only, please verify and remove if conditions)
     const { data } = await approversListModal.onWillDismiss();
     if (data && data.reload) {
-      if (this.from === 'TRIP_REQUEST') {
-        this.notify.emit(true);
-      }
-      if (this.from === 'ADVANCE_REQUEST') {
-        this.notify.emit(true);
-      }
+      this.notify.emit(true);
     }
 
   }
