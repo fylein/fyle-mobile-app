@@ -8,13 +8,12 @@ import * as moment from 'moment';
 })
 export class FormatDateDirective implements OnChanges {
   @Input() dateValue: string;
-  @Input() dateFormat = "MMM DD, YYYY";
 
   constructor(private elementRef: ElementRef) { }
 
   ngOnChanges () {
     if (this.dateValue) {
-      this.elementRef.nativeElement.setAttribute("data-date", moment(this.dateValue).format(this.dateFormat));
+      this.elementRef.nativeElement.setAttribute("data-date", moment(this.dateValue).format('MMM DD, YYYY'));
     }
   }
 };
