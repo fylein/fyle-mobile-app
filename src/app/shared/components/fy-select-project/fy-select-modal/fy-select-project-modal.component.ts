@@ -7,6 +7,7 @@ import {ProjectsService} from 'src/app/core/services/projects.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
+import { ExtendedProject } from 'src/app/core/models/extendedProject.model';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -21,7 +22,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
-  @Input() recentlyUsed: any[];
+  @Input() recentlyUsed: { label: string, value: ExtendedProject, selected?: boolean }[];
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;

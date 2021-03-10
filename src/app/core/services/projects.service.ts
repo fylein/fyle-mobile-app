@@ -4,6 +4,8 @@ import {ApiV2Service} from './api-v2.service';
 import {map} from 'rxjs/operators';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable} from 'ts-cacheable';
+import { Observable } from 'rxjs';
+import { ExtendedProject } from '../models/extendedProject.model';
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +49,7 @@ export class ProjectsService {
   getByParamsUnformatted(projectParams:
     Partial<{
       orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds
-    }>) {
+    }>): Observable<ExtendedProject[]> {
     // tslint:disable-next-line: prefer-const
     let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds }
       = projectParams;
@@ -91,7 +93,7 @@ export class ProjectsService {
   @Cacheable()
   getByParams(queryParams: Partial<{
     orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds 
-  }>) {
+  }>): Observable<ExtendedProject[]> {
     const {
       orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds 
     } = queryParams;

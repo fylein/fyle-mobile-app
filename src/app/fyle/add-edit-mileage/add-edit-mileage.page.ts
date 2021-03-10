@@ -44,6 +44,7 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
+import {ExtendedProject} from 'src/app/core/models/extendedProject.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -93,9 +94,9 @@ export class AddEditMileagePage implements OnInit {
   saveAndNextMileageLoader = false;
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
-  recentProjects: any[];
+  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
   presetProject: number;
-  recentlyUsedProjects$: Observable<any>;
+  recentlyUsedProjects$: Observable<ExtendedProject[]>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;

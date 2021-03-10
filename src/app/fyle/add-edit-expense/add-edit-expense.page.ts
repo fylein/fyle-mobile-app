@@ -55,6 +55,7 @@ import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
+import {ExtendedProject} from 'src/app/core/models/extendedProject.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -136,9 +137,9 @@ export class AddEditExpensePage implements OnInit {
   navigateBack = false;
   isExpenseBankTxn = false;
   clusterDomain: string;
-  recentProjects: any[];
+  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
   presetProject: number;
-  recentlyUsedProjects$: Observable<any>;
+  recentlyUsedProjects$: Observable<ExtendedProject[]>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
