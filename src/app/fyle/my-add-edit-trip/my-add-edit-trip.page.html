@@ -118,7 +118,7 @@
                 </div>
                 <div class="add-edit-trip--text add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].from_city.touched && !control['controls'].from_city.valid}">
                   <app-fy-location
-                    [label]="control.controls.from_city.value ? 'From City' : 'Select From City'"
+                    [label]="control['controls'].from_city.value ? 'From City' : 'Select From City'"
                     [mandatory]="true"
                     formControlName="from_city">
                   </app-fy-location>
