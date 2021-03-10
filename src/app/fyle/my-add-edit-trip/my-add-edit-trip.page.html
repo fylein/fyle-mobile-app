@@ -118,7 +118,7 @@
                 </div>
                 <div class="add-edit-trip--text add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].from_city.touched && !control['controls'].from_city.valid}">
                   <app-fy-location
-                    [label]="control['controls'].from_city.value ? 'From City' : 'Select From City'"
+                    [label]="control.controls.from_city.value ? 'From City' : 'Select From City'"
                     [mandatory]="true"
                     formControlName="from_city">
                   </app-fy-location>
@@ -145,12 +145,12 @@
                   </div>
                   
                   <ng-container *ngIf="fg.controls.tripType.value === 'ONE_WAY' || fg.controls.tripType.value === 'ROUND'">
-                    <input appFormatDate [dateValue]="control['controls'].onward_dt.value" (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input input-date-format"
+                    <input appFormatDate [dateValue]="control.controls.onward_dt.value" (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input input-date-format"
                       formControlName="onward_dt" type="date">
                   </ng-container>
 
                   <ng-container *ngIf="fg.controls.tripType.value === 'MULTI_CITY'">
-                    <input appFormatDate [dateValue]="control['controls'].onward_dt.value" (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="i === 0 ? fg.controls.startDate.value : (cities['controls'][i-1]['controls'].onward_dt.value ? cities['controls'][i-1]['controls'].onward_dt.value: fg.controls.startDate.value )" class="add-edit-trip--date-input input-date-format"
+                    <input appFormatDate [dateValue]="control.controls.onward_dt.value" (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="i === 0 ? fg.controls.startDate.value : (cities['controls'][i-1]['controls'].onward_dt.value ? cities['controls'][i-1]['controls'].onward_dt.value: fg.controls.startDate.value )" class="add-edit-trip--date-input input-date-format"
                       formControlName="onward_dt" type="date">
                   </ng-container>
 
@@ -165,7 +165,7 @@
                        class="add-edit-trip--text-label">
                     {{control['controls'].return_date.value ? 'Return Date' : 'Select Return Date'}}<span>*</span>
                   </div>
-                  <input appFormatDate [dateValue]="control['controls'].return_date.value" (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="control['controls'].onward_dt.value ? control['controls'].onward_dt.value : fg.controls.startDate.value" class="add-edit-trip--date-input input-date-format"
+                  <input appFormatDate [dateValue]="control.controls.return_date.value" (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="control['controls'].onward_dt.value ? control['controls'].onward_dt.value : fg.controls.startDate.value" class="add-edit-trip--date-input input-date-format"
                          formControlName="return_date"
                          type="date">
                 </div>
