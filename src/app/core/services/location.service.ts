@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {environment} from 'src/environments/environment';
 import {map} from 'rxjs/operators';
 import {from, Observable, Subject} from 'rxjs';
-import { Plugins } from '@capacitor/core';
+import { GeolocationPosition, Plugins } from '@capacitor/core';
 import { Cacheable } from 'ts-cacheable';
 const { Geolocation } = Plugins;
 
@@ -101,12 +101,12 @@ export class LocationService {
 
   @Cacheable({
     cacheBusterObserver: currentLocationCacheBuster$,
-    maxAge: 10 * 60 * 1000 //10 minute
+    maxAge: 10 * 60 * 1000 // 10 minutes
   })
-  getCurrentLocation(enableHighAccuracy?: boolean) {
+  getCurrentLocation(config: {enableHighAccuracy: boolean} = {enableHighAccuracy: false}) : Observable<GeolocationPosition>{
     return from(Geolocation.getCurrentPosition({
-      timeout: 10000,
-      enableHighAccuracy
+      timeout: 5000,
+      enableHighAccuracy: config.enableHighAccuracy
     }));
   }
 }

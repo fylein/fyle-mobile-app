@@ -50,7 +50,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         that.loader = true;
         return forkJoin({
           eou: that.authService.getEou(),
-          currentLocation: that.locationService.getCurrentLocation(false)
+          currentLocation: that.locationService.getCurrentLocation({enableHighAccuracy: false})
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
             return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
@@ -135,9 +135,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation() {
-    from(this.loaderService.showLoader('Loading current location...', 10000)).pipe(
+    from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
       switchMap(() => {
-        return this.locationService.getCurrentLocation(true);
+        return this.locationService.getCurrentLocation({enableHighAccuracy: true});
       }),
       switchMap((coordinates) => {
         return this.agmGeocode.geocode({
