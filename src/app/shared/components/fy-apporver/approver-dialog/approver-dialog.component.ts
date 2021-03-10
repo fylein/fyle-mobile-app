@@ -1,15 +1,14 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { Observable, from, fromEvent, noop } from 'rxjs';
+import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { switchMap, map, finalize, concatMap, reduce, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
+import { switchMap, map, finalize, concatMap, reduce, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { ConfirmationCommentPopoverComponent } from './confirmation-comment-popover/confirmation-comment-popover.component';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { Employee } from 'src/app/core/models/employee.model';
 import { isEqual, cloneDeep } from 'lodash';
-import { AuthService } from 'src/app/core/services/auth.service';
 import { ReportService } from 'src/app/core/services/report.service';
 
 
@@ -22,7 +21,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() approverList: any[] = [];
+  @Input() approverList: string[] = [];
   @Input() id: string;
   @Input() ownerEmail: string;
   @Input() from;
@@ -30,8 +29,8 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
   approverList$: Observable<any>;
   searchedApprovers$: Observable<Employee[]>;
-  selectedApprovers: any[] = [];
-  intialSelectedApprovers: any[] = [];
+  selectedApprovers: string[] = [];
+  intialSelectedApprovers: string[] = [];
   searchTerm;
   equals = true;
 
@@ -42,7 +41,6 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     private tripRequestsService: TripRequestsService,
     private popoverController: PopoverController,
     private advanceRequestService: AdvanceRequestService,
-    private authService: AuthService,
     private reportService: ReportService
   ) { }
 
