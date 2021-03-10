@@ -1119,8 +1119,8 @@ export class AddEditExpensePage implements OnInit {
           currencyObj: {
             amount: etxn.tx.user_amount,
             currency: etxn.tx.currency,
-            orig_amount: null,
-            orig_currency: null,
+            orig_amount: etxn.tx.orig_amount,
+            orig_currency: etxn.tx.orig_currency,
           }
         });
       } else if (etxn.tx.currency !== homeCurrency) {
