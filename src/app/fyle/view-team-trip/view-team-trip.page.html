@@ -199,7 +199,7 @@
             <app-fy-apporver
               *ngIf="actions.can_add_approver"
               [approverList]="getApproverEmails(activeApprovals)"
-              [id]="tripRequest"
+              [id]="tripRequest.trp_id"
               [ownerEmail]="tripRequest.us_email"
               [from]="'TRIP_REQUEST'"
               [title]="'Add Approvers'"
