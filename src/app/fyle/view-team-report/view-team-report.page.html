@@ -109,14 +109,12 @@
 
     <ng-container *ngIf="reportApprovals$|async as reportApprovals">
       <ng-container *ngIf="this.actions$|async as actions">
-        <div class="view-reports--card__external-component-no-margin">
+        <div class="view-reports--card__external-component-no-margin" *ngIf="actions.can_add_approver">
           <app-fy-apporver
-            *ngIf="actions.can_add_approver"
             [approverList]="getApproverEmails(reportApprovals)"
             [id]="erpt.rp_id"
             [ownerEmail]="erpt.us_email"
             [from]="'TEAM_REPORTS'"
-            [title]="'Add Approvers'"
             (notify)='onUpdateApprover($event)'>
           </app-fy-apporver>
         </div>

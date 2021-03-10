@@ -16,7 +16,6 @@ export class FyApporverComponent implements OnInit {
   @Input() id: string;
   @Input() ownerEmail: string;
   @Input() from;
-  @Input() title;
 
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
