@@ -1114,6 +1114,15 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: etxn.tx.orig_currency,
           }
         });
+      } else if (etxn.tx.user_amount && isNumber(etxn.tx.policy_amount) && (etxn.tx.policy_amount < 0.0001)) {
+        this.fg.patchValue({
+          currencyObj: {
+            amount: etxn.tx.user_amount,
+            currency: etxn.tx.currency,
+            orig_amount: null,
+            orig_currency: null,
+          }
+        });
       } else if (etxn.tx.currency !== homeCurrency) {
         this.fg.patchValue({
           currencyObj: {
@@ -1130,15 +1139,6 @@ export class AddEditExpensePage implements OnInit {
             currency: etxn.tx.currency,
             orig_amount: null,
             orig_currency: null
-          }
-        });
-      } else if (etxn.tx.user_amount) {
-        this.fg.patchValue({
-          currencyObj: {
-            amount: etxn.tx.user_amount,
-            currency: etxn.tx.currency,
-            orig_amount: null,
-            orig_currency: null,
           }
         });
       }
