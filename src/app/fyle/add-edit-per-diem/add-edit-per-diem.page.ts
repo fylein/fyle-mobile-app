@@ -1209,7 +1209,7 @@ export class AddEditPerDiemPage implements OnInit {
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
       if (isAutofillsEnabled && doRecentProjectIdsExist) {
-        this.recentProjects = recentProjects;
+        this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
 
       /* Autofill project during these cases:

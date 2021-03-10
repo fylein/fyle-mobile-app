@@ -137,9 +137,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     );
 
     if (this.recentlyUsed) {
-      this.recentrecentlyUsedItems$ = of(this.recentlyUsed).pipe(
-        map(recentItems => recentItems.map(item => ({label: item.project_name, value: item})))
-      );
+      this.recentrecentlyUsedItems$ = of(this.recentlyUsed);
     } else {
       this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
         map((options: any) => {
