@@ -48,6 +48,7 @@ import {LocationService} from 'src/app/core/services/location.service';
 import {Plugins} from '@capacitor/core';
 import {ExtendedOrgUser} from 'src/app/core/models/extended-org-user.model';
 import {ExtendedProject} from 'src/app/core/models/extended-project.model';
+import { CostCenter } from 'src/app/core/models/cost-center.model';
 
 const { Geolocation } = Plugins;
 
@@ -102,6 +103,9 @@ export class AddEditMileagePage implements OnInit {
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
   presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
+  presetCostCenter: number;
+  recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -929,6 +933,15 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      concatMap(({costCenters, recentValue}) => {
+        return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
+      })
+    );
+
     this.reports$ = this.reportService.getFilteredPendingReports({ state: 'edit' }).pipe(
       map(reports => reports.map(report => ({ label: report.rp.purpose, value: report })))
     );
@@ -1197,12 +1210,13 @@ export class AddEditMileagePage implements OnInit {
           defaultPaymentMode$,
           orgUserSettings$,
           this.recentlyUsedValues$,
-          this.recentlyUsedProjects$
+          this.recentlyUsedProjects$,
+          this.recentlyUsedCostCenters$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, recentValue, recentProjects]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, recentValue, recentProjects, recentCostCenters]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1221,6 +1235,7 @@ export class AddEditMileagePage implements OnInit {
 
       // Check if auto-fills is enabled
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
@@ -1240,6 +1255,28 @@ export class AddEditMileagePage implements OnInit {
         if (autoFillProject) {
           project = autoFillProject;
           this.presetProjectId = project.id;
+        }
+      }
+
+      // Check if recent cost centers exist
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
+        this.recentCostCenters = recentCostCenters;
+      }
+
+      /* Autofill cost center during these cases:
+       * 1. Autofills is allowed and enabled
+       * 2. During add expense - When cost center field is empty
+       * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
+       * 4. When there exists recently used cost center ids to auto-fill
+       */
+      if (doRecentCostCenterIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))) {
+        const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
+
+        if (autoFillCostCenter) {
+          costCenter = autoFillCostCenter.value;
+          this.presetCostCenter = autoFillCostCenter.value.id;
         }
       }
 

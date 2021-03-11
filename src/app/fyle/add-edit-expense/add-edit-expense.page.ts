@@ -58,6 +58,8 @@ import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 import {OrgUserSettings} from 'src/app/core/models/org_user_settings.model';
 import {OrgCategory} from 'src/app/core/models/org-category.model';
 import {ExtendedProject} from 'src/app/core/models/extended-project.model';
+import {CostCenter} from 'src/app/core/models/cost-center.model';
+
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -144,6 +146,9 @@ export class AddEditExpensePage implements OnInit {
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
   presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
+  presetCostCenter: number;
+  recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -1038,6 +1043,15 @@ export class AddEditExpensePage implements OnInit {
       ), of(null));
     }));
 
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      concatMap(({costCenters, recentValue}) => {
+        return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
+      })
+    );
+
     const defaultPaymentMode$ = forkJoin({
       orgUserSettings: this.orgUserSettings$,
       paymentModes: this.paymentModes$
@@ -1138,11 +1152,12 @@ export class AddEditExpensePage implements OnInit {
           orgUserSettings: this.orgUserSettings$,
           recentValue: this.recentlyUsedValues$,
           recentCategories: this.getRecentlyUsedCategories(),
-          recentProjects: this.recentlyUsedProjects$
+          recentProjects: this.recentlyUsedProjects$,
+          recentCostCenters: this.recentlyUsedCostCenters$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1246,7 +1261,27 @@ export class AddEditExpensePage implements OnInit {
         }
       }
 
-      console.log({ report });
+      // Check if recent cost centers exist
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
+        this.recentCostCenters = recentCostCenters;
+      }
+
+      /* Autofill cost center during these cases:
+       * 1. Autofills is allowed and enabled
+       * 2. During add expense - When cost center field is empty
+       * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
+       * 4. When there exists recently used cost center ids to auto-fill
+       */ 
+      if (doRecentCostCenterIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))) {
+        const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
+
+        if (autoFillCostCenter) {
+          costCenter = autoFillCostCenter.value;
+          this.presetCostCenter = autoFillCostCenter.value.id;
+        }
+      }
 
       this.fg.patchValue({
         project,
