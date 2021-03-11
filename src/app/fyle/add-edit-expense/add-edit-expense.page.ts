@@ -55,6 +55,8 @@ import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
+import {OrgUserSettings} from 'src/app/core/models/org_user_settings.model';
+import {OrgCategory} from 'src/app/core/models/org-category.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -134,7 +136,10 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
+  recentCategories: { label: string, value: OrgCategory, selected?: boolean }[];
+  presetCategoryId: number;
   clusterDomain: string;
+  orgUserSettings$: Observable<OrgUserSettings>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -559,11 +564,10 @@ export class AddEditExpensePage implements OnInit {
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$
+      orgUserSettings: this.orgUserSettings$
     }).pipe(
       switchMap(({orgSettings, orgUserSettings}) => {
         if (orgSettings.cost_centers.enabled) {
@@ -703,6 +707,25 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  getRecentlyUsedCategories() {
+    return forkJoin({
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(({filteredCategories, recentValue}) => {
+        if (filteredCategories && filteredCategories.length > 0 && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0) {
+          var categoriesMap = {};
+          filteredCategories.forEach(category => {
+            categoriesMap[category.value.id] = category;
+          })
+          return recentValue.recent_org_category_ids.map(id => categoriesMap[id]).filter(id => id);
+        } else {
+          return [];
+        }
+      })
+    );
+  };
+
   getInstaFyleImageData() {
     if (this.activatedRoute.snapshot.params.dataUrl) {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
@@ -766,12 +789,11 @@ export class AddEditExpensePage implements OnInit {
 
   getNewExpenseObservable() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
 
-    const instaFyleSettings$ = this.offlineService.getOrgUserSettings().pipe(
+    const instaFyleSettings$ = this.orgUserSettings$.pipe(
       map(orgUserSettings => orgUserSettings.insta_fyle_settings),
       map(instaFyleSettings => ({
         shouldExtractAmount: instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1,
@@ -784,7 +806,7 @@ export class AddEditExpensePage implements OnInit {
 
     return forkJoin({
       orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
+      orgUserSettings: this.orgUserSettings$,
       categories: this.offlineService.getAllCategories(),
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
@@ -956,7 +978,7 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.offlineService.getOrgSettings(),
-            orgUserSettings: this.offlineService.getOrgUserSettings()
+            orgUserSettings: this.orgUserSettings$
           }).pipe(
             map(({orgSettings, orgUserSettings}) => {
               if (orgSettings.projects.enabled) {
@@ -1013,7 +1035,7 @@ export class AddEditExpensePage implements OnInit {
     }));
 
     const defaultPaymentMode$ = forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettings$,
       paymentModes: this.paymentModes$
     }).pipe(
       map(({paymentModes, orgUserSettings}) => {
@@ -1092,11 +1114,14 @@ export class AddEditExpensePage implements OnInit {
           costCenter: selectedCostCenter$,
           customInputs: selectedCustomInputs$,
           homeCurrency: this.offlineService.getHomeCurrency(),
-          defaultPaymentMode: defaultPaymentMode$
+          defaultPaymentMode: defaultPaymentMode$,
+          orgUserSettings: this.orgUserSettings$,
+          recentValue: this.recentlyUsedValues$,
+          recentCategories: this.getRecentlyUsedCategories()
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1149,6 +1174,32 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: null
           }
         });
+      }
+      // Check if auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      // Check if recent categories exist
+      const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentOrgCategoryIdsExist) {
+        this.recentCategories = recentCategories;
+      }
+      // Check if category is extracted from instaFyle/autoFyle
+      const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
+
+      /* Autofill category during these cases:
+       * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
+       * 2. When there exists recently used category ids to auto-fill - mandatory
+       * 3. During add expense - When category field is empty - optional
+       * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
+       */
+      if (doRecentOrgCategoryIdsExist && !etxn.tx.id || 
+        (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
+        const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
+
+        if (autoFillCategory) {
+          category = autoFillCategory.value;
+          this.presetCategoryId = autoFillCategory.value.id;
+        }
       }
 
       console.log({ report });
@@ -1471,7 +1522,7 @@ export class AddEditExpensePage implements OnInit {
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap(etxn => {
-        const instaFyleSettings$ = this.offlineService.getOrgUserSettings().pipe(
+        const instaFyleSettings$ = this.orgUserSettings$.pipe(
           map(orgUserSettings => orgUserSettings.insta_fyle_settings)
         );
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
@@ -1658,7 +1709,7 @@ export class AddEditExpensePage implements OnInit {
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const allCategories$ = this.offlineService.getAllCategories();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
@@ -1680,7 +1731,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
 
-    this.individualProjectIds$ = orgUserSettings$.pipe(
+    this.individualProjectIds$ = this.orgUserSettings$.pipe(
       map((orgUserSettings: any) => orgUserSettings.project_ids || []),
       shareReplay(1)
     );
@@ -2774,7 +2825,8 @@ export class AddEditExpensePage implements OnInit {
         });
       }
 
-      if (!this.fg.controls.category.value && extractedData.category) {
+      // If category is auto-filled and there exists extracted category, priority is given to extracted category
+      if ((!this.fg.controls.category.value || (this.presetCategoryId)) && extractedData.category) {
         const categoryName = extractedData.category || 'Unspecified';
         const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
         this.fg.patchValue({

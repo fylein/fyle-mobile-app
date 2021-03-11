@@ -338,8 +338,8 @@
                       [options]="categories"
                       [selectModalHeader]="'Choose Category'"
                       [subheader]="'All Categories'"
-                      formControlName="category"
-                    >
+                      [recentlyUsed]="recentCategories"
+                      formControlName="category"></app-fy-select>
                     </app-fy-select>
                   </div>
                   <div *ngIf="fg.controls.category.touched && !fg.controls.category.valid"

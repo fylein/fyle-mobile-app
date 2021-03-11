@@ -5,6 +5,8 @@ import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { OrgCategory } from 'src/app/core/models/org-category.model';
+import { CostCenter } from 'src/app/core/models/cost-center.model';
 
 
 @Component({
@@ -35,6 +37,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() showSaveButton = false;
   @Input() placeholder = '';
   @Input() defaultLabelProp;
+  @Input() recentlyUsed: { label: string, value: OrgCategory | CostCenter, selected?: boolean }[];
 
   private innerValue;
   displayValue;
@@ -102,7 +105,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         selectModalHeader: this.selectModalHeader || 'Select Item',
         placeholder: this.placeholder,
         showSaveButton: this.showSaveButton,
-        defaultLabelProp: this.defaultLabelProp
+        defaultLabelProp: this.defaultLabelProp,
+        recentlyUsed: this.recentlyUsed
       }
     });
 
