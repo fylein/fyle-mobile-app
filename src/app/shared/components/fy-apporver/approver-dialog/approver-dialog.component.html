@@ -27,7 +27,8 @@
         <label class="approver-list--list-element-label">
           <mat-checkbox color="primary" [checked]="approver.checked" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
           <span class="approver-list--approver-details">
-            {{approver.us_full_name}} <br> {{approver.us_email}}
+            <span class="approver-list--approver-details_name">{{approver.us_full_name}}</span>
+            <span>{{approver.us_email}}</span>
           </span>
         </label>
       </div>
