@@ -102,7 +102,7 @@ export class AddEditPerDiemPage implements OnInit {
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
   presetProjectId: number;
   recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
-  presetCostCenter: number;
+  presetCostCenterId: number;
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -1266,7 +1266,7 @@ export class AddEditPerDiemPage implements OnInit {
 
         if (autoFillCostCenter) {
           costCenter = autoFillCostCenter.value;
-          this.presetCostCenter = autoFillCostCenter.value.id;
+          this.presetCostCenterId = autoFillCostCenter.value.id;
         }
       }
 
@@ -1574,7 +1574,9 @@ export class AddEditPerDiemPage implements OnInit {
                     Amount: etxn.tx.amount,
                     Currency: etxn.tx.currency,
                     Category: etxn.tx.org_category,
-                    Time_Spent: this.getTimeSpentOnPage() + ' secs'
+                    Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                    Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
+                    Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId))
                 });
 
                 if (comment) {
@@ -1740,7 +1742,9 @@ export class AddEditPerDiemPage implements OnInit {
                   Amount: etxn.tx.amount,
                   Currency: etxn.tx.currency,
                   Category: etxn.tx.org_category,
-                  Time_Spent: this.getTimeSpentOnPage() + ' secs'
+                  Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                  Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
+                  Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId))
                 });
               } else {
                 // tracking expense closed without editing
