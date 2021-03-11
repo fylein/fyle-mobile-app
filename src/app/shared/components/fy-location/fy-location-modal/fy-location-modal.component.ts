@@ -1,14 +1,12 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef, Input } from '@angular/core';
 import { AgmGeocoder } from '@agm/core';
 import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize, catchError } from 'rxjs/operators';
-import { Plugins } from '@capacitor/core';
 import { ModalController } from '@ionic/angular';
 import {Observable, fromEvent, of, from, forkJoin, noop, throwError} from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
-const { Geolocation } = Plugins;
 @Component({
   selector: 'app-fy-location-modal',
   templateUrl: './fy-location-modal.component.html',
@@ -52,10 +50,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         that.loader = true;
         return forkJoin({
           eou: that.authService.getEou(),
-          currentLocation: from(Geolocation.getCurrentPosition({
-            timeout: 10000,
-            enableHighAccuracy: true
-          }))
+          currentLocation: that.locationService.getCurrentLocation({enableHighAccuracy: false})
         }).pipe(
           switchMap(({ eou, currentLocation }) => {
             return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
@@ -140,9 +135,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation() {
-    from(this.loaderService.showLoader('Loading current location...', 10000)).pipe(
+    from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
       switchMap(() => {
-        return Geolocation.getCurrentPosition();
+        return this.locationService.getCurrentLocation({enableHighAccuracy: true});
       }),
       switchMap((coordinates) => {
         return this.agmGeocode.geocode({
