@@ -95,7 +95,7 @@ export class AddEditMileagePage implements OnInit {
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
-  presetProject: number;
+  presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
   initialFetch;
 
@@ -1056,7 +1056,12 @@ export class AddEditMileagePage implements OnInit {
       eou: this.authService.getEou()
     }).pipe(
       switchMap(({orgUserSettings, recentValue, mileageCategoryIds, eou}) => {
-        return this.recentlyUsedItemsService.getRecentlyUsedProjects(orgUserSettings, recentValue, eou, mileageCategoryIds);
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          orgUserSettings,
+          recentValue,
+          eou,
+          categoryIds: mileageCategoryIds
+        });
       })
     );
 
@@ -1181,7 +1186,7 @@ export class AddEditMileagePage implements OnInit {
 
         if (autoFillProject) {
           project = autoFillProject;
-          this.presetProject = project.id;
+          this.presetProjectId = project.id;
         }
       }
 

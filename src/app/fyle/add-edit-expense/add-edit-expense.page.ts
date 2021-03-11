@@ -138,7 +138,7 @@ export class AddEditExpensePage implements OnInit {
   isExpenseBankTxn = false;
   clusterDomain: string;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
-  presetProject: number;
+  presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
   initialFetch;
 
@@ -1050,7 +1050,12 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       switchMap(({orgUserSettings, recentValue, eou}) => {
         const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
-        return this.recentlyUsedItemsService.getRecentlyUsedProjects(orgUserSettings, recentValue, eou, categoryId);
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          orgUserSettings,
+          recentValue,
+          eou,
+          categoryIds: categoryId
+        });
       })
     );
 
@@ -1185,7 +1190,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (autoFillProject) {
           project = autoFillProject;
-          this.presetProject = project.id;
+          this.presetProjectId = project.id;
         }
       }
 

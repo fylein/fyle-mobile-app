@@ -99,7 +99,7 @@ export class AddEditPerDiemPage implements OnInit {
   recentlyUsedValues$: Observable<RecentlyUsed>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
-  presetProject: number;
+  presetProjectId: number;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1085,7 +1085,12 @@ export class AddEditPerDiemPage implements OnInit {
       eou: this.authService.getEou()
     }).pipe(
         switchMap(({orgUserSettings, recentValue, perDiemCategoryIds, eou}) => {
-          return this.recentlyUsedItemsService.getRecentlyUsedProjects(orgUserSettings, recentValue, eou, perDiemCategoryIds);
+          return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+            orgUserSettings,
+            recentValue,
+            eou,
+            categoryIds: perDiemCategoryIds
+          });
         })
     );
 
@@ -1224,7 +1229,7 @@ export class AddEditPerDiemPage implements OnInit {
 
         if (autoFillProject) {
           project = autoFillProject;
-          this.presetProject = project.id;
+          this.presetProjectId = project.id;
         }
       }
 

@@ -116,6 +116,11 @@ export interface InAppChatSettings {
     restore_id?: any;
 }
 
+export interface ExpenseFormAutofills {
+  allowed: boolean;
+  enabled: boolean;
+}
+
 export interface OrgUserSettings {
     id: string;
     created_at: Date;
@@ -140,4 +145,5 @@ export interface OrgUserSettings {
     preferences: Preferences;
     locale: Locale;
     in_app_chat_settings: InAppChatSettings;
+    expense_form_autofills: ExpenseFormAutofills;
 }
