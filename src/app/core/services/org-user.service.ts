@@ -107,7 +107,6 @@ export class OrgUserService {
     );
   }
 
-
   // TODO: move to v2
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
@@ -170,17 +169,5 @@ export class OrgUserService {
   async isSwitchedToDelegator() {
     const accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
     return accessToken && !!accessToken.proxy_org_user_id;
-  }
-
-  verifyMobile() {
-    return this.apiService.post('/orgusers/verify_mobile');
-  }
-
-  checkMobileVerificationCode(otp) {
-    return this.apiService.postWithConfig('/orgusers/check_mobile_verification_code', otp, {
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      }
-    });
   }
 }
