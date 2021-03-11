@@ -55,7 +55,7 @@ import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
-import {ExtendedProject} from 'src/app/core/models/extendedProject.model';
+import {ExtendedProject} from 'src/app/core/models/extended-project.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -959,8 +959,8 @@ export class AddEditExpensePage implements OnInit {
             orgUserSettings: this.offlineService.getOrgUserSettings()
           }).pipe(
             map(({orgSettings, orgUserSettings}) => {
-              if (orgSettings.projects.enabled && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
-                return orgUserSettings.preferences.default_project_id;
+              if (orgSettings.projects.enabled) {
+                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
               }
             })
           );

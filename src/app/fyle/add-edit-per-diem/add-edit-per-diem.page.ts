@@ -45,7 +45,7 @@ import {CurrencyPipe} from '@angular/common';
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
-import {ExtendedProject} from 'src/app/core/models/extendedProject.model';
+import {ExtendedProject} from 'src/app/core/models/extended-project.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',

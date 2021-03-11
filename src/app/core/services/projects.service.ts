@@ -5,7 +5,7 @@ import {map} from 'rxjs/operators';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable} from 'ts-cacheable';
 import { Observable } from 'rxjs';
-import { ExtendedProject } from '../models/extendedProject.model';
+import { ExtendedProject } from '../models/extended-project.model';
 
 @Injectable({
   providedIn: 'root'
