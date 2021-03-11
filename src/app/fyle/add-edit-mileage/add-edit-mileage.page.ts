@@ -46,6 +46,7 @@ import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-item
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 import {LocationService} from 'src/app/core/services/location.service';
 import { Plugins } from '@capacitor/core';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 const { Geolocation } = Plugins;
 
@@ -583,12 +584,11 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
+    type locationInfo = {recentStartLocation: string, eou: ExtendedOrgUser, currentLocation: GeolocationPosition};
+
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
-      currentLocation: from(Geolocation.getCurrentPosition({
-        timeout: 10000,
-        enableHighAccuracy: true
-      })),
+      currentLocation: this.locationService.getCurrentLocation(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$
     }).pipe(
@@ -606,9 +606,9 @@ export class AddEditMileagePage implements OnInit {
           return of(null);
         }
       }),
-      concatMap((autocompleteLocationInfo: any) => {
-        if (autocompleteLocationInfo && autocompleteLocationInfo.recentStartLocation && autocompleteLocationInfo.eou && autocompleteLocationInfo.currentLocation) {
-          return this.locationService.getAutocompletePredictions(autocompleteLocationInfo.recentStartLocation, autocompleteLocationInfo.eou.us.id, `${autocompleteLocationInfo.currentLocation.coords.latitude},${autocompleteLocationInfo.currentLocation.coords.longitude}`);
+      concatMap((info: locationInfo) => {
+        if (info && info.recentStartLocation && info.eou && info.currentLocation) {
+          return this.locationService.getAutocompletePredictions(info.recentStartLocation, info.eou.us.id, `${info.currentLocation.coords.latitude},${info.currentLocation.coords.longitude}`);
         } else {
           return of(null);
         }
