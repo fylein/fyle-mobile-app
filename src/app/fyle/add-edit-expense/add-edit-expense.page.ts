@@ -53,6 +53,8 @@ import {MatchTransactionComponent} from './match-transaction/match-transaction.c
 import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import {TokenService} from 'src/app/core/services/token.service';
+import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
+import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -63,6 +65,7 @@ export class AddEditExpensePage implements OnInit {
   etxn$: Observable<any>;
   paymentModes$: Observable<any[]>;
   pickRecentCurrency$: Observable<any>;
+  recentlyUsedValues$: Observable<RecentlyUsed>;
   isCreatedFromCCC = false;
   paymentAccount$: Observable<any>;
   isCCCAccountSelected$: Observable<boolean>;
@@ -171,6 +174,7 @@ export class AddEditExpensePage implements OnInit {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private trackingService: TrackingService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService
   ) {
   }
@@ -1665,6 +1669,8 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings.allowed &&
         orgSettings.ccc_draft_expense_settings.enabled;
     });
+
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
 
     this.setupNetworkWatcher();
 
