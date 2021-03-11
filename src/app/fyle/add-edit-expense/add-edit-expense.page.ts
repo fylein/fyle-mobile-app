@@ -565,11 +565,10 @@ export class AddEditExpensePage implements OnInit {
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.orgUserSettings$;
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$
+      orgUserSettings: this.orgUserSettings$
     }).pipe(
       switchMap(({orgSettings, orgUserSettings}) => {
         if (orgSettings.cost_centers.enabled) {
