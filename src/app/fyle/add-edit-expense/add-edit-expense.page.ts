@@ -138,7 +138,7 @@ export class AddEditExpensePage implements OnInit {
   navigateBack = false;
   isExpenseBankTxn = false;
   recentCategories: { label: string, value: OrgCategory, selected?: boolean }[];
-  presetCategory: number;
+  presetCategoryId: number;
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
   initialFetch;
@@ -1194,7 +1194,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (autoFillCategory) {
           category = autoFillCategory.value;
-          this.presetCategory = autoFillCategory.value.id;
+          this.presetCategoryId = autoFillCategory.value.id;
         }
       }
 
@@ -2832,7 +2832,7 @@ export class AddEditExpensePage implements OnInit {
       }
 
       // If category is auto-filled and there exists extracted category, priority is given to extracted category
-      if ((!this.fg.controls.category.value || (this.presetCategory)) && extractedData.category) {
+      if ((!this.fg.controls.category.value || (this.presetCategoryId)) && extractedData.category) {
         const categoryName = extractedData.category || 'Unspecified';
         const category = filteredCategories.find(orgCategory => orgCategory.value.fyle_category === categoryName);
         this.fg.patchValue({
