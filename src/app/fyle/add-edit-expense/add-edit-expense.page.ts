@@ -56,6 +56,7 @@ import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 import {OrgUserSettings} from 'src/app/core/models/org_user_settings.model';
+import {OrgCategory} from 'src/app/core/models/org-category.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -136,7 +137,7 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
-  recentCategories: any[];
+  recentCategories: { label: string, value: OrgCategory, selected?: boolean }[];
   presetCategory: number;
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
@@ -714,20 +715,15 @@ export class AddEditExpensePage implements OnInit {
       recentValue: this.recentlyUsedValues$
     }).pipe(
       map(({filteredCategories, recentValue}) => {
-        const categoriesList = filteredCategories.filter(category => {
-          return recentValue.recent_org_category_ids.indexOf(category.value.id) > -1;
-        });
-
-        // To retain the order of recent categories as most recent will be auto-filled
-        const recentCategoriesList = [];
-        recentValue.recent_org_category_ids.forEach(categoryId => {
-          categoriesList.filter(res => {
-            if (res.value.id === categoryId) {
-              recentCategoriesList.push(res);
-            }
-          });
-        });
-        return recentCategoriesList;
+        if (filteredCategories && filteredCategories.length > 0 && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0) {
+          var categoriesMap = {};
+          filteredCategories.forEach(category => {
+            categoriesMap[category.value.id] = category;
+          })
+          return recentValue.recent_org_category_ids.map(id => categoriesMap[id]).filter(id => id);
+        } else {
+          return [];
+        }
       })
     );
   };

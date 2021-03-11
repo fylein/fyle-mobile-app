@@ -4,6 +4,8 @@ import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { CostCenter } from 'src/app/core/models/cost-center.model';
+import { OrgCategory } from 'src/app/core/models/org-category.model';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -25,7 +27,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() showSaveButton = false;
   @Input() placeholder = '';
   @Input() defaultLabelProp;
-  @Input() recentlyUsed: any[];
+  @Input() recentlyUsed: { label: string, value: OrgCategory | CostCenter, selected?: boolean }[];
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
