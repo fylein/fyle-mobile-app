@@ -100,9 +100,9 @@ export interface CurrencySettings {
 }
 
 export interface Preferences {
-  default_project_id?: any;
-  default_vehicle_type?: any;
-  default_payment_mode?: any;
+  default_project_id?: number;
+  default_vehicle_type?: string;
+  default_payment_mode?: string;
 }
 
 export interface Locale {
