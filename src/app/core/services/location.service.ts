@@ -2,7 +2,12 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from 'src/environments/environment';
 import {map} from 'rxjs/operators';
-import {Observable} from 'rxjs';
+import {from, Observable, Subject} from 'rxjs';
+import { GeolocationPosition, Plugins } from '@capacitor/core';
+import { Cacheable } from 'ts-cacheable';
+const { Geolocation } = Plugins;
+
+const currentLocationCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
@@ -92,5 +97,16 @@ export class LocationService {
         return locationDetails;
       })
     );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: currentLocationCacheBuster$,
+    maxAge: 10 * 60 * 1000 // 10 minutes
+  })
+  getCurrentLocation(config: {enableHighAccuracy: boolean} = {enableHighAccuracy: false}) : Observable<GeolocationPosition>{
+    return from(Geolocation.getCurrentPosition({
+      timeout: 5000,
+      enableHighAccuracy: config.enableHighAccuracy
+    }));
   }
 }

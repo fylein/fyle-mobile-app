@@ -18,11 +18,11 @@
             <div *ngFor="let control of hotelDetails.controls; index as i" [formGroupName]="i" class="other-details--elements-wrapper">
               <div class="other-details--wrapper-title">
                 <strong>
-                  <p *ngIf="!(fgValues.cities[i]?.to_city.city)">
+                  <p *ngIf="!(fgValues.cities[i]?.to_city?.city)">
                       City {{i + 1}}
                   </p>
-                  <p *ngIf="fgValues.cities[i]?.to_city.city">Hotel in 
-                    {{ fgValues.cities[i]?.to_city.city }}
+                  <p *ngIf="fgValues.cities[i]?.to_city?.city">Hotel in 
+                    {{ fgValues.cities[i]?.to_city?.city }}
                     on 
                     {{ fgValues.cities[i]?.onward_dt | date: 'dd MMM yyyy' }}
                     <span>
@@ -202,13 +202,13 @@
               <div class="other-details--wrapper-title">
                 <strong>
                   <span *ngIf="fgValues.tripType === 'ROUND'">
-                    <p *ngIf="!(fgValues.cities[0]?.from_city.city && fgValues.cities[0]?.to_city.city)">
+                    <p *ngIf="!(fgValues.cities[0]?.from_city?.city && fgValues.cities[0]?.to_city?.city)">
                       City {{i + 1}}
                     </p>
-                    <p *ngIf="fgValues.cities[0]?.from_city.city && fgValues.cities[0]?.to_city.city">
-                      {{ otherDetailsForm.value.transportDetails[i].fromCity.city }}
+                    <p *ngIf="fgValues.cities[0]?.from_city?.city && fgValues.cities[0]?.to_city?.city">
+                      {{ otherDetailsForm.value.transportDetails[i]?.fromCity?.city }}
                       to 
-                      {{ otherDetailsForm.value.transportDetails[i].toCity.city }}
+                      {{ otherDetailsForm.value.transportDetails[i]?.toCity?.city }}
                       on 
                       <span>
                         {{ fgValues.cities[0]?.onward_dt | date: 'dd MMM yyyy' }}
@@ -219,13 +219,13 @@
                     </p>
                   </span>
                   <span *ngIf="fgValues.tripType !== 'ROUND'">
-                    <p *ngIf="!(fgValues.cities[i]?.from_city.city && fgValues.cities[i]?.to_city.city)">
+                    <p *ngIf="!(fgValues.cities[i]?.from_city?.city && fgValues.cities[i]?.to_city?.city)">
                       City {{i + 1}}
                     </p>
-                    <p *ngIf="fgValues.cities[i]?.from_city.city && fgValues.cities[i]?.to_city.city">
-                      {{ fgValues.cities[i]?.from_city.city }}
+                    <p *ngIf="fgValues.cities[i]?.from_city?.city && fgValues.cities[i]?.to_city?.city">
+                      {{ fgValues.cities[i]?.from_city?.city }}
                       to 
-                      {{ fgValues.cities[i]?.to_city.city }}
+                      {{ fgValues.cities[i]?.to_city?.city }}
                       on 
                       {{ fgValues.cities[i]?.onward_dt | date: 'dd MMM yyyy' }}
                     </p>
