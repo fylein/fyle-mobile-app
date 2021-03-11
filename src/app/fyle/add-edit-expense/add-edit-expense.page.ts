@@ -55,6 +55,7 @@ import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
+import { CostCenter } from 'src/app/core/models/cost-center.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -136,9 +137,9 @@ export class AddEditExpensePage implements OnInit {
   navigateBack = false;
   isExpenseBankTxn = false;
   clusterDomain: string;
-  recentCostCenters: any[];
+  recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
   presetCostCenter: number;
-  recentlyUsedCostCenters$: Observable<any>;
+  recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -1015,7 +1016,7 @@ export class AddEditExpensePage implements OnInit {
       costCenters: this.costCenters$,
       recentValue: this.recentlyUsedValues$
     }).pipe(
-      map(({costCenters, recentValue}) => {
+      concatMap(({costCenters, recentValue}) => {
         return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
       })
     );
