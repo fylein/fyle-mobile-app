@@ -280,7 +280,7 @@ export class MyEditReportPage implements OnInit {
 
   getSelectedTripInfo(tripRequestId) {
     if (this.canAssociateTripRequests) {
-      this.tripRequestsService.get(tripRequestId).subscribe((tripRequest: any) => {
+      this.tripRequestsService.get(tripRequestId).subscribe((tripRequest) => {
         this.selectedTripRequest = tripRequest;
         const selectedTripRequest = {
           label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,

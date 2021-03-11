@@ -22,6 +22,7 @@ import {ProjectsService} from 'src/app/core/services/projects.service';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {TripRequestPolicyService} from 'src/app/core/services/trip-request-policy.service';
 import {StatusService} from '../../core/services/status.service';
+import { TripRequest } from 'src/app/core/models/trip-request.model';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -52,7 +53,7 @@ export class MyAddEditTripPage implements OnInit {
   customFields$: Observable<any>;
   isProjectsEnabled$: Observable<boolean>;
   projects$: Observable<[]>;
-  tripRequest$: Observable<any>;
+  tripRequest$: Observable<TripRequest>;
   customFieldValues;
   refreshTrips$ = new Subject();
   isTransportationRequestAlreadyAdded: boolean;
@@ -381,7 +382,7 @@ export class MyAddEditTripPage implements OnInit {
         tripRequest: this.tripRequest$
       }).pipe(
         map(res => {
-          const tripRequest: any = res.tripRequest;
+          const tripRequest = res.tripRequest;
           const trp = {
             ...tripRequest,
             custom_field_values: formValue.custom_field_values,
@@ -726,7 +727,7 @@ export class MyAddEditTripPage implements OnInit {
       this.tripRequest$ = this.tripRequestsService.get(id);
       const selectedProject$ = this.tripRequest$.pipe(
         switchMap(trip => {
-          return iif(() => trip.project_id, this.projectsService.getbyId(trip.project_id), of(null));
+          return iif(() => !!trip.project_id, this.projectsService.getbyId(trip.project_id), of(null));
         })
       );
 

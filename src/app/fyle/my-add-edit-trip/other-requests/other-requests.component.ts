@@ -20,6 +20,8 @@ import {TripRequestPolicyService} from '../../../core/services/trip-request-poli
 import {PolicyViolationComponent} from '../policy-violation/policy-violation.component';
 import {StatusService} from '../../../core/services/status.service';
 import { DateService } from 'src/app/core/services/date.service';
+import { TripRequestActions } from 'src/app/core/models/trip-request-actions.model';
+import { AdvanceRequest } from 'src/app/core/models/advance-request.model';
 
 @Component({
   selector: 'app-other-requests',
@@ -49,8 +51,8 @@ export class OtherRequestsComponent implements OnInit {
   currencies$: Observable<any>;
   hotelRequest$: Observable<any>;
   transportationRequest$: Observable<any>;
-  advanceRequest$: Observable<any>;
-  actions$: Observable<any>;
+  advanceRequest$: Observable<AdvanceRequest[]>;
+  actions$: Observable<TripRequestActions>;
   minDate;
   maxDate;
   advanceRequestCustomFieldValues: [];
@@ -473,7 +475,7 @@ export class OtherRequestsComponent implements OnInit {
         tripRequest: this.tripRequestsService.get(this.id)
       }).pipe(
         map(res => {
-          const tripRequest: any = res.tripRequest;
+          const tripRequest = res.tripRequest;
 
           const trp = {
             ...tripRequest,

@@ -11,6 +11,9 @@ import { Approval } from '../models/approval.model';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { TripRequest } from '../models/trip-request.model';
+import { TripRequestActions } from '../models/trip-request-actions.model';
+import { AdvanceRequest } from '../models/advance-request.model';
 
 const tripRequestsCacheBuster$ = new Subject<void>();
 
@@ -84,18 +87,18 @@ export class TripRequestsService {
   }
 
 
-  get(tripRequestId) {
-    return this.apiService.get('/trip_requests/' + tripRequestId);
+  get(tripRequestId: string): Observable<TripRequest> {
+    return this.apiService.get('/trip_requests/' + tripRequestId); 
   }
 
-  getActions(tripRequestId: string) {
+  getActions(tripRequestId: string): Observable<TripRequestActions> {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
   }
 
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getAdvanceRequests(tripRequestId: string) {
+  getAdvanceRequests(tripRequestId: string): Observable<AdvanceRequest[]> {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/advance_requests');
   }
 
@@ -404,7 +407,7 @@ export class TripRequestsService {
   @CacheBuster({
     cacheBusterNotifier: tripRequestsCacheBuster$
   })
-  saveDraft(tripRequest) {
+  saveDraft(tripRequest: TripRequest) {
     return from(this.authService.getEou()).pipe(
       map(eou => {
         return tripRequest.org_user_id = eou.ou.id;
@@ -418,7 +421,7 @@ export class TripRequestsService {
   @CacheBuster({
     cacheBusterNotifier: tripRequestsCacheBuster$
   })
-  submit(tripRequest) {
+  submit(tripRequest: TripRequest) {
     return from(this.authService.getEou()).pipe(
       map(eou => {
         return tripRequest.org_user_id = eou.ou.id;
