@@ -225,20 +225,6 @@ export class MyProfilePage implements OnInit {
     this.oneClickActionSelectedModuleId = oneClickActionSelectedModule.value;
   }
 
-  oneClickActionModuleChanged() {
-    // One click action module value changed
-    console.log(this.oneClickActionSelectedModuleId);
-    this.orgUserSettings.one_click_action_settings.module = this.oneClickActionSelectedModuleId;
-    return this.orgUserSettingsService.post(this.orgUserSettings)
-      .pipe(
-        map((res) => {
-          console.log(res);
-          // Todo: Tracking service and disable toogle button
-        })
-      )
-      .subscribe(noop);
-  }
-
   ionViewWillEnter() {
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
