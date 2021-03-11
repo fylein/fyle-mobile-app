@@ -1241,17 +1241,10 @@ export class AddEditPerDiemPage implements OnInit {
         const currencyObj = this.fg.controls.currencyObj.value;
         const amountData: any = {
           currency: currencyObj.currency,
+          amount: currencyObj.amount,
           orig_currency: currencyObj.orig_currency,
           orig_amount: currencyObj.orig_amount,
         };
-
-        if (this.mode === 'edit') {
-          if (etxn.tx.user_amount !== currencyObj.amount) {
-            amountData.amount = currencyObj.amount;
-          }
-        } else {
-          amountData.amount = currencyObj.amount;
-        }
 
         return {
           tx: {
