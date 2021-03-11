@@ -44,6 +44,11 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
+import {LocationService} from 'src/app/core/services/location.service';
+import { Plugins } from '@capacitor/core';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+
+const { Geolocation } = Plugins;
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -134,7 +139,8 @@ export class AddEditMileagePage implements OnInit {
     private dateService: DateService,
     private trackingService: TrackingService,
     private tokenService: TokenService,
-    private recentlyUsedItemsService: RecentlyUsedItemsService
+    private recentlyUsedItemsService: RecentlyUsedItemsService,
+    private locationService: LocationService
   ) { }
 
   ngOnInit() {
@@ -578,15 +584,62 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
+    type locationInfo = {recentStartLocation: string, eou: ExtendedOrgUser, currentLocation: GeolocationPosition};
+
+    const autofillLocation$ = forkJoin({
+      eou: this.authService.getEou(),
+      currentLocation: this.locationService.getCurrentLocation(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(({ eou, currentLocation, orgUserSettings, recentValue }) => {
+        const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                        && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
+        if (isRecentLocationPresent) {
+          const autocompleteLocationInfo = {
+            recentStartLocation: recentValue.recent_start_locations[0],
+            eou,
+            currentLocation
+          }
+          return autocompleteLocationInfo;
+        } else {
+          return of(null);
+        }
+      }),
+      concatMap((info: locationInfo) => {
+        if (info && info.recentStartLocation && info.eou && info.currentLocation) {
+          return this.locationService.getAutocompletePredictions(info.recentStartLocation, info.eou.us.id, `${info.currentLocation.coords.latitude},${info.currentLocation.coords.longitude}`);
+        } else {
+          return of(null);
+        }
+      }),
+      concatMap(isPredictedLocation => {
+        if (isPredictedLocation) {
+          return this.locationService.getGeocode(isPredictedLocation[0].place_id, isPredictedLocation[0].description).pipe(
+            map((location) => {
+              if (location) {
+                return location;
+              } else {
+                return of(null);
+              }
+            })
+          )
+        } else {
+          return of(null);
+        }
+      })
+    );
+
     return forkJoin({
       mileageContainer: this.getMileageCategories(),
       homeCurrency: this.homeCurrency$,
       orgSettings: this.offlineService.getOrgSettings(),
       defaultVehicleType: defaultVehicle$,
       defaultMileageRate: defaultMileage$,
-      currentEou: this.authService.getEou()
+      currentEou: this.authService.getEou(),
+      autofillLocation: autofillLocation$
     }).pipe(
-      map(({ mileageContainer, homeCurrency, orgSettings, defaultVehicleType, defaultMileageRate, currentEou }) => {
+      map(({ mileageContainer, homeCurrency, orgSettings, defaultVehicleType, defaultMileageRate, currentEou, autofillLocation }) => {
         const distanceUnit = orgSettings.mileage.unit;
         return {
           tx: {
@@ -611,7 +664,7 @@ export class AddEditMileagePage implements OnInit {
             fyle_category: 'Mileage',
             org_user_id: currentEou.ou.id,
             locations: [
-              null,
+              autofillLocation,
               null
             ],
             custom_properties: []
@@ -1953,6 +2006,7 @@ export class AddEditMileagePage implements OnInit {
               })
             );
         }),
+
         finalize(() => {
           this.saveMileageLoader = false;
           this.saveAndNewMileageLoader = false;
