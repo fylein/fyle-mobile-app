@@ -57,6 +57,7 @@ import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-item
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 import {OrgUserSettings} from 'src/app/core/models/org_user_settings.model';
 import {OrgCategory} from 'src/app/core/models/org-category.model';
+import {ExtendedProject} from 'src/app/core/models/extended-project.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -140,6 +141,9 @@ export class AddEditExpensePage implements OnInit {
   presetCategoryId: number;
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
+  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  presetProjectId: number;
+  recentlyUsedProjects$: Observable<ExtendedProject[]>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -1065,6 +1069,22 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
+    this.recentlyUsedProjects$ = forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$,
+      eou: this.authService.getEou()
+    }).pipe(
+      switchMap(({orgUserSettings, recentValue, eou}) => {
+        const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          orgUserSettings,
+          recentValue,
+          eou,
+          categoryIds: categoryId
+        });
+      })
+    );
+
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         if (etxn.tx.cost_center_id) {
@@ -1117,11 +1137,12 @@ export class AddEditExpensePage implements OnInit {
           defaultPaymentMode: defaultPaymentMode$,
           orgUserSettings: this.orgUserSettings$,
           recentValue: this.recentlyUsedValues$,
-          recentCategories: this.getRecentlyUsedCategories()
+          recentCategories: this.getRecentlyUsedCategories(),
+          recentProjects: this.recentlyUsedProjects$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1175,6 +1196,7 @@ export class AddEditExpensePage implements OnInit {
           }
         });
       }
+
       // Check if auto-fills is enabled
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
       // Check if recent categories exist
@@ -1199,6 +1221,28 @@ export class AddEditExpensePage implements OnInit {
         if (autoFillCategory) {
           category = autoFillCategory.value;
           this.presetCategoryId = autoFillCategory.value.id;
+        }
+      }
+
+      // Check if recent projects exist
+      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentProjectIdsExist) {
+        this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
+      }
+
+      /* Autofill project during these cases:
+      * 1. Autofills is allowed and enabled
+      * 2. During add expense - When project field is empty
+      * 3. During edit expense - When the expense is in draft state and there is no project already added
+      * 4. When there exists recently used project ids to auto-fill
+      */
+      if (doRecentProjectIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))) {
+        const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
+
+        if (autoFillProject) {
+          project = autoFillProject;
+          this.presetProjectId = project.id;
         }
       }
 

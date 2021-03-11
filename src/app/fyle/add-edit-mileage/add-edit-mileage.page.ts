@@ -45,8 +45,9 @@ import {TokenService} from 'src/app/core/services/token.service';
 import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
 import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
 import {LocationService} from 'src/app/core/services/location.service';
-import { Plugins } from '@capacitor/core';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import {Plugins} from '@capacitor/core';
+import {ExtendedOrgUser} from 'src/app/core/models/extended-org-user.model';
+import {ExtendedProject} from 'src/app/core/models/extended-project.model';
 
 const { Geolocation } = Plugins;
 
@@ -98,6 +99,9 @@ export class AddEditMileagePage implements OnInit {
   saveAndNextMileageLoader = false;
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
+  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  presetProjectId: number;
+  recentlyUsedProjects$: Observable<ExtendedProject[]>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -1060,7 +1064,7 @@ export class AddEditMileagePage implements OnInit {
           }).pipe(
             map(({orgSettings, orgUserSettings}) => {
               if (orgSettings.projects.enabled) {
-                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+                return orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
               }
             })
           );
@@ -1096,6 +1100,22 @@ export class AddEditMileagePage implements OnInit {
         .map(res => res.value)
         .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
       )
+    );
+
+    this.recentlyUsedProjects$ = forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$,
+      mileageCategoryIds: this.projectCategoryIds$,
+      eou: this.authService.getEou()
+    }).pipe(
+      switchMap(({orgUserSettings, recentValue, mileageCategoryIds, eou}) => {
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          orgUserSettings,
+          recentValue,
+          eou,
+          categoryIds: mileageCategoryIds
+        });
+      })
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
@@ -1174,12 +1194,15 @@ export class AddEditMileagePage implements OnInit {
           selectedCostCenter$,
           selectedCustomInputs$,
           this.mileageConfig$,
-          defaultPaymentMode$
+          defaultPaymentMode$,
+          orgUserSettings$,
+          this.recentlyUsedValues$,
+          this.recentlyUsedProjects$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, recentValue, recentProjects]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1195,6 +1218,30 @@ export class AddEditMileagePage implements OnInit {
             };
           }
         });
+
+      // Check if auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      // Check if recent projects exist
+      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentProjectIdsExist) {
+        this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
+      }
+
+      /* Autofill project during these cases:
+      * 1. Autofills is allowed and enabled
+      * 2. During add expense - When project field is empty
+      * 3. During edit expense - When the expense is in draft state and there is no project already added
+      * 4. When there exists recently used project ids to auto-fill
+      */
+      if (doRecentProjectIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))) {
+        const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
+
+        if (autoFillProject) {
+          project = autoFillProject;
+          this.presetProjectId = project.id;
+        }
+      }
 
       this.fg.patchValue({
         mileage_vehicle_type: etxn.tx.mileage_vehicle_type,

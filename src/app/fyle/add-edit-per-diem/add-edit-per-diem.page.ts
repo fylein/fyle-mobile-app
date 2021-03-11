@@ -43,6 +43,9 @@ import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detecti
 import {TrackingService} from '../../core/services/tracking.service';
 import {CurrencyPipe} from '@angular/common';
 import {TokenService} from 'src/app/core/services/token.service';
+import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
+import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
+import {ExtendedProject} from 'src/app/core/models/extended-project.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -93,6 +96,10 @@ export class AddEditPerDiemPage implements OnInit {
   clusterDomain: string;
   initialFetch;
   individualPerDiemRatesEnabled$: Observable<boolean>;
+  recentlyUsedValues$: Observable<RecentlyUsed>;
+  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  presetProjectId: number;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -130,7 +137,8 @@ export class AddEditPerDiemPage implements OnInit {
     private navController: NavController,
     private trackingService: TrackingService,
     private currencyPipe: CurrencyPipe,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private recentlyUsedItemsService: RecentlyUsedItemsService
   ) {
   }
 
@@ -684,6 +692,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.setupNetworkWatcher();
+    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -1031,7 +1040,7 @@ export class AddEditPerDiemPage implements OnInit {
           }).pipe(
             map(({orgSettings, orgUserSettings}) => {
               if (orgSettings.projects.enabled) {
-                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+                return orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
               }
             })
           );
@@ -1067,6 +1076,22 @@ export class AddEditPerDiemPage implements OnInit {
         .map(res => res.value)
         .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
       )
+    );
+
+    this.recentlyUsedProjects$ = forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$,
+      perDiemCategoryIds: this.projectCategoryIds$,
+      eou: this.authService.getEou()
+    }).pipe(
+        switchMap(({orgUserSettings, recentValue, perDiemCategoryIds, eou}) => {
+          return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+            orgUserSettings,
+            recentValue,
+            eou,
+            categoryIds: perDiemCategoryIds
+          });
+        })
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
@@ -1157,13 +1182,16 @@ export class AddEditPerDiemPage implements OnInit {
           selectedReport$,
           selectedCostCenter$,
           selectedCustomInputs$,
-          defaultPaymentMode$
+          defaultPaymentMode$,
+          orgUserSettings$,
+          this.recentlyUsedValues$,
+          this.recentlyUsedProjects$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(([
-                   etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode
+                   etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode, orgUserSettings, recentValue, recentProjects
                  ]) => {
       const customInputValues = customInputs
         .map(customInput => {
@@ -1180,6 +1208,30 @@ export class AddEditPerDiemPage implements OnInit {
             };
           }
         });
+
+      // Check if auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      // Check if recent projects exist
+      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+
+      if (isAutofillsEnabled && doRecentProjectIdsExist) {
+        this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
+      }
+
+      /* Autofill project during these cases:
+      * 1. Autofills is allowed and enabled
+      * 2. During add expense - When project field is empty
+      * 3. During edit expense - When the expense is in draft state and there is no project already added
+      * 4. When there exists recently used project ids to auto-fill
+      */
+      if (doRecentProjectIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))) {
+        const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
+
+        if (autoFillProject) {
+          project = autoFillProject;
+          this.presetProjectId = project.id;
+        }
+      }
 
       this.fg.patchValue({
         paymentMode: paymentMode || defaultPaymentMode,
