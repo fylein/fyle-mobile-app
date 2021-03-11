@@ -790,7 +790,6 @@ export class AddEditExpensePage implements OnInit {
 
   getNewExpenseObservable() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.orgUserSettings$;
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
@@ -808,7 +807,7 @@ export class AddEditExpensePage implements OnInit {
 
     return forkJoin({
       orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
+      orgUserSettings: this.orgUserSettings$,
       categories: this.offlineService.getAllCategories(),
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
