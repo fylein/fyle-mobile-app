@@ -77,7 +77,7 @@ export class MyViewTripsPage implements OnInit {
 
 
   async deleteTrip() {
-    if (this.deleteLoading) {
+    if (this.deleteLoading || this.closeLoading || this.pullbackLoading) {
       return;
     }
     this.deleteLoading = true;
