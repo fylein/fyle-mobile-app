@@ -1080,14 +1080,14 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.recentlyUsedProjects$ = forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      recentValue: this.recentlyUsedValues$,
+      recentValues: this.recentlyUsedValues$,
       perDiemCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou()
     }).pipe(
-        switchMap(({orgUserSettings, recentValue, perDiemCategoryIds, eou}) => {
+        switchMap(({orgUserSettings, recentValues, perDiemCategoryIds, eou}) => {
           return this.recentlyUsedItemsService.getRecentlyUsedProjects({
             orgUserSettings,
-            recentValue,
+            recentValues,
             eou,
             categoryIds: perDiemCategoryIds
           });

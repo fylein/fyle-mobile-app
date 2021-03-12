@@ -1051,14 +1051,14 @@ export class AddEditMileagePage implements OnInit {
 
     this.recentlyUsedProjects$ = forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      recentValue: this.recentlyUsedValues$,
+      recentValues: this.recentlyUsedValues$,
       mileageCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou()
     }).pipe(
-      switchMap(({orgUserSettings, recentValue, mileageCategoryIds, eou}) => {
+      switchMap(({orgUserSettings, recentValues, mileageCategoryIds, eou}) => {
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
           orgUserSettings,
-          recentValue,
+          recentValues,
           eou,
           categoryIds: mileageCategoryIds
         });

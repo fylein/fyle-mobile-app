@@ -1045,14 +1045,14 @@ export class AddEditExpensePage implements OnInit {
 
     this.recentlyUsedProjects$ = forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      recentValue: this.recentlyUsedValues$,
+      recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou()
     }).pipe(
-      switchMap(({orgUserSettings, recentValue, eou}) => {
+      switchMap(({orgUserSettings, recentValues, eou}) => {
         const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
           orgUserSettings,
-          recentValue,
+          recentValues,
           eou,
           categoryIds: categoryId
         });
