@@ -328,13 +328,14 @@ export class OfflineService {
   getProjectCount(params: {categoryIds: string[] } = {categoryIds: []}) {
     return this.getProjects().pipe(
       map(projects => {
-        return projects.filter(project => {
+        const filterdProjects = projects.filter(project => {
           if (params.categoryIds.length) {
-            return intersection(params.categoryIds, project.org_category_ids).length;
+            return intersection(params.categoryIds, project.org_category_ids).length > 0;
           } else {
             return true;
           }
-        }).length;
+        });
+        return filterdProjects.length;
       })
     );
   }
