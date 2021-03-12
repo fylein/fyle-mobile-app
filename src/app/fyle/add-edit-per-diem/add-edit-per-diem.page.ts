@@ -14,7 +14,8 @@ import {
   startWith,
   switchMap,
   take,
-  tap
+  tap,
+  withLatestFrom
 } from 'rxjs/operators';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {TransactionFieldConfigurationsService} from 'src/app/core/services/transaction-field-configurations.service';
@@ -852,13 +853,15 @@ export class AddEditPerDiemPage implements OnInit {
       switchMap(txnFields => {
         return this.isConnected$.pipe(
           take(1),
-          map(isConnected => ({
+          withLatestFrom(this.costCenters$),
+          map(([isConnected, costCenters]) => ({
             isConnected,
-            txnFields
+            txnFields,
+            costCenters
           }))
         );
       })
-    ).subscribe(({isConnected, txnFields}) => {
+    ).subscribe(({isConnected, txnFields, costCenters}) => {
       const keyToControlMap: { [id: string]: AbstractControl; } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
@@ -878,10 +881,10 @@ export class AddEditPerDiemPage implements OnInit {
         if (txnFields[txnFieldKey].mandatory) {
           if (txnFieldKey === 'num_days') {
             control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
-          }
-
-          if (txnFieldKey === 'to_dt') {
+          } else if (txnFieldKey === 'to_dt') {
             control.setValidators(isConnected ? Validators.compose([this.customDateValidator.bind(this), Validators.required]) : null);
+          } else if (txnFieldKey === 'cost_center_id') {
+            control.setValidators((isConnected && costCenters && costCenters.length > 0 )? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
