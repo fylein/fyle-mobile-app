@@ -94,6 +94,7 @@ export class AddEditPerDiemPage implements OnInit {
   clusterDomain: string;
   initialFetch;
   individualPerDiemRatesEnabled$: Observable<boolean>;
+  isProjectVisible$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -103,6 +104,7 @@ export class AddEditPerDiemPage implements OnInit {
     {label: 'Different expense', value: 'Different expense'},
     {label: 'Other', value: 'Other'}
   ];
+  
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -741,6 +743,11 @@ export class AddEditPerDiemPage implements OnInit {
     this.setupFilteredCategories(this.subCategories$);
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
+    this.isProjectVisible$ = this.projectCategoryIds$.pipe(
+      switchMap(projectCategoryIds => {
+        return this.offlineService.getCount({categoryIds: projectCategoryIds});
+      })
+    );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     combineLatest([

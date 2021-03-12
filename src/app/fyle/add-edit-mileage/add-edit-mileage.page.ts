@@ -92,6 +92,7 @@ export class AddEditMileagePage implements OnInit {
   saveAndNextMileageLoader = false;
   clusterDomain: string;
   initialFetch;
+  isProjectVisible$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -741,6 +742,11 @@ export class AddEditMileagePage implements OnInit {
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
+    this.isProjectVisible$ = this.projectCategoryIds$.pipe(
+      switchMap(projectCategoryIds => {
+        return this.offlineService.getCount({categoryIds: projectCategoryIds});
+      })
+    );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.filteredCategories$.subscribe(subCategories => {

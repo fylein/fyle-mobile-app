@@ -19,6 +19,7 @@ import {PermissionsService} from './permissions.service';
 import {Org} from '../models/org.model';
 import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 import {OrgUserService} from './org-user.service';
+import { intersection } from 'lodash';
 
 @Injectable({
   providedIn: 'root'
@@ -321,6 +322,22 @@ export class OfflineService {
           }
         }
       )
+    );
+  }
+
+  getCount(params: {categoryIds: string[] } = {categoryIds: []}) {
+    return this.getProjects().pipe(
+      map(projects => {
+        console.log(projects);
+        return projects.filter(project => {
+          if (params.categoryIds.length) {
+            console.log(intersection(params.categoryIds, project.org_category_ids));
+            return intersection(params.categoryIds, project.org_category_ids).length;
+          } else {
+            return true;
+          }
+        }).length;
+      })
     );
   }
 
