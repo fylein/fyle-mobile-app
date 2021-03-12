@@ -1114,6 +1114,15 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: etxn.tx.orig_currency,
           }
         });
+      } else if (etxn.tx.user_amount && isNumber(etxn.tx.policy_amount) && (etxn.tx.policy_amount < 0.0001)) {
+        this.fg.patchValue({
+          currencyObj: {
+            amount: etxn.tx.user_amount,
+            currency: etxn.tx.currency,
+            orig_amount: etxn.tx.orig_amount,
+            orig_currency: etxn.tx.orig_currency,
+          }
+        });
       } else if (etxn.tx.currency !== homeCurrency) {
         this.fg.patchValue({
           currencyObj: {
@@ -1130,15 +1139,6 @@ export class AddEditExpensePage implements OnInit {
             currency: etxn.tx.currency,
             orig_amount: null,
             orig_currency: null
-          }
-        });
-      } else if (etxn.tx.user_amount) {
-        this.fg.patchValue({
-          currencyObj: {
-            amount: etxn.tx.user_amount,
-            currency: etxn.tx.currency,
-            orig_amount: null,
-            orig_currency: null,
           }
         });
       }
@@ -1316,15 +1316,16 @@ export class AddEditExpensePage implements OnInit {
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
-        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings()}).pipe(
-          map(({isConnected, orgSettings}) => ({
+        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings(), costCenters: this.costCenters$}).pipe(
+          map(({isConnected, orgSettings, costCenters}) => ({
             isConnected,
             txnFields,
-            orgSettings
+            orgSettings,
+            costCenters
           }))
         );
       })
-    ).subscribe(({isConnected, txnFields, orgSettings}) => {
+    ).subscribe(({isConnected, txnFields, orgSettings, costCenters}) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1384,6 +1385,8 @@ export class AddEditExpensePage implements OnInit {
             }
           } else if (txnFieldKey === 'txn_dt') {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
+          } else if (txnFieldKey === 'cost_center_id') {
+            control.setValidators((isConnected && costCenters && costCenters.length > 0) ? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
