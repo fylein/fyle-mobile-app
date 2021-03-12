@@ -744,7 +744,7 @@ export class AddEditMileagePage implements OnInit {
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
       switchMap(projectCategoryIds => {
-        return this.offlineService.getCount({categoryIds: projectCategoryIds});
+        return this.offlineService.getProjectCount({categoryIds: projectCategoryIds});
       })
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
