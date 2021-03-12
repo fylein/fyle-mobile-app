@@ -191,7 +191,7 @@
 
           <!-- show if travel agent length > 0 -->
           <ng-container *ngIf="travelAgents$|async as travelAgents">
-            <div *ngIf="travelAgents?.length > 0" class="add-edit-trip--text">
+            <div *ngIf="travelAgents.length > 0" class="add-edit-trip--text">
               <app-fy-select
                 [label]="fg.controls.travelAgent.value ? 'Agent' : 'Select Agent'"
                 [nullOption]="false"

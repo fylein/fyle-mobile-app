@@ -62,7 +62,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       }),
       map(eouc => {
         return eouc.map(eou => {
-          eou.checked = this.currentSelections.indexOf(eou.us_email) > -1;
+          eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
           return eou;
         });
       }),
@@ -84,7 +84,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       map(eouc => {
         return eouc.map(eou => {
           if (this.currentSelections && this.currentSelections.length > 0) {
-            eou.checked = this.currentSelections.indexOf(eou.us_email) > -1;
+            eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
           }
           return eou;
         });
@@ -127,7 +127,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelected(selectedOption, event) {
+  onSelect(selectedOption: Employee, event: { checked: boolean; }) {
     if (event.checked) {
       this.currentSelections.push(selectedOption.us_email);
     } else {

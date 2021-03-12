@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 })
 export class FyApporverComponent implements OnInit {
 
-  @Input() approverList;
+  @Input() approverEmailsList;
   @Input() id: string;
   @Input() ownerEmail: string;
   @Input() from;
@@ -29,7 +29,7 @@ export class FyApporverComponent implements OnInit {
     const approversListModal = await this.modalController.create({
       component: ApproverDialogComponent,
       componentProps: {
-        approverList: this.approverList,
+        approverEmailsList: this.approverEmailsList,
         id: this.id,
         from: this.from,
         ownerEmail: this.ownerEmail

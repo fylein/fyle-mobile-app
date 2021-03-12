@@ -821,7 +821,7 @@ export class MyAddEditTripPage implements OnInit {
     }).pipe(
       map(employees => {
         const travelAgents = [];
-        employees.some(employee => {
+        employees.forEach(employee => {
           travelAgents.push({
             label: employee.us_full_name + '(' + employee.us_email + ')',
             value: employee.ou_id
