@@ -56,37 +56,6 @@ export class OrgUserService {
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$
   })
-  getCompanyEouc(params: { offset: number, limit: number }) {
-    return this.apiService.get('/eous/company', {
-      params
-    }).pipe(
-      map(
-        eous => eous.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser)
-      )
-    );
-  }
-
-  getAllCompanyEouc() {
-    return this.getCompanyEouCount().pipe(
-      switchMap(res => {
-        const count = res.count > 50 ? res.count / 50 : 1;
-        return range(0, count);
-      }),
-      concatMap(page => {
-        return this.getCompanyEouc({ offset: 50 * page, limit: 50 });
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as ExtendedOrgUser[])
-    );
-  }
-
-  getCompanyEouCount(): Observable<{ count: number }> {
-    return this.apiService.get('/eous/company/count').pipe(
-      map(res => res as { count: number })
-    );
-  }
-
   getEmployeesByParams(params): Observable<{
     count: number,
     data: Employee[],
