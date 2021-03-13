@@ -19,7 +19,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   @Input() placeholder;
 
   value;
-  equals = true;
   eouc$: Observable<Employee[]>;
   options: { label: string, value: any, selected?: boolean }[] = [];
   selectedUsers: any[] = [];
@@ -134,10 +133,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       const index = this.currentSelections.indexOf(selectedOption.us_email);
       this.currentSelections.splice(index, 1);
     }
-
-    this.currentSelections.sort((a, b) => a < b ? -1 : 1);
-
-    this.equals = isEqual(this.intialSelectedEmployees, this.currentSelections);
   }
 
   useSelected() {

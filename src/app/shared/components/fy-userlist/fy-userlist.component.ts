@@ -55,16 +55,13 @@ export class FyUserlistComponent implements OnInit {
   }
 
   set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      if (this.innerValue && this.innerValue.length > 0) {
-        this.displayValue = this.innerValue.join(',');
-      } else {
-        this.displayValue = '';
-      }
-
-      this.onChangeCallback(v);
+    if (this.innerValue && this.innerValue.length > 0) {
+      this.displayValue = this.innerValue.join(',');
+    } else {
+      this.displayValue = '';
     }
+
+    this.onChangeCallback(v);
   }
 
   async openModal() {
