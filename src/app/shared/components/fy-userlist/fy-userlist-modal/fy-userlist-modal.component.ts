@@ -69,7 +69,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     );
   }
 
-  getSearchedUsersList(searchText: string) {
+  getSearchedUsersList(searchText?: string) {
     const params: any = {
       limit: 20,
       order: 'us_email.asc,ou_id',
@@ -97,7 +97,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     } else {
       return this.getDefaultUsersList().pipe(
         switchMap(employees => {
-          return this.getSearchedUsersList(null).pipe(
+          return this.getSearchedUsersList().pipe(
             map(searchedEmployees => {
               searchedEmployees = searchedEmployees.filter(searchedEmployee => {
                 return !employees.find(employee => employee.us_email === searchedEmployee.us_email);

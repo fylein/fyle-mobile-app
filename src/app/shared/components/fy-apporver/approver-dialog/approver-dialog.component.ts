@@ -121,7 +121,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     );
   }
 
-  getSearchedUsersList(searchText: string) {
+  getSearchedUsersList(searchText?: string) {
     const params: any = {
       limit: 20,
       order: 'us_email.asc,ou_id',
