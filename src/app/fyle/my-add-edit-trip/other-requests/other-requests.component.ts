@@ -22,6 +22,8 @@ import {StatusService} from '../../../core/services/status.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { TripRequestActions } from 'src/app/core/models/trip-request-actions.model';
 import { AdvanceRequest } from 'src/app/core/models/advance-request.model';
+import { TransportationRequest } from 'src/app/core/models/transportation-request.model';
+import { ExtendedHotelRequest } from 'src/app/core/models/hotel-request.model';
 
 @Component({
   selector: 'app-other-requests',
@@ -49,8 +51,8 @@ export class OtherRequestsComponent implements OnInit {
   hotelRequestCustomFields$: Observable<any>;
   advanceRequestCustomFields$: Observable<any>;
   currencies$: Observable<any>;
-  hotelRequest$: Observable<any>;
-  transportationRequest$: Observable<any>;
+  hotelRequest$: Observable<ExtendedHotelRequest[]>;
+  transportationRequest$: Observable<TransportationRequest[]>;
   advanceRequest$: Observable<AdvanceRequest[]>;
   actions$: Observable<TripRequestActions>;
   minDate;
@@ -613,7 +615,7 @@ export class OtherRequestsComponent implements OnInit {
     if (this.id) {
       return this.hotelRequest$.pipe(
         switchMap(res => {
-          const hotelRequest: any = res && res[index] && res[index].hr;
+          const hotelRequest = res && res[index] && res[index].hr;
 
           if (hotelRequest) {
             const hotelDetailObject = {
@@ -696,7 +698,7 @@ export class OtherRequestsComponent implements OnInit {
     if (this.id) {
       return this.transportationRequest$.pipe(
         switchMap(res => {
-          const transportationRequest: any = res && res[index] && res[index].tr;
+          const transportationRequest = res && res[index] && res[index].tr;
 
           if (transportationRequest) {
             const transportDetailObject = {

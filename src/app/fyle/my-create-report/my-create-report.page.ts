@@ -16,6 +16,7 @@ import { ReportSummaryComponent } from './report-summary/report-summary.componen
 import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import {NgModel} from '@angular/forms';
+import { TripRequest } from 'src/app/core/models/trip-request.model';
 
 
 @Component({
@@ -33,7 +34,7 @@ export class MyCreateReportPage implements OnInit {
   selectedTxnIds: string[];
   isTripRequestsEnabled: boolean;
   canAssociateTripRequests: boolean;
-  tripRequests: any[];
+  tripRequests: { label: string; value: TripRequest; }[];
   selectedTripRequest: any;
   tripRequestId: string;
   saveDraftReportLoading = false;
@@ -199,7 +200,7 @@ export class MyCreateReportPage implements OnInit {
           return request.state === 'APPROVED';
         });
       }),
-      map((tripRequests: any) => {
+      map((tripRequests) => {
         return tripRequests.sort((tripA, tripB) =>  {
           const tripATime = new Date(tripA.created_at).getTime();
           const tripBTime = new Date(tripB.created_at).getTime();
@@ -213,7 +214,7 @@ export class MyCreateReportPage implements OnInit {
           return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
         });
       }),
-      map((tripRequests: any) => {
+      map((tripRequests) => {
         return tripRequests.map(tripRequest => {
           return {label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest};
         });

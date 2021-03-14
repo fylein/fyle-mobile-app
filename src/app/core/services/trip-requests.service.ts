@@ -14,6 +14,8 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { TripRequest } from '../models/trip-request.model';
 import { TripRequestActions } from '../models/trip-request-actions.model';
 import { AdvanceRequest } from '../models/advance-request.model';
+import { TransportationRequest } from '../models/transportation-request.model';
+import { ExtendedHotelRequest } from '../models/hotel-request.model';
 
 const tripRequestsCacheBuster$ = new Subject<void>();
 
@@ -88,7 +90,7 @@ export class TripRequestsService {
 
 
   get(tripRequestId: string): Observable<TripRequest> {
-    return this.apiService.get('/trip_requests/' + tripRequestId); 
+    return this.apiService.get('/trip_requests/' + tripRequestId);
   }
 
   getActions(tripRequestId: string): Observable<TripRequestActions> {
@@ -105,7 +107,7 @@ export class TripRequestsService {
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getHotelRequests(tripRequestId: string) {
+  getHotelRequests(tripRequestId: string): Observable<ExtendedHotelRequest[]> {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
       map((reqs) => {
         return reqs.map(req => {
@@ -129,7 +131,7 @@ export class TripRequestsService {
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getTransportationRequests(tripRequestId: string) {
+  getTransportationRequests(tripRequestId: string): Observable<TransportationRequest[]> {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
       map((reqs) => reqs.map(req => {
         const transportationRequest = this.dataTransformService.unflatten(req);
@@ -443,7 +445,7 @@ export class TripRequestsService {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
   }
 
-  findMyUnreportedRequests() {
+  findMyUnreportedRequests(): Observable<TripRequest[]> {
     const data = {
       params: {
         only_unreported: true

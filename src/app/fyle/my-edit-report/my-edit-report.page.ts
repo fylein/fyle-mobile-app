@@ -18,6 +18,7 @@ import {NetworkService} from '../../core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { cloneDeep } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
+import { TripRequest } from 'src/app/core/models/trip-request.model';
 
 @Component({
   selector: 'app-my-edit-report',
@@ -35,7 +36,7 @@ export class MyEditReportPage implements OnInit {
   isPurposeChanged = false;
   isTripRequestsEnabled: boolean;
   canAssociateTripRequests: boolean;
-  tripRequests: any[];
+  tripRequests: { label: string; value: TripRequest; }[];;
   selectedTripRequest: any;
   tripRequestId: string;
 
@@ -256,7 +257,7 @@ export class MyEditReportPage implements OnInit {
           return request.state === 'APPROVED';
         });
       }),
-      map((tripRequests: any) => {
+      map((tripRequests) => {
         return tripRequests.sort((tripA, tripB) =>  {
           const tripATime = new Date(tripA.created_at).getTime();
           const tripBTime = new Date(tripB.created_at).getTime();
@@ -270,7 +271,7 @@ export class MyEditReportPage implements OnInit {
           return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
         });
       }),
-      map((tripRequests: any) => {
+      map((tripRequests) => {
         return tripRequests.map(tripRequest => {
           return {label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest};
         });
