@@ -13,13 +13,14 @@ import {AccountsService} from './accounts.service';
 import {TransactionFieldConfigurationsService} from './transaction-field-configurations.service';
 import {StorageService} from './storage.service';
 import {CurrencyService} from './currency.service';
-import {catchError, concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
-import {forkJoin, from} from 'rxjs';
+import {catchError, concatMap, map, reduce, switchMap, tap, shareReplay} from 'rxjs/operators';
+import {forkJoin, from, of} from 'rxjs';
 import {PermissionsService} from './permissions.service';
 import {Org} from '../models/org.model';
 import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 import {OrgUserService} from './org-user.service';
 import { intersection } from 'lodash';
+import { DeviceService } from './device.service';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,8 @@ export class OfflineService {
     private currencyService: CurrencyService,
     private storageService: StorageService,
     private permissionsService: PermissionsService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private deviceService: DeviceService
   ) { }
 
   load() {
@@ -62,7 +64,11 @@ export class OfflineService {
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
 
-    this.appVersionService.load();
+    from(this.deviceService.getDeviceInfo()).subscribe(deviceInfo => {
+      if (deviceInfo.platform === 'ios' || deviceInfo.platform === 'android') {
+        this.appVersionService.load();
+      }
+    });
 
     return forkJoin([
       orgSettings$,
