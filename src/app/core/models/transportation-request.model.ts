@@ -1,7 +1,7 @@
 import { Destination } from './destination.model';
 import { CustomField } from './custom_field.model';
 
-export interface TransportationRequest {
+export interface ExtendedTransportationRequest {
   requestor: {
     department_id: string;
   };

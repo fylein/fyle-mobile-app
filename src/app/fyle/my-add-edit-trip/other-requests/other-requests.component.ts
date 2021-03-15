@@ -22,7 +22,7 @@ import {StatusService} from '../../../core/services/status.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { TripRequestActions } from 'src/app/core/models/trip-request-actions.model';
 import { AdvanceRequest } from 'src/app/core/models/advance-request.model';
-import { TransportationRequest } from 'src/app/core/models/transportation-request.model';
+import { ExtendedTransportationRequest } from 'src/app/core/models/transportation-request.model';
 import { ExtendedHotelRequest } from 'src/app/core/models/hotel-request.model';
 
 @Component({
@@ -52,7 +52,7 @@ export class OtherRequestsComponent implements OnInit {
   advanceRequestCustomFields$: Observable<any>;
   currencies$: Observable<any>;
   hotelRequest$: Observable<ExtendedHotelRequest[]>;
-  transportationRequest$: Observable<TransportationRequest[]>;
+  transportationRequest$: Observable<ExtendedTransportationRequest[]>;
   advanceRequest$: Observable<AdvanceRequest[]>;
   actions$: Observable<TripRequestActions>;
   minDate;

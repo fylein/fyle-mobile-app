@@ -14,7 +14,7 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { TripRequest } from '../models/trip-request.model';
 import { TripRequestActions } from '../models/trip-request-actions.model';
 import { AdvanceRequest } from '../models/advance-request.model';
-import { TransportationRequest } from '../models/transportation-request.model';
+import { ExtendedTransportationRequest } from '../models/transportation-request.model';
 import { ExtendedHotelRequest } from '../models/hotel-request.model';
 
 const tripRequestsCacheBuster$ = new Subject<void>();
@@ -131,7 +131,7 @@ export class TripRequestsService {
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getTransportationRequests(tripRequestId: string): Observable<TransportationRequest[]> {
+  getTransportationRequests(tripRequestId: string): Observable<ExtendedTransportationRequest[]> {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
       map((reqs) => reqs.map(req => {
         const transportationRequest = this.dataTransformService.unflatten(req);
