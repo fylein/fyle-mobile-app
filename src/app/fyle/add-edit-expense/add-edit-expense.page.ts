@@ -850,7 +850,7 @@ export class AddEditExpensePage implements OnInit {
               etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
             }
           } else if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
-                     && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
+                     && recentValue && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
             etxn.tx.currency = recentValue.recent_currencies[0];
             this.presetCurrency = recentValue.recent_currencies[0];
           } else {
@@ -1208,9 +1208,9 @@ export class AddEditExpensePage implements OnInit {
       // Check if auto-fills is enabled
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
       // Check if recent categories exist
-      const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
+      const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
 
-      if (isAutofillsEnabled && doRecentOrgCategoryIdsExist) {
+      if (doRecentOrgCategoryIdsExist) {
         this.recentCategories = recentCategories;
       }
       // Check if category is extracted from instaFyle/autoFyle
@@ -1222,8 +1222,8 @@ export class AddEditExpensePage implements OnInit {
        * 3. During add expense - When category field is empty - optional
        * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
        */
-      if (doRecentOrgCategoryIdsExist && !etxn.tx.id || 
-        (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
+      if (doRecentOrgCategoryIdsExist && (!etxn.tx.id || 
+        (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified')))) {
         const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
 
         if (autoFillCategory) {
@@ -1233,9 +1233,9 @@ export class AddEditExpensePage implements OnInit {
       }
 
       // Check if recent projects exist
-      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
-      if (isAutofillsEnabled && doRecentProjectIdsExist) {
+      if (doRecentProjectIdsExist) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
 
@@ -1255,9 +1255,9 @@ export class AddEditExpensePage implements OnInit {
       }
 
       // Check if recent cost centers exist
-      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
 
-      if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
+      if (doRecentCostCenterIdsExist) {
         this.recentCostCenters = recentCostCenters;
       }
 
@@ -1266,7 +1266,7 @@ export class AddEditExpensePage implements OnInit {
        * 2. During add expense - When cost center field is empty
        * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
        * 4. When there exists recently used cost center ids to auto-fill
-       */ 
+       */
       if (doRecentCostCenterIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))) {
         const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
 
@@ -1797,9 +1797,18 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings.enabled;
     });
 
-    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
-
     this.setupNetworkWatcher();
+
+    this.recentlyUsedValues$ = this.isConnected$.pipe(
+      take(1),
+      switchMap(isConnected => {
+        if (isConnected) {
+          return this.recentlyUsedItemsService.getRecentlyUsed();
+        } else {
+          return of(null);
+        }
+      })
+    );
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
 

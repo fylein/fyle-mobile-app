@@ -696,7 +696,17 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.setupNetworkWatcher();
-    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
+
+    this.recentlyUsedValues$ = this.isConnected$.pipe(
+      take(1),
+      switchMap(isConnected => {
+        if (isConnected) {
+          return this.recentlyUsedItemsService.getRecentlyUsed();
+        } else {
+          return of(null);
+        }
+      })
+    );
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
@@ -1227,9 +1237,9 @@ export class AddEditPerDiemPage implements OnInit {
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
 
       // Check if recent projects exist
-      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
-      if (isAutofillsEnabled && doRecentProjectIdsExist) {
+      if (doRecentProjectIdsExist) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
 
@@ -1249,9 +1259,9 @@ export class AddEditPerDiemPage implements OnInit {
       }
 
       // Check if recent cost centers exist
-      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
 
-      if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
+      if (doRecentCostCenterIdsExist) {
         this.recentCostCenters = recentCostCenters;
       }
 

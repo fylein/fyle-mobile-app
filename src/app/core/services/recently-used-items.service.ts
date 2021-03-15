@@ -24,7 +24,7 @@ export class RecentlyUsedItemsService {
   }
 
   getRecentlyUsedProjects(config: {orgUserSettings: OrgUserSettings, recentValues: RecentlyUsed, eou: ExtendedOrgUser, categoryIds: string[]}): Observable<ExtendedProject[]> {
-    if (config.orgUserSettings.expense_form_autofills.allowed && config.orgUserSettings.expense_form_autofills.enabled 
+    if (config.orgUserSettings.expense_form_autofills.allowed && config.orgUserSettings.expense_form_autofills.enabled && config.recentValues 
       && config.recentValues.recent_project_ids && config.recentValues.recent_project_ids.length > 0 && config.eou) {
 
       return this.projectService.getByParamsUnformatted({
@@ -68,7 +68,7 @@ export class RecentlyUsedItemsService {
   }
 
   getRecentCategories(filteredCategories: OrgCategoryListItem[], recentValues: RecentlyUsed): Observable<OrgCategoryListItem[]> {
-    if (filteredCategories && filteredCategories.length > 0 && recentValues.recent_org_category_ids && recentValues.recent_org_category_ids.length > 0) {
+    if (filteredCategories && filteredCategories.length > 0 && recentValues && recentValues.recent_org_category_ids && recentValues.recent_org_category_ids.length > 0) {
       var categoriesMap = {};
       filteredCategories.forEach(category => {
         categoriesMap[category.value.id] = category;

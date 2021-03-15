@@ -558,7 +558,7 @@ export class AddEditMileagePage implements OnInit {
       map(
         ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue }) => {
           const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                             && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
+                                             && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
           if (isRecentVehicleTypePresent) {
             vehicleType = recentValue.recent_vehicle_types[0];
             this.presetVehicleType = recentValue.recent_vehicle_types[0];
@@ -603,7 +603,7 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(({ eou, currentLocation, orgUserSettings, recentValue }) => {
         const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                        && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
+                                        && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
         if (isRecentLocationPresent) {
           const autocompleteLocationInfo = {
             recentStartLocation: recentValue.recent_start_locations[0],
@@ -805,7 +805,17 @@ export class AddEditMileagePage implements OnInit {
     }));
 
     this.setupNetworkWatcher();
-    this.recentlyUsedValues$ = this.recentlyUsedItemsService.getRecentlyUsed();
+
+    this.recentlyUsedValues$ = this.isConnected$.pipe(
+      take(1),
+      switchMap(isConnected => {
+        if (isConnected) {
+          return this.recentlyUsedItemsService.getRecentlyUsed();
+        } else {
+          return of(null);
+        }
+      })
+    );
 
     this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
     this.paymentModes$ = this.getPaymentModes();
@@ -1238,9 +1248,9 @@ export class AddEditMileagePage implements OnInit {
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
 
       // Check if recent projects exist
-      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
-      if (isAutofillsEnabled && doRecentProjectIdsExist) {
+      if (doRecentProjectIdsExist) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
 
@@ -1260,9 +1270,9 @@ export class AddEditMileagePage implements OnInit {
       }
 
       // Check if recent cost centers exist
-      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
 
-      if (isAutofillsEnabled && doRecentCostCenterIdsExist) {
+      if (doRecentCostCenterIdsExist) {
         this.recentCostCenters = recentCostCenters;
       }
 
@@ -1283,7 +1293,7 @@ export class AddEditMileagePage implements OnInit {
 
       // Check if recent location exists
       const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                      && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
+                                      && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
       if (isRecentLocationPresent) {
         this.presetLocation = recentValue.recent_start_locations[0];
       }
