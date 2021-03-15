@@ -2929,7 +2929,7 @@ export class AddEditExpensePage implements OnInit {
         const {data} = await attachmentsModal.onWillDismiss();
 
         if (this.mode === 'add') {
-          if (data.attachments) {
+          if (data && data.attachments) {
             this.newExpenseDataUrls = data.attachments;
             this.attachedReceiptsCount = data.attachments.length;
           }
