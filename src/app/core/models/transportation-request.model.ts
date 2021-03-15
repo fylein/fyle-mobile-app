@@ -63,4 +63,7 @@ export interface TransportationRequest {
   trp: {
     project_id: string;
   };
+  custom_field_values?: CustomField[];
+  internalState?: string;
+  internalStateDisplayName?: string;
 }

@@ -63,4 +63,5 @@ export interface ExtendedHotelRequest {
   trp: {
     project_id: string;
   };
+  custom_field_values?: CustomField[];
 }

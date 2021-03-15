@@ -24,6 +24,8 @@ import { PullBackTripComponent } from './pull-back-trip/pull-back-trip.component
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TripRequestActions } from 'src/app/core/models/trip-request-actions.model';
 import { AdvanceRequest } from 'src/app/core/models/advance-request.model';
+import { ExtendedHotelRequest } from 'src/app/core/models/hotel-request.model';
+import { TransportationRequest } from 'src/app/core/models/transportation-request.model';
 
 @Component({
   selector: 'app-my-view-trips',
@@ -35,8 +37,8 @@ export class MyViewTripsPage implements OnInit {
   approvals$: Observable<Approval[]>;
   actions$: Observable<TripRequestActions>;
   advanceRequests$: Observable<AdvanceRequest[]>;
-  transportationRequests$: Observable<any>;
-  hotelRequests$: Observable<any>;
+  transportationRequests$: Observable<TransportationRequest[]>;
+  hotelRequests$: Observable<ExtendedHotelRequest[]>;
   allTripRequestCustomFields$: Observable<any>;
   activeApprovals$: Observable<Approval[]>;
   tripExtraInfo$: Observable<{

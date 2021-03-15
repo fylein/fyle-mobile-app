@@ -4,4 +4,8 @@ export interface CustomField {
     value: any;
     type?: string;
     displayValue?: string; 
+    mandatory?: boolean;
+    options?: string[];
+    placeholder?: string;
+    prefix?: string;
 }

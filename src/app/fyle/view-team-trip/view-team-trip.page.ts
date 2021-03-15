@@ -24,6 +24,8 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { ActionPopoverComponent } from './action-popover/action-popover.component';
 import { TripRequestActions } from 'src/app/core/models/trip-request-actions.model';
 import { AdvanceRequest } from 'src/app/core/models/advance-request.model';
+import { ExtendedHotelRequest } from 'src/app/core/models/hotel-request.model';
+import { TransportationRequest } from 'src/app/core/models/transportation-request.model';
 
 @Component({
   selector: 'app-view-team-trip',
@@ -35,10 +37,10 @@ export class ViewTeamTripPage implements OnInit {
   tripRequest$: Observable<ExtendedTripRequest>;
   approvals$: Observable<Approval[]>;
   actions$: Observable<TripRequestActions>;
-  actionsRedefined$: Observable<any>;
+  actionsRedefined$: Observable<TripRequestActions>;
   advanceRequests$: Observable<AdvanceRequest[]>;
-  transportationRequests$: Observable<any>;
-  hotelRequests$: Observable<any>;
+  transportationRequests$: Observable<TransportationRequest[]>;
+  hotelRequests$: Observable<ExtendedHotelRequest[]>;
   allTripRequestCustomFields$: Observable<any>;
   activeApprovals$: Observable<Approval[]>;
   tripExtraInfo$: Observable<{
