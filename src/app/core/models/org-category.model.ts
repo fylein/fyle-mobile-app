@@ -10,5 +10,5 @@ export interface OrgCategory {
   enabled: boolean;
   creator_id: string;
   last_updated_by: string;
-  displayName: string;
+  displayName?: string;
 }

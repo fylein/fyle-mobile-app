@@ -27,7 +27,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() showSaveButton = false;
   @Input() placeholder = '';
   @Input() defaultLabelProp;
-  @Input() recentlyUsed: { label: string, value: OrgCategory | CostCenter, selected?: boolean }[];
+  @Input() recentlyUsed: { label: string, value: any, selected?: boolean }[];
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
