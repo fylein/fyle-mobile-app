@@ -64,7 +64,7 @@ export class OfflineService {
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
 
-    from(this.deviceService.getDeviceInfo()).subscribe(deviceInfo => {
+    this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
       if (deviceInfo.platform === 'ios' || deviceInfo.platform === 'android') {
         this.appVersionService.load();
       }
