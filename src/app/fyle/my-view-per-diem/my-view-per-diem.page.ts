@@ -13,6 +13,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import {NetworkService} from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { PerDiemRate } from 'src/app/core/models/per-diem-rate.model';
 
 @Component({
   selector: 'app-my-view-per-diem',
@@ -26,7 +27,7 @@ export class MyViewPerDiemPage implements OnInit {
   extendedPerDiem$: Observable<Expense>;
   orgSettings$: Observable<any>;
   perDiemCustomFields$: Observable<CustomField[]>;
-  perDiemRate$: Observable<any>;
+  perDiemRate$: Observable<PerDiemRate>;
   isCriticalPolicyViolated$: Observable<boolean>;
   isAmountCapped$: Observable<boolean>;
   policyViloations$: Observable<any>;

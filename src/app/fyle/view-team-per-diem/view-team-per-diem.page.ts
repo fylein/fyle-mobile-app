@@ -14,6 +14,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController } from '@ionic/angular';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import { StatusService } from 'src/app/core/services/status.service';
+import { PerDiemRate } from 'src/app/core/models/per-diem-rate.model';
 
 @Component({
   selector: 'app-view-team-per-diem',
@@ -27,7 +28,7 @@ export class ViewTeamPerDiemPage implements OnInit {
   extendedPerDiem$: Observable<Expense>;
   orgSettings$: Observable<any>;
   perDiemCustomFields$: Observable<CustomField[]>;
-  perDiemRate$: Observable<any>;
+  perDiemRate$: Observable<PerDiemRate>;
   isCriticalPolicyViolated$: Observable<boolean>;
   isAmountCapped$: Observable<boolean>;
   policyViloations$: Observable<any>;

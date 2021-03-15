@@ -14,12 +14,13 @@ import {TransactionFieldConfigurationsService} from './transaction-field-configu
 import {StorageService} from './storage.service';
 import {CurrencyService} from './currency.service';
 import {catchError, concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
-import {forkJoin, from} from 'rxjs';
+import {forkJoin, from, Observable} from 'rxjs';
 import {PermissionsService} from './permissions.service';
 import {Org} from '../models/org.model';
 import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 import {OrgUserService} from './org-user.service';
 import { intersection } from 'lodash';
+import { PerDiemRate } from '../models/per-diem-rate.model';
 
 @Injectable({
   providedIn: 'root'
@@ -341,7 +342,7 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getPerDiemRates() {
+  getPerDiemRates(): Observable<PerDiemRate[]> {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
