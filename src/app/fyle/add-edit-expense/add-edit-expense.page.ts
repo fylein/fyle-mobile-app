@@ -56,7 +56,7 @@ import {TokenService} from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/recently_used.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgCategory } from 'src/app/core/models/org-category.model';
+import { OrgCategoryListItem } from 'src/app/core/models/org-category.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -137,12 +137,12 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
-  recentCategories: { label: string, value: OrgCategory, selected?: boolean }[];
+  recentCategories: OrgCategoryListItem[];
   // Todo: Rename all `selected` to `isSelected`
   presetCategoryId: number;
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
-  recentlyUsedCategories$: Observable<{ label: string, value: OrgCategory, selected?: boolean }[]>;
+  recentlyUsedCategories$: Observable<OrgCategoryListItem[]>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;

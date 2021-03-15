@@ -12,3 +12,9 @@ export interface OrgCategory {
   last_updated_by: string;
   displayName?: string;
 }
+
+export interface OrgCategoryListItem {
+  label: string;
+  value: OrgCategory;
+  selected?: boolean;
+}
