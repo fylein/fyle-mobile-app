@@ -17,7 +17,7 @@ export class RecentlyUsedItemsService {
     return this.apiService.get('/recently_used');
   }
 
-  getRecentCategories(filteredCategories, recentValues): Observable<{ label: string, value: OrgCategory, selected?: boolean }[]> {
+  getRecentCategories(filteredCategories: { label: string, value: OrgCategory, selected?: boolean }[], recentValues: RecentlyUsed): Observable<{ label: string, value: OrgCategory, selected?: boolean }[]> {
     if (filteredCategories && filteredCategories.length > 0 && recentValues.recent_org_category_ids && recentValues.recent_org_category_ids.length > 0) {
       var categoriesMap = {};
       filteredCategories.forEach(category => {
