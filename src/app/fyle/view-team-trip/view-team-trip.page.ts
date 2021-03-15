@@ -296,7 +296,13 @@ export class ViewTeamTripPage implements OnInit {
       currentApproval$
     ]).pipe(
       map(([eou, actions, currentApproval]) => {
-        actions.can_approve = actions.can_approve && eou.ou.roles.indexOf('ADMIN') > -1 && currentApproval === 'APPROVAL_PENDING'
+        if (actions.can_approve && eou.ou.roles.indexOf('ADMIN') > -1) {
+          if (currentApproval === 'APPROVAL_PENDING') {
+            actions.can_approve = true;
+          } else {
+            actions.can_approve = false;
+          }
+        }
         return actions;
       })
     );

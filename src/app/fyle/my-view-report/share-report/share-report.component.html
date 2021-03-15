@@ -13,10 +13,13 @@
   </div>
   <div class="share-report--form">
     <mat-form-field appearance="outline" class="share-report--form-input mat-form-field-no-padding">
-      <input matInput type="email" placeholder="Email ID" [(ngModel)]="email" email #emailInput="ngModel"/>
+      <input matInput type="email" placeholder="Email ID" [(ngModel)]="email" pattern="\S+@\S+\.\S{2,}" #emailInput="ngModel"/>
     </mat-form-field>
-    <div *ngIf="emailValidation" class="share-report--error">
+    <div *ngIf="emailInput.touched && !emailInput.value" class="share-report--error">
       Please enter an email.
+    </div>
+    <div *ngIf="emailInput.touched && emailInput.invalid && emailInput.value" class="share-report--error">
+      Please enter a valid email.
     </div>
   </div>
   <div class="share-report--primary-cta">

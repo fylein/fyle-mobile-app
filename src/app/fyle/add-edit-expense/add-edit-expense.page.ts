@@ -1316,15 +1316,16 @@ export class AddEditExpensePage implements OnInit {
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
-        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings()}).pipe(
-          map(({isConnected, orgSettings}) => ({
+        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings(), costCenters: this.costCenters$}).pipe(
+          map(({isConnected, orgSettings, costCenters}) => ({
             isConnected,
             txnFields,
-            orgSettings
+            orgSettings,
+            costCenters
           }))
         );
       })
-    ).subscribe(({isConnected, txnFields, orgSettings}) => {
+    ).subscribe(({isConnected, txnFields, orgSettings, costCenters}) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1384,6 +1385,8 @@ export class AddEditExpensePage implements OnInit {
             }
           } else if (txnFieldKey === 'txn_dt') {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
+          } else if (txnFieldKey === 'cost_center_id') {
+            control.setValidators((isConnected && costCenters && costCenters.length > 0) ? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
@@ -1682,10 +1685,11 @@ export class AddEditExpensePage implements OnInit {
 
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
-      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
-    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+      projectsCount : this.offlineService.getProjectCount()
+    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, projectsCount}) => {
         if (!isIndividualProjectsEnabled) {
-          return true;
+          return projectsCount > 0;
         } else {
           return individualProjectIds.length > 0;
         }

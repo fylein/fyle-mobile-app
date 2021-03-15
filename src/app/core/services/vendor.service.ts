@@ -4,6 +4,7 @@ import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {from} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
+import {Vendor} from '../models/vendor.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,7 @@ export class VendorService {
   get(searchString: string) {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => {
-        return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/vendors/all', {
+        return this.httpClient.get<Vendor[]>(this.ROOT_ENDPOINT + '/vendors/all', {
           params: {
             org_user_id: eou.ou.id,
             q: searchString

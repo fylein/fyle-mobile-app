@@ -16,7 +16,8 @@ import {
   startWith,
   switchMap,
   take,
-  tap
+  tap,
+  withLatestFrom
 } from 'rxjs/operators';
 import {cloneDeep, isEmpty, isEqual, isNumber} from 'lodash';
 import * as moment from 'moment';
@@ -91,6 +92,7 @@ export class AddEditMileagePage implements OnInit {
   saveAndNextMileageLoader = false;
   clusterDomain: string;
   initialFetch;
+  isProjectVisible$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -740,6 +742,11 @@ export class AddEditMileagePage implements OnInit {
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
+    this.isProjectVisible$ = this.projectCategoryIds$.pipe(
+      switchMap(projectCategoryIds => {
+        return this.offlineService.getProjectCount({categoryIds: projectCategoryIds});
+      })
+    );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.filteredCategories$.subscribe(subCategories => {
@@ -870,13 +877,15 @@ export class AddEditMileagePage implements OnInit {
       switchMap(txnFields => {
         return this.isConnected$.pipe(
           take(1),
-          map(isConnected => ({
+          withLatestFrom(this.costCenters$),
+          map(([isConnected, costCenters]) => ({
             isConnected,
-            txnFields
+            txnFields,
+            costCenters
           }))
         );
       })
-    ).subscribe(({ isConnected, txnFields }) => {
+    ).subscribe(({ isConnected, txnFields, costCenters }) => {
       const keyToControlMap: { [id: string]: AbstractControl; } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
@@ -897,6 +906,8 @@ export class AddEditMileagePage implements OnInit {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
           } else if (txnFieldKey === 'distance') {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null);
+          } else if (txnFieldKey === 'cost_center_id') {
+            control.setValidators((isConnected && costCenters && costCenters.length > 0 )? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
