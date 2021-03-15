@@ -42,12 +42,12 @@ import {PopupService} from 'src/app/core/services/popup.service';
 import {DateService} from 'src/app/core/services/date.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import {TokenService} from 'src/app/core/services/token.service';
-import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
-import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
-import {LocationService} from 'src/app/core/services/location.service';
-import {GeolocationPosition, Plugins} from '@capacitor/core';
-import {ExtendedOrgUser} from 'src/app/core/models/extended-org-user.model';
-import {ExtendedProject} from 'src/app/core/models/extended-project.model';
+import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
+import { RecentlyUsed } from 'src/app/core/models/recently_used.model';
+import { LocationService } from 'src/app/core/services/location.service';
+import { GeolocationPosition } from '@capacitor/core';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { ExtendedProject } from 'src/app/core/models/extended-project.model';
 import { CostCenter } from 'src/app/core/models/cost-center.model';
 
 @Component({
@@ -623,7 +623,7 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       concatMap(isPredictedLocation => {
-        if (isPredictedLocation) {
+        if (isPredictedLocation && isPredictedLocation.length > 0) {
           return this.locationService.getGeocode(isPredictedLocation[0].place_id, isPredictedLocation[0].description).pipe(
             map((location) => {
               if (location) {
