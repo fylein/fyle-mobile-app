@@ -45,6 +45,8 @@ export class RecentlyUsedItemsService {
           return config.recentValues.recent_project_ids.map(id => projectsMap[id]).filter(id => id);
         })
       );
+    } else {
+      return of(null);
     }
   }
 
