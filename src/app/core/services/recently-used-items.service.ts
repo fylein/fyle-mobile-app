@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
 import { ExtendedProject } from '../models/extended-project.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
+import { OrgCategoryListItem } from '../models/org-category.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -59,6 +60,18 @@ export class RecentlyUsedItemsService {
       } else {
         return of(null);
       }
+    } else {
+      return of(null);
+    }
+  }
+
+  getRecentCategories(filteredCategories: OrgCategoryListItem[], recentValues: RecentlyUsed): Observable<OrgCategoryListItem[]> {
+    if (filteredCategories && filteredCategories.length > 0 && recentValues.recent_org_category_ids && recentValues.recent_org_category_ids.length > 0) {
+      var categoriesMap = {};
+      filteredCategories.forEach(category => {
+        categoriesMap[category.value.id] = category;
+      })
+      return of(recentValues.recent_org_category_ids.map(id => categoriesMap[id]).filter(id => id));
     } else {
       return of(null);
     }

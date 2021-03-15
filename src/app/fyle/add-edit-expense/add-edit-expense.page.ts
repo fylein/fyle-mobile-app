@@ -53,13 +53,12 @@ import {MatchTransactionComponent} from './match-transaction/match-transaction.c
 import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import {TokenService} from 'src/app/core/services/token.service';
-import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
-import {RecentlyUsed} from 'src/app/core/models/recently_used.model';
-import {OrgUserSettings} from 'src/app/core/models/org_user_settings.model';
-import {OrgCategory} from 'src/app/core/models/org-category.model';
-import {ExtendedProject} from 'src/app/core/models/extended-project.model';
-import {CostCenter} from 'src/app/core/models/cost-center.model';
-
+import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
+import { RecentlyUsed } from 'src/app/core/models/recently_used.model';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { OrgCategoryListItem } from 'src/app/core/models/org-category.model';
+import { ExtendedProject } from 'src/app/core/models/extended-project.model';
+import { CostCenter } from 'src/app/core/models/cost-center.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -139,8 +138,10 @@ export class AddEditExpensePage implements OnInit {
   expenseStartTime;
   navigateBack = false;
   isExpenseBankTxn = false;
-  recentCategories: { label: string, value: OrgCategory, selected?: boolean }[];
+  recentCategories: OrgCategoryListItem[];
+  // Todo: Rename all `selected` to `isSelected`
   presetCategoryId: number;
+  recentlyUsedCategories$: Observable<OrgCategoryListItem[]>;
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
@@ -717,25 +718,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentlyUsedCategories() {
-    return forkJoin({
-      filteredCategories: this.filteredCategories$.pipe(take(1)),
-      recentValue: this.recentlyUsedValues$
-    }).pipe(
-      map(({filteredCategories, recentValue}) => {
-        if (filteredCategories && filteredCategories.length > 0 && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0) {
-          var categoriesMap = {};
-          filteredCategories.forEach(category => {
-            categoriesMap[category.value.id] = category;
-          })
-          return recentValue.recent_org_category_ids.map(id => categoriesMap[id]).filter(id => id);
-        } else {
-          return [];
-        }
-      })
-    );
-  };
-
   getInstaFyleImageData() {
     if (this.activatedRoute.snapshot.params.dataUrl) {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
@@ -1101,6 +1083,15 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
+    this.recentlyUsedCategories$ = forkJoin({
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
+      recentValues: this.recentlyUsedValues$
+    }).pipe(
+      concatMap(({filteredCategories, recentValues}) => {
+        return this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues);
+      })
+    );
+
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         if (etxn.tx.cost_center_id) {
@@ -1153,9 +1144,9 @@ export class AddEditExpensePage implements OnInit {
           defaultPaymentMode: defaultPaymentMode$,
           orgUserSettings: this.orgUserSettings$,
           recentValue: this.recentlyUsedValues$,
-          recentCategories: this.getRecentlyUsedCategories(),
           recentProjects: this.recentlyUsedProjects$,
-          recentCostCenters: this.recentlyUsedCostCenters$
+          recentCostCenters: this.recentlyUsedCostCenters$,
+          recentCategories: this.recentlyUsedCategories$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
