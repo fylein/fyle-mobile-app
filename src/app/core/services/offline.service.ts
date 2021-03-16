@@ -65,7 +65,7 @@ export class OfflineService {
     const delegatedAccounts$ = this.getDelegatedAccounts();
 
     this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
-      if (deviceInfo.platform === 'ios' || deviceInfo.platform === 'android') {
+      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
         this.appVersionService.load();
       }
     });
