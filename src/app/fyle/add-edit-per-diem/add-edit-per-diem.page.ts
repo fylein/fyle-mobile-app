@@ -485,9 +485,10 @@ export class AddEditPerDiemPage implements OnInit {
   getNewExpense() {
     return forkJoin({
       categoryContainer: this.getPerDiemCategories(),
-      homeCurrency: this.offlineService.getHomeCurrency()
+      homeCurrency: this.offlineService.getHomeCurrency(),
+      currentEou: this.authService.getEou()
     }).pipe(
-      map(({categoryContainer, homeCurrency}) => {
+      map(({categoryContainer, homeCurrency, currentEou}) => {
         return {
           tx: {
             billable: false,
@@ -505,7 +506,8 @@ export class AddEditPerDiemPage implements OnInit {
             per_diem_rate_id: null,
             num_days: null,
             policy_amount: null,
-            custom_properties: []
+            custom_properties: [],
+            org_user_id: currentEou.ou.id
           }
         };
       })
@@ -1249,17 +1251,10 @@ export class AddEditPerDiemPage implements OnInit {
         const currencyObj = this.fg.controls.currencyObj.value;
         const amountData: any = {
           currency: currencyObj.currency,
+          amount: currencyObj.amount,
           orig_currency: currencyObj.orig_currency,
           orig_amount: currencyObj.orig_amount,
         };
-
-        if (this.mode === 'edit') {
-          if (etxn.tx.user_amount !== currencyObj.amount) {
-            amountData.amount = currencyObj.amount;
-          }
-        } else {
-          amountData.amount = currencyObj.amount;
-        }
 
         return {
           tx: {
