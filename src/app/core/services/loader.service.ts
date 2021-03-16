@@ -17,6 +17,13 @@ export class LoaderService {
     return await loading.present();
   }
 
+  async displayLoader(message = 'Please wait...') {
+    const loading = await this.loadingController.create({
+      message
+    });
+    return await loading.present();
+  }
+
   hideLoader() {
     return this.loadingController.dismiss().catch(noop);
   }
