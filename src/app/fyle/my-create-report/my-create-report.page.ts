@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import * as moment from 'moment';
-import { forkJoin, from, noop, Observable } from 'rxjs';
+import { forkJoin, from, noop, Observable, iif, of } from 'rxjs';
 import {finalize, map, shareReplay, switchMap, tap} from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -123,7 +123,7 @@ export class MyCreateReportPage implements OnInit {
             this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount});
           }),
           switchMap((res) => {
-            return this.reportService.addTransactions(res.id, txnIds);
+            return iif(() => txnIds.length > 0, this.reportService.addTransactions(res.id, txnIds), of(null)); 
           }),
           finalize(() => {
             this.saveDraftReportLoading = false;

@@ -289,21 +289,23 @@
                       <ng-container
                         *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
                         <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
-                          <div [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.project.touched && !fg.controls.project.valid}"
+                          <ng-container *ngIf="isProjectVisible$|async">
+                            <div [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.project.touched && !fg.controls.project.valid}"
                                class="add-edit-per-diem--internal-block">
-                            <app-fy-select-project
-                              [categoryIds]="projectCategoryIds"
-                              [cacheName]="'perDiemProjectCache'"
-                              [defaultValue]="true"
-                              [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
-                              [mandatory]="transactionMandatoyFields?.project"
-                              formControlName="project">
-                            </app-fy-select-project>
-                          </div>
-                          <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
-                               class="add-edit-per-diem--error">
-                            Please select a project.
-                          </div>
+                              <app-fy-select-project
+                                [categoryIds]="projectCategoryIds"
+                                [cacheName]="'perDiemProjectCache'"
+                                [defaultValue]="true"
+                                [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
+                                [mandatory]="transactionMandatoyFields?.project"
+                                formControlName="project">
+                              </app-fy-select-project>
+                            </div>
+                            <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
+                                class="add-edit-per-diem--error">
+                              Please select a project.
+                            </div>
+                          </ng-container>
                         </ng-container>
                       </ng-container>
                     </ng-container>

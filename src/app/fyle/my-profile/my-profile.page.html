@@ -35,14 +35,10 @@
         <div class="my-profile--mobile my-profile--card-item">
           <div class="my-profile--mobile-label">
             Mobile
-            <div class="my-profile--mobile__validation">
-              <span *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged">(unverified)</span>
-              <span *ngIf="isMobileCountryCodeNotPresent">with country code</span>
-            </div>
           </div>
           <div class="my-profile--mobile-value">
-            <input class="my-profile--mobile-value-input" [(ngModel)]="mobileNumber" type="tel" matInput
-              placeholder="e.g +91 91XX XX XXX" (ngModelChange)="onMobileNumberChanged(eou)">
+            <input class="my-profile--mobile-value-input" [(ngModel)]="eou.ou.mobile" type="tel" matInput
+              placeholder="e.g. 91XX XXX XXX">
           </div>
         </div>
 
@@ -56,19 +52,13 @@
         </div>
       </div>
 
-      <ion-button mode="md" *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged" class="my-profile--primary-cta"
-        fill="solid" color="fyle-primary" (click)="openOtpPopover()"
-        appFormButtonValidation [loading]="verifyMobileLoading" [loadingText]="'VERIFYING'">
-        VERIFY MOBILE
-      </ion-button>
-      <ion-button mode="md" *ngIf="isMobileChanged" class="my-profile--primary-cta" fill="solid" color="fyle-primary"
+      <ion-button mode="md" class="my-profile--primary-cta" fill="solid" color="fyle-primary"
         (click)="saveUserProfile(eou)"
         appFormButtonValidation [loading]="saveProfileLoading" [loadingText]="'SAVING'">
         SAVE
       </ion-button>
     </div>
   </div>
-
 
   <!-- Commented out now because PN is not working -->
   <!-- <div class="my-profile--blocks">
@@ -112,41 +102,25 @@
     </div>
 
     <!-- Currency preference card start -->
-  <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_currency_settings?.enabled">
-    <div class="my-profile--card-title">Default Currency</div>
-    <div class="my-profile--cards-content my-profile--toggle-container">
-      <div class="my-profile--toggle-label">
-        Select the default currency to be used for creating expenses.
-      </div>
-      <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
-        [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
-    </div>
-    <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency">
-      <div class="my-profile--card-title my-profile--card-title__lite">
-        {{orgUserSettings.currency_settings.preferred_currency  ? 'Currency' : 'Select Currency' }}
-      </div>
-      <div class="my-profile--notifications-arrow my-profile--notifications-arrow__lite">
-        <span class="my-profile--currency-value">
-          {{preferredCurrency$|async}}
-        </span>
-        <mat-icon>keyboard_arrow_right</mat-icon>
-      </div>
-    </div>
-  </div>
-
-    <!-- Whatsapp card start -->
-    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.whatsapp_fyle_settings?.allowed">
-      <div class="my-profile--card-title">Fyle via Whatsapp</div>
+    <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_currency_settings?.enabled">
+      <div class="my-profile--card-title">Default Currency</div>
       <div class="my-profile--cards-content my-profile--toggle-container">
         <div class="my-profile--toggle-label">
-          Send your receipts to our whatsapp number to create expenses automatically.
+          Select the default currency to be used for creating expenses.
         </div>
         <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
-          [(ngModel)]="orgUserSettings.whatsapp_fyle_settings.enabled" (ionChange)="toggleWhatsappSettings()">
-        </ion-toggle>
+          [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
       </div>
-      <div>
-        <a class="my-profile--see-more my-profile--see-more__decore" (click)="openWebAppLink('whatsapp')">Read More</a>
+      <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency">
+        <div class="my-profile--card-title my-profile--card-title__lite">
+          {{orgUserSettings.currency_settings.preferred_currency  ? 'Currency' : 'Select Currency' }}
+        </div>
+        <div class="my-profile--notifications-arrow my-profile--notifications-arrow__lite">
+          <span class="my-profile--currency-value">
+            {{preferredCurrency$|async}}
+          </span>
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </div>
       </div>
     </div>
   </div>

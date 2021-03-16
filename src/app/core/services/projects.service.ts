@@ -1,9 +1,12 @@
 import {Injectable} from '@angular/core';
 import {ApiService} from './api.service';
 import {ApiV2Service} from './api-v2.service';
-import {map} from 'rxjs/operators';
+import {map, switchMap} from 'rxjs/operators';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable} from 'ts-cacheable';
+import { AuthService } from './auth.service';
+import { from } from 'rxjs';
+import { OfflineService } from './offline.service';
 
 @Injectable({
   providedIn: 'root'
