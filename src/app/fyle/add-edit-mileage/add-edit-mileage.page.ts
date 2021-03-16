@@ -1265,7 +1265,7 @@ export class AddEditMileagePage implements OnInit {
 
         if (autoFillProject) {
           project = autoFillProject;
-          this.presetProjectId = project.id;
+          this.presetProjectId = project.project_id;
         }
       }
 

@@ -1254,7 +1254,7 @@ export class AddEditPerDiemPage implements OnInit {
 
         if (autoFillProject) {
           project = autoFillProject;
-          this.presetProjectId = project.id;
+          this.presetProjectId = project.project_id;
         }
       }
 
