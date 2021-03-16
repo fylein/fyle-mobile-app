@@ -43,7 +43,6 @@ import {PolicyViolationComponent} from './policy-violation/policy-violation.comp
 import {StatusService} from 'src/app/core/services/status.service';
 import {FileService} from 'src/app/core/services/file.service';
 import {CameraOptionsPopupComponent} from './camera-options-popup/camera-options-popup.component';
-import {ViewAttachmentsComponent} from './view-attachments/view-attachments.component';
 import {CurrencyService} from 'src/app/core/services/currency.service';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {PopupService} from 'src/app/core/services/popup.service';
@@ -53,6 +52,7 @@ import {MatchTransactionComponent} from './match-transaction/match-transaction.c
 import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import {TokenService} from 'src/app/core/services/token.service';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1685,10 +1685,11 @@ export class AddEditExpensePage implements OnInit {
 
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
-      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
-    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+      projectsCount : this.offlineService.getProjectCount()
+    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, projectsCount}) => {
         if (!isIndividualProjectsEnabled) {
-          return true;
+          return projectsCount > 0;
         } else {
           return individualProjectIds.length > 0;
         }
@@ -2917,9 +2918,10 @@ export class AddEditExpensePage implements OnInit {
     )
       .subscribe(async (attachments) => {
         const attachmentsModal = await this.modalController.create({
-          component: ViewAttachmentsComponent,
+          component: FyViewAttachmentComponent,
           componentProps: {
-            attachments
+            attachments,
+            canEdit: true
           }
         });
 

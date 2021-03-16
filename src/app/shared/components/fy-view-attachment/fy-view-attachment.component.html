@@ -12,7 +12,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="view-attachments--controls">
+  <div class="view-attachments--controls" *ngIf="attachments.length > 1">
     <mat-icon class="view-attachments--go-back" (click)="goToPrevSlide()">
       arrow_back_ios
     </mat-icon>
@@ -42,3 +42,14 @@
     </ng-container>
   </ion-slides>
 </ion-content>
+
+<ion-footer *ngIf="canEdit">
+  <ion-toolbar mode="md">
+    <div class="view-attachments--cta-container">
+      <ion-button class="view-attachments--delete" fill="solid" color="fyle-primary"
+      (click)="deleteAttachment()">
+        Delete attachment
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>
