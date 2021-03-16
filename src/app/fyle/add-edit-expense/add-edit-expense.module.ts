@@ -21,7 +21,6 @@ import { SplitExpensePopoverComponent } from './split-expense-popover/split-expe
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
@@ -56,7 +55,6 @@ import {MatButtonModule} from '@angular/material/button';
     CriticalPolicyViolationComponent,
     PolicyViolationComponent,
     CameraOptionsPopupComponent,
-    ViewAttachmentsComponent,
     MatchTransactionComponent
   ]
 })

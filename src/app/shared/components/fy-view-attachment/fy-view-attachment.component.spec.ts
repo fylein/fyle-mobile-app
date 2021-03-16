@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ViewAttachmentComponent } from './view-attachment.component';
+import { FyViewAttachmentComponent } from './fy-view-attachment.component';
 
-describe('ViewAttachmentComponent', () => {
-  let component: ViewAttachmentComponent;
-  let fixture: ComponentFixture<ViewAttachmentComponent>;
+describe('FyViewAttachmentComponent', () => {
+  let component: FyViewAttachmentComponent;
+  let fixture: ComponentFixture<FyViewAttachmentComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ViewAttachmentComponent ],
+      declarations: [ FyViewAttachmentComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ViewAttachmentComponent);
+    fixture = TestBed.createComponent(FyViewAttachmentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
