@@ -97,7 +97,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
   getDefaultUsersList() {
     const params: any = {
-      order: 'us_email.asc,ou_id',
+      order: 'us_full_name.asc,us_email.asc,ou_id',
     };
 
     if (this.approverEmailsList.length > 0) {
@@ -123,7 +123,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   getSearchedUsersList(searchText?: string) {
     const params: any = {
       limit: 20,
-      order: 'us_email.asc,ou_id',
+      order: 'us_full_name.asc,us_email.asc,ou_id',
     };
 
     if (searchText) {
