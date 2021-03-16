@@ -200,7 +200,7 @@ export class MyCreateReportPage implements OnInit {
           return request.state === 'APPROVED';
         });
       }),
-      map((tripRequests) => {
+      map(tripRequests => {
         return tripRequests.sort((tripA, tripB) =>  {
           const tripATime = new Date(tripA.created_at).getTime();
           const tripBTime = new Date(tripB.created_at).getTime();
@@ -214,7 +214,7 @@ export class MyCreateReportPage implements OnInit {
           return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
         });
       }),
-      map((tripRequests) => {
+      map(tripRequests => {
         return tripRequests.map(tripRequest => {
           return {label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest};
         });

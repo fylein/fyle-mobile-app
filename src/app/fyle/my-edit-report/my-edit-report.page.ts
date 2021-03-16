@@ -257,7 +257,7 @@ export class MyEditReportPage implements OnInit {
           return request.state === 'APPROVED';
         });
       }),
-      map((tripRequests) => {
+      map(tripRequests => {
         return tripRequests.sort((tripA, tripB) =>  {
           const tripATime = new Date(tripA.created_at).getTime();
           const tripBTime = new Date(tripB.created_at).getTime();
@@ -271,7 +271,7 @@ export class MyEditReportPage implements OnInit {
           return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
         });
       }),
-      map((tripRequests) => {
+      map(tripRequests => {
         return tripRequests.map(tripRequest => {
           return {label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest};
         });
@@ -281,7 +281,7 @@ export class MyEditReportPage implements OnInit {
 
   getSelectedTripInfo(tripRequestId) {
     if (this.canAssociateTripRequests) {
-      this.tripRequestsService.get(tripRequestId).subscribe((tripRequest) => {
+      this.tripRequestsService.get(tripRequestId).subscribe(tripRequest => {
         this.selectedTripRequest = tripRequest;
         const selectedTripRequest = {
           label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,
