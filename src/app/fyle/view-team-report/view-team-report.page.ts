@@ -247,7 +247,7 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  onUpdateApprover(message) {
+  onUpdateApprover(message: boolean) {
     if (message) {
       this.refreshApprovals$.next();
     }

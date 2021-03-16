@@ -68,8 +68,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
         concatMap(approver => {
           if (this.from === 'TRIP_REQUEST') {
             return this.tripRequestsService.addApproverETripRequests(this.id, approver, data.message);
-          }
-          else if (this.from === 'ADVANCE_REQUEST')  {
+          } else if (this.from === 'ADVANCE_REQUEST')  {
             return this.advanceRequestService.addApprover(this.id, approver, data.message);
           }
           else {

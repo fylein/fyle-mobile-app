@@ -9,19 +9,19 @@ export interface Employee {
   custom_properties: any;
   dwolla_bank_account_added: boolean;
   dwolla_customer_id: string;
-  ou_allowed_cost_centers: any[];
+  ou_allowed_cost_centers: [{code: string, id: number, name: string}];
   ou_allowed_projects: [{id: string, name: string}];
   ou_approver1_id: string;
   ou_approver2_id: string;
   ou_approver3_id: string;
-  ou_band: any;
-  ou_branch_account: any;
+  ou_band: string;
+  ou_branch_account: string;
   ou_branch_ifsc: string;
   ou_business_unit: string;
   ou_created_at: Date;
   ou_custom_field_values: string;
-  ou_default_cost_center_code: any;
-  ou_default_cost_center_id: any;
+  ou_default_cost_center_code: string;
+  ou_default_cost_center_id: number;
   ou_default_cost_center_name: string;
   ou_delegatee_id: string;
   ou_delegation_end_at: Date;
@@ -46,7 +46,7 @@ export interface Employee {
   ou_settings_id: string;
   ou_special_email: string;
   ou_status: string;
-  ou_sub_department: any;
+  ou_sub_department: string;
   ou_title: string;
   ou_user_id: string;
   us_created_at: Date;
@@ -56,5 +56,5 @@ export interface Employee {
   us_id: string;
   us_onboarded: boolean;
   _search_document: string;
-  is_selected: boolean; // used to show checkmarks while selecting approvers
+  is_selected?: boolean; // used to show checkmarks while selecting employee
 }
