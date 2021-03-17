@@ -34,7 +34,7 @@ export interface ExtendedReport {
   rp_purpose: string;
   rp_reimbursed_at: Date;
   rp_risk_state: string;
-  rp_risk_state_expense_count: ReportRiskStateExpenseCount;
+  rp_risk_state_expense_count: {high_risk: number; moderate_risk: number; no_risk: number};
   rp_settlement_id: string;
   rp_source: string;
   rp_state: string; 
@@ -49,12 +49,6 @@ export interface ExtendedReport {
   us_email: string;
   us_full_name: string;
   _search_document: string;
-}
-
-export interface ReportRiskStateExpenseCount {
-  high_risk: number;
-  moderate_risk: number;
-  no_risk: number;
 }
 export interface ExtendedReportStats {
   state?: string;
