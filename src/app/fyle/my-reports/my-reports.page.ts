@@ -16,6 +16,7 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -69,7 +70,8 @@ export class MyReportsPage implements OnInit {
     private transactionService: TransactionService,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service
+    private apiV2Service: ApiV2Service,
+    private userService: UserService
   ) { }
 
   ngOnInit() {
@@ -86,8 +88,51 @@ export class MyReportsPage implements OnInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  async test() {
+
+    await this.loaderService.showLoadingHandler('Loader 1 Loader 1 Loader 1 Loader 1');
+    setTimeout(async () => {
+      await this.loaderService.showLoadingHandler('Loader 2');
+    }, 2000);
+    
+    setTimeout(() => {
+      this.loaderService.hideLoadingHandler();
+    }, 5000);
+
+
+
+    // this.loaderService.showLoader('Loader 1 Loader 1 Loader 1 Loader 1', 10000);
+    // setTimeout(() => {
+    //   this.loaderService.showLoader('Loader 2', 10000);
+    // }, 2000);
+
+    // setTimeout(() => {
+    //   this.loaderService.hideLoader();
+    // }, 5000);
+
+
+    // await this.loaderService.showLoader('Loader 1 Loader 1 Loader 1 Loader 1');
+
+    // setTimeout(async () => {
+    //   await this.loaderService.showLoader('Loader 2');
+    // }, 2000);
+    
+    // setTimeout(() => {
+    //   this.loaderService.hideLoader();
+    //   this.loaderService.hideLoader();
+    // }, 5000);
+
+  }
+
   ionViewWillEnter() {
-    this.loaderService.showLoader('Loading reports...', 1000);
+    //this.loaderService.showLoader('Loading reports...', 1000);
+
+
+    this.test();
+
+
+
+
     this.setupNetworkWatcher();
 
     this.searchText = '';
