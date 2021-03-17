@@ -119,7 +119,7 @@
                   {{txnFields?.txn_dt?.title ? txnFields?.txn_dt?.title : 'Start Date'}}
                   <span *ngIf="txnFields?.txn_dt?.mandatory">*</span>
                 </div>
-                <input appFormatDate [dateValue]="fg.controls.dateOfSpend.value" (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input input-date-format"
+                <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input input-date-format"
                        formControlName="dateOfSpend" type="date">
               </div>
               <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid" class="add-edit-mileage--error">
@@ -361,7 +361,7 @@
                            inputmode="decimal"
                            type="number">
 
-                    <input appFormatDate [dateValue]="customInput.control.value.value" *ngIf="customInput.type === 'DATE'" class="add-edit-mileage--date-input input-date-format" formControlName="value"
+                    <input appFormatDate *ngIf="customInput.type === 'DATE'" class="add-edit-mileage--date-input input-date-format" formControlName="value"
                            type="date">
                   </div>
 
