@@ -511,7 +511,8 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  submit(rptId) {
+  // API is not returning any data, only 200 status, what should be its output?
+  submit(rptId: string) {
     return this.apiService.post('/reports/' + rptId + '/submit').pipe(
       switchMap((res) => {
         return this.clearTransactionCache().pipe(
