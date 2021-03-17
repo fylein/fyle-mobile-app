@@ -14,6 +14,7 @@ import {DataTransformService} from './data-transform.service';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
 import {TransactionService} from './transaction.service';
 import { Expense } from '../models/expense.model';
+import { StatusPayload } from '../models/status-payload.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -532,7 +533,8 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  inquire(rptId, addStatusPayload) {
+  // API is not returning any data, only 200 status, what should be its output?
+  inquire(rptId: string, addStatusPayload: StatusPayload) {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
   }
 
