@@ -154,7 +154,7 @@
                 {{txnFields.txn_dt?.title || 'Date of Spend'}}
                 <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
               </div>
-              <input appFormatDate [dateValue]="fg.value.dateOfSpend" (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
+              <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
                     class="add-edit-expense--date-input input-date-format" formControlName="dateOfSpend" type="date">
             </div>
             <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
