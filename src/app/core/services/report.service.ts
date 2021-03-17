@@ -526,7 +526,8 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  resubmit(rptId) {
+  // API is not returning any data, only 200 status, what should be its output?
+  resubmit(rptId: string) {
     return this.apiService.post('/reports/' + rptId + '/resubmit');
   }
 
