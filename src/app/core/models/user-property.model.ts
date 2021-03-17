@@ -1,6 +1,11 @@
+export interface DeviceInfo {
+  id: string;
+  fcm_token: string;
+}
+
 export interface UserProperty {
   id?: string;
   created_at?: Date;
   updated_at?: Date;
-  devices?: { id: string; fcm_token: string; }[];
+  devices?: DeviceInfo[];
 }
