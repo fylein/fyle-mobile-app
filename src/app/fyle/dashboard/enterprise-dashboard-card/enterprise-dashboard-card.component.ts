@@ -6,7 +6,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { MobileEventService } from 'src/app/core/services/mobile-event.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, from, of } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Router } from '@angular/router';
@@ -111,7 +111,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       draftStats: draftStats$,
       reportedStats: reportedStats$,
       inquiryStats: inquiryStats$,
-      approvedStats: approvedStats$
+      approvedStats: approvedStats$,
     });
 
     return reportsExpandedDetails$.pipe(

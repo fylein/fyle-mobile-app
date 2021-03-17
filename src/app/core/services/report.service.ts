@@ -3,11 +3,11 @@ import {ApiService} from './api.service';
 import {NetworkService} from './network.service';
 import {StorageService} from './storage.service';
 import {concatMap, map, reduce, shareReplay, switchMap, tap} from 'rxjs/operators';
-import {from, of, range, Subject} from 'rxjs';
+import {from, Observable, of, range, Subject} from 'rxjs';
 import {AuthService} from './auth.service';
 import {ApiV2Service} from './api-v2.service';
 import {DateService} from './date.service';
-import {ExtendedReport} from '../models/report.model';
+import {ExtendedReport, ExtendedReportStats, ReportParams} from '../models/report.model';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {isEqual} from 'lodash';
 import {DataTransformService} from './data-transform.service';
@@ -47,7 +47,7 @@ export class ReportService {
     return this.transactionService.clearCache();
   }
 
-  getUserReportParams(state: string) {
+  getUserReportParams(state: string): ReportParams {
     const stateMap = {
       draft: {
         state: ['DRAFT', 'DRAFT_INQUIRY']
@@ -78,7 +78,7 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcStats(params) {
+  getPaginatedERptcStats(params): Observable<ExtendedReportStats> {
     return this.apiService.get('/erpts/stats', { params });
   }
 
