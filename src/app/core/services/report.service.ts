@@ -491,7 +491,8 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  removeTransaction(rptId, txnId, comment?) {
+  // API is not returning any data, only 200 status, what should be its output?
+  removeTransaction(rptId: string, txnId: string, comment?: string) {
     const aspy = {
       status: {
         comment
