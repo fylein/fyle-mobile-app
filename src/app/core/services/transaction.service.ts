@@ -593,4 +593,20 @@ export class TransactionService {
       }
     });
   }
+
+  getVendorName(expense: Expense): string {
+    const category = expense.tx_org_category && expense.tx_org_category.toLowerCase();
+    let vendorName = expense.tx_vendor || 'Expense';
+
+    if (category === 'mileage') {
+      vendorName = expense.tx_distance;
+      vendorName += ' ' + expense.tx_distance_unit;
+    } else if (category === 'per diem') {
+      vendorName = expense.tx_num_days;
+      vendorName += ' Days';
+    }
+
+    return vendorName;
+  }
+
 }

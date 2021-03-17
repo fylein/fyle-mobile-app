@@ -13,6 +13,7 @@ import {isEqual} from 'lodash';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
 import {TransactionService} from './transaction.service';
+import { Expense } from '../models/expense.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -560,7 +561,7 @@ export class ReportService {
     return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
   }
 
-  getReportETxnc(rptId, orgUserId) {
+  getReportETxnc(rptId: string, orgUserId: string): Observable<Expense[]> {
     const data: any = {
       params: {}
     };

@@ -76,33 +76,10 @@ export class ViewTeamReportPage implements OnInit {
     });
   }
 
-  getVendorName(etxn) {
-    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
-    let vendorName = etxn.tx_vendor || 'Expense';
-
-    if (category === 'mileage') {
-      vendorName = etxn.tx_distance;
-      vendorName += ' ' + etxn.tx_distance_unit;
-    } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days;
-      vendorName += ' Days';
-    }
-
-    return vendorName;
-  }
-
   getApproverEmails(reportApprovals) {
     return reportApprovals.map(approver => {
       return approver.approver_email;
     });
-  }
-
-  getShowViolation(etxn) {
-    return etxn.tx_id &&
-      (etxn.tx_manual_flag ||
-        etxn.tx_policy_flag) &&
-      !((typeof (etxn.tx_policy_amount) === 'number')
-        && etxn.tx_policy_amount < 0.0001);
   }
 
   ionViewWillEnter() {
@@ -170,8 +147,7 @@ export class ViewTeamReportPage implements OnInit {
       }),
       map(
         etxns => etxns.map(etxn => {
-          etxn.vendor = this.getVendorName(etxn);
-          etxn.violation = this.getShowViolation(etxn);
+          etxn.vendorDetails = this.transactionService.getVendorName(etxn);
           return etxn;
         })
       ),

@@ -23,13 +23,13 @@
         </span>
       </div>
       <div class="etxn-card--vendor">
-        {{etxn.vendor}}
+        {{etxn.vendorDetails}}
       </div>
       <div class="etxn-card--category">
         {{etxn.tx_org_category}}
       </div>
     </div>
-    <div class="etxn-card--violation" *ngIf="etxn.violation">
+    <div class="etxn-card--violation" *ngIf="this.violation">
       <mat-icon>warning</mat-icon>
     </div>
   </div>
