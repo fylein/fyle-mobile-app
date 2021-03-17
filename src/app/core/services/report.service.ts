@@ -539,14 +539,15 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  approve(rptId) {
+  // API is not returning any data, only 200 status, what should be its output?
+  approve(rptId: string) {
     return this.apiService.post('/reports/' + rptId + '/approve');
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output
+  // API is not returning any data, only 200 status, what should be its output?
   addApprover(rptId: string, approverEmail: string, comment: string) {
     const data = {
       approver_email: approverEmail,
