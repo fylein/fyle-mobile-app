@@ -3,8 +3,10 @@ import { AuthService } from './auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import {catchError, map, switchMap} from 'rxjs/operators';
-import {from, of} from 'rxjs';
+import {from, of, Observable} from 'rxjs';
 import { ApiService } from './api.service';
+import { User } from '../models/user.model';
+import { UserProperty } from '../models/user-property.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +19,7 @@ export class UserService {
     private apiService: ApiService
   ) { }
 
-  getCurrent() {
+  getCurrent(): Observable<User> {
     return this.apiService.get('/users/current');
   }
 
@@ -27,7 +29,7 @@ export class UserService {
     );
   }
 
-  getCountryFromIp() {
+  getCountryFromIp(): Observable<string> {
     const url = 'https://ipfind.co/me';
     const data = {
       params: {
@@ -42,7 +44,7 @@ export class UserService {
     );
   }
 
-  getProperties() {
+  getProperties(): Observable<UserProperty> {
     return this.getCurrent().pipe(
       switchMap((user) => {
         return this.apiService.get('/users/' + user.id + '/properties');
@@ -50,7 +52,7 @@ export class UserService {
     );
   }
 
-  upsertProperties(userProperties) {
+  upsertProperties(userProperties: UserProperty) {
     return this.getCurrent().pipe(
       switchMap((user) => {
         return this.apiService.post('/users/' + user.id + '/properties', userProperties);
