@@ -1,9 +1,11 @@
-import {Injectable} from '@angular/core';
-import {map} from 'rxjs/operators';
-import {DataTransformService} from './data-transform.service';
-import {ApiService} from './api.service';
-import {cloneDeep} from 'lodash';
-import {CurrencyPipe} from '@angular/common';
+import { Injectable } from '@angular/core';
+import { map } from 'rxjs/operators';
+import { DataTransformService } from './data-transform.service';
+import { ApiService } from './api.service';
+import { cloneDeep } from 'lodash';
+import { CurrencyPipe } from '@angular/common';
+import { Observable } from 'rxjs';
+import { ExtendedAccount } from '../models/extended-account.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +18,7 @@ export class AccountsService {
     private currencyPipe: CurrencyPipe
   ) { }
 
-  getEMyAccounts(filters?) {
+  getEMyAccounts(filters?): Observable<ExtendedAccount[]> {
     const data = {
       params: filters
     };
@@ -37,17 +39,17 @@ export class AccountsService {
     );
   }
 
-  filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled, accountId?) {
+  filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled, accountId?) {
     return accounts.filter((account) => {
       // Personal Account and CCC account are considered to always have sufficient funds
       return (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) || (['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'].indexOf(account.acc.type) > -1) || accountId === account.acc.id;
     });
   }
 
-  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?) {
+  constructPaymentModes(accounts: ExtendedAccount[], isMultipleAdvanceEnabled, isNotOwner?) {
     const that = this;
     const accountsMap = {
-      PERSONAL_ACCOUNT(account) {
+      PERSONAL_ACCOUNT(account: ExtendedAccount) {
         account.acc.displayName = 'Paid by Me';
         if (isNotOwner) {
           account.acc.displayName = 'Paid by Employee';
@@ -55,7 +57,7 @@ export class AccountsService {
         account.acc.isReimbursable = true;
         return account;
       },
-      PERSONAL_ADVANCE_ACCOUNT(account) {
+      PERSONAL_ADVANCE_ACCOUNT(account: ExtendedAccount) {
         let currency = account.currency;
         let balance = account.acc.tentative_balance_amount;
         if (isMultipleAdvanceEnabled && account.orig && account.orig.amount) {
@@ -68,7 +70,7 @@ export class AccountsService {
         account.acc.isReimbursable = false;
         return account;
       },
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account) {
+      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account: ExtendedAccount) {
         account.acc.displayName = 'Paid via Corporate Card';
         account.acc.isReimbursable = false;
         return account;
