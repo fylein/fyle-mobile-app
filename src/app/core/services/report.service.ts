@@ -78,7 +78,7 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcStats(params): Observable<ExtendedReportStats> {
+  getPaginatedERptcStats(params: ReportParams): Observable<ExtendedReportStats> {
     return this.apiService.get('/erpts/stats', { params });
   }
 
