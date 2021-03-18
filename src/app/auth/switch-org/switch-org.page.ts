@@ -158,7 +158,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   async switchToOrg(org: Org) {
-    from(this.loaderService.showLoader('Switching Account', 10000)).pipe(
+    from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return this.orgService.switchOrg(org.id);
       }),
