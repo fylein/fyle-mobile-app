@@ -8,6 +8,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { from, of } from 'rxjs';
 import {TrackingService} from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { Employee } from 'src/app/core/models/employee.model';
 
 const { Browser } =  Plugins;
 
@@ -18,7 +19,7 @@ const { Browser } =  Plugins;
 })
 export class HelpPage implements OnInit {
 
-  orgAdmins;
+  orgAdmins: Employee[];
   contactSupportLoading = false;
 
   constructor(

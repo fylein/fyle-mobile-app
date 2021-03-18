@@ -1,17 +1,19 @@
-import {Injectable} from '@angular/core';
-import {JwtHelperService} from './jwt-helper.service';
-import {TokenService} from './token.service';
-import {ApiService} from './api.service';
-import {User} from '../models/user.model';
-import {concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
-import {AuthService} from './auth.service';
-import {Observable, range, Subject} from 'rxjs';
-import {ExtendedOrgUser} from '../models/extended-org-user.model';
-import {DataTransformService} from './data-transform.service';
-import {StorageService} from './storage.service';
-import {Cacheable, globalCacheBusterNotifier, CacheBuster} from 'ts-cacheable';
-import {TrackingService} from './tracking.service';
+import { Injectable  } from '@angular/core';
+import { JwtHelperService } from './jwt-helper.service';
+import { TokenService } from './token.service';
+import { ApiService } from './api.service';
+import { User } from '../models/user.model';
+import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { Observable, range, Subject } from 'rxjs';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { DataTransformService } from './data-transform.service';
+import { StorageService } from './storage.service';
+import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable';
+import { TrackingService } from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
+import { OrgUser } from '../models/org-user.model';
+import { Employee } from '../models/employee.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -37,7 +39,7 @@ export class OrgUserService {
     return this.apiService.post('/users', user);
   }
 
-  postOrgUser(orgUser) {
+  postOrgUser(orgUser: OrgUser) {
     globalCacheBusterNotifier.next();
     return this.apiService.post('/orgusers', orgUser);
   }
@@ -55,12 +57,12 @@ export class OrgUserService {
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$
   })
-  getCompanyEouc(params: { offset: number, limit: number }) {
+  getCompanyEouc(params: { offset: number, limit: number }): Observable<ExtendedOrgUser[]> {
     return this.apiService.get('/eous/company', {
       params
     }).pipe(
       map(
-        eous => eous.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser)
+        eous => eous.map(eou => this.dataTransformService.unflatten(eou))
       )
     );
   }
@@ -80,7 +82,12 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesByParams(params) {
+  getEmployeesByParams(params): Observable<{
+    count: number;
+    data: Employee[];
+    limit: number;
+    offset: number;
+  }> {
     return this.apiV2Service.get('/employees', {params});
   }
 
@@ -99,16 +106,16 @@ export class OrgUserService {
   }
 
   @Cacheable()
-  getCurrent() {
+  getCurrent(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(
       map(eou => {
-        return this.dataTransformService.unflatten(eou);;
+        return this.dataTransformService.unflatten(eou);
       })
     );
   }
 
   // TODO: move to v2
-  findDelegatedAccounts() {
+  findDelegatedAccounts(): Observable<ExtendedOrgUser[]> {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map(delegatedAccounts => {
         delegatedAccounts = delegatedAccounts.map((delegatedAccount) => {
