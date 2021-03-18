@@ -1752,7 +1752,7 @@ export class AddEditExpensePage implements OnInit {
     this.isCCCAccountSelected$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
-          return !!accounts.find((account) => account.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          return accounts.filter((account) => account.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT').length > 0;
         } else {
           return false;
         }
