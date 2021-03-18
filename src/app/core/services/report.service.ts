@@ -13,7 +13,7 @@ import {DataTransformService} from './data-transform.service';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
 import {TransactionService} from './transaction.service';
 import { Expense } from '../models/expense.model';
-import { StatusPayload } from '../models/status-payload.model';
+import { StatusPayload } from '../models/V1/status-payload.model';
 import { ExtendedReport as ExtendedReportV1, ExtendedReportInput, ExtendedReportStats, ReportParams} from '../models/V1/extended-report.model';
 import { ExtendedReport as ExtendedReportV2 } from '../models/V2/extended-report.model';
 
