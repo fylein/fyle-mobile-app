@@ -43,3 +43,13 @@ export interface ExtendedReportInput {
   trip_request_id: string;
   id?: string;
 }
+export interface ExtendedReportStats {
+  state?: string;
+  title?: string;
+  warning?: boolean;
+  total_amount: number;
+  total_count: number;
+}
+export interface ReportParams {
+  state: string[];
+}

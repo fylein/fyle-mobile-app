@@ -50,15 +50,3 @@ export interface ExtendedReport {
   us_full_name: string;
   _search_document: string;
 }
-
-export interface ExtendedReportStats {
-  state?: string;
-  title?: string;
-  warning?: boolean;
-  total_amount: number;
-  total_count: number;
-}
-
-export interface ReportParams {
-  state: string[];
-}
