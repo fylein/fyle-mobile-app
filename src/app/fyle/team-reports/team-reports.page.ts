@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
 import {Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject} from 'rxjs';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ExtendedReport } from 'src/app/core/models/V2/extended-report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -13,6 +13,7 @@ import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/t
 import { TeamReportsSortFilterComponent } from './team-reports-sort-filter/team-reports-sort-filter.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+
 
 @Component({
   selector: 'app-team-reports',

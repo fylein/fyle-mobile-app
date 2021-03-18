@@ -2,7 +2,7 @@ import {Component, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, O
 import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, iif, of } from 'rxjs';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ExtendedReport } from 'src/app/core/models/V2/extended-report.model';
 import {concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime, takeUntil} from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -16,6 +16,7 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+
 
 @Component({
   selector: 'app-my-reports',

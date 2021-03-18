@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ExtendedReport } from 'src/app/core/models/V2/extended-report.model';
 import {Observable, from, noop, concat, Subject} from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,6 +15,7 @@ import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubm
 import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
 import {NetworkService} from '../../core/services/network.service';
 import {TrackingService} from '../../core/services/tracking.service';
+
 
 @Component({
   selector: 'app-my-view-report',

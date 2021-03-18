@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit} from '@angular/core';
 import {Observable, from, noop, Subject, concat} from 'rxjs';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ExtendedReport } from 'src/app/core/models/V2/extended-report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -14,6 +14,7 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
 import {NetworkService} from '../../core/services/network.service';
+
 
 @Component({
   selector: 'app-view-team-report',

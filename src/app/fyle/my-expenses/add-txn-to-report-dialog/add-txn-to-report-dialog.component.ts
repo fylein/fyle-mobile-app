@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Observable, from, noop } from 'rxjs';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ReportService } from 'src/app/core/services/report.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { switchMap, finalize, tap } from 'rxjs/operators';

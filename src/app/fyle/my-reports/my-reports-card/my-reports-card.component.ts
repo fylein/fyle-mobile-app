@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ExtendedReport } from 'src/app/core/models/V2/extended-report.model';
 
 
 @Component({
