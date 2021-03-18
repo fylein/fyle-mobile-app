@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import {concat, forkJoin, from, iif, noop, Observable, of, Subject} from 'rxjs';
 import {finalize, map, shareReplay, switchMap, takeUntil, tap} from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ExtendedReport, Report } from 'src/app/core/models/report.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -186,7 +186,7 @@ export class MyEditReportPage implements OnInit {
       return;
     }
 
-    const report = {
+    const report: Report = {
       purpose: this.reportTitle,
       id: this.activatedRoute.snapshot.params.id,
       trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId

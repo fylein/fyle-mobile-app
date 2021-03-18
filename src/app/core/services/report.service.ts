@@ -7,7 +7,7 @@ import {from, Observable, of, range, Subject} from 'rxjs';
 import {AuthService} from './auth.service';
 import {ApiV2Service} from './api-v2.service';
 import {DateService} from './date.service';
-import {ExtendedReport, ExtendedReportStats, ReportParams} from '../models/report.model';
+import {ExtendedReport, ExtendedReportStats, Report, ReportParams} from '../models/report.model';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {isEqual} from 'lodash';
 import {DataTransformService} from './data-transform.service';
@@ -448,7 +448,8 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  addTransactions(rptId, txnIds) {
+  // API is not returning any data, only 200 status, what should be its output?
+  addTransactions(rptId: string, txnIds: string[]) {
     return this.apiService.post('/reports/' + rptId + '/txns', {
       ids: txnIds
     }).pipe(
@@ -461,9 +462,9 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  createDraft(report) {
+  createDraft(report: Report): Observable<Report> {
     return this.apiService.post('/reports', report).pipe(
-      switchMap((res) => {
+      switchMap((res: Report) => {
         return this.clearTransactionCache().pipe(
           map(() => {
             return res;
@@ -476,10 +477,11 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  create(report, txnIds) {
+  // API is not returning any data, only 200 status, what should be its output?
+  create(report: Report, txnIds: string[]) {
     return this.createDraft(report).pipe(
       switchMap(newReport => {
-        return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe(
+        return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe( // Can we replace this line with this.addTransactions() method ?
           switchMap(res => {
             return this.submit(newReport.id);
           })
