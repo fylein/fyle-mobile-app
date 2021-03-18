@@ -36,3 +36,10 @@ export interface ExtendedReport {
   updated_at: Date;
   verification_state: string;
 }
+
+export interface ExtendedReportInput {
+  purpose: string;
+  source?: string;
+  trip_request_id: string;
+  id?: string;
+}

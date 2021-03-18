@@ -18,6 +18,7 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { cloneDeep } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
 import { ExtendedReport } from 'src/app/core/models/V2/extended-report.model';
+import { ExtendedReportInput } from 'src/app/core/models/V1/extended-report.model';
 
 @Component({
   selector: 'app-my-edit-report',
@@ -186,7 +187,7 @@ export class MyEditReportPage implements OnInit {
       return;
     }
 
-    const report = {
+    const report: ExtendedReportInput = {
       purpose: this.reportTitle,
       id: this.activatedRoute.snapshot.params.id,
       trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId

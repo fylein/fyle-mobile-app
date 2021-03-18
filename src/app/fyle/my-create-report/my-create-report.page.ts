@@ -16,6 +16,7 @@ import { ReportSummaryComponent } from './report-summary/report-summary.componen
 import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import {NgModel} from '@angular/forms';
+import { ExtendedReportInput } from 'src/app/core/models/V1/extended-report.model';
 
 
 @Component({
@@ -107,7 +108,7 @@ export class MyCreateReportPage implements OnInit {
     if (data && data.saveReport) {
       this.sendFirstReportCreated();
 
-      const report = {
+      const report: ExtendedReportInput = {
         purpose: this.reportTitle,
         source: 'MOBILE',
         trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId

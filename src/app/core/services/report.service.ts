@@ -15,7 +15,7 @@ import {TransactionService} from './transaction.service';
 import { Expense } from '../models/expense.model';
 import { StatusPayload } from '../models/status-payload.model';
 import { ExtendedReport as ExtendedReportV2, ExtendedReportStats, ReportParams } from '../models/V2/extended-report.model';
-import { ExtendedReport as ExtendedReportV1} from '../models/V1/extended-report.model';
+import { ExtendedReport as ExtendedReportV1, ExtendedReportInput} from '../models/V1/extended-report.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -463,7 +463,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  createDraft(report): Observable<ExtendedReportV1> {
+  createDraft(report: ExtendedReportInput): Observable<ExtendedReportV1> {
     return this.apiService.post('/reports', report).pipe(
       switchMap((res: ExtendedReportV1) => {
         return this.clearTransactionCache().pipe(
@@ -479,7 +479,7 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$
   })
   // API is not returning any data, only 200 status, what should be its output?
-  create(report, txnIds: string[]) {
+  create(report: ExtendedReportInput, txnIds: string[]) {
     return this.createDraft(report).pipe(
       switchMap(newReport => {
         return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe( // Can we replace this line with this.addTransactions() method ?
