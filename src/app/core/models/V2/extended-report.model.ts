@@ -50,3 +50,9 @@ export interface ExtendedReport {
   us_full_name: string;
   _search_document: string;
 }
+
+export interface ExtendedReportQueryParams {
+  rp_state?: string;
+  rp_id?: string;
+  and?: string;
+}

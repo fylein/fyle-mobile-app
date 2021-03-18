@@ -15,7 +15,7 @@ import {TransactionService} from './transaction.service';
 import { Expense } from '../models/expense.model';
 import { StatusPayload } from '../models/V1/status-payload.model';
 import { ExtendedReport as ExtendedReportV1, ExtendedReportInput, ExtendedReportStats, ReportParams} from '../models/V1/extended-report.model';
-import { ExtendedReport as ExtendedReportV2 } from '../models/V2/extended-report.model';
+import { ExtendedReport as ExtendedReportV2, ExtendedReportQueryParams } from '../models/V2/extended-report.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -138,7 +138,7 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$
   })
-  getMyReportsCount(queryParams = {}) {
+  getMyReportsCount(queryParams: ExtendedReportQueryParams): Observable<number> {
     return this.getMyReports({
       offset: 0,
       limit: 1,
@@ -148,7 +148,7 @@ export class ReportService {
     );
   }
 
-  getMyReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
+  getMyReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: ExtendedReportQueryParams }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
