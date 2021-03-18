@@ -51,7 +51,7 @@ export class SignInPage implements OnInit {
   ) {
   }
 
-  signUp() {
+  goToFyleWebsite() {
     Browser.open({ toolbarColor: '#f36', url: 'https://www.fylehq.com/' });
   }
 
