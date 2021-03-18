@@ -50,6 +50,38 @@ export class ReportService {
     return this.transactionService.clearCache();
   }
 
+  fixDatesV2(extendedReportV2: ExtendedReportV2) {
+    if (extendedReportV2.rp_created_at) {
+      extendedReportV2.rp_created_at = new Date(extendedReportV2.rp_created_at);
+    }
+
+    if (extendedReportV2.rp_approved_at) {
+      extendedReportV2.rp_approved_at = new Date(extendedReportV2.rp_approved_at);
+    }
+
+    if (extendedReportV2.rp_from_dt) {
+      extendedReportV2.rp_from_dt = new Date(extendedReportV2.rp_from_dt);
+    }
+
+    if (extendedReportV2.rp_to_dt) {
+      extendedReportV2.rp_to_dt = new Date(extendedReportV2.rp_to_dt);
+    }
+
+    if (extendedReportV2.rp_physical_bill_at) {
+      extendedReportV2.rp_physical_bill_at = new Date(extendedReportV2.rp_physical_bill_at);
+    }
+
+    if (extendedReportV2.rp_reimbursed_at) {
+      extendedReportV2.rp_reimbursed_at = new Date(extendedReportV2.rp_reimbursed_at);
+    }
+
+    if(extendedReportV2.rp_submitted_at) {
+      extendedReportV2.rp_submitted_at = new Date(extendedReportV2.rp_submitted_at);
+    }
+
+    return extendedReportV2;
+  }
+
   getUserReportParams(state: string): ReportParams {
     const stateMap = {
       draft: {
@@ -120,7 +152,8 @@ export class ReportService {
     offset: 0,
     limit: 10,
     queryParams: {}
-  }) {
+  }) :Observable<{ data: ExtendedReportV2[]; count: number; limit: number; offset: number; url: string;}>
+  {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
         return this.apiv2Service.get('/reports', {
@@ -142,7 +175,7 @@ export class ReportService {
       }),
       map(res => ({
         ...res,
-        data: res.data.map(datum => this.dateService.fixDates(datum))
+        data: res.data.map(datum => this.fixDatesV2(datum))
       }))
     );
   }
