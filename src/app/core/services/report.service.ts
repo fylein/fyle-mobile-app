@@ -449,8 +449,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output?
-  addTransactions(rptId: string, txnIds: string[]) {
+  addTransactions(rptId: string, txnIds: string[]): Observable<null> {
     return this.apiService.post('/reports/' + rptId + '/txns', {
       ids: txnIds
     }).pipe(
@@ -478,8 +477,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output?
-  create(report: ExtendedReportInput, txnIds: string[]) {
+  create(report: ExtendedReportInput, txnIds: string[]): Observable<null> {
     return this.createDraft(report).pipe(
       switchMap(newReport => {
         return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe( // Can we replace this line with this.addTransactions() method ?
@@ -494,7 +492,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output?
   removeTransaction(rptId: string, txnId: string, comment?: string): Observable<null> {
     const aspy = {
       status: {
@@ -515,8 +512,8 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output?
-  submit(rptId: string) {
+
+  submit(rptId: string): Observable<null> {
     return this.apiService.post('/reports/' + rptId + '/submit').pipe(
       switchMap((res) => {
         return this.clearTransactionCache().pipe(
@@ -531,32 +528,28 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output?
-  resubmit(rptId: string) {
+  resubmit(rptId: string): Observable<null> {
     return this.apiService.post('/reports/' + rptId + '/resubmit');
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output?
-  inquire(rptId: string, addStatusPayload: StatusPayload) {
+  inquire(rptId: string, addStatusPayload: StatusPayload): Observable<null> {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output?
-  approve(rptId: string) {
+  approve(rptId: string): Observable<null> {
     return this.apiService.post('/reports/' + rptId + '/approve');
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  // API is not returning any data, only 200 status, what should be its output?
-  addApprover(rptId: string, approverEmail: string, comment: string) {
+  addApprover(rptId: string, approverEmail: string, comment: string): Observable<null> {
     const data = {
       approver_email: approverEmail,
       comment
