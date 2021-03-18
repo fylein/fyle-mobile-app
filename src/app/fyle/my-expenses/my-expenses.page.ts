@@ -432,30 +432,34 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?) {
-    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    return new Promise((res, rej) => {
+      this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
-    if (this.pendingTransactions.length) {
-      this.syncing = true;
-      from(this.pendingTransactions).pipe(
-        switchMap(() => {
-          return from(this.transactionOutboxService.sync());
-        }),
-        finalize(() => this.syncing = false)
-      ).subscribe((a) => {
-        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-      });
-    }
-
-    this.currentPageNumber = 1;
-    const params = this.loadData$.getValue();
-    params.pageNumber = this.currentPageNumber;
-    this.transactionService.clearCache().subscribe(() => {
-      this.loadData$.next(params);
-      if (event) {
-        setTimeout(() => {
-          event.target.complete();
-        }, 1000);
+      if (this.pendingTransactions.length) {
+        this.syncing = true;
+        from(this.pendingTransactions).pipe(
+          switchMap(() => {
+            return from(this.transactionOutboxService.sync());
+          }),
+          finalize(() => this.syncing = false)
+        ).subscribe((a) => {
+          this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+          res();
+        });
       }
+
+      this.currentPageNumber = 1;
+      const params = this.loadData$.getValue();
+      params.pageNumber = this.currentPageNumber;
+      this.transactionService.clearCache().subscribe(() => {
+        this.loadData$.next(params);
+        if (event) {
+          setTimeout(() => {
+            event.target.complete();
+            res();
+          }, 1000);
+        }
+      });
     });
   }
 
@@ -619,8 +623,8 @@ export class MyExpensesPage implements OnInit {
         }),
         tap(() => this.trackingService.deleteExpense({Asset: 'Mobile'})),
         finalize(async () => {
+          await this.doRefresh();
           await this.loaderService.hideLoader();
-          this.doRefresh();
         })
       ).subscribe(noop);
     }
