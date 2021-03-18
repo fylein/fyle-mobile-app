@@ -463,7 +463,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  createDraft(report: ExtendedReportV1): Observable<ExtendedReportV1> {
+  createDraft(report): Observable<ExtendedReportV1> {
     return this.apiService.post('/reports', report).pipe(
       switchMap((res: ExtendedReportV1) => {
         return this.clearTransactionCache().pipe(
@@ -479,7 +479,7 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$
   })
   // API is not returning any data, only 200 status, what should be its output?
-  create(report: ExtendedReportV1, txnIds: string[]) {
+  create(report, txnIds: string[]) {
     return this.createDraft(report).pipe(
       switchMap(newReport => {
         return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe( // Can we replace this line with this.addTransactions() method ?
