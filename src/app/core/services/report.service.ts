@@ -406,6 +406,7 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$
   })
+  // This method is only used in deep-links we should deprecate this method and start using v2 method
   getERpt(rptId) {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map(data => {
