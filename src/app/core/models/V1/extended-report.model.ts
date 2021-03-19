@@ -98,7 +98,7 @@ export interface ExtendedReport {
 export interface ExtendedReportInput {
   purpose: string;
   source?: string;
-  trip_request_id: string;
+  trip_request_id?: string;
   id?: string;
 }
 export interface ExtendedReportStats {
