@@ -280,7 +280,6 @@ export class ReportService {
     return this.apiService.post('/reports/summary/download', data);
   }
 
-
   getAllExtendedReports(config: Partial<{ order: string, queryParams: ExtendedReportQueryParams }>): Observable<ExtendedReportV2[]> {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap(count => {
@@ -333,7 +332,8 @@ export class ReportService {
     }
   }
 
-  searchParamsGenerator(search: {state: string}, sortOrder?): ReportParams {
+  // We havn't used sortOrder parmas yet, so making it any for now
+  searchParamsGenerator(search: {state: string}, sortOrder?: any): ReportParams {
     let params = {};
 
     params = this.userReportsSearchParamsGenerator(params, search);
@@ -549,7 +549,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-
   submit(rptId: string): Observable<null> {
     return this.apiService.post('/reports/' + rptId + '/submit').pipe(
       switchMap((res) => {
