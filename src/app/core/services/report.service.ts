@@ -17,6 +17,7 @@ import { StatusPayload } from '../models/V1/status-payload.model';
 import { ExtendedReport as ExtendedReportV1, Report, ExtendedReportInput, ExtendedReportStats, ReportApproval, ReportParams, ReportActions} from '../models/V1/extended-report.model';
 import { ExtendedReport as ExtendedReportV2, ExtendedReportQueryParams } from '../models/V2/extended-report.model';
 import { Count } from '../models/V1/count.model';
+import { PdfExport } from '../models/V1/pdf-export.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -255,7 +256,7 @@ export class ReportService {
     return this.apiService.get('/reports/' + rptId + '/actions');
   }
 
-  getExports(rptId: string) {
+  getExports(rptId: string): Observable<{results: PdfExport[]}> {
     return this.apiService.get('/reports/' + rptId + '/exports');
   }
 
