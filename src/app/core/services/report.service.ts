@@ -395,9 +395,9 @@ export class ReportService {
     );
   }
 
-  getReportPurpose(reportPurpose) {
+  getReportPurpose(reportPurpose: {ids: string[]}): Observable<string> {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(
-      map(res => {
+      map((res: ExtendedReportV1) => {
         return res.purpose;
       })
     );
