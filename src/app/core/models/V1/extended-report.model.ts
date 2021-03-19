@@ -38,7 +38,42 @@ export interface Report {
 }
 
 export interface ExtendedReport {
-  rp: Report;
+  rp: {
+    amount: number;
+    approvals: ReportApproval[];
+    approved_at: Date;
+    claim_number: string;
+    created_at: Date;
+    currency: string;
+    exported: boolean;
+    from_dt: Date;
+    id: string;
+    location1: string;
+    location2: string;
+    location3: string;
+    location4: string;
+    location5: string;
+    locations: string[];
+    manual_flag: boolean;
+    num_transactions: number;
+    org_user_id: string;
+    physical_bill: boolean;
+    physical_bill_at: Date;
+    policy_flag: boolean;
+    purpose: string;
+    reimbursed_at: Date;
+    risk_state: string;
+    risk_state_expense_count: number;
+    settlement_id: string;
+    source: string;
+    state: string;
+    submitted_at: Date;
+    tax: number;
+    to_dt: Date;
+    trip_request_id: string;
+    type: string;
+    verification_state: string;
+  }
   ou: {
     business_unit: string;
     department: string;
