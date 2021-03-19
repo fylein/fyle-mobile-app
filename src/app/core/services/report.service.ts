@@ -264,7 +264,7 @@ export class ReportService {
     return this.apiService.get('/reports/' + rptId + '/approvers');
   }
 
-  delete(rptId) {
+  delete(rptId: string): Observable<null>{
     return this.apiService.delete('/reports/' + rptId).pipe(
      switchMap((res) => {
        return this.clearTransactionCache().pipe(
