@@ -1,4 +1,4 @@
-export interface ExtendedReport {
+export interface Report {
   amount: number;
   approved_at: Date;
   claim_number: string;
@@ -37,6 +37,29 @@ export interface ExtendedReport {
   verification_state: string;
 }
 
+export interface ExtendedReport {
+  rp: Report;
+  ou: {
+    business_unit: string;
+    department: string;
+    department_id: string;
+    employee_id: string;
+    id: string;
+    level: string;
+    location: string;
+    mobile: string;
+    org_id: string;
+    org_name: string;
+    status: string;
+    sub_department: string;
+    title: string;
+  };
+  us: {
+    email: string;
+    full_name: string;
+  };
+}
+
 export interface ExtendedReportInput {
   purpose: string;
   source?: string;
@@ -52,4 +75,20 @@ export interface ExtendedReportStats {
 }
 export interface ReportParams {
   state?: string[];
+}
+export interface ReportApproval {
+  added_by: string;
+  approver_email: string;
+  approver_id: string;
+  approver_name: string;
+  comment: string;
+  created_at: Date;
+  disabled_by: string;
+  id: number;
+  last_updated_by: string;
+  rank: number;
+  report_id: string;
+  request_id: string;
+  state: string;
+  updated_at: Date;
 }

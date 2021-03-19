@@ -14,7 +14,7 @@ import {Cacheable, CacheBuster} from 'ts-cacheable';
 import {TransactionService} from './transaction.service';
 import { Expense } from '../models/expense.model';
 import { StatusPayload } from '../models/V1/status-payload.model';
-import { ExtendedReport as ExtendedReportV1, ExtendedReportInput, ExtendedReportStats, ReportParams} from '../models/V1/extended-report.model';
+import { ExtendedReport as ExtendedReportV1, Report, ExtendedReportInput, ExtendedReportStats, ReportApproval, ReportParams} from '../models/V1/extended-report.model';
 import { ExtendedReport as ExtendedReportV2, ExtendedReportQueryParams } from '../models/V2/extended-report.model';
 import { Count } from '../models/V1/count.model';
 
@@ -376,7 +376,8 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$
   })
-  getPaginatedERptc(offset, limit, params) {
+  // todo decide parmas datatype
+  getPaginatedERptc(offset: number, limit: number, params): Observable<ExtendedReportV1[]> {
     const data = {
       params: {
         offset,
@@ -397,7 +398,7 @@ export class ReportService {
 
   getReportPurpose(reportPurpose: {ids: string[]}): Observable<string> {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(
-      map((res: ExtendedReportV1) => {
+      map((res: Report) => {
         return res.purpose;
       })
     );
@@ -420,7 +421,7 @@ export class ReportService {
     );
   }
 
-  getApproversInBulk(rptIds) {
+  getApproversInBulk(rptIds: string[]): Observable<ReportApproval[]> {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
     }
@@ -497,9 +498,9 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$
   })
-  createDraft(report: ExtendedReportInput): Observable<ExtendedReportV1> {
+  createDraft(report: ExtendedReportInput): Observable<Report> {
     return this.apiService.post('/reports', report).pipe(
-      switchMap((res: ExtendedReportV1) => {
+      switchMap((res: Report) => {
         return this.clearTransactionCache().pipe(
           map(() => {
             return res;
