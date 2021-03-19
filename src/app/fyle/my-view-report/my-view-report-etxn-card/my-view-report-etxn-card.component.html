@@ -20,13 +20,13 @@
         </span>
       </div>
       <div class="etxn-card--vendor">
-        {{etxn.vendor | ellipsis:12}}
+        {{etxn.vendorDetails | ellipsis:12}}
       </div>
       <div class="etxn-card--category">
         {{etxn.tx_org_category | ellipsis:12}}
       </div>
     </div>
-    <div class="etxn-card--violation" *ngIf="etxn.violation">
+    <div class="etxn-card--violation" *ngIf="this.violation">
       <mat-icon>warning</mat-icon>
     </div>
   </div>

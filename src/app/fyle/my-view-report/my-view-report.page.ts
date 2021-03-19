@@ -74,21 +74,6 @@ export class MyViewReportPage implements OnInit {
     this.onPageExit.next();
   }
 
-  getVendorName(etxn) {
-    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
-    let vendorName = etxn.tx_vendor || 'Expense';
-
-    if (category === 'mileage') {
-      vendorName = etxn.tx_distance || 0;
-      vendorName += ' ' + etxn.tx_distance_unit;
-    } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days || 0;
-      vendorName += ' Days';
-    }
-
-    return vendorName;
-  }
-
   getShowViolation(etxn) {
     return etxn.tx_id &&
       (etxn.tx_manual_flag ||
@@ -142,8 +127,7 @@ export class MyViewReportPage implements OnInit {
       }),
       map(
         etxns => etxns.map(etxn => {
-          etxn.vendor = this.getVendorName(etxn);
-          etxn.violation = this.getShowViolation(etxn);
+          etxn.vendorDetails = this.transactionService.getVendorName(etxn);
           return etxn;
         })
       ),
