@@ -16,7 +16,7 @@
     </ion-title>
     <ion-buttons mode="md" slot="end">
       <ng-container *ngIf="myExpenses$ | async as list">
-        <ion-button (click)="switchSelectionMode()" *ngIf="list.length" class="text-capitalize" color="primary">
+        <ion-button (click)="switchSelectionMode()" *ngIf="list.length && isConnected$|async" class="text-capitalize" color="primary">
         <span *ngIf="selectionMode; else setSelectionMode">
           Cancel
         </span>
@@ -205,17 +205,17 @@
   </ng-template>
 </ion-content>
 
-<ion-footer mode="md">
+<ion-footer mode="md"> 
   <div class="my-expenses--footer-container">
-    <ng-container *ngIf="allExpensesCount$|async as allExpensesCount">
-      <div *ngIf="baseState === 'all' && allExpensesCount && filters?.state !== 'NEEDS_RECEIPT'">
+    <ng-container *ngIf="allExpensesStats$|async as allExpensesStats">
+      <div *ngIf="baseState === 'all' && allExpensesStats && filters?.state !== 'NEEDS_RECEIPT'">
         <div class="my-expenses--stats">
           <div class="my-expenses--amount">
             <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span>
-            {{(expensesAmountStats$|async|number:'1.2-2')}}
+            {{(allExpensesStats.amount|number:'1.2-2')}}
           </div>
-          <div *ngIf="allExpensesCount as allExpensesCount" class="my-expenses--count">
-            across {{allExpensesCount}} unreported expenses
+          <div class="my-expenses--count">
+            across {{allExpensesStats.count}} unreported expenses
           </div>
         </div>
       </div>
