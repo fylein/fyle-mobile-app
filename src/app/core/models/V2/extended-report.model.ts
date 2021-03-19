@@ -54,5 +54,7 @@ export interface ExtendedReport {
 export interface ExtendedReportQueryParams {
   rp_state?: string;
   rp_id?: string;
+  rp_approval_state?: string;
+  sequential_approval_turn?: string;
   and?: string;
 }

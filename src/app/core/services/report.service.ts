@@ -154,7 +154,7 @@ export class ReportService {
     offset: 0,
     limit: 10,
     queryParams: {}
-  }) :Observable<{ data: ExtendedReportV2[]; count: number; limit: number; offset: number; url: string;}>
+  }): Observable<{ data: ExtendedReportV2[]; count: number; limit: number; offset: number; url: string;}>
   {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
@@ -182,7 +182,7 @@ export class ReportService {
     );
   }
 
-  getTeamReportsCount(queryParams = {}) {
+  getTeamReportsCount(queryParams: ExtendedReportQueryParams): Observable<number>  {
     return this.getTeamReports({
       offset: 0,
       limit: 1,
@@ -192,12 +192,12 @@ export class ReportService {
     );
   }
 
-  getTeamReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
+  getTeamReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: ExtendedReportQueryParams }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
-  }) {
-
+  }): Observable<{ data: ExtendedReportV2[]; count: number; limit: number; offset: number; url: string;}>
+  {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
         return this.apiv2Service.get('/reports', {
@@ -219,7 +219,7 @@ export class ReportService {
       }),
       map(res => ({
         ...res,
-        data: res.data.map(datum => this.dateService.fixDates(datum))
+        data: res.data.map(datum => this.fixDatesV2(datum))
       }))
     );
   }
@@ -238,7 +238,7 @@ export class ReportService {
     );
   }
 
-  getTeamReport(id: string) {
+  getTeamReport(id: string): Observable<ExtendedReportV2> {
     return this.getTeamReports({
       offset: 0,
       limit: 1,
@@ -310,7 +310,7 @@ export class ReportService {
     order: '',
     queryParams: {}
   }): Observable<ExtendedReportV2[]> {
-    return this.getTeamReportsCount().pipe(
+    return this.getTeamReportsCount({}).pipe(
       switchMap(count => {
         count = count > 50 ? count / 50 : 1;
         return range(0, count);

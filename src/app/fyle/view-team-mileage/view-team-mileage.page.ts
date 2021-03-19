@@ -161,13 +161,17 @@ export class ViewTeamMileagePage implements OnInit {
 
     this.canDelete$ = this.extendedMileage$.pipe(
       concatMap(etxn => {
-        return this.reportService.getTeamReport(etxn.tx_report_id);
+        return this.reportService.getTeamReport(etxn.tx_report_id).pipe(
+          map(report => {
+            return {report, etxn}
+          })
+        );
       }),
-      map(report => {
+      map(({report, etxn}) => {
         if (report.rp_num_transactions === 1) {
           return false;
         }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(report.tx_state) < 0;
+        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
       })
     );
 
