@@ -439,7 +439,7 @@ export class ReportService {
     );
   }
 
-  addApprovers(erpts: ExtendedReportV1[] , approvers: ReportApproval[]) {
+  addApprovers(erpts: ExtendedReportV1[] , approvers: ReportApproval[]): ExtendedReportV1[] {
     const reportApprovalsMap = {};
 
     approvers.forEach((approver) => {
