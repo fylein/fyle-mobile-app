@@ -297,7 +297,7 @@ export class ReportService {
     );
   }
 
-  getAllOpenReportsCount() {
+  getAllOpenReportsCount(): Observable<number> {
     return this.getMyReportsCount({
       rp_state: 'in.(DRAFT,APPROVER_PENDING)'
     }).pipe(
