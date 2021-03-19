@@ -305,10 +305,11 @@ export class ReportService {
     );
   }
 
+  // This method is not used
   getAllTeamExtendedReports(config: Partial<{ order: string, queryParams: any }> = {
     order: '',
     queryParams: {}
-  }) {
+  }): Observable<ExtendedReportV2[]> {
     return this.getTeamReportsCount().pipe(
       switchMap(count => {
         count = count > 50 ? count / 50 : 1;
