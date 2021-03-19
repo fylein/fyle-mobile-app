@@ -14,6 +14,7 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
 import {NetworkService} from '../../core/services/network.service';
+import { ReportActions } from 'src/app/core/models/V1/extended-report.model';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class ViewTeamReportPage implements OnInit {
   reportApprovals$: Observable<any>;
   refreshApprovals$ = new Subject();
   tripRequest$: Observable<ExtendedTripRequest>;
-  actions$: Observable<any>;
+  actions$: Observable<ReportActions>;
   hideAllExpenses = true;
   sharedWithLimit = 3;
 

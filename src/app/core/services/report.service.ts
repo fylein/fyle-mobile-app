@@ -14,7 +14,7 @@ import {Cacheable, CacheBuster} from 'ts-cacheable';
 import {TransactionService} from './transaction.service';
 import { Expense } from '../models/expense.model';
 import { StatusPayload } from '../models/V1/status-payload.model';
-import { ExtendedReport as ExtendedReportV1, Report, ExtendedReportInput, ExtendedReportStats, ReportApproval, ReportParams} from '../models/V1/extended-report.model';
+import { ExtendedReport as ExtendedReportV1, Report, ExtendedReportInput, ExtendedReportStats, ReportApproval, ReportParams, ReportActions} from '../models/V1/extended-report.model';
 import { ExtendedReport as ExtendedReportV2, ExtendedReportQueryParams } from '../models/V2/extended-report.model';
 import { Count } from '../models/V1/count.model';
 
@@ -251,7 +251,7 @@ export class ReportService {
     );
   }
 
-  actions(rptId: string) {
+  actions(rptId: string): Observable<ReportActions> {
     return this.apiService.get('/reports/' + rptId + '/actions');
   }
 

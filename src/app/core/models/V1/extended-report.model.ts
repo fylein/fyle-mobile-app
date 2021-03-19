@@ -127,3 +127,18 @@ export interface ReportApproval {
   state: string;
   updated_at: Date;
 }
+
+export interface ReportActions {
+  can_add_approver: boolean;
+  can_admin_approve: boolean;
+  can_approve: boolean;
+  can_delete: boolean;
+  can_edit: boolean;
+  can_inquire: boolean;
+  can_payment_pending: boolean;
+  can_resubmit: boolean;
+  can_submit: boolean;
+  can_undo_payment_pending: boolean;
+  can_verify: boolean;
+  id: string;
+}
