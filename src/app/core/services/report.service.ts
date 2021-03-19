@@ -276,7 +276,7 @@ export class ReportService {
     );
   }
 
-  downloadSummaryPdfUrl(data: { report_ids: string[], email: string }) {
+  downloadSummaryPdfUrl(data: { report_ids: string[], email: string }): Observable<{report_url: string}> {
     return this.apiService.post('/reports/summary/download', data);
   }
 
