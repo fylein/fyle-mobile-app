@@ -112,6 +112,7 @@ export interface ReportParams {
   state?: string[];
 }
 export interface ReportApproval {
+  approved_at?: Date; //Calculating this value in frontend, API is not returning this value
   added_by: string;
   approver_email: string;
   approver_id: string;

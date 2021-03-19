@@ -260,7 +260,7 @@ export class ReportService {
     return this.apiService.get('/reports/' + rptId + '/exports');
   }
 
-  getApproversByReportId(rptId: string) {
+  getApproversByReportId(rptId: string): Observable<ReportApproval[]> {
     return this.apiService.get('/reports/' + rptId + '/approvers');
   }
 
