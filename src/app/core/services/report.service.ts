@@ -75,7 +75,7 @@ export class ReportService {
       extendedReportV2.rp_reimbursed_at = new Date(extendedReportV2.rp_reimbursed_at);
     }
 
-    if(extendedReportV2.rp_submitted_at) {
+    if (extendedReportV2.rp_submitted_at) {
       extendedReportV2.rp_submitted_at = new Date(extendedReportV2.rp_submitted_at);
     }
 
@@ -222,7 +222,7 @@ export class ReportService {
     );
   }
 
-  getReport(id: string) {
+  getReport(id: string): Observable<ExtendedReportV2> {
     return this.getMyReports({
       offset: 0,
       limit: 1,
