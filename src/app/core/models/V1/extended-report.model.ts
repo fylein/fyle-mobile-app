@@ -51,5 +51,5 @@ export interface ExtendedReportStats {
   total_count: number;
 }
 export interface ReportParams {
-  state: string[];
+  state?: string[];
 }

@@ -302,7 +302,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
   }
 
   getReportNeedAttentionStats() {
-    return this.reportService.getPaginatedERptcCount({ state: 'APPROVER_INQUIRY' });
+    return this.reportService.getPaginatedERptcCount({ state: ['APPROVER_INQUIRY'] });
   }
 
   getAdvanceNeedAttentionStats() {
