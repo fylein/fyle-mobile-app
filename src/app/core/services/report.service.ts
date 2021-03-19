@@ -281,7 +281,7 @@ export class ReportService {
   }
 
 
-  getAllExtendedReports(config: Partial<{ order: string, queryParams: any }>) {
+  getAllExtendedReports(config: Partial<{ order: string, queryParams: ExtendedReportQueryParams }>): Observable<ExtendedReportV2[]> {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap(count => {
         count = count > 50 ? count / 50 : 1;
