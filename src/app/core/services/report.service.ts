@@ -333,7 +333,7 @@ export class ReportService {
     }
   }
 
-  searchParamsGenerator(search, sortOrder?) {
+  searchParamsGenerator(search: {state: string}, sortOrder?): ReportParams {
     let params = {};
 
     params = this.userReportsSearchParamsGenerator(params, search);
@@ -343,7 +343,6 @@ export class ReportService {
   }
 
   userReportsSearchParamsGenerator(params, search) {
-
     const searchParams = this.getUserReportParams(search.state);
 
     let dateParams = null;
@@ -458,7 +457,7 @@ export class ReportService {
     });
   }
 
-  getFilteredPendingReports(searchParams) {
+  getFilteredPendingReports(searchParams: {state: string}): Observable<ExtendedReportV1[]> {
     const params = this.searchParamsGenerator(searchParams);
 
     return this.getPaginatedERptcCount(params).pipe(
