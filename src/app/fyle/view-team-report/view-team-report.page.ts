@@ -145,7 +145,13 @@ export class ViewTeamReportPage implements OnInit {
 
     this.etxns$ = from(this.authService.getEou()).pipe(
       switchMap(eou => {
-        return this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id);
+        // return this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id);
+        return this.transactionService.getAllETxnc({
+          //tx_org_user_id: 'eq.' + eou.ou.id,
+          //transaction_approvals: 'in(ou7xhEmjqEXq)',
+          tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
+          order: 'tx_txn_dt.desc,tx_id.desc'
+        });
       }),
       map(
         etxns => etxns.map(etxn => {
