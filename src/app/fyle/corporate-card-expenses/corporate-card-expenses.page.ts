@@ -59,15 +59,12 @@ export class CorporateCardExpensesPage implements OnInit {
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
-    private modalController: ModalController,
     private dateService: DateService,
     private currencyService: CurrencyService,
     private popoverController: PopoverController,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private router: Router,
-    private transactionOutboxService: TransactionsOutboxService,
-    private activatedRoute: ActivatedRoute,
-    private popupService: PopupService
+    private activatedRoute: ActivatedRoute
   ) {
   }
 
