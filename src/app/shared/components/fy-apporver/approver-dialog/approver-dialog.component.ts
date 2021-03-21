@@ -133,7 +133,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     return this.orgUserService.getEmployeesBySearch(params).pipe(
       map(eouc => {
         return eouc.filter(eou => {
-          return this.approverEmailsList.indexOf(eou.us_email) < 0;
+          return this.approverEmailsList.indexOf(eou.us_email) === -1;
         });
       }),
       map(eouc => {
