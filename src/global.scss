@@ -83,6 +83,15 @@ input:focus, textarea:focus{
 
   .popover-viewport {
     height: 100%;
+    &.sc-ion-popover-ios {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+}
+
+.modal-wrapper {
+  &.sc-ion-modal-ios {
+    margin-bottom: env(safe-area-inset-bottom);
   }
 }
 

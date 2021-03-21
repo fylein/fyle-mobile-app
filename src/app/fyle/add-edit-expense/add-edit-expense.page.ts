@@ -2930,8 +2930,10 @@ export class AddEditExpensePage implements OnInit {
         const {data} = await attachmentsModal.onWillDismiss();
 
         if (this.mode === 'add') {
-          this.newExpenseDataUrls = data.attachments;
-          this.attachedReceiptsCount = data.attachments.length;
+          if (data && data.attachments) {
+            this.newExpenseDataUrls = data.attachments;
+            this.attachedReceiptsCount = data.attachments.length;
+          }
         } else {
           this.etxn$.pipe(
             switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
