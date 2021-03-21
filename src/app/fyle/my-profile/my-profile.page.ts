@@ -185,7 +185,6 @@ export class MyProfilePage implements OnInit {
     return this.orgUserSettingsService.post(this.orgUserSettings)
       .pipe(
         map((res) => {
-          console.log(res);
           if (this.orgUserSettings.bulk_fyle_settings.enabled) {
             this.trackingService.onEnableBulkFyle({Asset: 'Mobile', persona: 'Enterprise'});
           } else {
@@ -200,7 +199,6 @@ export class MyProfilePage implements OnInit {
     return this.orgUserSettingsService.post(this.orgUserSettings)
       .pipe(
         map((res) => {
-          console.log(res);
           // Todo: Tracking service and disable toogle button
         })
       )
@@ -211,12 +209,6 @@ export class MyProfilePage implements OnInit {
     this.orgUserSettings.one_click_action_settings.module = null;
     this.oneClickActionSelectedModuleId = '';
     return this.orgUserSettingsService.post(this.orgUserSettings)
-      .pipe(
-        map((res) => {
-          console.log(res);
-          // Todo: Tracking service and disable toogle button
-        })
-      )
       .subscribe(noop);
   }
 

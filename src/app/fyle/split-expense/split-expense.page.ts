@@ -151,7 +151,6 @@ export class SplitExpensePage implements OnInit {
   }
 
   createAndLinkTxnsWithFiles(splitExpenses) {
-    console.log(splitExpenses);
     const splitExpense$: any = {
       txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses)
     };

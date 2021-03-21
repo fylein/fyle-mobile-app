@@ -548,7 +548,6 @@ export class AddEditExpensePage implements OnInit {
       const controlErrors: ValidationErrors = this.fg.get(key).errors;
       if (controlErrors != null) {
         Object.keys(controlErrors).forEach(keyError => {
-          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
         });
       }
     });
@@ -969,7 +968,6 @@ export class AddEditExpensePage implements OnInit {
     const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
       return iif(() => etxn.tx.org_category_id,
         allCategories$.pipe(
-          tap(console.log),
           map(categories => categories
             .filter(category => {
               if (!category.fyle_category) {
@@ -1143,7 +1141,6 @@ export class AddEditExpensePage implements OnInit {
         });
       }
 
-      console.log({ report });
 
       this.fg.patchValue({
         project,
