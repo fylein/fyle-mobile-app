@@ -65,36 +65,38 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar mode="md" class="my-create-report--footer">
-    <ion-grid>
-      <ion-row>
-        <ion-col size="8">
-          <div>
-            <span class="my-create-report--footer-currency">{{homeCurrency$|async}}</span>
-            <span class="my-create-report--footer-amount"> {{selectedTotalAmount | number: '1.2-2'}} </span>
-          </div>
-          <div class="my-create-report--footer-summary">
-            {{selectedTotalTxns}} expenses selected
-          </div>
-        </ion-col>
-
-        <ion-col size="4">
-          <div *ngIf="readyToReportEtxns && readyToReportEtxns?.length > 0" class="my-create-report--secondary-action">
-            <span *ngIf="readyToReportEtxns.length === selectedTotalTxns" (click)="toggleSelectAll(false)">Unselect All</span>
-            <span *ngIf="readyToReportEtxns.length !== selectedTotalTxns" (click)="toggleSelectAll(true)">Select All</span>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-    <ion-buttons>
-      <ion-button class="my-create-report--primary-cta" fill="outline" color="fyle-primary" (click)="showReportSummaryPopover('draft')"
-      appFormButtonValidation [loading]="saveDraftReportLoading" [loadingText]="'SAVING'" [disabled]="saveDraftReportLoading  || saveReportLoading">
-        SAVE DRAFT
-      </ion-button>
-      <ion-button class="my-create-report--primary-cta" fill="solid" color="fyle-primary" (click)="showReportSummaryPopover('submit')"
-        appFormButtonValidation [loading]="saveReportLoading" [loadingText]="'SAVING'" [disabled]="saveDraftReportLoading  || saveReportLoading || this.selectedTotalTxns === 0">
-        SUBMIT REPORT
-      </ion-button>
-    </ion-buttons>
+  <ion-toolbar mode="md">
+    <div class="my-create-report--footer">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="8">
+            <div>
+              <span class="my-create-report--footer-currency">{{homeCurrency$|async}}</span>
+              <span class="my-create-report--footer-amount"> {{selectedTotalAmount | number: '1.2-2'}} </span>
+            </div>
+            <div class="my-create-report--footer-summary">
+              {{selectedTotalTxns}} expenses selected
+            </div>
+          </ion-col>
+  
+          <ion-col size="4">
+            <div *ngIf="readyToReportEtxns && readyToReportEtxns?.length > 0" class="my-create-report--secondary-action">
+              <span *ngIf="readyToReportEtxns.length === selectedTotalTxns" (click)="toggleSelectAll(false)">Unselect All</span>
+              <span *ngIf="readyToReportEtxns.length !== selectedTotalTxns" (click)="toggleSelectAll(true)">Select All</span>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <ion-buttons>
+        <ion-button class="my-create-report--primary-cta" fill="outline" color="fyle-primary" (click)="showReportSummaryPopover('draft')"
+        appFormButtonValidation [loading]="saveDraftReportLoading" [loadingText]="'SAVING'" [disabled]="saveDraftReportLoading  || saveReportLoading">
+          SAVE DRAFT
+        </ion-button>
+        <ion-button class="my-create-report--primary-cta" fill="solid" color="fyle-primary" (click)="showReportSummaryPopover('submit')"
+          appFormButtonValidation [loading]="saveReportLoading" [loadingText]="'SAVING'" [disabled]="saveDraftReportLoading  || saveReportLoading || this.selectedTotalTxns === 0">
+          SUBMIT REPORT
+        </ion-button>
+      </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-footer>

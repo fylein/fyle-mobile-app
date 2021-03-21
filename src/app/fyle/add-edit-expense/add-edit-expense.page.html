@@ -831,28 +831,30 @@
 
 <ng-container *ngIf="fg">
   <ion-footer>
-    <ion-toolbar class="add-edit-expense--footer-toolbar" mode="md">
-      <ion-buttons *ngIf="!reviewList">
-        <ion-button (click)="saveExpense()" [disabled]="saveExpenseLoader || saveAndNewExpenseLoader" [loadingText]="'SAVING'" [loading]="saveExpenseLoader"
-                    appFormButtonValidation class="add-edit-expense--primary-cta"
-                    color="fyle-primary" fill="solid">
-          Save
-        </ion-button>
-        <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add' && !navigateBack"
-                    [disabled]="fg.controls.add_to_new_report.value || (saveExpenseLoader || saveAndNewExpenseLoader)"
-                    [loadingText]="'SAVING'" [loading]="saveAndNewExpenseLoader"
-                    appFormButtonValidation
-                    class="add-edit-expense--primary-cta" color="fyle-primary" fill="solid">
-          Save and New
-        </ion-button>
-      </ion-buttons>
-      <ion-buttons *ngIf="reviewList">
-        <ion-button (click)="saveExpenseAndGotoNext()" [loadingText]="'SAVING'" [loading]="saveAndNextExpenseLoader"
-                    appFormButtonValidation
-                    class="add-edit-expense--primary-cta" color="fyle-primary" fill="solid">
-          {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
-        </ion-button>
-      </ion-buttons>
+    <ion-toolbar mode="md">
+      <div class="add-edit-expense--footer-toolbar">
+        <ion-buttons *ngIf="!reviewList">
+          <ion-button (click)="saveExpense()" [disabled]="saveExpenseLoader || saveAndNewExpenseLoader" [loadingText]="'SAVING'" [loading]="saveExpenseLoader"
+                      appFormButtonValidation class="add-edit-expense--primary-cta"
+                      color="fyle-primary" fill="solid">
+            Save
+          </ion-button>
+          <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add' && !navigateBack"
+                      [disabled]="fg.controls.add_to_new_report.value || (saveExpenseLoader || saveAndNewExpenseLoader)"
+                      [loadingText]="'SAVING'" [loading]="saveAndNewExpenseLoader"
+                      appFormButtonValidation
+                      class="add-edit-expense--primary-cta" color="fyle-primary" fill="solid">
+            Save and New
+          </ion-button>
+        </ion-buttons>
+        <ion-buttons *ngIf="reviewList">
+          <ion-button (click)="saveExpenseAndGotoNext()" [loadingText]="'SAVING'" [loading]="saveAndNextExpenseLoader"
+                      appFormButtonValidation
+                      class="add-edit-expense--primary-cta" color="fyle-primary" fill="solid">
+            {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
+          </ion-button>
+        </ion-buttons>
+      </div>
     </ion-toolbar>
   </ion-footer>
 </ng-container>
