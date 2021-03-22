@@ -20,6 +20,11 @@
     &__edit {
       padding: 8px 16px
     }
+
+    &_external-component {
+      padding: 0 16px;
+      border: none;
+    }
   }
 
   &--content-header {

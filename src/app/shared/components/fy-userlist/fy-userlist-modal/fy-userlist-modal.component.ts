@@ -1,8 +1,11 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
-import { Observable, fromEvent } from 'rxjs';
+import { Observable, fromEvent, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged } from 'rxjs/operators';
-import { isEqual } from 'lodash';
+import { map, startWith, distinctUntilChanged, switchMap, finalize, concatMap } from 'rxjs/operators';
+import { isEqual, cloneDeep } from 'lodash';
+import { Employee } from 'src/app/core/models/employee.model';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-fy-userlist-modal',
@@ -11,18 +14,28 @@ import { isEqual } from 'lodash';
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
   @Input() currentSelections: any[] = [];
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+  @Input() filteredOptions$: Observable<Employee[]>;
   @Input() placeholder;
+
   value;
+  eouc$: Observable<Employee[]>;
+  options: { label: string, value: any, selected?: boolean }[] = [];
+  selectedUsers: any[] = [];
+  intialSelectedEmployees: any[] = [];
+  userListCopy$: Observable<Employee[]>;
 
   constructor(
     private modalController: ModalController,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private orgUserService: OrgUserService,
+    private loaderService: LoaderService
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.intialSelectedEmployees = cloneDeep(this.currentSelections);
+    this.intialSelectedEmployees.sort((a, b) => a < b ? -1 : 1);
+  }
 
   clearValue() {
     this.value = '';
@@ -31,20 +44,80 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  getDefaultUsersList() {
+    const params: any = {
+      order: 'us_full_name.asc,us_email.asc,ou_id',
+    };
+
+    if (this.currentSelections.length > 0) {
+      params.us_email = `in.(${this.currentSelections.join(',')})`;
+    } else {
+      params.limit = 20;
+    }
+
+    return from(this.loaderService.showLoader('Loading...')).pipe(
+      switchMap(_ => {
+        return this.orgUserService.getEmployeesBySearch(params);
+      }),
+      map(eouc => {
+        return eouc.map(eou => {
+          eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
+          return eou;
+        });
+      }),
+      finalize(() => from(this.loaderService.hideLoader()))
+    );
+  }
+
+  getSearchedUsersList(searchText?: string) {
+    const params: any = {
+      limit: 20,
+      order: 'us_full_name.asc,us_email.asc,ou_id',
+    };
+
+    if (searchText) {
+      params.or = `(us_email.ilike.*${searchText}*,us_full_name.ilike.*${searchText}*)`;
+    }
+
+    return this.orgUserService.getEmployeesBySearch(params).pipe(
+      map(eouc => {
+        return eouc.map(eou => {
+          if (this.currentSelections && this.currentSelections.length > 0) {
+            eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
+          }
+          return eou;
+        });
+      })
+    );
+  }
+
+  getUsersList(searchText) {
+    if (searchText) {
+      return this.getSearchedUsersList(searchText);
+    } else {
+      return this.getDefaultUsersList().pipe(
+        switchMap(employees => {
+          return this.getSearchedUsersList().pipe(
+            map(searchedEmployees => {
+              searchedEmployees = searchedEmployees.filter(searchedEmployee => {
+                return !employees.find(employee => employee.us_email === searchedEmployee.us_email);
+              });
+              return employees.concat(searchedEmployees);
+            })
+          );
+        })
+      );
+    }
+  }
+
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      map((searchText) => this.options
-        .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
-        .map(option => {
-          if (this.currentSelections) {
-            option.selected = this.currentSelections.includes(option.value);
-          }
-          return option;
-        }).sort((a, b) => a.value < b.value ? -1 : 1).sort((a, b) => !!a.selected > !!b.selected ? -1 : 1)
-      ),
+      switchMap((searchText) => {
+        return this.getUsersList(searchText);
+      })
     );
     this.cdr.detectChanges();
   }
@@ -53,22 +126,18 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelected(selectedOption) {
-    this.options = this.options.map(option => {
-      if (isEqual(option.value, selectedOption.value)) {
-        option.selected = selectedOption.selected;
-      }
-      return option;
-    });
-
-    this.currentSelections = this.options
-                                  .filter(option => option.selected)
-                                  .map(option => option.value);
+  onSelect(selectedOption: Employee, event: { checked: boolean; }) {
+    if (event.checked) {
+      this.currentSelections.push(selectedOption.us_email);
+    } else {
+      const index = this.currentSelections.indexOf(selectedOption.us_email);
+      this.currentSelections.splice(index, 1);
+    }
   }
 
   useSelected() {
     this.modalController.dismiss({
-      selected: this.options.filter(option => option.selected)
+      selected: this.currentSelections
     });
   }
 }

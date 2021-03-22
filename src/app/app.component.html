@@ -45,7 +45,7 @@
                 </a>
               </ion-item>
               <ng-container *ngIf="allowedActions$|async as allowedActions">
-                <div *ngIf="sideMenuItem.title === 'Profile' && (allowedActions?.allowedReportsActions?.approve || allowedActions?.allowedAdvancesActions?.approve)" class="sidemenu--divider"></div>
+                <div *ngIf="sideMenuItem.title === dividerTitle && (allowedActions?.allowedReportsActions?.approve || allowedActions?.allowedAdvancesActions?.approve)" class="sidemenu--divider"></div>
               </ng-container>
             </ng-container>
           </div>

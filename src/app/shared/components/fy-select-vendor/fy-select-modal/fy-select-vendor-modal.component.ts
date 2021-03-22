@@ -5,6 +5,7 @@ import { map, startWith, distinctUntilChanged, switchMap, catchError } from 'rxj
 import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { Vendor, VendorListItem } from 'src/app/core/models/vendor.model';
 @Component({
   selector: 'app-fy-select-vendor-modal',
   templateUrl: './fy-select-vendor-modal.component.html',
@@ -13,8 +14,8 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() currentSelection: any;
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
-  recentrecentlyUsedItems$: Observable<any[]>;
+  @Input() filteredOptions$: Observable<VendorListItem[]>;
+  recentrecentlyUsedItems$: Observable<VendorListItem[]>;
   value = '';
 
   constructor(
@@ -40,18 +41,23 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       distinctUntilChanged(),
       switchMap((searchText) => {
-        return this.vendorService.get(searchText).pipe(
-          map(vendors => vendors.map(vendor => ({
-            label: vendor.display_name,
-            value: vendor
-          }))
-          ),
-          catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
-          map(vendors => [{ label: 'None', value: null }].concat(vendors))
-        );
+        searchText = searchText.trim();
+        if (searchText) {
+          return this.vendorService.get(searchText).pipe(
+            map(vendors => vendors.map(vendor => ({
+              label: vendor.display_name,
+              value: vendor
+            }))
+            ),
+            catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
+            map(vendors => [{ label: 'None', value: null }].concat(vendors))
+          );
+        } else {
+          return [];
+        }
       }),
       startWith([{ label: 'None', value: null }]),
-      map((vendors: any[]) => {
+      map((vendors: VendorListItem[]) => {
         if (!vendors.some(vendor => isEqual(vendor.value, this.currentSelection))) {
           vendors = vendors.concat({
             label: this.currentSelection.display_name, 
@@ -69,7 +75,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     );
 
     this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
-      map((options: any) => {
+      map((options: VendorListItem[]) => {
         return options
           .map(option => {
           option.selected = isEqual(option.value, this.currentSelection);
@@ -85,7 +91,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option) {
+  onElementSelect(option: VendorListItem) {
     if (option.value) {
       this.recentLocalStorageItemsService.post('recentVendorList', option, 'label');
     }
@@ -93,6 +99,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   }
 
   onNewSelect() {
+    this.value = this.value.trim();
     const newOption = { label: this.value, value: { display_name: this.value } };
     this.recentLocalStorageItemsService.post('recentVendorList', newOption, 'label');
     this.modalController.dismiss(newOption);

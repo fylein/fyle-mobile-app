@@ -93,7 +93,7 @@ export class ViewTeamTripPage implements OnInit {
     }
   }
 
-  onUpdateApprover(message: string) {
+  onUpdateApprover(message: boolean) {
     if (message) {
       this.refreshApprovers$.next();
     }
@@ -296,7 +296,13 @@ export class ViewTeamTripPage implements OnInit {
       currentApproval$
     ]).pipe(
       map(([eou, actions, currentApproval]) => {
-        actions.can_approve = actions.can_approve && eou.ou.roles.indexOf('ADMIN') > -1 && currentApproval === 'APPROVAL_PENDING'
+        if (actions.can_approve && eou.ou.roles.indexOf('ADMIN') > -1) {
+          if (currentApproval === 'APPROVAL_PENDING') {
+            actions.can_approve = true;
+          } else {
+            actions.can_approve = false;
+          }
+        }
         return actions;
       })
     );
@@ -338,19 +344,6 @@ export class ViewTeamTripPage implements OnInit {
       }),
       map(({ tripRequest, allTripRequestCustomFields }) => {
         return this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest);
-      })
-    );
-
-    this.approvers$ = this.actions$.pipe(
-      filter(actions => actions.can_add_approver),
-      switchMap(() => {
-        return this.orgUserService.getAllCompanyEouc();
-      }),
-      withLatestFrom(this.approvals$, this.tripRequest$),
-      map((aggregatedRes) => {
-        const [eouc, approvals, tripRequest] = aggregatedRes;
-        const approversNotAllowed = this.getRestrictedApprovers(approvals, tripRequest);
-        return this.orgUserService.exclude(eouc, approversNotAllowed);
       })
     );
 

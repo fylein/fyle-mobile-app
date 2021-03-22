@@ -43,7 +43,6 @@ import {PolicyViolationComponent} from './policy-violation/policy-violation.comp
 import {StatusService} from 'src/app/core/services/status.service';
 import {FileService} from 'src/app/core/services/file.service';
 import {CameraOptionsPopupComponent} from './camera-options-popup/camera-options-popup.component';
-import {ViewAttachmentsComponent} from './view-attachments/view-attachments.component';
 import {CurrencyService} from 'src/app/core/services/currency.service';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {PopupService} from 'src/app/core/services/popup.service';
@@ -53,6 +52,7 @@ import {MatchTransactionComponent} from './match-transaction/match-transaction.c
 import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import {TokenService} from 'src/app/core/services/token.service';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1114,6 +1114,15 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: etxn.tx.orig_currency,
           }
         });
+      } else if (etxn.tx.user_amount && isNumber(etxn.tx.policy_amount) && (etxn.tx.policy_amount < 0.0001)) {
+        this.fg.patchValue({
+          currencyObj: {
+            amount: etxn.tx.user_amount,
+            currency: etxn.tx.currency,
+            orig_amount: etxn.tx.orig_amount,
+            orig_currency: etxn.tx.orig_currency,
+          }
+        });
       } else if (etxn.tx.currency !== homeCurrency) {
         this.fg.patchValue({
           currencyObj: {
@@ -1130,15 +1139,6 @@ export class AddEditExpensePage implements OnInit {
             currency: etxn.tx.currency,
             orig_amount: null,
             orig_currency: null
-          }
-        });
-      } else if (etxn.tx.user_amount) {
-        this.fg.patchValue({
-          currencyObj: {
-            amount: etxn.tx.user_amount,
-            currency: etxn.tx.currency,
-            orig_amount: null,
-            orig_currency: null,
           }
         });
       }
@@ -1316,15 +1316,16 @@ export class AddEditExpensePage implements OnInit {
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
-        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings()}).pipe(
-          map(({isConnected, orgSettings}) => ({
+        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings(), costCenters: this.costCenters$}).pipe(
+          map(({isConnected, orgSettings, costCenters}) => ({
             isConnected,
             txnFields,
-            orgSettings
+            orgSettings,
+            costCenters
           }))
         );
       })
-    ).subscribe(({isConnected, txnFields, orgSettings}) => {
+    ).subscribe(({isConnected, txnFields, orgSettings, costCenters}) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1370,7 +1371,7 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
-              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
+              isConnected
             ) {
               control.setValidators(Validators.required);
             }
@@ -1378,12 +1379,14 @@ export class AddEditExpensePage implements OnInit {
             if (this.fg.value.category &&
               this.fg.value.category.fyle_category &&
               ['Taxi'].includes(this.fg.value.category.fyle_category) &&
-              (orgSettings.projects && orgSettings.projects.enabled && isConnected)
+              isConnected
             ) {
               control.setValidators(Validators.required);
             }
           } else if (txnFieldKey === 'txn_dt') {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
+          } else if (txnFieldKey === 'cost_center_id') {
+            control.setValidators((isConnected && costCenters && costCenters.length > 0) ? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
@@ -1501,8 +1504,8 @@ export class AddEditExpensePage implements OnInit {
               if (shouldExtractCategory && etxn.tx.extracted_data.category
                 && etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified') {
                 const categoryName = etxn.tx.extracted_data.category || 'unspecified';
-                const category = allCategories.find(innerCategory => innerCategory.name === categoryName);
-                etxn.tx.id = category.id;
+                const category = allCategories.find(innerCategory => innerCategory.name && innerCategory.name.toLowerCase() === categoryName.toLowerCase());
+                etxn.tx.org_category_id = category && category.id;
               }
               return of(etxn);
             })
@@ -1682,10 +1685,11 @@ export class AddEditExpensePage implements OnInit {
 
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
-      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
-    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+      projectsCount : this.offlineService.getProjectCount()
+    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, projectsCount}) => {
         if (!isIndividualProjectsEnabled) {
-          return true;
+          return projectsCount > 0;
         } else {
           return individualProjectIds.length > 0;
         }
@@ -2011,6 +2015,8 @@ export class AddEditExpensePage implements OnInit {
             policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
           }
         }
+
+        policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
         return this.offlineService.getAllCategories().pipe(
           map((categories: any[]) => {
@@ -2912,9 +2918,10 @@ export class AddEditExpensePage implements OnInit {
     )
       .subscribe(async (attachments) => {
         const attachmentsModal = await this.modalController.create({
-          component: ViewAttachmentsComponent,
+          component: FyViewAttachmentComponent,
           componentProps: {
-            attachments
+            attachments,
+            canEdit: true
           }
         });
 
@@ -2923,8 +2930,10 @@ export class AddEditExpensePage implements OnInit {
         const {data} = await attachmentsModal.onWillDismiss();
 
         if (this.mode === 'add') {
-          this.newExpenseDataUrls = data.attachments;
-          this.attachedReceiptsCount = data.attachments.length;
+          if (data && data.attachments) {
+            this.newExpenseDataUrls = data.attachments;
+            this.attachedReceiptsCount = data.attachments.length;
+          }
         } else {
           this.etxn$.pipe(
             switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),

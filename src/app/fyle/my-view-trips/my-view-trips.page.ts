@@ -53,6 +53,9 @@ export class MyViewTripsPage implements OnInit {
   canCloseTrip$: Observable<boolean>;
   canDelete$: Observable<boolean>;
   canEdit$: Observable<boolean>;
+  pullbackLoading = false;
+  deleteLoading = false;
+  closeLoading = false;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -74,6 +77,10 @@ export class MyViewTripsPage implements OnInit {
 
 
   async deleteTrip() {
+    if (this.deleteLoading || this.closeLoading || this.pullbackLoading) {
+      return;
+    }
+    this.deleteLoading = true;
     const id = this.activatedRoute.snapshot.params.id;
 
     const popupResults = await this.popupService.showPopup({
@@ -86,8 +93,11 @@ export class MyViewTripsPage implements OnInit {
 
     if (popupResults === 'primary') {
       this.tripRequestsService.delete(id).subscribe(() => {
+        this.deleteLoading = false;
         this.router.navigate(['/', 'enterprise', 'my_trips']);
       });
+    } else {
+      this.deleteLoading = false;
     }
   }
 
@@ -208,6 +218,7 @@ export class MyViewTripsPage implements OnInit {
   }
 
   async pullBack() {
+    this.pullbackLoading = true;
     const pullBackPopover = await this.popoverController.create({
       component: PullBackTripComponent,
       cssClass: 'dialog-popover'
@@ -233,14 +244,20 @@ export class MyViewTripsPage implements OnInit {
         switchMap(() => {
           return this.tripRequestsService.pullBackTrip(id, addStatusPayload);
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.pullbackLoading = false;
+          from(this.loaderService.hideLoader())
+        })
       ).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_trips']);
       });
+    } else {
+      this.pullbackLoading = false;
     }
   }
 
   async closeTrip() {
+    this.closeLoading = true;
     const id = this.activatedRoute.snapshot.params.id;
 
     const popupResults = await this.popupService.showPopup({
@@ -256,10 +273,15 @@ export class MyViewTripsPage implements OnInit {
         switchMap(() => {
           return this.tripRequestsService.closeTrip(id);
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.closeLoading = false;
+          from(this.loaderService.hideLoader());
+        })
       ).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_trips']);
       });
+    } else {
+      this.closeLoading = false;
     }
   }
 
@@ -304,19 +326,6 @@ export class MyViewTripsPage implements OnInit {
         travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details)
       })
     ));
-
-    this.approvers$ = this.actions$.pipe(
-      filter(actions => actions.can_add_approver),
-      switchMap(() => {
-        return this.orgUserService.getAllCompanyEouc();
-      }),
-      withLatestFrom(this.approvals$, this.tripRequest$),
-      map((aggregatedRes) => {
-        const [eouc, approvals, tripRequest] = aggregatedRes;
-        const approversNotAllowed = this.getRestrictedApprovers(approvals, tripRequest);
-        return this.orgUserService.exclude(eouc, approversNotAllowed);
-      })
-    );
 
     this.canPullBack$ = this.actions$.pipe(
       map(actions => actions.can_pull_back)

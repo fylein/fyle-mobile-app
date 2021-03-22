@@ -8,7 +8,6 @@ import { PopoverController } from '@ionic/angular';
 })
 export class ShareReportComponent implements OnInit {
   email = '';
-  emailValidation = false;
 
   constructor(
     private popoverController: PopoverController
@@ -19,9 +18,7 @@ export class ShareReportComponent implements OnInit {
   }
 
   shareReport(emailInput) {
-    this.emailValidation = false;
-    if (!(emailInput.value.trim().length > 0)) {
-      this.emailValidation = true;
+    if (!(emailInput.value.trim().length > 0) || emailInput.invalid) {
       return;
     }
 

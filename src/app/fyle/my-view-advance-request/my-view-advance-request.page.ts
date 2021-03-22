@@ -12,8 +12,8 @@ import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -191,7 +191,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   async viewAttachments(attachments) {
     const attachmentsModal = await this.modalController.create({
-      component: ViewAttachmentComponent,
+      component: FyViewAttachmentComponent,
       componentProps: {
         attachments
       }

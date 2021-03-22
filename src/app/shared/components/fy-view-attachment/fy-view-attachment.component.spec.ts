@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FyModifyApproverComponent } from './fy-modify-approver.component';
+import { FyViewAttachmentComponent } from './fy-view-attachment.component';
 
-describe('FyModifyApproverComponent', () => {
-  let component: FyModifyApproverComponent;
-  let fixture: ComponentFixture<FyModifyApproverComponent>;
+describe('FyViewAttachmentComponent', () => {
+  let component: FyViewAttachmentComponent;
+  let fixture: ComponentFixture<FyViewAttachmentComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FyModifyApproverComponent ],
+      declarations: [ FyViewAttachmentComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FyModifyApproverComponent);
+    fixture = TestBed.createComponent(FyViewAttachmentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
