@@ -1308,7 +1308,7 @@ export class AddEditExpensePage implements OnInit {
     }
 
     // Check if category is extracted from instaFyle/autoFyle
-    const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowercase() !== 'unspecified';
+    const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowerCase() !== 'unspecified';
 
     /* Autofill category during these cases:
      * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
@@ -1317,7 +1317,7 @@ export class AddEditExpensePage implements OnInit {
      * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
      */
     if (doRecentOrgCategoryIdsExist && (!etxn.tx.id ||
-      (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowercase() !== 'unspecified')))) {
+      (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() !== 'unspecified')))) {
       const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
 
       if (autoFillCategory) {
@@ -1346,13 +1346,13 @@ export class AddEditExpensePage implements OnInit {
         const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
         if (this.initialFetch) {
           selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowercase() !== 'unspecified';
+            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowerCase() !== 'unspecified';
             if (etxn.tx.org_category_id) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
               );
-            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowercase() !== 'unspecified'))) {
+            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() !== 'unspecified'))) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(category => {
@@ -1381,13 +1381,13 @@ export class AddEditExpensePage implements OnInit {
         let selectedCategory$;
         const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
           selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowercase() !== 'unspecified';
+            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowerCase() !== 'unspecified';
             if (etxn.tx.org_category_id) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
               );
-            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowercase() !== 'unspecified'))) {
+            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() !== 'unspecified'))) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(category => {
