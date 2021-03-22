@@ -42,7 +42,7 @@ export class FyFlagExpenseComponent implements OnInit {
           const comment = {
             comment: data.message
           };
-          return this.statusService.post('transactions', this.etxn.tx_id, comment, false);
+          return this.statusService.post('transactions', this.etxn.tx_id, comment, true);
         }),
         concatMap(() => {
           // tslint:disable-next-line: max-line-length

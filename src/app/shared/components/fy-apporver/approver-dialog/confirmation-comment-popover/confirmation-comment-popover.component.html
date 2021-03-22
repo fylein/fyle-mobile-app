@@ -18,7 +18,7 @@
         </div>
         <div class="save-approver--approver-list">
           <div *ngFor="let approver of selectedApprovers" class="save-approver--approver-email">
-            <span>{{approver.us.email | ellipsis:30}}</span>
+            <span>{{approver | ellipsis:30}}</span>
           </div>
         </div>
         <div>
