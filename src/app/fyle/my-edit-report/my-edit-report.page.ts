@@ -18,6 +18,7 @@ import {NetworkService} from '../../core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { cloneDeep } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
+import { ExtendedReportInput } from 'src/app/core/models/V1/extended-report.model';
 
 @Component({
   selector: 'app-my-edit-report',

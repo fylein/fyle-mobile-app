@@ -74,14 +74,6 @@ export class MyViewReportPage implements OnInit {
     this.onPageExit.next();
   }
 
-  getShowViolation(etxn) {
-    return etxn.tx_id &&
-      (etxn.tx_manual_flag ||
-        etxn.tx_policy_flag) &&
-      !((typeof (etxn.tx_policy_amount) === 'number')
-        && etxn.tx_policy_amount < 0.0001);
-  }
-
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
