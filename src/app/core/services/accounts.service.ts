@@ -18,7 +18,7 @@ export class AccountsService {
     private currencyPipe: CurrencyPipe
   ) { }
 
-  getEMyAccounts(filters?): Observable<ExtendedAccount[]> {
+  getEMyAccounts(filters?: { account_type?: string; non_zero?: boolean }): Observable<ExtendedAccount[]> {
     const data = {
       params: filters
     };
