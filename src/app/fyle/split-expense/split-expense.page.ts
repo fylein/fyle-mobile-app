@@ -327,8 +327,7 @@ export class SplitExpensePage implements OnInit {
 
       this.isCorporateCardEnabled = false;
       orgSettings$.subscribe(orgSettings => {
-        // this.isCorporateCardEnabled = orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled;
-        this.isCorporateCardEnabled = false;
+        this.isCorporateCardEnabled = orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled;
       });
 
 
