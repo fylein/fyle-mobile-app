@@ -1317,7 +1317,7 @@ export class AddEditExpensePage implements OnInit {
      * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
      */
     if (doRecentOrgCategoryIdsExist && (!etxn.tx.id ||
-      (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() !== 'unspecified')))) {
+      (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() === 'unspecified')))) {
       const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
 
       if (autoFillCategory) {
@@ -1352,7 +1352,7 @@ export class AddEditExpensePage implements OnInit {
               .pipe(
                 map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
               );
-            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() !== 'unspecified'))) {
+            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(category => {
@@ -1387,7 +1387,7 @@ export class AddEditExpensePage implements OnInit {
               .pipe(
                 map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
               );
-            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() !== 'unspecified'))) {
+            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(category => {
@@ -1860,7 +1860,8 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
+      shareReplay(1)
     );
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
