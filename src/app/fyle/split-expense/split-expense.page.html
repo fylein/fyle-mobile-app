@@ -79,7 +79,7 @@
 
           <div class="split-expense--item">
             <span class="split-expense--label">%</span>
-            <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" (ngModelChange)="onChangePercentage(splitExpenseForm, i)">
+            <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" [min]="0.01" (ngModelChange)="onChangePercentage(splitExpenseForm, i)">
           </div>
         </div>
       </ng-container>
