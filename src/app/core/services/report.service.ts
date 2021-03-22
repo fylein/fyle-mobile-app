@@ -304,7 +304,7 @@ export class ReportService {
     );
   }
 
-  // This method is not used
+  // This method is not used, we should deprecate this
   getAllTeamExtendedReports(config: Partial<{ order: string, queryParams: any }> = {
     order: '',
     queryParams: {}
@@ -600,6 +600,7 @@ export class ReportService {
     return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
   }
 
+  // This method is not used, we should deprecate this
   getReportETxnc(rptId: string, orgUserId: string): Observable<Expense[]> {
     const data: any = {
       params: {}

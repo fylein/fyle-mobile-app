@@ -221,7 +221,7 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$
   })
-  getAllETxnc(params): Observable<Expense[]> {
+  getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap(res => {
         const count = res.count > 50 ? res.count / 50 : 1;
