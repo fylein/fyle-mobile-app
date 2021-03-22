@@ -42,8 +42,15 @@
     color: white;
   }
 
+  &--cta-container {
+    margin: 12px;
+  }
+
   &--delete {
-    padding: 0 8px;
+    height: 48px;
+    --border-radius: 4px !important;
+    width: 100%;
+    margin: 0;
   }
 
   &--pdf-controls {

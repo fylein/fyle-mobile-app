@@ -18,7 +18,6 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { OtpPopoverComponent } from './otp-popover/otp-popover.component';
 import { Plugins } from '@capacitor/core';
 import { TokenService } from 'src/app/core/services/token.service';
 import {TrackingService} from '../../core/services/tracking.service';
@@ -50,14 +49,9 @@ export class MyProfilePage implements OnInit {
     email: number;
     web: number;
   }>;
-  isMobileChanged: boolean;
-  isMobileCountryCodeNotPresent: boolean;
-  showInvalidMobileFormat: boolean;
   isApiCallInProgress = false;
-  mobileNumber: string;
   org$: Observable<any>;
   clusterDomain: string;
-  verifyMobileLoading = false;
   saveProfileLoading = false;
   ROUTER_API_ENDPOINT: string;
 
@@ -102,24 +96,9 @@ export class MyProfilePage implements OnInit {
     this.toggleUsageDetailsTab = !this.toggleUsageDetailsTab;
   }
 
-  onMobileNumberChanged(eou) {
-    this.isMobileChanged = true;
-    if (this.mobileNumber && this.mobileNumber.charAt(0) !== '+') {
-      this.isMobileCountryCodeNotPresent = true;
-    } else {
-      this.isMobileCountryCodeNotPresent = false;
-    }
-
-  }
-
   saveUserProfile(eou) {
-    if (this.mobileNumber && this.mobileNumber.charAt(0) !== '+') {
-      this.presentToast('Please enter a valid number with country code. eg. +1XXXXXXXXXX, +91XXXXXXXXXX', 2000);
-    } else {
       this.saveProfileLoading = true;
-      if (this.isMobileChanged) {
-        eou.ou.mobile = this.mobileNumber;
-      }
+
       forkJoin({
         userSettings: this.orgUserService.postUser(eou.us),
         orgUserSettings: this.orgUserService.postOrgUser(eou.ou)
@@ -128,7 +107,6 @@ export class MyProfilePage implements OnInit {
           return this.authService.refreshEou().pipe(
             tap(() => this.trackingService.activated({Asset: 'Mobile'})),
             map(() => {
-              this.isMobileChanged = false;
               this.presentToast('Profile saved successfully', 1000);
               this.reset();
             })
@@ -138,7 +116,6 @@ export class MyProfilePage implements OnInit {
           this.saveProfileLoading = false;
         })
       ).subscribe(noop);
-    }
   }
 
   async presentToast(message, duration) {
@@ -219,17 +196,6 @@ export class MyProfilePage implements OnInit {
       .subscribe(noop);
   }
 
-  toggleWhatsappSettings() {
-    return this.orgUserSettingsService.post(this.orgUserSettings)
-      .pipe(
-        map((res) => {
-          console.log(res);
-          // Todo: Tracking service and disable toogle button
-        })
-      )
-      .subscribe(noop);
-  }
-
   toggleAutofillSettings() {
     return this.orgUserSettingsService.post(this.orgUserSettings)
       .subscribe(noop);
@@ -262,20 +228,6 @@ export class MyProfilePage implements OnInit {
   getOneClickActionSelectedModule(id: string) {
     const oneClickActionSelectedModule = this.oneClickActionService.filterByOneClickActionById(id);
     this.oneClickActionSelectedModuleId = oneClickActionSelectedModule.value;
-  }
-
-  oneClickActionModuleChanged() {
-    // One click action module value changed
-    console.log(this.oneClickActionSelectedModuleId);
-    this.orgUserSettings.one_click_action_settings.module = this.oneClickActionSelectedModuleId;
-    return this.orgUserSettingsService.post(this.orgUserSettings)
-      .pipe(
-        map((res) => {
-          console.log(res);
-          // Todo: Tracking service and disable toogle button
-        })
-      )
-      .subscribe(noop);
   }
 
   ionViewWillEnter() {
@@ -331,7 +283,6 @@ export class MyProfilePage implements OnInit {
       this.orgUserSettings = res.orgUserSettings;
       this.orgSettings = res.orgSettings;
       this.oneClickActionOptions = this.oneClickActionService.getAllOneClickActionOptions();
-      this.mobileNumber = res.eou.ou.mobile;
     });
   }
 
@@ -349,68 +300,11 @@ export class MyProfilePage implements OnInit {
     );
   }
 
-  async verifyOtp() {
-    const otpPopover = await this.popoverController.create({
-      componentProps: {
-        phoneNumber: this.mobileNumber
-      },
-      component: OtpPopoverComponent,
-      cssClass: 'dialog-popover'
-    })
-
-    await otpPopover.present();
-
-    const { data } = await otpPopover.onWillDismiss();
-    if (data && data.isSuccess) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  openOtpPopover() {
-    this.verifyMobileLoading = true;
-    const that = this;
-    that.eou$.pipe(
-      switchMap(eou => {
-        if (that.mobileNumber && that.mobileNumber.charAt(0) !== '+') {
-          return throwError({
-            type: 'plusMissingError'
-          });
-        } else {
-          that.isApiCallInProgress = true;
-          return that.orgUserService.verifyMobile();
-        }
-      }),
-      switchMap((resp) => {
-        return this.verifyOtp();
-      }),
-      catchError((error) => {
-        if (error.type === 'plusMissingError') {
-          that.showInvalidMobileFormat = true;
-          setTimeout(() => {
-            that.showInvalidMobileFormat = false;
-          }, 5000);
-        } else {
-          this.presentToast(error.error.message, 2000);
-        }
-        return of(null);
-      }),
-      finalize(() => {
-        that.isApiCallInProgress = false;
-        that.verifyMobileLoading = false;
-      })
-    ).subscribe(() => {
-      that.reset();
-    });
-  }
-
   openWebAppLink(location) {
     let link;
+
     if (location === 'app') {
       link = this.ROUTER_API_ENDPOINT;
-    } else if (location === 'whatsapp') {
-      link = 'https://www.fylehq.com/help/en/articles/3432961-create-expense-using-whatsapp';
     } else if (location === 'sms') {
       link = 'https://www.fylehq.com/help/en/articles/3524059-create-expense-via-sms';
     }
@@ -420,5 +314,4 @@ export class MyProfilePage implements OnInit {
 
   ngOnInit() {
   }
-
 }

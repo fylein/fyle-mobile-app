@@ -43,7 +43,6 @@ import {PolicyViolationComponent} from './policy-violation/policy-violation.comp
 import {StatusService} from 'src/app/core/services/status.service';
 import {FileService} from 'src/app/core/services/file.service';
 import {CameraOptionsPopupComponent} from './camera-options-popup/camera-options-popup.component';
-import {ViewAttachmentsComponent} from './view-attachments/view-attachments.component';
 import {CurrencyService} from 'src/app/core/services/currency.service';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {PopupService} from 'src/app/core/services/popup.service';
@@ -59,6 +58,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OrgCategoryListItem } from 'src/app/core/models/org-category.model';
 import { ExtendedProject } from 'src/app/core/models/extended-project.model';
 import { CostCenter } from 'src/app/core/models/cost-center.model';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1447,15 +1447,16 @@ export class AddEditExpensePage implements OnInit {
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
-        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings()}).pipe(
-          map(({isConnected, orgSettings}) => ({
+        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings(), costCenters: this.costCenters$}).pipe(
+          map(({isConnected, orgSettings, costCenters}) => ({
             isConnected,
             txnFields,
-            orgSettings
+            orgSettings,
+            costCenters
           }))
         );
       })
-    ).subscribe(({isConnected, txnFields, orgSettings}) => {
+    ).subscribe(({isConnected, txnFields, orgSettings, costCenters}) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1515,6 +1516,8 @@ export class AddEditExpensePage implements OnInit {
             }
           } else if (txnFieldKey === 'txn_dt') {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
+          } else if (txnFieldKey === 'cost_center_id') {
+            control.setValidators((isConnected && costCenters && costCenters.length > 0) ? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
@@ -1824,10 +1827,11 @@ export class AddEditExpensePage implements OnInit {
 
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
-      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$
-    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled}) => {
+      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+      projectsCount : this.offlineService.getProjectCount()
+    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, projectsCount}) => {
         if (!isIndividualProjectsEnabled) {
-          return true;
+          return projectsCount > 0;
         } else {
           return individualProjectIds.length > 0;
         }
@@ -3059,9 +3063,10 @@ export class AddEditExpensePage implements OnInit {
     )
       .subscribe(async (attachments) => {
         const attachmentsModal = await this.modalController.create({
-          component: ViewAttachmentsComponent,
+          component: FyViewAttachmentComponent,
           componentProps: {
-            attachments
+            attachments,
+            canEdit: true
           }
         });
 
@@ -3070,8 +3075,10 @@ export class AddEditExpensePage implements OnInit {
         const {data} = await attachmentsModal.onWillDismiss();
 
         if (this.mode === 'add') {
-          this.newExpenseDataUrls = data.attachments;
-          this.attachedReceiptsCount = data.attachments.length;
+          if (data && data.attachments) {
+            this.newExpenseDataUrls = data.attachments;
+            this.attachedReceiptsCount = data.attachments.length;
+          }
         } else {
           this.etxn$.pipe(
             switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),

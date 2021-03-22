@@ -13,7 +13,6 @@ import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pul
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
@@ -33,8 +32,7 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
   ],
   declarations: [
     MyViewAdvanceRequestPage,
-    PullBackAdvanceRequestComponent,
-    ViewAttachmentComponent
+    PullBackAdvanceRequestComponent
   ]
 })
 export class MyViewAdvanceRequestPageModule { }

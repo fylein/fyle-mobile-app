@@ -18,10 +18,10 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
-import { ViewAttachmentsComponent } from './view-attachments/view-attachments.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -249,7 +249,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
                     } else {
                       this.saveAdvanceLoading = false;
                     }
-                    return this.router.navigate(['/', 'enterprise', 'my_advances']);
+                    if (this.from === 'TEAM_ADVANCE') {
+                      return this.router.navigate(['/', 'enterprise', 'team_advance']);
+                    } else {
+                      return this.router.navigate(['/', 'enterprise', 'my_advances']);
+                    }
                   })
                 );
               }
@@ -356,9 +360,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
       return attachment;
     });
     const attachmentsModal = await this.modalController.create({
-      component: ViewAttachmentsComponent,
+      component: FyViewAttachmentComponent,
       componentProps: {
-        attachments
+        attachments,
+        canEdit: true
       }
     });
 

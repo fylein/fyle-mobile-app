@@ -190,14 +190,16 @@
           </div>
 
           <!-- show if travel agent length > 0 -->
-          <div *ngIf="(travelAgents$|async)?.length > 0" class="add-edit-trip--text">
-            <app-fy-select
-              [label]="fg.controls.travelAgent.value ? 'Agent' : 'Select Agent'"
-              [nullOption]="false"
-              [options]="travelAgents$|async"
-              formControlName="travelAgent">
-            </app-fy-select>
-          </div>
+          <ng-container *ngIf="travelAgents$|async as travelAgents">
+            <div *ngIf="travelAgents.length > 0" class="add-edit-trip--text">
+              <app-fy-select
+                [label]="fg.controls.travelAgent.value ? 'Agent' : 'Select Agent'"
+                [nullOption]="false"
+                [options]="travelAgents"
+                formControlName="travelAgent">
+              </app-fy-select>
+            </div>
+          </ng-container>
 
           <div class="add-edit-trip--text">
             <app-fy-select 
