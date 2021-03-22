@@ -26,9 +26,12 @@ export class SplitExpensePage implements OnInit {
   fg: FormGroup;
   splitType: string;
   amount: number;
+  minAmount: number;
+  orgSettings: any;
   currency: string;
   totalSplitAmount: number;
   remainingAmount: number;
+  isCorporateCardEnabled: boolean;
   categories$: Observable<any>;
   costCenters$: Observable<any>;
   transaction: any;
@@ -64,7 +67,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   onChangeAmount(splitExpenseForm) {
-    if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount))) {
+    if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount)) || (splitExpenseForm.value.amount && splitExpenseForm.value.amount < 0 && !this.isCorporateCardEnabled)) {
       return;
     }
 
@@ -206,7 +209,7 @@ export class SplitExpensePage implements OnInit {
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
-      if (this.amount && this.amount > 0 && this.amount !== this.totalSplitAmount ) {
+      if (this.amount && this.amount !== this.totalSplitAmount ) {
         this.showErrorBlock = true;
         this.errorMessage = 'Total split amount should be ' + this.amount + '.';
         setTimeout(() => {
@@ -214,6 +217,23 @@ export class SplitExpensePage implements OnInit {
         }, 2500);
         return;
       }
+      var canCreateNegativeExpense = true;
+      this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
+        if (splitExpenseValue.amount && splitExpenseValue.amount <= 0 && !this.isCorporateCardEnabled) {
+          canCreateNegativeExpense = false;
+        }
+      });
+
+      if(!canCreateNegativeExpense) {
+        this.showErrorBlock = true;
+        this.errorMessage = 'Amount should be greater than 0.01';
+        setTimeout(() => {
+          this.showErrorBlock = false;
+        }, 2500);
+        return;
+      }
+
+
       this.saveSplitExpenseLoading = true;
       const generatedSplitEtxn = [];
       this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
@@ -269,6 +289,7 @@ export class SplitExpensePage implements OnInit {
   ionViewWillEnter() {
     this.offlineService.getHomeCurrency().subscribe(homeCurrency => {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
+      const orgSettings$ = this.offlineService.getOrgSettings();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
@@ -283,7 +304,6 @@ export class SplitExpensePage implements OnInit {
           })
         );
       } else if (this.splitType === 'cost centers') {
-        const orgSettings$ = this.offlineService.getOrgSettings();
         const orgUserSettings$ = this.offlineService.getOrgUserSettings();
         this.costCenters$ = forkJoin({
           orgSettings: orgSettings$,
@@ -305,11 +325,22 @@ export class SplitExpensePage implements OnInit {
         );
       }
 
+      this.isCorporateCardEnabled = false;
+      orgSettings$.subscribe(orgSettings => {
+        // this.isCorporateCardEnabled = orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled;
+        this.isCorporateCardEnabled = false;
+      });
+
+
+      if(!this.isCorporateCardEnabled) {
+        this.minAmount = 0.01;
+      }
+    
       this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
       this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
-
-      let amount1 = this.amount > 0.0001 ? this.amount * 0.6 : null; // 60% split
-      let amount2 = this.amount > 0.0001 ? this.amount * 0.4 : null; // 40% split
+      
+      let amount1 = (this.amount > 0.0001 || this.isCorporateCardEnabled) ? this.amount * 0.6 : null; // 60% split
+      let amount2 = (this.amount > 0.0001 || this.isCorporateCardEnabled) ? this.amount * 0.4 : null; // 40% split
       const percentage1 = this.amount ? 60 : null;
       const percentage2 = this.amount ? 40 : null;
       amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;

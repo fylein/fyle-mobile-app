@@ -18,7 +18,6 @@
     <p class="split-expense--message">You are splitting across {{ splitType }}. <span *ngIf="currency && amount">The splits must total upto {{ currency }} {{ amount  }}.</span></p>
     <p class="split-expense--warning">Splitting an expense cannot be undone</p>
 
-
     <div class="split-expense--card" *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i">
 
       <div class="split-expense--card-header">
@@ -73,14 +72,17 @@
 
         <div class="split-expense--amount-percentage">
           <div class="split-expense--item">
-            <span class="split-expense--label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid}">{{currency}}*</span>
-            <input inputmode="decimal" type="number" class="split-expense--input" formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm)">
+            <span class="split-expense--label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid || (splitExpenseForm.controls.amount.value < 0 && !isCorporateCardEnabled)}">{{currency}}*</span>
+            <input inputmode="decimal" [min]="isCorporateCardEnabled ? null : 0.01" type="number" class="split-expense--input" formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm)">
           </div>
-
           <div class="split-expense--item">
             <span class="split-expense--label">%</span>
             <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" (ngModelChange)="onChangePercentage(splitExpenseForm)">
           </div>
+        </div>
+        
+        <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.amount.value < 0 && !isCorporateCardEnabled">
+          Amount should be greater than 0.01
         </div>
       </ng-container>
     </div>
