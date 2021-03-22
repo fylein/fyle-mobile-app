@@ -93,7 +93,7 @@ export class ViewTeamTripPage implements OnInit {
     }
   }
 
-  onUpdateApprover(message: string) {
+  onUpdateApprover(message: boolean) {
     if (message) {
       this.refreshApprovers$.next();
     }

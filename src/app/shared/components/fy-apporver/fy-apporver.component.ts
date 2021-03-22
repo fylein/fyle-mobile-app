@@ -12,10 +12,10 @@ import { Router } from '@angular/router';
 })
 export class FyApporverComponent implements OnInit {
 
-  @Input() approverList;
-  @Input() id;
+  @Input() approverEmailsList;
+  @Input() id: string;
+  @Input() ownerEmail: string;
   @Input() from;
-  @Input() title;
 
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
@@ -29,9 +29,10 @@ export class FyApporverComponent implements OnInit {
     const approversListModal = await this.modalController.create({
       component: ApproverDialogComponent,
       componentProps: {
-        approverList: this.approverList,
+        approverEmailsList: this.approverEmailsList,
         id: this.id,
-        from: this.from
+        from: this.from,
+        ownerEmail: this.ownerEmail
       }
     });
 
@@ -39,12 +40,7 @@ export class FyApporverComponent implements OnInit {
 
     const { data } = await approversListModal.onWillDismiss();
     if (data && data.reload) {
-      if (this.from === 'TRIP_REQUEST') {
-        this.notify.emit(true);
-      }
-      if (this.from === 'ADVANCE_REQUEST') {
-        this.notify.emit(true);
-      }
+      this.notify.emit(true);
     }
 
   }

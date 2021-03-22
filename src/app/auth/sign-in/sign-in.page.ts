@@ -16,9 +16,6 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {AppVersionService} from '../../core/services/app-version.service';
 import {DeviceService} from '../../core/services/device.service';
 import {LoginInfoService} from '../../core/services/login-info.service';
-import { Plugins } from '@capacitor/core';
-
-const { Browser } =  Plugins;
 
 @Component({
   selector: 'app-sign-in',
@@ -49,10 +46,6 @@ export class SignInPage implements OnInit {
     private deviceService: DeviceService,
     private loginInfoService: LoginInfoService
   ) {
-  }
-
-  goToFyleWebsite() {
-    Browser.open({ toolbarColor: '#f36', url: 'https://www.fylehq.com/' });
   }
 
   async checkSAMLResponseAndSignInUser(data) {
@@ -157,7 +150,7 @@ export class SignInPage implements OnInit {
         header = 'Account doesn\'t exist';
       }
     } else if (error.status === 500) {
-      header = 'Something Bad Happened';
+      header = 'Sorry... Something went wrong!';
     } else if (error.status === 433) {
       header = 'Temporary Lockout';
     }
