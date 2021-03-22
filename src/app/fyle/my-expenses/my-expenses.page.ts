@@ -144,7 +144,7 @@ export class MyExpensesPage implements OnInit {
 
   setAllExpensesCountAndAmount() {
     this.allExpensesStats$ = this.loadData$.pipe(
-      switchMap((params) => {
+      switchMap(params => {
         const queryParams = params.queryParams || {};
 
         let defaultState;
@@ -620,13 +620,15 @@ export class MyExpensesPage implements OnInit {
   }
 
   setExpenseStatsOnSelect() {
-    const count = this.selectedElements.length;
-    const amount = this.selectedElements.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0);
-    this.allExpensesStats$ = of({ count, amount });
+    this.allExpensesStats$ = of({
+      count: this.selectedElements.length,
+      amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0)
+    });
   }
 
   selectExpense(expense: Expense) {
-    if (this.selectedElements.some(txn => expense.tx_id === txn.tx_id)) {
+    const isSelectedElementsHasExpense = this.selectedElements.some(txn => expense.tx_id === txn.tx_id);
+    if (isSelectedElementsHasExpense) {
       this.selectedElements = this.selectedElements.filter(txn => txn.tx_id !== expense.tx_id);
     } else {
       this.selectedElements.push(expense);
