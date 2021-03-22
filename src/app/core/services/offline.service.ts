@@ -20,6 +20,7 @@ import {Org} from '../models/org.model';
 import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 import {OrgUserService} from './org-user.service';
 import { intersection } from 'lodash';
+import { DeviceService } from './device.service';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,8 @@ export class OfflineService {
     private currencyService: CurrencyService,
     private storageService: StorageService,
     private permissionsService: PermissionsService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private deviceService: DeviceService
   ) { }
 
   load() {
@@ -62,7 +64,11 @@ export class OfflineService {
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
 
-    this.appVersionService.load();
+    this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
+      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
+        this.appVersionService.load();
+      }
+    });
 
     return forkJoin([
       orgSettings$,
