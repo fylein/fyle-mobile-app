@@ -55,10 +55,11 @@ import {TokenService} from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/V1/recently_used.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgCategoryListItem } from 'src/app/core/models/V1/org-category.model';
+import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/V1/org-category.model';
 import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/V1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1300,7 +1301,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  getAutofillCategory(isAutofillsEnabled: boolean, recentValue: RecentlyUsed, recentCategories: OrgCategoryListItem[], etxn: any, category: any) {
+  getAutofillCategory(isAutofillsEnabled: boolean, recentValue: RecentlyUsed, recentCategories: OrgCategoryListItem[], etxn: any, category: OrgCategory) {
     const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
 
     if (doRecentOrgCategoryIdsExist) {
@@ -1308,7 +1309,7 @@ export class AddEditExpensePage implements OnInit {
     }
 
     // Check if category is extracted from instaFyle/autoFyle
-    const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
+    const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowercase() !== 'unspecified';
 
     /* Autofill category during these cases:
      * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
@@ -1317,7 +1318,7 @@ export class AddEditExpensePage implements OnInit {
      * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
      */
     if (doRecentOrgCategoryIdsExist && (!etxn.tx.id ||
-      (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified')))) {
+      (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowercase() !== 'unspecified')))) {
       const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
 
       if (autoFillCategory) {
@@ -1346,13 +1347,13 @@ export class AddEditExpensePage implements OnInit {
         const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
         if (this.initialFetch) {
           selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
+            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowercase() !== 'unspecified';
             if (etxn.tx.org_category_id) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
               );
-            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
+            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowercase() !== 'unspecified'))) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(category => {
@@ -1381,13 +1382,13 @@ export class AddEditExpensePage implements OnInit {
         let selectedCategory$;
         const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
           selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
+            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowercase() !== 'unspecified';
             if (etxn.tx.org_category_id) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
               );
-            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
+            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowercase() !== 'unspecified'))) {
               return this.offlineService.getAllCategories()
               .pipe(
                 map(category => {
