@@ -1454,7 +1454,8 @@ export class AddEditExpensePage implements OnInit {
               return customFields.map((customField, i) => ({...customField, control: customFieldsFormArray.at(i)}));
             })
           );
-        })
+        }),
+        shareReplay(1)
       );
   }
   
