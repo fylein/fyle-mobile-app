@@ -20,7 +20,7 @@ import {Org} from '../models/org.model';
 import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 import {OrgUserService} from './org-user.service';
 import { intersection } from 'lodash';
-import { ExtendedAccount } from '../models/extended-account.model';
+import { ExtendedAccount } from '../models/v1/extended-account.model';
 
 @Injectable({
   providedIn: 'root'

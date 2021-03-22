@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
 import { CurrencyPipe } from '@angular/common';
 import { Observable } from 'rxjs';
-import { ExtendedAccount } from '../models/extended-account.model';
+import { ExtendedAccount } from '../models/v1/extended-account.model';
 
 @Injectable({
   providedIn: 'root'
@@ -39,14 +39,14 @@ export class AccountsService {
     );
   }
 
-  filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled, accountId?) {
+  filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean, accountId?: string) {
     return accounts.filter((account) => {
       // Personal Account and CCC account are considered to always have sufficient funds
       return (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) || (['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'].indexOf(account.acc.type) > -1) || accountId === account.acc.id;
     });
   }
 
-  constructPaymentModes(accounts: ExtendedAccount[], isMultipleAdvanceEnabled, isNotOwner?) {
+  constructPaymentModes(accounts: ExtendedAccount[], isMultipleAdvanceEnabled: boolean, isNotOwner?: boolean) {
     const that = this;
     const accountsMap = {
       PERSONAL_ACCOUNT(account: ExtendedAccount) {
@@ -86,6 +86,6 @@ export class AccountsService {
       mappedAccouts.push(personalNonreimbursableAccount);
     }
 
-    return mappedAccouts;
+    return mappedAccouts as ExtendedAccount[];
   }
 }
