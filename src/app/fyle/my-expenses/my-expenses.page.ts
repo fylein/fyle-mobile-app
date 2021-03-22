@@ -627,8 +627,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   selectExpense(expense: Expense) {
-    const isSelectedElementsHasExpense = this.selectedElements.some(txn => expense.tx_id === txn.tx_id);
-    if (isSelectedElementsHasExpense) {
+    const isSelectedElementsIncludesExpense = this.selectedElements.some(txn => expense.tx_id === txn.tx_id);
+    if (isSelectedElementsIncludesExpense) {
       this.selectedElements = this.selectedElements.filter(txn => txn.tx_id !== expense.tx_id);
     } else {
       this.selectedElements.push(expense);
