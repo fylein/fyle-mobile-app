@@ -72,11 +72,13 @@ export class SplitExpensePage implements OnInit {
       const otherIndex = index === 0 ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
-      const amount = Math.min(this.amount, Math.max(0, this.amount - splitExpenseForm.value.amount));
+      const sign = Math.sign(this.amount);
+      const absAmount = Math.abs(this.amount);
+      const amount = Math.min(absAmount, Math.max(0, absAmount - Math.abs(splitExpenseForm.value.amount)));
       const percentage = parseFloat(((amount / this.amount) * 100).toFixed(3));
 
       otherSplitExpenseForm.patchValue({
-        amount,
+        amount: sign * amount,
         percentage
       }, { emitEvent: false });
     }
@@ -400,8 +402,8 @@ export class SplitExpensePage implements OnInit {
       const firstSplitExpenseForm = this.splitExpensesFormArray.at(0);
       const lastSplitExpenseForm = this.splitExpensesFormArray.at(1);
 
-      const amount = Math.min(this.amount, Math.max(0, this.amount - firstSplitExpenseForm.value.amount));
-      const percentage = parseFloat(((amount / this.amount) * 100).toFixed(3));
+      const percentage = Math.min(100, Math.max(0, 100 - firstSplitExpenseForm.value.percentage));
+      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
 
       lastSplitExpenseForm.patchValue({
         amount,
