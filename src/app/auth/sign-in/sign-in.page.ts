@@ -150,7 +150,7 @@ export class SignInPage implements OnInit {
         header = 'Account doesn\'t exist';
       }
     } else if (error.status === 500) {
-      header = 'Something Bad Happened';
+      header = 'Sorry... Something went wrong!';
     } else if (error.status === 433) {
       header = 'Temporary Lockout';
     }
