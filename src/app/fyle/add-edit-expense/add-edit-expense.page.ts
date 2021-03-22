@@ -1300,7 +1300,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  private getAutofillCategory(isAutofillsEnabled: boolean, recentValue: RecentlyUsed, recentCategories: OrgCategoryListItem[], etxn: any, category: any) {
+  getAutofillCategory(isAutofillsEnabled: boolean, recentValue: RecentlyUsed, recentCategories: OrgCategoryListItem[], etxn: any, category: any) {
     const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
 
     if (doRecentOrgCategoryIdsExist) {
