@@ -6,7 +6,8 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { from, of, Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { User } from '../models/user.model';
-import { UserProperty } from '../models/user-property.model';
+import { UserProperty } from '../models/v1/user-property.model';
+
 
 @Injectable({
   providedIn: 'root'
