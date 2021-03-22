@@ -80,7 +80,7 @@ export class CorporateCreditCardExpenseService {
       map(res => res.data),
       reduce((acc, curr) => {
         return acc.concat(curr);
-      }, [] as CorporateCardExpense[])
+      })
     );
   }
 
