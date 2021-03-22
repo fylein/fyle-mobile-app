@@ -59,7 +59,6 @@ import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/V1/org-cat
 import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/V1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
-import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
