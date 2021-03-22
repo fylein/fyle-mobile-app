@@ -1859,8 +1859,7 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return of(null);
         }
-      }),
-      shareReplay(1)
+      })
     );
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
