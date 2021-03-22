@@ -15,7 +15,8 @@ import {
   switchMap,
   take,
   tap,
-  timeout
+  timeout,
+  withLatestFrom
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -1207,30 +1208,9 @@ export class AddEditExpensePage implements OnInit {
 
       // Check if auto-fills is enabled
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+
       // Check if recent categories exist
-      const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
-
-      if (doRecentOrgCategoryIdsExist) {
-        this.recentCategories = recentCategories;
-      }
-      // Check if category is extracted from instaFyle/autoFyle
-      const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
-
-      /* Autofill category during these cases:
-       * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
-       * 2. When there exists recently used category ids to auto-fill - mandatory
-       * 3. During add expense - When category field is empty - optional
-       * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
-       */
-      if (doRecentOrgCategoryIdsExist && (!etxn.tx.id || 
-        (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified')))) {
-        const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
-
-        if (autoFillCategory) {
-          category = autoFillCategory.value;
-          this.presetCategoryId = autoFillCategory.value.id;
-        }
-      }
+      category = this.getAutofillCategory(isAutofillsEnabled, recentValue, recentCategories, etxn, category);
 
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
@@ -1330,6 +1310,34 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  private getAutofillCategory(isAutofillsEnabled: boolean, recentValue: RecentlyUsed, recentCategories: OrgCategoryListItem[], etxn: any, category: any) {
+    const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
+
+    if (doRecentOrgCategoryIdsExist) {
+      this.recentCategories = recentCategories;
+    }
+
+    // Check if category is extracted from instaFyle/autoFyle
+    const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
+
+    /* Autofill category during these cases:
+     * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
+     * 2. When there exists recently used category ids to auto-fill - mandatory
+     * 3. During add expense - When category field is empty - optional
+     * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
+     */
+    if (doRecentOrgCategoryIdsExist && (!etxn.tx.id ||
+      (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified')))) {
+      const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
+
+      if (autoFillCategory) {
+        category = autoFillCategory.value;
+        this.presetCategoryId = autoFillCategory.value.id;
+      }
+    }
+    return category;
+  }
+
   setCategoryFromVendor(defaultCategory) {
     this.getActiveCategories().subscribe(categories => {
       const category = categories.find(innerCategory => innerCategory.fyle_category === defaultCategory);
@@ -1342,18 +1350,24 @@ export class AddEditExpensePage implements OnInit {
     this.customInputs$ = this.fg.controls.category.valueChanges
       .pipe(
         startWith({}),
-        switchMap((category) => {
+        withLatestFrom(this.offlineService.getOrgUserSettings()),
+        withLatestFrom(this.recentCategories),
+        switchMap(([[category, orgUserSettings], recentValues]) => {
           let selectedCategory$;
+          const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
           if (this.initialFetch) {
             selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-              return iif(
-                () => etxn.tx.org_category_id,
-                this.offlineService.getAllCategories()
-                  .pipe(
-                    map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
-                  ),
-                of(null)
-              );
+              if (etxn.tx.org_category_id) {
+                return this.offlineService.getAllCategories()
+                .pipe(
+                  map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id)),
+                  map(category => {
+                    return this.getAutofillCategory(isAutofillsEnabled, recentValues, )
+                  })
+                );
+              } else {
+                return of(null);
+              }
             }));
           } else {
             selectedCategory$ = of(category);
@@ -1810,7 +1824,8 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
+      shareReplay(1)
     );
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
