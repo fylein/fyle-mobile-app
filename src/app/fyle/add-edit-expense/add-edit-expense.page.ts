@@ -1084,15 +1084,6 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    this.recentlyUsedCategories$ = forkJoin({
-      filteredCategories: this.filteredCategories$.pipe(take(1)),
-      recentValues: this.recentlyUsedValues$
-    }).pipe(
-      concatMap(({filteredCategories, recentValues}) => {
-        return this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues);
-      })
-    );
-
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         if (etxn.tx.cost_center_id) {
@@ -1345,35 +1336,81 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  getCategoryOnEdit(category) {
+    return forkJoin ({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValues: this.recentlyUsedValues$,
+      recentCategories: this.recentlyUsedCategories$
+    }).pipe(
+      map(({orgUserSettings, recentValues, recentCategories}) => {
+        let selectedCategory$;
+        const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+        if (this.initialFetch) {
+          selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
+            if (etxn.tx.org_category_id) {
+              return this.offlineService.getAllCategories()
+              .pipe(
+                map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
+              );
+            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
+              return this.offlineService.getAllCategories()
+              .pipe(
+                map(category => {
+                  return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, category);
+                })
+              );
+            } else {
+              return of(null);
+            }
+          }));
+        } else {
+          selectedCategory$ = of(category);
+        }
+        return selectedCategory$;
+      })
+    );
+  }
+
+  getCategoryOnAdd() {
+    return forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValues: this.recentlyUsedValues$,
+      recentCategories: this.recentlyUsedCategories$
+    }).pipe(
+      map(({orgUserSettings, recentValues, recentCategories}) => {
+        let selectedCategory$;
+        const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+          selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
+            const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
+            if (etxn.tx.org_category_id) {
+              return this.offlineService.getAllCategories()
+              .pipe(
+                map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
+              );
+            } else if (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified'))) {
+              return this.offlineService.getAllCategories()
+              .pipe(
+                map(category => {
+                  return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, category);
+                })
+              );
+            } else {
+              return of(null);
+            }
+          }));
+        return selectedCategory$;
+      })
+    );
+  }
+
   setupCustomFields() {
     this.initialFetch = true;
     this.customInputs$ = this.fg.controls.category.valueChanges
       .pipe(
         startWith({}),
-        withLatestFrom(this.offlineService.getOrgUserSettings()),
-        withLatestFrom(this.recentCategories),
-        switchMap(([[category, orgUserSettings], recentValues]) => {
-          let selectedCategory$;
-          const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
-          if (this.initialFetch) {
-            selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-              if (etxn.tx.org_category_id) {
-                return this.offlineService.getAllCategories()
-                .pipe(
-                  map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id)),
-                  map(category => {
-                    return this.getAutofillCategory(isAutofillsEnabled, recentValues, )
-                  })
-                );
-              } else {
-                return of(null);
-              }
-            }));
-          } else {
-            selectedCategory$ = of(category);
-          }
-
-          return iif(() => this.mode === 'add', of(category), selectedCategory$);
+        switchMap(category => {
+          return iif(() => this.mode === 'add', this.getCategoryOnAdd(), this.getCategoryOnEdit(category));
         }),
         switchMap((category) => {
           const formValue = this.fg.value;
@@ -1997,6 +2034,15 @@ export class AddEditExpensePage implements OnInit {
 
     this.reports$ = this.reportService.getFilteredPendingReports({state: 'edit'}).pipe(
       map(reports => reports.map(report => ({label: report.rp.purpose, value: report})))
+    );
+
+    this.recentlyUsedCategories$ = forkJoin({
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
+      recentValues: this.recentlyUsedValues$
+    }).pipe(
+      concatMap(({filteredCategories, recentValues}) => {
+        return this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues);
+      })
     );
 
     this.setupCustomFields();
