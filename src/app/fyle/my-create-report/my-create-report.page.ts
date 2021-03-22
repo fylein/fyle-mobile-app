@@ -228,7 +228,8 @@ export class MyCreateReportPage implements OnInit {
     const queryParams = {
       tx_report_id : 'is.null',
       tx_state: 'in.(COMPLETE)',
-      order: 'tx_txn_dt.desc'
+      order: 'tx_txn_dt.desc',
+      or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)']
     };
 
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(
