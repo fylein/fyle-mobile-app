@@ -1088,7 +1088,7 @@ export class AddEditMileagePage implements OnInit {
           }).pipe(
             map(({orgSettings, orgUserSettings}) => {
               if (orgSettings.projects.enabled) {
-                return orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
               }
             })
           );
