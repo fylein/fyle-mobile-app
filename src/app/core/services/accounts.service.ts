@@ -39,14 +39,14 @@ export class AccountsService {
     );
   }
 
-  filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean, accountId?: string) {
+  filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean, accountId?: string): ExtendedAccount[] {
     return accounts.filter((account) => {
       // Personal Account and CCC account are considered to always have sufficient funds
       return (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) || (['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'].indexOf(account.acc.type) > -1) || accountId === account.acc.id;
     });
   }
 
-  constructPaymentModes(accounts: ExtendedAccount[], isMultipleAdvanceEnabled: boolean, isNotOwner?: boolean) {
+  constructPaymentModes(accounts: ExtendedAccount[], isMultipleAdvanceEnabled: boolean, isNotOwner?: boolean): ExtendedAccount[] {
     const that = this;
     const accountsMap = {
       PERSONAL_ACCOUNT(account: ExtendedAccount) {
@@ -86,6 +86,6 @@ export class AccountsService {
       mappedAccouts.push(personalNonreimbursableAccount);
     }
 
-    return mappedAccouts as ExtendedAccount[];
+    return mappedAccouts;
   }
 }
