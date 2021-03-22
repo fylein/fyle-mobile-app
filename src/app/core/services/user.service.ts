@@ -8,7 +8,6 @@ import { ApiService } from './api.service';
 import { User } from '../models/user.model';
 import { UserProperty } from '../models/v1/user-property.model';
 
-
 @Injectable({
   providedIn: 'root'
 })
