@@ -53,11 +53,11 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import {TokenService} from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
-import { RecentlyUsed } from 'src/app/core/models/recently_used.model';
+import { RecentlyUsed } from 'src/app/core/models/V1/recently_used.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgCategoryListItem } from 'src/app/core/models/org-category.model';
-import { ExtendedProject } from 'src/app/core/models/extended-project.model';
-import { CostCenter } from 'src/app/core/models/cost-center.model';
+import { OrgCategoryListItem } from 'src/app/core/models/V1/org-category.model';
+import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
+import { CostCenter } from 'src/app/core/models/V1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({

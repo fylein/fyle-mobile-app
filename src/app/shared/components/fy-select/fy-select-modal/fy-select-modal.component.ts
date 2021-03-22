@@ -4,8 +4,6 @@ import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
-import { CostCenter } from 'src/app/core/models/cost-center.model';
-import { OrgCategory } from 'src/app/core/models/org-category.model';
 
 @Component({
   selector: 'app-fy-select-modal',

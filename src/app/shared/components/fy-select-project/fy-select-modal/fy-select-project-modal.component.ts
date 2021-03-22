@@ -7,7 +7,7 @@ import {ProjectsService} from 'src/app/core/services/projects.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
-import { ExtendedProject } from 'src/app/core/models/extended-project.model';
+import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
 
 @Component({
   selector: 'app-fy-select-modal',

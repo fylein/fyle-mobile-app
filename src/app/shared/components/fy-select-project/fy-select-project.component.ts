@@ -3,7 +3,7 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms
 import {noop} from 'rxjs';
 import {ModalController} from '@ionic/angular';
 import {FyProjectSelectModalComponent} from './fy-select-modal/fy-select-project-modal.component';
-import { ExtendedProject } from 'src/app/core/models/extended-project.model';
+import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
 
 @Component({
   selector: 'app-fy-select-project',

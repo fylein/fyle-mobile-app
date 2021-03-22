@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { CostCenter } from '../models/cost-center.model';
-import { RecentlyUsed } from '../models/recently_used.model';
+import { CostCenter } from '../models/V1/cost-center.model';
+import { RecentlyUsed } from '../models/V1/recently_used.model';
 import { ApiService } from './api.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
-import { ExtendedProject } from '../models/extended-project.model';
+import { ExtendedProject } from '../models/V2/extended-project.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
-import { OrgCategoryListItem } from '../models/org-category.model';
+import { OrgCategoryListItem } from '../models/V1/org-category.model';
 @Injectable({
   providedIn: 'root'
 })
