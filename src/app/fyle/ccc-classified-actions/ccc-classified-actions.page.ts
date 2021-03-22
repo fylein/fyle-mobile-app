@@ -61,11 +61,7 @@ export class CccClassifiedActionsPage implements OnInit {
     this.canUndoDismissal$ = this.cccExpense$.pipe(
       map(cccExpense => !cccExpense.matched_by && cccExpense.state === 'SETTLED' && cccExpense.ignored && !cccExpense.balance_transfer_id)
     );
-    this.collectedBack$ = this.cccExpense$.pipe(
-      map(cccExpense => {
-        return cccExpense.state === 'SETTLED' && cccExpense.balance_transfer_id ? true : false;
-      })
-    );
+    this.collectedBack$ = this.cccExpense$.pipe(map(cccExpense => cccExpense.state === 'SETTLED' && !!cccExpense.balance_transfer_id));
 
   }
 
