@@ -55,7 +55,7 @@ import {TokenService} from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/V1/recently_used.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgCategoryListItem } from 'src/app/core/models/V1/org-category.model';
+import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/V1/org-category.model';
 import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/V1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
@@ -1083,15 +1083,6 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    this.recentlyUsedCategories$ = forkJoin({
-      filteredCategories: this.filteredCategories$.pipe(take(1)),
-      recentValues: this.recentlyUsedValues$
-    }).pipe(
-      concatMap(({filteredCategories, recentValues}) => {
-        return this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues);
-      })
-    );
-
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         if (etxn.tx.cost_center_id) {
@@ -1207,30 +1198,9 @@ export class AddEditExpensePage implements OnInit {
 
       // Check if auto-fills is enabled
       const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+
       // Check if recent categories exist
-      const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
-
-      if (doRecentOrgCategoryIdsExist) {
-        this.recentCategories = recentCategories;
-      }
-      // Check if category is extracted from instaFyle/autoFyle
-      const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category !== 'Unspecified';
-
-      /* Autofill category during these cases:
-       * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
-       * 2. When there exists recently used category ids to auto-fill - mandatory
-       * 3. During add expense - When category field is empty - optional
-       * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
-       */
-      if (doRecentOrgCategoryIdsExist && (!etxn.tx.id || 
-        (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category === 'Unspecified')))) {
-        const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
-
-        if (autoFillCategory) {
-          category = autoFillCategory.value;
-          this.presetCategoryId = autoFillCategory.value.id;
-        }
-      }
+      category = this.getAutofillCategory(isAutofillsEnabled, recentValue, recentCategories, etxn, category);
 
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
@@ -1330,6 +1300,34 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  getAutofillCategory(isAutofillsEnabled: boolean, recentValue: RecentlyUsed, recentCategories: OrgCategoryListItem[], etxn: any, category: OrgCategory) {
+    const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
+
+    if (doRecentOrgCategoryIdsExist) {
+      this.recentCategories = recentCategories;
+    }
+
+    // Check if category is extracted from instaFyle/autoFyle
+    const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowerCase() !== 'unspecified';
+
+    /* Autofill category during these cases:
+     * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
+     * 2. When there exists recently used category ids to auto-fill - mandatory
+     * 3. During add expense - When category field is empty - optional
+     * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
+     */
+    if (doRecentOrgCategoryIdsExist && (!etxn.tx.id ||
+      (etxn.tx.id && etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() === 'unspecified')))) {
+      const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
+
+      if (autoFillCategory) {
+        category = autoFillCategory.value;
+        this.presetCategoryId = autoFillCategory.value.id;
+      }
+    }
+    return category;
+  }
+
   setCategoryFromVendor(defaultCategory) {
     this.getActiveCategories().subscribe(categories => {
       const category = categories.find(innerCategory => innerCategory.fyle_category === defaultCategory);
@@ -1337,29 +1335,67 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  getCategoryOnEdit(category) {
+    return forkJoin ({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValues: this.recentlyUsedValues$,
+      recentCategories: this.recentlyUsedCategories$,
+      etxn: this.etxn$,
+      categories: this.offlineService.getAllCategories()
+    }).pipe(
+      map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
+        const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+        const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowerCase() !== 'unspecified';
+        if (this.initialFetch) {
+          if (etxn.tx.org_category_id) {
+            if (etxn.tx.state === 'DRAFT' && etxn.tx.fyle_category.toLowerCase() === 'unspecified') {
+              return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, category);
+            } else {
+              return categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id);
+            }
+          } else if (etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() === 'unspecified')) {
+            return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, category);
+          } else {
+            return null;
+          }
+        } else {
+          return category;
+        }
+      })
+    );
+  }
+
+  getCategoryOnAdd(category) {
+    if (category) {
+      return of(category);
+    } else {
+      return forkJoin({
+        orgUserSettings: this.offlineService.getOrgUserSettings(),
+        recentValues: this.recentlyUsedValues$,
+        recentCategories: this.recentlyUsedCategories$,
+        etxn: this.etxn$,
+        categories: this.offlineService.getAllCategories()
+      }).pipe(
+        map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
+          const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+          const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowerCase() !== 'unspecified';
+          if (!isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() === 'unspecified')) {
+            return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, categories);
+          } else {
+            return null;
+          }
+        })
+      );
+    }
+  }
+
   setupCustomFields() {
     this.initialFetch = true;
     this.customInputs$ = this.fg.controls.category.valueChanges
       .pipe(
         startWith({}),
-        switchMap((category) => {
-          let selectedCategory$;
-          if (this.initialFetch) {
-            selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-              return iif(
-                () => etxn.tx.org_category_id,
-                this.offlineService.getAllCategories()
-                  .pipe(
-                    map(categories => categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id))
-                  ),
-                of(null)
-              );
-            }));
-          } else {
-            selectedCategory$ = of(category);
-          }
-
-          return iif(() => this.mode === 'add', of(category), selectedCategory$);
+        switchMap(category => {
+          return iif(() => this.mode === 'add', this.getCategoryOnAdd(category), this.getCategoryOnEdit(category));
         }),
         switchMap((category) => {
           const formValue = this.fg.value;
@@ -1810,7 +1846,8 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
+      shareReplay(1)
     );
 
     this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
@@ -1982,6 +2019,15 @@ export class AddEditExpensePage implements OnInit {
 
     this.reports$ = this.reportService.getFilteredPendingReports({state: 'edit'}).pipe(
       map(reports => reports.map(report => ({label: report.rp.purpose, value: report})))
+    );
+
+    this.recentlyUsedCategories$ = forkJoin({
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
+      recentValues: this.recentlyUsedValues$
+    }).pipe(
+      concatMap(({filteredCategories, recentValues}) => {
+        return this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues);
+      })
     );
 
     this.setupCustomFields();
