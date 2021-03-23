@@ -13,7 +13,7 @@ export interface ExtendedAccount {
     displayName?: string;
     isReimbursable?: boolean;
   };
-    advance: {
+  advance: {
     id: string;
     number: string;
     purpose: string;
