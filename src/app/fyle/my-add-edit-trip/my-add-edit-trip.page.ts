@@ -280,7 +280,7 @@ export class MyAddEditTripPage implements OnInit {
 
     const { data } = await policyViolationsModal.onWillDismiss();
 
-    if (data && data.comment) {
+    if (data) {
       return {
         status: 'proceed',
         comment: data.comment
