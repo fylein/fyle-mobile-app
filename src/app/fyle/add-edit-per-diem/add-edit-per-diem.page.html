@@ -298,6 +298,7 @@
                                 [defaultValue]="true"
                                 [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                                 [mandatory]="transactionMandatoyFields?.project"
+                                [recentlyUsed]="recentProjects"
                                 formControlName="project">
                               </app-fy-select-project>
                             </div>
@@ -426,6 +427,7 @@
                           [mandatory]="txnFields.cost_center_id.mandatory"
                           [options]="costCenters"
                           [selectModalHeader]="'Select Cost Center'"
+                          [recentlyUsed]="recentCostCenters"
                           formControlName="costCenter">
                         </app-fy-select>
                       </div>
