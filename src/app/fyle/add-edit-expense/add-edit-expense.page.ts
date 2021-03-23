@@ -1366,25 +1366,27 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getCategoryOnAdd(category) {
-    return forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-      recentValues: this.recentlyUsedValues$,
-      recentCategories: this.recentlyUsedCategories$,
-      etxn: this.etxn$,
-      categories: this.offlineService.getAllCategories()
-    }).pipe(
-      map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
-        const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
-        const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowerCase() !== 'unspecified';
-        if (category) {
-          return category;
-        } else if (!isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() === 'unspecified')) {
-          return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, categories);
-        } else {
-          return null;
-        }
-      })
-    );
+    if (category) {
+      return of(category);
+    } else {
+      return forkJoin({
+        orgUserSettings: this.offlineService.getOrgUserSettings(),
+        recentValues: this.recentlyUsedValues$,
+        recentCategories: this.recentlyUsedCategories$,
+        etxn: this.etxn$,
+        categories: this.offlineService.getAllCategories()
+      }).pipe(
+        map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
+          const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+          const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category && etxn.tx.fyle_category.toLowerCase() !== 'unspecified';
+          if (!isCategoryExtracted && (!etxn.tx.org_category_id || etxn.tx.fyle_category.toLowerCase() === 'unspecified')) {
+            return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, categories);
+          } else {
+            return null;
+          }
+        })
+      );
+    }
   }
 
   setupCustomFields() {
