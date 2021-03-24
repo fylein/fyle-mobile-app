@@ -46,10 +46,16 @@
           {{corporateCardExpense.vendor ? corporateCardExpense.vendor : corporateCardExpense.description ? corporateCardExpense.description :'Unspecified Merchant /Description'}}
         </div>
       </div>
-      <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.matched_by">
+      <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.matched_by && corporateCardExpense.matched_by !== 'SYSTEM'">
         <div>
           <mat-icon class="corporate-card-expenses-card--footer-icon" svgIcon="fy-done"></mat-icon>
           <span >Matched</span>
+        </div>
+      </div>
+      <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.matched_by && corporateCardExpense.matched_by === 'SYSTEM'">
+        <div>
+          <mat-icon class="corporate-card-expenses-card--footer-icon">flash_on</mat-icon>
+          <span >Auto Matched</span>
         </div>
       </div>
       <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.personal && !corporateCardExpense.balance_transfer_id">

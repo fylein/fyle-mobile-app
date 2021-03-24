@@ -81,8 +81,34 @@
         </div>
       </div>
 
-      <div *ngIf="(canOpenCard && !selectionMode) || (!isSyncInProgress && !expense.tx_id )" (click)="actionOpened = true">
-        <mat-icon class="my-expenses-card--more">more_horiz</mat-icon>
+      <div class="my-expenses-card--actions-container">
+        <div *ngIf="(canOpenCard && !selectionMode) || (!isSyncInProgress && !expense.tx_id )" (click)="actionOpened = true">
+          <mat-icon class="my-expenses-card--more" style="display: block; float: right;">more_horiz</mat-icon>
+        </div>
+
+        <div class="my-expenses-card--icons-container">
+          <div class="my-expenses-card--ccc-icons">
+            <img *ngIf="isCCCExpense && !isCCCMatchedExpense" alt="" src="../../../assets/svg/fy-matched-no.svg">
+            <img *ngIf="isCCCExpense && isCCCMatchedExpense" alt="" src="../../../assets/svg/fy-matched-yes.svg">
+          </div>
+          <div *ngIf="isCCCExpense" class="my-expenses-card--divider"></div>
+          <div class="my-expenses-card--receipt-icons">
+            <mat-icon *ngIf="isReceiptAttached" svgIcon="fy-receipt-attached"></mat-icon>
+            <mat-icon *ngIf="!isReceiptAttached" svgIcon="fy-receipt-not-attached"></mat-icon>
+          </div>
+        </div>
+
+        <!-- <div>
+          <div *ngIf="isCCCExpense">
+            <img *ngIf="!isCCCMatchedExpense" alt="" src="../../../assets/svg/fy-matched-no.svg">
+            <img *ngIf="isCCCMatchedExpense" alt="" src="../../../assets/svg/fy-matched-yes.svg">
+            <div [ngClass]="{'my-expenses-card--divider': isCCCExpense}"></div>
+          </div>
+          <div>
+            <mat-icon *ngIf="isReceiptAttached" svgIcon="fy-receipt-attached"></mat-icon>
+            <mat-icon *ngIf="!isReceiptAttached" svgIcon="fy-receipt-not-attached"></mat-icon>
+          </div>
+        </div> -->
       </div>
     </div>
 

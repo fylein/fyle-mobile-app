@@ -113,6 +113,34 @@
       background-color: #f00;
     }
   }
+  &--actions-container {
+    width: auto;
+    flex-direction: column;
+    display: flex;
+  }
+  &--ccc-icons {
+    display: flex;
+    width: 20px;
+    height: 14px;
+    margin-top: 8px;
+  }
+  &--divider {
+    border-left: 1px solid #979797;
+    height: 18px;
+    margin-top: 4px;
+    margin-right: 8px;
+    margin-left: 4px;
+    opacity: 30%;
+  }
+  &--icons-container {
+    display: flex;
+    width: auto;
+    margin-top: 8px;
+  }
+  &--receipt-icons {
+    width: 14px;
+    margin-top: 6px;
+  }
 }
 
 
