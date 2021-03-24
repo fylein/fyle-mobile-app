@@ -91,7 +91,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           return of(accessToken);
         }
       })
-    )
+    );
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
