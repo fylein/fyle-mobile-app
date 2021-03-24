@@ -72,22 +72,18 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
-  aloo() {
+  getAccessToken() {
     return from(this.tokenService.getAccessToken()).pipe(
       concatMap(accessToken => {
-        console.log("---1-----", this.expiringSoon(accessToken));
         if (this.expiringSoon(accessToken)) {
           return from(this.tokenService.getRefreshToken()).pipe(
             concatMap(refreshToken => {
-              console.log("----2-----", refreshToken);
               return from(this.routerAuthService.fetchAccessToken(refreshToken));
             }),
             concatMap(authResponse => {
-              console.log("----3-----", authResponse);
               return from(this.routerAuthService.newAccessToken(authResponse.access_token))
             }),
             concatMap(() => {
-              console.log("----4-----");
               return from(this.tokenService.getAccessToken())
             })
           );
@@ -100,8 +96,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return forkJoin({
-      token: iif(() => this.secureUrl(request.url), this.aloo(), of(null)), 
-      //token: from(this.tokenService.getAccessToken()),
+      token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
       deviceInfo: from(this.deviceService.getDeviceInfo())
     }).pipe(
         concatMap(({token, deviceInfo}) => {
