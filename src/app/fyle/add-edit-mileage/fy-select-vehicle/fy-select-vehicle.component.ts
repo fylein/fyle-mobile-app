@@ -49,6 +49,7 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
 
   set value(v: any) {
     if (v !== this.innerValue) {
+      console.log("------1--------", v);
       this.innerValue = v;
 
 
@@ -62,6 +63,7 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
 
   writeValue(value: any): void {
     if (value !== this.innerValue) {
+      console.log("-----2---------", value);
       this.innerValue = value;
     }
   }
