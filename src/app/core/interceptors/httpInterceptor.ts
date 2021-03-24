@@ -52,7 +52,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
       const now = moment(new Date());
       const differenceSeconds = expiryDate.diff(now, 'second');
-      const maxRefreshDifferenceSeconds = 1;
+      const maxRefreshDifferenceSeconds = 2 * 60;
       return differenceSeconds < maxRefreshDifferenceSeconds;
     } catch (err) {
       return true;
