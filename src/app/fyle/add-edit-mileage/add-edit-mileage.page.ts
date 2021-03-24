@@ -578,8 +578,7 @@ export class AddEditMileagePage implements OnInit {
       map(
         ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageOptions }) => {
           const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                             && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
-                                             
+                                             && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;                  
           if (isRecentVehicleTypePresent) {
             vehicleType = recentValue.recent_vehicle_types[0];
             this.presetVehicleType = recentValue.recent_vehicle_types[0];
@@ -700,7 +699,6 @@ export class AddEditMileagePage implements OnInit {
           }
         };
       }),
-      tap((etxn) => console.log("-------aba-----", etxn)),
       shareReplay(1)
     );
   }
