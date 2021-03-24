@@ -49,7 +49,6 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
 
   set value(v: any) {
     if (v !== this.innerValue) {
-      console.log("------1--------", v);
       this.innerValue = v;
 
 

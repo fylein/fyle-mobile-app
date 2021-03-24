@@ -573,39 +573,31 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$,
-      abc: this.getMileageConfig().pipe(map(mileageConfig => this.constructMileageOptions(mileageConfig)))
+      mileageOptions: this.getMileageConfig().pipe(map(mileageConfig => this.constructMileageOptions(mileageConfig)))
     }).pipe(
-      tap((aloo) => console.log({aloo})),
       map(
-        ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, abc }) => {
+        ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageOptions }) => {
           const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
                                              && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
                                              
           if (isRecentVehicleTypePresent) {
-            console.log("-------------1---------");
             vehicleType = recentValue.recent_vehicle_types[0];
             this.presetVehicleType = recentValue.recent_vehicle_types[0];
           } else if (orgUserMileageSettings.length > 0) {
-            console.log("-------------2---------");
             const isVehicleTypePresent = orgUserMileageSettings.indexOf(vehicleType);
 
             if (isVehicleTypePresent === -1) {
               vehicleType = orgUserMileageSettings[0];
             }
           } else if (!vehicleType) {
-            console.log("-------------3---------", JSON.parse(JSON.stringify(orgSettings.mileage)));
-            console.log(abc);
-            abc.some((vType) => {
+            mileageOptions.some((vType) => {
               if (orgSettings.mileage[vType]) {
-                console.log("---------4---------", orgSettings.mileage[vType], vType);
                 vehicleType = vType;
                 return true;
               }
             });
 
           }
-
-          console.log(vehicleType);
 
           return vehicleType as string;
         }
