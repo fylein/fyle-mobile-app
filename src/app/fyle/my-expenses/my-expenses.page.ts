@@ -234,6 +234,9 @@ export class MyExpensesPage implements OnInit {
           order: orderByParams
         });
       }),
+      catchError(() => {
+        return EMPTY;
+      }),
       shareReplay(1)
     );
 

@@ -87,7 +87,7 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.loaderService.showLoader('Loading reports...', 1000);
+    //this.loaderService.showLoader('Loading reports...', 1000);
     this.setupNetworkWatcher();
 
     this.searchText = '';
@@ -122,42 +122,29 @@ export class MyReportsPage implements OnInit {
         let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getMyReportsCount(queryParams).pipe(
-          switchMap(count => {
-            if (count > ((params.pageNumber - 1) * 10)) {
-              return this.reportService.getMyReports({
-                offset: (params.pageNumber - 1) * 10,
-                limit: 10,
-                queryParams,
-                order: orderByParams
-              });
-            } else {
-              return of({
-                data: []
-              });
-            }
-          })
-        );
+        return this.reportService.getMyReports({
+          offset: (params.pageNumber - 1) * 10,
+          limit: 10,
+          queryParams,
+          order: orderByParams
+        });
       }),
+      shareReplay()
+    );
+
+    this.myReports$ = paginatedPipe.pipe(
       map(res => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
-    );
-
-    this.myReports$ = paginatedPipe.pipe(
+      }),
       shareReplay(1)
     );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap(params => {
-        let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getMyReportsCount(queryParams);
-      }),
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
       shareReplay(1)
     );
 
