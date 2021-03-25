@@ -211,7 +211,7 @@ export class MyExpensesPage implements OnInit {
     const paginatedPipe = this.loadData$.pipe(
       tap(async () => {
         if (this.currentPageNumber === 1) {
-          await this.loaderService.showLoader('Loading...', 5000);
+          await this.loaderService.showLoader('Loading...', 10000);
         }
       }),
       tap(console.log),
