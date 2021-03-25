@@ -138,16 +138,6 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  getMyExpense(params, queryParams, orderByParams) {
-    console.log("-------------------")
-    return this.transactionService.getMyExpenses({
-      offset: (params.pageNumber - 1) * 10,
-      limit: 10,
-      queryParams,
-      order: orderByParams
-    });
-  }
-
   ionViewWillEnter() {
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
@@ -223,11 +213,6 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
-      tap(async () => {
-        if (this.currentPageNumber === 1) {
-          await this.loaderService.showLoader('Loading1...');
-        }
-      }),
       tap(console.log),
       switchMap((params) => {
         let defaultState;
@@ -249,13 +234,6 @@ export class MyExpensesPage implements OnInit {
           queryParams,
           order: orderByParams
         });
-      }),
-      tap(console.log),
-      tap(async () => {
-        this.cdRef.detectChanges();
-        if (this.currentPageNumber === 1) {
-          await this.loaderService.hideLoader();
-        }
       }),
       shareReplay(1)
     );
