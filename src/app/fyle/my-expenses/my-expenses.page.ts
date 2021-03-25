@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
@@ -89,7 +89,8 @@ export class MyExpensesPage implements OnInit {
     private trackingService: TrackingService,
     private storageService: StorageService,
     private tokenService: TokenService,
-    private apiV2Service: ApiV2Service
+    private apiV2Service: ApiV2Service,
+    private cdRef: ChangeDetectorRef
   ) { }
 
   clearText() {
@@ -152,8 +153,6 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    this.loaderService.showLoader('Loading Expenses...', 1000);
-
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
     });
@@ -210,6 +209,11 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
+      tap(async () => {
+        if (this.currentPageNumber === 1) {
+          await this.loaderService.showLoader('Loading...', 10000);
+        }
+      }),
       tap(console.log),
       switchMap((params) => {
         let defaultState;
@@ -248,7 +252,13 @@ export class MyExpensesPage implements OnInit {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
+      }),
+      tap(async () => {
+        this.cdRef.detectChanges();
+        if (this.currentPageNumber === 1) {
+          await this.loaderService.hideLoader();
+        }
+      }),
     );
 
     this.myExpenses$ = paginatedPipe.pipe(
