@@ -17,7 +17,7 @@ export class LoaderService {
     if (this.counter === 1) {
       this.loading = await this.loadingController.create({
         message,
-       // duration
+      //  duration
       });
       await this.loading.present();
     } 

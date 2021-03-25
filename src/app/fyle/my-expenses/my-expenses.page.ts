@@ -1,11 +1,11 @@
-import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
+import {catchError, concatMap, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-expenses-search-filter.component';
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
@@ -21,6 +21,7 @@ import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
+import { isEqual } from 'lodash';
 
 @Component({
   selector: 'app-my-expenses',
@@ -89,7 +90,8 @@ export class MyExpensesPage implements OnInit {
     private trackingService: TrackingService,
     private storageService: StorageService,
     private tokenService: TokenService,
-    private apiV2Service: ApiV2Service
+    private apiV2Service: ApiV2Service,
+    private cdRef: ChangeDetectorRef
   ) { }
 
   clearText() {
@@ -136,6 +138,16 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  getMyExpense(params, queryParams, orderByParams) {
+    console.log("-------------------")
+    return this.transactionService.getMyExpenses({
+      offset: (params.pageNumber - 1) * 10,
+      limit: 10,
+      queryParams,
+      order: orderByParams
+    });
+  }
+
   ionViewWillEnter() {
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
@@ -152,7 +164,7 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    this.loaderService.showLoader('Loading Expenses...', 1000);
+    //this.loaderService.showLoader('Loading Expenses...', 1000);
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
@@ -206,10 +218,16 @@ export class MyExpensesPage implements OnInit {
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
         currentParams.pageNumber = this.currentPageNumber;
+        console.log("-----1----");
         this.loadData$.next(currentParams);
       });
 
     const paginatedPipe = this.loadData$.pipe(
+      tap(async () => {
+        if (this.currentPageNumber === 1) {
+          await this.loaderService.showLoader('Loading1...');
+        }
+      }),
       tap(console.log),
       switchMap((params) => {
         let defaultState;
@@ -225,56 +243,40 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return this.transactionService.getMyExpensesCount(queryParams).pipe(
-          switchMap((count) => {
-            if (count > ((params.pageNumber - 1) * 10)) {
-              return this.transactionService.getMyExpenses({
-                offset: (params.pageNumber - 1) * 10,
-                limit: 10,
-                queryParams,
-                order: orderByParams
-              });
-            } else {
-             return of({
-               data: []
-             });
-            }
-        })
-        );
+        return this.transactionService.getMyExpenses({
+          offset: (params.pageNumber - 1) * 10,
+          limit: 10,
+          queryParams,
+          order: orderByParams
+        });
       }),
+      tap(console.log),
+      tap(async () => {
+        this.cdRef.detectChanges();
+        if (this.currentPageNumber === 1) {
+          await this.loaderService.hideLoader();
+        }
+      }),
+      shareReplay(1)
+    );
+
+    this.myExpenses$ = paginatedPipe.pipe(
       map(res => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
-    );
-
-    this.myExpenses$ = paginatedPipe.pipe(
-      shareReplay(1)
-    );
-
-    this.count$ = this.loadData$.pipe(
-      switchMap(params => {
-        let queryParams = params.queryParams || {};
-
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        console.log(queryParams);
-        return this.transactionService.getMyExpensesCount(queryParams);
       }),
-      tap(count => console.log({ count })),
       shareReplay(1)
     );
+    
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
+      shareReplay(1)
+    );
+
+    this.count$ = of(20);
 
     this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(
       map(res => {
@@ -394,6 +396,7 @@ export class MyExpensesPage implements OnInit {
       this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
+      console.log("-----2----", Date());
       this.loadData$.next(params);
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
@@ -407,6 +410,7 @@ export class MyExpensesPage implements OnInit {
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
+      console.log("-----3----");
       this.loadData$.next(params);
     } else {
       this.clearFilters();
@@ -424,6 +428,7 @@ export class MyExpensesPage implements OnInit {
 
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
+    console.log("-----4----");
     this.loadData$.next(params);
 
     setTimeout(() => {
@@ -450,6 +455,7 @@ export class MyExpensesPage implements OnInit {
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.transactionService.clearCache().subscribe(() => {
+      console.log("-----5----");
       this.loadData$.next(params);
       if (event) {
         setTimeout(() => {
@@ -518,10 +524,11 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
+      //await this.loaderService.showLoader('Loading Expenses...', 1000);
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
+      console.log("-----6----");
       this.loadData$.next(params);
     }
   }
@@ -540,10 +547,11 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await sortPopover.onWillDismiss();
     if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
+     // await this.loaderService.showLoader('Loading Expenses...', 1000);
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
+      console.log("-----7----");
       this.loadData$.next(params);
     }
   }
@@ -552,17 +560,19 @@ export class MyExpensesPage implements OnInit {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
+    console.log("-----8----");
     this.loadData$.next(params);
   }
 
   async setState(state: string) {
-    await this.loaderService.showLoader('Loading expenses', 1500);
+    //await this.loaderService.showLoader('Loading expenses', 1500);
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
       delete this.filters.state;
     }
     const params = this.addNewFiltersToParams();
+    console.log("-----9----");
     this.loadData$.next(params);
   }
 
