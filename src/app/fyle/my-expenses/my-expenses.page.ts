@@ -5,7 +5,7 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {catchError, concatMap, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
+import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-expenses-search-filter.component';
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
@@ -21,7 +21,6 @@ import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
-import { isEqual } from 'lodash';
 
 @Component({
   selector: 'app-my-expenses',
@@ -253,8 +252,6 @@ export class MyExpensesPage implements OnInit {
       map(res => res.count),
       shareReplay(1)
     );
-
-    this.count$ = of(20);
 
     this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(
       map(res => {
