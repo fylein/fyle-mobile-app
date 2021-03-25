@@ -10,7 +10,7 @@ import {
   HttpParameterCodec
 } from '@angular/common/http';
 
-import { Observable, throwError, from, forkJoin, of, iif } from 'rxjs';
+import { Observable, throwError, from, forkJoin } from 'rxjs';
 import { map, catchError, switchMap, mergeMap, concatMap } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
@@ -52,7 +52,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
       const now = moment(new Date());
       const differenceSeconds = expiryDate.diff(now, 'second');
-      const maxRefreshDifferenceSeconds = 1;
+      const maxRefreshDifferenceSeconds = 2 * 60;
       return differenceSeconds < maxRefreshDifferenceSeconds;
     } catch (err) {
       return true;
@@ -72,36 +72,9 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
-  aloo() {
-    return from(this.tokenService.getAccessToken()).pipe(
-      concatMap(accessToken => {
-        console.log("---1-----", this.expiringSoon(accessToken));
-        if (this.expiringSoon(accessToken)) {
-          return from(this.tokenService.getRefreshToken()).pipe(
-            concatMap(refreshToken => {
-              console.log("----2-----", refreshToken);
-              return from(this.routerAuthService.fetchAccessToken(refreshToken));
-            }),
-            concatMap(authResponse => {
-              console.log("----3-----", authResponse);
-              return from(this.routerAuthService.newAccessToken(authResponse.access_token))
-            }),
-            concatMap(() => {
-              console.log("----4-----");
-              return from(this.tokenService.getAccessToken())
-            })
-          );
-        } else {
-          return of(accessToken);
-        }
-      })
-    )
-  }
-
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return forkJoin({
-      token: iif(() => this.secureUrl(request.url), this.aloo(), of(null)), 
-      //token: from(this.tokenService.getAccessToken()),
+      token: from(this.tokenService.getAccessToken()),
       deviceInfo: from(this.deviceService.getDeviceInfo())
     }).pipe(
         concatMap(({token, deviceInfo}) => {
