@@ -69,7 +69,7 @@ export class SplitExpensePage implements OnInit {
     }
 
     if (this.splitExpensesFormArray.length === 2) {
-      const otherIndex = index === 0 ? 1 : 0;
+      const otherIndex = (index === 0) ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
       const amount = this.amount - splitExpenseForm.value.amount;
@@ -97,7 +97,7 @@ export class SplitExpensePage implements OnInit {
     }
 
     if (this.splitExpensesFormArray.length === 2) {
-      const otherIndex = index === 0 ? 1 : 0;
+      const otherIndex = (index === 0) ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
       const percentage = Math.min(100, Math.max(0, 100 - splitExpenseForm.value.percentage));
