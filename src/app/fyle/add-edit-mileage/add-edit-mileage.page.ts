@@ -43,6 +43,13 @@ import {PopupService} from 'src/app/core/services/popup.service';
 import {DateService} from 'src/app/core/services/date.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import {TokenService} from 'src/app/core/services/token.service';
+import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
+import { RecentlyUsed } from 'src/app/core/models/V1/recently_used.model';
+import { LocationService } from 'src/app/core/services/location.service';
+import { GeolocationPosition } from '@capacitor/core';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
+import { CostCenter } from 'src/app/core/models/V1/cost-center.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -91,6 +98,15 @@ export class AddEditMileagePage implements OnInit {
   saveAndNewMileageLoader = false;
   saveAndNextMileageLoader = false;
   clusterDomain: string;
+  recentlyUsedValues$: Observable<RecentlyUsed>;
+  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  presetProjectId: number;
+  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
+  presetCostCenterId: number;
+  recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
+  presetVehicleType: string;
+  presetLocation: string;
   initialFetch;
   isProjectVisible$: Observable<boolean>;
 
@@ -132,7 +148,9 @@ export class AddEditMileagePage implements OnInit {
     private navController: NavController,
     private dateService: DateService,
     private trackingService: TrackingService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private recentlyUsedItemsService: RecentlyUsedItemsService,
+    private locationService: LocationService
   ) { }
 
   ngOnInit() {
@@ -531,23 +549,47 @@ export class AddEditMileagePage implements OnInit {
       );
   }
 
+  constructMileageOptions(mileageConfig) {
+    const options = [];
+    if (mileageConfig.two_wheeler) {
+      options.push('two_wheeler')
+    }
+
+    if (mileageConfig.four_wheeler) {
+      options.push('four_wheeler')
+    }
+
+    if (mileageConfig.four_wheeler1) {
+      options.push('four_wheeler1')
+    }
+
+    return options;
+  }
+
   getNewExpense() {
     const defaultVehicle$ = forkJoin({
       vehicleType: this.transactionService.getDefaultVehicleType(),
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      orgSettings: this.offlineService.getOrgSettings()
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$,
+      mileageOptions: this.getMileageConfig().pipe(map(mileageConfig => this.constructMileageOptions(mileageConfig)))
     }).pipe(
       map(
-        ({ vehicleType, orgUserMileageSettings, orgSettings }) => {
-          if (orgUserMileageSettings.length > 0) {
+        ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageOptions }) => {
+          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                             && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;                  
+          if (isRecentVehicleTypePresent) {
+            vehicleType = recentValue.recent_vehicle_types[0];
+            this.presetVehicleType = recentValue.recent_vehicle_types[0];
+          } else if (orgUserMileageSettings.length > 0) {
             const isVehicleTypePresent = orgUserMileageSettings.indexOf(vehicleType);
 
             if (isVehicleTypePresent === -1) {
               vehicleType = orgUserMileageSettings[0];
             }
           } else if (!vehicleType) {
-
-            ['two_wheeler', 'four_wheeler', 'four_wheeler1'].some((vType) => {
+            mileageOptions.some((vType) => {
               if (orgSettings.mileage[vType]) {
                 vehicleType = vType;
                 return true;
@@ -570,15 +612,62 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
+    type locationInfo = {recentStartLocation: string, eou: ExtendedOrgUser, currentLocation: GeolocationPosition};
+
+    const autofillLocation$ = forkJoin({
+      eou: this.authService.getEou(),
+      currentLocation: this.locationService.getCurrentLocation(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      map(({ eou, currentLocation, orgUserSettings, recentValue }) => {
+        const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                        && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
+        if (isRecentLocationPresent) {
+          const autocompleteLocationInfo = {
+            recentStartLocation: recentValue.recent_start_locations[0],
+            eou,
+            currentLocation
+          }
+          return autocompleteLocationInfo;
+        } else {
+          return of(null);
+        }
+      }),
+      concatMap((info: locationInfo) => {
+        if (info && info.recentStartLocation && info.eou && info.currentLocation) {
+          return this.locationService.getAutocompletePredictions(info.recentStartLocation, info.eou.us.id, `${info.currentLocation.coords.latitude},${info.currentLocation.coords.longitude}`);
+        } else {
+          return of(null);
+        }
+      }),
+      concatMap(isPredictedLocation => {
+        if (isPredictedLocation && isPredictedLocation.length > 0) {
+          return this.locationService.getGeocode(isPredictedLocation[0].place_id, isPredictedLocation[0].description).pipe(
+            map((location) => {
+              if (location) {
+                return location;
+              } else {
+                return of(null);
+              }
+            })
+          )
+        } else {
+          return of(null);
+        }
+      })
+    );
+
     return forkJoin({
       mileageContainer: this.getMileageCategories(),
       homeCurrency: this.homeCurrency$,
       orgSettings: this.offlineService.getOrgSettings(),
       defaultVehicleType: defaultVehicle$,
       defaultMileageRate: defaultMileage$,
-      currentEou: this.authService.getEou()
+      currentEou: this.authService.getEou(),
+      autofillLocation: autofillLocation$
     }).pipe(
-      map(({ mileageContainer, homeCurrency, orgSettings, defaultVehicleType, defaultMileageRate, currentEou }) => {
+      map(({ mileageContainer, homeCurrency, orgSettings, defaultVehicleType, defaultMileageRate, currentEou, autofillLocation }) => {
         const distanceUnit = orgSettings.mileage.unit;
         return {
           tx: {
@@ -603,7 +692,7 @@ export class AddEditMileagePage implements OnInit {
             fyle_category: 'Mileage',
             org_user_id: currentEou.ou.id,
             locations: [
-              null,
+              autofillLocation,
               null
             ],
             custom_properties: []
@@ -736,6 +825,17 @@ export class AddEditMileagePage implements OnInit {
 
     this.setupNetworkWatcher();
 
+    this.recentlyUsedValues$ = this.isConnected$.pipe(
+      take(1),
+      switchMap(isConnected => {
+        if (isConnected) {
+          return this.recentlyUsedItemsService.getRecentlyUsed();
+        } else {
+          return of(null);
+        }
+      })
+    );
+
     this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
     this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
@@ -865,6 +965,15 @@ export class AddEditMileagePage implements OnInit {
           label: costCenter.name,
           value: costCenter
         }));
+      })
+    );
+
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      concatMap(({costCenters, recentValue}) => {
+        return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
       })
     );
 
@@ -1045,6 +1154,22 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
+    this.recentlyUsedProjects$ = forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      recentValues: this.recentlyUsedValues$,
+      mileageCategoryIds: this.projectCategoryIds$,
+      eou: this.authService.getEou()
+    }).pipe(
+      switchMap(({orgUserSettings, recentValues, mileageCategoryIds, eou}) => {
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          orgUserSettings,
+          recentValues,
+          eou,
+          categoryIds: mileageCategoryIds
+        });
+      })
+    );
+
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap(etxn => {
         return iif(() => etxn.tx.org_category_id,
@@ -1121,12 +1246,16 @@ export class AddEditMileagePage implements OnInit {
           selectedCostCenter$,
           selectedCustomInputs$,
           this.mileageConfig$,
-          defaultPaymentMode$
+          defaultPaymentMode$,
+          orgUserSettings$,
+          this.recentlyUsedValues$,
+          this.recentlyUsedProjects$,
+          this.recentlyUsedCostCenters$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, recentValue, recentProjects, recentCostCenters]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1142,6 +1271,60 @@ export class AddEditMileagePage implements OnInit {
             };
           }
         });
+
+      // Check if auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+
+      // Check if recent projects exist
+      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+
+      if (doRecentProjectIdsExist) {
+        this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
+      }
+
+      /* Autofill project during these cases:
+      * 1. Autofills is allowed and enabled
+      * 2. During add expense - When project field is empty
+      * 3. During edit expense - When the expense is in draft state and there is no project already added
+      * 4. When there exists recently used project ids to auto-fill
+      */
+      if (doRecentProjectIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))) {
+        const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
+
+        if (autoFillProject) {
+          project = autoFillProject;
+          this.presetProjectId = project.project_id;
+        }
+      }
+
+      // Check if recent cost centers exist
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+
+      if (doRecentCostCenterIdsExist) {
+        this.recentCostCenters = recentCostCenters;
+      }
+
+      /* Autofill cost center during these cases:
+       * 1. Autofills is allowed and enabled
+       * 2. During add expense - When cost center field is empty
+       * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
+       * 4. When there exists recently used cost center ids to auto-fill
+       */
+      if (doRecentCostCenterIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))) {
+        const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
+
+        if (autoFillCostCenter) {
+          costCenter = autoFillCostCenter.value;
+          this.presetCostCenterId = autoFillCostCenter.value.id;
+        }
+      }
+
+      // Check if recent location exists
+      const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+                                      && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
+      if (isRecentLocationPresent) {
+        this.presetLocation = recentValue.recent_start_locations[0];
+      }
 
       this.fg.patchValue({
         mileage_vehicle_type: etxn.tx.mileage_vehicle_type,
@@ -1697,7 +1880,11 @@ export class AddEditMileagePage implements OnInit {
                   Amount: etxn.tx.amount,
                   Currency: etxn.tx.currency,
                   Category: etxn.tx.org_category,
-                  Time_Spent: this.getTimeSpentOnPage() + ' secs'
+                  Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                  Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
+                  Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
+                  Used_Autofilled_VehicleType: (etxn.tx.mileage_vehicle_type && this.presetVehicleType && (etxn.tx.mileage_vehicle_type === this.presetVehicleType)),
+                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && (etxn.tx.locations[0].display === this.presetLocation))
                 });
               } else {
                 // tracking expense closed without editing
@@ -1921,7 +2108,11 @@ export class AddEditMileagePage implements OnInit {
                   Amount: etxn.tx.amount,
                   Currency: etxn.tx.currency,
                   Category: etxn.tx.org_category,
-                  Time_Spent: this.getTimeSpentOnPage() + ' secs'
+                  Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                  Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
+                  Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
+                  Used_Autofilled_VehicleType: (etxn.tx.mileage_vehicle_type && this.presetVehicleType && (etxn.tx.mileage_vehicle_type === this.presetVehicleType)),
+                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && (etxn.tx.locations[0].display === this.presetLocation))
                 });
 
                 if (comment) {
@@ -1953,6 +2144,7 @@ export class AddEditMileagePage implements OnInit {
               })
             );
         }),
+
         finalize(() => {
           this.saveMileageLoader = false;
           this.saveAndNewMileageLoader = false;

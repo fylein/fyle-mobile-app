@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from 'src/environments/environment';
-import {map} from 'rxjs/operators';
-import {from, Observable, Subject} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
+import {from, Observable, of, Subject} from 'rxjs';
 import { GeolocationPosition, Plugins } from '@capacitor/core';
 import { Cacheable } from 'ts-cacheable';
 const { Geolocation } = Plugins;
@@ -107,6 +107,8 @@ export class LocationService {
     return from(Geolocation.getCurrentPosition({
       timeout: 5000,
       enableHighAccuracy: config.enableHighAccuracy
-    }));
+    })).pipe(
+      catchError(() => of(null))
+    )
   }
 }

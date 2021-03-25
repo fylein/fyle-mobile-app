@@ -303,6 +303,7 @@
                       [defaultValue]="true"
                       [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                       [mandatory]="transactionMandatoyFields.project"
+                      [recentlyUsed]="recentProjects"
                       formControlName="project">
                     </app-fy-select-project>
                   </div>
@@ -338,8 +339,8 @@
                       [options]="categories"
                       [selectModalHeader]="'Choose Category'"
                       [subheader]="'All Categories'"
-                      formControlName="category"
-                    >
+                      [recentlyUsed]="recentCategories"
+                      formControlName="category">
                     </app-fy-select>
                   </div>
                   <div *ngIf="fg.controls.category.touched && !fg.controls.category.valid"
@@ -704,6 +705,7 @@
                              [mandatory]="txnFields.cost_center_id?.mandatory"
                              [options]="costCenters"
                              [selectModalHeader]="'Select Cost Center'"
+                             [recentlyUsed]="recentCostCenters"
                              formControlName="costCenter">
               </app-fy-select>
             </div>

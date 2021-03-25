@@ -25,6 +25,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() showSaveButton = false;
   @Input() placeholder = '';
   @Input() defaultLabelProp;
+  @Input() recentlyUsed: { label: string, value: any, selected?: boolean }[];
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -101,18 +102,24 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         );
     }
 
-    this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-      map((options: any) => {
-        return options
-          .filter(option => {
-            return option.custom || this.options.map(op => op.label).includes(option.label);
-          })
-          .map(option => {
-          option.selected = isEqual(option.value, this.currentSelection);
-          return option;
-        });
-      })
-    );
+    // Check if recently items exists from api and set, else, set the recent items from the localStorage
+    if (this.recentlyUsed) {
+      this.recentrecentlyUsedItems$ = of(this.recentlyUsed);
+    } else {
+      this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+        map((options: any) => {
+          return options
+            .filter(option => {
+              return option.custom || this.options.map(op => op.label).includes(option.label);
+            })
+            .map(option => {
+            option.selected = isEqual(option.value, this.currentSelection);
+            return option;
+          });
+        })
+      );
+    }
+
     this.cdr.detectChanges();
   }
 

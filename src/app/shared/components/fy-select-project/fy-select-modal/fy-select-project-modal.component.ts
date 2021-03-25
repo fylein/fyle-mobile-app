@@ -7,6 +7,7 @@ import {ProjectsService} from 'src/app/core/services/projects.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
+import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -21,6 +22,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
+  @Input() recentlyUsed: { label: string, value: ExtendedProject, selected?: boolean }[];
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;
@@ -50,7 +52,6 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-
     return this.offlineService.getOrgSettings().pipe(
       switchMap((orgSettings) => {
         return iif(
@@ -68,7 +69,6 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
                 active: true,
                 sortDirection: 'asc',
                 sortOrder: 'project_name',
-                isIndividualProjectEnabled: !!allowedProjectIds,
                 orgCategoryIds: this.categoryIds,
                 projectIds: allowedProjectIds,
                 searchNameText,
@@ -137,15 +137,19 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-      map((options: any) => {
-        return options
-          .map(option => {
-            option.selected = isEqual(option.value, this.currentSelection);
-            return option;
-          });
-      })
-    );
+    if (this.recentlyUsed) {
+      this.recentrecentlyUsedItems$ = of(this.recentlyUsed);
+    } else {
+      this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+        map((options: any) => {
+          return options
+            .map(option => {
+              option.selected = isEqual(option.value, this.currentSelection);
+              return option;
+            });
+        })
+      );
+    }
     this.cdr.detectChanges();
   }
 
