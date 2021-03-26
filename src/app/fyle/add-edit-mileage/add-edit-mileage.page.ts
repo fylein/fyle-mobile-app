@@ -549,18 +549,36 @@ export class AddEditMileagePage implements OnInit {
       );
   }
 
+  constructMileageOptions(mileageConfig) {
+    const options = [];
+    if (mileageConfig.two_wheeler) {
+      options.push('two_wheeler')
+    }
+
+    if (mileageConfig.four_wheeler) {
+      options.push('four_wheeler')
+    }
+
+    if (mileageConfig.four_wheeler1) {
+      options.push('four_wheeler1')
+    }
+
+    return options;
+  }
+
   getNewExpense() {
     const defaultVehicle$ = forkJoin({
       vehicleType: this.transactionService.getDefaultVehicleType(),
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      recentValue: this.recentlyUsedValues$
+      recentValue: this.recentlyUsedValues$,
+      mileageOptions: this.getMileageConfig().pipe(map(mileageConfig => this.constructMileageOptions(mileageConfig)))
     }).pipe(
       map(
-        ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue }) => {
+        ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageOptions }) => {
           const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                             && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
+                                             && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;                  
           if (isRecentVehicleTypePresent) {
             vehicleType = recentValue.recent_vehicle_types[0];
             this.presetVehicleType = recentValue.recent_vehicle_types[0];
@@ -571,8 +589,7 @@ export class AddEditMileagePage implements OnInit {
               vehicleType = orgUserMileageSettings[0];
             }
           } else if (!vehicleType) {
-
-            ['two_wheeler', 'four_wheeler', 'four_wheeler1'].some((vType) => {
+            mileageOptions.some((vType) => {
               if (orgSettings.mileage[vType]) {
                 vehicleType = vType;
                 return true;
