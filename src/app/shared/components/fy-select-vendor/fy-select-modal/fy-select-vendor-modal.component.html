@@ -24,8 +24,18 @@
 <ion-content>
   <div class="selection-modal--container">
     <div *ngIf="value && value.trim().length">
+      <div class="selection-modal--list-element">
+        <i>
+          No Results Found  
+        </i>
+      </div>
       <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
-        <div>Add "<strong>{{value}}</strong>"</div>
+        <div class="selection-modal--add-item-block">
+          <mat-icon class="selection-modal--add-item-icon">
+            add_circle_outline
+          </mat-icon>
+          Add  "<span class="selection-modal--new-item-name"><strong>{{ value }}</strong></span>"
+        </div>
       </div>
     </div>
     <!-- Recently Used Vendors -->

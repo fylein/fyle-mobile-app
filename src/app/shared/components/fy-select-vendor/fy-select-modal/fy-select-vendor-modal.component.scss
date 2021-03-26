@@ -87,4 +87,21 @@ $list-element-color: #333;
       margin-top: 20px;
     }
   }
+
+  &--add-item-block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &--add-item-icon {
+    min-height: 22px;
+    min-width: 22px;
+    margin-right: 10px;
+  }
+
+  &--new-item-name {
+    text-align: justify;
+    word-break: break-word;
+  }
 }
