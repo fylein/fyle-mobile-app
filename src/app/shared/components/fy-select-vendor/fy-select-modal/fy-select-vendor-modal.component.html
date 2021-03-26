@@ -39,7 +39,7 @@
 
     <div class="selection-modal--recently-used-block" *ngIf="(recentrecentlyUsedItems$|async)?.length > 0">
       <div class="selection-modal--sub-title">Recently Used</div>
-      <div matRipple class="selection-modal--list-element" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list" (click)="onElementSelect(recentrecentlyUsedItem)">
+      <div matRipple class="selection-modal--list-element" *ngFor="let recentrecentlyUsedItem of (recentrecentlyUsedItems$ | async | filter: value: 'label')" (click)="onElementSelect(recentrecentlyUsedItem)">
         <ng-template #defaultSelectionElement  let-label="label" let-selected="selected">
           <div>
             {{label}}

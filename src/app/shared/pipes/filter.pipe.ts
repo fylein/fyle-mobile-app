@@ -5,7 +5,12 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 
 export class FilterPipe implements PipeTransform {
-  transform(items: any[], searchText: string): any[] {
+	/**
+	 * items: list of elements that needs to be filtered
+	 * searchText: search query
+	 * param: key to get the value to be filtered if items is list of objects
+	 *  */
+  transform(items: any[], searchText: string, param: string): any[] {
     // if there are no items, return empty list
 		if (!items) {
 			return [];
@@ -18,8 +23,11 @@ export class FilterPipe implements PipeTransform {
 
 		searchText = searchText.toLowerCase();
 
-		return items.filter ( item => {
-      return item.toLowerCase().includes(searchText);
-    });
-   }
+		if (items && items.length > 0) {
+			return items.filter ( item => {
+				let itemValue = item[param] || item;
+				return itemValue.includes(searchText);
+			});
+		}
+	}
 }
