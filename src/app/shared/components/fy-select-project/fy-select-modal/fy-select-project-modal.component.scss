@@ -6,7 +6,7 @@ $list-element-color: #333;
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 14px 0;
+    padding: 14px 4px;
     margin: 0 14px;
     border-bottom: 1px solid $header-border;
     font-size: 16px;
