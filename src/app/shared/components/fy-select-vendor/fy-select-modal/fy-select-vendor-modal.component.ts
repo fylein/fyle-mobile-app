@@ -37,6 +37,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    console.log('inside view init');
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       distinctUntilChanged(),

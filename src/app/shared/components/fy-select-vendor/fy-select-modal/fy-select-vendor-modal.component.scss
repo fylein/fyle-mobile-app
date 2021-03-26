@@ -31,6 +31,11 @@ $list-element-color: #333;
     color: $sub-title;
   }
 
+  &--label {
+    text-align: justify;
+    word-break: break-word;
+  }
+
   &--search-input {
     padding: 0 12px;
     font-size: 16px;
@@ -59,16 +64,22 @@ $list-element-color: #333;
     padding: 0 16px;
   }
 
-  &--sub-title {
-    color: #ababab;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 5px 14px;
-    border-bottom: 1px solid #ddd;
-  }
-
   &--recently-used-block{
     margin-top: 20px;
+  }
+
+  &--recently-used-icon {
+    height: 22px;
+    width: 22px;
+    min-height: 22px;
+    min-width: 22px;
+    fill: $list-element-color;
+    margin-right: 12px;
+  }
+
+  &--recently-used-item-content {
+    display: flex;
+    flex-direction: row;
   }
 
   &--all-merchants {

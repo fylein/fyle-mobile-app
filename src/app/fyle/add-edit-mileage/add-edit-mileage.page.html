@@ -210,7 +210,6 @@
                   [options]="paymentModes"
                   [selectModalHeader]="'Choose Payment Mode'"
                   [selectionElement]="paymentMode"
-                  [subheader]="'All Payment Modes'"
                   formControlName="paymentMode">
                 </app-fy-select>
                 <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -273,7 +272,6 @@
                                  [mandatory]="txnFields.purpose?.mandatory"
                                  [options]="txnFields.purpose?.values"
                                  [selectModalHeader]="'Enter ' + txnFields.purpose?.title"
-                                 [subheader]="txnFields.purpose?.title"
                                  formControlName="purpose">
                   </app-fy-select>
                 </div>
@@ -326,7 +324,6 @@
                                  [mandatory]="true"
                                  [options]="subCategories"
                                  [selectModalHeader]="'Choose Sub Category'"
-                                 [subheader]="'Sub Category'"
                                  formControlName="sub_category"
                   >
 
@@ -384,7 +381,6 @@
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
                       [selectModalHeader]="'Choose '+customInput.name"
-                      [subheader]="customInput.name"
                       formControlName="value"
                     >
                     </app-fy-select>
