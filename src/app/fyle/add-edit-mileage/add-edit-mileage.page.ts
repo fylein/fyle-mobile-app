@@ -381,8 +381,8 @@ export class AddEditMileagePage implements OnInit {
             const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
 
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
               );
           })
         );
@@ -413,8 +413,8 @@ export class AddEditMileagePage implements OnInit {
           switchMap(({ tfcMap, mileageCategoriesContainer }) => {
             const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
               );
           })
         );

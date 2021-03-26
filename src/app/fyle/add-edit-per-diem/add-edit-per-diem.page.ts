@@ -364,8 +364,8 @@ export class AddEditPerDiemPage implements OnInit {
           switchMap(({tfcMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );
@@ -397,8 +397,8 @@ export class AddEditPerDiemPage implements OnInit {
           switchMap(({tfcMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );

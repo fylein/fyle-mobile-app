@@ -1452,11 +1452,10 @@ export class AddEditExpensePage implements OnInit {
         return this.offlineService.getTransactionFieldConfigurationsMap().pipe(switchMap(tfcMap => {
           const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
           return this.transactionFieldConfigurationService
-            .filterByOrgCategoryIdProjectId(
+            .filterByOrgCategoryId(
               tfcMap,
               fields,
-              formValue.category,
-              formValue.project
+              formValue.category
             );
         }));
       })
