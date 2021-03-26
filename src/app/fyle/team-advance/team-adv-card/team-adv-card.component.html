@@ -7,7 +7,7 @@
     <div class="advance-card--info">
       <div>
         <span class="advance-card--currency" *ngIf="advanceRequest.areq_currency && advanceRequest.areq_amount">{{advanceRequest.areq_currency}}</span>
-        <span class="advance-card--amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency">{{advanceRequest.areq_amount}}</span>
+        <span class="advance-card--amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency">{{advanceRequest.areq_amount | number:'1.2-2'}}</span>
       </div>
       <p>{{advanceRequest.us_full_name}}</p>
       <p>{{advanceRequest.areq_purpose | ellipsis: 30}}</p>

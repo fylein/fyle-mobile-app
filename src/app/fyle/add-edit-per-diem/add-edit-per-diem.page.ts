@@ -1014,7 +1014,7 @@ export class AddEditPerDiemPage implements OnInit {
           if (perDiemRate.currency === homeCurrency) {
             this.fg.controls.currencyObj.setValue({
               currency: perDiemRate.currency,
-              amount: perDiemRate.rate * numDays,
+              amount: parseFloat((perDiemRate.rate * numDays).toFixed(2)),
               orig_currency: null,
               orig_amount: null
             });
@@ -1042,7 +1042,7 @@ export class AddEditPerDiemPage implements OnInit {
           currency: homeCurrency,
           amount: perDiemRate.rate * numDays * exchangeRate,
           orig_currency: perDiemRate.currency,
-          orig_amount: perDiemRate.rate * numDays
+          orig_amount: parseFloat((perDiemRate.rate * numDays).toFixed(2))
         });
       });
 

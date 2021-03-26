@@ -93,7 +93,7 @@
                     {{fg.controls.currencyObj?.value?.currency}} {{fg.controls.currencyObj?.value?.amount | number: '1.0-2'}}
                   </div>
                   <div class="add-edit-per-diem--conversion-rate">
-                    at {{ fg.controls.currencyObj?.value?.amount / fg.controls.currencyObj?.value?.orig_amount }}
+                    at {{ (fg.controls.currencyObj?.value?.amount / fg.controls.currencyObj?.value?.orig_amount) | number: '1.0-7' }}
                     {{fg.controls.currencyObj?.value?.currency}} / {{fg.controls.currencyObj?.value?.orig_currency}}
                   </div>
                 </div>
