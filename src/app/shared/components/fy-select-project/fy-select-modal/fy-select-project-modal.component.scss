@@ -29,6 +29,18 @@ $list-element-color: #333;
     color: black;
   }
 
+  &--recently-used-icon {
+    height: 22px;
+    width: 22px;
+    fill: $list-element-color;
+    margin-right: 12px;
+  }
+
+  &--recently-used-item-content {
+    display: flex;
+    flex-direction: row;
+  }
+
   &--header {
     margin: 0;
     padding: 10px 15px;
@@ -65,12 +77,13 @@ $list-element-color: #333;
     margin-bottom: 20px;
   }
 
-  &--sub-title {
-    color: #ababab;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 5px 0;
-    margin: 0 14px;
-    border-bottom: 1px solid #ddd;
-  }
+
+  // &--sub-title {
+  //   color: #ababab;
+  //   font-size: 14px;
+  //   font-weight: 700;
+  //   padding: 5px 0;
+  //   margin: 0 14px;
+  //   border-bottom: 1px solid #ddd;
+  // }
 }
