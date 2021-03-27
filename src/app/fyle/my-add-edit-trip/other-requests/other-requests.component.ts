@@ -524,27 +524,21 @@ export class OtherRequestsComponent implements OnInit {
       });
     }
 
-    // if (formValue.transportDetails.length > 0) {
-    //   formValue.transportDetails.forEach((transportDetail, index) => {
-    //     transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
-    //   });
-    // }
-
     if (formValue.transportDetails.length > 0) {
       console.log(formValue.transportDetails);
-      if(mode === 'SUBMIT') {
+      if (mode === 'SUBMIT') {
         let index = 0;
         let loop = (transportDetail) => {
           this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode)
-            .subscribe((result) => {
+            .subscribe(() => {
               // This logic can be modified to any way you want if you don't want to mutate the `producIds` array
               index ++;
               if (formValue.transportDetails.length) {
-                loop(formValue.transportDetails.shift())
+                loop(formValue.transportDetails.shift());
               }
-            })
-        }
-        loop(formValue.transportDetails.shift())
+            });
+        };
+        loop(formValue.transportDetails.shift());
       } else {
         formValue.transportDetails.forEach((transportDetail, index) => {
           transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
