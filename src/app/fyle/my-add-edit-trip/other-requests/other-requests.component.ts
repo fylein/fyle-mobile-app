@@ -20,6 +20,7 @@ import {TripRequestPolicyService} from '../../../core/services/trip-request-poli
 import {PolicyViolationComponent} from '../policy-violation/policy-violation.component';
 import {StatusService} from '../../../core/services/status.service';
 import { DateService } from 'src/app/core/services/date.service';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-other-requests',
@@ -107,7 +108,7 @@ export class OtherRequestsComponent implements OnInit {
       const details = this.formBuilder.group({
         amount: [null, Validators.required],
         currency: [res.preferredCurrency || res.homeCurrency, Validators.required],
-        purpose: [null, Validators.required],
+        purpose: [this.fgValues.purpose || null, Validators.required],
         custom_field_values: new FormArray([]),
         notes: [null]
       });
@@ -528,17 +529,18 @@ export class OtherRequestsComponent implements OnInit {
       console.log(formValue.transportDetails);
       if (mode === 'SUBMIT') {
         let index = 0;
+        const tempTransportDetails = cloneDeep(formValue.transportDetails);
         let loop = (transportDetail) => {
           this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode)
             .subscribe(() => {
               // This logic can be modified to any way you want if you don't want to mutate the `producIds` array
               index ++;
-              if (formValue.transportDetails.length) {
-                loop(formValue.transportDetails.shift());
+              if (tempTransportDetails.length) {
+                loop(tempTransportDetails.shift());
               }
             });
         };
-        loop(formValue.transportDetails.shift());
+        loop(tempTransportDetails.shift());
       } else {
         formValue.transportDetails.forEach((transportDetail, index) => {
           transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
@@ -825,7 +827,7 @@ export class OtherRequestsComponent implements OnInit {
       preferredCurrency: this.preferredCurrency$
     }).pipe(
       map(res => {
-        if (this.otherRequests[0].hotel) {
+        if (this.otherRequests[0].hotel && this.hotelDetails.length === 0) {
           this.fgValues.cities.forEach((city, index) => {
 
             // tslint:disable-next-line: max-line-length
@@ -851,7 +853,7 @@ export class OtherRequestsComponent implements OnInit {
           });
         }
 
-        if (this.otherRequests[2].transportation) {
+        if (this.otherRequests[2].transportation && this.transportDetails.length === 0) {
           this.fgValues.cities.forEach((city, index) => {
 
             const onwardDt = this.fgValues.cities[index].onward_dt;
@@ -998,90 +1000,105 @@ export class OtherRequestsComponent implements OnInit {
         if (this.otherRequests[0].hotel) {
           this.hotelDetails.clear();
 
-          hotelRequest.forEach((request, index) => {
-            const details = this.formBuilder.group({
-              assignedAt: [moment(request.hr.created_at).format('y-MM-DD')],
-              assignedTo: [request.hr.assigned_to],
-              checkInDt: [moment(request.hr.check_in_dt).format('y-MM-DD'), Validators.required],
-              checkOutDt: [moment(request.hr.check_out_dt).format('y-MM-DD'), Validators.required],
-              city: [request.hr.city],
-              currency: [request.hr.currency],
-              amount: [request.hr.amount],
-              location: [request.hr.location],
-              needBooking: [request.hr.need_booking],
-              travellerDetails: [this.fgValues.travellerDetails],
-              rooms: [request.hr.rooms],
-              notes: [request.hr.notes],
-              custom_field_values: new FormArray([])
-            });
-            const custom = details.get('custom_field_values') as FormArray;
-            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.hr.custom_field_values, 'HOTEL');
-            renderedCustomFeild.forEach(field => {
-              const customFields = this.formBuilder.group({
-                id: [field.id],
-                name: [field.name],
-                value: [field.value]
+          // editing trip req, getting hotel data from api
+          if (hotelRequest.length > 0) {
+            hotelRequest.forEach((request, index) => {
+              const details = this.formBuilder.group({
+                assignedAt: [moment(request.hr.created_at).format('y-MM-DD')],
+                assignedTo: [request.hr.assigned_to],
+                checkInDt: [moment(request.hr.check_in_dt).format('y-MM-DD'), Validators.required],
+                checkOutDt: [moment(request.hr.check_out_dt).format('y-MM-DD'), Validators.required],
+                city: [request.hr.city],
+                currency: [request.hr.currency],
+                amount: [request.hr.amount],
+                location: [request.hr.location],
+                needBooking: [request.hr.need_booking],
+                travellerDetails: [this.fgValues.travellerDetails],
+                rooms: [request.hr.rooms],
+                notes: [request.hr.notes],
+                custom_field_values: new FormArray([])
               });
-              custom.push(customFields);
+              const custom = details.get('custom_field_values') as FormArray;
+              const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.hr.custom_field_values, 'HOTEL');
+              renderedCustomFeild.forEach(field => {
+                const customFields = this.formBuilder.group({
+                  id: [field.id],
+                  name: [field.name],
+                  value: [field.value]
+                });
+                custom.push(customFields);
+              });
+              this.hotelDetails.push(details);
             });
-            this.hotelDetails.push(details);
-          });
+          } else {
+            // editing trip req, if creating new hotel req
+            this.initializeOtherRequests();
+          }
         }
 
         if (this.otherRequests[1].advance) {
           this.advanceDetails.clear();
-          advanceRequest.forEach((request, index) => {
-            const details = this.formBuilder.group({
-              amount: [request.amount, Validators.required],
-              currency: [request.currency],
-              purpose: [request.purpose, Validators.required],
-              custom_field_values: new FormArray([]),
-              notes: [request.notes]
-            });
-            const custom = details.get('custom_field_values') as FormArray;
-            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
-            renderedCustomFeild.forEach(field => {
-              const customFields = this.formBuilder.group({
-                id: [field.id],
-                name: [field.name],
-                value: [field.value]
+
+          if (advanceRequest.length > 0) {
+            advanceRequest.forEach((request, index) => {
+              const details = this.formBuilder.group({
+                amount: [request.amount, Validators.required],
+                currency: [request.currency],
+                purpose: [request.purpose, Validators.required],
+                custom_field_values: new FormArray([]),
+                notes: [request.notes]
               });
-              custom.push(customFields);
+              const custom = details.get('custom_field_values') as FormArray;
+              const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
+              renderedCustomFeild.forEach(field => {
+                const customFields = this.formBuilder.group({
+                  id: [field.id],
+                  name: [field.name],
+                  value: [field.value]
+                });
+                custom.push(customFields);
+              });
+              this.advanceDetails.push(details);
             });
-            this.advanceDetails.push(details);
-          });
+          } else {
+            this.initializeOtherRequests();
+          }
         }
 
         if (this.otherRequests[2].transportation) {
           this.transportDetails.clear();
 
-          transportationRequest.forEach((request, index) => {
-            const details = this.formBuilder.group({
-              assignedAt: [request.tr.created_at],
-              currency: [request.tr.currency],
-              amount: [request.tr.amount],
-              custom_field_values: new FormArray([]),
-              fromCity: [request.tr.from_city],
-              needBooking: [request.tr.need_booking],
-              onwardDt: [request.tr.onward_dt],
-              toCity: [request.tr.to_city],
-              transportMode: [request.tr.transport_mode, Validators.required],
-              transportTiming: [request.tr.preferred_timing],
-              travellerDetails: [this.fgValues.travellerDetails],
-              notes: [request.tr.notes]
-            });
-            const custom = details.get('custom_field_values') as FormArray;
-            const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.tr.custom_field_values, 'TRANSPORT');
-            renderedCustomFeild.forEach(field => {
-              const customFields = this.formBuilder.group({
-                id: [field.id],
-                name: [field.name],
-                value: [field.value]
+          if (transportationRequest.length > 0) {
+            transportationRequest.forEach((request, index) => {
+              const details = this.formBuilder.group({
+                assignedAt: [request.tr.created_at],
+                currency: [request.tr.currency],
+                amount: [request.tr.amount],
+                custom_field_values: new FormArray([]),
+                fromCity: [request.tr.from_city],
+                needBooking: [request.tr.need_booking],
+                onwardDt: [request.tr.onward_dt],
+                toCity: [request.tr.to_city],
+                transportMode: [request.tr.transport_mode, Validators.required],
+                transportTiming: [request.tr.preferred_timing],
+                travellerDetails: [this.fgValues.travellerDetails],
+                notes: [request.tr.notes]
               });
-              custom.push(customFields);
+              const custom = details.get('custom_field_values') as FormArray;
+              const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.tr.custom_field_values, 'TRANSPORT');
+              renderedCustomFeild.forEach(field => {
+                const customFields = this.formBuilder.group({
+                  id: [field.id],
+                  name: [field.name],
+                  value: [field.value]
+                });
+                custom.push(customFields);
+              });
+              this.transportDetails.push(details);
             });
-            this.transportDetails.push(details);
-          });
+          } else {
+            this.initializeOtherRequests();
+          }
         }
 
         if (hotelRequest.length === 0 && transportationRequest.length === 0 && advanceRequest.length === 0) {
