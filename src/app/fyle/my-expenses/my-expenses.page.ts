@@ -218,13 +218,13 @@ export class MyExpensesPage implements OnInit {
         this.loadData$.next(currentParams);
       });
 
-    const showLoader$ = from(this.loaderService.showLoader('Loading Expenses...'))
+    // const showLoader$ = from(this.loaderService.showLoader('Loading Expenseseee...'))
 
     const paginatedPipe = this.params$.pipe(
-      withLatestFrom(showLoader$),
-      map(([params, loader]) => {
-        return params;
-      }),
+      // withLatestFrom(showLoader$),
+      // map(([params, loader]) => {
+      //   return params;
+      // }),
       // switchMap((res) => {
       //   return showLoader$.pipe(
       //     map(() => res)
@@ -260,13 +260,13 @@ export class MyExpensesPage implements OnInit {
       catchError(() => {
         return EMPTY;
       }),
-      tap(async () => {
-        //this.cdRef.detectChanges();
-        console.log("-------------------------------");
-        if (this.currentPageNumber === 1) {
-          await this.loaderService.hideLoader();
-        }
-      }),
+      // tap(async () => {
+      //   //this.cdRef.detectChanges();
+      //   console.log("-------------------------------");
+      //   if (this.currentPageNumber === 1) {
+      //     await this.loaderService.hideLoader();
+      //   }
+      // }),
       shareReplay(1)
     );
 
