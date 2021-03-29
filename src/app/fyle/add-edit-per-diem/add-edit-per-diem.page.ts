@@ -1114,14 +1114,12 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.recentlyUsedProjects$ = forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValues: this.recentlyUsedValues$,
       perDiemCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou()
     }).pipe(
-        switchMap(({orgUserSettings, recentValues, perDiemCategoryIds, eou}) => {
+        switchMap(({recentValues, perDiemCategoryIds, eou}) => {
           return this.recentlyUsedItemsService.getRecentlyUsedProjects({
-            orgUserSettings,
             recentValues,
             eou,
             categoryIds: perDiemCategoryIds
@@ -1251,7 +1249,7 @@ export class AddEditPerDiemPage implements OnInit {
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
-      if (doRecentProjectIdsExist) {
+      if (recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
 
@@ -1273,7 +1271,7 @@ export class AddEditPerDiemPage implements OnInit {
       // Check if recent cost centers exist
       const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
 
-      if (doRecentCostCenterIdsExist) {
+      if (recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0) {
         this.recentCostCenters = recentCostCenters;
       }
 
