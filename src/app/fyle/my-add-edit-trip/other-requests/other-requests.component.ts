@@ -514,15 +514,48 @@ export class OtherRequestsComponent implements OnInit {
     const transport = [];
 
     if (formValue.advanceDetails.length > 0) {
-      formValue.advanceDetails.forEach((advanceDetail, index) => {
-        advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
-      });
+      // formValue.advanceDetails.forEach((advanceDetail, index) => {
+      //   advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
+      // });
+      if (mode === 'SUBMIT') {
+        let index = 0;
+        const tempAdvanceDetails = cloneDeep(formValue.advanceDetails);
+        let loop = (advanceDetail) => {
+          this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode)
+            .subscribe(() => {
+              index ++;
+              if (tempAdvanceDetails.length) {
+                loop(tempAdvanceDetails.shift());
+              }
+            });
+        };
+        loop(tempAdvanceDetails.shift());
+      } else {
+        formValue.advanceDetails.forEach((advanceDetail, index) => {
+          advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
+        });
+      }
     }
 
     if (formValue.hotelDetails.length > 0) {
-      formValue.hotelDetails.forEach((hotelDetail, index) => {
-        hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
-      });
+      if (mode === 'SUBMIT') {
+        let index = 0;
+        const tempHotelDetails = cloneDeep(formValue.hotelDetails);
+        let loop = (hotelDetail) => {
+          this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode)
+            .subscribe(() => {
+              index ++;
+              if (tempHotelDetails.length) {
+                loop(tempHotelDetails.shift());
+              }
+            });
+        };
+        loop(tempHotelDetails.shift());
+      } else {
+        formValue.hotelDetails.forEach((hotelDetail, index) => {
+          hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
+        });
+      }
     }
 
     if (formValue.transportDetails.length > 0) {
