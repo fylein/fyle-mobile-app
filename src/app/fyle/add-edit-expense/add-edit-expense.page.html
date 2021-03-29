@@ -78,7 +78,7 @@
                 This expense has violated a critical policy. You cannot create a report with this expense.
               </ng-container>
               <ng-template #justAmountCapped>
-                Claimed amount {{etxn.tx.user_amount}} was capped to {{etxn.tx.amount}} due to policy <span
+                Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number: '1.0-2'}} due to policy <span
                 *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
               </ng-template>
             </div>
