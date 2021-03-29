@@ -5,7 +5,7 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
+import {catchError, concatAll, concatMap, debounceTime, delayWhen, distinctUntilChanged, finalize, map, shareReplay, skip, switchMap, take, tap, withLatestFrom} from 'rxjs/operators';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-expenses-search-filter.component';
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
@@ -72,6 +72,7 @@ export class MyExpensesPage implements OnInit {
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
+  params$: Observable<Partial<{ pageNumber: number; queryParams: any; sortParam: string; sortDir: string; searchString: string; }>>;
 
 
   constructor(
@@ -171,6 +172,11 @@ export class MyExpensesPage implements OnInit {
       pageNumber: 1
     });
 
+    // Skip the first initialization of loaddata$
+    this.params$ = this.loadData$.asObservable().pipe(
+      skip(1)
+    );
+
     this.selectionMode = false;
     this.selectedElements = [];
 
@@ -212,11 +218,25 @@ export class MyExpensesPage implements OnInit {
         this.loadData$.next(currentParams);
       });
 
-    const paginatedPipe = this.loadData$.pipe(
+    const showLoader$ = from(this.loaderService.showLoader('Loading Expenses...'))
+
+    const paginatedPipe = this.params$.pipe(
+      withLatestFrom(showLoader$),
+      map(([params, loader]) => {
+        return params;
+      }),
+      // switchMap((res) => {
+      //   return showLoader$.pipe(
+      //     map(() => res)
+      //   );
+      // }),
       tap(res => {
         console.log("------>", JSON.stringify(cloneDeep(res)));
       }),
       switchMap((params) => {
+        // if (this.currentPageNumber === 1) {
+        //   await this.loaderService.showLoader('Loading Expenses...');
+        // }
         let defaultState;
         if (this.baseState === 'all') {
           defaultState = 'in.(COMPLETE,DRAFT)';
@@ -239,6 +259,13 @@ export class MyExpensesPage implements OnInit {
       }),
       catchError(() => {
         return EMPTY;
+      }),
+      tap(async () => {
+        //this.cdRef.detectChanges();
+        console.log("-------------------------------");
+        if (this.currentPageNumber === 1) {
+          await this.loaderService.hideLoader();
+        }
       }),
       shareReplay(1)
     );
@@ -505,7 +532,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      //await this.loaderService.showLoader('Loading Expenses...', 1000);
+      //await this.loaderService.showLoader('Loading Expenses 1111...', 1000);
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
