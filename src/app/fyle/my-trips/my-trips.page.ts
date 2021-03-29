@@ -21,6 +21,7 @@ export class MyTripsPage implements OnInit {
   loadData$: Subject<number> = new Subject();
   currentPageNumber = 1;
   navigateBack = false;
+  acc: ExtendedTripRequest[];
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -34,7 +35,7 @@ export class MyTripsPage implements OnInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.currentPageNumber = 1;
 
-    this.myTripRequests$ = this.loadData$.pipe(
+    const paginatedPipe = this.loadData$.pipe(
       concatMap(pageNumber => {
         return from(this.loaderService.showLoader()).pipe(
           switchMap(() => {
@@ -49,22 +50,27 @@ export class MyTripsPage implements OnInit {
           })
         );
       }),
-      map(res => res.data),
-      scan((acc, curr) => {
-        if (this.currentPageNumber === 1) {
-          return curr;
-        }
-        return acc.concat(curr);
-      }, [] as ExtendedTripRequest[]),
       shareReplay(1)
     );
 
-    this.count$ = this.tripRequestsService.getMyTripsCount().pipe(
+    this.myTripRequests$ = paginatedPipe.pipe(
+      map(res => {
+        if (this.currentPageNumber === 1) {
+          this.acc = [];
+        }
+        this.acc = this.acc.concat(res.data);
+        return this.acc;
+      }),
+      shareReplay(1)
+    );
+
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
       shareReplay(1)
     );
 
     this.isInfiniteScrollRequired$ = this.myTripRequests$.pipe(
-      concatMap(myTrips => {
+      switchMap(myTrips => {
         return this.count$.pipe(map(count => {
           return count > myTrips.length;
         }));
