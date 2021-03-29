@@ -1121,7 +1121,7 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    from(this.loaderService.showLoader('Loading expense...', 15000)).pipe(
+    from(this.loaderService.showLoader('Loading expense...')).pipe(
       switchMap(() => {
         return forkJoin({
           etxn: this.etxn$,
