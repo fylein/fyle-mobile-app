@@ -713,15 +713,10 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return forkJoin({
-          orgSettings: orgSettings$,
-          allowedPerDiemRates: perDiemRates$.pipe(switchMap(perDiemRates => this.offlineService.getAllowedPerDiems(perDiemRates)))
-        });
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).pipe(
+    const allowedPerDiemRates$ = forkJoin({
+      orgSettings: orgSettings$,
+      allowedPerDiemRates: perDiemRates$.pipe(switchMap(perDiemRates => this.offlineService.getAllowedPerDiems(perDiemRates)))
+    }).pipe(
       switchMap(({orgSettings, allowedPerDiemRates}) => {
         return iif(
           () => allowedPerDiemRates.length > 0 || orgSettings.per_diem.enable_individual_per_diem_rates,
@@ -737,16 +732,11 @@ export class AddEditPerDiemPage implements OnInit {
       }))
     );
 
-    this.canCreatePerDiem$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return forkJoin({
-          orgSettings: orgSettings$,
-          perDiemRates: perDiemRates$,
-          allowedPerDiemRates: allowedPerDiemRates$
-        });
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).pipe(
+    this.canCreatePerDiem$ = forkJoin({
+      orgSettings: orgSettings$,
+      perDiemRates: perDiemRates$,
+      allowedPerDiemRates: allowedPerDiemRates$
+    }).pipe(
       map(({orgSettings, perDiemRates, allowedPerDiemRates}) => {
         if (orgSettings.per_diem.enable_individual_per_diem_rates) {
           if (allowedPerDiemRates.length > 0 && perDiemRates.length > 0) {
@@ -1539,34 +1529,20 @@ export class AddEditPerDiemPage implements OnInit {
             );
           }
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+            return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return of({etxn: err.etxn});
-                    })
-                  );
+                  return of({etxn: err.etxn});
                 } else {
                   return throwError('unhandledError');
                 }
               })
             );
           } else if (err.type === 'policyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-              }),
+            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return of({etxn: err.etxn, comment: continueWithTransaction.comment});
-                    })
-                  );
+                  return of({etxn: err.etxn, comment: continueWithTransaction.comment});
                 } else {
                   return throwError('unhandledError');
                 }
@@ -1718,11 +1694,7 @@ export class AddEditPerDiemPage implements OnInit {
             return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return of({etxn: err.etxn});
-                    })
-                  );
+                  return of({etxn: err.etxn});
                 } else {
                   return throwError('unhandledError');
                 }
@@ -1732,11 +1704,7 @@ export class AddEditPerDiemPage implements OnInit {
             return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return of({etxn: err.etxn, comment: continueWithTransaction.comment});
-                    })
-                  );
+                  return of({etxn: err.etxn, comment: continueWithTransaction.comment});
                 } else {
                   return throwError('unhandledError');
                 }
