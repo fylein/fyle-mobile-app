@@ -1,7 +1,7 @@
 import {Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef} from '@angular/core';
 import {Observable, fromEvent, iif, of, from} from 'rxjs';
 import {ModalController} from '@ionic/angular';
-import {map, startWith, distinctUntilChanged, switchMap, tap, concatMap} from 'rxjs/operators';
+import {map, startWith, distinctUntilChanged, switchMap, tap, concatMap, finalize} from 'rxjs/operators';
 import {isEqual} from 'lodash';
 import {ProjectsService} from 'src/app/core/services/projects.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -26,6 +26,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;
+  isLoading;
 
   constructor(
     private modalController: ModalController,
@@ -38,10 +39,11 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-
+    this.isLoading = false;
   }
 
   getProjects(searchNameText) {
+    this.isLoading = true;
     const defaultProject$ = this.offlineService.getOrgUserSettings().pipe(
       switchMap(orgUserSettings => {
         if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
@@ -108,7 +110,10 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
             projects.map(project => ({label: project.project_name, value: project}))
           );
         }
-      )
+      ),
+      finalize(() => {
+        this.isLoading = false;
+      })
     );
   }
 
