@@ -19,7 +19,6 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() nullOption = true;
   @Input() cacheName;
   @Input() customInput = false;
-  // @Input() subheader;
   @Input() enableSearch;
   @Input() selectModalHeader = '';
   @Input() showSaveButton = false;
