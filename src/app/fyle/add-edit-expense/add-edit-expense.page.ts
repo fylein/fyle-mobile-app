@@ -2515,18 +2515,11 @@ export class AddEditExpensePage implements OnInit {
               })
             );
           } else if (err.type === 'policyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-              }),
+            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                      );
-                    })
+                  return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
                   );
                 } else {
                   return throwError('unhandledError');
@@ -2749,18 +2742,11 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+            return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
-                      );
-                    })
+                  return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
                   );
                 } else {
                   return throwError('unhandledError');
@@ -2768,25 +2754,16 @@ export class AddEditExpensePage implements OnInit {
               })
             );
           } else if (err.type === 'policyViolations') {
-            return from(this.loaderService.hideLoader())
-              .pipe(
-                switchMap(() => {
-                  return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-                }),
-                switchMap((continueWithTransaction) => {
-                  if (continueWithTransaction) {
-                    return from(this.loaderService.showLoader())
-                      .pipe(
-                        switchMap(() => {
-                          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                            map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                          );
-                        })
-                      );
-                  } else {
-                    return throwError('unhandledError');
-                  }
-                })
+            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
               );
           } else {
             return throwError(err);
