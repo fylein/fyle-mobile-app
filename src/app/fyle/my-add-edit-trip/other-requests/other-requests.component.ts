@@ -526,14 +526,12 @@ export class OtherRequestsComponent implements OnInit {
     }
 
     if (formValue.transportDetails.length > 0) {
-      console.log(formValue.transportDetails);
       if (mode === 'SUBMIT') {
         let index = 0;
         const tempTransportDetails = cloneDeep(formValue.transportDetails);
         let loop = (transportDetail) => {
           this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode)
             .subscribe(() => {
-              // This logic can be modified to any way you want if you don't want to mutate the `producIds` array
               index ++;
               if (tempTransportDetails.length) {
                 loop(tempTransportDetails.shift());
