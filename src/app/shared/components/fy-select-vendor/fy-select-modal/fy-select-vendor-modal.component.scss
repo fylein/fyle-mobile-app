@@ -32,8 +32,7 @@ $list-element-color: #333;
   }
 
   &--label {
-    text-align: justify;
-    word-break: break-word;
+    word-break: break-all;
   }
 
   &--search-input {
@@ -80,6 +79,7 @@ $list-element-color: #333;
   &--recently-used-item-content {
     display: flex;
     flex-direction: row;
+    align-items: center;
   }
 
   &--all-merchants {
@@ -101,7 +101,6 @@ $list-element-color: #333;
   }
 
   &--new-item-name {
-    text-align: justify;
-    word-break: break-word;
+    word-break: break-all;
   }
 }
