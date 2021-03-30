@@ -176,7 +176,6 @@
                 [options]="paymentModes"
                 [selectModalHeader]="'Choose Payment Mode'"
                 [selectionElement]="paymentMode"
-                [subheader]="'All Payment Modes'"
                 formControlName="paymentMode">
               </app-fy-select>
               <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -338,7 +337,6 @@
                       [mandatory]="transactionMandatoyFields.category"
                       [options]="categories"
                       [selectModalHeader]="'Choose Category'"
-                      [subheader]="'All Categories'"
                       [recentlyUsed]="recentCategories"
                       formControlName="category">
                     </app-fy-select>
@@ -406,7 +404,6 @@
                   [nullOption]="txnFields.purpose?.mandatory ? false : true"
                   [options]="txnFields.purpose?.values"
                   [selectModalHeader]="'Enter '+ txnFields.purpose?.title"
-                  [subheader]="'All ' + txnFields.purpose?.title"
                   formControlName="purpose">
                 </app-fy-select>
               </div>
@@ -447,7 +444,6 @@
               [label]="fg.controls.tax.value ? (taxSettings.name || 'Tax Group') : ('Select ' + (taxSettings.name || 'Tax Group'))"
               [options]="taxSettings?.groups"
               [selectModalHeader]="'Select ' + (taxSettings.name || 'Tax Group')"
-              [subheader]="taxSettings.name || 'Tax Group'"
               formControlName="tax"
             ></app-fy-select>
           </div>
@@ -662,7 +658,6 @@
                     [mandatory]="customInput.mandatory"
                     [options]="customInput.options"
                     [selectModalHeader]="'Choose '+customInput.name"
-                    [subheader]="customInput.name"
                     formControlName="value">
                   </app-fy-select>
                 </div>

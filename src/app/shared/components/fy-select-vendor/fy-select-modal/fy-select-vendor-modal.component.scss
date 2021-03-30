@@ -6,7 +6,7 @@ $list-element-color: #333;
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 14px;
+    padding: 14px 4px;
     border-bottom: 1px solid $header-border;
     font-size: 16px;
     color: $list-element-color;
@@ -29,6 +29,10 @@ $list-element-color: #333;
     font-size: 14px;
     border-bottom: 1px solid $header-border;
     color: $sub-title;
+  }
+
+  &--label {
+    word-break: break-all;
   }
 
   &--search-input {
@@ -59,22 +63,45 @@ $list-element-color: #333;
     padding: 0 16px;
   }
 
-  &--sub-title {
-    color: #ababab;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 5px 14px;
-    border-bottom: 1px solid #ddd;
-  }
-
   &--recently-used-block{
     margin-top: 20px;
+  }
+
+  &--recently-used-icon {
+    height: 22px;
+    width: 22px;
+    min-height: 22px;
+    min-width: 22px;
+    fill: $list-element-color;
+    margin-right: 12px;
+  }
+
+  &--recently-used-item-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 
   &--all-merchants {
     &__margin-top {
       margin-top: 20px;
     }
+  }
+
+  &--add-item-block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &--add-item-icon {
+    min-height: 22px;
+    min-width: 22px;
+    margin-right: 10px;
+  }
+
+  &--new-item-name {
+    word-break: break-all;
   }
 
   &--autocomplete-loader {
