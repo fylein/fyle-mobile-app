@@ -38,7 +38,6 @@ export class CameraOverlayPage implements OnInit {
   activeFlashMode: string;
   showInstaFyleIntro: boolean;
   modeChanged: boolean;
-  isImagePickerPluginRequestReadPermissionMethodCalled: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -97,7 +96,7 @@ export class CameraOverlayPage implements OnInit {
       message = 'To capture photos, allow Fyle access to your camera and your device\'s photos, media, and files.\n Tap Settings > Permissions, and turn Camera and "Files and Media" on.'
     }
 
-    const popupResults = await this.popupService.showPopup({
+    const permissionPopup = await this.popupService.showPopup({
       header,
       message,
       secondaryCta: {
@@ -108,7 +107,7 @@ export class CameraOverlayPage implements OnInit {
       },
       showCancelButton: false
     });
-    if (popupResults === 'primary') {
+    if (permissionPopup === 'primary') {
       this.setUpAndStartCamera();
       this.openNativeSettings.open('application_details');
     } else {
@@ -163,12 +162,11 @@ export class CameraOverlayPage implements OnInit {
         });
 
       } else {
-        if (this.isImagePickerPluginRequestReadPermissionMethodCalled) {
+        this.imagePicker.requestReadPermission().then(() => {
+          this.uploadFiles()
+        }).catch(() => {
           this.requestCameraAndPhotosPermission('photos');
-        } else {
-          this.imagePicker.requestReadPermission();
-          this.storageService.set('isImagePickerPluginRequestReadPermissionMethodCalled', true);
-        }
+        });
       }
     });
   }
@@ -319,9 +317,6 @@ export class CameraOverlayPage implements OnInit {
     this.isCameraShown = false;
     this.setUpAndStartCamera();
     this.activeFlashMode = null;
-    from(this.storageService.get('isImagePickerPluginRequestReadPermissionMethodCalled')).subscribe(isCalled => {
-      this.isImagePickerPluginRequestReadPermissionMethodCalled = !!isCalled;
-    })
 
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
