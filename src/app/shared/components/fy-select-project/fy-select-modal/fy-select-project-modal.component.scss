@@ -6,7 +6,7 @@ $list-element-color: #333;
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 14px 0;
+    padding: 14px 4px;
     margin: 0 14px;
     border-bottom: 1px solid $header-border;
     font-size: 16px;
@@ -27,6 +27,20 @@ $list-element-color: #333;
   &--clear-button {
     background: transparent;
     color: black;
+  }
+
+  &--recently-used-icon {
+    height: 22px;
+    width: 22px;
+    min-height: 22px;
+    min-width: 22px;
+    fill: $list-element-color;
+    margin-right: 12px;
+  }
+
+  &--recently-used-item-content {
+    display: flex;
+    flex-direction: row;
   }
 
   &--header {
@@ -63,14 +77,5 @@ $list-element-color: #333;
 
   &--recently-used-block {
     margin-bottom: 20px;
-  }
-
-  &--sub-title {
-    color: #ababab;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 5px 0;
-    margin: 0 14px;
-    border-bottom: 1px solid #ddd;
   }
 }

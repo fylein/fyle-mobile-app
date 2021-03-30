@@ -205,7 +205,6 @@
                         [options]="paymentModes"
                         [selectModalHeader]="'Choose Payment Mode'"
                         [selectionElement]="paymentMode"
-                        [subheader]="'All Payment Modes'"
                         formControlName="paymentMode">
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -393,7 +392,6 @@
                             [mandatory]="customInput.mandatory"
                             [options]="customInput.options"
                             [selectModalHeader]="'Choose '+customInput.name"
-                            [subheader]="customInput.name"
                             formControlName="value">
                           </app-fy-select>
                         </div>
