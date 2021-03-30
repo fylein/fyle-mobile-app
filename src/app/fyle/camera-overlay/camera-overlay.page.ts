@@ -78,12 +78,12 @@ export class CameraOverlayPage implements OnInit {
   }
 
   async requestCameraAndPhotosPermission(actions?: string) {
-    const info = await Device.getInfo();
+    const deviceInfo = await Device.getInfo();
 
     let header = '';
     let message = '';
 
-    if (info.operatingSystem.toLowerCase() === 'ios') {
+    if (deviceInfo.operatingSystem.toLowerCase() === 'ios') {
       if (actions.toLowerCase() === 'camera') {
         header = 'Allow Fyle to access your camera';
         message = 'You can use your camera to scan receipts. We\'ll auto-extract the receipt details and turn them into expenses.';
@@ -91,7 +91,7 @@ export class CameraOverlayPage implements OnInit {
         header = 'Allow Fyle to access your Photos';
         message = 'Fyle needs photo library access to upload receipts that you choose.';
       }
-    } else if (info.operatingSystem.toLowerCase() === 'android') {
+    } else if (deviceInfo.operatingSystem.toLowerCase() === 'android') {
       header = 'Allow Fyle to access camera, Files and media';
       message = 'To capture photos, allow Fyle access to your camera and your device\'s photos, media, and files.\n Tap Settings > Permissions, and turn Camera and "Files and Media" on.'
     }
