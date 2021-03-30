@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
 import { Observable, fromEvent, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
@@ -17,6 +17,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   @Input() filteredOptions$: Observable<VendorListItem[]>;
   recentrecentlyUsedItems$: Observable<VendorListItem[]>;
   value = '';
+  isLoading = false;
 
   constructor(
     private modalController: ModalController,
@@ -36,6 +37,18 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  getRecentlyUsedVendors() {
+    return from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
+      map((options: VendorListItem[]) => {
+        return options
+          .map(option => {
+          option.selected = isEqual(option.value, this.currentSelection);
+          return option;
+        });
+      })
+    );
+  }
+
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
@@ -43,6 +56,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       switchMap((searchText) => {
         searchText = searchText.trim();
         if (searchText) {
+          this.isLoading = true;
+          this.cdr.detectChanges();
           return this.vendorService.get(searchText).pipe(
             map(vendors => vendors.map(vendor => ({
               label: vendor.display_name,
@@ -50,7 +65,11 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
             }))
             ),
             catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
-            map(vendors => [{ label: 'None', value: null }].concat(vendors))
+            map(vendors => [{ label: 'None', value: null }].concat(vendors)),
+            finalize(() => {
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            })
           );
         } else {
           return [];
@@ -74,14 +93,24 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
-      map((options: VendorListItem[]) => {
-        return options
-          .map(option => {
-          option.selected = isEqual(option.value, this.currentSelection);
-          return option;
-        });
-      })
+    this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText) => {
+        return this.getRecentlyUsedVendors().pipe(
+          map((recentrecentlyUsedItems) => {
+            console.log('rece: ', recentrecentlyUsedItems);
+            if (searchText && searchText.length > 0) {
+              var searchTextLowerCase = searchText.toLowerCase();
+              return recentrecentlyUsedItems.filter( item => {
+                return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
+              });
+            }
+            return recentrecentlyUsedItems;
+          })
+        );
+      }),
     );
 
     this.cdr.detectChanges();

@@ -76,4 +76,22 @@ $list-element-color: #333;
       margin-top: 20px;
     }
   }
+
+  &--autocomplete-loader {
+    animation: loading-circular 0.5s linear infinite;
+    fill: #f36;
+    height: 16px;
+    width: 16px;
+    margin-right: 4px;
+  }
+
+  @keyframes loading-circular {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }

@@ -26,7 +26,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;
-  isLoading;
+  isLoading = false;
 
   constructor(
     private modalController: ModalController,
@@ -39,11 +39,11 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.isLoading = false;
   }
 
   getProjects(searchNameText) {
     this.isLoading = true;
+    this.cdr.detectChanges();
     const defaultProject$ = this.offlineService.getOrgUserSettings().pipe(
       switchMap(orgUserSettings => {
         if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
@@ -113,6 +113,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       ),
       finalize(() => {
         this.isLoading = false;
+        this.cdr.detectChanges();
       })
     );
   }
@@ -122,6 +123,22 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+  }
+
+  getRecentlyUsedItems() {
+    if (this.recentlyUsed) {
+      return of(this.recentlyUsed);
+    } else {
+      return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+        map((options: any) => {
+          return options
+            .map(option => {
+              option.selected = isEqual(option.value, this.currentSelection);
+              return option;
+            });
+        })
+      );
+    }
   }
 
   ngAfterViewInit() {
@@ -142,19 +159,25 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    if (this.recentlyUsed) {
-      this.recentrecentlyUsedItems$ = of(this.recentlyUsed);
-    } else {
-      this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => {
-          return options
-            .map(option => {
-              option.selected = isEqual(option.value, this.currentSelection);
-              return option;
-            });
-        })
-      );
-    }
+    this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText) => {
+        return this.getRecentlyUsedItems().pipe(
+          map((recentrecentlyUsedItems) => {
+            if (searchText && searchText.length > 0) {
+              var searchTextLowerCase = searchText.toLowerCase();
+              return recentrecentlyUsedItems.filter( item => {
+                return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
+              });
+            }
+            return recentrecentlyUsedItems;
+          })
+        );
+      })
+    );
+    
     this.cdr.detectChanges();
   }
 

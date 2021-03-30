@@ -79,9 +79,7 @@ $list-element-color: #333;
     fill: #f36;
     height: 16px;
     width: 16px;
-    position: absolute;
-    top: 2px;
-    right: 4px;
+    margin-right: 4px;
   }
 
   @keyframes loading-circular {
