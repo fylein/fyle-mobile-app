@@ -2671,7 +2671,7 @@ export class AddEditExpensePage implements OnInit {
 
   trackAddExpense() {
     const customFields$ = this.getCustomFields();
-    const isInstaFyleExpense = this.activatedRoute.snapshot.params.dataUrl ? true : false;
+    const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
     this.generateEtxnFromFg(this.etxn$, customFields$).subscribe(etxn => {
       this.trackingService.createExpense({
         Asset: 'Mobile',
@@ -2803,7 +2803,7 @@ export class AddEditExpensePage implements OnInit {
               switchMap(eou => {
 
                   const comments = [];
-                  const isInstaFyleExpense = this.activatedRoute.snapshot.params.dataUrl ? true : false;
+                  const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
                   this.trackingService.createExpense({
                     Asset: 'Mobile',
                     Type: 'Receipt',
