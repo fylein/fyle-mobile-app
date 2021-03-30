@@ -21,6 +21,7 @@ import {ConfigService} from './core/services/config.service';
 import {RouterAuthService} from './core/services/router-auth.service';
 import {TokenService} from './core/services/token.service';
 import {StorageService} from './core/services/storage.service';
+import { OpenNativeSettings } from '@ionic-native/open-native-settings/ngx';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import {StorageService} from './core/services/storage.service';
         StorageService
       ],
       multi: true
-    }
+    },
+    OpenNativeSettings
   ],
   bootstrap: [AppComponent]
 })

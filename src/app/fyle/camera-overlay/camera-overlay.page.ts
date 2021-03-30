@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Capacitor, Plugins } from '@capacitor/core';
+import { Capacitor, Device, Plugins } from '@capacitor/core';
 import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
@@ -12,13 +12,15 @@ import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { toBase64String } from '@angular/compiler/src/output/source_map';
-import { PopoverController } from '@ionic/angular';
+import { NavController, PopoverController } from '@ionic/angular';
 import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-popup/gallery-upload-success-popup.component';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import {AuthService} from '../../core/services/auth.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { OpenNativeSettings } from '@ionic-native/open-native-settings/ngx';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -47,7 +49,10 @@ export class CameraOverlayPage implements OnInit {
     private offlineService: OfflineService,
     private storageService: StorageService,
     private trackingService: TrackingService,
-    private authService: AuthService
+    private authService: AuthService,
+    private navController: NavController,
+    private popupService: PopupService,
+    private openNativeSettings: OpenNativeSettings
   ) { }
 
   setUpAndStartCamera() {
@@ -65,8 +70,42 @@ export class CameraOverlayPage implements OnInit {
       CameraPreview.start(cameraPreviewOptions).then(res => {
         this.isCameraShown = true;
         this.getFlashModes();
+      }).catch((error) => {
+        this.requestCameraPermission();
       });
 
+    }
+  }
+
+  async requestCameraPermission() {
+    const info = await Device.getInfo();
+    let header ='' ;
+    let message = '';
+
+    if (info.operatingSystem.toLowerCase() === 'android') {
+      header = 'Allow camera, Files and media access';
+      message = 'To capture photos, allow Fyle access to your camera and your device\'s photos, media, and files.\n Tap Settings > Permissions, and turn Camera and "Files and Media" on.'
+    }
+
+    
+    const popupResults = await this.popupService.showPopup({
+      header,
+      message,
+      secondaryCta: {
+        text: 'Not Now'
+      },
+      primaryCta: {
+        text: 'Allow Access'
+      },
+      showCancelButton: false
+    });
+    if (popupResults === 'primary') {
+      this.setUpAndStartCamera();
+      this.openNativeSettings.open('application_details').then(res => {
+        debugger;
+      })
+    } else {
+      this.navController.back();
     }
   }
 
