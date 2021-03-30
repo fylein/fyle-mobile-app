@@ -219,8 +219,7 @@
           <div class="add-edit-expense--primary-block">
             <div class="add-edit-expense--match-card-header">
               <div class="add-edit-expense--match-card-header-title">
-                <img *ngIf="matchingCCCTransactions.length === 0" alt="" src="../../../assets/svg/fy-matched-no.svg" class="add-edit-expense--match-card-header-title-icon">
-                <img *ngIf="matchingCCCTransactions.length > 0" alt="" src="../../../assets/svg/fy-matched-yes.svg" class="add-edit-expense--match-card-header-title-icon">
+                <img alt="" [src]="matchingCCCTransactions.length === 0 ? '../../../assets/svg/fy-matched-no.svg' : '../../../assets/svg/fy-matched-yes.svg'" class="add-edit-expense--match-card-header-title-icon">
                 <span
                   *ngIf="!(this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && matchingCCCTransactions.length > 0) && !isCreatedFromCCC">
                     Matching Card Transactions
