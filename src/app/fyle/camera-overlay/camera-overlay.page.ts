@@ -38,6 +38,7 @@ export class CameraOverlayPage implements OnInit {
   activeFlashMode: string;
   showInstaFyleIntro: boolean;
   modeChanged: boolean;
+  isImagePickerPluginRequestReadPermissionMethodCalled: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -71,23 +72,31 @@ export class CameraOverlayPage implements OnInit {
         this.isCameraShown = true;
         this.getFlashModes();
       }).catch((error) => {
-        this.requestCameraPermission();
+        this.requestCameraAndPhotosPermission('camera');
       });
 
     }
   }
 
-  async requestCameraPermission() {
+  async requestCameraAndPhotosPermission(actions?: string) {
     const info = await Device.getInfo();
-    let header ='' ;
+
+    let header = '';
     let message = '';
 
-    if (info.operatingSystem.toLowerCase() === 'android') {
-      header = 'Allow camera, Files and media access';
+    if (info.operatingSystem.toLowerCase() === 'ios') {
+      if (actions.toLowerCase() === 'camera') {
+        header = 'Allow Fyle to access your camera';
+        message = 'You can use your camera to scan receipts. We\'ll auto-extract the receipt details and turn them into expenses.';
+      } else if (actions.toLowerCase() === 'photos') {
+        header = 'Allow Fyle to access your Photos';
+        message = 'Fyle needs photo library access to upload receipts that you choose.';
+      }
+    } else if (info.operatingSystem.toLowerCase() === 'android') {
+      header = 'Allow Fyle to access camera, Files and media';
       message = 'To capture photos, allow Fyle access to your camera and your device\'s photos, media, and files.\n Tap Settings > Permissions, and turn Camera and "Files and Media" on.'
     }
 
-    
     const popupResults = await this.popupService.showPopup({
       header,
       message,
@@ -101,9 +110,7 @@ export class CameraOverlayPage implements OnInit {
     });
     if (popupResults === 'primary') {
       this.setUpAndStartCamera();
-      this.openNativeSettings.open('application_details').then(res => {
-        debugger;
-      })
+      this.openNativeSettings.open('application_details');
     } else {
       this.navController.back();
     }
@@ -156,8 +163,12 @@ export class CameraOverlayPage implements OnInit {
         });
 
       } else {
-        this.imagePicker.requestReadPermission();
-        this.uploadFiles();
+        if (this.isImagePickerPluginRequestReadPermissionMethodCalled) {
+          this.requestCameraAndPhotosPermission('photos');
+        } else {
+          this.imagePicker.requestReadPermission();
+          this.storageService.set('isImagePickerPluginRequestReadPermissionMethodCalled', true);
+        }
       }
     });
   }
@@ -308,7 +319,9 @@ export class CameraOverlayPage implements OnInit {
     this.isCameraShown = false;
     this.setUpAndStartCamera();
     this.activeFlashMode = null;
-    // this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
+    from(this.storageService.get('isImagePickerPluginRequestReadPermissionMethodCalled')).subscribe(isCalled => {
+      this.isImagePickerPluginRequestReadPermissionMethodCalled = !!isCalled;
+    })
 
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
