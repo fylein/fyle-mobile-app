@@ -25,7 +25,7 @@
 <ion-content>
   <div class="selection-modal--container">
     <div *ngIf="value && value.trim().length">
-      <div class="selection-modal--list-element">
+      <div *ngIf="!((filteredOptions$|async)?.length > 0 && (recentrecentlyUsedItems$|async)?.length > 0)" class="selection-modal--list-element">
         <i>
           No Results Found  
         </i>

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import {from, fromEvent, Observable, of} from 'rxjs';
-import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
@@ -44,6 +44,26 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  getRecentlyUsedItems() {
+    // Check if recently items exists from api and set, else, set the recent items from the localStorage
+    if (this.recentlyUsed) {
+      return of(this.recentlyUsed);
+    } else {
+      return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+        map((options: any) => {
+          return options
+            .filter(option => {
+              return option.custom || this.options.map(op => op.label).includes(option.label);
+            })
+            .map(option => {
+            option.selected = isEqual(option.value, this.currentSelection);
+            return option;
+          });
+        })
+      );
+    }
+  }
+
   ngAfterViewInit() {
     if (this.searchBarRef && this.searchBarRef.nativeElement) {
       this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
@@ -84,6 +104,24 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
           }
         )
       );
+      this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+        map((event: any) => event.srcElement.value),
+        startWith(''),
+        distinctUntilChanged(),
+        switchMap((searchText) => {
+          return this.getRecentlyUsedItems().pipe(
+            map((recentrecentlyUsedItems) => {
+              if (searchText && searchText.length > 0) {
+                var searchTextLowerCase = searchText.toLowerCase();
+                return recentrecentlyUsedItems.filter( item => {
+                  return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
+                });
+              }
+              return recentrecentlyUsedItems;
+            })
+          );
+        })
+      );
     } else {
       const initial = [];
 
@@ -99,24 +137,6 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
             })
           )
         );
-    }
-
-    // Check if recently items exists from api and set, else, set the recent items from the localStorage
-    if (this.recentlyUsed) {
-      this.recentrecentlyUsedItems$ = of(this.recentlyUsed);
-    } else {
-      this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => {
-          return options
-            .filter(option => {
-              return option.custom || this.options.map(op => op.label).includes(option.label);
-            })
-            .map(option => {
-            option.selected = isEqual(option.value, this.currentSelection);
-            return option;
-          });
-        })
-      );
     }
 
     this.cdr.detectChanges();
