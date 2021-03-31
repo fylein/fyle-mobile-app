@@ -46,7 +46,7 @@ export class MyExpensesCardComponent implements OnInit {
   ) { }
 
   get isSelected() {
-    return this.selectedElements.includes(this.expense.tx_id);
+    return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
   }
 
   getVendorDetails(expense) {
@@ -90,7 +90,7 @@ export class MyExpensesCardComponent implements OnInit {
     if (!this.selectionMode) {
       this.goToTransaction.emit(this.expense);
     } else {
-      if (!this.isDraft || this.baseState === 'draft') {
+      if ((!this.isDraft || this.baseState === 'draft') && !this.isCriticalPolicyViolated) {
         this.cardClickedForSelection.emit(this.expense);
       }
     }

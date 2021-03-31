@@ -176,7 +176,6 @@
                 [options]="paymentModes"
                 [selectModalHeader]="'Choose Payment Mode'"
                 [selectionElement]="paymentMode"
-                [subheader]="'All Payment Modes'"
                 formControlName="paymentMode">
               </app-fy-select>
               <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -303,6 +302,7 @@
                       [defaultValue]="true"
                       [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                       [mandatory]="transactionMandatoyFields.project"
+                      [recentlyUsed]="recentProjects"
                       formControlName="project">
                     </app-fy-select-project>
                   </div>
@@ -337,9 +337,8 @@
                       [mandatory]="transactionMandatoyFields.category"
                       [options]="categories"
                       [selectModalHeader]="'Choose Category'"
-                      [subheader]="'All Categories'"
-                      formControlName="category"
-                    >
+                      [recentlyUsed]="recentCategories"
+                      formControlName="category">
                     </app-fy-select>
                   </div>
                   <div *ngIf="fg.controls.category.touched && !fg.controls.category.valid"
@@ -405,7 +404,6 @@
                   [nullOption]="txnFields.purpose?.mandatory ? false : true"
                   [options]="txnFields.purpose?.values"
                   [selectModalHeader]="'Enter '+ txnFields.purpose?.title"
-                  [subheader]="'All ' + txnFields.purpose?.title"
                   formControlName="purpose">
                 </app-fy-select>
               </div>
@@ -446,7 +444,6 @@
               [label]="fg.controls.tax.value ? (taxSettings.name || 'Tax Group') : ('Select ' + (taxSettings.name || 'Tax Group'))"
               [options]="taxSettings?.groups"
               [selectModalHeader]="'Select ' + (taxSettings.name || 'Tax Group')"
-              [subheader]="taxSettings.name || 'Tax Group'"
               formControlName="tax"
             ></app-fy-select>
           </div>
@@ -661,7 +658,6 @@
                     [mandatory]="customInput.mandatory"
                     [options]="customInput.options"
                     [selectModalHeader]="'Choose '+customInput.name"
-                    [subheader]="customInput.name"
                     formControlName="value">
                   </app-fy-select>
                 </div>
@@ -704,6 +700,7 @@
                              [mandatory]="txnFields.cost_center_id?.mandatory"
                              [options]="costCenters"
                              [selectModalHeader]="'Select Cost Center'"
+                             [recentlyUsed]="recentCostCenters"
                              formControlName="costCenter">
               </app-fy-select>
             </div>
