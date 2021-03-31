@@ -109,6 +109,7 @@ export class AddEditMileagePage implements OnInit {
   presetLocation: string;
   initialFetch;
   isProjectVisible$: Observable<boolean>;
+  vehicleOptions$: Observable<{ label: string, value: { type: string; icon: string }, selected?: boolean }[]>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -120,6 +121,43 @@ export class AddEditMileagePage implements OnInit {
   duplicateDetectionReasons = [
     { label: 'Different expense', value: 'Different expense' },
     { label: 'Other', value: 'Other' }
+  ];
+  vehiclesList = [
+    {
+      type: 'two_wheeler',
+      label: 'Two Wheeler',
+      icon: 'fy-bike'
+    },
+    {
+      type: 'four_wheeler',
+      label: 'Four Wheeler - Type 1',
+      icon: 'fy-car-mini'
+    },
+    {
+      type: 'four_wheeler1',
+      label: 'Four Wheeler - Type 2',
+      icon: 'fy-car'
+    },
+    {
+      type: 'four_wheeler3',
+      label: 'Four Wheeler - Type 3',
+      icon: 'fy-car'
+    },
+    {
+      type: 'four_wheeler4',
+      label: 'Four Wheeler - Type 4',
+      icon: 'fy-car'
+    },
+    {
+      type: 'bicycle',
+      label: 'Bicycle',
+      icon: 'fy-cyclist'
+    },
+    {
+      type: 'electric_car',
+      label: 'Electric Car',
+      icon: 'fy-electric-car'
+    }
   ];
 
   constructor(
@@ -739,7 +777,7 @@ export class AddEditMileagePage implements OnInit {
         const mileageConfig = orgSettings.mileage;
         orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
         if (orgUserMileageSettings.length > 0) {
-          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
+          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1', 'four_wheeler3', 'four_wheeler4', 'bicycle', 'electric_car'];
 
           orgUserMileageSettings.forEach((mileageLabel) => {
             const i = allVehicleTypes.indexOf(mileageLabel);
@@ -755,6 +793,37 @@ export class AddEditMileagePage implements OnInit {
         }
 
         return mileageConfig;
+      }),
+      shareReplay(1)
+    );
+  }
+
+  getVehicleOptions() {
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings()
+    }).pipe(
+      map(({ orgSettings, orgUserMileageSettings }) => {
+        const mileageConfig = orgSettings.mileage;
+        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
+        type vehicleOption = {type: string; value: { type: string; icon: string }; label: string; icon: string};
+
+        const allVehicleTypes = this.vehiclesList.map((vehicle: vehicleOption) => {
+          vehicle.value = {
+            type: vehicle.type,
+            icon: vehicle.icon
+          };
+          return vehicle;
+        });
+
+        const vehicleOptions = allVehicleTypes.filter(vehicle => {
+          if (orgUserMileageSettings.length > 0) {
+            return orgUserMileageSettings.indexOf(vehicle.type) > -1 && mileageConfig[vehicle.type];
+          } else {
+            return !!mileageConfig[vehicle.type];
+          }
+        });
+        return vehicleOptions;
       }),
       shareReplay(1)
     );
@@ -859,6 +928,7 @@ export class AddEditMileagePage implements OnInit {
     });
 
     this.mileageConfig$ = this.getMileageConfig();
+    this.vehicleOptions$ = this.getVehicleOptions();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
@@ -1063,7 +1133,7 @@ export class AddEditMileagePage implements OnInit {
       //   map(etxn => etxn.tx.mileage_rate)
       // )
       this.fg.valueChanges.pipe(
-        map(formValue => formValue.mileage_vehicle_type),
+        map(formValue => formValue.mileage_vehicle_type?.type),
         switchMap((vehicleType) => {
           return forkJoin({
             orgSettings: this.offlineService.getOrgSettings(),
@@ -1082,7 +1152,7 @@ export class AddEditMileagePage implements OnInit {
       )
       ,
       this.fg.valueChanges.pipe(
-        map(formValue => formValue.mileage_vehicle_type),
+        map(formValue => formValue.mileage_vehicle_type?.type),
         switchMap((vehicleType) => {
           return this.offlineService.getOrgSettings().pipe(
             map(orgSettings => {
@@ -1143,6 +1213,16 @@ export class AddEditMileagePage implements OnInit {
                 return paymentMode.acc.id === etxn.tx.source_account_id;
               }
             }))
+        ), of(null));
+      })
+    );
+
+    const selectedVehicleType$ = this.etxn$.pipe(
+      switchMap(etxn => {
+        return iif(() => etxn.tx.mileage_vehicle_type, this.vehicleOptions$.pipe(
+          map(vehicleOptions => vehicleOptions
+            .map(res => res.value)
+            .find(vehicleOption => vehicleOption.type === etxn.tx.mileage_vehicle_type))
         ), of(null));
       })
     );
@@ -1250,12 +1330,13 @@ export class AddEditMileagePage implements OnInit {
           orgUserSettings$,
           this.recentlyUsedValues$,
           this.recentlyUsedProjects$,
-          this.recentlyUsedCostCenters$
+          this.recentlyUsedCostCenters$,
+          selectedVehicleType$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, recentValue, recentProjects, recentCostCenters]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, recentValue, recentProjects, recentCostCenters, vehicleType]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1327,7 +1408,7 @@ export class AddEditMileagePage implements OnInit {
       }
 
       this.fg.patchValue({
-        mileage_vehicle_type: etxn.tx.mileage_vehicle_type,
+        mileage_vehicle_type: vehicleType,
         dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
         distance: etxn.tx.distance,
         round_trip: etxn.tx.mileage_is_round_trip,
@@ -1693,7 +1774,7 @@ export class AddEditMileagePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
-            mileage_vehicle_type: formValue.mileage_vehicle_type,
+            mileage_vehicle_type: formValue.mileage_vehicle_type.type,
             mileage_is_round_trip: formValue.round_trip,
             mileage_rate: rate || etxn.tx.mileage_rate,
             source_account_id: formValue.paymentMode.acc.id,

@@ -389,4 +389,15 @@ $red: #f00;
     color: #ababab;
     font-size: 12px;
   }
+
+  &--vehicle-icon {
+    vertical-align: middle;
+    color: #f36;
+    margin-right: 4px;
+
+    .mat-icon {
+      height: 32px;
+      width: 36px;
+    }
+  }
 }

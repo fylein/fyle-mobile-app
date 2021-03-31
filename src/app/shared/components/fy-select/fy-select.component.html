@@ -5,6 +5,9 @@
       *
     </span>
   </div>
+  <span class="fy-select--input-icon" *ngIf="value?.icon">
+    <mat-icon [svgIcon]="value.icon"></mat-icon>
+  </span>
   <input class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()" [ngClass]="{'fy-select--input-disabled': disabled}" [disabled]="disabled">
   <mat-icon class="fy-select--icon" [ngClass]="{'fy-select--input-disabled': disabled}">
     chevron_right

@@ -32,4 +32,14 @@
   &--input-disabled {
     opacity: 0.5;
   }
+
+  &--input-icon {
+    vertical-align: middle;
+    color: #f36;
+
+    .mat-icon {
+      height: 32px;
+      width: 36px;
+    }
+  }
 }

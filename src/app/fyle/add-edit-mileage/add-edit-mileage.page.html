@@ -104,12 +104,39 @@
           </ng-container>
 
           <div class="add-edit-mileage--primary-block">
-            <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-              <div class="add-edit-mileage--internal-block">
-                <app-fy-select-vehicle [isAmountDisabled]="(isAmountDisabled$|async)" [mandatory]="true"
-                                       [mileageConfig]="mileageConfig"
-                                       formControlName="mileage_vehicle_type"></app-fy-select-vehicle>
-              </div>
+            <ng-container *ngIf="vehicleOptions$|async as vehicleOptions">
+              <div class="add-edit-mileage--internal-block" 
+                  [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.mileage_vehicle_type.touched && !fg.controls.mileage_vehicle_type.valid}">
+                <app-fy-select
+                  [enableSearch]="false"
+                  [disabled]="(isAmountDisabled$|async)"
+                  [label]="fg.value.mileage_vehicle_type? 'Vehicle Type' : 'Select Vehicle Type'"
+                  [mandatory]="true"
+                  [nullOption]="false"
+                  [options]="vehicleOptions"
+                  [selectModalHeader]="'Choose Vehicle Type'"
+                  [selectionElement]="vehicleType"
+                  [subheader]="'All Vehicle Types'"
+                  formControlName="mileage_vehicle_type">
+                </app-fy-select>
+                <ng-template #vehicleType let-label="label" let-vehicleType="value" let-selected="selected">
+                  <div>
+                    <div class="add-edit-mileage--payment-mode-header">
+                      <span class="add-edit-mileage--vehicle-icon">
+                        <mat-icon [svgIcon]="vehicleType.icon"></mat-icon>
+                      </span>
+                      {{label}}
+                    </div>
+                  </div>
+                  <mat-icon *ngIf="selected">
+                    check
+                  </mat-icon>
+                </ng-template>
+            </div>
+            <div *ngIf="fg.controls.mileage_vehicle_type.touched && !fg.controls.mileage_vehicle_type.valid"
+                  class="add-edit-mileage--error">
+              Please select vehicle type.
+            </div>
             </ng-container>
 
             <ng-container *ngIf="txnFields$|async as txnFields">
