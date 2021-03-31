@@ -63,7 +63,6 @@ export class TransactionsOutboxService {
 
     const idx = this.dataExtractionQueue.indexOf(entry);
     this.dataExtractionQueue.splice(idx, 1);
-    console.log('removing entry ' + idx);
     await this.saveDataExtractionQueue();
   }
 
@@ -166,7 +165,6 @@ export class TransactionsOutboxService {
         contentType = 'image/jpeg';
       }
 
-      console.log(fileExtension);
       this.fileService.post({
         name: '000.' + fileExtension,
         receipt_coordinates: receiptCoordinates
@@ -176,7 +174,6 @@ export class TransactionsOutboxService {
           const fileName = fileObj.name;
           // check from here
           fetch(dataUrl).then(res => res.blob()).then(blob => {
-            console.log(blob);
             this.uploadData(uploadUrl, blob, contentType)
               .toPromise()
               .then(resp => {
@@ -195,7 +192,6 @@ export class TransactionsOutboxService {
   removeEntry(entry) {
     const idx = this.queue.indexOf(entry);
     this.queue.splice(idx, 1);
-    console.log('removing entry ' + idx);
     this.saveQueue();
   }
 
@@ -245,7 +241,6 @@ export class TransactionsOutboxService {
             return fileObj;
           }, (evt) => {
             const progressPercentage = 100.0 * evt.loaded / evt.total;
-            console.log('progress: ' + progressPercentage);
           });
 
           fileObjPromiseArray.push(fileObjPromise);
@@ -254,8 +249,6 @@ export class TransactionsOutboxService {
     }
 
     return new Promise((resolve, reject) => {
-      console.log(entry.transaction);
-      console.log(fileObjPromiseArray);
       that.transactionService.createTxnWithFiles(entry.transaction, from(Promise.all(fileObjPromiseArray))).toPromise().then((resp) => {
         const comments = entry.comments;
         // adding created transaction id into entry object to get created transaction id when promise is resolved.
@@ -328,7 +321,6 @@ export class TransactionsOutboxService {
     const that = this;
 
     if (that.syncDeferred) {
-      console.log('returning old promise');
       return that.syncDeferred;
     }
 
@@ -337,15 +329,12 @@ export class TransactionsOutboxService {
       const p = [];
 
       for (let i = 0; i < that.queue.length; i++) {
-        console.log('processing txn ' + i);
         p.push(that.syncEntry(that.queue[i]));
       }
 
       Promise.all(p).finally(() => {
         // if (p.length > 0) {
-        //   console.log('clearing cache');
         //   TransactionService.deleteCache();
-        //   console.log('clearing syncDeferred');
         // }
         that.processDataExtractionEntry();
 
