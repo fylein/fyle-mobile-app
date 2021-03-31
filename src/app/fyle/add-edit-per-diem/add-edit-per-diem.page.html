@@ -205,7 +205,6 @@
                         [options]="paymentModes"
                         [selectModalHeader]="'Choose Payment Mode'"
                         [selectionElement]="paymentMode"
-                        [subheader]="'All Payment Modes'"
                         formControlName="paymentMode">
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -298,6 +297,7 @@
                                 [defaultValue]="true"
                                 [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                                 [mandatory]="transactionMandatoyFields?.project"
+                                [recentlyUsed]="recentProjects"
                                 formControlName="project">
                               </app-fy-select-project>
                             </div>
@@ -392,7 +392,6 @@
                             [mandatory]="customInput.mandatory"
                             [options]="customInput.options"
                             [selectModalHeader]="'Choose '+customInput.name"
-                            [subheader]="customInput.name"
                             formControlName="value">
                           </app-fy-select>
                         </div>
@@ -426,6 +425,7 @@
                           [mandatory]="txnFields.cost_center_id.mandatory"
                           [options]="costCenters"
                           [selectModalHeader]="'Select Cost Center'"
+                          [recentlyUsed]="recentCostCenters"
                           formControlName="costCenter">
                         </app-fy-select>
                       </div>

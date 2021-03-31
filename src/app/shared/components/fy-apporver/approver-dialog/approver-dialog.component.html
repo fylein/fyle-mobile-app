@@ -25,9 +25,10 @@
     <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$|async as approverList">
       <div class="approver-list--list-element">
         <label class="approver-list--list-element-label">
-          <mat-checkbox color="primary" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
+          <mat-checkbox color="primary" [checked]="approver.is_selected" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
           <span class="approver-list--approver-details">
-            {{approver.us.full_name}} ({{approver.us.email}})
+            <span class="approver-list--approver-details_name">{{approver.us_full_name}}</span>
+            <span>{{approver.us_email}}</span>
           </span>
         </label>
       </div>
@@ -37,7 +38,7 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button mode="md" class="approver-list--save" fill="solid" [disabled]="!(selectedApprovers.length > 0)" color="fyle-primary" (click)="saveUpdatedApproveList()">
+    <ion-button mode="md" class="approver-list--save" fill="solid" [disabled]="areApproversAdded" color="fyle-primary" (click)="saveUpdatedApproveList()">
       Proceed
     </ion-button>
   </ion-toolbar>

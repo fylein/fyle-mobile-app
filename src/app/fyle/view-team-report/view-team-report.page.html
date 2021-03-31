@@ -44,20 +44,23 @@
       </div>
 
       <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
-      <div *ngIf="erpt.rp_trip_request_id">
-        <div>Associated Trip Request</div>
-        <!-- Display this block if trip requests are handled with T&A module of Fyle -->
-        <div *ngIf="tripRequest$|async as tripRequest; else showOnlyId">
-          <div>Request number is {{tripRequest.trp_request_number}}</div>
-          <div>
-            Created on {{tripRequest.trp_created_at | date: 'MMMM dd, yyyy'}}
+      <div class="view-reports--card" *ngIf="erpt.rp_trip_request_id">
+          <div class="view-reports--card-header">Associated Trip Request</div>
+          <!-- Display this block if trip requests are handled with T&A module of Fyle -->
+          <div class="view-reports--card-body" *ngIf="tripRequest$|async as tripRequest; else showOnlyId">
+            <div>Request number is {{tripRequest.trp_request_number}}</div>
+            <div>
+              Created on {{tripRequest.trp_created_at | date: 'MMMM dd, yyyy'}}
+            </div>
+            <div>Purpose: {{tripRequest.trp_purpose}}</div>
           </div>
-          <div>Purpose: {{tripRequest.trp_purpose}}</div>
+          <!-- If trip requests are handled externally by the clients, display only the associated trip request ID -->
+          <ng-template #showOnlyId>
+            <div class="view-reports--card-body">
+              Trip Request ID is {{erpt.rp_trip_request_id}}
+            </div>
+          </ng-template>
         </div>
-        <!-- If trip requests are handled externally by the clients, display only the associated trip request ID -->
-        <div #showOnlyId>Trip Request ID is {{erpt.rp_trip_request_id}}
-        </div>
-      </div>
 
       <div class="view-reports--card" *ngIf="erpt.rp_num_transactions !== 0">
         <div>
@@ -105,20 +108,25 @@
           </div>
         </div>
       </div>
-
-      <ng-container *ngIf="reportApprovals$|async as reportApprovals">
-        <ng-container *ngIf="this.actions$|async as actions">
-          <app-fy-modify-approver *ngIf="reportApprovals.length > 0 && actions.can_add_approver" [approverList]="getApproverEmails(reportApprovals)" [object]="erpt" [id]="erpt.rp_id"
-            [from]="'TEAM_REPORTS'" [title]="'Modify Approvers'" (notify)='onUpdateApprover($event)'>
-          </app-fy-modify-approver>
-        </ng-container>
-      </ng-container>
-
     </div>
+
+    <ng-container *ngIf="reportApprovals$|async as reportApprovals">
+      <ng-container *ngIf="actions$|async as actions">
+        <div class="view-reports--card__external-component" *ngIf="actions.can_add_approver">
+          <app-fy-apporver
+            [approverEmailsList]="getApproverEmails(reportApprovals)"
+            [id]="erpt.rp_id"
+            [ownerEmail]="erpt.us_email"
+            [from]="'TEAM_REPORT'"
+            (notify)="onUpdateApprover($event)">
+          </app-fy-apporver>
+        </div>
+      </ng-container>
+    </ng-container>
 
     <div class="view-reports--card view-reports--card__zero-state" *ngIf="erpt.rp_num_transactions === 0">
       <div>
-        <img src="../../../assets/images/zero-states/expenses.svg" alt="No expense in this report" c>
+        <img src="../../../assets/images/zero-states/expenses.svg" alt="No expense in this report">
         <div class="view-reports--zero-state-header">
           No expense in this report yet
         </div>
