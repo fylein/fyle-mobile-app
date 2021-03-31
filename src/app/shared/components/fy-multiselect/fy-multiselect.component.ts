@@ -86,7 +86,6 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      console.log(data);
       this.value = data.selected.map(selection => selection.value);
     }
   }

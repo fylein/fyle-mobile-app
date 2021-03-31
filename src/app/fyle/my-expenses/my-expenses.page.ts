@@ -249,7 +249,6 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
-      tap(console.log),
       switchMap((params) => {
         let defaultState;
         if (this.baseState === 'all') {
@@ -308,10 +307,8 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        console.log(queryParams);
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
-      tap(count => console.log({ count })),
       shareReplay(1)
     );
 
@@ -368,7 +365,6 @@ export class MyExpensesPage implements OnInit {
     );
 
     this.loadData$.subscribe(params => {
-      console.log(params);
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,

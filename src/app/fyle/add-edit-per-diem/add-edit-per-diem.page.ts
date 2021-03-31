@@ -381,7 +381,6 @@ export class AddEditPerDiemPage implements OnInit {
 
         return tfcMap;
       }),
-      tap(console.log),
       shareReplay(1)
     );
   }
@@ -795,8 +794,6 @@ export class AddEditPerDiemPage implements OnInit {
         })
       )
     );
-
-    this.allowedPerDiemRateOptions$.subscribe(console.log);
 
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
       filter(isConnected => !!isConnected),
