@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Capacitor, Device, Plugins } from '@capacitor/core';
+import { Capacitor, Device, PermissionType, Plugins } from '@capacitor/core';
 import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 
 const { CameraPreview } = Plugins;
+const { Permissions } = Plugins;
 import '@capacitor-community/camera-preview';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 
@@ -70,7 +71,12 @@ export class CameraOverlayPage implements OnInit {
       CameraPreview.start(cameraPreviewOptions).then(res => {
         this.isCameraShown = true;
         this.getFlashModes();
-      }).catch((error) => {
+      }).catch(async (error) => {
+        const cameraPermissions = await Permissions.query({ name: PermissionType.Camera });
+        const photosPermission = await Permissions.query({ name: PermissionType.Photos });
+
+        console.log(cameraPermissions, photosPermission);
+
         this.requestCameraAndPhotosPermission('camera');
       });
 
@@ -108,8 +114,10 @@ export class CameraOverlayPage implements OnInit {
       showCancelButton: false
     });
     if (permissionPopup === 'primary') {
-      this.setUpAndStartCamera();
-      this.openNativeSettings.open('application_details');
+      //this.setUpAndStartCamera();
+      this.openNativeSettings.open('application_details').then(res =>{
+        console.log("------------>", res);
+      })
     } else {
       this.navController.back();
     }
