@@ -2229,7 +2229,7 @@ export class PermissionsService {
           if (currentAllowedActions.allowedRouteAccess) {
             return of(currentAllowedActions);
           } else {
-            throwError('no route access');
+            return of(null);
           }
         }
       )
