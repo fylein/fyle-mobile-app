@@ -79,15 +79,6 @@ $list-element-color: #333;
     margin-bottom: 20px;
   }
 
-  &--sub-title {
-    color: #ababab;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 5px 0;
-    margin: 0 14px;
-    border-bottom: 1px solid #ddd;
-  }
-
   &--autocomplete-loader {
     animation: loading-circular 0.5s linear infinite;
     fill: #f36;
