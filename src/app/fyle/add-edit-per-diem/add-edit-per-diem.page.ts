@@ -1014,7 +1014,7 @@ export class AddEditPerDiemPage implements OnInit {
           if (perDiemRate.currency === homeCurrency) {
             this.fg.controls.currencyObj.setValue({
               currency: perDiemRate.currency,
-              amount: parseFloat((perDiemRate.rate * numDays).toFixed(2)),
+              amount: (perDiemRate.rate * numDays).toFixed(2),
               orig_currency: null,
               orig_amount: null
             });
@@ -1040,9 +1040,9 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]) => {
         this.fg.controls.currencyObj.setValue({
           currency: homeCurrency,
-          amount: parseFloat((perDiemRate.rate * numDays * exchangeRate).toFixed(2)),
+          amount: (perDiemRate.rate * numDays * exchangeRate).toFixed(2),
           orig_currency: perDiemRate.currency,
-          orig_amount: parseFloat((perDiemRate.rate * numDays).toFixed(2))
+          orig_amount: (perDiemRate.rate * numDays).toFixed(2)
         });
       });
 
