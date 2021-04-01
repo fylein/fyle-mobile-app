@@ -1,0 +1,7 @@
+<mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
+  <input id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="searchText" (keyup)="onSearchInputKeyUp($event)">
+  <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="fy-spinner-circle" matSuffix></mat-icon>
+  <button mat-button *ngIf="!isLoading && searchText" matSuffix mat-icon-button aria-label="Clear" (click)="clearSearchValue()">
+      <mat-icon>close</mat-icon>
+  </button>
+</mat-form-field>

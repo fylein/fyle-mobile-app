@@ -59,6 +59,7 @@ import { FySelectVendorComponent } from './components/fy-select-vendor/fy-select
 import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import {FyProjectSelectModalComponent} from './components/fy-select-project/fy-select-modal/fy-select-project-modal.component';
 import {FySelectProjectComponent} from './components/fy-select-project/fy-select-project.component';
+import {FySearchInputComponent} from './components/fy-search-input/fy-search-input.component';
 
 @NgModule({
   declarations: [
@@ -103,7 +104,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FormButtonValidationDirective,
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
-    FyViewAttachmentComponent
+    FyViewAttachmentComponent,
+    FySearchInputComponent
   ],
   imports: [
     CommonModule,
@@ -154,7 +156,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FyAddToReportComponent,
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
-    FyViewAttachmentComponent
+    FyViewAttachmentComponent,
+    FySearchInputComponent
   ],
   providers: [
     DecimalPipe,
