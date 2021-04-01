@@ -1,9 +1,11 @@
+@import '../../../../../assets/styles/fy_select';
 $header-border: #ddd;
 $header-input: #f8f8f8;
 $sub-title: #ababab;
 $list-element-color: #333;
 
 .selection-modal {
+  @extend %selection-modal;
   color: black;
   &--list-element {
     padding: 14px 4px;
