@@ -9,7 +9,7 @@ const { Permissions } = Plugins;
 import '@capacitor-community/camera-preview';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 
-import { from } from 'rxjs';
+import { forkJoin, from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { toBase64String } from '@angular/compiler/src/output/source_map';
@@ -22,6 +22,9 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {AuthService} from '../../core/services/auth.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { OpenNativeSettings } from '@ionic-native/open-native-settings/ngx';
+import { DeviceService } from 'src/app/core/services/device.service';
+import { map } from 'rxjs/operators';
+import { noop } from 'lodash';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -39,6 +42,7 @@ export class CameraOverlayPage implements OnInit {
   activeFlashMode: string;
   showInstaFyleIntro: boolean;
   modeChanged: boolean;
+  permissionDenyCount: number;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -53,7 +57,8 @@ export class CameraOverlayPage implements OnInit {
     private authService: AuthService,
     private navController: NavController,
     private popupService: PopupService,
-    private openNativeSettings: OpenNativeSettings
+    private openNativeSettings: OpenNativeSettings,
+    private deviceService: DeviceService
   ) { }
 
   setUpAndStartCamera() {
@@ -72,34 +77,44 @@ export class CameraOverlayPage implements OnInit {
         this.isCameraShown = true;
         this.getFlashModes();
       }).catch(async (error) => {
-        const cameraPermissions = await Permissions.query({ name: PermissionType.Camera });
-        const photosPermission = await Permissions.query({ name: PermissionType.Photos });
+        // const cameraPermissions = await Permissions.query({ name: PermissionType.Camera });
+        // const photosPermission = await Permissions.query({ name: PermissionType.Photos });
 
-        console.log(cameraPermissions, photosPermission);
+        this.permissionDenyCount++;
+        this.storageService.set('permissionDenyCount', this.permissionDenyCount);
 
-        this.requestCameraAndPhotosPermission('camera');
+        // console.log(cameraPermissions, photosPermission);
+        this.navController.back();
+
+       // this.requestCameraAndPhotosPermission('camera');
       });
 
     }
   }
 
-  async requestCameraAndPhotosPermission(action: string) {
+  async requestCameraAndPhotosPermission(actions: string[]) {
     const deviceInfo = await Device.getInfo();
 
-    let header = '';
-    let message = '';
+    let header = `Allow Fyle to access ${actions}`;
+    let message = `${actions}`;
 
     if (deviceInfo.operatingSystem.toLowerCase() === 'ios') {
-      if (action.toLowerCase() === 'camera') {
-        header = 'Allow Fyle to access your Camera';
-        message = 'You can use your camera to scan receipts. We\'ll auto-extract the receipt details and turn them into expenses.';
-      } else if (action.toLowerCase() === 'photos') {
-        header = 'Allow Fyle to access your Photos';
-        message = 'Fyle needs photo library access to upload receipts that you choose.';
-      }
+      // if (actions.indexOf('camera') === 'camera') {
+      //   header = 'Allow Fyle to access your Camera';
+      //   message = 'You can use your camera to scan receipts. We\'ll auto-extract the receipt details and turn them into expenses.';
+      // } else if (actions.toLowerCase() === 'photos') {
+      //   header = 'Allow Fyle to access your Photos';
+      //   message = 'Fyle needs photo library access to upload receipts that you choose.';
+      // }
     } else if (deviceInfo.operatingSystem.toLowerCase() === 'android') {
-      header = 'Allow Fyle to access Camera, Files and Media';
-      message = 'To capture photos, allow Fyle access to your camera and your device\'s photos, media, and files.\n Tap Settings > Permissions, and turn Camera and "Files and Media" on.'
+      if (this.permissionDenyCount === 1) {
+        header = 'Allow Fyle to access camera, photos, media, and files.';
+        message = 'To capture photos, allow Fyle access to your camera and your device\'s photos, media, and files.';
+      } else {
+        header = 'Allow Fyle to access camera, photos, media, and files.';
+        message = 'To capture photos, allow Fyle access to your camera and your device\'s photos, media, and files.\n Tap Settings > Permissions, and turn Camera and "Files and Media" on.';
+      }
+      
     }
 
     const permissionPopup = await this.popupService.showPopup({
@@ -114,10 +129,14 @@ export class CameraOverlayPage implements OnInit {
       showCancelButton: false
     });
     if (permissionPopup === 'primary') {
+      if (this.permissionDenyCount === 1) {
+        this.setUpAndStartCamera();
+      } else {
+        this.openNativeSettings.open('application_details');
+        this.navController.back();
+      }
       //this.setUpAndStartCamera();
-      this.openNativeSettings.open('application_details').then(res =>{
-        console.log("------------>", res);
-      })
+      
     } else {
       this.navController.back();
     }
@@ -173,7 +192,7 @@ export class CameraOverlayPage implements OnInit {
         this.imagePicker.requestReadPermission().then(() => {
           this.uploadFiles()
         }).catch(() => {
-          this.requestCameraAndPhotosPermission('photos');
+          //this.requestCameraAndPhotosPermission('photos');
         });
       }
     });
@@ -319,11 +338,68 @@ export class CameraOverlayPage implements OnInit {
     }
   }
 
+  // async showPopupAndStartCamera1() {
+  //   this.openingInstaFyleTimeCount = await this.storageService.get('openingInstaFyleTimeCount') || 1;
+  //   console.log("-------------->", this.openingInstaFyleTimeCount);
+
+  //   if (this.openingInstaFyleTimeCount === 1) {
+  //     console.log("----------first time-------");
+  //     this.setUpAndStartCamera();
+  //   } else {
+  //     console.log("----------second time-------");
+  //     this.requestCameraAndPhotosPermission(['camera', 'photos']);
+  //   }
+  // }
+
+  showPopupAndStartCamera() {
+    forkJoin({
+      permissionDenyCount: from(this.storageService.get('permissionDenyCount')),
+      deviceInfo: from(this.deviceService.getDeviceInfo()),
+      cameraPermission: from(Permissions.query({ name: PermissionType.Camera })),
+      photosPermission: Permissions.query({ name: PermissionType.Photos })
+    }).pipe(
+      map(({permissionDenyCount, deviceInfo, cameraPermission, photosPermission}) => {
+        console.log("_______________>", cameraPermission);
+        this.permissionDenyCount = permissionDenyCount || 0;
+        if (deviceInfo.platform.toLowerCase() === 'android') {
+          if (cameraPermission.state.toLowerCase() === 'granted' && photosPermission.state.toLowerCase() === 'granted') {
+            // If both permissions are granted open camera
+            console.error("-----------1-----------");
+            this.setUpAndStartCamera()
+          } else {
+            if (this.permissionDenyCount === 0) {
+              console.error("-----------2-----------");
+              this.setUpAndStartCamera();
+            } else {
+              console.error("-----------3-----------");
+              let permissionsArray = [];
+              if (cameraPermission.state.toLowerCase() === 'denied') {
+                permissionsArray.push('camera');
+              }
+
+              if (photosPermission.state.toLowerCase() === 'denied') {
+                permissionsArray.push('photos');
+              }
+
+              this.requestCameraAndPhotosPermission(permissionsArray);
+            }
+          }
+
+        } else if (deviceInfo.platform.toLowerCase() === 'ios') {
+
+        } else {
+          //Web PWA
+        }
+      })
+    ).subscribe(noop);
+  }
+
   ionViewWillEnter() {
     this.captureCount = 0;
     this.isBulkMode = false;
     this.isCameraShown = false;
-    this.setUpAndStartCamera();
+   
+    this.showPopupAndStartCamera();
     this.activeFlashMode = null;
 
     this.offlineService.getHomeCurrency().subscribe(res => {
@@ -331,6 +407,9 @@ export class CameraOverlayPage implements OnInit {
     });
 
     this.showInstaFyleIntroImage();
+  }
+
+  ionViewWillLeave() {
   }
 
   ngOnInit() {
