@@ -100,7 +100,6 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       switchMap((searchText) => {
         return this.getRecentlyUsedVendors().pipe(
           map((recentrecentlyUsedItems) => {
-            console.log('rece: ', recentrecentlyUsedItems);
             if (searchText && searchText.length > 0) {
               var searchTextLowerCase = searchText.toLowerCase();
               return recentrecentlyUsedItems.filter( item => {
