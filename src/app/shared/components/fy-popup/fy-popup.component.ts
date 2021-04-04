@@ -15,7 +15,6 @@ export class FyPopupComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log(this.config);
     if (this.config.showCancelButton === undefined) {
       this.config.showCancelButton = true;
     }

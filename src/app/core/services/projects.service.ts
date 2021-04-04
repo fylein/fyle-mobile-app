@@ -4,6 +4,8 @@ import {ApiV2Service} from './api-v2.service';
 import {map, switchMap} from 'rxjs/operators';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable} from 'ts-cacheable';
+import { Observable } from 'rxjs';
+import { ExtendedProject } from '../models/V2/extended-project.model';
 import { AuthService } from './auth.service';
 import { from } from 'rxjs';
 import { OfflineService } from './offline.service';
@@ -49,10 +51,10 @@ export class ProjectsService {
   @Cacheable()
   getByParamsUnformatted(projectParams:
     Partial<{
-      orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds, isIndividualProjectEnabled
-    }>) {
+      orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds
+    }>): Observable<ExtendedProject[]> {
     // tslint:disable-next-line: prefer-const
-    let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds, isIndividualProjectEnabled }
+    let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds }
       = projectParams;
     sortOrder = sortOrder || 'project_updated_at';
     sortDirection = sortDirection || 'desc';
@@ -74,8 +76,8 @@ export class ProjectsService {
       params.project_org_category_ids = 'cs.{' + orgCategoryIds.join(',') + '}';
     }
 
-    // `projectIds` and `isIndividualProjectEnabled` can be optional
-    if (typeof projectIds !== 'undefined' && projectIds !== null && isIndividualProjectEnabled) {
+    // `projectIds` can be optional
+    if (typeof projectIds !== 'undefined' && projectIds !== null) {
       params.project_id = 'in.(' + projectIds.join(',') + ')';
     }
 
@@ -93,14 +95,14 @@ export class ProjectsService {
 
   @Cacheable()
   getByParams(queryParams: Partial<{
-    orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds, isIndividualProjectEnabled
-  }>) {
+    orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds 
+  }>): Observable<ExtendedProject[]> {
     const {
-      orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds, isIndividualProjectEnabled
+      orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds 
     } = queryParams;
     return this
       .getByParamsUnformatted({
-        orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds, isIndividualProjectEnabled
+        orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds 
       }).pipe(
         map(this.parseRawEProjects)
       );

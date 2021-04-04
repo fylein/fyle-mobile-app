@@ -1,15 +1,35 @@
-$header-border: #ddd;
+$header-border: #e0e0e0;
 $header-input: #f8f8f8;
 $sub-title: #ababab;
-$list-element-color: #333;
+$list-element-color: #ababab;
 
 .selection-modal {
   color: black;
+
+  &--list-container {
+    padding: 0 10px;
+  }
+
   &--list-element {
-    padding: 14px;
-    border-bottom: 1px solid $header-border;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #ababab;
+  }
+
+  &--list-element-label {
+    display: flex;
+    align-items: center;
+  }
+
+  &--approver-details {
+    margin-left: 16px;
     font-size: 16px;
-    color: $list-element-color;
+    font-weight: 500;
+    max-width: 280px;
+
+    &_name {
+      display: block;
+    }
   }
 
   &--title {
@@ -18,14 +38,6 @@ $list-element-color: #333;
     font-weight: 600;
     height: 100%;
     line-height: 1.3;
-  }
-
-  &--approver-details {
-    display: block;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 280px;
   }
 
   &--header {

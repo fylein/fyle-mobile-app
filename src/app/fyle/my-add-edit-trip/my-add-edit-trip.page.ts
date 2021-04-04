@@ -22,6 +22,7 @@ import {ProjectsService} from 'src/app/core/services/projects.service';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {TripRequestPolicyService} from 'src/app/core/services/trip-request-policy.service';
 import {StatusService} from '../../core/services/status.service';
+import { Employee } from 'src/app/core/models/employee.model';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -48,7 +49,7 @@ export class MyAddEditTripPage implements OnInit {
   isTransportationEnabled$: Observable<boolean>;
   isHotelEnabled$: Observable<boolean>;
   isAdvanceEnabled$: Observable<boolean>;
-  travelAgents$: Observable<any>;
+  travelAgents$: Observable<Employee[]>;
   customFields$: Observable<any>;
   isProjectsEnabled$: Observable<boolean>;
   projects$: Observable<[]>;
@@ -279,7 +280,7 @@ export class MyAddEditTripPage implements OnInit {
 
     const { data } = await policyViolationsModal.onWillDismiss();
 
-    if (data && data.comment) {
+    if (data) {
       return {
         status: 'proceed',
         comment: data.comment
@@ -815,16 +816,16 @@ export class MyAddEditTripPage implements OnInit {
     }
 
     this.eou$ = from(this.authService.getEou());
-    this.travelAgents$ = this.orgUserService.getAllCompanyEouc().pipe(
-      map(eous => {
+    this.travelAgents$ = this.orgUserService.getEmployees({
+      ou_roles: 'like.%TRAVEL_AGENT%'
+    }).pipe(
+      map(employees => {
         const travelAgents = [];
-        eous.filter(eou => {
-          if (eou.ou.roles.indexOf('TRAVEL_AGENT') > -1) {
-            travelAgents.push({
-              label: eou.us.full_name + '(' + eou.us.email + ')',
-              value: eou.ou.id
-            });
-          }
+        employees.forEach(employee => {
+          travelAgents.push({
+            label: employee.us_full_name + '(' + employee.us_email + ')',
+            value: employee.ou_id
+          });
         });
         return travelAgents;
       })

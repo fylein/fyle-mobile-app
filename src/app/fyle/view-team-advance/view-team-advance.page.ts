@@ -69,8 +69,6 @@ export class ViewTeamAdvancePage implements OnInit {
 
     this.showAdvanceActions$ = this.actions$.pipe(map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject))
 
-    this.actions$.subscribe(console.log);
-
     this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
 
     this.activeApprovals$ = this.refreshApprovers$.pipe(
@@ -105,7 +103,6 @@ export class ViewTeamAdvancePage implements OnInit {
       customFields: this.customFields$,
       eou: from(this.authService.getEou())
     }).pipe(
-      tap(res => console.log('tap ->', res)),
       map(res => {
         if (res.eou.ou.org_id === res.advanceRequest.ou_org_id) {
           let customFieldValues = [];
@@ -139,7 +136,7 @@ export class ViewTeamAdvancePage implements OnInit {
     });
   }
 
-  onUpdateApprover(message: string) {
+  onUpdateApprover(message: boolean) {
     if (message) {
       this.refreshApprovers$.next();
     }

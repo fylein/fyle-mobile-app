@@ -101,6 +101,19 @@
       </div>
     </div>
 
+    <!-- Expense auto-fill card start -->
+    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.expense_form_autofills?.allowed">
+      <div class="my-profile--card-title">Expense auto-fill</div>
+      <div class="my-profile--cards-content my-profile--toggle-container">
+        <div class="my-profile--toggle-label">
+          Auto-fill expense form fields based on most recently used values.
+        </div>
+        <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
+          [(ngModel)]="orgUserSettings.expense_form_autofills.enabled" (ionChange)="toggleAutofillSettings()">
+        </ion-toggle>
+      </div>
+    </div>
+
     <!-- Currency preference card start -->
     <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_currency_settings?.enabled">
       <div class="my-profile--card-title">Default Currency</div>

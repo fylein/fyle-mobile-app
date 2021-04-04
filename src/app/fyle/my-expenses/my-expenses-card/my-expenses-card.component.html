@@ -31,7 +31,7 @@
           <app-fy-category-icon [category]="(expense.tx_extracted_data && expense.tx_extracted_data.category && expense.tx_fyle_category === 'Unspecified' ? (expense.tx_extracted_data.category) : expense.tx_fyle_category)"></app-fy-category-icon>
         </div>
         <div class="my-expenses-card--selection-icon" *ngIf="selectionMode && !isSelected">
-          <ion-checkbox mode="ios" checked="false" [disabled]="isDraft && selectionMode && baseState !== 'draft'"></ion-checkbox>
+          <ion-checkbox mode="ios" checked="false" [disabled]="(isDraft && selectionMode && baseState !== 'draft') || isCriticalPolicyViolated"></ion-checkbox>
         </div>
         <div class="my-expenses-card--selection-icon my-expenses-card--selection-icon__selected"
           *ngIf="selectionMode && isSelected">

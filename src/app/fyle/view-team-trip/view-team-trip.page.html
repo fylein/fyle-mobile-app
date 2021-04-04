@@ -195,14 +195,15 @@
 
       <ng-container *ngIf="activeApprovals$|async as activeApprovals">
         <ng-container *ngIf="actions$|async as actions">
-          <app-fy-apporver
-            *ngIf="actions.can_add_approver"
-            [approverList]="getApproverEmails(activeApprovals)"
-            [id]="tripRequest.trp_id"
-            [from]="'TRIP_REQUEST'"
-            [title]="'Add Approvers'"
-            (notify)='onUpdateApprover($event)'>
-          </app-fy-apporver>
+          <div class="trip-request--card_external-component" *ngIf="actions.can_add_approver">
+            <app-fy-apporver
+              [approverEmailsList]="getApproverEmails(activeApprovals)"
+              [id]="tripRequest.trp_id"
+              [ownerEmail]="tripRequest.us_email"
+              [from]="'TRIP_REQUEST'"
+              (notify)="onUpdateApprover($event)">
+            </app-fy-apporver>
+          </div>
         </ng-container>
       </ng-container>
 

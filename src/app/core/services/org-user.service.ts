@@ -5,13 +5,14 @@ import {ApiService} from './api.service';
 import {User} from '../models/user.model';
 import {concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
 import {AuthService} from './auth.service';
-import {Observable, range, Subject} from 'rxjs';
+import {Observable, range, Subject, from} from 'rxjs';
 import {ExtendedOrgUser} from '../models/extended-org-user.model';
 import {DataTransformService} from './data-transform.service';
 import {StorageService} from './storage.service';
 import {Cacheable, globalCacheBusterNotifier, CacheBuster} from 'ts-cacheable';
 import {TrackingService} from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
+import { Employee } from '../models/employee.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -55,42 +56,43 @@ export class OrgUserService {
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$
   })
-  getCompanyEouc(params: { offset: number, limit: number }) {
-    return this.apiService.get('/eous/company', {
-      params
-    }).pipe(
-      map(
-        eous => eous.map(eou => this.dataTransformService.unflatten(eou) as ExtendedOrgUser)
-      )
-    );
-  }
-
-  getAllCompanyEouc() {
-    return this.getCompanyEouCount().pipe(
-      switchMap(res => {
-        const count = res.count > 50 ? res.count / 50 : 1;
-        return range(0, count);
-      }),
-      concatMap(page => {
-        return this.getCompanyEouc({ offset: 50 * page, limit: 50 });
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as ExtendedOrgUser[])
-    );
-  }
-
-  getEmployeesByParams(params) {
+  getEmployeesByParams(params): Observable<{
+    count: number,
+    data: Employee[],
+    limit: number,
+    offset: number,
+    url: string}> {
     return this.apiV2Service.get('/employees', {params});
   }
 
-  getCompanyEouCount(): Observable<{ count: number }> {
-    return this.apiService.get('/eous/company/count').pipe(
-      map(
-        res => res as { count: number }
-      )
+  getEmployees(params): Observable<Employee[]>{
+    return this.getEmployeesByParams({...params, limit: 1}).pipe(
+      switchMap(res => {
+        const count = res.count > 200 ? res.count / 200 : 1;
+        return range(0, count);
+      }),
+      concatMap(page => {
+        return this.getEmployeesByParams({ ...params, offset: 200 * page, limit: 200 });
+      }),
+      reduce((acc, curr) => {
+        return acc.concat(curr.data);
+      }, [] as Employee[])
     );
   }
+
+  getEmployeesBySearch(params): Observable<Employee[]> {
+    if (params.or) {
+      params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
+    } else {
+      params.or = '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")';
+    }
+    return this.getEmployeesByParams({
+      ...params,
+    }).pipe(
+      map(res => res.data)
+    );
+  }
+
 
   exclude(eous: ExtendedOrgUser[], userIds: string[]) {
     return eous.filter((eou) => {
@@ -102,7 +104,7 @@ export class OrgUserService {
   getCurrent() {
     return this.apiService.get('/eous/current').pipe(
       map(eou => {
-        return this.dataTransformService.unflatten(eou);;
+        return this.dataTransformService.unflatten(eou);
       })
     );
   }

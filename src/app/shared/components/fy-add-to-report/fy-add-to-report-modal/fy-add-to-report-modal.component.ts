@@ -61,9 +61,6 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     this.selectedOption = this.options
       .find(option => isEqual(option.value, this.currentSelection));
 
-    console.log({ filteredOptions: this.filteredOptions});
-    console.log({ selectedOption: this.selectedOption});
-
     this.cdr.detectChanges();
   }
 

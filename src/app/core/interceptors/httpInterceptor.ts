@@ -10,7 +10,7 @@ import {
   HttpParameterCodec
 } from '@angular/common/http';
 
-import { Observable, throwError, from, forkJoin } from 'rxjs';
+import { Observable, throwError, from, forkJoin, of, iif } from 'rxjs';
 import { map, catchError, switchMap, mergeMap, concatMap } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
@@ -72,9 +72,31 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
+  getAccessToken() {
+    return from(this.tokenService.getAccessToken()).pipe(
+      concatMap(accessToken => {
+        if (this.expiringSoon(accessToken)) {
+          return from(this.tokenService.getRefreshToken()).pipe(
+            concatMap(refreshToken => {
+              return from(this.routerAuthService.fetchAccessToken(refreshToken));
+            }),
+            concatMap(authResponse => {
+              return from(this.routerAuthService.newAccessToken(authResponse.access_token))
+            }),
+            concatMap(() => {
+              return from(this.tokenService.getAccessToken())
+            })
+          );
+        } else {
+          return of(accessToken);
+        }
+      })
+    );
+  }
+
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return forkJoin({
-      token: from(this.tokenService.getAccessToken()),
+      token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
       deviceInfo: from(this.deviceService.getDeviceInfo())
     }).pipe(
         concatMap(({token, deviceInfo}) => {

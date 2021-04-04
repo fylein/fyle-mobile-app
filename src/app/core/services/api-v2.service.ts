@@ -40,4 +40,5 @@ export class ApiV2Service {
 
     return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
   }
+
 }

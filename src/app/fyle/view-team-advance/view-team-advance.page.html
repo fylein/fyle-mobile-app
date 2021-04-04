@@ -134,14 +134,16 @@
       </div>
 
       <ng-container *ngIf="actions.can_add_approver">
-        <ng-container class="view-advances--card" *ngIf="activeApprovals$ | async as activeApprovals">
-          <app-fy-apporver
-            [approverList]="getApproverEmails(activeApprovals)"
-            [id]="advanceRequest.areq_id"
-            [from]="'ADVANCE_REQUEST'"
-            [title]="'Add Approvers'"
-            (notify)='onUpdateApprover($event)'>
-          </app-fy-apporver>
+        <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
+          <div class="view-advances--card_external-component m-0">
+            <app-fy-apporver
+              [approverEmailsList]="getApproverEmails(activeApprovals)"
+              [id]="advanceRequest.areq_id"
+              [ownerEmail]="advanceRequest.us_email"
+              [from]="'ADVANCE_REQUEST'"
+              (notify)="onUpdateApprover($event)">
+            </app-fy-apporver>
+          </div>
         </ng-container>
       </ng-container>
 

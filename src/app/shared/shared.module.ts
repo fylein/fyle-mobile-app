@@ -30,8 +30,8 @@ import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ApproverDialogComponent } from './components/fy-apporver/approver-dialog/approver-dialog.component';
-import { ModifyApproverDialogComponent } from './components/fy-modify-approver/modify-approver-dialog/modify-approver-dialog.component';
 import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
+import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -40,9 +40,7 @@ import { CurrencyComponent } from './components/currency/currency.component';
 import { CommentsComponent } from './components/comments/comments.component';
 import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
 import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
-import { FyModifyApproverComponent } from './components/fy-modify-approver/fy-modify-approver.component';
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
-import { ModifyApproverConfirmationPopoverComponent } from './components/fy-modify-approver/modify-approver-dialog/modify-approver-confirmation-popover/modify-approver-confirmation-popover.component';
 
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
@@ -94,13 +92,10 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FyPreviewAttachmentsComponent,
     FyPopupComponent,
     FyApporverComponent,
-    FyModifyApproverComponent,
     ApproverDialogComponent,
-    ModifyApproverDialogComponent,
     ConfirmationCommentPopoverComponent,
     FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
-    ModifyApproverConfirmationPopoverComponent,
     FyFlagExpenseComponent,
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
@@ -109,6 +104,7 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FormButtonValidationDirective,
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
+    FyViewAttachmentComponent,
     FormatDateDirective
   ],
   imports: [
@@ -151,18 +147,16 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FyPreviewAttachmentsComponent,
     FyPopupComponent,
     FyApporverComponent,
-    ModifyApproverDialogComponent,
-    FyModifyApproverComponent,
     ConfirmationCommentPopoverComponent,
     FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
-    ModifyApproverConfirmationPopoverComponent,
     FyFlagExpenseComponent,
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
+    FyViewAttachmentComponent,
     FormatDateDirective
   ],
   providers: [
