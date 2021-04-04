@@ -23,7 +23,7 @@
       </span>
       </div>
       <div class="ccc-classified-actions--date">
-        {{cccExpense.txn_dt | date: 'MMM dd yyyy'}}
+        {{cccExpense.txn_dt | date: 'MMM dd, yyyy'}}
       </div>
       <div class="ccc-classified-actions--vendor">
         <ng-container *ngIf="cccExpense.vendor; else description">

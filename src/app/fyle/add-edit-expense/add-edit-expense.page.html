@@ -154,8 +154,8 @@
                 {{txnFields.txn_dt?.title || 'Date of Spend'}}
                 <span *ngIf="txnFields.txn_dt?.mandatory">*</span>
               </div>
-              <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
-                     class="add-edit-expense--date-input" formControlName="dateOfSpend" type="date">
+              <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
+                    class="add-edit-expense--date-input date-input__format" formControlName="dateOfSpend" type="date">
             </div>
             <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
                  class="add-edit-expense--error">
@@ -482,7 +482,7 @@
                 {{fg.controls.from_dt.value ? txnFields.from_dt?.title : 'Select ' + txnFields.from_dt?.title}}
                 <span>*</span>
               </div>
-              <input [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input" formControlName="from_dt" name="fromDt"
+              <input appFormatDate [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="from_dt" name="fromDt" 
                      type="date">
             </div>
 
@@ -494,7 +494,7 @@
                 {{fg.controls.to_dt.value ? txnFields.to_dt?.title : 'Select ' + txnFields.to_dt?.title}}
                 <span>*</span>
               </div>
-              <input [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input" formControlName="to_dt" name="toDt"
+              <input appFormatDate [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="to_dt" name="toDt" 
                      type="date">
             </div>
 
@@ -630,7 +630,7 @@
                   <input (blur)="focusState = false" (focus)="focusState = true" *ngIf="customInput.type === 'NUMBER'" class="add-edit-expense--text-input"
                          formControlName="value" inputmode="decimal" type="number">
 
-                  <input *ngIf="customInput.type === 'DATE'" class="add-edit-expense--date-input" formControlName="value"
+                  <input appFormatDate *ngIf="customInput.type === 'DATE'" class="add-edit-expense--date-input date-input__format" formControlName="value"
                          type="date">
                 </div>
 
