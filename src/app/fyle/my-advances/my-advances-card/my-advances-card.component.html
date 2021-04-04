@@ -7,7 +7,7 @@
     <div class="advance-card--info">
       <div>
         <span class="advance-card--currency">{{advanceRequest.orig_currency || advanceRequest.currency || '-'}}</span>
-        <span class="advance-card--amount">{{advanceRequest.orig_amount || advanceRequest.amount || '-'}}</span>
+        <span class="advance-card--amount">{{(advanceRequest.orig_amount || advanceRequest.amount) | number:'1.2-2' || '-'}}</span>
       </div>
       <p>{{advanceRequest.purpose | ellipsis: 30}}</p>
     </div>
