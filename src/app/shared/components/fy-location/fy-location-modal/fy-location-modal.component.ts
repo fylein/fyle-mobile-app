@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, Element
 import { AgmGeocoder } from '@agm/core';
 import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize, catchError } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import {Observable, fromEvent, of, from, forkJoin, noop, throwError, observable} from 'rxjs';
+import { Observable, fromEvent, of, from, forkJoin, noop, throwError} from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -37,9 +37,16 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   clearValue() {
+    /** 
+     * this.value is ng-model of search field. On click of clear button, clearValue() method will be called
+     * this.value is set to empty string 
+     */ 
     this.value = '';
+    // get search input element
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    // set value shown on UI to empty string
     searchInput.value = '';
+    // manually dispatch `keyup` event to filter the list again because filter logic runs on keyup event of search input element
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
@@ -60,7 +67,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             eou: that.authService.getEou(),
             currentLocation: that.locationService.getCurrentLocation({enableHighAccuracy: false})
           }).pipe(
-            switchMap(({ eou, currentLocation }) => {
+            switchMap(({eou, currentLocation }) => {
               if (currentLocation) {
                 return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
               } else {

@@ -43,15 +43,15 @@ export class UtilityService {
   }
 
 
-  searchArrayStream<T>(searchText: string){
+  searchArrayStream<T>(searchText: string) {
     return map((recentrecentlyUsedItems: {label: string, value: T} [] ) => {
       if (searchText && searchText.length > 0) {
         var searchTextLowerCase = searchText.toLowerCase();
-        return recentrecentlyUsedItems.filter( item => {
+        return recentrecentlyUsedItems.filter(item => {
           return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
         });
       }
       return recentrecentlyUsedItems;
-    })
+    });
   }
 }
