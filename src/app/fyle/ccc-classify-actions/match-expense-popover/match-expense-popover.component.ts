@@ -31,7 +31,6 @@ export class MatchExpensePopoverComponent implements OnInit {
 
   ngOnInit() {
     this.matchedExpense$ = this.transactionService.getSplitExpenses(this.splitGroupId).pipe(
-      tap(console.log),
       map(res => res && res[0])
     );
   }

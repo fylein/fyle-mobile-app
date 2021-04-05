@@ -1,22 +1,22 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { ModalController, AlertController } from '@ionic/angular';
-import { noop, from, iif, of } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { switchMap, finalize } from 'rxjs/operators';
-import { FileService } from 'src/app/core/services/file.service';
+import { ModalController } from '@ionic/angular';
+import { DomSanitizer } from '@angular/platform-browser';
 import { PopupService } from 'src/app/core/services/popup.service';
-import {TrackingService} from '../../../core/services/tracking.service';
-import {DomSanitizer} from '@angular/platform-browser';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { from, of } from 'rxjs';
+import { switchMap, finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-view-attachments',
-  templateUrl: './view-attachments.component.html',
-  styleUrls: ['./view-attachments.component.scss'],
+  selector: 'app-fy-view-attachment',
+  templateUrl: './fy-view-attachment.component.html',
+  styleUrls: ['./fy-view-attachment.component.scss'],
 })
-export class ViewAttachmentsComponent implements OnInit {
+export class FyViewAttachmentComponent implements OnInit {
 
   sliderOptions: any;
   @Input() attachments: any[];
+  @Input() canEdit = false;
   activeIndex = 0;
 
   @ViewChild('slides') imageSlides: any;
@@ -24,26 +24,25 @@ export class ViewAttachmentsComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private alertController: AlertController,
-    private loaderService: LoaderService,
-    private fileService: FileService,
+    private sanitizer: DomSanitizer,
     private popupService: PopupService,
-    private sanitizer: DomSanitizer
+    private loaderService: LoaderService,
+    private fileService: FileService
   ) { }
 
   ngOnInit() {
     this.zoomScale = 0.5;
-    this.attachments.forEach(attachment => {
-      if (attachment.type === 'pdf') {
-        this.sanitizer.bypassSecurityTrustUrl(attachment.url);
-      }
-    });
-
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,
       },
     };
+
+    this.attachments.forEach(attachment => {
+      if (attachment.type === 'pdf') {
+        this.sanitizer.bypassSecurityTrustUrl(attachment.url);
+      }
+    });
   }
 
   zoomIn() {
@@ -104,4 +103,5 @@ export class ViewAttachmentsComponent implements OnInit {
       });
     }
   }
+
 }

@@ -31,6 +31,12 @@ $toolbar-border: #ababab6b;
     margin: 16px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
+
+    &_external-component {
+      padding: 0 16px;
+      margin: 0;
+      border: none;
+    }
   }
 
   &--card-action {

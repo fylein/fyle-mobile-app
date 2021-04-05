@@ -19,9 +19,7 @@ export class MatchTransactionComponent implements OnInit {
     private popupService: PopupService
   ) { }
 
-  ngOnInit() {
-    console.log(this.matchingCCCTransactions);
-  }
+  ngOnInit() { }
 
   onDoneClick() {
     this.modalController.dismiss();

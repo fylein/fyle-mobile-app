@@ -320,8 +320,7 @@ export class OtherRequestsComponent implements OnInit {
     await policyViolationsModal.present();
 
     const { data } = await policyViolationsModal.onWillDismiss();
-
-    if (data && data.comment) {
+    if (data) {
       return {
         status: 'proceed',
         comment: data.comment

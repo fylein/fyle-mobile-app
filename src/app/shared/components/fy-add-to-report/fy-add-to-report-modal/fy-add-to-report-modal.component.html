@@ -28,7 +28,7 @@
       <div matRipple class="selection-modal--list-element" (click)="onElementSelect(selectedOption)">
         <div class="selection-modal--list-element-inner-container">
           <div class="selection-modal--list-element-date">
-            {{selectedOption.value.rp.created_at | date: 'dd MMMM yyyy'}}
+            {{selectedOption.value.rp.created_at | date: 'MMM dd, yyyy'}}
           </div>
           <div class="selection-modal--list-element-amount">
             {{selectedOption.value.rp.amount | currency: selectedOption.value.rp.currency: 'symbol-narrow'}}
@@ -46,7 +46,7 @@
     <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions as list" (click)="onElementSelect(filteredListItem)">
       <div class="selection-modal--list-element-inner-container">
         <div class="selection-modal--list-element-date">
-          {{filteredListItem.value.rp.created_at | date: 'dd MMMM yyyy'}}
+          {{filteredListItem.value.rp.created_at | date: 'MMM dd, yyyy'}}
         </div>
         <div class="selection-modal--list-element-amount">
           {{filteredListItem.value.rp.amount | currency: filteredListItem.value.rp.currency: 'symbol-narrow'}}

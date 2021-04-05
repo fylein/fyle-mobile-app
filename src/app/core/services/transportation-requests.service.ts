@@ -13,7 +13,7 @@ export class TransportationRequestsService {
   getTransportationPreferredTiming() {
     return [
       { value: 'NO_PREFERENCE', label: 'Any time' },
-      { value: 'MvalueNIGHT_TO_SIX_AM', label: 'Before 6 am' },
+      { value: 'MIDNIGHT_TO_SIX_AM', label: 'Before 6 am' },
       { value: 'SIX_AM_TO_NOON', label: '6 am to 12 pm' },
       { value: 'NOON_TO_SIX_PM', label: '12 pm to 6 pm' },
       { value: 'SIX_PM_TO_MIDNIGHT', label: 'After 6 pm' }

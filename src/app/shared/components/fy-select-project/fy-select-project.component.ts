@@ -3,6 +3,7 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms
 import {noop} from 'rxjs';
 import {ModalController} from '@ionic/angular';
 import {FyProjectSelectModalComponent} from './fy-select-modal/fy-select-project-modal.component';
+import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
 
 @Component({
   selector: 'app-fy-select-project',
@@ -25,6 +26,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
+  @Input() recentlyUsed: { label: string, value: ExtendedProject, selected?: boolean }[];
 
   private innerValue;
   displayValue;
@@ -78,7 +80,8 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         cacheName: this.cacheName,
         selectionElement: this.selectionElement,
         categoryIds: this.categoryIds,
-        defaultValue: this.defaultValue
+        defaultValue: this.defaultValue,
+        recentlyUsed: this.recentlyUsed
       }
     });
 

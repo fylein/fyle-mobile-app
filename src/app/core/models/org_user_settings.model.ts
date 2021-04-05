@@ -100,8 +100,9 @@ export interface CurrencySettings {
 }
 
 export interface Preferences {
-    default_project_id?: any;
-    default_vehicle_type?: any;
+  default_project_id?: number;
+  default_vehicle_type?: string;
+  default_payment_mode?: string;
 }
 
 export interface Locale {
@@ -114,6 +115,11 @@ export interface InAppChatSettings {
     allowed: boolean;
     enabled: boolean;
     restore_id?: any;
+}
+
+export interface ExpenseFormAutofills {
+  allowed: boolean;
+  enabled: boolean;
 }
 
 export interface OrgUserSettings {
@@ -140,4 +146,5 @@ export interface OrgUserSettings {
     preferences: Preferences;
     locale: Locale;
     in_app_chat_settings: InAppChatSettings;
+    expense_form_autofills: ExpenseFormAutofills;
 }

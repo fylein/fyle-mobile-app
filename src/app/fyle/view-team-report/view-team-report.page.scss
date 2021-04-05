@@ -39,6 +39,10 @@ $inquiry-color: #4848ad;
     &__zero-state {
       text-align: center;
     }
+
+    &__external-component {
+      margin: 0;
+    }
   }
 
   &--alert-block {

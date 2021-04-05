@@ -11,8 +11,8 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { ModalController, NavController, IonContent } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import { ViewAttachmentComponent } from './view-attachment/view-attachment.component';
 import {NetworkService} from '../../core/services/network.service';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-my-view-expense',
@@ -172,8 +172,6 @@ export class MyViewExpensePage implements OnInit {
     );
 
     this.attachments$ = editExpenseAttachments;
-
-    this.attachments$.subscribe(console.log);
   }
 
   getReceiptExtension(name) {
@@ -217,7 +215,7 @@ export class MyViewExpensePage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(async (attachments) => {
       const attachmentsModal = await this.modalController.create({
-        component: ViewAttachmentComponent,
+        component: FyViewAttachmentComponent,
         componentProps: {
           attachments
         }
