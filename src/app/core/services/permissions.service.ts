@@ -2190,7 +2190,6 @@ export class PermissionsService {
   };
 
   allowedActions(resource, actions, orgSettings) {
-    console.log("------------------inside allowedActions--------------");
     const roles$ = this.authService.getRoles();
     const allowedActions: any = {
       allowedRouteAccess: false
@@ -2203,8 +2202,6 @@ export class PermissionsService {
         }
 
         return roles;
-      }),tap(res => {
-        console.log("-----roles---->", res);
       }),filter(roles => roles.length > 0)
     );
 
@@ -2226,9 +2223,7 @@ export class PermissionsService {
           }
           return allowedActions;
         }
-      ),tap(res => {
-        console.log("-----2230---->", res);
-      }),
+      ),
       switchMap(
         currentAllowedActions => {
           if (currentAllowedActions.allowedRouteAccess) {

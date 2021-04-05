@@ -168,7 +168,6 @@ export class AppComponent implements OnInit {
   }
 
   async showSideMenu() {
-    console.log("------------------inside showSideMenu--------------");
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
     if (!isLoggedIn) {
       return 0;
@@ -189,7 +188,6 @@ export class AppComponent implements OnInit {
 
     this.allowedActions$ = orgSettings$.pipe(
       switchMap(orgSettings => {
-        console.log("------------------ inside allowedActions$ swicthMap--------------");
         const allowedReportsActions$ = this.offlineService.getReportActions(orgSettings);
         const allowedAdvancesActions$ = this.permissionsService.allowedActions('advances', ['approve', 'create', 'delete'], orgSettings);
         const allowedTripsActions$ = this.permissionsService.allowedActions('trips', ['approve', 'create', 'edit', 'cancel'], orgSettings);
