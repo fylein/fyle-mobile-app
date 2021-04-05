@@ -20,6 +20,7 @@ export class TeamAdvancePage implements OnInit {
   currentPageNumber = 1;
   isInfiniteScrollRequired$: Observable<boolean>;
   state = 'PENDING';
+  acc: any[];
 
   constructor(
     private offlineService: OfflineService,
@@ -34,7 +35,7 @@ export class TeamAdvancePage implements OnInit {
 
   ionViewWillEnter() {
     this.currentPageNumber = 1;
-    this.teamAdvancerequests$ = this.loadData$.pipe(
+    const paginatedPipe = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
         const extraParams = state === 'PENDING' ? {
           areq_state: ['eq.APPROVAL_PENDING'],
@@ -62,35 +63,22 @@ export class TeamAdvancePage implements OnInit {
           })
         );
       }),
-      map(res => res.data),
-      scan((acc, curr) => {
-        if (this.currentPageNumber === 1) {
-          return curr;
-        }
-        return acc.concat(curr);
-      }, [] as ExtendedAdvanceRequest[]),
       shareReplay(1)
     );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap(({ state }) => {
-        const extraParams = state === 'PENDING' ? {
-          areq_state: ['eq.APPROVAL_PENDING'],
-          areq_trip_request_id: ['is.null'],
-          or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-
-        } : {
-          areq_trip_request_id: ['is.null'],
-          areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}']
-        };
-
-        return this.advanceRequestService.getTeamAdvanceRequestsCount(
-          {
-            ...extraParams
-          },
-          state
-        );
+    this.teamAdvancerequests$ = paginatedPipe.pipe(
+      map(res => {
+        if (this.currentPageNumber === 1) {
+          this.acc = [];
+        }
+        this.acc = this.acc.concat(res.data);
+        return this.acc;
       }),
+      shareReplay(1)
+    )
+
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
       shareReplay(1)
     );
 
