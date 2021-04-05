@@ -359,7 +359,6 @@ export class SplitExpensePage implements OnInit {
     
       this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
       this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
-      
       let amount1 = (this.amount > 0.0001 || this.isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
       let amount2 = (this.amount > 0.0001 || this.isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
       const percentage1 = this.amount ? 60 : null;
