@@ -31,7 +31,7 @@ export class SplitExpensePage implements OnInit {
   currency: string;
   totalSplitAmount: number;
   remainingAmount: number;
-  isCorporateCardEnabled: boolean;
+  isCorporateCardsEnabled: boolean;
   categories$: Observable<any>;
   costCenters$: Observable<any>;
   transaction: any;
@@ -67,7 +67,8 @@ export class SplitExpensePage implements OnInit {
   }
 
   onChangeAmount(splitExpenseForm) {
-    if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount)) || (splitExpenseForm.value.amount && splitExpenseForm.value.amount < 0 && !this.isCorporateCardEnabled)) {
+    if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount)) 
+    || (splitExpenseForm.value.amount && splitExpenseForm.value.amount < 0 && !this.isCorporateCardsEnabled)) {
       return;
     }
 
@@ -217,12 +218,10 @@ export class SplitExpensePage implements OnInit {
         }, 2500);
         return;
       }
-      var canCreateNegativeExpense = true;
-      this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
-        if (splitExpenseValue.amount && splitExpenseValue.amount <= 0 && !this.isCorporateCardEnabled) {
-          canCreateNegativeExpense = false;
-        }
-      });
+      let canCreateNegativeExpense = true;
+      canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
+        return splitExpenseValue.amount && splitExpenseValue.amount <= 0 && !this.isCorporateCardsEnabled && defaultValue
+      }, true);
 
       if(!canCreateNegativeExpense) {
         this.showErrorBlock = true;
@@ -325,21 +324,19 @@ export class SplitExpensePage implements OnInit {
         );
       }
 
-      this.isCorporateCardEnabled = false;
+      this.isCorporateCardsEnabled = false;
       orgSettings$.subscribe(orgSettings => {
-        this.isCorporateCardEnabled = orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled;
+        this.isCorporateCardsEnabled = orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled;
       });
-
-
-      if(!this.isCorporateCardEnabled) {
+      if(!this.isCorporateCardsEnabled) {
         this.minAmount = 0.01;
       }
     
       this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
       this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
       
-      let amount1 = (this.amount > 0.0001 || this.isCorporateCardEnabled) ? this.amount * 0.6 : null; // 60% split
-      let amount2 = (this.amount > 0.0001 || this.isCorporateCardEnabled) ? this.amount * 0.4 : null; // 40% split
+      let amount1 = (this.amount > 0.0001 || this.isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
+      let amount2 = (this.amount > 0.0001 || this.isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
       const percentage1 = this.amount ? 60 : null;
       const percentage2 = this.amount ? 40 : null;
       amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
