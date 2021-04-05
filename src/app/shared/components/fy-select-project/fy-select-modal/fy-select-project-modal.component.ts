@@ -44,7 +44,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   }
 
   getProjects(searchNameText) {
+    // set isLoading to true
     this.isLoading = true;
+    // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
     this.cdr.detectChanges();
     const defaultProject$ = this.offlineService.getOrgUserSettings().pipe(
       switchMap(orgUserSettings => {
@@ -114,7 +116,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         }
       ),
       finalize(() => {
+        // set isLoading to false
         this.isLoading = false;
+        // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
         this.cdr.detectChanges();
       })
     );
@@ -167,6 +171,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText) => {
         return this.getRecentlyUsedItems().pipe(
+          // filtering of recently used items wrt searchText is taken care in service method
           this.utilityService.filterRecentlyUsedItems(searchText)
         );
       })
