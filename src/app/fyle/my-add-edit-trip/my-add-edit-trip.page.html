@@ -74,7 +74,7 @@
                  class="add-edit-trip--text-label">
               Start date<span>*</span>
             </div>
-            <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="tripDate.startMin" class="add-edit-trip--date-input"
+            <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="tripDate.startMin" class="add-edit-trip--date-input date-input__format"
                    formControlName="startDate" type="date">
           </div>
 
@@ -82,7 +82,7 @@
             <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': fg.controls.endDate.touched && !fg.controls.endDate.valid}">
               {{ fg.controls.endDate.value ? 'End Date ' : 'Select End Date ' }}  <span>*</span>
             </div>
-            <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input"
+            <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input date-input__format"
                    formControlName="endDate" type="date">
           </div>
           <div *ngIf="fg.controls.endDate.touched && !fg.controls.endDate.valid" class="add-edit-trip--mandatory-text">
@@ -145,12 +145,12 @@
                   </div>
                   
                   <ng-container *ngIf="fg.controls.tripType.value === 'ONE_WAY' || fg.controls.tripType.value === 'ROUND'">
-                    <input (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input"
+                    <input appFormatDate (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input date-input__format"
                       formControlName="onward_dt" type="date">
                   </ng-container>
 
                   <ng-container *ngIf="fg.controls.tripType.value === 'MULTI_CITY'">
-                    <input (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="i === 0 ? fg.controls.startDate.value : (cities['controls'][i-1]['controls'].onward_dt.value ? cities['controls'][i-1]['controls'].onward_dt.value: fg.controls.startDate.value )" class="add-edit-trip--date-input"
+                    <input appFormatDate (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="i === 0 ? fg.controls.startDate.value : (cities['controls'][i-1]['controls'].onward_dt.value ? cities['controls'][i-1]['controls'].onward_dt.value: fg.controls.startDate.value )" class="add-edit-trip--date-input date-input__format"
                       formControlName="onward_dt" type="date">
                   </ng-container>
 
@@ -165,7 +165,7 @@
                        class="add-edit-trip--text-label">
                     {{control['controls'].return_date.value ? 'Return Date' : 'Select Return Date'}}<span>*</span>
                   </div>
-                  <input (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="control['controls'].onward_dt.value ? control['controls'].onward_dt.value : fg.controls.startDate.value" class="add-edit-trip--date-input"
+                  <input appFormatDate (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="control['controls'].onward_dt.value ? control['controls'].onward_dt.value : fg.controls.startDate.value" class="add-edit-trip--date-input date-input__format"
                          formControlName="return_date"
                          type="date">
                 </div>
@@ -241,7 +241,7 @@
                   <input *ngIf="customInput.input_type === 'NUMBER'" class="add-edit-trip--text-input" formControlName="value" inputmode="decimal"
                           type="number">
   
-                  <input *ngIf="customInput.input_type === 'DATE'" class="add-edit-trip--date-input" formControlName="value"
+                  <input appFormatDate *ngIf="customInput.input_type === 'DATE'" class="add-edit-trip--date-input date-input__format" formControlName="value"
                           type="date">
                 </div>
   
