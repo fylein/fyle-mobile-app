@@ -19,149 +19,151 @@
 
 <ion-content>
   <form [formGroup]="fg" class="add-edit-advance-request--form" #formContainer>
-    <div class="add-edit-advance-request--receipt-currency">
-      <div class="add-edit-advance-request--receipt-container text-center">
-        <div *ngIf="attachmentUploadInProgress">
-          <ion-spinner class="add-edit-advance-request--receipt-spinner-icon" icon="circles"></ion-spinner>
-          <div>Uploading</div>
-        </div>
-
-        <div *ngIf="(dataUrls && dataUrls.length === 0) && !attachmentUploadInProgress"
-          (click)="addAttachments($event)">
-          <p class="add-edit-advance-request--receipt-text">Add Receipt</p>
-          <mat-icon class="add-edit-advance-request--receipt-image-icon">
-            add_circle
-          </mat-icon>
-        </div>
-
-        <div (click)="viewAttachments()" *ngIf="(dataUrls && dataUrls.length > 0) && !attachmentUploadInProgress">
-          <div *ngIf="dataUrls[0]?.type.indexOf('image') > -1" class="add-edit-advance-request--receipt-background" [ngStyle]="{'background-image': 'url(' + dataUrls[0]?.thumbnail + ')'}"></div>
-          <div *ngIf="dataUrls[0]?.type.indexOf('pdf') > -1">
-            <img src="assets/images/fy-pdf.svg" alt="">
+    <ng-container *ngIf="extendedAdvanceRequest$|async as extendedAdvanceRequest">
+      <div class="add-edit-advance-request--receipt-currency">
+        <div class="add-edit-advance-request--receipt-container text-center">
+          <div *ngIf="attachmentUploadInProgress">
+            <ion-spinner class="add-edit-advance-request--receipt-spinner-icon" icon="circles"></ion-spinner>
+            <div>Uploading</div>
           </div>
-          <div *ngIf="dataUrls.length > 1" class="add-edit-advance-request--receipt-count-container">
-            <span class="add-edit-advance-request--receipt-count">{{dataUrls.length}}</span>
+  
+          <div *ngIf="(dataUrls && dataUrls.length === 0) && !attachmentUploadInProgress"
+            (click)="addAttachments($event)">
+            <p class="add-edit-advance-request--receipt-text">Add Receipt</p>
+            <mat-icon class="add-edit-advance-request--receipt-image-icon">
+              add_circle
+            </mat-icon>
           </div>
-          <mat-icon class="add-edit-advance-request--receipt-image-icon" (click)="addAttachments($event)">
-            add_circle
-          </mat-icon>
+  
+          <div (click)="viewAttachments()" *ngIf="(dataUrls && dataUrls.length > 0) && !attachmentUploadInProgress">
+            <div *ngIf="dataUrls[0]?.type.indexOf('image') > -1" class="add-edit-advance-request--receipt-background" [ngStyle]="{'background-image': 'url(' + dataUrls[0]?.thumbnail + ')'}"></div>
+            <div *ngIf="dataUrls[0]?.type.indexOf('pdf') > -1">
+              <img src="assets/images/fy-pdf.svg" alt="">
+            </div>
+            <div *ngIf="dataUrls.length > 1" class="add-edit-advance-request--receipt-count-container">
+              <span class="add-edit-advance-request--receipt-count">{{dataUrls.length}}</span>
+            </div>
+            <mat-icon class="add-edit-advance-request--receipt-image-icon" (click)="addAttachments($event)">
+              add_circle
+            </mat-icon>
+          </div>
+        </div>
+  
+        <div class="add-edit-advance-request--currency">
+          <app-fy-currency 
+            formControlName="currencyObj" 
+            [txnDt]="extendedAdvanceRequest?.created_at"
+            [homeCurrency]="extendedAdvanceRequest.currency">
+          </app-fy-currency>
+          <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid" class="add-edit-advance-request--mandatory-text">Please enter the amount.</div>
         </div>
       </div>
-
-      <div class="add-edit-advance-request--currency" *ngIf="extendedAdvanceRequest$|async as extendedAdvanceRequest">
-        <app-fy-currency 
-          formControlName="currencyObj" 
-          [txnDt]="extendedAdvanceRequest?.created_at"
-          [homeCurrency]="extendedAdvanceRequest.currency">
-        </app-fy-currency>
-        <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid" class="add-edit-advance-request--mandatory-text">Please enter the amount.</div>
-      </div>
-    </div>
-
-    <div class="add-edit-advance-request--primary-block">
-      <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
-        <app-fy-select formControlName="purpose"
-          [mandatory]="true"
-          [label]="fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose '"
-          [cacheName]="'recentPurposeList'"
-          [customInput]="true"
-          [showSaveButton]="true"
-          [selectModalHeader]="'Enter Purpose'"
-          [placeholder]="'Enter Purpose'">
-        </app-fy-select>
-      </div>
-      <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid" class="add-edit-advance-request--mandatory-text">Please enter the purpose.</div>
-
-      <ng-container *ngIf="isProjectsVisible$|async">
-        <div class="add-edit-advance-request--internal-block">
-          <app-fy-select-project
-            formControlName="project"
-            [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
-            [cacheName]="'advanceProjectCache'"
-          ></app-fy-select-project>
+  
+      <div class="add-edit-advance-request--primary-block">
+        <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
+          <app-fy-select formControlName="purpose"
+            [mandatory]="true"
+            [label]="fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose '"
+            [cacheName]="'recentPurposeList'"
+            [customInput]="true"
+            [showSaveButton]="true"
+            [selectModalHeader]="'Enter Purpose'"
+            [placeholder]="'Enter Purpose'">
+          </app-fy-select>
         </div>
-      </ng-container>
-
-
-      <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
-        <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">
-          {{fg.controls.notes.value ? 'Additional Notes' : 'Enter Additional Notes'}}
+        <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid" class="add-edit-advance-request--mandatory-text">Please enter the purpose.</div>
+  
+        <ng-container *ngIf="isProjectsVisible$|async">
+          <div class="add-edit-advance-request--internal-block">
+            <app-fy-select-project
+              formControlName="project"
+              [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
+              [cacheName]="'advanceProjectCache'"
+            ></app-fy-select-project>
+          </div>
+        </ng-container>
+  
+  
+        <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
+          <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">
+            {{fg.controls.notes.value ? 'Additional Notes' : 'Enter Additional Notes'}}
+          </div>
+          <input class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input"
+            formControlName="notes">
         </div>
-        <input class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input"
-          formControlName="notes">
       </div>
-    </div>
-
-    <div *ngIf="extendedAdvanceRequest$|async">
-      <ng-container *ngIf="customFields$ | async as customFields">
-        <div class="add-edit-advance-request--primary-block" *ngIf="customFields.length > 0">
-          <ng-container *ngFor="let customInput of customFields; index as i">
-            <div class="add-edit-advance-request--custom-field-internal-block">
-              <form [formGroup]="customInput.control">
-                <div class="add-edit-advance-request--text "
-                  *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
-                  <div class="add-edit-advance-request--text-label"
-                    [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid}">
-                    {{customInput.name | ellipsis: 11}}
-                    <span *ngIf="customInput.mandatory">*</span>
+  
+      <div>
+        <ng-container *ngIf="customFields$ | async as customFields">
+          <div class="add-edit-advance-request--primary-block" *ngIf="customFields.length > 0">
+            <ng-container *ngFor="let customInput of customFields; index as i">
+              <div class="add-edit-advance-request--custom-field-internal-block">
+                <form [formGroup]="customInput.control">
+                  <div class="add-edit-advance-request--text "
+                    *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
+                    <div class="add-edit-advance-request--text-label"
+                      [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid}">
+                      {{customInput.name | ellipsis: 11}}
+                      <span *ngIf="customInput.mandatory">*</span>
+                    </div>
+                    <input class="add-edit-advance-request--text-input" type="text" formControlName="value" *ngIf="customInput.type === 'TEXT'">
+        
+                    <input class="add-edit-advance-request--text-input" inputmode="decimal" type="number" formControlName="value" *ngIf="customInput.type === 'NUMBER'">
+        
+                    <input class="add-edit-advance-request--date-input" *ngIf="customInput.type === 'DATE'" type="date" formControlName="value">
                   </div>
-                  <input class="add-edit-advance-request--text-input" type="text" formControlName="value" *ngIf="customInput.type === 'TEXT'">
-      
-                  <input class="add-edit-advance-request--text-input" inputmode="decimal" type="number" formControlName="value" *ngIf="customInput.type === 'NUMBER'">
-      
-                  <input class="add-edit-advance-request--date-input" *ngIf="customInput.type === 'DATE'" type="date" formControlName="value">
-                </div>
-      
-                <div class="add-edit-advance-request--checkbox" *ngIf="customInput.type === 'BOOLEAN'">
-                  <label>
-                    <mat-checkbox color="primary" formControlName="value">
-                      {{customInput.name | ellipsis: 35 }}
-                    </mat-checkbox>
-                  </label>
-                </div>
-      
-                <div *ngIf="customInput.type === 'LOCATION'">
-                  <app-fy-location 
-                    [label]="customInput.name | ellipsis: 11" 
-                    [mandatory]="customInput.mandatory" 
-                    formControlName="value">
-                  </app-fy-location>
-                </div>
-      
-                <div *ngIf="customInput.type === 'SELECT'">
-                  <app-fy-select 
-                    [label]="customInput.name | ellipsis: 11" 
-                    [mandatory]="customInput.mandatory" 
-                    [options]="customInput.options" 
-                    formControlName="value">
-                  </app-fy-select>
-                </div>
-      
-                <div *ngIf="customInput.type === 'MULTI_SELECT'">
-                  <app-fy-multiselect 
-                    [label]="customInput.name | ellipsis: 11" 
-                    [mandatory]="customInput.mandatory" 
-                    [options]="customInput.options" 
-                    formControlName="value">
-                  </app-fy-multiselect>
-                </div>
-      
-                <div *ngIf="customInput.type === 'USER_LIST'">
-                  <app-fy-userlist 
-                    [label]="customInput.name | ellipsis: 11" 
-                    [mandatory]="customInput.mandatory" 
-                    formControlName="value">
-                  </app-fy-userlist>
-                </div>
-              </form>
-            </div>
-            <div *ngIf="fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid" class="add-edit-advance-request--mandatory-text">
-              Please add {{customInput.name}}.
-            </div>
-          </ng-container>
-        </div>
-      </ng-container>
-    </div>
+        
+                  <div class="add-edit-advance-request--checkbox" *ngIf="customInput.type === 'BOOLEAN'">
+                    <label>
+                      <mat-checkbox color="primary" formControlName="value">
+                        {{customInput.name | ellipsis: 35 }}
+                      </mat-checkbox>
+                    </label>
+                  </div>
+        
+                  <div *ngIf="customInput.type === 'LOCATION'">
+                    <app-fy-location 
+                      [label]="customInput.name | ellipsis: 11" 
+                      [mandatory]="customInput.mandatory" 
+                      formControlName="value">
+                    </app-fy-location>
+                  </div>
+        
+                  <div *ngIf="customInput.type === 'SELECT'">
+                    <app-fy-select 
+                      [label]="customInput.name | ellipsis: 11" 
+                      [mandatory]="customInput.mandatory" 
+                      [options]="customInput.options" 
+                      formControlName="value">
+                    </app-fy-select>
+                  </div>
+        
+                  <div *ngIf="customInput.type === 'MULTI_SELECT'">
+                    <app-fy-multiselect 
+                      [label]="customInput.name | ellipsis: 11" 
+                      [mandatory]="customInput.mandatory" 
+                      [options]="customInput.options" 
+                      formControlName="value">
+                    </app-fy-multiselect>
+                  </div>
+        
+                  <div *ngIf="customInput.type === 'USER_LIST'">
+                    <app-fy-userlist 
+                      [label]="customInput.name | ellipsis: 11" 
+                      [mandatory]="customInput.mandatory" 
+                      formControlName="value">
+                    </app-fy-userlist>
+                  </div>
+                </form>
+              </div>
+              <div *ngIf="fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid" class="add-edit-advance-request--mandatory-text">
+                Please add {{customInput.name}}.
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
   </form>
 
   <div class="add-edit-advance-request--actions">
