@@ -458,12 +458,14 @@ ref - https://stackoverflow.com/a/31162426
 .date-input {
   &__format{
     position: relative;
+    color: transparent;
 
     &::before {
       position: absolute;
       left: 4px;
       content: attr(data-date);
       display: inline-block;
+      color: black;
     }
   
     &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {

@@ -15,6 +15,8 @@ export class FormatDateDirective implements OnInit {
   @HostListener('ngModelChange', [ '$event'] ) onChange(value: string) {
     if (value) {
       this.elementRef.nativeElement.setAttribute('data-date', moment(value).format('MMM DD, YYYY'));
+    } else {
+      this.elementRef.nativeElement.setAttribute('data-date', '');
     }
   }
 }
