@@ -84,7 +84,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
     this.count$ = paginatedPipe.pipe(
       map(res => res.count),
       shareReplay(1)
-    )
+    );
 
     // this.tripRequestsService.getTeamTripsCount({
     //   trp_approval_state: ['in.(APPROVAL_PENDING)'],

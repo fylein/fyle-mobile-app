@@ -133,7 +133,7 @@ export class TeamReportsPage implements OnInit {
     this.count$ = paginatedPipe.pipe(
       map(res => res.count),
       shareReplay(1)
-    )
+    );
 
     const paginatedScroll$ = this.teamReports$.pipe(
       switchMap(erpts => {
