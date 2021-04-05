@@ -9,6 +9,15 @@
 
   <meta name="color-scheme" content="light dark" />
   <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' *.fyle.tech *.fylehq.com *.segment.io *.mixpanel.com *.amazonaws.com;
+    img-src 'self' 'unsafe-inline' *.amazonaws.com data:;
+    style-src 'self' 'unsafe-inline' https://p.typekit.net https://fonts.googleapis.com;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' *.mxpnl.com *.segment.com *.freshchat.com *.cloudflare.com;
+    worker-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;
+    font-src 'self' https://use.typekit.net https://fonts.gstatic.com;"
+  />
+
   <meta name="format-detection" content="telephone=no" />
   <meta name="msapplication-tap-highlight" content="no" />
 
