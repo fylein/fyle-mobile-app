@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -42,8 +43,8 @@ export class UtilityService {
   }
 
 
-  filterRecentlyUsedItems (searchText) {
-    return map((recentrecentlyUsedItems:any[]) => {
+  searchArrayStream<T>(searchText: string){
+    return map((recentrecentlyUsedItems: {label: string, value: T} [] ) => {
       if (searchText && searchText.length > 0) {
         var searchTextLowerCase = searchText.toLowerCase();
         return recentrecentlyUsedItems.filter( item => {

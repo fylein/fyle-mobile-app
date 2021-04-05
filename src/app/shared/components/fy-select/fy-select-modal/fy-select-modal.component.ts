@@ -115,7 +115,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         switchMap((searchText) => {
           return this.getRecentlyUsedItems().pipe(
             // filtering of recently used items wrt searchText is taken care in service method
-            this.utilityService.filterRecentlyUsedItems(searchText)
+            this.utilityService.searchArrayStream(searchText)
           );
         })
       );
