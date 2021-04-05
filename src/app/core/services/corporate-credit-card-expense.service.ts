@@ -29,7 +29,7 @@ export class CorporateCreditCardExpenseService {
     data: CorporateCardExpense[];
     limit: number;
     offset: number;
-    url: string;}> {
+    url: string; }> {
       return this.apiV2Service.get('/corporate_card_transactions', {
         params: {
           offset: config.offset,
