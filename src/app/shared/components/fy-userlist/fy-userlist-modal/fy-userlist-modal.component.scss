@@ -1,3 +1,5 @@
+@import '../../../../../assets/styles/fy_select';
+
 $header-border: #e0e0e0;
 $header-input: #f8f8f8;
 $sub-title: #ababab;
@@ -71,8 +73,7 @@ $list-element-color: #ababab;
   }
 
   &--container {
-    display: flex;
-    flex-direction: column;
+    @extend %flex-layout-column;
   }
 
   &--primary-cta {

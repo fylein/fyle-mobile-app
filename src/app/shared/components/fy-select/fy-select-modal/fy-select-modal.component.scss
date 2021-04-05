@@ -1,11 +1,11 @@
 @import '../../../../../assets/styles/fy_select';
+
 $header-border: #ddd;
 $header-input: #f8f8f8;
 $sub-title: #ababab;
 $list-element-color: #333;
 
 .selection-modal {
-  @extend %selection-modal;
   color: black;
   &--list-element {
     padding: 14px 4px;
@@ -61,8 +61,7 @@ $list-element-color: #333;
   }
 
   &--container {
-    display: flex;
-    flex-direction: column;
+    @extend %flex-layout-column;
     padding: 0 16px;
   }
 
@@ -94,8 +93,7 @@ $list-element-color: #333;
   }
 
   &--recently-used-item-content {
-    display: flex;
-    flex-direction: row;
+    @extend %flex-layout-row;
   }
 
 }

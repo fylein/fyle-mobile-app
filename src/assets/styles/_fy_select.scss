@@ -1,9 +1,11 @@
-%selection-modal {
-  &--search-input {
-    border-color: 1px solid pink;
-    padding: 0 12px;
-    font-size: 16px;
-    background-color: red;
-  }
-  background-color: limegreen;
+// layout classes
+
+%flex-layout-row {
+  display: flex;
+  flex-direction: row;
+}
+
+%flex-layout-column {
+  display: flex;
+  flex-direction: column;
 }
