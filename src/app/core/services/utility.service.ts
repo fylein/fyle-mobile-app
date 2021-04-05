@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -38,5 +39,18 @@ export class UtilityService {
     }
 
     return dataCopy;
+  }
+
+
+  filterRecentlyUsedItems (searchText) {
+    return map((recentrecentlyUsedItems:any[]) => {
+      if (searchText && searchText.length > 0) {
+        var searchTextLowerCase = searchText.toLowerCase();
+        return recentrecentlyUsedItems.filter( item => {
+          return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
+        });
+      }
+      return recentrecentlyUsedItems;
+    })
   }
 }

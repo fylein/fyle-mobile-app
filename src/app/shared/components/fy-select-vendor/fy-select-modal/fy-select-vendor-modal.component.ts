@@ -6,6 +6,7 @@ import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { Vendor, VendorListItem } from 'src/app/core/models/vendor.model';
+import { UtilityService } from 'src/app/core/services/utility.service';
 @Component({
   selector: 'app-fy-select-vendor-modal',
   templateUrl: './fy-select-vendor-modal.component.html',
@@ -23,7 +24,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private vendorService: VendorService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private utilityService: UtilityService
   ) { }
 
   ngOnInit() {
@@ -93,17 +95,17 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    const searchMapper = (searchText) => {
-      return map((recentrecentlyUsedItems:any[]) => {
-        if (searchText && searchText.length > 0) {
-          var searchTextLowerCase = searchText.toLowerCase();
-          return recentrecentlyUsedItems.filter( item => {
-            return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
-          });
-        }
-        return recentrecentlyUsedItems;
-      })
-    }
+    // const searchMapper = (searchText) => {
+    //   return map((recentrecentlyUsedItems:any[]) => {
+    //     if (searchText && searchText.length > 0) {
+    //       var searchTextLowerCase = searchText.toLowerCase();
+    //       return recentrecentlyUsedItems.filter( item => {
+    //         return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
+    //       });
+    //     }
+    //     return recentrecentlyUsedItems;
+    //   })
+    // }
 
     this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
@@ -111,7 +113,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText) => {
         return this.getRecentlyUsedVendors().pipe(
-          searchMapper(searchText)
+          this.utilityService.filterRecentlyUsedItems(searchText)
         );
       }),
     );

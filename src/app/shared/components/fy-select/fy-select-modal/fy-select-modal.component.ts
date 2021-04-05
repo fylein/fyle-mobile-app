@@ -4,6 +4,7 @@ import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/opera
 import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -32,7 +33,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private utilityService: UtilityService
+
   ) { }
 
   ngOnInit() { }
@@ -105,17 +108,17 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         )
       );
 
-      const searchMapper = (searchText) => {
-        return map((recentrecentlyUsedItems:any[]) => {
-          if (searchText && searchText.length > 0) {
-            var searchTextLowerCase = searchText.toLowerCase();
-            return recentrecentlyUsedItems.filter( item => {
-              return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
-            });
-          }
-          return recentrecentlyUsedItems;
-        })
-      }
+      // const searchMapper = (searchText) => {
+      //   return map((recentrecentlyUsedItems:any[]) => {
+      //     if (searchText && searchText.length > 0) {
+      //       var searchTextLowerCase = searchText.toLowerCase();
+      //       return recentrecentlyUsedItems.filter( item => {
+      //         return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
+      //       });
+      //     }
+      //     return recentrecentlyUsedItems;
+      //   })
+      // }
 
       this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event: any) => event.srcElement.value),
@@ -123,7 +126,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         distinctUntilChanged(),
         switchMap((searchText) => {
           return this.getRecentlyUsedItems().pipe(
-            searchMapper(searchText)
+            this.utilityService.filterRecentlyUsedItems(searchText)
           );
         })
       );

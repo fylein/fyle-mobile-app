@@ -8,6 +8,7 @@ import {OfflineService} from 'src/app/core/services/offline.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
+import {UtilityService} from 'src/app/core/services/utility.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -34,7 +35,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private projectService: ProjectsService,
     private offlineService: OfflineService,
     private authService: AuthService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private utilityService: UtilityService
   ) {
   }
 
@@ -159,25 +161,13 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    const searchMapper = (searchText) => {
-      return map((recentrecentlyUsedItems:any[]) => {
-        if (searchText && searchText.length > 0) {
-          var searchTextLowerCase = searchText.toLowerCase();
-          return recentrecentlyUsedItems.filter( item => {
-            return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
-          });
-        }
-        return recentrecentlyUsedItems;
-      })
-    }
-
     this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText) => {
         return this.getRecentlyUsedItems().pipe(
-          searchMapper(searchText)
+          this.utilityService.filterRecentlyUsedItems(searchText)
         );
       })
     );
