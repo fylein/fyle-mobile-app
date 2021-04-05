@@ -20,7 +20,7 @@ export class TeamAdvancePage implements OnInit {
   currentPageNumber = 1;
   isInfiniteScrollRequired$: Observable<boolean>;
   state = 'PENDING';
-  acc: any[];
+  acc: ExtendedAdvanceRequest[];
 
   constructor(
     private offlineService: OfflineService,
