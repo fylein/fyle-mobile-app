@@ -66,7 +66,7 @@ export class SplitExpensePage implements OnInit {
     this.navController.back();
   }
 
-  onChangeAmount(splitExpenseForm) {
+  onChangeAmount(splitExpenseForm, index) {
     if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount)) 
     || (splitExpenseForm.value.amount && splitExpenseForm.value.amount < 0 && !this.isCorporateCardsEnabled)) {
       return;
@@ -245,7 +245,7 @@ export class SplitExpensePage implements OnInit {
       }
       let canCreateNegativeExpense = true;
       canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
-        return splitExpenseValue.amount && splitExpenseValue.amount <= 0 && !this.isCorporateCardsEnabled && defaultValue
+        return splitExpenseValue.amount && splitExpenseValue.amount <= 0 && this.isCorporateCardsEnabled && defaultValue
       }, true);
 
       if(!canCreateNegativeExpense) {
