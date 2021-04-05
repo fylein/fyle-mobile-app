@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { filter, map, switchMap } from 'rxjs/operators';
-import { throwError, of } from 'rxjs';
+import { throwError, of, iif } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -2202,10 +2202,10 @@ export class PermissionsService {
         }
 
         return roles;
-      }),filter(roles => roles.length > 0)
+      })
     );
 
-    return filteredRoles$.pipe(
+    const allowedActions$ = filteredRoles$.pipe(
       map(
         filteredRoles => {
           if (this.allowedAccess(resource, orgSettings)) {
@@ -2234,6 +2234,12 @@ export class PermissionsService {
         }
       )
     );
+
+    return filteredRoles$.pipe(
+      map(filteredRoles => {
+        return iif(() => filteredRoles.length > 0, allowedActions$, of(null));
+      })
+    )
   }
 
 
