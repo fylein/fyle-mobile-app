@@ -143,6 +143,46 @@
     height: 14px;
   }
 
+  &--pill {
+    font-size: 12px;
+    display: inline-block;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 5px;
+
+    &__COMPLETE {
+      background-color: #f90;
+    }
+
+    &__DRAFT {
+      background-color: #464d57;
+    }
+
+    &__APPROVER_PENDING {
+      background-color: #2196f3;
+    }
+
+    &__INQUIRY {
+      background-color: #7e57c2;
+    }
+
+    &__APPROVED {
+      background-color: #66bb6a;
+    }
+
+    &__PAYEMENT_PENDING {
+      background-color: #66bb6a;
+    }
+
+    &__PAYMENT_PROCESSING {
+      background-color: #47a447;
+    }
+
+    &__PAID {
+      background-color: #3d8b3d;
+    }
+  }
+
   &--button {
     width: 140px;
     height: 40px;
