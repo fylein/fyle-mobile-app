@@ -23,6 +23,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
   currentPageNumber = 1;
   state = 'PENDING';
   onPageExit = new Subject();
+  acc: ExtendedTripRequest[];
 
   constructor(
     private loaderService: LoaderService,
@@ -40,7 +41,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
 
   ionViewWillEnter() {
     this.currentPageNumber = 1;
-    this.teamTripRequests$ = this.loadData$.pipe(
+    const paginatedPipe = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
 
         const extraParams = state === 'PENDING' ? {
@@ -66,34 +67,24 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
           })
         );
       }),
-      map(res => res.data),
-      scan((acc, curr) => {
-        if (this.currentPageNumber === 1) {
-          return curr;
-        }
-        return acc.concat(curr);
-      }, [] as ExtendedTripRequest[]),
       shareReplay(1)
     );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap(({ state }) => {
-        const extraParams = state === 'PENDING' ? {
-          trp_approval_state: ['in.(APPROVAL_PENDING)'],
-          trp_state: 'eq.APPROVAL_PENDING'
-        } : {
-          or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
-          trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
-        };
-
-        return this.tripRequestsService.getTeamTripsCount(
-          {
-            ...extraParams
-          }
-        );
+    this.teamTripRequests$ = paginatedPipe.pipe(
+      map(res => {
+        if (this.currentPageNumber === 1) {
+          this.acc = [];
+        }
+        this.acc = this.acc.concat(res.data);
+        return this.acc;
       }),
       shareReplay(1)
-    );
+    )
+
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
+      shareReplay(1)
+    )
 
     // this.tripRequestsService.getTeamTripsCount({
     //   trp_approval_state: ['in.(APPROVAL_PENDING)'],
