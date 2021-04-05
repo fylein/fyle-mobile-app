@@ -95,7 +95,7 @@
           </div>
 
           <div class="hotel-requests--element-value" *ngIf="customField.type === 'DATE'">
-            {{customField.value | date: 'dd, MMM yyyy'}}
+            {{customField.value | date: 'MMM dd, yyyy'}}
           </div>
           <div class="hotel-requests--element-value" *ngIf="customField.type === 'BOOLEAN'">
             {{customField.value ? 'Yes' : 'No'}}

@@ -24,7 +24,7 @@
                   <p *ngIf="fgValues.cities[i]?.to_city?.city">Hotel in 
                     {{ fgValues.cities[i]?.to_city?.city }}
                     on 
-                    {{ fgValues.cities[i]?.onward_dt | date: 'dd MMM yyyy' }}
+                    {{ fgValues.cities[i]?.onward_dt | date: 'MMM dd, yyyy' }}
                     <span>
                       to {{ otherDetailsForm.value.hotelDetails[i]?.checkOutDt | date: 'dd MMM yyyy' }}
                     </span>
@@ -42,7 +42,7 @@
                   <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': control.controls.checkInDt.touched && !control.controls.checkInDt.valid}">
                     check in date <span> *</span>
                   </div>
-                  <input class="other-details--date-input" type="date" formControlName="checkInDt" 
+                  <input appFormatDate class="other-details--date-input date-input__format" type="date" formControlName="checkInDt" 
                   (keydown)="$event.preventDefault()" [min]="hotelDate.checkInMin" [max]="maxDate">
                 </div>
                 <div *ngIf="control['controls'].checkInDt.touched && !control['controls'].checkInDt.valid" class="other-details--mandatory-text">
@@ -53,7 +53,7 @@
                   <div class="other-details--text-label" [ngClass]="{'other-details--text-label__invalid': control.controls.checkOutDt.touched && !control.controls.checkOutDt.valid}">
                     {{control['controls'].checkOutDt.value ? 'Check Out Date' : 'Select Check Out Date'}} <span> *</span>
                   </div>
-                  <input class="other-details--date-input" type="date" formControlName="checkOutDt" 
+                  <input appFormatDate class="other-details--date-input date-input__format" type="date" formControlName="checkOutDt" 
                   (keydown)="$event.preventDefault()" [min]="control['controls'].checkInDt.value" [max]="maxDate">
                 </div>
                 <div *ngIf="control['controls'].checkOutDt.touched && !control['controls'].checkOutDt.valid" class="other-details--mandatory-text">
@@ -126,7 +126,7 @@
                         <input class="other-details--text-input" type="number" formControlName="value"
                           *ngIf="customInput.input_type === 'NUMBER'">
             
-                        <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
+                        <input appFormatDate class="other-details--date-input date-input__format" *ngIf="customInput.input_type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
 
@@ -210,10 +210,10 @@
                       {{ otherDetailsForm.value.transportDetails[i]?.toCity?.city }}
                       on 
                       <span>
-                        {{ fgValues.cities[0]?.onward_dt | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[0]?.onward_dt | date: 'MMM dd, yyyy' }}
                       </span>
                       <span>
-                        {{ fgValues.cities[0]?.return_date | date: 'dd MMM yyyy' }}
+                        {{ fgValues.cities[0]?.return_date | date: 'MMM dd, yyyy' }}
                       </span>
                     </p>
                   </span>
@@ -226,7 +226,7 @@
                       to 
                       {{ fgValues.cities[i]?.to_city?.city }}
                       on 
-                      {{ fgValues.cities[i]?.onward_dt | date: 'dd MMM yyyy' }}
+                      {{ fgValues.cities[i]?.onward_dt | date: 'MMM dd, yyyy' }}
                     </p>
                   </span>
                 </strong>
@@ -305,7 +305,7 @@
                         <input class="other-details--text-input" type="number" formControlName="value"
                           *ngIf="customInput.input_type === 'NUMBER'">
             
-                        <input class="other-details--date-input" *ngIf="customInput.input_type === 'DATE'" type="date"
+                        <input appFormatDate class="other-details--date-input date-input__format" *ngIf="customInput.input_type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
         
@@ -439,7 +439,7 @@
                         <input class="other-details--text-input" type="number" formControlName="value"
                           *ngIf="customInput.type === 'NUMBER'">
             
-                        <input class="other-details--date-input" *ngIf="customInput.type === 'DATE'" type="date"
+                        <input appFormatDate class="other-details--date-input date-input__format" *ngIf="customInput.type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
         

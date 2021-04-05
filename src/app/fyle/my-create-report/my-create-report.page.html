@@ -31,7 +31,7 @@
     <div class="my-create-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)">
       <span>Select a trip to associate with report:</span>
       <div class="my-create-report--select-trip">
-        <app-fy-select [label]="selectedTripRequest? 'Trip' : 'Select a Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest" [selectModalHeader]="'Select a Trip Request'" [subheader]="'All Trips'" [cacheName]="'recentTripRequestsList'">
+        <app-fy-select [label]="selectedTripRequest? 'Trip' : 'Select a Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest" [selectModalHeader]="'Select a Trip Request'" [cacheName]="'recentTripRequestsList'">
         </app-fy-select>
       </div>
     </div>
@@ -43,7 +43,7 @@
 
     <div *ngFor="let etxn of readyToReportEtxns as list; let i = index">
       <p class="my-create-report--expense-date" *ngIf="etxn.showDt">
-        <span>{{etxn.tx_txn_dt | date: 'EEEE, dd MMMM yyyy'}}</span>
+        <span>{{etxn.tx_txn_dt | date: 'EEEE, MMM dd, yyyy'}}</span>
       </p>
       <ion-grid class="my-create-report--item-card" [ngClass]="{'my-create-report--item-card-selected': etxn.isSelected}" (click)="toggleTransaction(etxn)">
         <ion-row>

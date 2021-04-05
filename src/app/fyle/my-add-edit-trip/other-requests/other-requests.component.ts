@@ -514,17 +514,14 @@ export class OtherRequestsComponent implements OnInit {
     const transport = [];
 
     if (formValue.advanceDetails.length > 0) {
-      // formValue.advanceDetails.forEach((advanceDetail, index) => {
-      //   advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
-      // });
       if (mode === 'SUBMIT') {
+        // making sequential calls for saving advance requests
         let index = 0;
         const tempAdvanceDetails = cloneDeep(formValue.advanceDetails);
         let loop = (advanceDetail) => {
-          this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode)
-            .subscribe(() => {
+          this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode).subscribe(() => {
               index ++;
-              if (tempAdvanceDetails.length) {
+              if (tempAdvanceDetails.length > 0) {
                 loop(tempAdvanceDetails.shift());
               }
             });
@@ -539,13 +536,13 @@ export class OtherRequestsComponent implements OnInit {
 
     if (formValue.hotelDetails.length > 0) {
       if (mode === 'SUBMIT') {
+        // making sequential calls for saving hotel requests
         let index = 0;
         const tempHotelDetails = cloneDeep(formValue.hotelDetails);
         let loop = (hotelDetail) => {
-          this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode)
-            .subscribe(() => {
+          this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode).subscribe(() => {
               index ++;
-              if (tempHotelDetails.length) {
+              if (tempHotelDetails.length > 0) {
                 loop(tempHotelDetails.shift());
               }
             });
@@ -560,13 +557,13 @@ export class OtherRequestsComponent implements OnInit {
 
     if (formValue.transportDetails.length > 0) {
       if (mode === 'SUBMIT') {
+        // making sequential calls for saving transport requests
         let index = 0;
         const tempTransportDetails = cloneDeep(formValue.transportDetails);
         let loop = (transportDetail) => {
-          this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode)
-            .subscribe(() => {
+          this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode).subscribe(() => {
               index ++;
-              if (tempTransportDetails.length) {
+              if (tempTransportDetails.length > 0) {
                 loop(tempTransportDetails.shift());
               }
             });
@@ -1026,14 +1023,14 @@ export class OtherRequestsComponent implements OnInit {
           ]);
         }),
         take(1),
-      ).subscribe(([hotelRequest, transportationRequest, advanceRequest, actions]) => {
+      ).subscribe(([hotelRequests, transportationRequests, advanceRequests, actions]) => {
         this.tripActions = actions;
         if (this.otherRequests[0].hotel) {
           this.hotelDetails.clear();
 
           // editing trip req, getting hotel data from api
-          if (hotelRequest.length > 0) {
-            hotelRequest.forEach((request, index) => {
+          if (hotelRequests.length > 0) {
+            hotelRequests.forEach((request, index) => {
               const details = this.formBuilder.group({
                 assignedAt: [moment(request.hr.created_at).format('y-MM-DD')],
                 assignedTo: [request.hr.assigned_to],
@@ -1070,8 +1067,8 @@ export class OtherRequestsComponent implements OnInit {
         if (this.otherRequests[1].advance) {
           this.advanceDetails.clear();
 
-          if (advanceRequest.length > 0) {
-            advanceRequest.forEach((request, index) => {
+          if (advanceRequests.length > 0) {
+            advanceRequests.forEach((request, index) => {
               const details = this.formBuilder.group({
                 amount: [request.amount, Validators.required],
                 currency: [request.currency],
@@ -1099,8 +1096,8 @@ export class OtherRequestsComponent implements OnInit {
         if (this.otherRequests[2].transportation) {
           this.transportDetails.clear();
 
-          if (transportationRequest.length > 0) {
-            transportationRequest.forEach((request, index) => {
+          if (transportationRequests.length > 0) {
+            transportationRequests.forEach((request, index) => {
               const details = this.formBuilder.group({
                 assignedAt: [request.tr.created_at],
                 currency: [request.tr.currency],
@@ -1132,13 +1129,11 @@ export class OtherRequestsComponent implements OnInit {
           }
         }
 
-        if (hotelRequest.length === 0 && transportationRequest.length === 0 && advanceRequest.length === 0) {
+        if (hotelRequests.length === 0 && transportationRequests.length === 0 && advanceRequests.length === 0) {
           this.initializeOtherRequests();
         }
       });
     }
-
-    // this.otherDetailsForm.valueChanges.subscribe(res => console.log('res ->', res));
   }
 
 }

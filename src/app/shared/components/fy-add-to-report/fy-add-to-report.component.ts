@@ -80,7 +80,6 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
   }
 
   async openModal() {
-    console.log({ options: this.options});
     const selectionModal = await this.modalController.create({
       component: FyAddToReportModalComponent,
       componentProps: {
@@ -98,8 +97,6 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
     await selectionModal.present();
 
     const { data } = await selectionModal.onWillDismiss();
-
-    console.log(data);
 
     if (data) {
       this.value = data.value;

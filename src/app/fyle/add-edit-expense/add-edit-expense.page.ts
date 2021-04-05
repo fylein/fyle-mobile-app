@@ -567,7 +567,6 @@ export class AddEditExpensePage implements OnInit {
       const controlErrors: ValidationErrors = this.fg.get(key).errors;
       if (controlErrors != null) {
         Object.keys(controlErrors).forEach(keyError => {
-          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
         });
       }
     });
@@ -992,7 +991,6 @@ export class AddEditExpensePage implements OnInit {
     const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
       return iif(() => etxn.tx.org_category_id,
         allCategories$.pipe(
-          tap(console.log),
           map(categories => categories
             .filter(category => {
               if (!category.fyle_category) {
@@ -2670,25 +2668,23 @@ export class AddEditExpensePage implements OnInit {
   }
 
   trackAddExpense() {
-    if (this.activatedRoute.snapshot.params.dataUrl) {
-      this.trackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
-    } else {
-      const customFields$ = this.getCustomFields();
-      this.generateEtxnFromFg(this.etxn$, customFields$).subscribe(etxn => {
-        this.trackingService.createExpense({
-          Asset: 'Mobile',
-          Type: 'Receipt',
-          Amount: etxn.tx.amount,
-          Currency: etxn.tx.currency,
-          Category: etxn.tx.org_category,
-          Time_Spent: this.getTimeSpentOnPage() + ' secs',
-          Used_Autofilled_Category: (etxn.tx.org_category_id && this.presetCategoryId && (etxn.tx.org_category_id === this.presetCategoryId)),
-          Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
-          Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
-          Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) && this.presetCurrency && ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency)))
-        });
+    const customFields$ = this.getCustomFields();
+    const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
+    this.generateEtxnFromFg(this.etxn$, customFields$).subscribe(etxn => {
+      this.trackingService.createExpense({
+        Asset: 'Mobile',
+        Type: 'Receipt',
+        Amount: etxn.tx.amount,
+        Currency: etxn.tx.currency,
+        Category: etxn.tx.org_category,
+        Time_Spent: this.getTimeSpentOnPage() + ' secs',
+        Used_Autofilled_Category: (etxn.tx.org_category_id && this.presetCategoryId && (etxn.tx.org_category_id === this.presetCategoryId)),
+        Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
+        Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
+        Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) && this.presetCurrency && ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency))),
+        Instafyle: isInstaFyleExpense
       });
-    }
+    });
   }
 
   addExpense(redirectedFrom) {
@@ -2805,22 +2801,20 @@ export class AddEditExpensePage implements OnInit {
               switchMap(eou => {
 
                   const comments = [];
-                  if (this.activatedRoute.snapshot.params.dataUrl) {
-                    this.trackingService.createExpense({Asset: 'Mobile', Category: 'InstaFyle'});
-                  } else {
-                    this.trackingService.createExpense({
-                      Asset: 'Mobile',
-                      Type: 'Receipt',
-                      Amount: etxn.tx.amount,
-                      Currency: etxn.tx.currency,
-                      Category: etxn.tx.org_category,
-                      Time_Spent: this.getTimeSpentOnPage() + ' secs',
-                      Used_Autofilled_Category: (etxn.tx.org_category_id && this.presetCategoryId && (etxn.tx.org_category_id === this.presetCategoryId)),
-                      Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
-                      Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
-                      Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) && this.presetCurrency && ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency)))
-                    });
-                  }
+                  const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
+                  this.trackingService.createExpense({
+                    Asset: 'Mobile',
+                    Type: 'Receipt',
+                    Amount: etxn.tx.amount,
+                    Currency: etxn.tx.currency,
+                    Category: etxn.tx.org_category,
+                    Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                    Used_Autofilled_Category: (etxn.tx.org_category_id && this.presetCategoryId && (etxn.tx.org_category_id === this.presetCategoryId)),
+                    Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
+                    Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
+                    Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) && this.presetCurrency && ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency))),
+                    Instafyle: isInstaFyleExpense
+                  });
 
                   if (comment) {
                     comments.push(comment);

@@ -501,7 +501,6 @@ export class AddEditMileagePage implements OnInit {
             );
           }
         }),
-        tap(console.log),
         switchMap((category) => {
           const formValue = this.fg.value;
           return this.offlineService.getCustomInputs().pipe(
@@ -836,7 +835,7 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
+    this.txnFields$ = this.getTransactionFields();
     this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();

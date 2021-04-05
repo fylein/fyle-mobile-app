@@ -72,7 +72,7 @@
             {{customField.value.display || customField.value||'-'}}
           </div>
           <div class="advance-requests--element-value" *ngIf="customField.type === 'DATE'">
-            {{customField.value? (customField.value | date: 'dd MMM yyyy') :'-'}}
+            {{customField.value? (customField.value | date: 'MMM dd, yyyy') :'-'}}
           </div>
         </div>
       </div>
