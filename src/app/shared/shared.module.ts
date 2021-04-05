@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
+import { HighlightPipe} from './pipes/highlight.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
 import { TripState } from './pipes/trip-state.pipe';
@@ -65,6 +66,7 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     AdvanceState,
     InitialsPipe,
     EllipsisPipe,
+    HighlightPipe,
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,

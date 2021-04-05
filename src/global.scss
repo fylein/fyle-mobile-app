@@ -345,6 +345,14 @@ textarea, input {
   }
 }
 
+.inverse-highlight {
+  font-weight: 700;
+  .highlight {
+    font-weight: 400;
+  }
+}
+
+
 .approver-list--form-field {
   .mat-form-field-wrapper {
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
