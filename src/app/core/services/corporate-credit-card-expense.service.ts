@@ -7,7 +7,7 @@ import { Observable, range} from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
-import { CorporateCardExpense } from '../models/corporate-card-expense.model';
+import { CorporateCardExpense } from '../models/V2/corporate-card-expense.model';
 
 @Injectable({
   providedIn: 'root'
