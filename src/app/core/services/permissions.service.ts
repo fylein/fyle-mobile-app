@@ -2239,7 +2239,7 @@ export class PermissionsService {
       map(filteredRoles => {
         return iif(() => filteredRoles.length > 0, allowedActions$, of(null));
       })
-    )
+    );
   }
 
 
