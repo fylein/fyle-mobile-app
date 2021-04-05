@@ -93,21 +93,25 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       })
     );
 
+    const searchMapper = (searchText) => {
+      return map((recentrecentlyUsedItems:any[]) => {
+        if (searchText && searchText.length > 0) {
+          var searchTextLowerCase = searchText.toLowerCase();
+          return recentrecentlyUsedItems.filter( item => {
+            return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
+          });
+        }
+        return recentrecentlyUsedItems;
+      })
+    }
+
     this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText) => {
         return this.getRecentlyUsedVendors().pipe(
-          map((recentrecentlyUsedItems) => {
-            if (searchText && searchText.length > 0) {
-              var searchTextLowerCase = searchText.toLowerCase();
-              return recentrecentlyUsedItems.filter( item => {
-                return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
-              });
-            }
-            return recentrecentlyUsedItems;
-          })
+          searchMapper(searchText)
         );
       }),
     );
