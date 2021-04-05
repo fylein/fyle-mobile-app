@@ -100,7 +100,6 @@ export class CccClassifyActionsPage implements OnInit {
       showCancelButton: false
     });
 
-    console.log(popupResult);
 
     if (popupResult === 'primary') {
       await this.loaderService.showLoader();

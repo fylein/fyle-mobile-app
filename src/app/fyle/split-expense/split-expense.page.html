@@ -63,7 +63,7 @@
 
         <div class="split-expense--item split-expense--date">
           <div class="split-expense--label split-expense--date-label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid}">Date*</div>
-          <input class="split-expense--input split-expense--date-input" type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
+          <input appFormatDate class="split-expense--input split-expense--date-input date-input__format" type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
         </div>
 
         <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid">
@@ -77,7 +77,7 @@
           </div>
           <div class="split-expense--item">
             <span class="split-expense--label">%</span>
-            <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" (ngModelChange)="onChangePercentage(splitExpenseForm)">
+            <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" [min]="0.01" (ngModelChange)="onChangePercentage(splitExpenseForm, i)">
           </div>
         </div>
         

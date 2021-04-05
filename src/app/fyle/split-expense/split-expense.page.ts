@@ -72,6 +72,19 @@ export class SplitExpensePage implements OnInit {
       return;
     }
 
+    if (this.splitExpensesFormArray.length === 2) {
+      const otherIndex = (index === 0) ? 1 : 0;
+      const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
+
+      const amount = parseFloat((this.amount - splitExpenseForm.value.amount).toFixed(3));
+      const percentage = parseFloat(((amount / this.amount) * 100).toFixed(3));
+
+      otherSplitExpenseForm.patchValue({
+        amount,
+        percentage
+      }, { emitEvent: false });
+    }
+
     let percentage = (splitExpenseForm.value.amount / this.amount ) * 100;
     percentage = parseFloat(percentage.toFixed(3));
 
@@ -82,9 +95,22 @@ export class SplitExpensePage implements OnInit {
     this.getTotalSplitAmount();
   }
 
-  onChangePercentage(splitExpenseForm){
+  onChangePercentage(splitExpenseForm, index){
     if (!splitExpenseForm.controls.percentage._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.percentage))) {
       return;
+    }
+
+    if (this.splitExpensesFormArray.length === 2) {
+      const otherIndex = (index === 0) ? 1 : 0;
+      const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
+
+      const percentage = Math.min(100, Math.max(0, 100 - splitExpenseForm.value.percentage));
+      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
+
+      otherSplitExpenseForm.patchValue({
+        amount,
+        percentage
+      }, { emitEvent: false });
     }
 
     let amount = (this.amount * splitExpenseForm.value.percentage) / 100;
@@ -155,7 +181,6 @@ export class SplitExpensePage implements OnInit {
   }
 
   createAndLinkTxnsWithFiles(splitExpenses) {
-    console.log(splitExpenses);
     const splitExpense$: any = {
       txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses)
     };
@@ -396,6 +421,20 @@ export class SplitExpensePage implements OnInit {
 
   remove(index: number) {
     this.splitExpensesFormArray.removeAt(index);
+
+    if (this.splitExpensesFormArray.length === 2) {
+      const firstSplitExpenseForm = this.splitExpensesFormArray.at(0);
+      const lastSplitExpenseForm = this.splitExpensesFormArray.at(1);
+
+      const percentage = Math.min(100, Math.max(0, 100 - firstSplitExpenseForm.value.percentage));
+      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
+
+      lastSplitExpenseForm.patchValue({
+        amount,
+        percentage
+      }, { emitEvent: false });
+    }
+
     this.getTotalSplitAmount();
   }
 
