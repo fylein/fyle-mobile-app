@@ -69,8 +69,6 @@ export class ViewTeamAdvancePage implements OnInit {
 
     this.showAdvanceActions$ = this.actions$.pipe(map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject))
 
-    this.actions$.subscribe(console.log);
-
     this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
 
     this.activeApprovals$ = this.refreshApprovers$.pipe(

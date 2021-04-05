@@ -172,8 +172,6 @@ export class MyViewExpensePage implements OnInit {
     );
 
     this.attachments$ = editExpenseAttachments;
-
-    this.attachments$.subscribe(console.log);
   }
 
   getReceiptExtension(name) {
