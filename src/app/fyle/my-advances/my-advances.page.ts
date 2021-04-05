@@ -58,7 +58,8 @@ export class MyAdvancesPage implements OnInit {
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null', areq_advance_id: 'is.null' }).pipe(
+    this.myAdvancerequests$ = this.advanceRequestService.getMyadvanceRequests({queryParams: { offset:0, limit: 10, areq_trip_request_id: 'is.null', areq_advance_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }}).pipe(
+      map(advanceRequest => advanceRequest.count),
       concatMap(count => {
         count = count > 10 ? count / 10 : 1;
         return range(0, count);
@@ -77,7 +78,8 @@ export class MyAdvancesPage implements OnInit {
       startWith([])
     );
 
-    this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
+    this.myAdvances$ = this.advanceService.getMyadvances({queryParams: {offset:0, limit: 10, order: 'adv_created_at.desc,adv_id.desc'}}).pipe(
+      map(advances => advances.count),
       concatMap(count => {
         count = count > 10 ? count / 10 : 1;
         return range(0, count);
