@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 
 const { CameraPreview } = Plugins;
 const { Permissions } = Plugins;
+const { Camera } = Plugins;
 import '@capacitor-community/camera-preview';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 
@@ -61,7 +62,7 @@ export class CameraOverlayPage implements OnInit {
     private deviceService: DeviceService
   ) { }
 
-  setUpAndStartCamera() {
+  async setUpAndStartCamera() {
     if (this.isCameraShown === false) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -73,21 +74,35 @@ export class CameraOverlayPage implements OnInit {
         parent: 'cameraPreview'
       };
 
-      CameraPreview.start(cameraPreviewOptions).then(res => {
-        this.isCameraShown = true;
-        this.getFlashModes();
-      }).catch(async (error) => {
-        // const cameraPermissions = await Permissions.query({ name: PermissionType.Camera });
-        // const photosPermission = await Permissions.query({ name: PermissionType.Photos });
 
-        this.permissionDenyCount++;
-        this.storageService.set('permissionDenyCount', this.permissionDenyCount);
+      // await CameraPreview.start({
+      // }).catch(({ message }: { message: string }) => {
+      //   console.log("-------inside error-----", message);
+      //   if (message === 'permission failed') {
+      //     // Show fallback ui or do something.
+         
+      //   }
+      // });
 
-        // console.log(cameraPermissions, photosPermission);
-        this.navController.back();
+        CameraPreview.start(cameraPreviewOptions).then(res => {
+          console.log("---------------inside succes---------", res);
+          this.isCameraShown = true;
+          this.getFlashModes();
+        }).catch((error) => {
+          // const cameraPermissions = await Permissions.query({ name: PermissionType.Camera });
+          // const photosPermission = await Permissions.query({ name: PermissionType.Photos });
+          console.log("---------------inside error---------");
+  
+          this.permissionDenyCount++;
+          this.storageService.set('permissionDenyCount', this.permissionDenyCount);
+  
+          // console.log(cameraPermissions, photosPermission);
+          this.navController.back();
+  
+         // this.requestCameraAndPhotosPermission('camera');
+        });
 
-       // this.requestCameraAndPhotosPermission('camera');
-      });
+      
 
     }
   }
@@ -99,13 +114,13 @@ export class CameraOverlayPage implements OnInit {
     let message = `${actions}`;
 
     if (deviceInfo.operatingSystem.toLowerCase() === 'ios') {
-      // if (actions.indexOf('camera') === 'camera') {
-      //   header = 'Allow Fyle to access your Camera';
-      //   message = 'You can use your camera to scan receipts. We\'ll auto-extract the receipt details and turn them into expenses.';
-      // } else if (actions.toLowerCase() === 'photos') {
-      //   header = 'Allow Fyle to access your Photos';
-      //   message = 'Fyle needs photo library access to upload receipts that you choose.';
-      // }
+      if (actions.indexOf('camera') > -1) {
+        header = 'Allow Fyle to access your Camera';
+        message = 'You can use your camera to scan receipts. We\'ll auto-extract the receipt details and turn them into expenses.';
+      } else if (actions.indexOf('photos') > -1) {
+        header = 'Allow Fyle to access your Photos';
+        message = 'Fyle needs photo library access to upload receipts that you choose.';
+      }
     } else if (deviceInfo.operatingSystem.toLowerCase() === 'android') {
       if (this.permissionDenyCount === 1) {
         header = 'Allow Fyle to access camera, photos, media, and files.';
@@ -196,6 +211,7 @@ export class CameraOverlayPage implements OnInit {
         });
       }
     });
+
   }
 
 
@@ -364,14 +380,14 @@ export class CameraOverlayPage implements OnInit {
         if (deviceInfo.platform.toLowerCase() === 'android') {
           if (cameraPermission.state.toLowerCase() === 'granted' && photosPermission.state.toLowerCase() === 'granted') {
             // If both permissions are granted open camera
-            console.error("-----------1-----------");
+            console.log("-----------1-----------");
             this.setUpAndStartCamera()
           } else {
             if (this.permissionDenyCount === 0) {
-              console.error("-----------2-----------");
+              console.log("-----------2-----------");
               this.setUpAndStartCamera();
             } else {
-              console.error("-----------3-----------");
+              console.log("-----------3-----------");
               let permissionsArray = [];
               if (cameraPermission.state.toLowerCase() === 'denied') {
                 permissionsArray.push('camera');
@@ -386,7 +402,19 @@ export class CameraOverlayPage implements OnInit {
           }
 
         } else if (deviceInfo.platform.toLowerCase() === 'ios') {
-
+          if (cameraPermission.state.toLowerCase() === 'granted') {
+            console.log("-----------ios----1-----------");
+            this.setUpAndStartCamera();
+          } else {
+            console.log("-------ios----2-------", this.permissionDenyCount);
+            if (this.permissionDenyCount === 0) {
+              console.log("-----------2-----------");
+              this.setUpAndStartCamera();
+            } else {
+              this.requestCameraAndPhotosPermission(['camera']);
+            }
+          }
+          
         } else {
           //Web PWA
         }
@@ -400,6 +428,7 @@ export class CameraOverlayPage implements OnInit {
     this.isCameraShown = false;
    
     this.showPopupAndStartCamera();
+    // this.setUpAndStartCamera();
     this.activeFlashMode = null;
 
     this.offlineService.getHomeCurrency().subscribe(res => {
