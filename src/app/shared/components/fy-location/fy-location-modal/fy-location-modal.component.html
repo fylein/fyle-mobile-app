@@ -47,7 +47,10 @@
       place
     </mat-icon>
     <div>
-      {{filteredListItem.description}}
+      <app-fy-highlight-text
+        [fullText]="filteredListItem.description"
+        [queryText]="value">
+      </app-fy-highlight-text>
     </div>
   </div>
 </ion-content>

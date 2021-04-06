@@ -29,7 +29,11 @@
         <ng-template #defaultSelectionElement  let-label="label" let-selected="selected">
           <div class="selection-modal--recently-used-item-content">
             <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
-            <span class="selection-modal--label" [ngClass]="{'inverse-highlight': value && value.length > 0}" [innerHTML]="label | highlight: value">
+            <span class="selection-modal--label">
+              <app-fy-highlight-text
+                [fullText]="label"
+                [queryText]="value">
+              </app-fy-highlight-text>
             </span>
           </div>
           <mat-icon *ngIf="selected">
@@ -43,8 +47,10 @@
 
     <div matRipple class="selection-modal--list-element"
       *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
-      <div [ngClass]="{'inverse-highlight': value && value.length > 0}" [innerHTML]="filteredListItem.label | highlight: value">
-      </div>
+      <app-fy-highlight-text
+        [fullText]="filteredListItem.label"
+        [queryText]="value">
+      </app-fy-highlight-text>
       <mat-icon *ngIf="filteredListItem.selected">
         check
       </mat-icon>

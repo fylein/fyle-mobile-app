@@ -33,6 +33,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ApproverDialogComponent } from './components/fy-apporver/approver-dialog/approver-dialog.component';
 import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
+import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -105,7 +106,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FormButtonValidationDirective,
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
-    FyViewAttachmentComponent
+    FyViewAttachmentComponent,
+    FyHighlightTextComponent
   ],
   imports: [
     CommonModule,
@@ -156,7 +158,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FyAddToReportComponent,
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
-    FyViewAttachmentComponent
+    FyViewAttachmentComponent,
+    FyHighlightTextComponent
   ],
   providers: [
     DecimalPipe,

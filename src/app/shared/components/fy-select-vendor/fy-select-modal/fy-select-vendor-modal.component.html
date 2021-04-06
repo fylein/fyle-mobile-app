@@ -45,7 +45,10 @@
           <div class="selection-modal--recently-used-item-content">
             <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
             <span class="selection-modal--label">
-              {{label}}
+              <app-fy-highlight-text
+                [fullText]="label"
+                [queryText]="value">
+              </app-fy-highlight-text>
             </span>
           </div>
           <mat-icon *ngIf="selected">
@@ -59,7 +62,10 @@
     <!-- All Vendors -->
     <div class="" *ngIf="(filteredOptions$|async)?.length > 0" [ngClass]="{'selection-modal--all-merchants__margin-top': value}">
       <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
-        <div>{{filteredListItem.label}}</div>
+        <app-fy-highlight-text
+          [fullText]="filteredListItem.label"
+          [queryText]="value">
+        </app-fy-highlight-text>
         <mat-icon *ngIf="filteredListItem.selected">check</mat-icon>
       </div>
     </div>
