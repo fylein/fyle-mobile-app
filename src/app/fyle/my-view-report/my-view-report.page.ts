@@ -101,7 +101,8 @@ export class MyViewReportPage implements OnInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.erpt$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
     );
 
     this.sharedWith$ = this.reportService
@@ -299,10 +300,14 @@ export class MyViewReportPage implements OnInit {
         report_ids: [this.activatedRoute.snapshot.params.id],
         email: data.email
       };
-      this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
-        const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
-        await this.loaderService.showLoader(message);
-      });
+      const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
+
+      from(this.loaderService.showLoader(message)).pipe(
+        switchMap(() => {
+          return this.reportService.downloadSummaryPdfUrl(params)
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      ).subscribe(noop);
     }
   }
 
