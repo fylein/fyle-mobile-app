@@ -88,7 +88,8 @@
 
         <div class="my-expenses-card--icons-container">
           <div class="my-expenses-card--ccc-icons">
-            <img *ngIf="isCCCExpense && !isCCCMatchedExpense" alt="" [src]="isCCCExpense && !isCCCMatchedExpense ? '../../../assets/svg/fy-matched-no.svg' : '../../../assets/svg/fy-matched-yes.svg'">
+            <mat-icon *ngIf="isCCCExpense && !isCCCMatchedExpense" svgIcon="fy-matched-no"></mat-icon>
+            <mat-icon *ngIf="isCCCExpense && isCCCMatchedExpense" svgIcon="fy-matched-yes"></mat-icon>
           </div>
           <div *ngIf="isCCCExpense" class="my-expenses-card--divider"></div>
           <div class="my-expenses-card--receipt-icons">
