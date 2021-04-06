@@ -1249,7 +1249,7 @@ export class AddEditPerDiemPage implements OnInit {
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
-      if (recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0) {
+      if (recentProjects && recentProjects.length > 0) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
 
@@ -1271,7 +1271,7 @@ export class AddEditPerDiemPage implements OnInit {
       // Check if recent cost centers exist
       const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
 
-      if (recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0) {
+      if (recentCostCenters && recentCostCenters.length > 0) {
         this.recentCostCenters = recentCostCenters;
       }
 
