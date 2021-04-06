@@ -468,6 +468,10 @@ ref - https://stackoverflow.com/a/31162426
       display: inline-block;
       color: $black;
     }
+
+    &::after {
+      color: $black;
+    }
   
     &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
       display: none;
