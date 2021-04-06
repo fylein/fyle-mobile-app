@@ -172,8 +172,8 @@ export class CorporateCardExpensesPage implements OnInit {
 
     this.cardTransactions$ = this.loadData$.pipe(
       switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), 
-          simpleSearchAllDataPipe, 
+        return iif(() => (params.searchString && params.searchString !== ''),
+          simpleSearchAllDataPipe,
           paginatedPipe.pipe(
             map(res => {
               if (this.currentPageNumber === 1) {
