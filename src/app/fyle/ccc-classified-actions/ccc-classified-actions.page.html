@@ -137,8 +137,8 @@
             </div>
             <div class="ccc-classified-actions--input-container">
               <div class="ccc-classified-actions--input-container-title">Status</div>
-              <div class="ccc-classified-actions--pill ccc-classified-actions--pill__{{txn.state | reportState}}">
-                {{txn.state | reportState | snakeCaseToSpaceCase | uppercase}}
+              <div class="ccc-classified-actions--pill ccc-classified-actions--pill__{{txn.state | expenseState}}">
+                {{txn.state | expenseState | snakeCaseToSpaceCase | uppercase}}
               </div>
             </div>
           </div>

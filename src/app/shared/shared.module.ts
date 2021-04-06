@@ -60,6 +60,7 @@ import { FySelectVendorComponent } from './components/fy-select-vendor/fy-select
 import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import {FyProjectSelectModalComponent} from './components/fy-select-project/fy-select-modal/fy-select-project-modal.component';
 import {FySelectProjectComponent} from './components/fy-select-project/fy-select-project.component';
+import { ExpenseState } from './pipes/expense-state.pipe';
 
 @NgModule({
   declarations: [
@@ -105,7 +106,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
     FyViewAttachmentComponent,
-    FormatDateDirective
+    FormatDateDirective,
+    ExpenseState
   ],
   imports: [
     CommonModule,
@@ -157,7 +159,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
     FyViewAttachmentComponent,
-    FormatDateDirective
+    FormatDateDirective,
+    ExpenseState
   ],
   providers: [
     DecimalPipe,

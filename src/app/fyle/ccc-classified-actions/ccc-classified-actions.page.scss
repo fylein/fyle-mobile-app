@@ -1,8 +1,7 @@
-$white: white;
+$white: #fff;
 $fyled_pill: #f90;
 $draft_pill: #464d57;
 $reported_pill: #2196f3;
-$inquiry_pill: #7e57c2;
 $approved_pill: #66bb6a;
 $payment_processing_pill: #47a447;
 $paid_pill: #3d8b3d;
@@ -169,10 +168,6 @@ $paid_pill: #3d8b3d;
 
     &__reported {
       background-color: $reported_pill;
-    }
-
-    &__inquiry {
-      background-color: $inquiry_pill;
     }
 
     &__approved {
