@@ -217,7 +217,7 @@ export class MyExpensesPage implements OnInit {
       tap(console.log),
       concatMap((params)=> {
         if (this.currentPageNumber === 1) {
-          return from(this.loaderService.showLoader()).pipe(
+          return from(this.loaderService.showLoader('Loading Expenses...')).pipe(
             map(() => params)
           );
         } else {
