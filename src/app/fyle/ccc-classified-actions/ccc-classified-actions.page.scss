@@ -1,3 +1,12 @@
+$white: white;
+$fyled_pill: #f90;
+$draft_pill: #464d57;
+$reported_pill: #2196f3;
+$inquiry_pill: #7e57c2;
+$approved_pill: #66bb6a;
+$payment_processing_pill: #47a447;
+$paid_pill: #3d8b3d;
+
 .ccc-classified-actions {
 
   &--toolbar {
@@ -146,40 +155,40 @@
   &--pill {
     font-size: 12px;
     display: inline-block;
-    color: white;
+    color: $white;
     border-radius: 4px;
     padding: 2px 5px;
 
-    &__COMPLETE {
-      background-color: #f90;
+    &__fyled {
+      background-color: $fyled_pill;
     }
 
-    &__DRAFT {
-      background-color: #464d57;
+    &__draft {
+      background-color: $draft_pill;
     }
 
-    &__APPROVER_PENDING {
-      background-color: #2196f3;
+    &__reported {
+      background-color: $reported_pill;
     }
 
-    &__INQUIRY {
-      background-color: #7e57c2;
+    &__inquiry {
+      background-color: $inquiry_pill;
     }
 
-    &__APPROVED {
-      background-color: #66bb6a;
+    &__approved {
+      background-color: $approved_pill;
     }
 
-    &__PAYEMENT_PENDING {
-      background-color: #66bb6a;
+    &__payment_pending {
+      background-color: $approved_pill;
     }
 
-    &__PAYMENT_PROCESSING {
-      background-color: #47a447;
+    &__payment_processing {
+      background-color: $payment_processing_pill;
     }
 
-    &__PAID {
-      background-color: #3d8b3d;
+    &__paid {
+      background-color: $paid_pill;
     }
   }
 
