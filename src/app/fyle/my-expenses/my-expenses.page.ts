@@ -219,9 +219,9 @@ export class MyExpensesPage implements OnInit {
         if (this.currentPageNumber === 1) {
           return from(this.loaderService.showLoader()).pipe(
             map(() => params)
-          )
+          );
         } else {
-          return of(params)
+          return of(params);
         }
       }),
       switchMap((params) => {
@@ -247,9 +247,9 @@ export class MyExpensesPage implements OnInit {
       }),
       tap(()=> {
         if (this.currentPageNumber === 1) {
-          return from(this.loaderService.hideLoader())
+          return from(this.loaderService.hideLoader());
         } else {
-          return of(null)
+          return of(null);
         }
       }),
       shareReplay(1)
