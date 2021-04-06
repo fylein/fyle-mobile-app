@@ -214,11 +214,9 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.params$.pipe(
-      tap(res => {
-        console.log("---params--->", JSON.stringify(cloneDeep(res)));
-      }),
+      tap(console.log),
       concatMap((params)=> {
-        if(this.currentPageNumber === 1) {
+        if (this.currentPageNumber === 1) {
           return from(this.loaderService.showLoader()).pipe(
             map(() => params)
           )
@@ -248,7 +246,7 @@ export class MyExpensesPage implements OnInit {
         });
       }),
       tap(()=> {
-        if(this.currentPageNumber === 1) {
+        if (this.currentPageNumber === 1) {
           return from(this.loaderService.hideLoader())
         } else {
           return of(null)
@@ -376,7 +374,7 @@ export class MyExpensesPage implements OnInit {
     );
 
     this.loadData$.subscribe(params => {
-      console.log(JSON.stringify(params));
+      console.log(params);
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
