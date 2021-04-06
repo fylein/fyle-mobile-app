@@ -941,18 +941,12 @@ export class OtherRequestsComponent implements OnInit {
       })
     );
 
-    this.currencies$ = from(this.loaderService.showLoader()).pipe(
-      concatMap(() => {
-        return this.currencyService.getAll();
-      }),
+    this.currencies$ = this.currencyService.getAll().pipe(
       map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({
         value: shortCode,
         label: shortCode,
         displayValue: shortCode + ' - ' + currenciesObj[shortCode]
       }))),
-      finalize(() => {
-        from(this.loaderService.hideLoader()).subscribe(noop);
-      }),
       shareReplay(1)
     );
 
@@ -977,6 +971,7 @@ export class OtherRequestsComponent implements OnInit {
           ]);
         }),
         take(1),
+        finalize(() => from(this.loaderService.hideLoader())),
       ).subscribe(([hotelRequest, transportationRequest, advanceRequest, actions]) => {
         this.tripActions = actions;
         if (this.otherRequests[0].hotel) {
