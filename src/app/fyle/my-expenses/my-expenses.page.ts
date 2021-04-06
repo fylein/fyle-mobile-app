@@ -5,7 +5,7 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, skip, switchMap, take, tap} from 'rxjs/operators';
+import {catchError, concatMap, debounceTime, distinctUntilChanged, finalize, map, scan, shareReplay, skip, switchMap, take, tap} from 'rxjs/operators';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-expenses-search-filter.component';
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
@@ -154,8 +154,6 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    //this.loaderService.showLoader('Loading Expenses...', 1000);
-
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
     });
@@ -216,17 +214,17 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.params$.pipe(
-      // withLatestFrom(showLoader$),
-      // map(([params, loader]) => {
-      //   return params;
-      // }),
-      // switchMap((res) => {
-      //   return showLoader$.pipe(
-      //     map(() => res)
-      //   );
-      // }),
       tap(res => {
-        console.log("------>", JSON.stringify(cloneDeep(res)));
+        console.log("---params--->", JSON.stringify(cloneDeep(res)));
+      }),
+      concatMap((params)=> {
+        if(this.currentPageNumber === 1) {
+          return from(this.loaderService.showLoader()).pipe(
+            map(() => params)
+          )
+        } else {
+          return of(params)
+        }
       }),
       switchMap((params) => {
         let defaultState;
@@ -249,8 +247,12 @@ export class MyExpensesPage implements OnInit {
           order: orderByParams
         });
       }),
-      catchError(() => {
-        return EMPTY;
+      tap(()=> {
+        if(this.currentPageNumber === 1) {
+          return from(this.loaderService.hideLoader())
+        } else {
+          return of(null)
+        }
       }),
       shareReplay(1)
     );
@@ -374,7 +376,7 @@ export class MyExpensesPage implements OnInit {
     );
 
     this.loadData$.subscribe(params => {
-      console.log(params);
+      console.log(JSON.stringify(params));
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -513,7 +515,6 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      //await this.loaderService.showLoader('Loading Expenses...', 1000);
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -535,7 +536,6 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await sortPopover.onWillDismiss();
     if (data) {
-     // await this.loaderService.showLoader('Loading Expenses...', 1000);
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -551,7 +551,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   async setState(state: string) {
-   // await this.loaderService.showLoader('Loading expenses', 1500);
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
