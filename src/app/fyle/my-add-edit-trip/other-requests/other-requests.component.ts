@@ -121,8 +121,6 @@ export class OtherRequestsComponent implements OnInit {
     customFields = customFields.map(customField => {
       if (customField.type === 'DATE' && customField.value) {
         customField.value = moment(customField.value).format('y-MM-DD')
-        // const updatedDate = new Date(customField.value);
-        // customField.value = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
       }
       return {id: customField.id, name: customField.name, value: customField.value};
     });
