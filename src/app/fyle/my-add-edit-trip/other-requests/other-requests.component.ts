@@ -20,7 +20,6 @@ import {TripRequestPolicyService} from '../../../core/services/trip-request-poli
 import {PolicyViolationComponent} from '../policy-violation/policy-violation.component';
 import {StatusService} from '../../../core/services/status.service';
 import { DateService } from 'src/app/core/services/date.service';
-import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-other-requests',
@@ -514,65 +513,47 @@ export class OtherRequestsComponent implements OnInit {
     const transport = [];
 
     if (formValue.advanceDetails.length > 0) {
-      if (mode === 'SUBMIT') {
-        // making sequential calls for saving advance requests
-        let index = 0;
-        const tempAdvanceDetails = cloneDeep(formValue.advanceDetails);
-        let loop = (advanceDetail) => {
-          this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode).subscribe(() => {
-              index ++;
-              if (tempAdvanceDetails.length > 0) {
-                loop(tempAdvanceDetails.shift());
-              }
-            });
-        };
-        loop(tempAdvanceDetails.shift());
-      } else {
+      if (mode === 'POLICY_CHECK') {
         formValue.advanceDetails.forEach((advanceDetail, index) => {
           advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
         });
+      } else {
+        of(formValue.advanceDetails).pipe(
+          switchMap(advanceDetails => from(advanceDetails)),
+          concatMap((advanceDetail, index) => {
+            return this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode);
+          })
+        ).subscribe(noop);
       }
     }
 
     if (formValue.hotelDetails.length > 0) {
-      if (mode === 'SUBMIT') {
-        // making sequential calls for saving hotel requests
-        let index = 0;
-        const tempHotelDetails = cloneDeep(formValue.hotelDetails);
-        let loop = (hotelDetail) => {
-          this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode).subscribe(() => {
-              index ++;
-              if (tempHotelDetails.length > 0) {
-                loop(tempHotelDetails.shift());
-              }
-            });
-        };
-        loop(tempHotelDetails.shift());
-      } else {
+      if (mode === 'POLICY_CHECK') {
         formValue.hotelDetails.forEach((hotelDetail, index) => {
           hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
         });
+      } else {
+        of(formValue.hotelDetails).pipe(
+          switchMap(hotelDetails => from(hotelDetails)),
+          concatMap((hotelDetail, index) => {
+            return this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode);
+          })
+        ).subscribe(noop);
       }
     }
 
     if (formValue.transportDetails.length > 0) {
-      if (mode === 'SUBMIT') {
-        // making sequential calls for saving transport requests
-        let index = 0;
-        const tempTransportDetails = cloneDeep(formValue.transportDetails);
-        let loop = (transportDetail) => {
-          this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode).subscribe(() => {
-              index ++;
-              if (tempTransportDetails.length > 0) {
-                loop(tempTransportDetails.shift());
-              }
-            });
-        };
-        loop(tempTransportDetails.shift());
-      } else {
+      if (mode === 'POLICY_CHECK') {
         formValue.transportDetails.forEach((transportDetail, index) => {
           transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
         });
+      } else {
+        of(formValue.transportDetails).pipe(
+          switchMap(transportDetails => from(transportDetails)),
+          concatMap((transportDetail, index) => {
+            return this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode);
+          })
+        ).subscribe(noop);
       }
     }
 
