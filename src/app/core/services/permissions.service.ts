@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { filter, map, switchMap } from 'rxjs/operators';
-import { throwError, of } from 'rxjs';
+import { throwError, of, iif } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -2205,7 +2205,7 @@ export class PermissionsService {
       })
     );
 
-    return filteredRoles$.pipe(
+    const allowedActions$ = filteredRoles$.pipe(
       map(
         filteredRoles => {
           if (this.allowedAccess(resource, orgSettings)) {
@@ -2229,10 +2229,16 @@ export class PermissionsService {
           if (currentAllowedActions.allowedRouteAccess) {
             return of(currentAllowedActions);
           } else {
-            throwError('no route access');
+            return throwError('no route access');
           }
         }
       )
+    );
+
+    return filteredRoles$.pipe(
+      map(filteredRoles => {
+        return iif(() => filteredRoles.length > 0, allowedActions$, of(null));
+      })
     );
   }
 

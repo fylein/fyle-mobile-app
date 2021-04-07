@@ -12,12 +12,11 @@ export class LoaderService {
 
   constructor(private loadingController: LoadingController) { }
 
-  async showLoader(message = 'Please wait...', duration = 1000 ) {
+  async showLoader(message = 'Please wait...') {
     this.counter++;
     if (this.counter === 1) {
       this.loading = await this.loadingController.create({
-        message,
-      //  duration
+        message
       });
       await this.loading.present();
     }

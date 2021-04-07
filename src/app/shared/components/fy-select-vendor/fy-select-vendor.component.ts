@@ -77,7 +77,6 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     await currencyModal.present();
 
     const { data } = await currencyModal.onWillDismiss();
-    console.log(data);
     if (data) {
       this.value = data.value;
     }

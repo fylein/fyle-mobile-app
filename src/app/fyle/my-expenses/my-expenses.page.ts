@@ -50,9 +50,8 @@ export class MyExpensesPage implements OnInit {
     sortDir: string;
   }>;
   baseState: string;
-  allExpensesCount$: Observable<number>;
+  allExpensesStats$: Observable<{ count: number; amount: number }>;
   draftExpensesCount$: Observable<number>;
-  expensesAmountStats$: Observable<number>;
   homeCurrency$: Observable<string>;
   isInstaFyleEnabled$: Observable<boolean>;
   isBulkFyleEnabled$: Observable<boolean>;
@@ -60,7 +59,7 @@ export class MyExpensesPage implements OnInit {
   isPerDiemEnabled$: Observable<boolean>;
   pendingTransactions = [];
   selectionMode = false;
-  selectedElements: string[];
+  selectedElements: Expense[];
   syncing = false;
   simpleSearchText = '';
   allExpenseCountHeader$: Observable<number>;
@@ -117,6 +116,13 @@ export class MyExpensesPage implements OnInit {
     this.selectionMode = !this.selectionMode;
     if (!this.selectionMode) {
       this.selectedElements = [];
+      this.setAllExpensesCountAndAmount();
+    } else {
+      // setting Expense amount & count stats to zero on select init
+      this.allExpensesStats$ = of({
+        count: 0,
+        amount: 0
+      });
     }
   }
 
@@ -126,14 +132,47 @@ export class MyExpensesPage implements OnInit {
 
     // for first expense etxnc size will be 0
     if (!isFirstExpenseCreated) {
-      this.allExpensesCount$.subscribe(async (count) => {
-        if (count === 0) {
+      this.allExpensesStats$.subscribe(async (res) => {
+        if (res.count === 0) {
           this.trackingService.createFirstExpense({Asset: 'Mobile'});
           await this.storageService.set('isFirstExpenseCreated', true);
         }
       });
 
     }
+  }
+
+  setAllExpensesCountAndAmount() {
+    this.allExpensesStats$ = this.loadData$.pipe(
+      switchMap(params => {
+        const queryParams = params.queryParams || {};
+
+        let defaultState;
+        if (this.baseState === 'all') {
+          defaultState = 'in.(COMPLETE,DRAFT)';
+        } else if (this.baseState === 'draft') {
+          defaultState = 'in.(DRAFT)';
+        }
+
+        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+        queryParams.tx_state = queryParams.tx_state || defaultState;
+
+        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          ...queryParams
+        }).pipe(
+          catchError(err => EMPTY),
+          map(stats => {
+            const count = stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+            const amount = stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
+            return {
+              count: count.function_value,
+              amount: amount.function_value || 0
+            };
+          })
+        );
+      })
+    );
   }
 
   ionViewWillEnter() {
@@ -152,7 +191,7 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    this.loaderService.showLoader('Loading Expenses...', 1000);
+    this.loaderService.showLoader('Loading Expenses...');
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
@@ -210,7 +249,6 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
-      tap(console.log),
       switchMap((params) => {
         let defaultState;
         if (this.baseState === 'all') {
@@ -269,10 +307,8 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        console.log(queryParams);
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
-      tap(count => console.log({ count })),
       shareReplay(1)
     );
 
@@ -298,32 +334,7 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.allExpensesCount$ = this.loadData$.pipe(
-      switchMap((params) => {
-        const queryParams = params.queryParams || {};
-
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
-
-        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          ...queryParams
-        }).pipe(
-          catchError(err => EMPTY),
-          map(stats => {
-            const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
-            return count && count.function_value;
-          })
-        );
-      })
-    );
+    this.setAllExpensesCountAndAmount();
 
     this.allExpenseCountHeader$ = this.loadData$.pipe(
       switchMap(() => {
@@ -353,33 +364,7 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.expensesAmountStats$ = this.loadData$.pipe(
-      switchMap(params => {
-        const queryParams = params.queryParams || {};
-
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
-
-        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          ...queryParams
-        });
-      }),
-      map(stats => {
-        const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
-        return (sum && sum.function_value) || 0;
-      })
-    );
-
     this.loadData$.subscribe(params => {
-      console.log(params);
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -447,6 +432,10 @@ export class MyExpensesPage implements OnInit {
     }
 
     this.currentPageNumber = 1;
+    this.selectedElements = [];
+    if (this.selectionMode) {
+      this.setExpenseStatsOnSelect();
+    }
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.transactionService.clearCache().subscribe(() => {
@@ -518,7 +507,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
+      await this.loaderService.showLoader('Loading Expenses...');
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -540,7 +529,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await sortPopover.onWillDismiss();
     if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
+      await this.loaderService.showLoader('Loading Expenses...');
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -556,7 +545,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async setState(state: string) {
-    await this.loaderService.showLoader('Loading expenses', 1500);
+    await this.loaderService.showLoader('Loading expenses');
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
@@ -610,7 +599,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     if (popupResults === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense', 2500)).pipe(
+      from(this.loaderService.showLoader('Deleting Expense')).pipe(
         switchMap(() => {
           return iif(() => !etxn.tx_id,
             of(this.transactionOutboxService.deleteOfflineExpense(index)),
@@ -626,12 +615,22 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  setExpenseStatsOnSelect() {
+    this.allExpensesStats$ = of({
+      count: this.selectedElements.length,
+      amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0)
+    });
+  }
+
   selectExpense(expense: Expense) {
-    if (this.selectedElements.includes(expense.tx_id)) {
-      this.selectedElements = this.selectedElements.filter(id => id !== expense.tx_id);
+    const isSelectedElementsIncludesExpense = this.selectedElements.some(txn => expense.tx_id === txn.tx_id);
+    if (isSelectedElementsIncludesExpense) {
+      this.selectedElements = this.selectedElements.filter(txn => txn.tx_id !== expense.tx_id);
     } else {
-      this.selectedElements.push(expense.tx_id);
+      this.selectedElements.push(expense);
     }
+    // setting Expenses count and amount stats on select
+    this.setExpenseStatsOnSelect();
   }
 
   async showCannotEditActivityDialog() {
@@ -673,7 +672,8 @@ export class MyExpensesPage implements OnInit {
 
   openCreateReportWithSelectedIds() {
     this.trackingService.addToReport({Asset: 'Mobile'});
-    this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(this.selectedElements) }]);
+    const txnIds = this.selectedElements.map(expense => expense.tx_id);
+    this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
   }
 
   openCreateReport() {
@@ -721,7 +721,8 @@ export class MyExpensesPage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
-          return iif(() => this.selectedElements.length === 0, allDataPipe$, of(this.selectedElements));
+          const txnIds = this.selectedElements.map(expense => expense.tx_id);
+          return iif(() => this.selectedElements.length === 0, allDataPipe$, of(txnIds));
         }),
         switchMap((selectedIds) => {
           const initial = selectedIds[0];

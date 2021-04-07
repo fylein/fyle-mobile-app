@@ -381,8 +381,8 @@ export class AddEditMileagePage implements OnInit {
             const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
 
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
               );
           })
         );
@@ -413,8 +413,8 @@ export class AddEditMileagePage implements OnInit {
           switchMap(({ tfcMap, mileageCategoriesContainer }) => {
             const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
               );
           })
         );
@@ -501,7 +501,6 @@ export class AddEditMileagePage implements OnInit {
             );
           }
         }),
-        tap(console.log),
         switchMap((category) => {
           const formValue = this.fg.value;
           return this.offlineService.getCustomInputs().pipe(
@@ -836,7 +835,7 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    this.txnFields$ = this.getTransactionFields().pipe(tap(console.log));
+    this.txnFields$ = this.getTransactionFields();
     this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
@@ -1155,14 +1154,12 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.recentlyUsedProjects$ = forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValues: this.recentlyUsedValues$,
       mileageCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou()
     }).pipe(
-      switchMap(({orgUserSettings, recentValues, mileageCategoryIds, eou}) => {
+      switchMap(({recentValues, mileageCategoryIds, eou}) => {
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
-          orgUserSettings,
           recentValues,
           eou,
           categoryIds: mileageCategoryIds
@@ -1278,7 +1275,7 @@ export class AddEditMileagePage implements OnInit {
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
-      if (doRecentProjectIdsExist) {
+      if (recentProjects && recentProjects.length > 0) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
 
@@ -1300,7 +1297,7 @@ export class AddEditMileagePage implements OnInit {
       // Check if recent cost centers exist
       const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
 
-      if (doRecentCostCenterIdsExist) {
+      if (recentCostCenters && recentCostCenters.length > 0) {
         this.recentCostCenters = recentCostCenters;
       }
 
