@@ -108,10 +108,7 @@ export class MyViewExpensePage implements OnInit {
       disabled: true
     };
 
-    this.etxnWithoutCustomProperties$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.transactionService.getEtxn(txId);
-      }),
+    this.etxnWithoutCustomProperties$ = this.transactionService.getEtxn(txId).pipe(
       shareReplay(1)
     );
 
@@ -122,16 +119,19 @@ export class MyViewExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.etxn$ = forkJoin(
-      [
-        this.etxnWithoutCustomProperties$,
-        this.customProperties$
-      ]).pipe(
+    this.etxn$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return forkJoin([
+          this.etxnWithoutCustomProperties$,
+          this.customProperties$
+        ])
+      }),
       map(res => {
         res[0].tx_custom_properties = res[1];
         return res[0];
       }),
-      finalize(() => this.loaderService.hideLoader())
+      finalize(() => this.loaderService.hideLoader()),
+      shareReplay(1)
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(txId);
