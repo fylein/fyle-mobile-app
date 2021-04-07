@@ -191,7 +191,7 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    this.loaderService.showLoader('Loading Expenses...', 1000);
+    this.loaderService.showLoader('Loading Expenses...');
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
@@ -507,7 +507,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
+      await this.loaderService.showLoader('Loading Expenses...');
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -529,7 +529,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await sortPopover.onWillDismiss();
     if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
+      await this.loaderService.showLoader('Loading Expenses...');
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -545,7 +545,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async setState(state: string) {
-    await this.loaderService.showLoader('Loading expenses', 1500);
+    await this.loaderService.showLoader('Loading expenses');
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
@@ -599,7 +599,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     if (popupResults === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense', 2500)).pipe(
+      from(this.loaderService.showLoader('Deleting Expense')).pipe(
         switchMap(() => {
           return iif(() => !etxn.tx_id,
             of(this.transactionOutboxService.deleteOfflineExpense(index)),

@@ -210,7 +210,7 @@ export class SignInPage implements OnInit {
         }
       }),
       map(googleAuthResponse => {
-        from(this.loaderService.showLoader('Signing you in...', 10000));
+        from(this.loaderService.showLoader('Signing you in...'));
         return googleAuthResponse;
       }),
       switchMap((googleAuthResponse) => {

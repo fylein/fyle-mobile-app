@@ -139,7 +139,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation() {
-    from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
+    from(this.loaderService.showLoader('Loading current location...')).pipe(
       switchMap(() => {
         return this.locationService.getCurrentLocation({enableHighAccuracy: true});
       }),
