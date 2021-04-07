@@ -11,10 +11,12 @@ export class FormatDateDirective implements OnInit {
   constructor(private elementRef: ElementRef) { }
 
   modifyDisplayValue(value: string) {
-    if (value) {
-      this.elementRef.nativeElement.setAttribute('data-date', moment(value).format('MMM DD, YYYY'));
-    } else {
-      this.elementRef.nativeElement.setAttribute('data-date', '');
+    if (this.elementRef && this.elementRef.nativeElement) {
+      if (value) {
+        this.elementRef.nativeElement.setAttribute('data-date', moment(value).format('MMM DD, YYYY'));
+      } else {
+        this.elementRef.nativeElement.setAttribute('data-date', '');
+      }
     }
   }
 
