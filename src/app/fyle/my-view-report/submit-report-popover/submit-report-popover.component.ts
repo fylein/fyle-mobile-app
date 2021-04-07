@@ -36,7 +36,7 @@ export class SubmitReportPopoverComponent implements OnInit {
     forkJoin({
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      approvedButUnreportedTripRequests: this.tripRequestService.findMyUnreportedRequests().pipe(tap(console.log), map(requests => requests.filter(request => request.state === 'APPROVED')))
+      approvedButUnreportedTripRequests: this.tripRequestService.findMyUnreportedRequests().pipe(map(requests => requests.filter(request => request.state === 'APPROVED')))
     }).subscribe(({ orgSettings, orgUserSettings, approvedButUnreportedTripRequests }) => {
       const canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled));
       const isTripRequestsEnabled = orgSettings.trip_requests.enabled;

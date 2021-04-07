@@ -63,9 +63,8 @@ export class TransactionFieldConfigurationsService {
   }
 
 
-  filterByOrgCategoryIdProjectId(tfcMap: any, fields: string[], orgCategory: any, project: any) {
+  filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any) {
     const orgCategoryId = orgCategory && orgCategory.id;
-    const projectId = project && project.project_id;
     return of(fields).pipe(
       map(fields => fields.map(field => {
         const configurations = tfcMap[field];
@@ -73,20 +72,8 @@ export class TransactionFieldConfigurationsService {
 
         if (configurations && configurations.length > 0) {
           configurations.some((configuration) => {
-            if (orgCategoryId && projectId) {
-              if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1 && configuration.project_ids && configuration.project_ids.indexOf(projectId) > -1) {
-                filteredField = configuration;
-
-                return true;
-              }
-            } else if (orgCategoryId) {
+            if (orgCategoryId) {
               if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
-                filteredField = configuration;
-
-                return true;
-              }
-            } else if (projectId) {
-              if (configuration.project_ids && configuration.project_ids.indexOf(projectId) > -1) {
                 filteredField = configuration;
 
                 return true;
