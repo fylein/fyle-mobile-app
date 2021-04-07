@@ -66,7 +66,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
           catchError(() => {
             that.loader = false;
             that.lookupFailed = true;
-            return of([]);
+            return [];
           })
         );
       }),
