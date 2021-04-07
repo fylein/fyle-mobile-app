@@ -87,7 +87,7 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.loaderService.showLoader('Loading reports...', 1000);
+    this.loaderService.showLoader('Loading reports...');
     this.setupNetworkWatcher();
 
     this.searchText = '';

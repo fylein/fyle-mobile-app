@@ -30,7 +30,7 @@ export class LocationService {
     return this.httpClient.get(this.ROOT_ENDPOINT + '/location' + url, config);
   }
 
-  getAutocompletePredictions(text, userId, currentLocation, types?) {
+  getAutocompletePredictions(text, userId, currentLocation?, types?) {
     const data: any = {
       params: {
         text,
