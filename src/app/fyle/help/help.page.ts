@@ -31,7 +31,7 @@ export class HelpPage implements OnInit {
 
   openContactSupportDialog() {
     this.contactSupportLoading = true;
-    from(this.loaderService.showLoader('Please wait', 10000)).pipe(
+    from(this.loaderService.showLoader('Please wait')).pipe(
       switchMap(() => {
         return from(this.authService.getEou());
       }),

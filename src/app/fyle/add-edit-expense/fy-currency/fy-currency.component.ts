@@ -165,8 +165,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     if (this.fg) {
       if (value !== this.innerValue) {
         this.innerValue = value;
-        console.log({value});
-        console.log({control: this.ngControl});
         this.fg.patchValue(this.convertInnerValueToFormValue(this.innerValue));
       }
     }

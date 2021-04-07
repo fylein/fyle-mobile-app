@@ -364,8 +364,8 @@ export class AddEditPerDiemPage implements OnInit {
           switchMap(({tfcMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );
@@ -381,7 +381,6 @@ export class AddEditPerDiemPage implements OnInit {
 
         return tfcMap;
       }),
-      tap(console.log),
       shareReplay(1)
     );
   }
@@ -397,8 +396,8 @@ export class AddEditPerDiemPage implements OnInit {
           switchMap(({tfcMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );
@@ -796,8 +795,6 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
-    this.allowedPerDiemRateOptions$.subscribe(console.log);
-
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
       filter(isConnected => !!isConnected),
       switchMap(() => {
@@ -1014,7 +1011,7 @@ export class AddEditPerDiemPage implements OnInit {
           if (perDiemRate.currency === homeCurrency) {
             this.fg.controls.currencyObj.setValue({
               currency: perDiemRate.currency,
-              amount: perDiemRate.rate * numDays,
+              amount: (perDiemRate.rate * numDays).toFixed(2),
               orig_currency: null,
               orig_amount: null
             });
@@ -1040,9 +1037,9 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]) => {
         this.fg.controls.currencyObj.setValue({
           currency: homeCurrency,
-          amount: perDiemRate.rate * numDays * exchangeRate,
+          amount: (perDiemRate.rate * numDays * exchangeRate).toFixed(2),
           orig_currency: perDiemRate.currency,
-          orig_amount: perDiemRate.rate * numDays
+          orig_amount: (perDiemRate.rate * numDays).toFixed(2)
         });
       });
 
@@ -1114,14 +1111,12 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.recentlyUsedProjects$ = forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValues: this.recentlyUsedValues$,
       perDiemCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou()
     }).pipe(
-        switchMap(({orgUserSettings, recentValues, perDiemCategoryIds, eou}) => {
+        switchMap(({recentValues, perDiemCategoryIds, eou}) => {
           return this.recentlyUsedItemsService.getRecentlyUsedProjects({
-            orgUserSettings,
             recentValues,
             eou,
             categoryIds: perDiemCategoryIds
@@ -1251,7 +1246,7 @@ export class AddEditPerDiemPage implements OnInit {
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
 
-      if (doRecentProjectIdsExist) {
+      if (recentProjects && recentProjects.length > 0) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
 
@@ -1273,7 +1268,7 @@ export class AddEditPerDiemPage implements OnInit {
       // Check if recent cost centers exist
       const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
 
-      if (doRecentCostCenterIdsExist) {
+      if (recentCostCenters && recentCostCenters.length > 0) {
         this.recentCostCenters = recentCostCenters;
       }
 

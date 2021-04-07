@@ -24,12 +24,14 @@
 <ion-content>
   <div class="selection-modal--container">
     <div class="selection-modal--recently-used-block" *ngIf="cacheName && (recentrecentlyUsedItems$|async)?.length > 0">
-      <div class="selection-modal--sub-title">Recently Used</div>
 
       <div matRipple class="selection-modal--list-element" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list" (click)="onElementSelect(recentrecentlyUsedItem)">
         <ng-template #defaultSelectionElement  let-label="label" let-selected="selected">
-          <div>
-            {{label}}
+          <div class="selection-modal--recently-used-item-content">
+            <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
+            <span class="selection-modal--label">
+              {{label}}
+            </span>
           </div>
           <mat-icon *ngIf="selected">
             check
@@ -40,9 +42,6 @@
       </div>
     </div>
 
-    <div class="selection-modal--sub-title">
-      All Projects
-    </div>
     <div matRipple class="selection-modal--list-element"
       *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
       <div>
