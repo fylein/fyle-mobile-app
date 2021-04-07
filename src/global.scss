@@ -449,10 +449,3 @@ input[type="date"]::after {
 .button-outline {
   --border-width: 1px;
 }
-
-.inverse-highlight {
-  font-weight: 700;
-  .highlight {
-    font-weight: 400;
-  }
-}
