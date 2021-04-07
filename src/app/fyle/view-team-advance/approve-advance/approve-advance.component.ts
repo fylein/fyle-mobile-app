@@ -18,9 +18,7 @@ export class ApproveAdvanceComponent implements OnInit {
     private advanceRequestService: AdvanceRequestService
   ) { }
 
-  ngOnInit() {
-    console.log(this.areq);
-  }
+  ngOnInit() { }
 
   cancel() {
     this.popoverController.dismiss();

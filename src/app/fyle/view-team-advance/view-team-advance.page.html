@@ -115,7 +115,7 @@
           </div>
           <div class="view-advances--element-value">
             <span
-              *ngIf="advanceRequestCustomField.type === 'DATE'">{{(advanceRequestCustomField.value | date: 'dd, MMM yyyy') || '-'}}</span>
+              *ngIf="advanceRequestCustomField.type === 'DATE'">{{(advanceRequestCustomField.value | date: 'MMM dd, yyyy') || '-'}}</span>
             <span
               *ngIf="advanceRequestCustomField.type === 'BOOLEAN'">{{advanceRequestCustomField.value ? 'Yes' : 'No'}}</span>
             <span

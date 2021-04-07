@@ -119,8 +119,11 @@
                   {{txnFields?.txn_dt?.title ? txnFields?.txn_dt?.title : 'Start Date'}}
                   <span *ngIf="txnFields?.txn_dt?.mandatory">*</span>
                 </div>
-                <input (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input"
+                <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input date-input__format"
                        formControlName="dateOfSpend" type="date">
+              </div>
+              <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid" class="add-edit-mileage--error">
+                  Please select a valid date.
               </div>
             </ng-container>
 
@@ -210,7 +213,6 @@
                   [options]="paymentModes"
                   [selectModalHeader]="'Choose Payment Mode'"
                   [selectionElement]="paymentMode"
-                  [subheader]="'All Payment Modes'"
                   formControlName="paymentMode">
                 </app-fy-select>
                 <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -273,7 +275,6 @@
                                  [mandatory]="txnFields.purpose?.mandatory"
                                  [options]="txnFields.purpose?.values"
                                  [selectModalHeader]="'Enter ' + txnFields.purpose?.title"
-                                 [subheader]="txnFields.purpose?.title"
                                  formControlName="purpose">
                   </app-fy-select>
                 </div>
@@ -326,7 +327,6 @@
                                  [mandatory]="true"
                                  [options]="subCategories"
                                  [selectModalHeader]="'Choose Sub Category'"
-                                 [subheader]="'Sub Category'"
                                  formControlName="sub_category"
                   >
 
@@ -359,7 +359,7 @@
                            inputmode="decimal"
                            type="number">
 
-                    <input *ngIf="customInput.type === 'DATE'" class="add-edit-mileage--date-input" formControlName="value"
+                    <input appFormatDate *ngIf="customInput.type === 'DATE'" class="add-edit-mileage--date-input date-input__format" formControlName="value"
                            type="date">
                   </div>
 
@@ -384,7 +384,6 @@
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
                       [selectModalHeader]="'Choose '+customInput.name"
-                      [subheader]="customInput.name"
                       formControlName="value"
                     >
                     </app-fy-select>

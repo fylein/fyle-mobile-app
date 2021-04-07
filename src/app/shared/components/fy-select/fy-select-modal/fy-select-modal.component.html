@@ -45,14 +45,15 @@
     </div>
 
     <div *ngIf="cacheName && (recentrecentlyUsedItems$|async)?.length > 0" class="selection-modal--recently-used-block">
-      <div class="selection-modal--sub-title">Recently Used</div>
-
       <div (click)="onElementSelect(recentrecentlyUsedItem)" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list"
            class="selection-modal--list-element"
            matRipple>
         <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-          <div class="selection-modal--label">
-            {{label}}
+          <div class="selection-modal--recently-used-item-content">
+            <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
+            <span class="selection-modal--label">
+              {{label}}
+            </span>
           </div>
           <mat-icon *ngIf="selected">
             check
@@ -65,9 +66,6 @@
     </div>
 
     <div *ngIf="(filteredOptions$|async)?.length > 0 && !customInput">
-      <div class="selection-modal--sub-title">
-        {{subheader}}
-      </div>
       <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
         <div (click)="onElementSelect(filteredListItem)" *ngIf="filteredListItem.label.length > 0" class="selection-modal--list-element"
              matRipple>

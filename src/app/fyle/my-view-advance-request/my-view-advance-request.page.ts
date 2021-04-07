@@ -100,14 +100,12 @@ export class MyViewAdvanceRequestPage implements OnInit {
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
           })
-        )
+        );
       }),
       reduce((acc, curr) => {
         return acc.concat(curr);
       }, [] as File[])
     );
-
-    this.attachedFiles$.subscribe(console.log);
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
 

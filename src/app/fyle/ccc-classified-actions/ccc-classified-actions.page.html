@@ -23,7 +23,7 @@
       </span>
       </div>
       <div class="ccc-classified-actions--date">
-        {{cccExpense.txn_dt | date: 'MMM dd yyyy'}}
+        {{cccExpense.txn_dt | date: 'MMM dd, yyyy'}}
       </div>
       <div class="ccc-classified-actions--vendor">
         <ng-container *ngIf="cccExpense.vendor; else description">
@@ -170,7 +170,7 @@
   <ion-footer *ngIf="canUnmatch$|async">
     <ion-toolbar mode="md">
       <ion-buttons>
-        <ion-button class="ccc-classified-actions--primary-cta" mode="md" color="grey" fill="outline" (click)="unmatchExpense(cccExpense)">
+        <ion-button class="ccc-classified-actions--primary-cta text-capitalize" mode="md" (click)="unmatchExpense(cccExpense)">
           Unmatch
         </ion-button>
       </ion-buttons>
