@@ -357,7 +357,7 @@ export class SplitExpensePage implements OnInit {
       orgSettings$.subscribe(orgSettings => {
         this.isCorporateCardsEnabled = orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled;
       });
-      this.isCorporateCardsEnabled = false;
+
       if(!this.isCorporateCardsEnabled) {
         this.minAmount = 0.01;
       }
