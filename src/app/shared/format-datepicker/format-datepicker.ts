@@ -1,5 +1,6 @@
 // @Link:  https://medium.com/@amandeepkochhar/angular-material-datepicker-set-custom-date-in-dd-mm-yyyy-format-5c0f4340e57
 import { MatDateFormats, NativeDateAdapter } from '@angular/material/core';
+import * as moment from 'moment';
 
 export class AppDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat): string {
@@ -11,7 +12,7 @@ export class AppDateAdapter extends NativeDateAdapter {
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
     }
-    return date.toDateString();
+    return moment(date).format('MMM DD, YYYY');
   }
 }
 
@@ -20,7 +21,7 @@ export const APP_DATE_FORMATS: MatDateFormats = {
     dateInput: { month: 'short', year: 'numeric', day: 'numeric' },
   },
   display: {
-    dateInput: 'input',
+    dateInput: 'MMM DD, YYYY',
     monthYearLabel: { year: 'numeric', month: 'numeric' },
     dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric'
     },

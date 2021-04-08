@@ -46,6 +46,7 @@ import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/ap
 
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
+import { FormatDateDirective } from './directive/format-date.directive';
 
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
@@ -107,7 +108,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
     FyViewAttachmentComponent,
-    FyHighlightTextComponent
+    FyHighlightTextComponent,
+    FormatDateDirective
   ],
   imports: [
     CommonModule,
@@ -159,7 +161,8 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
     FyViewAttachmentComponent,
-    FyHighlightTextComponent
+    FyHighlightTextComponent,
+    FormatDateDirective
   ],
   providers: [
     DecimalPipe,

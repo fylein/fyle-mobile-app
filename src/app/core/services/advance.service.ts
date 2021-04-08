@@ -49,7 +49,6 @@ export class AdvanceService {
           }
         });
       }),
-      tap(console.log),
       map(res => res as {
         count: number,
         data: ExtendedAdvance[],
