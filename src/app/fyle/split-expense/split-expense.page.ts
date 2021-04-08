@@ -27,7 +27,6 @@ export class SplitExpensePage implements OnInit {
   splitType: string;
   amount: number;
   minAmount: number;
-  orgSettings: any;
   currency: string;
   totalSplitAmount: number;
   remainingAmount: number;
@@ -245,7 +244,12 @@ export class SplitExpensePage implements OnInit {
       }
       let canCreateNegativeExpense = true;
       canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
-        return splitExpenseValue.amount && splitExpenseValue.amount <= 0 && this.isCorporateCardsEnabled && defaultValue
+        let negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
+        if (!this.isCorporateCardsEnabled && negativeAmountPresent) {
+          return false && defaultValue;
+        }
+
+        return true && defaultValue
       }, true);
 
       if(!canCreateNegativeExpense) {
@@ -353,6 +357,7 @@ export class SplitExpensePage implements OnInit {
       orgSettings$.subscribe(orgSettings => {
         this.isCorporateCardsEnabled = orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled;
       });
+      this.isCorporateCardsEnabled = false;
       if(!this.isCorporateCardsEnabled) {
         this.minAmount = 0.01;
       }

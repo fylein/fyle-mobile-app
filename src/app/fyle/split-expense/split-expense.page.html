@@ -81,9 +81,7 @@
           </div>
         </div>
         
-        <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.amount.value < 0 && !isCorporateCardsEnabled">
-          Amount should be greater than 0.01
-        </div>
+        <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.amount.value < 0 && !isCorporateCardsEnabled"></div>
       </ng-container>
     </div>
 
