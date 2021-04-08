@@ -1,4 +1,5 @@
 $red: #f00;
+$brand-primary: #f36;
 
 .add-edit-mileage {
   &--toolbar {
@@ -392,7 +393,7 @@ $red: #f00;
 
   &--vehicle-icon {
     vertical-align: middle;
-    color: #f36;
+    color: $brand-primary;
     margin-right: 4px;
 
     .mat-icon {

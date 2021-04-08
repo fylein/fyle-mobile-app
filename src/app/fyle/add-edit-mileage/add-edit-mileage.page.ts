@@ -122,43 +122,6 @@ export class AddEditMileagePage implements OnInit {
     { label: 'Different expense', value: 'Different expense' },
     { label: 'Other', value: 'Other' }
   ];
-  vehiclesList = [
-    {
-      type: 'two_wheeler',
-      label: 'Two Wheeler',
-      icon: 'fy-bike'
-    },
-    {
-      type: 'four_wheeler',
-      label: 'Four Wheeler - Type 1',
-      icon: 'fy-car-mini'
-    },
-    {
-      type: 'four_wheeler1',
-      label: 'Four Wheeler - Type 2',
-      icon: 'fy-car'
-    },
-    {
-      type: 'four_wheeler3',
-      label: 'Four Wheeler - Type 3',
-      icon: 'fy-car'
-    },
-    {
-      type: 'four_wheeler4',
-      label: 'Four Wheeler - Type 4',
-      icon: 'fy-car'
-    },
-    {
-      type: 'bicycle',
-      label: 'Bicycle',
-      icon: 'fy-cyclist'
-    },
-    {
-      type: 'electric_car',
-      label: 'Electric Car',
-      icon: 'fy-electric-car'
-    }
-  ];
 
   constructor(
     private router: Router,
@@ -590,15 +553,31 @@ export class AddEditMileagePage implements OnInit {
   constructMileageOptions(mileageConfig) {
     const options = [];
     if (mileageConfig.two_wheeler) {
-      options.push('two_wheeler')
+      options.push('two_wheeler');
     }
 
     if (mileageConfig.four_wheeler) {
-      options.push('four_wheeler')
+      options.push('four_wheeler');
     }
 
     if (mileageConfig.four_wheeler1) {
-      options.push('four_wheeler1')
+      options.push('four_wheeler1');
+    }
+
+    if (mileageConfig.four_wheeler3) {
+      options.push('four_wheeler3');
+    }
+
+    if (mileageConfig.four_wheeler4) {
+      options.push('four_wheeler4');
+    }
+
+    if (mileageConfig.bicycle) {
+      options.push('bicycle');
+    }
+
+    if (mileageConfig.electric_car) {
+      options.push('electric_car');
     }
 
     return options;
@@ -808,7 +787,8 @@ export class AddEditMileagePage implements OnInit {
         orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
         type vehicleOption = {type: string; value: { type: string; icon: string }; label: string; icon: string};
 
-        const allVehicleTypes = this.vehiclesList.map((vehicle: vehicleOption) => {
+        const vehiclesList = this.transactionService.getAllSupportedVehicles();
+        const allVehicleTypes = vehiclesList.map((vehicle: vehicleOption) => {
           vehicle.value = {
             type: vehicle.type,
             icon: vehicle.icon
@@ -1790,7 +1770,7 @@ export class AddEditMileagePage implements OnInit {
             orig_currency: null,
             orig_amount: null,
             mileage_calculated_distance: calculatedDistance,
-            mileage_calculated_amount: (etxn.tx.mileage_rate || (res.mileageConfig[formValue.mileage_vehicle_type])) * calculatedDistance,
+            mileage_calculated_amount: res.mileageConfig[formValue.mileage_vehicle_type.type] * calculatedDistance,
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],

@@ -593,4 +593,44 @@ export class TransactionService {
       }
     });
   }
+
+  getAllSupportedVehicles() {
+    return [
+      {
+        type: 'two_wheeler',
+        label: 'Two Wheeler',
+        icon: 'fy-bike'
+      },
+      {
+        type: 'four_wheeler',
+        label: 'Four Wheeler - Type 1',
+        icon: 'fy-car-mini'
+      },
+      {
+        type: 'four_wheeler1',
+        label: 'Four Wheeler - Type 2',
+        icon: 'fy-car'
+      },
+      {
+        type: 'four_wheeler3',
+        label: 'Four Wheeler - Type 3',
+        icon: 'fy-car'
+      },
+      {
+        type: 'four_wheeler4',
+        label: 'Four Wheeler - Type 4',
+        icon: 'fy-car'
+      },
+      {
+        type: 'bicycle',
+        label: 'Bicycle',
+        icon: 'fy-cyclist'
+      },
+      {
+        type: 'electric_car',
+        label: 'Electric Car',
+        icon: 'fy-electric-car'
+      }
+    ];
+  }
 }
