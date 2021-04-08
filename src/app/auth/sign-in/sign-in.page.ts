@@ -260,7 +260,7 @@ export class SignInPage implements OnInit {
     });
 
     from(this.loaderService.showLoader()).pipe(
-      switchMap(()=> from(this.routerAuthService.isLoggedIn())),
+      switchMap(() => from(this.routerAuthService.isLoggedIn())),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(isLoggedIn => {
       if (isLoggedIn) {

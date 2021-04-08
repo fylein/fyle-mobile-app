@@ -126,7 +126,7 @@ export class RouterAuthService {
     );
   }
 
-  expiringSoon(accessToken: string) {
+  expiringSoon(accessToken: string): boolean {
     try {
       const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
       const now = moment(new Date());
@@ -138,7 +138,11 @@ export class RouterAuthService {
     }
   }
 
-  getValidAccessToken() {
+  /**
+   * This method get current accessToken from Storage, check if this token is expiring or not.
+   * If the token is expiring it will get another accessToken from API and return the new accessToken
+   */
+  getValidAccessToken(): Observable<string> {
     return from(this.tokenService.getAccessToken()).pipe(
       concatMap(accessToken => {
         if (this.expiringSoon(accessToken)) {
