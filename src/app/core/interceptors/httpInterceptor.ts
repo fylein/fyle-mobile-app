@@ -11,20 +11,14 @@ import {
 } from '@angular/common/http';
 
 import { Observable, throwError, from, forkJoin, of, iif } from 'rxjs';
-import { map, catchError, switchMap, mergeMap, concatMap } from 'rxjs/operators';
-
-import { JwtHelperService } from '../services/jwt-helper.service';
-
-import * as moment from 'moment';
+import { catchError, mergeMap, concatMap } from 'rxjs/operators';
 import { TokenService } from '../services/token.service';
-import { AuthService } from '../services/auth.service';
 import { RouterAuthService } from '../services/router-auth.service';
 import { DeviceService } from '../services/device.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
   constructor(
-    private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
     private routerAuthService: RouterAuthService,
     private deviceService: DeviceService
@@ -47,19 +41,6 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     return false;
   }
 
-  expiringSoon(accessToken: string) {
-    try {
-      const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
-      const now = moment(new Date());
-      const differenceSeconds = expiryDate.diff(now, 'second');
-      const maxRefreshDifferenceSeconds = 2 * 60;
-      return differenceSeconds < maxRefreshDifferenceSeconds;
-    } catch (err) {
-      return true;
-    }
-  }
-
-
   refreshAccessToken() {
     return from(this.tokenService.getRefreshToken()).pipe(
       concatMap(
@@ -72,31 +53,9 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
-  getAccessToken() {
-    return from(this.tokenService.getAccessToken()).pipe(
-      concatMap(accessToken => {
-        if (this.expiringSoon(accessToken)) {
-          return from(this.tokenService.getRefreshToken()).pipe(
-            concatMap(refreshToken => {
-              return from(this.routerAuthService.fetchAccessToken(refreshToken));
-            }),
-            concatMap(authResponse => {
-              return from(this.routerAuthService.newAccessToken(authResponse.access_token))
-            }),
-            concatMap(() => {
-              return from(this.tokenService.getAccessToken())
-            })
-          );
-        } else {
-          return of(accessToken);
-        }
-      })
-    );
-  }
-
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return forkJoin({
-      token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
+      token: iif(() => this.secureUrl(request.url), this.routerAuthService.getValidAccessToken(), of(null)),
       deviceInfo: from(this.deviceService.getDeviceInfo())
     }).pipe(
         concatMap(({token, deviceInfo}) => {
@@ -113,7 +72,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
           return next.handle(request).pipe(
             catchError((error) => {
-              if (error instanceof HttpErrorResponse && this.expiringSoon(token)) {
+              if (error instanceof HttpErrorResponse && this.routerAuthService.expiringSoon(token)) {
                 return from(this.refreshAccessToken()).pipe(
                   mergeMap((newToken) => {
                     request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + newToken) });

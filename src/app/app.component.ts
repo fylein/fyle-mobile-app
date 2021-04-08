@@ -201,8 +201,12 @@ export class AppComponent implements OnInit {
       })
     );
 
-    this.isConnected$.pipe(
-      switchMap(isConnected => {
+
+    forkJoin({
+      isConnected: this.isConnected$,
+      validAccessToken: this.routerAuthService.getValidAccessToken()
+    }).pipe(
+      switchMap(({isConnected, validAccessToken}) => {
         return forkJoin({
           orgs: orgs$,
           currentOrg: currentOrg$,
