@@ -518,6 +518,7 @@ export class OtherRequestsComponent implements OnInit {
           advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
         });
       } else {
+        // this case handels submit advance request, makes sequential submit calls
         of(formValue.advanceDetails).pipe(
           switchMap(advanceDetails => from(advanceDetails)),
           concatMap((advanceDetail, index) => {
@@ -533,6 +534,7 @@ export class OtherRequestsComponent implements OnInit {
           hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
         });
       } else {
+        // this case handels submit hotel request, makes sequential submit calls
         of(formValue.hotelDetails).pipe(
           switchMap(hotelDetails => from(hotelDetails)),
           concatMap((hotelDetail, index) => {
@@ -548,6 +550,7 @@ export class OtherRequestsComponent implements OnInit {
           transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
         });
       } else {
+        // this case handels submit transport request, makes sequential submit calls
         of(formValue.transportDetails).pipe(
           switchMap(transportDetails => from(transportDetails)),
           concatMap((transportDetail, index) => {
