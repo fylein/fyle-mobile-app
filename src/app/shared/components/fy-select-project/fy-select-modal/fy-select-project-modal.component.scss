@@ -1,3 +1,5 @@
+@import '../../../../../assets/styles/fy_select';
+
 $header-border: #ddd;
 $header-input: #f8f8f8;
 $sub-title: #ababab;
@@ -77,5 +79,9 @@ $list-element-color: #333;
 
   &--recently-used-block {
     margin-bottom: 20px;
+  }
+
+  &--autocomplete-loader {
+    @extend %autocomplete-loader;
   }
 }

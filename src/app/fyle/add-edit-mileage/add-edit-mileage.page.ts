@@ -1834,11 +1834,7 @@ export class AddEditMileagePage implements OnInit {
             return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return of({ etxn: err.etxn });
-                    })
-                  );
+                  return of({ etxn: err.etxn });
                 } else {
                   return throwError('unhandledError');
                 }
@@ -1848,11 +1844,7 @@ export class AddEditMileagePage implements OnInit {
             return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return of({ etxn: err.etxn, comment: continueWithTransaction.comment });
-                    })
-                  );
+                  return of({ etxn: err.etxn, comment: continueWithTransaction.comment });
                 } else {
                   return throwError('unhandledError');
                 }
@@ -2063,11 +2055,7 @@ export class AddEditMileagePage implements OnInit {
             return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return of({ etxn: err.etxn });
-                    })
-                  );
+                  return of({ etxn: err.etxn });
                 } else {
                   return throwError('unhandledError');
                 }
@@ -2078,12 +2066,7 @@ export class AddEditMileagePage implements OnInit {
               .pipe(
                 switchMap((continueWithTransaction) => {
                   if (continueWithTransaction) {
-                    return from(this.loaderService.showLoader())
-                      .pipe(
-                        switchMap(() => {
-                          return of({ etxn: err.etxn, comment: continueWithTransaction.comment });
-                        })
-                      );
+                    return of({ etxn: err.etxn, comment: continueWithTransaction.comment });
                   } else {
                     return throwError('unhandledError');
                   }

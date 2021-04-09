@@ -116,25 +116,22 @@ export class TeamReportsPage implements OnInit {
           order: orderByParams
         });
       }),
+      shareReplay(1)
+    );
+
+    this.teamReports$ = paginatedPipe.pipe(
       map(res => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
-    );
-
-    this.teamReports$ = paginatedPipe.pipe(
+      }),
       shareReplay(1)
     );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap(params => {
-        let queryParams = params.queryParams;
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getTeamReportsCount(queryParams);
-      }),
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
       shareReplay(1)
     );
 
