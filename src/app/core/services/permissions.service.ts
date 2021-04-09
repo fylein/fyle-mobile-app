@@ -2236,7 +2236,7 @@ export class PermissionsService {
     );
 
     return filteredRoles$.pipe(
-      map(filteredRoles => {
+      switchMap(filteredRoles => {
         return iif(() => filteredRoles.length > 0, allowedActions$, of(null));
       })
     );

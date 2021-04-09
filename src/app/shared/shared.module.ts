@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
+import { HighlightPipe} from './pipes/highlight.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake_case_to_space_case.pipe';
 import { TripState } from './pipes/trip-state.pipe';
@@ -32,6 +33,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ApproverDialogComponent } from './components/fy-apporver/approver-dialog/approver-dialog.component';
 import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
+import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -66,6 +68,7 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     AdvanceState,
     InitialsPipe,
     EllipsisPipe,
+    HighlightPipe,
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
@@ -105,6 +108,7 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
     FyViewAttachmentComponent,
+    FyHighlightTextComponent,
     FormatDateDirective
   ],
   imports: [
@@ -157,6 +161,7 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
     FyViewAttachmentComponent,
+    FyHighlightTextComponent,
     FormatDateDirective
   ],
   providers: [
