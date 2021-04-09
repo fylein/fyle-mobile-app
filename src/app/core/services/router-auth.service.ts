@@ -23,9 +23,6 @@ import { JwtHelperService } from './jwt-helper.service';
 })
 export class RouterAuthService {
 
-  private accessTokenTokenCallInProgress = false;
-  private accessTokenSubject: Subject<any> = new BehaviorSubject<any>(null);
-
   constructor(
     private routerApiService: RouterApiService,
     private storageService: StorageService,
@@ -129,60 +126,6 @@ export class RouterAuthService {
     );
   }
 
-  expiringSoon(accessToken: string): boolean {
-    try {
-      const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
-      const now = moment(new Date());
-      const differenceSeconds = expiryDate.diff(now, 'second');
-      const maxRefreshDifferenceSeconds = 2 * 60;
-      return differenceSeconds < maxRefreshDifferenceSeconds;
-    } catch (err) {
-      return true;
-    }
-  }
-
-  /**
-   * This method get current accessToken from Storage, check if this token is expiring or not.
-   * If the token is expiring it will get another accessToken from API and return the new accessToken
-   */
-  getValidAccessToken(): Observable<string> {
-    return from(this.tokenService.getAccessToken()).pipe(
-      concatMap(accessToken => {
-        if (this.expiringSoon(accessToken)) {
-          if (!this.accessTokenTokenCallInProgress) {
-            this.accessTokenTokenCallInProgress = true;
-            this.accessTokenSubject.next(null);
-            return from(this.tokenService.getRefreshToken()).pipe(
-              concatMap(refreshToken => {
-                return from(this.fetchAccessToken(refreshToken));
-              }),
-              concatMap(authResponse => {
-                return from(this.newAccessToken(authResponse.access_token))
-              }),
-              concatMap(() => {
-                return from(this.tokenService.getAccessToken())
-              }),
-              concatMap((newAccessToken) => {
-                this.accessTokenTokenCallInProgress = false;
-                this.accessTokenSubject.next(newAccessToken);
-                return of(newAccessToken);
-              })
-            );
-          } else {
-            return this.accessTokenSubject.pipe(
-              filter(result => result !== null),
-              take(1),
-              concatMap(() => {
-                return from(this.tokenService.getAccessToken())
-              })
-            );
-          }
-        } else {
-          return of(accessToken);
-        }
-      })
-    );
-  }
 
   checkIfFreeDomain(email: string) {
     const domainList = ['hotmail.com', 'rediffmail.com', 'yahoo.com', 'outlook.com'];
