@@ -3,7 +3,7 @@ import {Platform, MenuController, AlertController} from '@ionic/angular';
 import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
-import {map, switchMap, shareReplay, concatMap} from 'rxjs/operators';
+import {map, switchMap, shareReplay} from 'rxjs/operators';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {OfflineService} from 'src/app/core/services/offline.service';

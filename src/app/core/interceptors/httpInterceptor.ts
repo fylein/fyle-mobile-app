@@ -12,11 +12,14 @@ import {
 
 import { Observable, throwError, from, forkJoin, of, iif, Subject, BehaviorSubject } from 'rxjs';
 import { catchError, mergeMap, concatMap, filter, take } from 'rxjs/operators';
+
+import { JwtHelperService } from '../services/jwt-helper.service';
+
+import * as moment from 'moment';
 import { TokenService } from '../services/token.service';
 import { RouterAuthService } from '../services/router-auth.service';
 import { DeviceService } from '../services/device.service';
-import * as moment from 'moment';
-import { JwtHelperService } from '../services/jwt-helper.service';
+
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
