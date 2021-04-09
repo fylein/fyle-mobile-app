@@ -120,8 +120,7 @@ export class OtherRequestsComponent implements OnInit {
     customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
     customFields = customFields.map(customField => {
       if (customField.type === 'DATE' && customField.value) {
-        const updatedDate = new Date(customField.value);
-        customField.value = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
+        customField.value = moment(customField.value).format('y-MM-DD')
       }
       return {id: customField.id, name: customField.name, value: customField.value};
     });
