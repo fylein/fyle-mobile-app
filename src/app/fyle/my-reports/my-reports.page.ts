@@ -130,9 +130,7 @@ export class MyReportsPage implements OnInit {
       tap(console.log),
       concatMap((params) => {
         if (this.currentPageNumber === 1) {
-          return from(this.loaderService.showLoader('Loading Reports...')).pipe(
-            map(() => params)
-          );
+          return from(this.loaderService.showLoader('Loading Reports...')).pipe(map(() => params));
         } else {
           return of(params);
         }
