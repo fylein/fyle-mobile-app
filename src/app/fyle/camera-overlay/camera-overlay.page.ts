@@ -8,7 +8,7 @@ const { CameraPreview } = Plugins;
 import '@capacitor-community/camera-preview';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 
-import { from } from 'rxjs';
+import { from, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { toBase64String } from '@angular/compiler/src/output/source_map';
@@ -19,6 +19,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import {AuthService} from '../../core/services/auth.service';
+import { finalize, map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -97,19 +98,22 @@ export class CameraOverlayPage implements OnInit {
         // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
 
         from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings) => {
-
           if (imageBase64Strings.length > 0) {
-            this.loaderService.showLoader('Processing....');
-            imageBase64Strings.forEach((base64String, key) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.addExpenseToQueue('GALLERY_UPLOAD', base64PictureData);
-              if (key === imageBase64Strings.length - 1) {
-                this.transactionsOutboxService.sync().then((res) => {
-                  this.showGalleryUploadSuccessPopup(imageBase64Strings.length);
+            from(this.loaderService.showLoader('Processing....')).pipe(
+              map(() => {
+                imageBase64Strings.forEach((base64String) => {
+                  const base64PictureData = 'data:image/jpeg;base64,' + base64String;
+                  this.addExpenseToQueue('GALLERY_UPLOAD', base64PictureData);
                 });
-              }
+                return of(null);
+              }),
+              switchMap(() => {
+                return from(this.transactionsOutboxService.sync());
+              }),
+              finalize(() => this.loaderService.hideLoader())
+            ).subscribe(() => {
+              this.showGalleryUploadSuccessPopup(imageBase64Strings.length);
             });
-            this.loaderService.hideLoader();
           } else {
             this.setUpAndStartCamera();
           }
@@ -141,6 +145,7 @@ export class CameraOverlayPage implements OnInit {
   }
 
   addExpenseToQueue(source, imageBase64String) {
+    console.log("=========================", imageBase64String);
     const transaction = {
       billable: false,
       skip_reimbursement: false,
