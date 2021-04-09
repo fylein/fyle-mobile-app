@@ -1,17 +1,13 @@
 @import '../../../../../assets/styles/fy_select';
 
-$header-border: #ddd;
-$header-input: #f8f8f8;
 $sub-title: #ababab;
-$list-element-color: #333;
 
 .selection-modal {
   color: black;
   &--list-element {
     padding: 14px;
-    border-bottom: 1px solid $header-border;
-    font-size: 16px;
-    color: $list-element-color;
+    // border-color-font
+    @extend %fy-select-list-element-default-border-color-font;
     display: flex;
     align-items: center;
     &__default {
@@ -32,30 +28,19 @@ $list-element-color: #333;
   }
 
   &--title {
-    padding: 24px 0;
-    font-size: 24px;
-    font-weight: 600;
-    height: 100%;
-    line-height: 1.3;
+    @extend %fy-select-title;
   }
 
   &--header {
-    margin: 0;
-    padding: 10px 15px;
-    font-size: 14px;
-    border-bottom: 1px solid $header-border;
-    color: $sub-title
+    @extend %fy-select-header;
   }
 
   &--search-input {
-    padding: 0 12px;
-    font-size: 16px;
+    @extend %fy-select-search-input;
   }
 
   &--form-field {
-    font-size: 11px;
-    width: 94%;
-    padding: 4px;
+    @extend %fy-select-mat-form-field;
     .mat-form-field-wrapper {
       box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
     }
