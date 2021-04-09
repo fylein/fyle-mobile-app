@@ -8,6 +8,7 @@ import {OfflineService} from 'src/app/core/services/offline.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -34,7 +35,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private projectService: ProjectsService,
     private offlineService: OfflineService,
     private authService: AuthService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private utilityService: UtilityService
   ) {
   }
 
@@ -42,7 +44,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   }
 
   getProjects(searchNameText) {
+    // set isLoading to true
     this.isLoading = true;
+    // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
     this.cdr.detectChanges();
     const defaultProject$ = this.offlineService.getOrgUserSettings().pipe(
       switchMap(orgUserSettings => {
@@ -112,7 +116,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         }
       ),
       finalize(() => {
+        // set isLoading to false
         this.isLoading = false;
+        // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
         this.cdr.detectChanges();
       })
     );
@@ -165,15 +171,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText) => {
         return this.getRecentlyUsedItems().pipe(
-          map((recentrecentlyUsedItems) => {
-            if (searchText && searchText.length > 0) {
-              var searchTextLowerCase = searchText.toLowerCase();
-              return recentrecentlyUsedItems.filter( item => {
-                return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
-              });
-            }
-            return recentrecentlyUsedItems;
-          })
+          // filtering of recently used items wrt searchText is taken care in service method
+          this.utilityService.searchArrayStream(searchText)
         );
       })
     );

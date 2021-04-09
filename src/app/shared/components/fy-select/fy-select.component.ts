@@ -112,8 +112,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
     const { data } = await selectionModal.onWillDismiss();
 
-    console.log(data);
-
     if (data) {
       this.value = data.value;
     }

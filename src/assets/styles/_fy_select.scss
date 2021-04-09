@@ -1,3 +1,24 @@
+$brand-primary: #f36;
+
+// autocomplete loader SCSS and animation
+%autocomplete-loader {
+  animation: loading-circular 0.5s linear infinite;
+  fill: $brand-primary;
+  height: 16px;
+  width: 16px;
+  margin-right: 4px;
+}
+
+@keyframes loading-circular {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 // layout classes
 
 %flex-layout-row {

@@ -80,20 +80,6 @@ $list-element-color: #333;
   }
 
   &--autocomplete-loader {
-    animation: loading-circular 0.5s linear infinite;
-    fill: #f36;
-    height: 16px;
-    width: 16px;
-    margin-right: 4px;
-  }
-
-  @keyframes loading-circular {
-    from {
-      transform: rotate(0deg);
-    }
-
-    to {
-      transform: rotate(360deg);
-    }
+    @extend %autocomplete-loader;
   }
 }

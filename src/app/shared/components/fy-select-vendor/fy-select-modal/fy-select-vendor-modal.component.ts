@@ -6,6 +6,7 @@ import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { Vendor, VendorListItem } from 'src/app/core/models/vendor.model';
+import { UtilityService } from 'src/app/core/services/utility.service';
 @Component({
   selector: 'app-fy-select-vendor-modal',
   templateUrl: './fy-select-vendor-modal.component.html',
@@ -23,7 +24,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private vendorService: VendorService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private utilityService: UtilityService
   ) { }
 
   ngOnInit() {
@@ -56,7 +58,9 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       switchMap((searchText) => {
         searchText = searchText.trim();
         if (searchText) {
+          // set isLoading to true
           this.isLoading = true;
+          // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
           this.cdr.detectChanges();
           return this.vendorService.get(searchText).pipe(
             map(vendors => vendors.map(vendor => ({
@@ -67,7 +71,9 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
             catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
             map(vendors => [{ label: 'None', value: null }].concat(vendors)),
             finalize(() => {
+              // set isLoading to false
               this.isLoading = false;
+              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
               this.cdr.detectChanges();
             })
           );
@@ -99,15 +105,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText) => {
         return this.getRecentlyUsedVendors().pipe(
-          map((recentrecentlyUsedItems) => {
-            if (searchText && searchText.length > 0) {
-              var searchTextLowerCase = searchText.toLowerCase();
-              return recentrecentlyUsedItems.filter( item => {
-                return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
-              });
-            }
-            return recentrecentlyUsedItems;
-          })
+          // filtering of recently used items wrt searchText is taken care in service method
+          this.utilityService.searchArrayStream(searchText)
         );
       }),
     );

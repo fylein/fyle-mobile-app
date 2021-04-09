@@ -51,7 +51,7 @@ export class CccClassifiedActionsPage implements OnInit {
            return !!cccExpense.matched_by &&
              cccExpense.state !== 'SETTLED' &&
              cccExpense.state === 'IN_PROGRESS' &&
-             matchedExpense.every((expense) => ['COMPLETE', 'DRAFT', 'APPROVER_PENDING'].indexOf(expense.state) > -1);
+             matchedExpense.every((expense) => ['COMPLETE', 'DRAFT'].indexOf(expense.state) > -1);
          }));
         })
     );

@@ -23,9 +23,8 @@ export class RecentlyUsedItemsService {
     return this.apiService.get('/recently_used');
   }
 
-  getRecentlyUsedProjects(config: {orgUserSettings: OrgUserSettings, recentValues: RecentlyUsed, eou: ExtendedOrgUser, categoryIds: string[]}): Observable<ExtendedProject[]> {
-    if (config.orgUserSettings.expense_form_autofills.allowed && config.orgUserSettings.expense_form_autofills.enabled && config.recentValues 
-      && config.recentValues.recent_project_ids && config.recentValues.recent_project_ids.length > 0 && config.eou) {
+  getRecentlyUsedProjects(config: {recentValues: RecentlyUsed, eou: ExtendedOrgUser, categoryIds: string[]}): Observable<ExtendedProject[]> {
+    if (config.recentValues && config.recentValues.recent_project_ids && config.recentValues.recent_project_ids.length > 0 && config.eou) {
 
       return this.projectService.getByParamsUnformatted({
         orgId: config.eou.ou.org_id,
