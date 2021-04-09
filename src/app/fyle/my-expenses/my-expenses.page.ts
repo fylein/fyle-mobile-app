@@ -5,7 +5,7 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {catchError, concatMap, debounceTime, distinctUntilChanged, finalize, map, scan, shareReplay, skip, switchMap, take, tap} from 'rxjs/operators';
+import {catchError, concatMap, debounceTime, distinctUntilChanged, finalize, map, shareReplay, skip, switchMap, take, tap} from 'rxjs/operators';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-expenses-search-filter.component';
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
@@ -21,7 +21,6 @@ import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
-import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-my-expenses',
@@ -71,8 +70,13 @@ export class MyExpensesPage implements OnInit {
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
-  params$: Observable<Partial<{ pageNumber: number; queryParams: any; sortParam: string; sortDir: string; searchString: string; }>>;
-
+  params$: Observable<Partial<{
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }>>;
 
   constructor(
     private networkService: NetworkService,
@@ -254,11 +258,9 @@ export class MyExpensesPage implements OnInit {
 
     const paginatedPipe = this.params$.pipe(
       tap(console.log),
-      concatMap((params)=> {
+      concatMap((params) => {
         if (this.currentPageNumber === 1) {
-          return from(this.loaderService.showLoader('Loading Expenses...')).pipe(
-            map(() => params)
-          );
+          return from(this.loaderService.showLoader('Loading Expenses...')).pipe(map(() => params));
         } else {
           return of(params);
         }
@@ -284,7 +286,7 @@ export class MyExpensesPage implements OnInit {
           order: orderByParams
         });
       }),
-      tap(()=> {
+      tap(() => {
         if (this.currentPageNumber === 1) {
           return from(this.loaderService.hideLoader());
         } else {
