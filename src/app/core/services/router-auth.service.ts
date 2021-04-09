@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
-import { tap, switchMap, map, concatMap, filter, take } from 'rxjs/operators';
+import { tap, switchMap, map } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { AuthResponse } from '../models/auth-response.model';
-import { Observable, from, of, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { ApiV2Service } from './api-v2.service';
 import { DuplicateDetectionService } from './duplicate-detection.service';
@@ -15,8 +15,6 @@ import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { TripRequestPolicyService } from './trip-request-policy.service';
 import { PushNotificationService } from './push-notification.service';
-import * as moment from 'moment';
-import { JwtHelperService } from './jwt-helper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -36,8 +34,7 @@ export class RouterAuthService {
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private tripRequestPolicyService: TripRequestPolicyService,
-    private pushNotificationService: PushNotificationService,
-    private jwtHelperService: JwtHelperService
+    private pushNotificationService: PushNotificationService
   ) { }
 
   checkEmailExists(email) {
@@ -125,7 +122,6 @@ export class RouterAuthService {
       })
     );
   }
-
 
   checkIfFreeDomain(email: string) {
     const domainList = ['hotmail.com', 'rediffmail.com', 'yahoo.com', 'outlook.com'];

@@ -20,7 +20,6 @@ import { TokenService } from '../services/token.service';
 import { RouterAuthService } from '../services/router-auth.service';
 import { DeviceService } from '../services/device.service';
 
-
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
   private accessTokenTokenCallInProgress = false;
