@@ -55,7 +55,13 @@ export class MyReportsPage implements OnInit {
   onPageExit = new Subject();
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
-  params$: Observable<Partial<{ pageNumber: number; queryParams: any; sortParam: string; sortDir: string; searchString: string; }>>;
+  params$: Observable<Partial<{
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }>>;
 
   constructor(
     private networkService: NetworkService,
@@ -122,7 +128,7 @@ export class MyReportsPage implements OnInit {
 
     const paginatedPipe = this.params$.pipe(
       tap(console.log),
-      concatMap((params)=> {
+      concatMap((params) => {
         if (this.currentPageNumber === 1) {
           return from(this.loaderService.showLoader('Loading Reports...')).pipe(
             map(() => params)
@@ -142,7 +148,7 @@ export class MyReportsPage implements OnInit {
           order: orderByParams
         });
       }),
-      tap(()=> {
+      tap(() => {
         if (this.currentPageNumber === 1) {
           return from(this.loaderService.hideLoader());
         } else {
