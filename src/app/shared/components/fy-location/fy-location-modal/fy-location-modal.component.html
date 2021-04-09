@@ -14,7 +14,8 @@
   <ion-toolbar class="selection-modal--form-field-container">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
       <input #searchBar id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value">
-      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+      <mat-icon *ngIf="loader" class="selection-modal--autocomplete-loader" svgIcon="fy-spinner-circle" matSuffix></mat-icon>
+      <button mat-button *ngIf="!loader && value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
