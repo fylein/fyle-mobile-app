@@ -202,11 +202,6 @@ export class AppComponent implements OnInit {
     );
 
     this.isConnected$.pipe(
-      concatMap(isConnected => {
-        return this.routerAuthService.getValidAccessToken().pipe(
-          map(() => isConnected)
-        )
-      }),
       switchMap(isConnected => {
         return forkJoin({
           orgs: orgs$,

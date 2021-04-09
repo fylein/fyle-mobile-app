@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
-import { tap, switchMap, map, concatMap } from 'rxjs/operators';
+import { tap, switchMap, map, concatMap, filter, take } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { AuthResponse } from '../models/auth-response.model';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from, of, Subject, BehaviorSubject } from 'rxjs';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { ApiV2Service } from './api-v2.service';
 import { DuplicateDetectionService } from './duplicate-detection.service';
@@ -22,6 +22,9 @@ import { JwtHelperService } from './jwt-helper.service';
   providedIn: 'root'
 })
 export class RouterAuthService {
+
+  private accessTokenTokenCallInProgress = false;
+  private accessTokenSubject: Subject<any> = new BehaviorSubject<any>(null);
 
   constructor(
     private routerApiService: RouterApiService,
@@ -146,17 +149,34 @@ export class RouterAuthService {
     return from(this.tokenService.getAccessToken()).pipe(
       concatMap(accessToken => {
         if (this.expiringSoon(accessToken)) {
-          return from(this.tokenService.getRefreshToken()).pipe(
-            concatMap(refreshToken => {
-              return from(this.fetchAccessToken(refreshToken));
-            }),
-            concatMap(authResponse => {
-              return from(this.newAccessToken(authResponse.access_token))
-            }),
-            concatMap(() => {
-              return from(this.tokenService.getAccessToken())
-            })
-          );
+          if (!this.accessTokenTokenCallInProgress) {
+            this.accessTokenTokenCallInProgress = true;
+            this.accessTokenSubject.next(null);
+            return from(this.tokenService.getRefreshToken()).pipe(
+              concatMap(refreshToken => {
+                return from(this.fetchAccessToken(refreshToken));
+              }),
+              concatMap(authResponse => {
+                return from(this.newAccessToken(authResponse.access_token))
+              }),
+              concatMap(() => {
+                return from(this.tokenService.getAccessToken())
+              }),
+              concatMap((newAccessToken) => {
+                this.accessTokenTokenCallInProgress = false;
+                this.accessTokenSubject.next(newAccessToken);
+                return of(newAccessToken);
+              })
+            );
+          } else {
+            return this.accessTokenSubject.pipe(
+              filter(result => result !== null),
+              take(1),
+              concatMap(() => {
+                return from(this.tokenService.getAccessToken())
+              })
+            );
+          }
         } else {
           return of(accessToken);
         }
