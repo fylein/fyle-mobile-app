@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {from, Observable} from 'rxjs';
-import {CorporateCardExpense} from '../../core/models/corporate-card-expense.model';
+import {CorporateCardExpense} from '../../core/models/V2/corporate-card-expense.model';
 import {finalize, map, shareReplay, switchMap} from 'rxjs/operators';
-import {TxnDetail} from '../../core/models/txn-detail.model';
+import {TxnDetail} from '../../core/models/V2/txn-detail.model';
 import {PopupService} from '../../core/services/popup.service';
 import {LoaderService} from '../../core/services/loader.service';
 import {TransactionService} from '../../core/services/transaction.service';
@@ -61,7 +61,7 @@ export class CccClassifiedActionsPage implements OnInit {
     this.canUndoDismissal$ = this.cccExpense$.pipe(
       map(cccExpense => !cccExpense.matched_by && cccExpense.state === 'SETTLED' && cccExpense.ignored && !cccExpense.balance_transfer_id)
     );
-    this.collectedBack$ = this.cccExpense$.pipe(map(cccExpense => cccExpense.state === 'SETTLED' && cccExpense.balance_transfer_id));
+    this.collectedBack$ = this.cccExpense$.pipe(map(cccExpense => cccExpense.state === 'SETTLED' && !!cccExpense.balance_transfer_id));
 
   }
 
