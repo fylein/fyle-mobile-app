@@ -22,7 +22,7 @@ import { DeviceService } from '../services/device.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
-  private accessTokenTokenCallInProgress = false;
+  private accessTokenCallInProgress = false;
   private accessTokenSubject: Subject<any> = new BehaviorSubject<any>(null);
 
   constructor(
@@ -76,13 +76,14 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   /**
    * This method get current accessToken from Storage, check if this token is expiring or not.
    * If the token is expiring it will get another accessToken from API and return the new accessToken
+   * If multiple API call initiated then `this.accessTokenCallInProgress` will block multiple access_token call
    */
    getAccessToken(): Observable<string> {
     return from(this.tokenService.getAccessToken()).pipe(
       concatMap(accessToken => {
         if (this.expiringSoon(accessToken)) {
-          if (!this.accessTokenTokenCallInProgress) {
-            this.accessTokenTokenCallInProgress = true;
+          if (!this.accessTokenCallInProgress) {
+            this.accessTokenCallInProgress = true;
             this.accessTokenSubject.next(null);
             return from(this.tokenService.getRefreshToken()).pipe(
               concatMap(refreshToken => {
@@ -95,7 +96,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                 return from(this.tokenService.getAccessToken())
               }),
               concatMap((newAccessToken) => {
-                this.accessTokenTokenCallInProgress = false;
+                this.accessTokenCallInProgress = false;
                 this.accessTokenSubject.next(newAccessToken);
                 return of(newAccessToken);
               })
