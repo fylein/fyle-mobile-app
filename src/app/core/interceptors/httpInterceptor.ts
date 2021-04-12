@@ -77,6 +77,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
    * This method get current accessToken from Storage, check if this token is expiring or not.
    * If the token is expiring it will get another accessToken from API and return the new accessToken
    * If multiple API call initiated then `this.accessTokenCallInProgress` will block multiple access_token call
+   * Reference: https://stackoverflow.com/a/57638101
    */
    getAccessToken(): Observable<string> {
     return from(this.tokenService.getAccessToken()).pipe(
