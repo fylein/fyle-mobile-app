@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
+import { map, switchMap, tap, concatMap, reduce, shareReplay } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
 import {from, Observable, range, concat, forkJoin, Subject, of} from 'rxjs';
@@ -15,7 +15,9 @@ import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
-import {ReportService} from './report.service';
+import { ReportService } from './report.service';
+import { OfflineService } from './offline.service';
+
 
 const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({
@@ -35,7 +37,8 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private policyApiService: PolicyApiService
+    private policyApiService: PolicyApiService,
+    private offlineService: OfflineService
   ) { }
 
   @CacheBuster({
@@ -632,5 +635,36 @@ export class TransactionService {
         icon: 'fy-electric-car'
       }
     ];
+  }
+
+  getVehicleOptions() {
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings()
+    }).pipe(
+      map(({ orgSettings, orgUserMileageSettings }) => {
+        const mileageConfig = orgSettings.mileage;
+        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
+        type vehicleOption = {type: string; value: { type: string; icon: string }; label: string; icon: string};
+
+        const vehiclesList = this.getAllSupportedVehicles();
+        const allVehicleTypes = vehiclesList.map((vehicle: vehicleOption) => {
+          vehicle.value = {
+            type: vehicle.type,
+            icon: vehicle.icon
+          };
+          return vehicle;
+        });
+
+        return allVehicleTypes.filter(vehicle => {
+          if (orgUserMileageSettings.length > 0) {
+            return orgUserMileageSettings.indexOf(vehicle.type) > -1 && mileageConfig[vehicle.type];
+          } else {
+            return !!mileageConfig[vehicle.type];
+          }
+        });
+      }),
+      shareReplay(1)
+    );
   }
 }

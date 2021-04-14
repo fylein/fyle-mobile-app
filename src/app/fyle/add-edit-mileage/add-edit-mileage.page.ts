@@ -777,38 +777,6 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getVehicleOptions() {
-    return forkJoin({
-      orgSettings: this.offlineService.getOrgSettings(),
-      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings()
-    }).pipe(
-      map(({ orgSettings, orgUserMileageSettings }) => {
-        const mileageConfig = orgSettings.mileage;
-        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
-        type vehicleOption = {type: string; value: { type: string; icon: string }; label: string; icon: string};
-
-        const vehiclesList = this.transactionService.getAllSupportedVehicles();
-        const allVehicleTypes = vehiclesList.map((vehicle: vehicleOption) => {
-          vehicle.value = {
-            type: vehicle.type,
-            icon: vehicle.icon
-          };
-          return vehicle;
-        });
-
-        const vehicleOptions = allVehicleTypes.filter(vehicle => {
-          if (orgUserMileageSettings.length > 0) {
-            return orgUserMileageSettings.indexOf(vehicle.type) > -1 && mileageConfig[vehicle.type];
-          } else {
-            return !!mileageConfig[vehicle.type];
-          }
-        });
-        return vehicleOptions;
-      }),
-      shareReplay(1)
-    );
-  }
-
   ionViewWillEnter() {
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
@@ -908,7 +876,7 @@ export class AddEditMileagePage implements OnInit {
     });
 
     this.mileageConfig$ = this.getMileageConfig();
-    this.vehicleOptions$ = this.getVehicleOptions();
+    this.vehicleOptions$ = this.transactionService.getVehicleOptions();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
