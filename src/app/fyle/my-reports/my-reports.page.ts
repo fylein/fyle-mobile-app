@@ -116,9 +116,6 @@ export class MyReportsPage implements OnInit {
       this.loadData$ = new BehaviorSubject(params);
     }
 
-    this.params$ = this.loadData$.asObservable().pipe(
-      skip(1)
-    );
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
