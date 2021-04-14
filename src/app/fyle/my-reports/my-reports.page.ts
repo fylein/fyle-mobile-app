@@ -55,13 +55,6 @@ export class MyReportsPage implements OnInit {
   onPageExit = new Subject();
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
-  params$: Observable<Partial<{
-    pageNumber: number;
-    queryParams: any;
-    sortParam: string;
-    sortDir: string;
-    searchString: string;
-  }>>;
 
   constructor(
     private networkService: NetworkService,
@@ -102,9 +95,27 @@ export class MyReportsPage implements OnInit {
     this.acc = [];
 
     this.currentPageNumber = 1;
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1
-    });
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    } else if (this.activatedRoute.snapshot.params.state) {
+      const filters = {
+        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
+        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
+
+      this.filters = Object.assign({}, this.filters, filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    } else {
+      this.filters = {};
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    }
+
     this.params$ = this.loadData$.asObservable().pipe(
       skip(1)
     );
@@ -126,7 +137,7 @@ export class MyReportsPage implements OnInit {
         searchInput.focus();
       });
 
-    const paginatedPipe = this.params$.pipe(
+    const paginatedPipe = this.loadData$.pipe(
       tap(console.log),
       concatMap((params) => {
         if (this.currentPageNumber === 1) {
@@ -218,24 +229,6 @@ export class MyReportsPage implements OnInit {
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-
-    if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    } else if (this.activatedRoute.snapshot.params.state) {
-      const filters = {
-        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
-        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
-
-      this.filters = Object.assign({}, this.filters, filters);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    } else {
-      this.clearFilters();
-    }
   }
 
   setupNetworkWatcher() {
@@ -276,7 +269,16 @@ export class MyReportsPage implements OnInit {
   }
 
   addNewFiltersToParams() {
-    const currentParams = this.loadData$.getValue();
+    let currentParams: Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }> = {};
+    if (this.loadData$) {
+      currentParams = this.loadData$.getValue();
+    }
     currentParams.pageNumber = 1;
     const newQueryParams: any = {};
 
