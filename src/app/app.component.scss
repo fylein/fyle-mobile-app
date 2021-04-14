@@ -24,7 +24,7 @@ $sidenav-bg: #161528;
     position: relative;
     height: 100%;
     width: 100%;
-    --background: #161528;
+    --background: var(--ion-color-fyle-sidenav-bg);
     border-color: $sidenav-bg;
   }
 
