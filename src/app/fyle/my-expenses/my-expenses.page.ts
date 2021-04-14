@@ -439,7 +439,13 @@ export class MyExpensesPage implements OnInit {
   }
 
   addNewFiltersToParams() {
-    let currentParams:{[key: string]: any} = {};
+    let currentParams: Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }> = {};
     if (this.loadData$) {
       currentParams = this.loadData$.getValue();
     }
