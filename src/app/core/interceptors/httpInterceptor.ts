@@ -23,8 +23,6 @@ import { DeviceService } from '../services/device.service';
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
   private accessTokenCallInProgress = false;
-  // private accessTokenSubject: Subject<any> = new BehaviorSubject<any>(null);
-  // private accessTokenSubject: BehaviorSubject<string>;
   private accessTokenSubject = new BehaviorSubject<string>(null);
 
   constructor(
@@ -86,23 +84,18 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       concatMap(accessToken => {
         if (this.expiringSoon(accessToken)) {
           if (!this.accessTokenCallInProgress) {
-            console.log("--------inside if--------");
             this.accessTokenCallInProgress = true;
             this.accessTokenSubject.next(null);
             return this.refreshAccessToken().pipe(
               concatMap((newAccessToken) => {
-                console.log("--------triggering accessToken next--------", newAccessToken);
                 this.accessTokenCallInProgress = false;
                 this.accessTokenSubject.next(newAccessToken);
                 return of(newAccessToken);
               })
             );
           } else {
-            console.log("--------inside else--------");
             return this.accessTokenSubject.pipe(
-              tap(res => console.log("---1---->", res)),
               filter(result => result !== null),
-              tap(res1 => console.log("---2---->", res1)),
               take(1),
               concatMap(() => {
                 return from(this.tokenService.getAccessToken())
