@@ -1,13 +1,14 @@
 import {Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef} from '@angular/core';
 import {Observable, fromEvent, iif, of, from} from 'rxjs';
 import {ModalController} from '@ionic/angular';
-import {map, startWith, distinctUntilChanged, switchMap, tap, concatMap} from 'rxjs/operators';
+import {map, startWith, distinctUntilChanged, switchMap, tap, concatMap, finalize} from 'rxjs/operators';
 import {isEqual} from 'lodash';
 import {ProjectsService} from 'src/app/core/services/projects.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -26,6 +27,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;
+  isLoading = false;
 
   constructor(
     private modalController: ModalController,
@@ -33,15 +35,19 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private projectService: ProjectsService,
     private offlineService: OfflineService,
     private authService: AuthService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private utilityService: UtilityService
   ) {
   }
 
   ngOnInit() {
-
   }
 
   getProjects(searchNameText) {
+    // set isLoading to true
+    this.isLoading = true;
+    // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+    this.cdr.detectChanges();
     const defaultProject$ = this.offlineService.getOrgUserSettings().pipe(
       switchMap(orgUserSettings => {
         if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
@@ -108,7 +114,13 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
             projects.map(project => ({label: project.project_name, value: project}))
           );
         }
-      )
+      ),
+      finalize(() => {
+        // set isLoading to false
+        this.isLoading = false;
+        // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+        this.cdr.detectChanges();
+      })
     );
   }
 
@@ -117,6 +129,22 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+  }
+
+  getRecentlyUsedItems() {
+    if (this.recentlyUsed) {
+      return of(this.recentlyUsed);
+    } else {
+      return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+        map((options: any) => {
+          return options
+            .map(option => {
+              option.selected = isEqual(option.value, this.currentSelection);
+              return option;
+            });
+        })
+      );
+    }
   }
 
   ngAfterViewInit() {
@@ -137,19 +165,18 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    if (this.recentlyUsed) {
-      this.recentrecentlyUsedItems$ = of(this.recentlyUsed);
-    } else {
-      this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => {
-          return options
-            .map(option => {
-              option.selected = isEqual(option.value, this.currentSelection);
-              return option;
-            });
-        })
-      );
-    }
+    this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText) => {
+        return this.getRecentlyUsedItems().pipe(
+          // filtering of recently used items wrt searchText is taken care in service method
+          this.utilityService.searchArrayStream(searchText)
+        );
+      })
+    );
+    
     this.cdr.detectChanges();
   }
 

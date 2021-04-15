@@ -5,6 +5,7 @@ $reported_pill: #2196f3;
 $approved_pill: #66bb6a;
 $payment_processing_pill: #47a447;
 $paid_pill: #3d8b3d;
+$light_grey_border: #cccdd7;
 
 .ccc-classified-actions {
 
@@ -202,13 +203,11 @@ $paid_pill: #3d8b3d;
   &--primary-cta {
     height: 48px;
     font-size: 14px;
-    text-transform: uppercase;
     font-weight: 700;
-    border-radius: 8px;
     margin: 14px;
     width: 100%;
-    margin: 12px 8px;
-    --border-radius: 4px !important;
+    border-radius: 4px;
+    border: 1px solid $light_grey_border;
   }
 
   &--action-internal {

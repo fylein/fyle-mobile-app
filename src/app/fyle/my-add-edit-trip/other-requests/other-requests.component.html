@@ -26,8 +26,7 @@
                     on 
                     {{ fgValues.cities[i]?.onward_dt | date: 'MMM dd, yyyy' }}
                     <span>
-                      to 
-                      {{ otherDetailsForm.value.hotelDetails[i]?.checkOutDt | date: 'MMM dd, yyyy' }}
+                      to {{ otherDetailsForm.value.hotelDetails[i]?.checkOutDt | date: 'dd MMM yyyy' }}
                     </span>
                   </p>
                 </strong>
@@ -231,7 +230,6 @@
                     </p>
                   </span>
                 </strong>
-                <!-- Big Hack over, please try this at your own risk -->
               </div>
               <div class="other-details--element-container">
                 <div class="other-details--special-elements">

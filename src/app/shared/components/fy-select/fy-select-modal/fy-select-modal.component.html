@@ -31,7 +31,10 @@
              matRipple>
           <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
             <div class="selection-modal--label">
-              {{label}}
+              <app-fy-highlight-text
+                [fullText]="label"
+                [queryText]="value">
+              </app-fy-highlight-text>
             </div>
             <mat-icon *ngIf="selected">
               check
@@ -52,7 +55,10 @@
           <div class="selection-modal--recently-used-item-content">
             <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
             <span class="selection-modal--label">
-              {{label}}
+              <app-fy-highlight-text
+                [fullText]="label"
+                [queryText]="value">
+              </app-fy-highlight-text>
             </span>
           </div>
           <mat-icon *ngIf="selected">
@@ -71,7 +77,10 @@
              matRipple>
           <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
             <div class="selection-modal--label">
-              {{label}}
+              <app-fy-highlight-text
+                [fullText]="label"
+                [queryText]="value">
+              </app-fy-highlight-text>
             </div>
             <mat-icon *ngIf="selected">
               check
