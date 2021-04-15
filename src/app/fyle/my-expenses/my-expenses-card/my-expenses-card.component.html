@@ -88,13 +88,11 @@
 
         <div class="my-expenses-card--icons-container">
           <div class="my-expenses-card--ccc-icons">
-            <mat-icon *ngIf="isCCCExpense && !isCCCMatchedExpense" svgIcon="fy-matched-no"></mat-icon>
-            <mat-icon *ngIf="isCCCExpense && isCCCMatchedExpense" svgIcon="fy-matched-yes"></mat-icon>
+            <mat-icon *ngIf="isCCCExpense" svgIcon="{{isCCCMatchedExpense > 0 ? 'fy-matched-yes' : 'fy-matched-no'}}"></mat-icon>
           </div>
           <div *ngIf="isCCCExpense" class="my-expenses-card--divider"></div>
           <div class="my-expenses-card--receipt-icons">
-            <mat-icon *ngIf="isReceiptAttached" svgIcon="fy-receipt-attached"></mat-icon>
-            <mat-icon *ngIf="!isReceiptAttached" svgIcon="fy-receipt-not-attached"></mat-icon>
+            <mat-icon svgIcon="{{isReceiptAttached ? 'fy-receipt-attached' : 'fy-receipt-not-attached'}}"></mat-icon>
           </div>
         </div>
       </div>
