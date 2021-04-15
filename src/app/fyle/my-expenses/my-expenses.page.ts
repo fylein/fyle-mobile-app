@@ -21,6 +21,7 @@ import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
+type myExpensesParams = {pageNumber: number, queryParams: any, sortParam: string, sortDir: string, searchString: string};
 
 @Component({
   selector: 'app-my-expenses',
@@ -32,13 +33,7 @@ export class MyExpensesPage implements OnInit {
   myExpenses$: Observable<Expense[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
-  loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
-  }>>;
+  loadData$: BehaviorSubject<Partial<myExpensesParams>>;
   currentPageNumber = 1;
   acc = [];
   filters: Partial<{
@@ -439,13 +434,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   addNewFiltersToParams() {
-    let currentParams: Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }> = {};
+    let currentParams: Partial<myExpensesParams> = {};
     if (this.loadData$) {
       currentParams = this.loadData$.getValue();
     }
