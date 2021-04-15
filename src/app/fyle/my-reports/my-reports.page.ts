@@ -16,6 +16,7 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+type myReportsParams = {pageNumber: number, queryParams: any, sortParam: string, sortDir: string, searchString: string};
 
 @Component({
   selector: 'app-my-reports',
@@ -27,13 +28,7 @@ export class MyReportsPage implements OnInit {
   myReports$: Observable<ExtendedReport[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
-  loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
-  }>>;
+  loadData$: BehaviorSubject<Partial<myReportsParams>>;
   currentPageNumber = 1;
   acc = [];
   filters: Partial<{
@@ -266,13 +261,7 @@ export class MyReportsPage implements OnInit {
   }
 
   addNewFiltersToParams() {
-    let currentParams: Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }> = {};
+    let currentParams: Partial<myReportsParams> = {};
     if (this.loadData$) {
       currentParams = this.loadData$.getValue();
     }
