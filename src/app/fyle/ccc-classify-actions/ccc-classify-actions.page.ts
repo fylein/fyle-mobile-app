@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {CorporateCardExpense} from '../../core/models/corporate-card-expense.model';
+import {CorporateCardExpense} from '../../core/models/V2/corporate-card-expense.model';
 import {Observable} from 'rxjs';
 import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
 import {ExpenseSuggestionsService} from '../../core/services/expense-suggestions.service';
@@ -100,7 +100,6 @@ export class CccClassifyActionsPage implements OnInit {
       showCancelButton: false
     });
 
-    console.log(popupResult);
 
     if (popupResult === 'primary') {
       await this.loaderService.showLoader();

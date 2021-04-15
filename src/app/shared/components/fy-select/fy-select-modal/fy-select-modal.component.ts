@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import {from, fromEvent, Observable, of} from 'rxjs';
-import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -19,12 +20,12 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() nullOption = true;
   @Input() cacheName;
   @Input() customInput = false;
-  @Input() subheader;
   @Input() enableSearch;
   @Input() selectModalHeader = '';
   @Input() showSaveButton = false;
   @Input() placeholder = '';
   @Input() defaultLabelProp;
+  @Input() recentlyUsed: { label: string, value: any, selected?: boolean }[];
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -32,7 +33,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private utilityService: UtilityService
+
   ) { }
 
   ngOnInit() { }
@@ -42,6 +45,26 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+  }
+
+  getRecentlyUsedItems() {
+    // Check if recently items exists from api and set, else, set the recent items from the localStorage
+    if (this.recentlyUsed) {
+      return of(this.recentlyUsed);
+    } else {
+      return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
+        map((options: any) => {
+          return options
+            .filter(option => {
+              return option.custom || this.options.map(op => op.label).includes(option.label);
+            })
+            .map(option => {
+            option.selected = isEqual(option.value, this.currentSelection);
+            return option;
+          });
+        })
+      );
+    }
   }
 
   ngAfterViewInit() {
@@ -84,6 +107,17 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
           }
         )
       );
+      this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+        map((event: any) => event.srcElement.value),
+        startWith(''),
+        distinctUntilChanged(),
+        switchMap((searchText) => {
+          return this.getRecentlyUsedItems().pipe(
+            // filtering of recently used items wrt searchText is taken care in service method
+            this.utilityService.searchArrayStream(searchText)
+          );
+        })
+      );
     } else {
       const initial = [];
 
@@ -101,18 +135,6 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         );
     }
 
-    this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-      map((options: any) => {
-        return options
-          .filter(option => {
-            return option.custom || this.options.map(op => op.label).includes(option.label);
-          })
-          .map(option => {
-          option.selected = isEqual(option.value, this.currentSelection);
-          return option;
-        });
-      })
-    );
     this.cdr.detectChanges();
   }
 

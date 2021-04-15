@@ -73,7 +73,7 @@
                     This expense has violated a critical policy. You cannot create a report with this expense.
                   </ng-container>
                   <ng-template #justAmountCapped>
-                    Claimed amount {{etxn.tx.user_amount}} was capped to {{etxn.tx.amount}} due to policy <span
+                    Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number: '1.0-2'}} due to policy <span
                     *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
                   </ng-template>
                 </div>
@@ -93,7 +93,7 @@
                     {{fg.controls.currencyObj?.value?.currency}} {{fg.controls.currencyObj?.value?.amount | number: '1.0-2'}}
                   </div>
                   <div class="add-edit-per-diem--conversion-rate">
-                    at {{ fg.controls.currencyObj?.value?.amount / fg.controls.currencyObj?.value?.orig_amount }}
+                    at {{ (fg.controls.currencyObj?.value?.amount / fg.controls.currencyObj?.value?.orig_amount) | number:'1.0-7' }}
                     {{fg.controls.currencyObj?.value?.currency}} / {{fg.controls.currencyObj?.value?.orig_currency}}
                   </div>
                 </div>
@@ -113,8 +113,8 @@
                             *
                           </div>
                         </div>
-                        <input [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit" [min]="minDate"
-                               class="add-edit-per-diem--date-input"
+                        <input appFormatDate [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit" [min]="minDate"
+                               class="add-edit-per-diem--date-input date-input__format"
                                formControlName="from_dt"
                                type="date">
                       </div>
@@ -136,8 +136,8 @@
                             *
                           </div>
                         </div>
-                        <input [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
-                               [min]="minPerDiemDate" class="add-edit-per-diem--date-input"
+                        <input appFormatDate [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
+                               [min]="minPerDiemDate" class="add-edit-per-diem--date-input date-input__format"
                                formControlName="to_dt"
                                name="toDate"
                                type="date">
@@ -205,7 +205,6 @@
                         [options]="paymentModes"
                         [selectModalHeader]="'Choose Payment Mode'"
                         [selectionElement]="paymentMode"
-                        [subheader]="'All Payment Modes'"
                         formControlName="paymentMode">
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -298,6 +297,7 @@
                                 [defaultValue]="true"
                                 [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
                                 [mandatory]="transactionMandatoyFields?.project"
+                                [recentlyUsed]="recentProjects"
                                 formControlName="project">
                               </app-fy-select-project>
                             </div>
@@ -366,7 +366,7 @@
                                  inputmode="decimal"
                                  type="number">
 
-                          <input *ngIf="customInput.type === 'DATE'" class="add-edit-per-diem--date-input"
+                          <input appFormatDate *ngIf="customInput.type === 'DATE'" class="add-edit-per-diem--date-input date-input__format"
                                  formControlName="value"
                                  type="date">
                         </div>
@@ -392,7 +392,6 @@
                             [mandatory]="customInput.mandatory"
                             [options]="customInput.options"
                             [selectModalHeader]="'Choose '+customInput.name"
-                            [subheader]="customInput.name"
                             formControlName="value">
                           </app-fy-select>
                         </div>
@@ -426,6 +425,7 @@
                           [mandatory]="txnFields.cost_center_id.mandatory"
                           [options]="costCenters"
                           [selectModalHeader]="'Select Cost Center'"
+                          [recentlyUsed]="recentCostCenters"
                           formControlName="costCenter">
                         </app-fy-select>
                       </div>

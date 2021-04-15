@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {CorporateCardExpense} from '../../../core/models/corporate-card-expense.model';
+import {CorporateCardExpense} from '../../../core/models/V2/corporate-card-expense.model';
 import {ModalController} from '@ionic/angular';
 import {PopupService} from '../../../core/services/popup.service';
 
@@ -19,9 +19,7 @@ export class MatchTransactionComponent implements OnInit {
     private popupService: PopupService
   ) { }
 
-  ngOnInit() {
-    console.log(this.matchingCCCTransactions);
-  }
+  ngOnInit() { }
 
   onDoneClick() {
     this.modalController.dismiss();

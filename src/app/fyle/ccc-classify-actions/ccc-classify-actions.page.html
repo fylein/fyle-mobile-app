@@ -23,7 +23,7 @@
       </span>
       </div>
       <div class="ccc-classify-actions--date">
-        {{cccExpense.txn_dt | date: 'MMM dd yyyy'}}
+        {{cccExpense.txn_dt | date: 'MMM dd, yyyy'}}
       </div>
       <div class="ccc-classify-actions--vendor">
         <ng-container *ngIf="cccExpense.vendor; else description">
@@ -63,7 +63,7 @@
       <div (click)="openMatchExpensePopover(expense)" *ngFor="let expense of expenseSuggestions"
            class="ccc-classify-actions--classify-details">
         <div class="ccc-classify-actions--classify-details-date">
-          {{expense.txn_dt | date:'MMM d'}}
+          {{expense.txn_dt | date:'MMM dd, yyyy'}}
         </div>
         <div class="ccc-classify-actions--classify-details-amount">
           {{expense.amount | currency:expense.currency: 'symbol-narrow'}}

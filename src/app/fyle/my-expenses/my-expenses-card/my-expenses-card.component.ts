@@ -49,7 +49,7 @@ export class MyExpensesCardComponent implements OnInit {
   ) { }
 
   get isSelected() {
-    return this.selectedElements.includes(this.expense.tx_id);
+    return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
   }
 
   getVendorDetails(expense) {

@@ -43,7 +43,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     if (this.exchangeRate) {
       this.fg.setValue({
         newCurrencyAmount: this.amount,
-        exchangeRate: this.exchangeRate,
+        exchangeRate: this.toFixed(this.exchangeRate, 7),
         homeCurrencyAmount: this.toFixed((this.exchangeRate * this.amount), 2)
       });
     } else {

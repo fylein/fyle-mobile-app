@@ -35,6 +35,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() showSaveButton = false;
   @Input() placeholder = '';
   @Input() defaultLabelProp;
+  @Input() recentlyUsed: { label: string, value: any, selected?: boolean }[];
 
   private innerValue;
   displayValue;
@@ -102,15 +103,14 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         selectModalHeader: this.selectModalHeader || 'Select Item',
         placeholder: this.placeholder,
         showSaveButton: this.showSaveButton,
-        defaultLabelProp: this.defaultLabelProp
+        defaultLabelProp: this.defaultLabelProp,
+        recentlyUsed: this.recentlyUsed
       }
     });
 
     await selectionModal.present();
 
     const { data } = await selectionModal.onWillDismiss();
-
-    console.log(data);
 
     if (data) {
       this.value = data.value;

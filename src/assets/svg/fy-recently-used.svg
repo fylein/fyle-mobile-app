@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 19 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Recently used icon</title>
+    <g id="Webapp" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Web-app" transform="translate(-863.000000, -232.000000)">
+            <g id="Group" transform="translate(863.000000, 233.000000)">
+                <path d="M3.10080128,12.0677022 C4.77341296,14.6302894 7.07314587,15.9410554 10,16 C14.3902812,16.0884169 18,12.418278 18,8 C18,3.581722 14.418278,-7.28306304e-14 10,-7.28306304e-14 C5.581722,-7.28306304e-14 2,3.581722 2,8" id="Oval" stroke="#5A5D72" stroke-linecap="round"></path>
+                <polygon id="Triangle" fill="#5A5D72" transform="translate(2.000000, 9.000000) scale(-1, -1) translate(-2.000000, -9.000000) " points="2 8 4 10 0 10"></polygon>
+                <path d="M9.5,8.5 L9.5,3.5 M9.5,8.5 L13.5,10.5" id="Combined-Shape" stroke="#5A5D72" stroke-linecap="round"></path>
+            </g>
+        </g>
+    </g>
+</svg>

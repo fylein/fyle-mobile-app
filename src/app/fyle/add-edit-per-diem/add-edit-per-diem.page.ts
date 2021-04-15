@@ -44,6 +44,10 @@ import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detecti
 import {TrackingService} from '../../core/services/tracking.service';
 import {CurrencyPipe} from '@angular/common';
 import {TokenService} from 'src/app/core/services/token.service';
+import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-items.service';
+import {RecentlyUsed} from 'src/app/core/models/V1/recently_used.model';
+import {ExtendedProject} from 'src/app/core/models/V2/extended-project.model';
+import { CostCenter } from 'src/app/core/models/V1/cost-center.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -94,6 +98,13 @@ export class AddEditPerDiemPage implements OnInit {
   clusterDomain: string;
   initialFetch;
   individualPerDiemRatesEnabled$: Observable<boolean>;
+  recentlyUsedValues$: Observable<RecentlyUsed>;
+  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  presetProjectId: number;
+  recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
+  presetCostCenterId: number;
+  recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   isProjectVisible$: Observable<boolean>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -133,7 +144,8 @@ export class AddEditPerDiemPage implements OnInit {
     private navController: NavController,
     private trackingService: TrackingService,
     private currencyPipe: CurrencyPipe,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private recentlyUsedItemsService: RecentlyUsedItemsService
   ) {
   }
 
@@ -352,8 +364,8 @@ export class AddEditPerDiemPage implements OnInit {
           switchMap(({tfcMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );
@@ -369,7 +381,6 @@ export class AddEditPerDiemPage implements OnInit {
 
         return tfcMap;
       }),
-      tap(console.log),
       shareReplay(1)
     );
   }
@@ -385,8 +396,8 @@ export class AddEditPerDiemPage implements OnInit {
           switchMap(({tfcMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.transactionFieldConfigurationService
-              .filterByOrgCategoryIdProjectId(
-                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory, formValue.project
+              .filterByOrgCategoryId(
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );
@@ -690,6 +701,17 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.setupNetworkWatcher();
 
+    this.recentlyUsedValues$ = this.isConnected$.pipe(
+      take(1),
+      switchMap(isConnected => {
+        if (isConnected) {
+          return this.recentlyUsedItemsService.getRecentlyUsed();
+        } else {
+          return of(null);
+        }
+      })
+    );
+
     const allowedPerDiemRates$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         return forkJoin({
@@ -773,8 +795,6 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
-    this.allowedPerDiemRateOptions$.subscribe(console.log);
-
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
       filter(isConnected => !!isConnected),
       switchMap(() => {
@@ -850,6 +870,15 @@ export class AddEditPerDiemPage implements OnInit {
           label: costCenter.name,
           value: costCenter
         }));
+      })
+    );
+
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$
+    }).pipe(
+      concatMap(({costCenters, recentValue}) => {
+        return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
       })
     );
 
@@ -982,7 +1011,7 @@ export class AddEditPerDiemPage implements OnInit {
           if (perDiemRate.currency === homeCurrency) {
             this.fg.controls.currencyObj.setValue({
               currency: perDiemRate.currency,
-              amount: perDiemRate.rate * numDays,
+              amount: (perDiemRate.rate * numDays).toFixed(2),
               orig_currency: null,
               orig_amount: null
             });
@@ -1008,9 +1037,9 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]) => {
         this.fg.controls.currencyObj.setValue({
           currency: homeCurrency,
-          amount: perDiemRate.rate * numDays * exchangeRate,
+          amount: (perDiemRate.rate * numDays * exchangeRate).toFixed(2),
           orig_currency: perDiemRate.currency,
-          orig_amount: perDiemRate.rate * numDays
+          orig_amount: (perDiemRate.rate * numDays).toFixed(2)
         });
       });
 
@@ -1079,6 +1108,20 @@ export class AddEditPerDiemPage implements OnInit {
         .map(res => res.value)
         .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me')
       )
+    );
+
+    this.recentlyUsedProjects$ = forkJoin({
+      recentValues: this.recentlyUsedValues$,
+      perDiemCategoryIds: this.projectCategoryIds$,
+      eou: this.authService.getEou()
+    }).pipe(
+        switchMap(({recentValues, perDiemCategoryIds, eou}) => {
+          return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+            recentValues,
+            eou,
+            categoryIds: perDiemCategoryIds
+          });
+        })
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
@@ -1169,14 +1212,18 @@ export class AddEditPerDiemPage implements OnInit {
           selectedReport$,
           selectedCostCenter$,
           selectedCustomInputs$,
-          defaultPaymentMode$
+          defaultPaymentMode$,
+          orgUserSettings$,
+          this.recentlyUsedValues$,
+          this.recentlyUsedProjects$,
+          this.recentlyUsedCostCenters$
         ]);
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(([
-                   etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode
-                 ]) => {
+                   etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode,
+                   orgUserSettings, recentValue, recentProjects, recentCostCenters]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1192,6 +1239,53 @@ export class AddEditPerDiemPage implements OnInit {
             };
           }
         });
+
+      // Check if auto-fills is enabled
+      const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+
+      // Check if recent projects exist
+      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+
+      if (recentProjects && recentProjects.length > 0) {
+        this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
+      }
+
+      /* Autofill project during these cases:
+      * 1. Autofills is allowed and enabled
+      * 2. During add expense - When project field is empty
+      * 3. During edit expense - When the expense is in draft state and there is no project already added
+      * 4. When there exists recently used project ids to auto-fill
+      */
+      if (doRecentProjectIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))) {
+        const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
+
+        if (autoFillProject) {
+          project = autoFillProject;
+          this.presetProjectId = project.project_id;
+        }
+      }
+
+      // Check if recent cost centers exist
+      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+
+      if (recentCostCenters && recentCostCenters.length > 0) {
+        this.recentCostCenters = recentCostCenters;
+      }
+
+      /* Autofill cost center during these cases:
+       * 1. Autofills is allowed and enabled
+       * 2. During add expense - When cost center field is empty
+       * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
+       * 4. When there exists recently used cost center ids to auto-fill
+       */
+      if (doRecentCostCenterIdsExist && (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))) {
+        const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
+
+        if (autoFillCostCenter) {
+          costCenter = autoFillCostCenter.value;
+          this.presetCostCenterId = autoFillCostCenter.value.id;
+        }
+      }
 
       this.fg.patchValue({
         paymentMode: paymentMode || defaultPaymentMode,
@@ -1490,7 +1584,9 @@ export class AddEditPerDiemPage implements OnInit {
                     Amount: etxn.tx.amount,
                     Currency: etxn.tx.currency,
                     Category: etxn.tx.org_category,
-                    Time_Spent: this.getTimeSpentOnPage() + ' secs'
+                    Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                    Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
+                    Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId))
                 });
 
                 if (comment) {
@@ -1656,7 +1752,9 @@ export class AddEditPerDiemPage implements OnInit {
                   Amount: etxn.tx.amount,
                   Currency: etxn.tx.currency,
                   Category: etxn.tx.org_category,
-                  Time_Spent: this.getTimeSpentOnPage() + ' secs'
+                  Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                  Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
+                  Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId))
                 });
               } else {
                 // tracking expense closed without editing

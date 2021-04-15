@@ -1,11 +1,12 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
 import { Observable, fromEvent, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { Vendor, VendorListItem } from 'src/app/core/models/vendor.model';
+import { UtilityService } from 'src/app/core/services/utility.service';
 @Component({
   selector: 'app-fy-select-vendor-modal',
   templateUrl: './fy-select-vendor-modal.component.html',
@@ -17,12 +18,14 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   @Input() filteredOptions$: Observable<VendorListItem[]>;
   recentrecentlyUsedItems$: Observable<VendorListItem[]>;
   value = '';
+  isLoading = false;
 
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private vendorService: VendorService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private utilityService: UtilityService
   ) { }
 
   ngOnInit() {
@@ -36,6 +39,18 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  getRecentlyUsedVendors() {
+    return from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
+      map((options: VendorListItem[]) => {
+        return options
+          .map(option => {
+          option.selected = isEqual(option.value, this.currentSelection);
+          return option;
+        });
+      })
+    );
+  }
+
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
@@ -43,6 +58,10 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       switchMap((searchText) => {
         searchText = searchText.trim();
         if (searchText) {
+          // set isLoading to true
+          this.isLoading = true;
+          // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+          this.cdr.detectChanges();
           return this.vendorService.get(searchText).pipe(
             map(vendors => vendors.map(vendor => ({
               label: vendor.display_name,
@@ -50,7 +69,13 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
             }))
             ),
             catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
-            map(vendors => [{ label: 'None', value: null }].concat(vendors))
+            map(vendors => [{ label: 'None', value: null }].concat(vendors)),
+            finalize(() => {
+              // set isLoading to false
+              this.isLoading = false;
+              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+              this.cdr.detectChanges();
+            })
           );
         } else {
           return [];
@@ -74,14 +99,16 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    this.recentrecentlyUsedItems$ = from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
-      map((options: VendorListItem[]) => {
-        return options
-          .map(option => {
-          option.selected = isEqual(option.value, this.currentSelection);
-          return option;
-        });
-      })
+    this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText) => {
+        return this.getRecentlyUsedVendors().pipe(
+          // filtering of recently used items wrt searchText is taken care in service method
+          this.utilityService.searchArrayStream(searchText)
+        );
+      }),
     );
 
     this.cdr.detectChanges();
