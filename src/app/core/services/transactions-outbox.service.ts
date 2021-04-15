@@ -14,6 +14,7 @@ import { ReceiptService } from './receipt.service';
 import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import {TrackingService} from './tracking.service';
+import { errorMonitor } from 'events';
 
 @Injectable({
   providedIn: 'root'
@@ -362,28 +363,29 @@ export class TransactionsOutboxService {
   parseReceipt(data, fileType?): Promise<ParsedReceipt> {
     const url = this.ROOT_ENDPOINT + '/data_extraction/extract';
     let suggestedCurrency = null;
-    const fileName = (fileType && fileType === 'pdf') ? '000.pdf' : '000.jpeg';
+    const fileName = (fileType && fileType === 'pdf') ? '000.pdf' : '000.jpedg';
+    let dataExtractionPaylaod = {};
 
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
     return this.offlineService.getHomeCurrency().toPromise().then((homeCurrency) => {
       suggestedCurrency = homeCurrency;
-      return this.httpClient.post(url, {
+      dataExtractionPaylaod = {
         files: [{
           name: fileName,
           content: data
         }],
         suggested_currency: suggestedCurrency
-      }).toPromise()
+      };
+      return this.httpClient.post(url, dataExtractionPaylaod).toPromise()
       .then(res => res as ParsedReceipt);
     }).catch((err) => {
-      return this.httpClient.post(url, {
-        files: [{
-          name: fileName,
-          content: data
-        }],
-        suggested_currency: suggestedCurrency
-      }).toPromise()
-      .then(res => res as ParsedReceipt);
+      return this.httpClient.post(url, dataExtractionPaylaod).toPromise()
+      .then(res => res as ParsedReceipt)
+      .catch((error) => {
+        console.log(error);
+        this.trackingService.dataExtractionFailed({dataExtractionPaylaod})
+        return error;
+      })
     });
   }
 

@@ -684,4 +684,9 @@ export class TrackingService {
   corporateCardsOpenedDropdown(properties) {
     this.eventTrack('corporate cards opened dropdown', properties);
   }
+
+  dataExtractionFailed(payload) {
+    console.log(payload);
+    this.eventTrack('DE failed', payload);
+  }
 }
