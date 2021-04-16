@@ -81,15 +81,11 @@ export class MyReportsPage implements OnInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  ionViewWillEnter() {
-    this.setupNetworkWatcher();
-
-    this.searchText = '';
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-    console.log(this.navigateBack);
-    this.acc = [];
-
-    this.currentPageNumber = 1;
+  /**
+   * Todo: Part of this method's logic is same as in my-expenses initializeLoadData() method, 
+   * Need to remove duplication here later
+   */
+  initializeLoadData() {
     if (this.activatedRoute.snapshot.queryParams.filters) {
       this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
       this.currentPageNumber = 1;
@@ -110,7 +106,18 @@ export class MyReportsPage implements OnInit {
       const params = this.addNewFiltersToParams();
       this.loadData$ = new BehaviorSubject(params);
     }
+  }
 
+  ionViewWillEnter() {
+    this.setupNetworkWatcher();
+
+    this.searchText = '';
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    console.log(this.navigateBack);
+    this.acc = [];
+
+    this.currentPageNumber = 1;
+    this.initializeLoadData();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')

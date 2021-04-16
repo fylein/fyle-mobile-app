@@ -169,6 +169,37 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
+  /**
+   * Todo: Part of this method's logic is same as in my-reports initializeLoadData() method, 
+   * Need to remove duplication here later
+   */
+  initializeLoadData() {
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    } else if (this.activatedRoute.snapshot.params.state) {
+      let filters = {};
+      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
+        filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
+        filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
+        filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
+      }
+      this.filters = Object.assign({}, this.filters, filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    } else {
+      this.filters = {};
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    }
+  }
+
   ionViewWillEnter() {
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
@@ -196,32 +227,7 @@ export class MyExpensesPage implements OnInit {
     this.simpleSearchText = '';
 
     this.currentPageNumber = 1;
-
-    if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$ = new BehaviorSubject(params);
-    } else if (this.activatedRoute.snapshot.params.state) {
-      let filters = {};
-      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
-        filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
-      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
-        filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
-      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
-        filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
-      }
-      this.filters = Object.assign({}, this.filters, filters);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$ = new BehaviorSubject(params);
-    } else {
-      this.filters = {};
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$ = new BehaviorSubject(params);
-    }
-
+    this.initializeLoadData();
     this.selectionMode = false;
     this.selectedElements = [];
 
