@@ -18,7 +18,6 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { ReportService } from './report.service';
 import { OfflineService } from './offline.service';
 
-
 const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({
   providedIn: 'root'
@@ -638,6 +637,8 @@ export class TransactionService {
   }
 
   getVehicleOptions() {
+    type vehicleOption = {type: string; value: { type: string; icon: string }; label: string; icon: string};
+
     return forkJoin({
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings()
@@ -645,7 +646,6 @@ export class TransactionService {
       map(({ orgSettings, orgUserMileageSettings }) => {
         const mileageConfig = orgSettings.mileage;
         orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
-        type vehicleOption = {type: string; value: { type: string; icon: string }; label: string; icon: string};
 
         const vehiclesList = this.getAllSupportedVehicles();
         const allVehicleTypes = vehiclesList.map((vehicle: vehicleOption) => {
