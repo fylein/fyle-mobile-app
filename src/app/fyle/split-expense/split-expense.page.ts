@@ -378,11 +378,6 @@ export class SplitExpensePage implements OnInit {
         this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
         this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
       });
-
-    
-
-
-
     });
 
   }
