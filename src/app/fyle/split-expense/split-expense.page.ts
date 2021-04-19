@@ -241,15 +241,16 @@ export class SplitExpensePage implements OnInit {
         return;
       }
       let canCreateNegativeExpense = true;
-      canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
-        const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
-        this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
+      this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
+        
+        canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
+          const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
           if (!isCorporateCardsEnabled && negativeAmountPresent) {
             defaultValue = false && defaultValue;
           }
-        });
-        return defaultValue;
-      }, true);
+          return defaultValue;
+        }, true);
+      });
 
       if (!canCreateNegativeExpense) {
         this.showErrorBlock = true;
@@ -259,7 +260,6 @@ export class SplitExpensePage implements OnInit {
         }, 2500);
         return;
       }
-
 
       this.saveSplitExpenseLoading = true;
       const generatedSplitEtxn = [];
