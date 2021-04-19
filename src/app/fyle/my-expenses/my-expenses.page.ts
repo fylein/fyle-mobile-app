@@ -5,7 +5,7 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
+import {catchError, concatMap, debounceTime, distinctUntilChanged, finalize, map, shareReplay, skip, switchMap, take, tap} from 'rxjs/operators';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-expenses-search-filter.component';
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
@@ -21,6 +21,13 @@ import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
+type myExpensesParams = {
+  pageNumber: number,
+  queryParams: any,
+  sortParam: string,
+  sortDir: string,
+  searchString: string
+};
 
 @Component({
   selector: 'app-my-expenses',
@@ -32,13 +39,7 @@ export class MyExpensesPage implements OnInit {
   myExpenses$: Observable<Expense[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
-  loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
-  }>>;
+  loadData$: BehaviorSubject<Partial<myExpensesParams>>;
   currentPageNumber = 1;
   acc = [];
   filters: Partial<{
@@ -70,7 +71,6 @@ export class MyExpensesPage implements OnInit {
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
-
 
   constructor(
     private networkService: NetworkService,
@@ -175,6 +175,37 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
+  /**
+   * Todo: Part of this method's logic is same as in my-reports initializeLoadData() method, 
+   * Need to remove duplication here later
+   */
+  initializeLoadData() {
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    } else if (this.activatedRoute.snapshot.params.state) {
+      let filters = {};
+      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
+        filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
+        filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
+        filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
+      }
+      this.filters = Object.assign({}, this.filters, filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    } else {
+      this.filters = {};
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    }
+  }
+
   ionViewWillEnter() {
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
@@ -191,8 +222,6 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    // this.loaderService.showLoader('Loading Expenses...');
-
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
     });
@@ -204,10 +233,7 @@ export class MyExpensesPage implements OnInit {
     this.simpleSearchText = '';
 
     this.currentPageNumber = 1;
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1
-    });
-
+    this.initializeLoadData();
     this.selectionMode = false;
     this.selectedElements = [];
 
@@ -249,6 +275,14 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
+      tap(console.log),
+      concatMap((params) => {
+        if (this.currentPageNumber === 1) {
+          return from(this.loaderService.showLoader('Loading Expenses...')).pipe(map(() => params));
+        } else {
+          return of(params);
+        }
+      }),
       switchMap((params) => {
         let defaultState;
         if (this.baseState === 'all') {
@@ -263,52 +297,36 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = queryParams.tx_state || defaultState;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
-        return this.transactionService.getMyExpensesCount(queryParams).pipe(
-          switchMap((count) => {
-            if (count > ((params.pageNumber - 1) * 10)) {
-              return this.transactionService.getMyExpenses({
-                offset: (params.pageNumber - 1) * 10,
-                limit: 10,
-                queryParams,
-                order: orderByParams
-              });
-            } else {
-             return of({
-               data: []
-             });
-            }
-        })
-        );
+        return this.transactionService.getMyExpenses({
+          offset: (params.pageNumber - 1) * 10,
+          limit: 10,
+          queryParams,
+          order: orderByParams
+        });
       }),
+      tap(() => {
+        if (this.currentPageNumber === 1) {
+          return from(this.loaderService.hideLoader());
+        } else {
+          return of(null);
+        }
+      }),
+      shareReplay(1)
+    );
+
+    this.myExpenses$ = paginatedPipe.pipe(
       map(res => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
-    );
-
-    this.myExpenses$ = paginatedPipe.pipe(
+      }),
       shareReplay(1)
     );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap(params => {
-        let queryParams = params.queryParams || {};
-
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.transactionService.getMyExpensesCount(queryParams);
-      }),
+    this.count$ =  paginatedPipe.pipe(
+      map(res => res.count),
       shareReplay(1)
     );
 
@@ -375,27 +393,6 @@ export class MyExpensesPage implements OnInit {
     this.myExpenses$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    } else if (this.activatedRoute.snapshot.params.state) {
-      let filters = {};
-      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
-        filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
-      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
-        filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
-      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
-        filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
-      }
-      this.filters = Object.assign({}, this.filters, filters);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    } else {
-      this.clearFilters();
-    }
   }
 
   setupNetworkWatcher() {
@@ -449,7 +446,10 @@ export class MyExpensesPage implements OnInit {
   }
 
   addNewFiltersToParams() {
-    const currentParams = this.loadData$.getValue();
+    let currentParams: Partial<myExpensesParams> = {};
+    if (this.loadData$) {
+      currentParams = this.loadData$.getValue();
+    }
     currentParams.pageNumber = 1;
     const newQueryParams: any = {};
 
@@ -507,7 +507,6 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      // await this.loaderService.showLoader('Loading Expenses...');
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -529,7 +528,6 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await sortPopover.onWillDismiss();
     if (data) {
-      // await this.loaderService.showLoader('Loading Expenses...');
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -545,7 +543,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   async setState(state: string) {
-    // await this.loaderService.showLoader('Loading expenses');
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {

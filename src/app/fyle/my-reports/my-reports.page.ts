@@ -3,7 +3,7 @@ import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, ii
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import {concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime, takeUntil} from 'rxjs/operators';
+import {concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime, takeUntil, skip} from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import {ModalController, PopoverController} from '@ionic/angular';
@@ -16,6 +16,13 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+type myReportsParams = {
+  pageNumber: number,
+  queryParams: any,
+  sortParam: string,
+  sortDir: string,
+  searchString: string
+};
 
 @Component({
   selector: 'app-my-reports',
@@ -27,13 +34,7 @@ export class MyReportsPage implements OnInit {
   myReports$: Observable<ExtendedReport[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
-  loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
-  }>>;
+  loadData$: BehaviorSubject<Partial<myReportsParams>>;
   currentPageNumber = 1;
   acc = [];
   filters: Partial<{
@@ -86,8 +87,34 @@ export class MyReportsPage implements OnInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  /**
+   * Todo: Part of this method's logic is same as in my-expenses initializeLoadData() method, 
+   * Need to remove duplication here later
+   */
+  initializeLoadData() {
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    } else if (this.activatedRoute.snapshot.params.state) {
+      const filters = {
+        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
+        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
+
+      this.filters = Object.assign({}, this.filters, filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    } else {
+      this.filters = {};
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$ = new BehaviorSubject(params);
+    }
+  }
+
   ionViewWillEnter() {
-    this.loaderService.showLoader('Loading reports...');
     this.setupNetworkWatcher();
 
     this.searchText = '';
@@ -96,9 +123,7 @@ export class MyReportsPage implements OnInit {
     this.acc = [];
 
     this.currentPageNumber = 1;
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1
-    });
+    this.initializeLoadData();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
@@ -118,46 +143,48 @@ export class MyReportsPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
+      tap(console.log),
+      concatMap((params) => {
+        if (this.currentPageNumber === 1) {
+          return from(this.loaderService.showLoader('Loading Reports...')).pipe(map(() => params));
+        } else {
+          return of(params);
+        }
+      }),
       switchMap((params) => {
         let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getMyReportsCount(queryParams).pipe(
-          switchMap(count => {
-            if (count > ((params.pageNumber - 1) * 10)) {
-              return this.reportService.getMyReports({
-                offset: (params.pageNumber - 1) * 10,
-                limit: 10,
-                queryParams,
-                order: orderByParams
-              });
-            } else {
-              return of({
-                data: []
-              });
-            }
-          })
-        );
+        return this.reportService.getMyReports({
+          offset: (params.pageNumber - 1) * 10,
+          limit: 10,
+          queryParams,
+          order: orderByParams
+        });
       }),
+      tap(() => {
+        if (this.currentPageNumber === 1) {
+          return from(this.loaderService.hideLoader());
+        } else {
+          return of(null);
+        }
+      }),
+      shareReplay()
+    );
+
+    this.myReports$ = paginatedPipe.pipe(
       map(res => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
-    );
-
-    this.myReports$ = paginatedPipe.pipe(
+      }),
       shareReplay(1)
     );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap(params => {
-        let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getMyReportsCount(queryParams);
-      }),
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
       shareReplay(1)
     );
 
@@ -207,24 +234,6 @@ export class MyReportsPage implements OnInit {
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-
-    if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    } else if (this.activatedRoute.snapshot.params.state) {
-      const filters = {
-        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
-        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
-
-      this.filters = Object.assign({}, this.filters, filters);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    } else {
-      this.clearFilters();
-    }
   }
 
   setupNetworkWatcher() {
@@ -265,7 +274,10 @@ export class MyReportsPage implements OnInit {
   }
 
   addNewFiltersToParams() {
-    const currentParams = this.loadData$.getValue();
+    let currentParams: Partial<myReportsParams> = {};
+    if (this.loadData$) {
+      currentParams = this.loadData$.getValue();
+    }
     currentParams.pageNumber = 1;
     const newQueryParams: any = {};
 
@@ -384,7 +396,7 @@ export class MyReportsPage implements OnInit {
       });
 
       if (popupResults === 'primary') {
-        from(this.loaderService.showLoader()).pipe(
+        from(this.loaderService.showLoader('Deleting Report')).pipe(
           switchMap(() => {
             return this.reportService.delete(erpt.rp_id);
           }),
