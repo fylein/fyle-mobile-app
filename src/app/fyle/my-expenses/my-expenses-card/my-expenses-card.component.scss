@@ -95,7 +95,8 @@
   &--more {
     color: #686872;
     font-size: 34px;
-    margin-right: 20px;
+    margin-right: 4px;
+    display: flex;
   }
 
   &--decorator {
@@ -112,6 +113,37 @@
     &__critical-policy-violation {
       background-color: #f00;
     }
+  }
+
+  &--actions-container {
+    width: auto;
+    flex-direction: column;
+    display: flex;
+  }
+
+  &--ccc-icons {
+    display: flex;
+    width: 20px;
+    height: 14px;
+    margin-top: 6px;
+  }
+
+  &--divider {
+    border-left: 1px solid #979797;
+    height: 18px;
+    margin: 5px 8px 0 8px;
+    opacity: 0.3;
+  }
+
+  &--icons-container {
+    display: flex;
+    width: auto;
+    margin-top: 8px;
+  }
+
+  &--receipt-icons {
+    width: 14px;
+    margin-top: 6px;
   }
 }
 
