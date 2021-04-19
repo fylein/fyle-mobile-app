@@ -26,7 +26,6 @@ export class SplitExpensePage implements OnInit {
   fg: FormGroup;
   splitType: string;
   amount: number;
-  minAmount: number;
   currency: string;
   totalSplitAmount: number;
   remainingAmount: number;
@@ -359,10 +358,6 @@ export class SplitExpensePage implements OnInit {
       );
 
       this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
-        if(!isCorporateCardsEnabled) {
-          this.minAmount = 0.01;
-        }
-
         this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
         this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
         let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
