@@ -332,6 +332,7 @@ export class SplitExpensePage implements OnInit {
           })
         );
       } else if (this.splitType === 'cost centers') {
+        const orgSettings$ = this.offlineService.getOrgSettings();
         const orgUserSettings$ = this.offlineService.getOrgUserSettings();
         this.costCenters$ = forkJoin({
           orgSettings: orgSettings$,
@@ -447,8 +448,4 @@ export class SplitExpensePage implements OnInit {
 
     this.getTotalSplitAmount();
   }
-
-
-
-
 }
