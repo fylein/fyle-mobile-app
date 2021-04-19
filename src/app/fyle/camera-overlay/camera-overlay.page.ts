@@ -145,7 +145,6 @@ export class CameraOverlayPage implements OnInit {
   }
 
   addExpenseToQueue(source, imageBase64String) {
-    console.log("=========================", imageBase64String);
     const transaction = {
       billable: false,
       skip_reimbursement: false,
