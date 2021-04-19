@@ -81,8 +81,17 @@
         </div>
       </div>
 
-      <div *ngIf="(canOpenCard && !selectionMode) || (!isSyncInProgress && !expense.tx_id )" (click)="actionOpened = true">
-        <mat-icon class="my-expenses-card--more">more_horiz</mat-icon>
+      <div class="my-expenses-card--actions-container">
+        <mat-icon *ngIf="(canOpenCard && !selectionMode) || (!isSyncInProgress && !expense.tx_id )" class="my-expenses-card--more ion-align-self-end" (click)="actionOpened = true">more_horiz</mat-icon>
+        <div class="my-expenses-card--icons-container">
+          <div class="my-expenses-card--ccc-icons">
+            <mat-icon *ngIf="isCCCExpense" svgIcon="{{isCCCMatchedExpense > 0 ? 'fy-matched-yes' : 'fy-matched-no'}}"></mat-icon>
+          </div>
+          <div *ngIf="isCCCExpense" class="my-expenses-card--divider"></div>
+          <div class="my-expenses-card--receipt-icons">
+            <mat-icon svgIcon="{{isReceiptAttached ? 'fy-receipt-attached' : 'fy-receipt-not-attached'}}"></mat-icon>
+          </div>
+        </div>
       </div>
     </div>
 

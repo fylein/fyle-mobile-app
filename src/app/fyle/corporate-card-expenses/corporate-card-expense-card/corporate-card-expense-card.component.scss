@@ -4,7 +4,7 @@
     flex-direction: column;
     justify-content: space-between;
     min-height: 120px;
-    padding: 12px;
+    padding: 12px 12px 0 12px;
     margin: 0 12px 12px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1) !important;
     border-radius: 4px;
@@ -24,7 +24,7 @@
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid #abababab;
-    padding: 4px 4px;
+    padding: 8px 4px;
   }
 
   &--footer-icon {

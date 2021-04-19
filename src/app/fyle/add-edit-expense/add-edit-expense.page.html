@@ -218,7 +218,7 @@
           <div class="add-edit-expense--primary-block">
             <div class="add-edit-expense--match-card-header">
               <div class="add-edit-expense--match-card-header-title">
-                <mat-icon class="add-edit-expense--match-card-header-title-icon" svgIcon="fy-cards-new"></mat-icon>
+                <mat-icon svgIcon="{{matchingCCCTransactions.length > 0 ? 'fy-matched-yes' : 'fy-matched-no'}}" class="add-edit-expense--match-card-header-title-icon"></mat-icon>
                 <span
                   *ngIf="!(this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && matchingCCCTransactions.length > 0) && !isCreatedFromCCC">
                     Matching Card Transactions
