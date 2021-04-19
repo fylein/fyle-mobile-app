@@ -52,31 +52,31 @@
       <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.matched_by && corporateCardExpense.matched_by === 'SYSTEM'">
         <div>
           <mat-icon class="corporate-card-expenses-card--footer-icon">flash_on</mat-icon>
-          <span >Auto Matched</span>
+          <span>Auto Matched</span>
         </div>
       </div>
       <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.personal && !corporateCardExpense.balance_transfer_id">
         <div>
           <mat-icon svgIcon="fy-individual" class="corporate-card-expenses-card--footer-icon"></mat-icon>
-          <span >Personal</span>
+          <span>Personal</span>
         </div>
       </div>
       <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.ignored">
         <div>
           <mat-icon svgIcon="fy-dismiss" class="corporate-card-expenses-card--footer-icon"></mat-icon>
-          <span >Dismissed</span>
+          <span>Dismissed</span>
         </div>
       </div>
       <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.balance_transfer_id">
         <div>
           <mat-icon class="corporate-card-expenses-card--footer-icon" svgIcon="fy-done"></mat-icon>
-          <span >Collected Back</span>
+          <span>Collected Back</span>
         </div>
       </div>
       <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.reversed">
         <div>
           <mat-icon class="corporate-card-expenses-card--footer-icon" svgIcon="fy-done"></mat-icon>
-          <span >Reversed</span>
+          <span>Reversed</span>
         </div>
       </div>
     </div>

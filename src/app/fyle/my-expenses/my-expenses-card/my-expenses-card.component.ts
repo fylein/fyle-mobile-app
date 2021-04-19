@@ -72,7 +72,7 @@ export class MyExpensesCardComponent implements OnInit {
     this.extractedAmountIsNumber = typeof (this.expense && this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount) === 'number';
     this.isDraft = this.expense.tx_state === 'DRAFT';
     this.isCCCExpense = this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
-    this.isCCCMatchedExpense = this.expense.tx_corporate_credit_card_expense_group_id !== null;
+    this.isCCCMatchedExpense = !!this.expense.tx_corporate_credit_card_expense_group_id;
     this.isReceiptAttached = this.expense.tx_num_files > 0;
     this.vendorDetails = this.getVendorDetails(this.expense);
     this.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
