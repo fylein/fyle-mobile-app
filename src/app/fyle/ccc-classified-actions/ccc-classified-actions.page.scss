@@ -1,3 +1,12 @@
+$white: #fff;
+$fyled-pill: #f90;
+$draft-pill: #464d57;
+$reported-pill: #2196f3;
+$approved-pill: #66bb6a;
+$payment-processing-pill: #47a447;
+$paid-pill: #3d8b3d;
+$light-grey-border: #cccdd7;
+
 .ccc-classified-actions {
 
   &--toolbar {
@@ -143,6 +152,42 @@
     height: 14px;
   }
 
+  &--pill {
+    font-size: 12px;
+    display: inline-block;
+    color: $white;
+    border-radius: 4px;
+    padding: 2px 5px;
+
+    &__fyled {
+      background-color: $fyled-pill;
+    }
+
+    &__draft {
+      background-color: $draft-pill;
+    }
+
+    &__reported {
+      background-color: $reported-pill;
+    }
+
+    &__approved {
+      background-color: $approved-pill;
+    }
+
+    &__payment_pending {
+      background-color: $approved-pill;
+    }
+
+    &__payment_processing {
+      background-color: $payment-processing-pill;
+    }
+
+    &__paid {
+      background-color: $paid-pill;
+    }
+  }
+
   &--button {
     width: 140px;
     height: 40px;
@@ -158,13 +203,11 @@
   &--primary-cta {
     height: 48px;
     font-size: 14px;
-    text-transform: uppercase;
     font-weight: 700;
-    border-radius: 8px;
     margin: 14px;
     width: 100%;
-    margin: 12px 8px;
-    --border-radius: 4px !important;
+    border-radius: 4px;
+    border: 1px solid $light-grey-border;
   }
 
   &--action-internal {

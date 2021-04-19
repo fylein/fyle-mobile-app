@@ -135,6 +135,12 @@
                 <span class="receipt-attached-text">-</span>
               </div>
             </div>
+            <div class="ccc-classified-actions--input-container">
+              <div class="ccc-classified-actions--input-container-title">Status</div>
+              <div class="ccc-classified-actions--pill ccc-classified-actions--pill__{{txn.state | expenseState}}">
+                {{txn.state | expenseState | snakeCaseToSpaceCase | uppercase}}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -170,7 +176,7 @@
   <ion-footer *ngIf="canUnmatch$|async">
     <ion-toolbar mode="md">
       <ion-buttons>
-        <ion-button class="ccc-classified-actions--primary-cta" mode="md" color="grey" fill="outline" (click)="unmatchExpense(cccExpense)">
+        <ion-button class="ccc-classified-actions--primary-cta text-capitalize" mode="md" (click)="unmatchExpense(cccExpense)">
           Unmatch
         </ion-button>
       </ion-buttons>
