@@ -30,9 +30,9 @@ export class SplitExpensePage implements OnInit {
   currency: string;
   totalSplitAmount: number;
   remainingAmount: number;
-  isCorporateCardsEnabled: boolean;
   categories$: Observable<any>;
   costCenters$: Observable<any>;
+  isCorporateCardsEnabled$: Observable<boolean>;
   transaction: any;
   fileObjs: any[];
   fileUrls: any[];
@@ -66,8 +66,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   onChangeAmount(splitExpenseForm, index) {
-    if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount)) 
-    || (splitExpenseForm.value.amount && splitExpenseForm.value.amount < 0 && !this.isCorporateCardsEnabled)) {
+    if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount))) {
       return;
     }
 
@@ -245,14 +244,15 @@ export class SplitExpensePage implements OnInit {
       let canCreateNegativeExpense = true;
       canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
         const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
-        if (!this.isCorporateCardsEnabled && negativeAmountPresent) {
-          return false && defaultValue;
-        }
-
-        return true && defaultValue
+        this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
+          if (!isCorporateCardsEnabled && negativeAmountPresent) {
+            defaultValue = false && defaultValue;
+          }
+        });
+        return defaultValue;
       }, true);
 
-      if(!canCreateNegativeExpense) {
+      if (!canCreateNegativeExpense) {
         this.showErrorBlock = true;
         this.errorMessage = 'Amount should be greater than 0.01';
         setTimeout(() => {
@@ -353,33 +353,39 @@ export class SplitExpensePage implements OnInit {
         );
       }
 
-      this.isCorporateCardsEnabled = false;
-      orgSettings$.subscribe(orgSettings => {
-        this.isCorporateCardsEnabled = orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled;
+      this.isCorporateCardsEnabled$ = orgSettings$.pipe(
+        map(orgSettings => orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled)
+      );
+
+      this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
+        if(!isCorporateCardsEnabled) {
+          this.minAmount = 0.01;
+        }
+
+        this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
+        this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
+        let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
+        let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
+
+        const percentage1 = this.amount ? 60 : null;
+        const percentage2 = this.amount ? 40 : null;
+        amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
+        amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
+        this.add(amount1, this.currency, percentage1, null);
+        this.add(amount2, this.currency, percentage2, null);
+        this.getTotalSplitAmount();
+  
+        const today = new Date();
+        const minDate = new Date('Jan 1, 2001');
+        const maxDate = this.dateService.addDaysToDate(today, 1);
+  
+        this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
+        this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
       });
 
-      if(!this.isCorporateCardsEnabled) {
-        this.minAmount = 0.01;
-      }
     
-      this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
-      this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
-      let amount1 = (this.amount > 0.0001 || this.isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
-      let amount2 = (this.amount > 0.0001 || this.isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
-      const percentage1 = this.amount ? 60 : null;
-      const percentage2 = this.amount ? 40 : null;
-      amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
-      amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
-      this.add(amount1, this.currency, percentage1, null);
-      this.add(amount2, this.currency, percentage2, null);
-      this.getTotalSplitAmount();
 
-      const today = new Date();
-      const minDate = new Date('Jan 1, 2001');
-      const maxDate = this.dateService.addDaysToDate(today, 1);
 
-      this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
-      this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
 
     });
 
