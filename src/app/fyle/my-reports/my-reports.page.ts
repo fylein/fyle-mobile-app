@@ -16,7 +16,13 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-type myReportsParams = {pageNumber: number, queryParams: any, sortParam: string, sortDir: string, searchString: string};
+type myReportsParams = {
+  pageNumber: number,
+  queryParams: any,
+  sortParam: string,
+  sortDir: string,
+  searchString: string
+};
 
 @Component({
   selector: 'app-my-reports',

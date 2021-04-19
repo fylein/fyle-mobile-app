@@ -21,7 +21,13 @@ import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
-type myExpensesParams = {pageNumber: number, queryParams: any, sortParam: string, sortDir: string, searchString: string};
+type myExpensesParams = {
+  pageNumber: number,
+  queryParams: any,
+  sortParam: string,
+  sortDir: string,
+  searchString: string
+};
 
 @Component({
   selector: 'app-my-expenses',
