@@ -47,7 +47,7 @@ export class UtilityService {
   /**
    * 
    * @param searchText : search query entered by the user
-   * Type constiable <T> indicates that it is a generic method, this means that the data type which will be specified at the time of a function call,
+   * Type variable <T> indicates that it is a generic method, this means that the data type which will be specified at the time of a function call,
    * will also be the data type of the arguments and of the return value.
    * Detailed reference: https://www.tutorialsteacher.com/typescript/typescript-generic 
    */
