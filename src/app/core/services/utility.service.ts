@@ -47,14 +47,14 @@ export class UtilityService {
   /**
    * 
    * @param searchText : search query entered by the user
-   * Type variable <T> indicates that it is a generic method, this means that the data type which will be specified at the time of a function call,
+   * Type constiable <T> indicates that it is a generic method, this means that the data type which will be specified at the time of a function call,
    * will also be the data type of the arguments and of the return value.
    * Detailed reference: https://www.tutorialsteacher.com/typescript/typescript-generic 
    */
   searchArrayStream<T>(searchText: string) {
     return map((recentrecentlyUsedItems: {label: string, value: T} [] ) => {
       if (searchText && searchText.length > 0) {
-        var searchTextLowerCase = searchText.toLowerCase();
+        const searchTextLowerCase = searchText.toLowerCase();
         return recentrecentlyUsedItems.filter(item => {
           return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
         });
@@ -64,27 +64,30 @@ export class UtilityService {
   }
 
   traverse(x, callback) {
+    const that = this;
     if (isArray(x)) {
-      return this.traverseArray(x, callback);
+      return that.traverseArray(x, callback);
     } else if ((typeof x === 'object') && (x !== null) && !(x instanceof Date)) {
-      return this.traverseObject(x, callback);
+      return that.traverseObject(x, callback);
     } else {
       return callback(x);
     }
   };
 
   traverseArray(arr, callback) {
-    var modifiedArray = [];
-    arr.forEach(function (x) {
-      modifiedArray.push(this.traverse(x, callback));
+    const that = this;
+    const modifiedArray = [];
+    arr.forEach((x) => {
+      modifiedArray.push(that.traverse(x, callback));
     });
     return modifiedArray;
   }
 
   traverseObject(obj, callback) {
-    for (var key in obj) {
+    const that = this;
+    for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
-        obj[key] = this.traverse(obj[key], callback);
+        obj[key] = that.traverse(obj[key], callback);
       }
     }
     return obj;

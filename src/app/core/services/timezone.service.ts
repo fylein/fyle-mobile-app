@@ -2989,7 +2989,7 @@ export class TimezoneService {
 
   convertAllDatesToProperLocale(object, offset) {
     const that = this;
-    var copiedObject = cloneDeep(object);
+    const copiedObject = cloneDeep(object);
     return that.utilityService.traverse(copiedObject, function (prop) {
       if (prop instanceof Date) {
         prop.setHours(12);
@@ -3003,16 +3003,16 @@ export class TimezoneService {
     });
   };
 
-  convertToTimezone(date, offset, toUtc) {
-    var correctedDate = cloneDeep(date);
+  convertToTimezone(date: Date, offset: string, toUtc: boolean) {
+    const correctedDate = cloneDeep(date);
 
-    var hourOffset = +offset.split(':')[0];
-    var minOffset = +offset.split(':')[1];
-    var offsetDirection = Math.sign(hourOffset);
+    let hourOffset = +offset.split(':')[0];
+    const minOffset = +offset.split(':')[1];
+    const offsetDirection = Math.sign(hourOffset);
     hourOffset = Math.abs(hourOffset);
 
-    var hours;
-    var mins;
+    let hours;
+    let mins;
 
     if (toUtc) {
       hours = date.getHours() - offsetDirection * hourOffset;
