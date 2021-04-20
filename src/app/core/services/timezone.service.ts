@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {cloneDeep} from 'lodash';
 import {CurrencyService} from './currency.service';
+import { UtilityService } from './utility.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,8 @@ import {CurrencyService} from './currency.service';
 export class TimezoneService {
 
   constructor(
-    private currencService: CurrencyService
+    private currencService: CurrencyService,
+    private utilityService: UtilityService
   ) { }
 
   timezones = [
@@ -2985,44 +2987,60 @@ export class TimezoneService {
     );
   }
 
-  conversionGenerator(transform) {
-    return (date, offset) => {
-      const correctedDate = cloneDeep(date);
+  convertAllDatesToProperLocale(object, offset) {
+    const that = this;
+    var copiedObject = cloneDeep(object);
+    return that.utilityService.traverse(copiedObject, function (prop) {
+      if (prop instanceof Date) {
+        prop.setHours(12);
+        prop.setMinutes(0);
+        prop.setSeconds(0);
+        prop.setMilliseconds(0);
+        return that.convertToUtc(prop, offset);
+      } else {
+        return prop;
+      }
+    });
+  };
 
-      let hourOffset = +offset.split(':')[0];
-      const minOffset = +offset.split(':')[1];
-      const offsetDirection = Math.sign(hourOffset);
-      hourOffset = Math.abs(hourOffset);
+  convertToTimezone(date, offset, toUtc) {
+    var correctedDate = cloneDeep(date);
 
-      const hours = transform(date.getHours(), offsetDirection * hourOffset);
-      const mins = transform(date.getMinutes(), offsetDirection * minOffset);
+    var hourOffset = +offset.split(':')[0];
+    var minOffset = +offset.split(':')[1];
+    var offsetDirection = Math.sign(hourOffset);
+    hourOffset = Math.abs(hourOffset);
 
-      correctedDate.setUTCHours(hours);
-      correctedDate.setUTCMinutes(mins);
-      // Hack here. This only works because date dosnt change due to offset. Should be removed when we stop considering the
-      // 1200 hour assumption we make is also removed
-      correctedDate.setDate(date.getDate());
-      // Adding this for month changing when date is 1
-      correctedDate.setMonth(date.getMonth());
-      // Adding this for year changing when date is Jan 1
-      correctedDate.setFullYear(date.getFullYear());
-      return correctedDate;
-    };
-  }
+    var hours;
+    var mins;
+
+    if (toUtc) {
+      hours = date.getHours() - offsetDirection * hourOffset;
+      mins = date.getMinutes() - offsetDirection * minOffset;
+    } else {
+      hours = date.getHours() + offsetDirection * hourOffset;
+      mins = date.getMinutes() + offsetDirection * minOffset;
+    }
+
+    correctedDate.setUTCHours(hours);
+    correctedDate.setUTCMinutes(mins);
+    // Hack here. This only works because date dosnt change due to offset. Should be removed when we stop considering the
+    // 1200 hour assumption we make is also removed
+    correctedDate.setDate(date.getDate());
+    // Adding this for month changing when date is 1
+    correctedDate.setMonth(date.getMonth());
+    // Adding this for year changing when date is Jan 1
+    correctedDate.setFullYear(date.getFullYear());
+    return correctedDate;
+  };
 
   convertToUtc(date, offset) {
-    const converter = this.conversionGenerator((param1, param2) => {
-      return param1 - param2;
-    });
-    return converter(date, offset);
-  }
+    return this.convertToTimezone(date, offset, true);
+  };
 
   convertToLocal(date, offset) {
-    const converter = this.conversionGenerator((param1, param2) => {
-      return param1 + param2;
-    });
-    return converter(date, offset);
-  }
+    return this.convertToTimezone(date, offset, false);
+  };
 
   getOffsetSign(offset) {
     const hourOffset = +offset.split(':')[0];

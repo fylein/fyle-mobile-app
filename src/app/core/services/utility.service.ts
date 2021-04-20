@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {Observable} from 'rxjs';
+import { isArray } from 'lodash';
 
 @Injectable({
   providedIn: 'root'
@@ -60,5 +61,32 @@ export class UtilityService {
       }
       return recentrecentlyUsedItems;
     });
+  }
+
+  traverse(x, callback) {
+    if (isArray(x)) {
+      return this.traverseArray(x, callback);
+    } else if ((typeof x === 'object') && (x !== null) && !(x instanceof Date)) {
+      return this.traverseObject(x, callback);
+    } else {
+      return callback(x);
+    }
+  };
+
+  traverseArray(arr, callback) {
+    var modifiedArray = [];
+    arr.forEach(function (x) {
+      modifiedArray.push(this.traverse(x, callback));
+    });
+    return modifiedArray;
+  }
+
+  traverseObject(obj, callback) {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        obj[key] = this.traverse(obj[key], callback);
+      }
+    }
+    return obj;
   }
 }
