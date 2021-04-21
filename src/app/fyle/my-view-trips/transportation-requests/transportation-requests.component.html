@@ -15,9 +15,9 @@
   <div *ngFor="let eTransportationRequest of transportationRequests">
     <div class="transportation-requests--card">
       <div class="transportation-requests--header" (click)="eTransportationRequest.isOpened = !eTransportationRequest.isOpened">
-        <div class="transportation-requests--transport-mode">{{eTransportationRequest.tr.transport_mode}} from {{eTransportationRequest.tr.from_city.city}} to
-          {{eTransportationRequest.tr.to_city.city}}</div>
-        <div class="transportation-requests--transport-date">on {{eTransportationRequest.tr.onward_dt | date: 'MMM dd, yyyy'}}</div>
+        <div class="transportation-requests--transport-mode">{{eTransportationRequest.tr.transport_mode}} from {{eTransportationRequest.tr.from_city.city || eTransportationRequest.tr.from_city.display}} to
+          {{eTransportationRequest.tr.to_city.city || eTransportationRequest.tr.to_city.display}}</div>
+        <div class="transportation-requests--transport-date">on {{eTransportationRequest.tr.onward_dt | date: 'MMMM dd, yyyy'}}</div>
       </div>
       <div class="transportation-requests--content">
         <div *ngIf="eTransportationRequest.isOpened">

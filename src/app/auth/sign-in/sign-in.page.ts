@@ -252,17 +252,20 @@ export class SignInPage implements OnInit {
     this.emailSet = !!this.fg.value.email;
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     const presentEmail = this.activatedRoute.snapshot.params.email;
     this.fg = this.formBuilder.group({
       email: [presentEmail || '', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
       password: ['', Validators.required]
     });
 
-    const isLoggedIn = await this.routerAuthService.isLoggedIn();
-
-    if (isLoggedIn) {
-      this.router.navigate(['/', 'auth', 'switch_org', {choose: false}]);
-    }
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => from(this.routerAuthService.isLoggedIn())),
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(isLoggedIn => {
+      if (isLoggedIn) {
+        this.router.navigate(['/', 'auth', 'switch_org', {choose: false}]);
+      }
+    })
   }
 }

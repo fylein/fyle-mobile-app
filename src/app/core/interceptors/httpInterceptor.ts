@@ -10,19 +10,21 @@ import {
   HttpParameterCodec
 } from '@angular/common/http';
 
-import { Observable, throwError, from, forkJoin, of, iif } from 'rxjs';
-import { map, catchError, switchMap, mergeMap, concatMap } from 'rxjs/operators';
+import { Observable, throwError, from, forkJoin, of, iif, Subject, BehaviorSubject } from 'rxjs';
+import { catchError, mergeMap, concatMap, filter, take, tap } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
 
 import * as moment from 'moment';
 import { TokenService } from '../services/token.service';
-import { AuthService } from '../services/auth.service';
 import { RouterAuthService } from '../services/router-auth.service';
 import { DeviceService } from '../services/device.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
+  private accessTokenCallInProgress = false;
+  private accessTokenSubject = new BehaviorSubject<string>(null);
+
   constructor(
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
@@ -47,7 +49,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     return false;
   }
 
-  expiringSoon(accessToken: string) {
+  expiringSoon(accessToken: string): boolean {
     try {
       const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
       const now = moment(new Date());
@@ -58,7 +60,6 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       return true;
     }
   }
-
 
   refreshAccessToken() {
     return from(this.tokenService.getRefreshToken()).pipe(
@@ -72,21 +73,35 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
-  getAccessToken() {
+  /**
+   * This method get current accessToken from Storage, check if this token is expiring or not.
+   * If the token is expiring it will get another accessToken from API and return the new accessToken
+   * If multiple API call initiated then `this.accessTokenCallInProgress` will block multiple access_token call
+   * Reference: https://stackoverflow.com/a/57638101
+   */
+   getAccessToken(): Observable<string> {
     return from(this.tokenService.getAccessToken()).pipe(
       concatMap(accessToken => {
         if (this.expiringSoon(accessToken)) {
-          return from(this.tokenService.getRefreshToken()).pipe(
-            concatMap(refreshToken => {
-              return from(this.routerAuthService.fetchAccessToken(refreshToken));
-            }),
-            concatMap(authResponse => {
-              return from(this.routerAuthService.newAccessToken(authResponse.access_token))
-            }),
-            concatMap(() => {
-              return from(this.tokenService.getAccessToken())
-            })
-          );
+          if (!this.accessTokenCallInProgress) {
+            this.accessTokenCallInProgress = true;
+            this.accessTokenSubject.next(null);
+            return this.refreshAccessToken().pipe(
+              concatMap((newAccessToken) => {
+                this.accessTokenCallInProgress = false;
+                this.accessTokenSubject.next(newAccessToken);
+                return of(newAccessToken);
+              })
+            );
+          } else {
+            return this.accessTokenSubject.pipe(
+              filter(result => result !== null),
+              take(1),
+              concatMap(() => {
+                return from(this.tokenService.getAccessToken())
+              })
+            );
+          }
         } else {
           return of(accessToken);
         }
