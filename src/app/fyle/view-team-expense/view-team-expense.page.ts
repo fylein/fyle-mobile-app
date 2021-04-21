@@ -124,21 +124,9 @@ export class ViewTeamExpensePage implements OnInit {
       disabled: true
     };
 
-    this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
-      switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getEtxn(txId);
-          })
-        );
-      }),
-      finalize(() => this.loaderService.hideLoader()),
+    this.etxnWithoutCustomProperties$ = this.transactionService.getEtxn(txId).pipe(
       shareReplay(1)
     );
-
-    this.etxnWithoutCustomProperties$.subscribe(res => {
-      this.reportId = res.tx_report_id;
-    });
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap(etxn => {
@@ -147,18 +135,21 @@ export class ViewTeamExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.etxn$ = combineLatest(
-      [
-        this.etxnWithoutCustomProperties$,
-        this.customProperties$
-      ]).pipe(
-        map(res => {
-          res[0].tx_custom_properties = res[1];
-          return res[0];
-        }),
-        finalize(() => this.loaderService.hideLoader()),
-        shareReplay(1)
-      );
+    this.etxn$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return forkJoin([
+          this.etxnWithoutCustomProperties$,
+          this.customProperties$
+        ])
+      }),
+      map(res => {
+        res[0].tx_custom_properties = res[1];
+        this.reportId = res[0].tx_report_id
+        return res[0];
+      }),
+      finalize(() => this.loaderService.hideLoader()),
+      shareReplay(1)
+    );
 
     this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap(etxn => {

@@ -14,6 +14,7 @@ export class LoaderService {
 
   async showLoader(message = 'Please wait...') {
     this.counter++;
+    console.log("---show-----,",this.counter);
     /**
      * Creating loader and displaying loader when value of counter is 1.
      * This will allow us to show only one loader at a time, not multiple loader is a single page/after an API call.
@@ -30,6 +31,8 @@ export class LoaderService {
 
   hideLoader() {
     this.counter--;
+    console.log("---hide-----,",this.counter);
+
     /**
      * Hiding loader if value of counter is 0.
      * This will make sure that we are hiding only the current active loader in the page.

@@ -111,15 +111,12 @@ export class ViewTeamReportPage implements OnInit {
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
 
     this.erpt$ = this.refreshApprovals$.pipe(
+      tap(() => this.loaderService.showLoader()),
       switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id);
-          })
-        );
+        return this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id);
       }),
+      tap(() => this.loaderService.hideLoader()),
       shareReplay(1),
-      finalize(() => from(this.loaderService.hideLoader()))
     );
 
     this.erpt$.subscribe(res => {
