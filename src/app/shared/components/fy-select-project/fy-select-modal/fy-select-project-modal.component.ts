@@ -142,7 +142,6 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
             });
-            
         })
       );
     }

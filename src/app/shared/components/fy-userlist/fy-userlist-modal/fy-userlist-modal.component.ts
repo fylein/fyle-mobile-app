@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
-import { Observable, fromEvent, from, noop, of } from 'rxjs';
+import { Observable, fromEvent, from, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, concatMap, debounceTime } from 'rxjs/operators';
 import { isEqual, cloneDeep, startsWith } from 'lodash';
@@ -27,7 +27,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   newlyAddedItems$: Observable<any[]>;
   invalidEmail = false;
   currentSelectionsCopy: any[] = [];
-  showAddNew = false;
 
   constructor(
     private modalController: ModalController,
@@ -38,7 +37,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.intialSelectedEmployees = cloneDeep(this.currentSelections);
-    this.intialSelectedEmployees.sort((a, b) => a < b ? -1 : 1); 
+    this.intialSelectedEmployees.sort((a, b) => a < b ? -1 : 1);
   }
 
   clearValue() {
