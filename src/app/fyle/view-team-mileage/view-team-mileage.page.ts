@@ -122,14 +122,11 @@ export class ViewTeamMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedMileage$ = this.updateFlag$.pipe(
+      tap(() => this.loaderService.showLoader()),
       switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getExpenseV2(id);
-          })
-        );
+        return this.transactionService.getExpenseV2(id);
       }),
-      finalize(() => from(this.loaderService.hideLoader())),
+      tap(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
 
