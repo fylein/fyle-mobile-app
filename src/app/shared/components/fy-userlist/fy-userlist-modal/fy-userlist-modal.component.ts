@@ -1,8 +1,8 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
 import { Observable, fromEvent, from, noop, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, finalize, concatMap } from 'rxjs/operators';
-import { isEqual, cloneDeep } from 'lodash';
+import { map, startWith, distinctUntilChanged, switchMap, finalize, concatMap, debounceTime } from 'rxjs/operators';
+import { isEqual, cloneDeep, startsWith } from 'lodash';
 import { Employee } from 'src/app/core/models/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -16,7 +16,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   @Input() currentSelections: any[] = [];
   @Input() filteredOptions$: Observable<Employee[]>;
   @Input() placeholder;
-  // @Input() allowCustomValues;
+  @Input() allowCustomValues: boolean;
 
   value;
   eouc$: Observable<Employee[]>;
@@ -38,11 +38,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.intialSelectedEmployees = cloneDeep(this.currentSelections);
-    this.intialSelectedEmployees.sort((a, b) => a < b ? -1 : 1);
-    // this.currentSelectionsCopy = this.currentSelections;
-    // this.currentSelections.forEach(val => this.currentSelectionsCopy.push(Object.assign({}, val)));
-    // console.log('cs in init: ', this.currentSelections);
-    // console.log('cs copy in init: ', this.currentSelectionsCopy);
+    this.intialSelectedEmployees.sort((a, b) => a < b ? -1 : 1); 
   }
 
   clearValue() {
@@ -93,12 +89,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         return eouc.map(eou => {
           if (this.currentSelections && this.currentSelections.length > 0) {
             eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
-            if (eou.is_selected) {
-              console.log('eou: ', eou);
-              const index = this.currentSelectionsCopy.indexOf(eou.us_email);
-              this.currentSelectionsCopy.splice(index, 1);
-              console.log('this.currentSelectionCopy: ', this.currentSelectionsCopy);
-            }
           }
           return eou;
         });
@@ -125,21 +115,27 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // findNewlyAdded() {
+  getNewlyAddedUsers(filteredOptions) {
+    // make a copy of current selections
+    this.currentSelectionsCopy = [];
+    this.currentSelections.forEach(val => this.currentSelectionsCopy.push(val));
+    
+    // remove the ones which are in the filtered list
+    // now currentSelectionsCopy will have only those emails which were newly added
+    filteredOptions.forEach(item => {
+      const index = this.currentSelectionsCopy.indexOf(item.us_email);
+      if (index > -1) {
+        this.currentSelectionsCopy.splice(index, 1);
+      }
+    });
 
-  // }
+    // create a temp list of type Partial<Employee>[] and push items in currentSelectionsCopy as partial employee objects and setting the is_selected to true
+    const newEmpList: Partial<Employee>[] = [];
+    this.currentSelectionsCopy.forEach(item => {
+      newEmpList.push({us_email: item, is_selected: true});
+    });
 
-  getNewlyAddedUsers() {
-    if (this.currentSelectionsCopy && this.currentSelectionsCopy.length > 0) {
-      let newEmpList: Partial<Employee>[] = [];
-      this.currentSelectionsCopy.forEach(function (item) {
-        let option: Partial<Employee> = { us_email: item, is_selected: true };
-        newEmpList.push(option);
-      });
-      return of(newEmpList);
-    } else {
-      return of([]);
-    }
+    return of(newEmpList);
   }
 
   ngAfterViewInit() {
@@ -147,41 +143,40 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
+      debounceTime(400),
       switchMap((searchText) => {
         return this.getUsersList(searchText);
       })
-      // finalize(() => {
-      //   this.getNewlyAddedUsers();
-      // })
     );
 
-    // this.newlyAddedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-    //   map((event: any) => event.srcElement.value),
-    //   startWith(''),
-    //   distinctUntilChanged(),
-    //   switchMap((searchText) => {
-    //     // return this.getNewlyAddedUsers().pipe(
-    //     return from(this.getNewlyAddedUsers()).pipe(
-    //       map((newlyAddedItems: Partial<Employee>[] ) => {
-    //         var emailRegex = /^\S+@\S+\.\S{2,}$/;
-    //         // if newly added value is a valid email
-    //         if (searchText && searchText.length > 0) {
-    //           this.invalidEmail = !(emailRegex.test(searchText));
-    //           console.log('invalid email: ', this.invalidEmail);
-    //         }
-
-    //         if (searchText && searchText.length > 0) {
-    //         var searchTextLowerCase = searchText.toLowerCase();
-    //         return newlyAddedItems.filter(item => {
-    //           return item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase);
-    //         });
-    //       }
-    //       // this.showAddNew = newlyAddedItems.length === 0 && this.invalidEmail;
-    //       return newlyAddedItems;
-    //     })
-    //     )
-    //   })
-    // );
+    if (this.allowCustomValues) {
+      this.newlyAddedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+        map((event: any) => event.srcElement.value),
+        startWith(''),
+        distinctUntilChanged(),
+        debounceTime(400),
+        switchMap((searchText) => {
+          // if newly added value is a valid email
+          var emailRegex = /^\S+@\S+\.\S{2,}$/;
+          this.invalidEmail = searchText && searchText.length > 0 && !(emailRegex.test(searchText));
+          return from(this.filteredOptions$).pipe(
+            switchMap((filteredOptions) => {
+              return this.getNewlyAddedUsers(filteredOptions).pipe(
+                map((newlyAddedItems: Partial<Employee>[] ) => {
+                  if (searchText && searchText.length > 0) {
+                    var searchTextLowerCase = searchText.toLowerCase();
+                    return newlyAddedItems.filter(item => {
+                      return item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase);
+                    });
+                  }
+                  return newlyAddedItems;
+                })
+              )
+            })
+          )
+        })
+      );
+    }
     this.cdr.detectChanges();
   }
 
@@ -192,26 +187,23 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   onSelect(selectedOption: Partial<Employee>, event: { checked: boolean; }) {
     if (event.checked) {
       this.currentSelections.push(selectedOption.us_email);
-      // console.log('pushing to current selections: ', this.currentSelections);
     } else {
       const index = this.currentSelections.indexOf(selectedOption.us_email);
       this.currentSelections.splice(index, 1);
-      // console.log('removing from current selections: ', this.currentSelections);
     }
   }
 
   useSelected() {
-    console.log('currentslec final: ', this.currentSelections);
     this.modalController.dismiss({
       selected: this.currentSelections
     });
   }
 
-  // onNewSelect() {
-  //   this.value = this.value.trim();
-  //   if(!this.invalidEmail) {
-  //     this.currentSelections.push(this.value);
-  //     this.clearValue();
-  //   }
-  // }
+  onAddNew() {
+    this.value = this.value.trim();
+    if(!this.invalidEmail) {
+      this.currentSelections.push(this.value);
+      this.clearValue();
+    }
+  }
 }

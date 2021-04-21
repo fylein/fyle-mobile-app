@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import {FyUserlistModalComponent} from './fy-userlist-modal/fy-userlist-modal.component';
 import { Employee } from 'src/app/core/models/employee.model';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-fy-userlist',
@@ -26,6 +27,7 @@ export class FyUserlistComponent implements OnInit {
   @Input() disabled = false;
   @Input() label = '';
   @Input() mandatory = false;
+  @Input() allowCustomValues: boolean;
 
   private innerValue;
   displayValue;
@@ -71,7 +73,8 @@ export class FyUserlistComponent implements OnInit {
     const currencyModal = await this.modalController.create({
       component: FyUserlistModalComponent,
       componentProps: {
-        currentSelections: this.value || []
+        currentSelections: cloneDeep(this.value) || [],
+        allowCustomValues: this.allowCustomValues
       }
     });
 

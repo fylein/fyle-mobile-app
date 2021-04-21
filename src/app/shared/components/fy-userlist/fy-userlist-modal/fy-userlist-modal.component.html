@@ -49,15 +49,15 @@
     </div>
   </div>
   <!-- when there is search query and there are no filtered options -->
-  <div *ngIf="!((filteredOptions$|async)?.length > 0)" class="selection-modal--list-element">
+  <div *ngIf="!((filteredOptions$|async)?.length > 0 && (newlyAddedItems$|async)?.length > 0) && value && value.length > 0" class="selection-modal--list-element">
     <label class="selection-modal--list-element-label">
       <i>
         No Results Found  
       </i>
     </label>
   </div>
-  <div *ngIf="!((filteredOptions$|async)?.length > 0)" class="selection-modal--list-element">
-    <label #addNewEmail class="selection-modal--list-element-label" matRipple (click)="onNewSelect()">
+  <div *ngIf="!((filteredOptions$|async)?.length > 0 && (newlyAddedItems$|async)?.length > 0) && value && value.length > 0 && !invalidEmail && allowCustomValues" class="selection-modal--list-element">
+    <label #addNewEmail class="selection-modal--list-element-label" matRipple (click)="onAddNew()">
       <div class="selection-modal--add-item-block">
         <mat-icon class="selection-modal--add-item-icon">
           add_circle_outline
