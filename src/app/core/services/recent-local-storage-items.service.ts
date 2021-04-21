@@ -62,6 +62,7 @@ export class RecentLocalStorageItemsService {
     this.clear('recentPurposeList');
     this.clear('recentNotesList');
     this.clear('recentVendorList');
+    this.clear('recentUserListOptions');
   }
 
   indexOfItem(recentItemsArray, item, property?) {

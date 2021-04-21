@@ -1,6 +1,7 @@
 @import '../../../../../assets/styles/fy_select';
 
-$list-element-color: #ababab;
+$red: #f00;
+$list-element-color: #333;
 
 .selection-modal {
   color: black;
@@ -12,7 +13,7 @@ $list-element-color: #ababab;
   &--list-element {
     padding: 16px;
     border-bottom: 1px solid #e0e0e0;
-    color: #ababab;
+    color: $list-element-color;
   }
 
   &--list-element-label {
@@ -54,6 +55,12 @@ $list-element-color: #ababab;
     font-size: 14px;
   }
 
+  &--form-field-error {
+    text-align: left;
+    margin-left: 16px;
+    color: $red;
+  }
+
   &--form-field-container {
     text-align: center;
   }
@@ -65,5 +72,20 @@ $list-element-color: #ababab;
   &--primary-cta {
     min-height: 48px;
     margin: 12px;
+  }
+
+  &--add-item-block {
+    @extend %flex-layout-row;
+    align-items: center;
+  }
+
+  &--add-item-icon {
+    min-height: 22px;
+    min-width: 22px;
+    margin-right: 10px;
+  }
+
+  &--new-item-name {
+    word-break: break-all;
   }
 }

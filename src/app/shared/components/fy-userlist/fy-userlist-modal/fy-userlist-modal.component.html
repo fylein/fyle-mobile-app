@@ -19,11 +19,23 @@
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
+    <div class="selection-modal--form-field-error" *ngIf="invalidEmail">Please enter a valid email</div>  
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div>
+    <div class="selection-modal--list-container" *ngFor="let newlyAddedItem of newlyAddedItems$ | async as list">
+      <div class="selection-modal--list-element">
+        <label class="selection-modal--list-element-label">
+          <mat-checkbox color="primary" [checked]="newlyAddedItem.is_selected" (change)="onSelect(newlyAddedItem, $event)"></mat-checkbox>
+          <span class="selection-modal--approver-details">
+            <span>{{newlyAddedItem.us_email}}</span>
+          </span>
+        </label>
+      </div>
+    </div>
+    
     <div class="selection-modal--list-container" *ngFor="let filteredListItem of filteredOptions$ | async as list">
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
@@ -35,6 +47,24 @@
         </label>
       </div>
     </div>
+  </div>
+  <!-- when there is search query and there are no filtered options -->
+  <div *ngIf="!((filteredOptions$|async)?.length > 0)" class="selection-modal--list-element">
+    <label class="selection-modal--list-element-label">
+      <i>
+        No Results Found  
+      </i>
+    </label>
+  </div>
+  <div *ngIf="!((filteredOptions$|async)?.length > 0)" class="selection-modal--list-element">
+    <label #addNewEmail class="selection-modal--list-element-label" matRipple (click)="onNewSelect()">
+      <div class="selection-modal--add-item-block">
+        <mat-icon class="selection-modal--add-item-icon">
+          add_circle_outline
+        </mat-icon>
+        <span>Add  "<span class="selection-modal--new-item-name"><strong>{{ value }}</strong></span>"</span>
+      </div>
+    </label>
   </div>
 </ion-content>
 
