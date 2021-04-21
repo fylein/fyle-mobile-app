@@ -15,9 +15,9 @@
   <div *ngFor="let eHotelRequest of hotelRequests">
     <div class="hotel-requests--card">
       <div (click)="eHotelRequest.isOpened = !eHotelRequest.isOpened" matRipple class="hotel-requests--header">
-        <div class="hotel-requests--hotel-city">Hotel in {{eHotelRequest.hr.city.city}}</div>
-        <div class="hotel-requests--booking-date">{{eHotelRequest.hr.check_in_dt | date: 'MMM dd, yyyy'}} -
-          {{eHotelRequest.hr.check_out_dt | date: 'MMM dd, yyyy'}}</div>
+        <div class="hotel-requests--hotel-city">Hotel in {{eHotelRequest.hr.city.city || eHotelRequest.hr.city.display}}</div>
+        <div class="hotel-requests--booking-date">{{eHotelRequest.hr.check_in_dt | date: 'MMMM dd, yyyy'}} -
+          {{eHotelRequest.hr.check_out_dt | date: 'MMMM dd, yyyy'}}</div>
       </div>
 
       <div class="hotel-requests--content" *ngIf="eHotelRequest.isOpened">

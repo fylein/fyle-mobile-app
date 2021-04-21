@@ -107,7 +107,6 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
           }
         )
       );
-
       this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event: any) => event.srcElement.value),
         startWith(''),
