@@ -9,7 +9,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, tap } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController } from '@ionic/angular';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
@@ -82,14 +82,11 @@ export class ViewTeamPerDiemPage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedPerDiem$ = this.updateFlag$.pipe(
+      tap(() => this.loaderService.showLoader()),
       switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getExpenseV2(id);
-          })
-        );
+        return this.transactionService.getExpenseV2(id);
       }),
-      finalize(() => from(this.loaderService.hideLoader())),
+      tap(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
 

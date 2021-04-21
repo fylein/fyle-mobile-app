@@ -125,14 +125,11 @@ export class ViewTeamExpensePage implements OnInit {
     };
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
+      tap(() => this.loaderService.showLoader()),
       switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getEtxn(txId);
-          })
-        );
+        return this.transactionService.getEtxn(txId);
       }),
-      finalize(() => this.loaderService.hideLoader()),
+      tap(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
 
@@ -156,7 +153,6 @@ export class ViewTeamExpensePage implements OnInit {
           res[0].tx_custom_properties = res[1];
           return res[0];
         }),
-        finalize(() => this.loaderService.hideLoader()),
         shareReplay(1)
       );
 
