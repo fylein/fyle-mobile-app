@@ -480,14 +480,12 @@ export class OfflineService {
       switchMap(
         isOnline => {
           if (isOnline) {
-            console.log("check if it enters 1")
             return this.expenseFieldsService.getAllMap().pipe(
               tap((efMap) => {
                 this.storageService.set('cachedExpenseFieldsMap', efMap);
               })
             );
           } else {
-            console.log("check if it enters 2")
             return from(this.storageService.get('cachedExpenseFieldsMap'));
           }
         }

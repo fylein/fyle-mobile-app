@@ -1,6 +1,6 @@
 import { FieldCreatedBy } from "./field-created-by.model";
 
-export interface ExpenseFields {
+export interface ExpenseField {
   code?: string;
   column_name: string;
   created_at: Date;
