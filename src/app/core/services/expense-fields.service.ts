@@ -32,13 +32,13 @@ export class ExpenseFieldsService {
     return this.getAll().pipe(
       map(
         expenseFields => {
-          const efMap = {};
+          const expenseFieldMap = {};
 
-          expenseFields.forEach((expenseField) => {
-            efMap[expenseField.column_name] = expenseField;
+          expenseFields.forEach(expenseField => {
+            expenseFieldMap[expenseField.column_name] = expenseField;
           });
 
-          return efMap;
+          return expenseFieldMap;
         }
       )
     );

@@ -481,8 +481,8 @@ export class OfflineService {
         isOnline => {
           if (isOnline) {
             return this.expenseFieldsService.getAllMap().pipe(
-              tap((efMap) => {
-                this.storageService.set('cachedExpenseFieldsMap', efMap);
+              tap(expenseFieldMap => {
+                this.storageService.set('cachedExpenseFieldsMap', expenseFieldMap);
               })
             );
           } else {
