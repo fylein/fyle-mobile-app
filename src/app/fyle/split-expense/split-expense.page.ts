@@ -250,48 +250,48 @@ export class SplitExpensePage implements OnInit {
           }
           return defaultValue;
         }, true);
+
+        if (!canCreateNegativeExpense) {
+          this.showErrorBlock = true;
+          this.errorMessage = 'Amount should be greater than 0.01';
+          setTimeout(() => {
+            this.showErrorBlock = false;
+          }, 2500);
+          return;
+        }
+  
+        this.saveSplitExpenseLoading = true;
+        const generatedSplitEtxn = [];
+        this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
+          generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
+        });
+  
+        const uploadFiles$ = this.uploadFiles(this.fileUrls);
+  
+        uploadFiles$.pipe(
+          concatMap(() => {
+            return this.createAndLinkTxnsWithFiles(generatedSplitEtxn);
+          }),
+          concatMap((res) => {
+            const observables$ = [];
+            if (this.transaction.id) {
+              observables$.push(this.transactionService.delete(this.transaction.id));
+            }
+            if (this.transaction.corporate_credit_card_expense_group_id) {
+              observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
+            }
+  
+            if (observables$.length === 0) {
+              observables$.push(of(true));
+            }
+            return forkJoin(observables$);
+          }),
+        ).subscribe(
+          () => this.showSplitExpenseStatusPopup(true),
+          () => this.showSplitExpenseStatusPopup(false),
+          () => this.saveSplitExpenseLoading = false
+        );
       });
-
-      if (!canCreateNegativeExpense) {
-        this.showErrorBlock = true;
-        this.errorMessage = 'Amount should be greater than 0.01';
-        setTimeout(() => {
-          this.showErrorBlock = false;
-        }, 2500);
-        return;
-      }
-
-      this.saveSplitExpenseLoading = true;
-      const generatedSplitEtxn = [];
-      this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
-        generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
-      });
-
-      const uploadFiles$ = this.uploadFiles(this.fileUrls);
-
-      uploadFiles$.pipe(
-        concatMap(() => {
-          return this.createAndLinkTxnsWithFiles(generatedSplitEtxn);
-        }),
-        concatMap((res) => {
-          const observables$ = [];
-          if (this.transaction.id) {
-            observables$.push(this.transactionService.delete(this.transaction.id));
-          }
-          if (this.transaction.corporate_credit_card_expense_group_id) {
-            observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
-          }
-
-          if (observables$.length === 0) {
-            observables$.push(of(true));
-          }
-          return forkJoin(observables$);
-        }),
-      ).subscribe(
-        () => this.showSplitExpenseStatusPopup(true),
-        () => this.showSplitExpenseStatusPopup(false),
-        () => this.saveSplitExpenseLoading = false
-      );
 
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
