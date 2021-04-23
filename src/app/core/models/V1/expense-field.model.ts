@@ -1,7 +1,7 @@
 import { FieldCreatedBy } from "./field-created-by.model";
 
 export interface ExpenseField {
-  code?: string;
+  code: string;
   column_name: string;
   created_at: Date;
   created_by: FieldCreatedBy;
@@ -11,7 +11,7 @@ export interface ExpenseField {
   is_custom: boolean;
   is_enabled: boolean;
   is_mandatory: boolean;
-  options?: any[];
+  options: any[];
   org_category_ids: number[];
   org_id: string;
   placeholder: string;
