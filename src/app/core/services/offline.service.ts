@@ -22,7 +22,6 @@ import {OrgUserService} from './org-user.service';
 import { intersection } from 'lodash';
 import { DeviceService } from './device.service';
 import { ExpenseFieldsService } from './expense-fields.service';
-import { ExpenseFieldsMap } from '../models/V1/expense-fields-map.model';
 
 @Injectable({
   providedIn: 'root'
@@ -475,7 +474,7 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getExpenseFieldsMap(): Observable<ExpenseFieldsMap> {
+  getExpenseFieldsMap() {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
