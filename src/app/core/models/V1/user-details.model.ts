@@ -1,4 +1,4 @@
-export interface FieldCreatedBy {
+export interface UserDetails {
   allowed_CIDRs: string[];
   cluster_domain: string[];
   name: string;
