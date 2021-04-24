@@ -34,11 +34,11 @@ export class CustomFieldsService {
     let property = {
       id: customInput.id,
       prefix,
-      name: customInput[prefix + 'name'],
+      name: customInput[prefix + 'field_name'],
       value: null,
       placeholder: customInput[prefix + 'placeholder'],
       type: customInput[prefix + 'type'],
-      mandatory: customInput.mandatory,
+      mandatory: customInput.is_mandatory,
       options: customInput[prefix + 'options']
     };
 
@@ -46,7 +46,7 @@ export class CustomFieldsService {
 
     if (customProperties) {
       for (const customProperty of customProperties) {
-        if (customProperty.name === customInput[prefix + 'name']) {
+        if (customProperty.field_name === customInput[prefix + 'field_name']) {
           if (property.type === 'DATE' && customProperty.value) {
             property.value = new Date(customProperty.value);
           } else {
