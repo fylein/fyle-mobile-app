@@ -151,6 +151,7 @@ export class AddEditExpensePage implements OnInit {
   presetCostCenterId: number;
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   presetCurrency: string;
+  expenseFieldMap$: Observable<any>;
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -805,7 +806,8 @@ export class AddEditExpensePage implements OnInit {
       instaFyleSettings: instaFyleSettings$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
-      recentValue: this.recentlyUsedValues$
+      recentValue: this.recentlyUsedValues$,
+      expenseFieldMap: this.expenseFieldMap$
     }).pipe(
       map((dependencies) => {
         const {
@@ -818,11 +820,13 @@ export class AddEditExpensePage implements OnInit {
           instaFyleSettings,
           imageData,
           recentCurrency,
-          recentValue
+          recentValue,
+          expenseFieldMap
         } = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         this.isExpenseBankTxn = !!bankTxn;
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
+        console.log("check ef->", expenseFieldMap);
         let etxn;
         if (!bankTxn) {
           etxn = {
@@ -1111,6 +1115,7 @@ export class AddEditExpensePage implements OnInit {
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap(etxn => {
         return this.offlineService.getCustomInputs().pipe(map(customFields => {
+          console.log("check custom fields in selectedCustomInputs", customFields);
           return this.customFieldsService
             .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
         }));
@@ -1140,15 +1145,15 @@ export class AddEditExpensePage implements OnInit {
     ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
-          const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
+          const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.field_name === customInput.field_name);
           if (customInput.type === 'DATE') {
             return {
-              name: customInput.name,
+              name: customInput.field_name,
               value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null
             };
           } else {
             return {
-              name: customInput.name,
+              name: customInput.field_name,
               value: (cpor && cpor.value) || null
             };
           }
@@ -1397,6 +1402,7 @@ export class AddEditExpensePage implements OnInit {
           const formValue = this.fg.value;
           return this.offlineService.getCustomInputs().pipe(
             map(customFields => {
+              console.log("chekc custom fields", customFields)
               return this.customFieldsService
                 .standardizeCustomFields(
                   formValue.custom_inputs || [],
@@ -1406,6 +1412,7 @@ export class AddEditExpensePage implements OnInit {
           );
         }),
         map(customFields => {
+          console.log("chekc custom fields standard", customFields)
           return customFields.map(customField => {
             if (customField.options) {
               customField.options = customField.options.map(option => ({label: option, value: option}));
@@ -1423,11 +1430,11 @@ export class AddEditExpensePage implements OnInit {
               for (const customField of customFields) {
                 customFieldsFormArray.push(
                   this.formBuilder.group({
-                    name: [customField.name],
+                    name: [customField.field_name],
                     // Since in boolean, required validation is kinda unnecessary
                     value: [
                       customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
-                      customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required
+                      customField.type !== 'BOOLEAN' && customField.is_mandatory && isConnected && Validators.required
                     ]
                   })
                 );
@@ -1833,6 +1840,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.setupNetworkWatcher();
 
+    this.expenseFieldMap$ = this.offlineService.getExpenseFieldsMap();
+
     this.recentlyUsedValues$ = this.isConnected$.pipe(
       take(1),
       switchMap(isConnected => {
@@ -2222,9 +2231,9 @@ export class AddEditExpensePage implements OnInit {
       map(customInputs => {
         return customInputs.map((customInput, i) => {
           return {
-            id: customInput.id,
-            mandatory: customInput.mandatory,
-            name: customInput.name,
+            // id: customInput.id,
+            mandatory: customInput.is_mandatory,
+            name: customInput.field_name,
             options: customInput.options,
             placeholder: customInput.placeholder,
             prefix: customInput.prefix,

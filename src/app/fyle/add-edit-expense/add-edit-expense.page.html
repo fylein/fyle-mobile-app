@@ -619,8 +619,8 @@
                      class="add-edit-expense--text ">
                   <div [ngClass]="{'add-edit-expense--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        class="add-edit-expense--text-label">
-                    {{customInput.name | ellipsis: 11}}
-                    <span *ngIf="customInput.mandatory">
+                    {{customInput.field_name | ellipsis: 11}}
+                    <span *ngIf="customInput.is_mandatory">
                     *
                   </span>
                   </div>
@@ -638,8 +638,8 @@
                      class="add-edit-expense--checkbox">
                   <label>
                     <mat-checkbox color="primary" formControlName="value">
-                      {{customInput.name | ellipsis: 35 }}
-                      <span *ngIf="customInput.mandatory">
+                      {{customInput.field_name | ellipsis: 35 }}
+                      <span *ngIf="customInput.is_mandatory">
                       *
                     </span>
                     </mat-checkbox>
@@ -647,35 +647,35 @@
                 </div>
 
                 <div *ngIf="customInput.type === 'LOCATION'">
-                  <app-fy-location [label]="customInput.name  | ellipsis: 11" [mandatory]="customInput.mandatory"
+                  <app-fy-location [label]="customInput.field_name  | ellipsis: 11" [mandatory]="customInput.is_mandatory"
                                    formControlName="value">
                   </app-fy-location>
                 </div>
 
                 <div *ngIf="customInput.type === 'SELECT'">
                   <app-fy-select
-                    [label]="customInput.name  | ellipsis: 11"
-                    [mandatory]="customInput.mandatory"
+                    [label]="customInput.field_name  | ellipsis: 11"
+                    [mandatory]="customInput.is_mandatory"
                     [options]="customInput.options"
-                    [selectModalHeader]="'Choose '+customInput.name"
+                    [selectModalHeader]="'Choose '+customInput.field_name"
                     formControlName="value">
                   </app-fy-select>
                 </div>
 
                 <div *ngIf="customInput.type === 'MULTI_SELECT'">
                   <app-fy-multiselect
-                    [label]="customInput.name  | ellipsis: 11"
-                    [mandatory]="customInput.mandatory"
+                    [label]="customInput.field_name  | ellipsis: 11"
+                    [mandatory]="customInput.is_mandatory"
                     [options]="customInput.options"
-                    [selectModalHeader]="'Choose '+customInput.name"
-                    [subheader]="customInput.name" formControlName="value">
+                    [selectModalHeader]="'Choose '+customInput.field_name"
+                    [subheader]="customInput.field_name" formControlName="value">
                   </app-fy-multiselect>
                 </div>
 
                 <div *ngIf="customInput.type === 'USER_LIST'">
                   <app-fy-userlist
-                    [label]="customInput.name | ellipsis: 11"
-                    [mandatory]="customInput.mandatory"
+                    [label]="customInput.field_name | ellipsis: 11"
+                    [mandatory]="customInput.is_mandatory"
                     formControlName="value">
                   </app-fy-userlist>
                 </div>
@@ -684,7 +684,7 @@
             </div>
             <div *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid"
                  class="add-edit-expense--error">
-              Please enter {{ customInput.name }}.
+              Please enter {{ customInput.field_name }}.
             </div>
           </ng-container>
         </div>

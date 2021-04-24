@@ -31,6 +31,7 @@ export class CustomFieldsService {
   }
 
   setProperty(prefix, customInput, customProperties) {
+    console.log("check custom input in setproperty", customInput);
     let property = {
       id: customInput.id,
       prefix,
@@ -38,7 +39,7 @@ export class CustomFieldsService {
       value: null,
       placeholder: customInput[prefix + 'placeholder'],
       type: customInput[prefix + 'type'],
-      mandatory: customInput.mandatory,
+      mandatory: customInput.is_mandatory,
       options: customInput[prefix + 'options']
     };
 
@@ -46,7 +47,7 @@ export class CustomFieldsService {
 
     if (customProperties) {
       for (const customProperty of customProperties) {
-        if (customProperty.name === customInput[prefix + 'name']) {
+        if (customProperty.field_name === customInput[prefix + 'name']) {
           if (property.type === 'DATE' && customProperty.value) {
             property.value = new Date(customProperty.value);
           } else {
@@ -57,24 +58,34 @@ export class CustomFieldsService {
       }
 
     }
+    console.log("check property", property);
     return property;
   }
 
   standardizeCustomFields(customProperties, customInputs) {
+    console.log("check customProperties in standardizeCustomFields", customProperties);
+    console.log("check customInputs in standardizeCustomFields", customInputs);
+
     let prefix = '';
 
     const filledCustomPropertiesWithType = customInputs.filter((customInput) => {
-      return !customInput.input_type;
+      console.log("check input -->>", customInput.type);
+      return !customInput.type;
     }).map((customInput) => {
+      console.log("check input in map -->>", prefix, customInput, customProperties);
       return this.setProperty(prefix, customInput, customProperties);
     });
 
+    console.log("check the filled custom properties with type->",filledCustomPropertiesWithType)
+
     const filledCustomPropertiesWithInputType = customInputs.filter((customInput) => {
-      return !customInput.type && customInput.input_type;
+      return !customInput.type && customInput.type;
     }).map((customInput) => {
       prefix = 'input_';
       return this.setProperty(prefix, customInput, customProperties);
     });
+
+    console.log("check filledCustomPropertiesWithInputType", filledCustomPropertiesWithInputType);
 
     return filledCustomPropertiesWithType.concat(filledCustomPropertiesWithInputType).sort(this.sortcustomFieldsByType);
   }
@@ -83,7 +94,7 @@ export class CustomFieldsService {
     const changedCustomProperties = customProperties.map((customProperty) => {
       return {
         id: customProperty.id,
-        name: customProperty.name,
+        name: customProperty.field_name,
         value: customProperty.value,
         type: customProperty.type
       };

@@ -33,11 +33,11 @@ export class ExpenseFieldsService {
       map(
         expenseFields => {
           const expenseFieldMap = {};
-
+          console.log("check the expensefields", expenseFields);
           expenseFields.forEach(expenseField => {
             expenseFieldMap[expenseField.column_name] = expenseField;
           });
-
+          console.log("check the expensefieldsmap", expenseFieldMap);
           return expenseFieldMap;
         }
       )
