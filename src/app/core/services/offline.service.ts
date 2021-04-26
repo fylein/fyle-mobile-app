@@ -14,13 +14,14 @@ import {TransactionFieldConfigurationsService} from './transaction-field-configu
 import {StorageService} from './storage.service';
 import {CurrencyService} from './currency.service';
 import {catchError, concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
-import {forkJoin, from} from 'rxjs';
+import {forkJoin, from, Observable} from 'rxjs';
 import {PermissionsService} from './permissions.service';
 import {Org} from '../models/org.model';
 import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 import {OrgUserService} from './org-user.service';
 import { intersection } from 'lodash';
 import { DeviceService } from './device.service';
+import { ExpenseFieldsService } from './expense-fields.service';
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,8 @@ export class OfflineService {
     private storageService: StorageService,
     private permissionsService: PermissionsService,
     private orgUserService: OrgUserService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private expenseFieldsService: ExpenseFieldsService
   ) { }
 
   load() {
@@ -59,6 +61,7 @@ export class OfflineService {
     const currentOrg$ = this.getCurrentOrg();
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
+    const expenseFieldsMap$ = this.getExpenseFieldsMap();
     const transactionFieldConfigurationsMap$ = this.getTransactionFieldConfigurationsMap();
     const currencies$ = this.getCurrencies();
     const homeCurrency$ = this.getHomeCurrency();
@@ -82,6 +85,7 @@ export class OfflineService {
       orgs$,
       accounts$,
       transactionFieldConfigurationsMap$,
+      expenseFieldsMap$,
       currencies$,
       homeCurrency$,
       delegatedAccounts$
@@ -463,6 +467,25 @@ export class OfflineService {
             );
           } else {
             return from(this.storageService.get('cachedTransactionFieldConfigurationsMap'));
+          }
+        }
+      )
+    );
+  }
+
+  @Cacheable()
+  getExpenseFieldsMap() {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.expenseFieldsService.getAllMap().pipe(
+              tap(expenseFieldMap => {
+                this.storageService.set('cachedExpenseFieldsMap', expenseFieldMap);
+              })
+            );
+          } else {
+            return from(this.storageService.get('cachedExpenseFieldsMap'));
           }
         }
       )
