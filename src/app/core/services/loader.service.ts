@@ -38,7 +38,7 @@ export class LoaderService {
      * This will make sure that we are hiding only the current active loader in the page.
      */
     if (this.counter === 0) {
-      await this.loading.dismiss()
+      await this.loading.dismiss();
     }
 
     return this.loading;
