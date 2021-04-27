@@ -940,7 +940,8 @@ export class AddEditExpensePage implements OnInit {
 
           if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
-            const category = categories.find(orgCategory => orgCategory.name === categoryName);
+            const enabledCategories = categories.filter(category => category.enabled);
+            const category = enabledCategories.find(orgCategory => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
           }
 
