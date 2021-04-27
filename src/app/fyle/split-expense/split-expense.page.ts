@@ -4,8 +4,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
-import { forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { concatMap, finalize, map, switchMap} from 'rxjs/operators';
+import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
+import { catchError, concatMap, finalize, map, switchMap, tap} from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -286,9 +286,14 @@ export class SplitExpensePage implements OnInit {
             }
             return forkJoin(observables$);
           }),
-          finalize(() => {
+          tap((res) => {
             this.showSplitExpenseStatusPopup(true);
+          }),
+          catchError(err => {
             this.showSplitExpenseStatusPopup(false);
+            return throwError(err);
+          }),
+          finalize(() => {
             this.saveSplitExpenseLoading = false;
           })
         ).subscribe(noop);
