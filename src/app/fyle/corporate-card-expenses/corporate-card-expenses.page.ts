@@ -11,7 +11,7 @@ import {PopupService} from '../../core/services/popup.service';
 import {debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, takeUntil, filter} from 'rxjs/operators';
 import {BehaviorSubject, concat, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject} from 'rxjs';
 import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
-import {CorporateCardExpense} from '../../core/models/V2/corporate-card-expense.model';
+import {CorporateCardExpense} from '../../core/models/v2/corporate-card-expense.model';
 import { CorporateCardExpensesSortFilterComponent } from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
 import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-expenses-search-filter/corporate-card-expenses-search-filter.component';
 
