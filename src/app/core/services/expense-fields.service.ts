@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { ExpenseField } from '../models/V1/expense-field.model';
+import { ExpenseFieldsMap } from '../models/V1/expense-fields-map.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
@@ -29,11 +30,11 @@ export class ExpenseFieldsService {
     )
   }
 
-  getAllMap() {
+  getAllMap(): Observable<ExpenseFieldsMap> {
     return this.getAll().pipe(
       map(
         expenseFields => {
-          const expenseFieldMap = {};
+          const expenseFieldMap: ExpenseFieldsMap = {};
 
           expenseFields.forEach(expenseField => {
             expenseFieldMap[expenseField.column_name] = expenseField;
