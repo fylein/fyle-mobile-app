@@ -36,7 +36,15 @@ export class ExpenseFieldsService {
           const expenseFieldMap: ExpenseFieldsMap = {};
 
           expenseFields.forEach(expenseField => {
-            expenseFieldMap[expenseField.column_name] = expenseField;
+            if (expenseFieldMap[expenseField.column_name]) {
+              let expenseFieldsList = expenseFieldMap[expenseField.column_name];
+              expenseFieldsList.push(expenseField);
+              expenseFieldMap[expenseField.column_name] = expenseFieldsList;
+            } else {
+              let newExpenseFieldList = [];
+              newExpenseFieldList.push(expenseField);
+              expenseFieldMap[expenseField.column_name] = newExpenseFieldList;
+            }
           });
 
           return expenseFieldMap;
