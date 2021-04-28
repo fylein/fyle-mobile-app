@@ -3,7 +3,7 @@ import {Expense} from '../../../core/models/expense.model';
 import {Observable} from 'rxjs';
 import {ReportService} from '../../../core/services/report.service';
 import {map} from 'rxjs/operators';
-import {CorporateCardExpense} from '../../../core/models/V2/corporate-card-expense.model';
+import {CorporateCardExpense} from '../../../core/models/v2/corporate-card-expense.model';
 
 @Component({
   selector: 'app-corporate-card-expense-card',
