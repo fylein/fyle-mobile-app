@@ -76,8 +76,7 @@ export class ExpenseFieldsService {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map(fields => fields.map(field => {
-        let configurations = [];
-        configurations.push(tfcMap[field]);
+        let configurations = tfcMap[field];
         let filteredField;
 
         if (configurations && configurations.length > 0) {
