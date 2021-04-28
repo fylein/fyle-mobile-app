@@ -2914,8 +2914,9 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       imageData: from(this.getParsedReceipt(base64Image, fileType)),
       filteredCategories: this.filteredCategories$.pipe(take(1)),
-      homeCurrency: this.offlineService.getHomeCurrency()
-    }).subscribe(({imageData, filteredCategories, homeCurrency}) => {
+      homeCurrency: this.offlineService.getHomeCurrency(),
+      etxn: this.etxn$
+    }).subscribe(({imageData, filteredCategories, homeCurrency, etxn}) => {
       const extractedData = {
         amount: imageData && imageData.data && imageData.data.amount,
         currency: imageData && imageData.data && imageData.data.currency,
@@ -2924,6 +2925,8 @@ export class AddEditExpensePage implements OnInit {
         vendor: imageData && imageData.data && imageData.data.vendor_name,
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
+
+      etxn.tx.extracted_data = extractedData;
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
