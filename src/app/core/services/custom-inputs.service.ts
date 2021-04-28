@@ -3,8 +3,9 @@ import { ApiService } from './api.service';
 import { map, switchMap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
-import { from, Subject } from 'rxjs';
+import { from, Observable, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
+import { ExpenseField } from '../models/V1/expense-field.model';
 
 const customInputssCacheBuster$ = new Subject<void>();
 
@@ -23,7 +24,7 @@ export class CustomInputsService {
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$
   })
-  getAll(active: boolean) {
+  getAll(active: boolean): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
         return this.apiService.get('/expense_fields', {
