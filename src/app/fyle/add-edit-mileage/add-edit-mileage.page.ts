@@ -44,12 +44,12 @@ import {DateService} from 'src/app/core/services/date.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import {TokenService} from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
-import { RecentlyUsed } from 'src/app/core/models/V1/recently_used.model';
+import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { LocationService } from 'src/app/core/services/location.service';
 import { GeolocationPosition } from '@capacitor/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
-import { CostCenter } from 'src/app/core/models/V1/cost-center.model';
+import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 
 @Component({
   selector: 'app-add-edit-mileage',

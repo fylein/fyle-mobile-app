@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { ExpenseField } from '../models/V1/expense-field.model';
-import { ExpenseFieldsMap } from '../models/V1/expense-fields-map.model';
+import { ExpenseField } from '../models/v1/expense-field.model';
+import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
