@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
-import { ExpenseField } from '../models/V1/expense-field.model';
-import { ExpenseFieldsMap } from '../models/V1/expense-fields-map.model';
+import { ExpenseField } from '../models/v1/expense-field.model';
+import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
@@ -37,7 +37,15 @@ export class ExpenseFieldsService {
           const expenseFieldMap: ExpenseFieldsMap = {};
 
           expenseFields.forEach(expenseField => {
-            expenseFieldMap[expenseField.column_name] = expenseField;
+            if (expenseFieldMap[expenseField.column_name]) {
+              let expenseFieldsList = expenseFieldMap[expenseField.column_name];
+              expenseFieldsList.push(expenseField);
+              expenseFieldMap[expenseField.column_name] = expenseFieldsList;
+            } else {
+              let newExpenseFieldList = [];
+              newExpenseFieldList.push(expenseField);
+              expenseFieldMap[expenseField.column_name] = newExpenseFieldList;
+            }
           });
 
           return expenseFieldMap;

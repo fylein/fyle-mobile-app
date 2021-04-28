@@ -8,6 +8,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 
 
 @Component({
@@ -41,7 +42,8 @@ export class NotificationsPage implements OnInit {
     private formBuilder: FormBuilder,
     private offlineService: OfflineService,
     private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private navController: NavController
   ) { }
 
   updateDelegateeSubscription() {
@@ -128,7 +130,9 @@ export class NotificationsPage implements OnInit {
 
     this.orgUserSettingsService.post(this.orgUserSettings).pipe(
       finalize(() => this.saveNotifLoading = false)
-    ).subscribe(noop);
+    ).subscribe(() => {
+      this.navController.back();
+    });
   }
 
   isAllEventsSubscribed() {
