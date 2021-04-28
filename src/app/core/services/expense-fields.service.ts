@@ -60,8 +60,8 @@ export class ExpenseFieldsService {
 
   findCommonRoles(roles) {
     return this.getUserRoles().pipe(
-      map(userRoles => roles.filter((role) => {
-        return userRoles.indexOf(role) !== -1;
+      map(userRoles => roles.filter(role => {
+        return userRoles.indexOf(role) > -1;
       }))
     );
   }
