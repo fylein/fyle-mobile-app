@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
+import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ApiService } from './api.service';
@@ -54,11 +55,11 @@ export class ExpenseFieldsService {
     );
   }
 
-  getUserRoles() {
+  getUserRoles(): Observable<string[]> {
     return from(this.authService.getRoles());
   }
 
-  findCommonRoles(roles) {
+  findCommonRoles(roles): Observable<string[]> {
     return this.getUserRoles().pipe(
       map(userRoles => roles.filter(role => {
         return userRoles.indexOf(role) > -1;
@@ -66,13 +67,13 @@ export class ExpenseFieldsService {
     );
   }
 
-  canEdit(roles) {
+  canEdit(roles): Observable<boolean> {
     return this.findCommonRoles(roles).pipe(
       map(commonRoles => (commonRoles.length > 0))
     );
   }
 
-  filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any) {
+  filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<ExpenseFieldsMap> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map(fields => fields.map(field => {
@@ -124,7 +125,7 @@ export class ExpenseFieldsService {
     );
   }
 
-  getDefaultTxnFieldValues(txnFields) {
+  getDefaultTxnFieldValues(txnFields): DefaultTxnFieldValues {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
       if (txnFields.hasOwnProperty(configurationColumn)) {
