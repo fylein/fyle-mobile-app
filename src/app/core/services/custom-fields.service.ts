@@ -46,7 +46,7 @@ export class CustomFieldsService {
 
     if (customProperties) {
       for (const customProperty of customProperties) {
-        if (customProperty.field_name === customInput[prefix + 'field_name']) {
+        if (customProperty.name === customInput[prefix + 'field_name']) {
           if (property.type === 'DATE' && customProperty.value) {
             property.value = new Date(customProperty.value);
           } else {
