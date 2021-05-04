@@ -1,5 +1,5 @@
 export interface UserDetails {
-  allowed_CIDRs: string[];
+  allowed_cidrs: string[];
   cluster_domain: string[];
   name: string;
   org_id: string;
