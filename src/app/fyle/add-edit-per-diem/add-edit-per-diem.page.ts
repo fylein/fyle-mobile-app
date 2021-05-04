@@ -358,28 +358,28 @@ export class AddEditPerDiemPage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return forkJoin({
-          tfcMap: this.offlineService.getExpenseFieldsMap(),
+          expensefieldsMap: this.offlineService.getExpenseFieldsMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories()
         }).pipe(
-          switchMap(({tfcMap, perDiemCategoriesContainer}) => {
+          switchMap(({expensefieldsMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.expenseFieldsService
               .filterByOrgCategoryId(
-                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+                expensefieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );
       }),
-      map((tfcMap: any) => {
-        if (tfcMap) {
-          for (const tfc of Object.keys(tfcMap)) {
-            if (tfcMap[tfc].options && tfcMap[tfc].options.length > 0) {
-              tfcMap[tfc].options = tfcMap[tfc].options.map(value => ({label: value, value}));
+      map((expensefieldsMap: any) => {
+        if (expensefieldsMap) {
+          for (const tfc of Object.keys(expensefieldsMap)) {
+            if (expensefieldsMap[tfc].options && expensefieldsMap[tfc].options.length > 0) {
+              expensefieldsMap[tfc].options = expensefieldsMap[tfc].options.map(value => ({label: value, value}));
             }
           }
         }
 
-        return tfcMap;
+        return expensefieldsMap;
       }),
       shareReplay(1)
     );
@@ -390,14 +390,14 @@ export class AddEditPerDiemPage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return forkJoin({
-          tfcMap: this.offlineService.getExpenseFieldsMap(),
+          expensefieldsMap: this.offlineService.getExpenseFieldsMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories()
         }).pipe(
-          switchMap(({tfcMap, perDiemCategoriesContainer}) => {
+          switchMap(({expensefieldsMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.expenseFieldsService
               .filterByOrgCategoryId(
-                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+                expensefieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );

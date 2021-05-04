@@ -373,30 +373,30 @@ export class AddEditMileagePage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return forkJoin({
-          tfcMap: this.offlineService.getExpenseFieldsMap(),
+          expensefieldsMap: this.offlineService.getExpenseFieldsMap(),
           mileageCategoriesContainer: this.getMileageCategories()
         }).pipe(
-          switchMap(({ tfcMap, mileageCategoriesContainer }) => {
+          switchMap(({ expensefieldsMap, mileageCategoriesContainer }) => {
             // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
             const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
 
             return this.expenseFieldsService
               .filterByOrgCategoryId(
-                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
+                expensefieldsMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
               );
           })
         );
       }),
-      map((tfcMap: any) => {
-        if (tfcMap) {
-          for (const tfc of Object.keys(tfcMap)) {
-            if (tfcMap[tfc].options && tfcMap[tfc].options.length > 0) {
-              tfcMap[tfc].options = tfcMap[tfc].options.map(value => ({ label: value, value }));
+      map((expensefieldsMap: any) => {
+        if (expensefieldsMap) {
+          for (const tfc of Object.keys(expensefieldsMap)) {
+            if (expensefieldsMap[tfc].options && expensefieldsMap[tfc].options.length > 0) {
+              expensefieldsMap[tfc].options = expensefieldsMap[tfc].options.map(value => ({ label: value, value }));
             }
           }
         }
 
-        return tfcMap;
+        return expensefieldsMap;
       }),
       shareReplay(1)
     );
@@ -407,14 +407,14 @@ export class AddEditMileagePage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return forkJoin({
-          tfcMap: this.offlineService.getExpenseFieldsMap(),
+          expensefieldsMap: this.offlineService.getExpenseFieldsMap(),
           mileageCategoriesContainer: this.getMileageCategories()
         }).pipe(
-          switchMap(({ tfcMap, mileageCategoriesContainer }) => {
+          switchMap(({ expensefieldsMap, mileageCategoriesContainer }) => {
             const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
             return this.expenseFieldsService
               .filterByOrgCategoryId(
-                tfcMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
+                expensefieldsMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
               );
           })
         );
