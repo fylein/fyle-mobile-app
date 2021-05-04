@@ -17,7 +17,7 @@ export class ExpenseFieldsService {
     private authService: AuthService
   ) { }
 
-  getAll(): Observable<ExpenseField[]> {
+  getAllEnabled(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap(eou => {
         return this.apiService.get('/expense_fields', {
@@ -31,24 +31,34 @@ export class ExpenseFieldsService {
     )
   }
 
+  /* getAllMap() method returns a mapping of column_names and their respective mapped fields
+   * Object key: Column name
+   * Object value: List of fields mapped to that particular column
+   * Example: {
+   *  boolean_column1: [{…}]
+      bus_travel_class: [{…}]
+      cost_center_id: [{…}]
+      decimal_column1: [{…}]
+      decimal_column10: [{…}]
+      distance: (2) [{…}, {…}]
+      ... }
+   */
   getAllMap(): Observable<ExpenseFieldsMap> {
-    return this.getAll().pipe(
+    return this.getAllEnabled().pipe(
       map(
         expenseFields => {
           const expenseFieldMap: ExpenseFieldsMap = {};
 
           expenseFields.forEach(expenseField => {
-            if (expenseFieldMap[expenseField.column_name]) {
-              let expenseFieldsList = expenseFieldMap[expenseField.column_name];
-              expenseFieldsList.push(expenseField);
-              expenseFieldMap[expenseField.column_name] = expenseFieldsList;
-            } else {
-              let newExpenseFieldList = [];
-              newExpenseFieldList.push(expenseField);
-              expenseFieldMap[expenseField.column_name] = newExpenseFieldList;
-            }
-          });
+            let expenseFieldsList = [];
 
+            if (expenseFieldMap[expenseField.column_name]) {
+              expenseFieldsList = expenseFieldMap[expenseField.column_name];
+            }
+
+            expenseFieldsList.push(expenseField);
+            expenseFieldMap[expenseField.column_name] = expenseFieldsList;
+          });
           return expenseFieldMap;
         }
       )
