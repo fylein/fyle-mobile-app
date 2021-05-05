@@ -37,7 +37,7 @@ export class CustomFieldsService {
      */
     let customInputName;
     if (customInput.hasOwnProperty('field_name')) {
-      customInputName = customInput[prefix + 'field_name'];
+      customInputName = customInput.field_name;
     } else {
       customInputName = customInput[prefix + 'name'];
     }
