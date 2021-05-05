@@ -1448,11 +1448,11 @@ export class AddEditExpensePage implements OnInit {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) => {
-        return this.offlineService.getExpenseFieldsMap().pipe(switchMap(tfcMap => {
+        return this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
           const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
           return this.expenseFieldsService
           .filterByOrgCategoryId(
-              tfcMap,
+              expenseFieldsMap,
               fields,
               formValue.category
             );
@@ -1461,19 +1461,19 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.txnFields$ = txnFieldsMap$.pipe(
-      map((tfcMap: any) => {
-        if (tfcMap) {
-          for (const tfc of Object.keys(tfcMap)) {
-            if (tfcMap[tfc].options && tfcMap[tfc].options.length > 0) {
+      map((expenseFieldsMap: any) => {
+        if (expenseFieldsMap) {
+          for (const tfc of Object.keys(expenseFieldsMap)) {
+            if (expenseFieldsMap[tfc].options && expenseFieldsMap[tfc].options.length > 0) {
               if (tfc === 'vendor_id') {
-                tfcMap[tfc].options = tfcMap[tfc].options.map(value => ({label: value, value: { display_name: value}}));
+                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value: { display_name: value}}));
               } else {
-                tfcMap[tfc].options = tfcMap[tfc].options.map(value => ({label: value, value}));
+                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value}));
               }
             }
           }
         }
-        return tfcMap;
+        return expenseFieldsMap;
       }),
       shareReplay(1)
     );
