@@ -1,8 +1,8 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, finalize, concatMap, debounceTime } from 'rxjs/operators';
-import { isEqual, cloneDeep, startsWith } from 'lodash';
+import { map, startWith, distinctUntilChanged, switchMap, finalize, concatMap, debounceTime, tap } from 'rxjs/operators';
+import { isEqual, cloneDeep, startsWith} from 'lodash';
 import { Employee } from 'src/app/core/models/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -24,9 +24,9 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   selectedUsers: any[] = [];
   intialSelectedEmployees: any[] = [];
   userListCopy$: Observable<Employee[]>;
-  newlyAddedItems$: Observable<any[]>;
+  newlyAddedItems$: Observable<Partial<Employee>[]>;
   invalidEmail = false;
-  currentSelectionsCopy: any[] = [];
+  currentSelectionsCopy = [];
 
   constructor(
     private modalController: ModalController,
@@ -137,6 +137,25 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     return of(newEmpList);
   }
 
+  processNewlyAddedItems(searchText) {
+    return map((newlyAddedItems: Partial<Employee>[] ) => {
+      if (searchText && searchText.length > 0) {
+        var searchTextLowerCase = searchText.toLowerCase();
+        var newItem = {
+          isNew: true,
+          us_email: searchText
+        };
+        var newArr = [];
+        newArr.push(newItem);
+        newlyAddedItems = newArr.concat(newlyAddedItems);
+        return newlyAddedItems.filter(item => {
+          return item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase);
+        });
+      }
+      return newlyAddedItems;
+    })
+  }
+
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
@@ -161,22 +180,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
           return from(this.filteredOptions$).pipe(
             switchMap((filteredOptions) => {
               return this.getNewlyAddedUsers(filteredOptions).pipe(
-                map((newlyAddedItems: Partial<Employee>[] ) => {
-                  if (searchText && searchText.length > 0) {
-                    var searchTextLowerCase = searchText.toLowerCase();
-                    var newItem = {
-                      isNew: true,
-                      us_email: searchText
-                    };
-                    var newArr = [];
-                    newArr.push(newItem);
-                    newlyAddedItems = newArr.concat(newlyAddedItems);
-                    return newlyAddedItems.filter(item => {
-                      return item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase);
-                    });
-                  }
-                  return newlyAddedItems;
-                })
+                this.processNewlyAddedItems(searchText)
               )
             })
           )
