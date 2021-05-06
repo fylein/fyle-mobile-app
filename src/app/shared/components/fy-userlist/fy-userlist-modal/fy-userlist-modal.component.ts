@@ -164,6 +164,13 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
                 map((newlyAddedItems: Partial<Employee>[] ) => {
                   if (searchText && searchText.length > 0) {
                     var searchTextLowerCase = searchText.toLowerCase();
+                    var newItem = {
+                      isNew: true,
+                      us_email: searchText
+                    };
+                    var newArr = [];
+                    newArr.push(newItem);
+                    newlyAddedItems = newArr.concat(newlyAddedItems);
                     return newlyAddedItems.filter(item => {
                       return item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase);
                     });
@@ -200,8 +207,10 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   onAddNew() {
     this.value = this.value.trim();
-    if(!this.invalidEmail) {
-      this.currentSelections.push(this.value);
+    if (!this.invalidEmail) {
+      if (!(this.currentSelections.indexOf(this.value) > -1)) {
+        this.currentSelections.push(this.value);
+      }
       this.clearValue();
     }
   }

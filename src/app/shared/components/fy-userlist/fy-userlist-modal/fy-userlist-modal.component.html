@@ -28,10 +28,16 @@
     <div class="selection-modal--list-container" *ngFor="let newlyAddedItem of newlyAddedItems$ | async as list">
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
-          <mat-checkbox color="primary" [checked]="newlyAddedItem.is_selected" (change)="onSelect(newlyAddedItem, $event)"></mat-checkbox>
-          <span class="selection-modal--approver-details">
+          <mat-checkbox color="primary" *ngIf="!newlyAddedItem.isNew" [checked]="newlyAddedItem.is_selected" (change)="onSelect(newlyAddedItem, $event)"></mat-checkbox>
+          <span *ngIf="!newlyAddedItem.isNew" class="selection-modal--approver-details">
             <span>{{newlyAddedItem.us_email}}</span>
           </span>
+          <div class="selection-modal--add-item-block" *ngIf="newlyAddedItem.isNew && value && value.length > 0" (click)="onAddNew()">
+            <mat-icon class="selection-modal--add-item-icon">
+              add_circle_outline
+            </mat-icon>
+            <span>Add  "<span class="selection-modal--new-item-name"><strong>{{ value }}</strong></span>"</span>
+          </div>
         </label>
       </div>
     </div>
@@ -47,24 +53,6 @@
         </label>
       </div>
     </div>
-  </div>
-  <!-- when there is search query and there are no filtered options -->
-  <div *ngIf="(!(filteredOptions$|async)?.length > 0 && !(newlyAddedItems$|async)?.length > 0) && value && value.length > 0" class="selection-modal--list-element">
-    <label class="selection-modal--list-element-label">
-      <i>
-        No Results Found  
-      </i>
-    </label>
-  </div>
-  <div *ngIf="(!(filteredOptions$|async)?.length > 0 && !(newlyAddedItems$|async)?.length > 0) && value && value.length > 0 && !invalidEmail && allowCustomValues" class="selection-modal--list-element">
-    <label #addNewEmail class="selection-modal--list-element-label" matRipple (click)="onAddNew()">
-      <div class="selection-modal--add-item-block">
-        <mat-icon class="selection-modal--add-item-icon">
-          add_circle_outline
-        </mat-icon>
-        <span>Add  "<span class="selection-modal--new-item-name"><strong>{{ value }}</strong></span>"</span>
-      </div>
-    </label>
   </div>
 </ion-content>
 
