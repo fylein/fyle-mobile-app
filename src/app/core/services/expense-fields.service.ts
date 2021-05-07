@@ -41,11 +41,11 @@ export class ExpenseFieldsService {
       distance: (2) [{…}, {…}]
       ... }
    */
-  getAllMap(): Observable<ExpenseFieldsMap> {
+  getAllMap(): Observable<Partial<ExpenseFieldsMap>> {
     return this.getAllEnabled().pipe(
       map(
         expenseFields => {
-          const expenseFieldMap: ExpenseFieldsMap = {};
+          const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
 
           expenseFields.forEach(expenseField => {
             let expenseFieldsList = [];

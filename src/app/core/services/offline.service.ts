@@ -475,7 +475,7 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getExpenseFieldsMap(): Observable<ExpenseFieldsMap> {
+  getExpenseFieldsMap(): Observable<Partial<ExpenseFieldsMap>> {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
