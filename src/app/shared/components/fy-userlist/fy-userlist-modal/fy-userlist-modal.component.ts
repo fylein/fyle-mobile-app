@@ -138,22 +138,28 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   }
 
   processNewlyAddedItems(searchText) {
-    return map((newlyAddedItems: Partial<Employee>[] ) => {
-      if (searchText && searchText.length > 0) {
-        var searchTextLowerCase = searchText.toLowerCase();
-        var newItem = {
-          isNew: true,
-          us_email: searchText
-        };
-        var newArr = [];
-        newArr.push(newItem);
-        newlyAddedItems = newArr.concat(newlyAddedItems);
-        return newlyAddedItems.filter(item => {
-          return item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase);
-        });
-      }
-      return newlyAddedItems;
-    })
+    return from(this.filteredOptions$).pipe(
+      switchMap((filteredOptions) => {
+        return this.getNewlyAddedUsers(filteredOptions).pipe(
+          map((newlyAddedItems: Partial<Employee>[] ) => {
+            if (searchText && searchText.length > 0) {
+              var searchTextLowerCase = searchText.toLowerCase();
+              var newItem = {
+                isNew: true,
+                us_email: searchText
+              };
+              var newArr = [];
+              newArr.push(newItem);
+              newlyAddedItems = newArr.concat(newlyAddedItems);
+              return newlyAddedItems.filter(item => {
+                return item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase);
+              });
+            }
+            return newlyAddedItems;
+          })
+        )
+      })
+    );
   }
 
   ngAfterViewInit() {
@@ -173,17 +179,13 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         startWith(''),
         distinctUntilChanged(),
         debounceTime(400),
-        switchMap((searchText) => {
+        tap((searchText) => {
           // if newly added value is a valid email
           var emailRegex = /^\S+@\S+\.\S{2,}$/;
           this.invalidEmail = searchText && searchText.length > 0 && !(emailRegex.test(searchText));
-          return from(this.filteredOptions$).pipe(
-            switchMap((filteredOptions) => {
-              return this.getNewlyAddedUsers(filteredOptions).pipe(
-                this.processNewlyAddedItems(searchText)
-              )
-            })
-          )
+        }),
+        switchMap((searchText) => {
+          return this.processNewlyAddedItems(searchText);
         })
       );
     }
