@@ -73,8 +73,10 @@ export class FyUserlistComponent implements OnInit {
     const currencyModal = await this.modalController.create({
       component: FyUserlistModalComponent,
       componentProps: {
+
         currentSelections: cloneDeep(this.value) || [],
         allowCustomValues: this.allowCustomValues
+
       }
     });
 

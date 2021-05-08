@@ -73,8 +73,8 @@
 
         <div class="split-expense--amount-percentage">
           <div class="split-expense--item">
-            <span class="split-expense--label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid}">{{currency}}*</span>
-            <input inputmode="decimal" type="number" class="split-expense--input" formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm, i)">
+            <span class="split-expense--label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid || (splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async))}">{{currency}}*</span>
+            <input inputmode="decimal" [min]="(isCorporateCardsEnabled$|async) ? null : 0.01" type="number" class="split-expense--input" formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm, i)">
           </div>
 
           <div class="split-expense--item">
@@ -82,6 +82,8 @@
             <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" [min]="0.01" (ngModelChange)="onChangePercentage(splitExpenseForm, i)">
           </div>
         </div>
+        
+        <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async)"></div>
       </ng-container>
     </div>
 

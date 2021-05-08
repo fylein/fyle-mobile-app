@@ -1,4 +1,11 @@
-$light_grey_border: #cccdd7;
+$white: #fff;
+$fyled-pill: #f90;
+$draft-pill: #464d57;
+$reported-pill: #2196f3;
+$approved-pill: #66bb6a;
+$payment-processing-pill: #47a447;
+$paid-pill: #3d8b3d;
+$light-grey-border: #cccdd7;
 
 .ccc-classified-actions {
 
@@ -145,6 +152,42 @@ $light_grey_border: #cccdd7;
     height: 14px;
   }
 
+  &--pill {
+    font-size: 12px;
+    display: inline-block;
+    color: $white;
+    border-radius: 4px;
+    padding: 2px 5px;
+
+    &__fyled {
+      background-color: $fyled-pill;
+    }
+
+    &__draft {
+      background-color: $draft-pill;
+    }
+
+    &__reported {
+      background-color: $reported-pill;
+    }
+
+    &__approved {
+      background-color: $approved-pill;
+    }
+
+    &__payment_pending {
+      background-color: $approved-pill;
+    }
+
+    &__payment_processing {
+      background-color: $payment-processing-pill;
+    }
+
+    &__paid {
+      background-color: $paid-pill;
+    }
+  }
+
   &--button {
     width: 140px;
     height: 40px;
@@ -164,7 +207,7 @@ $light_grey_border: #cccdd7;
     margin: 14px;
     width: 100%;
     border-radius: 4px;
-    border: 1px solid $light_grey_border;
+    border: 1px solid $light-grey-border;
   }
 
   &--action-internal {

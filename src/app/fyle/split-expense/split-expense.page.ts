@@ -4,8 +4,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
-import { forkJoin, from, iif, Observable, of } from 'rxjs';
-import { concatMap, map, switchMap} from 'rxjs/operators';
+import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
+import { catchError, concatMap, finalize, map, switchMap, tap} from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -31,6 +31,7 @@ export class SplitExpensePage implements OnInit {
   remainingAmount: number;
   categories$: Observable<any>;
   costCenters$: Observable<any>;
+  isCorporateCardsEnabled$: Observable<boolean>;
   transaction: any;
   fileObjs: any[];
   fileUrls: any[];
@@ -231,7 +232,7 @@ export class SplitExpensePage implements OnInit {
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
-      if (this.amount && this.amount > 0 && this.amount !== this.totalSplitAmount ) {
+      if (this.amount && this.amount !== this.totalSplitAmount ) {
         this.showErrorBlock = true;
         this.errorMessage = 'Total split amount should be ' + this.amount + '.';
         setTimeout(() => {
@@ -239,37 +240,64 @@ export class SplitExpensePage implements OnInit {
         }, 2500);
         return;
       }
-      this.saveSplitExpenseLoading = true;
-      const generatedSplitEtxn = [];
-      this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
-        generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
+      let canCreateNegativeExpense = true;
+      this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
+        
+        canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
+          const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
+          if (!isCorporateCardsEnabled && negativeAmountPresent) {
+            defaultValue = false && defaultValue;
+          }
+          return defaultValue;
+        }, true);
+
+        if (!canCreateNegativeExpense) {
+          this.showErrorBlock = true;
+          this.errorMessage = 'Amount should be greater than 0.01';
+          setTimeout(() => {
+            this.showErrorBlock = false;
+          }, 2500);
+          return;
+        }
+  
+        this.saveSplitExpenseLoading = true;
+        const generatedSplitEtxn = [];
+        this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
+          generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
+        });
+  
+        const uploadFiles$ = this.uploadFiles(this.fileUrls);
+  
+        uploadFiles$.pipe(
+          concatMap(() => {
+            return this.createAndLinkTxnsWithFiles(generatedSplitEtxn);
+          }),
+          concatMap((res) => {
+            const observables$ = [];
+            if (this.transaction.id) {
+              observables$.push(this.transactionService.delete(this.transaction.id));
+            }
+            if (this.transaction.corporate_credit_card_expense_group_id) {
+              observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
+            }
+  
+            if (observables$.length === 0) {
+              observables$.push(of(true));
+            }
+            return forkJoin(observables$);
+          }),
+          tap((res) => {
+            this.showSplitExpenseStatusPopup(true);
+          }),
+          catchError(err => {
+            this.showSplitExpenseStatusPopup(false);
+            return throwError(err);
+          }),
+          finalize(() => {
+            this.saveSplitExpenseLoading = false;
+          })
+        ).subscribe(noop);
       });
-
-      const uploadFiles$ = this.uploadFiles(this.fileUrls);
-
-      uploadFiles$.pipe(
-        concatMap(() => {
-          return this.createAndLinkTxnsWithFiles(generatedSplitEtxn);
-        }),
-        concatMap((res) => {
-          const observables$ = [];
-          if (this.transaction.id) {
-            observables$.push(this.transactionService.delete(this.transaction.id));
-          }
-          if (this.transaction.corporate_credit_card_expense_group_id) {
-            observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
-          }
-
-          if (observables$.length === 0) {
-            observables$.push(of(true));
-          }
-          return forkJoin(observables$);
-        }),
-      ).subscribe(
-        () => this.showSplitExpenseStatusPopup(true),
-        () => this.showSplitExpenseStatusPopup(false),
-        () => this.saveSplitExpenseLoading = false
-      );
 
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
@@ -294,6 +322,7 @@ export class SplitExpensePage implements OnInit {
   ionViewWillEnter() {
     this.offlineService.getHomeCurrency().subscribe(homeCurrency => {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
+      const orgSettings$ = this.offlineService.getOrgSettings();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
@@ -330,26 +359,31 @@ export class SplitExpensePage implements OnInit {
         );
       }
 
-      this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
-      this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
+      this.isCorporateCardsEnabled$ = orgSettings$.pipe(
+        map(orgSettings => orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled)
+      );
 
-      let amount1 = this.amount > 0.0001 ? this.amount * 0.6 : null; // 60% split
-      let amount2 = this.amount > 0.0001 ? this.amount * 0.4 : null; // 40% split
-      const percentage1 = this.amount ? 60 : null;
-      const percentage2 = this.amount ? 40 : null;
-      amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
-      amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
-      this.add(amount1, this.currency, percentage1, null);
-      this.add(amount2, this.currency, percentage2, null);
-      this.getTotalSplitAmount();
+      this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
+        this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
+        this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
+        let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
+        let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
 
-      const today = new Date();
-      const minDate = new Date('Jan 1, 2001');
-      const maxDate = this.dateService.addDaysToDate(today, 1);
-
-      this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
-      this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
-
+        const percentage1 = this.amount ? 60 : null;
+        const percentage2 = this.amount ? 40 : null;
+        amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
+        amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
+        this.add(amount1, this.currency, percentage1, null);
+        this.add(amount2, this.currency, percentage2, null);
+        this.getTotalSplitAmount();
+  
+        const today = new Date();
+        const minDate = new Date('Jan 1, 2001');
+        const maxDate = this.dateService.addDaysToDate(today, 1);
+  
+        this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
+        this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
+      });
     });
 
   }
@@ -410,8 +444,4 @@ export class SplitExpensePage implements OnInit {
 
     this.getTotalSplitAmount();
   }
-
-
-
-
 }

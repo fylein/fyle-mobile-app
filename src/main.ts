@@ -10,7 +10,10 @@ import * as Sentry from '@sentry/angular';
 Sentry.init({
   dsn: environment.SENTRY_DSN,
   tracesSampleRate: 1.0,
-  release: 'please-replace-your-git-commit-version'
+  release: 'please-replace-your-git-commit-version',
+  ignoreErrors: [
+    'Non-Error exception captured'
+  ]
 });
 
 if (environment.production) {
