@@ -27,6 +27,7 @@ export class FyUserlistComponent implements OnInit {
   @Input() disabled = false;
   @Input() label = '';
   @Input() mandatory = false;
+  @Input() allowCustomValues: boolean;
 
   private innerValue;
   displayValue;
@@ -72,7 +73,10 @@ export class FyUserlistComponent implements OnInit {
     const currencyModal = await this.modalController.create({
       component: FyUserlistModalComponent,
       componentProps: {
-        currentSelections: cloneDeep(this.value) || []
+
+        currentSelections: cloneDeep(this.value) || [],
+        allowCustomValues: this.allowCustomValues
+
       }
     });
 
