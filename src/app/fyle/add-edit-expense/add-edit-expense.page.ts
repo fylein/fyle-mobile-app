@@ -59,6 +59,7 @@ import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-cat
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -190,7 +191,8 @@ export class AddEditExpensePage implements OnInit {
     private trackingService: TrackingService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {
   }
 
@@ -1446,11 +1448,11 @@ export class AddEditExpensePage implements OnInit {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) => {
-        return this.offlineService.getTransactionFieldConfigurationsMap().pipe(switchMap(tfcMap => {
+        return this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
           const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
-          return this.transactionFieldConfigurationService
-            .filterByOrgCategoryId(
-              tfcMap,
+          return this.expenseFieldsService
+          .filterByOrgCategoryId(
+              expenseFieldsMap,
               fields,
               formValue.category
             );
@@ -1459,19 +1461,19 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.txnFields$ = txnFieldsMap$.pipe(
-      map((tfcMap: any) => {
-        if (tfcMap) {
-          for (const tfc of Object.keys(tfcMap)) {
-            if (tfcMap[tfc].values && tfcMap[tfc].values.length > 0) {
+      map((expenseFieldsMap: any) => {
+        if (expenseFieldsMap) {
+          for (const tfc of Object.keys(expenseFieldsMap)) {
+            if (expenseFieldsMap[tfc].options && expenseFieldsMap[tfc].options.length > 0) {
               if (tfc === 'vendor_id') {
-                tfcMap[tfc].values = tfcMap[tfc].values.map(value => ({label: value, value: { display_name: value}}));
+                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value: { display_name: value}}));
               } else {
-                tfcMap[tfc].values = tfcMap[tfc].values.map(value => ({label: value, value}));
+                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value}));
               }
             }
           }
         }
-        return tfcMap;
+        return expenseFieldsMap;
       }),
       shareReplay(1)
     );
@@ -1561,7 +1563,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.etxn$.pipe(
       switchMap(() => txnFieldsMap$),
-      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields)),
+      map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields)),
     ).subscribe((defaultValues) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;

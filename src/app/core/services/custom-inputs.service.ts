@@ -5,7 +5,7 @@ import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
 import { from, Observable, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
-import { ExpenseField } from '../models/V1/expense-field.model';
+import { ExpenseField } from '../models/v1/expense-field.model';
 
 const customInputssCacheBuster$ = new Subject<void>();
 
