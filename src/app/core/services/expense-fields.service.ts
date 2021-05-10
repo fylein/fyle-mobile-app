@@ -83,7 +83,7 @@ export class ExpenseFieldsService {
     );
   }
 
-  filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<ExpenseFieldsMap> {
+  filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<Partial<ExpenseFieldsMap>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map(fields => fields.map(field => {
