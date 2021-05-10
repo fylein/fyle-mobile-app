@@ -25,7 +25,6 @@ import {CategoriesService} from 'src/app/core/services/categories.service';
 import {ProjectsService} from 'src/app/core/services/projects.service';
 import {DateService} from 'src/app/core/services/date.service';
 import * as moment from 'moment';
-import {TransactionFieldConfigurationsService} from 'src/app/core/services/transaction-field-configurations.service';
 import {ReportService} from 'src/app/core/services/report.service';
 import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
 import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
@@ -168,7 +167,6 @@ export class AddEditExpensePage implements OnInit {
     private dateService: DateService,
     private projectService: ProjectsService,
     private reportService: ReportService,
-    private transactionFieldConfigurationService: TransactionFieldConfigurationsService,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private transactionService: TransactionService,
