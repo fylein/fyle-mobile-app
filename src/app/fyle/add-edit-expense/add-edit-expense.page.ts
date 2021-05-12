@@ -152,6 +152,7 @@ export class AddEditExpensePage implements OnInit {
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   presetCurrency: string;
   initialFetch;
+  galleryUploadExtractedData;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -2123,6 +2124,10 @@ export class AddEditExpensePage implements OnInit {
           policyProps.sub_category = this.fg.value.category && this.fg.value.category.sub_category;
         }
 
+        if (this.galleryUploadExtractedData) {
+          etxn.tx.extracted_data = this.galleryUploadExtractedData;
+        }
+
         return {
           tx: {
             ...etxn.tx,
@@ -2924,6 +2929,8 @@ export class AddEditExpensePage implements OnInit {
         vendor: imageData && imageData.data && imageData.data.vendor_name,
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
+
+      this.galleryUploadExtractedData = imageData.data;
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
