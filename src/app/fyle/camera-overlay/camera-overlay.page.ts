@@ -159,7 +159,7 @@ export class CameraOverlayPage implements OnInit {
 
     attachmentUrls.push(attachment);
 
-    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, source === 'BULK_INSTA');
+    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, true);
   }
 
   closeImagePreview() {
