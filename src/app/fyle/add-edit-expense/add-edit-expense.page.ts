@@ -3004,7 +3004,7 @@ export class AddEditExpensePage implements OnInit {
         this.isConnected$.pipe(
           take(1)
         ).subscribe((isConnected) => {
-          if (isConnected && data.actionSource === 'gallery_upload' && this.attachedReceiptsCount === 1) {
+          if (isConnected && this.attachedReceiptsCount === 1) {
             this.parseFile(fileInfo);
           }
         });
