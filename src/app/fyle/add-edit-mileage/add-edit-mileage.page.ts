@@ -1706,7 +1706,7 @@ export class AddEditMileagePage implements OnInit {
             orig_currency: null,
             orig_amount: null,
             mileage_calculated_distance: calculatedDistance,
-            mileage_calculated_amount: (etxn.tx.mileage_rate || (res.mileageConfig[formValue.mileage_vehicle_type])) * calculatedDistance,
+            mileage_calculated_amount: ((rate || etxn.tx.mileage_rate) || (res.mileageConfig[formValue.mileage_vehicle_type])) * calculatedDistance,
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
