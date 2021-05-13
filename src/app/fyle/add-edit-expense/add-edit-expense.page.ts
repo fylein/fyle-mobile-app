@@ -59,6 +59,7 @@ import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-cat
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -190,7 +191,8 @@ export class AddEditExpensePage implements OnInit {
     private trackingService: TrackingService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private toastCtrl: ToastController
   ) {
   }
 
@@ -3025,12 +3027,22 @@ export class AddEditExpensePage implements OnInit {
           }),
           finalize(() => {
             this.attachmentUploadInProgress = false;
+            this.showToast();
           })
         ).subscribe((attachments) => {
           this.attachedReceiptsCount = attachments;
         });
       }
     }
+  }
+
+  showToast() {
+    this.toastCtrl.create({
+      message: "Uploaded attachment successfully!",
+      duration: 2000,
+      position: 'bottom',
+      color: 'success'
+    }).then(res => res.present());
   }
 
   getReceiptExtension(name) {
