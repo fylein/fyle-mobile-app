@@ -18,6 +18,7 @@ import {
   withLatestFrom
 } from 'rxjs/operators';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
+import {TransactionFieldConfigurationsService} from 'src/app/core/services/transaction-field-configurations.service';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {DateService} from 'src/app/core/services/date.service';
 import * as moment from 'moment';
@@ -47,7 +48,6 @@ import {RecentlyUsedItemsService} from 'src/app/core/services/recently-used-item
 import {RecentlyUsed} from 'src/app/core/models/v1/recently_used.model';
 import {ExtendedProject} from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
-import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -121,6 +121,7 @@ export class AddEditPerDiemPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
     private fb: FormBuilder,
+    private transactionFieldConfigurationService: TransactionFieldConfigurationsService,
     private dateService: DateService,
     private accountsService: AccountsService,
     private customInputsService: CustomInputsService,
@@ -144,8 +145,7 @@ export class AddEditPerDiemPage implements OnInit {
     private trackingService: TrackingService,
     private currencyPipe: CurrencyPipe,
     private tokenService: TokenService,
-    private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private expenseFieldsService: ExpenseFieldsService
+    private recentlyUsedItemsService: RecentlyUsedItemsService
   ) {
   }
 
@@ -358,28 +358,28 @@ export class AddEditPerDiemPage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          tfcMap: this.offlineService.getTransactionFieldConfigurationsMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories()
         }).pipe(
-          switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
+          switchMap(({tfcMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
-            return this.expenseFieldsService
+            return this.transactionFieldConfigurationService
               .filterByOrgCategoryId(
-                expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );
       }),
-      map((expenseFieldsMap: any) => {
-        if (expenseFieldsMap) {
-          for (const tfc of Object.keys(expenseFieldsMap)) {
-            if (expenseFieldsMap[tfc].options && expenseFieldsMap[tfc].options.length > 0) {
-              expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value}));
+      map((tfcMap: any) => {
+        if (tfcMap) {
+          for (const tfc of Object.keys(tfcMap)) {
+            if (tfcMap[tfc].values && tfcMap[tfc].values.length > 0) {
+              tfcMap[tfc].values = tfcMap[tfc].values.map(value => ({label: value, value}));
             }
           }
         }
 
-        return expenseFieldsMap;
+        return tfcMap;
       }),
       shareReplay(1)
     );
@@ -390,19 +390,19 @@ export class AddEditPerDiemPage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          tfcMap: this.offlineService.getTransactionFieldConfigurationsMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories()
         }).pipe(
-          switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
+          switchMap(({tfcMap, perDiemCategoriesContainer}) => {
             const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
-            return this.expenseFieldsService
+            return this.transactionFieldConfigurationService
               .filterByOrgCategoryId(
-                expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+                tfcMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
               );
           })
         );
       }),
-      map(tfc => this.expenseFieldsService.getDefaultTxnFieldValues(tfc))
+      map(tfc => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(tfc))
     );
 
     tfcValues$.subscribe(defaultValues => {
@@ -916,7 +916,7 @@ export class AddEditPerDiemPage implements OnInit {
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
 
-        if (txnFields[txnFieldKey].is_mandatory) {
+        if (txnFields[txnFieldKey].mandatory) {
           if (txnFieldKey === 'num_days') {
             control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
           } else if (txnFieldKey === 'to_dt') {

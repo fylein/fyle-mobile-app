@@ -31,32 +31,14 @@ export class CustomFieldsService {
   }
 
   setProperty(prefix, customInput, customProperties) {
-
-    /* Setting the name and mandatory based on the custom input key
-     * Reason: Same method is used for expense custom fields and transport/advance request custom fields
-     */
-    let customInputName;
-    if (customInput.hasOwnProperty('field_name')) {
-      customInputName = customInput.field_name;
-    } else {
-      customInputName = customInput[prefix + 'name'];
-    }
-
-    let customInputMandatory;
-    if (customInput.hasOwnProperty('is_mandatory')) {
-      customInputMandatory = customInput.is_mandatory;
-    } else {
-      customInputMandatory = customInput.mandatory;
-    }
-
     let property = {
       id: customInput.id,
       prefix,
-      name: customInputName,
+      name: customInput[prefix + 'name'],
       value: null,
       placeholder: customInput[prefix + 'placeholder'],
       type: customInput[prefix + 'type'],
-      mandatory: customInputMandatory,
+      mandatory: customInput.mandatory,
       options: customInput[prefix + 'options']
     };
 
@@ -64,7 +46,7 @@ export class CustomFieldsService {
 
     if (customProperties) {
       for (const customProperty of customProperties) {
-        if (customProperty.name === customInputName) {
+        if (customProperty.name === customInput[prefix + 'name']) {
           if (property.type === 'DATE' && customProperty.value) {
             property.value = new Date(customProperty.value);
           } else {

@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { map, switchMap } from 'rxjs/operators';
+import { shareReplay, map } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
-import { from, Observable, Subject } from 'rxjs';
-import { AuthService } from './auth.service';
-import { ExpenseField } from '../models/v1/expense-field.model';
+import { Subject } from 'rxjs';
 
 const customInputssCacheBuster$ = new Subject<void>();
 
@@ -17,24 +15,15 @@ export class CustomInputsService {
   constructor(
     private apiService: ApiService,
     private decimalPipe: DecimalPipe,
-    private datePipe: DatePipe,
-    private authService: AuthService
+    private datePipe: DatePipe
   ) { }
 
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$
   })
-  getAll(active: boolean = false): Observable<ExpenseField[]> {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiService.get('/expense_fields', {
-          params: {
-            org_id: eou.ou.org_id,
-            is_enabled: active,
-            is_custom: true
-          }
-        })
-      })
+  getAll(active: boolean) {
+    return this.apiService.get('/custom_inputs/custom_properties', { params: { active } }).pipe(
+      shareReplay(1)
     );
   }
 
@@ -70,25 +59,25 @@ export class CustomInputsService {
         for (let i = 0; i < customInputs.length; i++) {
           let customInput = customInputs[i];
           let property = {
-            name: customInput.field_name,
+            name: customInput.input_name,
             value: null,
-            type: customInput.type,
-            mandatory: customInput.is_mandatory,
-            options: customInput.options
+            type: customInput.input_type,
+            mandatory: customInput.mandatory,
+            options: customInput.input_options
           };
           // defaults for types
-          if (customInput.type === 'BOOLEAN') {
+          if (customInput.input_type === 'BOOLEAN') {
             property.value = false;
-          } else if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT'){
+          } else if (customInput.input_type === 'SELECT' || customInput.input_type === 'MULTI_SELECT'){
             property.value = '';
-          } else if (customInput.type === 'USER_LIST'){
+          } else if (customInput.input_type === 'USER_LIST'){
             property.value = [];
           }
           if (customProperties) {
             // see if value is available
             // tslint:disable-next-line: prefer-for-of
             for (let j = 0; j < customProperties.length; j++) {
-              if (customProperties[j].name === customInput.field_name) {
+              if (customProperties[j].name === customInput.input_name) {
                 if (property.type === 'DATE' && customProperties[j].value) {
                   property.value = new Date(customProperties[j].value);
                 } else {
