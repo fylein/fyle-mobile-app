@@ -146,7 +146,7 @@
         </div>
         <div class="add-edit-expense--primary-block">
           <ng-container *ngIf="txnFields$|async as txnFields">
-            <div [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
+            <div *ngIf="txnFields?.txn_dt" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                  class="add-edit-expense--date add-edit-expense--internal-block">
               <div [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                    class="add-edit-expense--date-label">
@@ -350,7 +350,7 @@
           </ng-container>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
-            <div [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid}"
+            <div *ngIf="txnFields?.vendor_id" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid}"
                  class="add-edit-expense--internal-block">
               <app-fy-select-vendor
                 *ngIf="!txnFields.vendor_id?.options?.length"
@@ -375,7 +375,7 @@
           </ng-container>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
-            <ng-container>
+            <ng-container *ngIf="txnFields?.purpose">
               <div *ngIf="txnFields.purpose?.type === 'TEXT'" class="add-edit-expense--text add-edit-expense--internal-block"
                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                 <div [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
@@ -693,7 +693,7 @@
         <ng-container *ngIf="txnFields$|async as txnFields">
           <div *ngIf="costCenters.length > 0"
                class="add-edit-expense--primary-block">
-            <div *ngIf="costCenters.length > 0"
+            <div *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
                  class="add-edit-expense--internal-block">
               <app-fy-select [cacheName]="'recentCostCenterList'" [label]="fg.controls.costCenter.value ? txnFields.cost_center_id?.field_name : 'Enter ' + txnFields.cost_center_id?.field_name"
                              [mandatory]="txnFields.cost_center_id?.is_mandatory"
