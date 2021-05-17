@@ -916,7 +916,7 @@ export class AddEditPerDiemPage implements OnInit {
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
 
-        if (txnFields[txnFieldKey].mandatory) {
+        if (txnFields[txnFieldKey].is_mandatory) {
           if (txnFieldKey === 'num_days') {
             control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
           } else if (txnFieldKey === 'to_dt') {

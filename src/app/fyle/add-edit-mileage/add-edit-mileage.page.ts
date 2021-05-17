@@ -1009,7 +1009,7 @@ export class AddEditMileagePage implements OnInit {
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
 
-        if (txnFields[txnFieldKey].mandatory) {
+        if (txnFields[txnFieldKey].is_mandatory) {
           if (txnFieldKey === 'txn_dt') {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
           } else if (txnFieldKey === 'distance') {

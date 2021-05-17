@@ -109,7 +109,7 @@
                           [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
                           class="add-edit-per-diem--date-label">
                           {{ fg.controls.from_dt.value ? txnFields?.from_dt.field_name : 'Select From Date' }}
-                          <div *ngIf="txnFields?.from_dt?.mandatory">
+                          <div *ngIf="txnFields?.from_dt?.is_mandatory">
                             *
                           </div>
                         </div>
@@ -132,7 +132,7 @@
                           [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
                           class="add-edit-per-diem--date-label">
                           {{ fg.controls.to_dt.value ? txnFields?.to_dt.field_name : 'Select To Date' }}
-                          <div *ngIf="txnFields?.to_dt?.mandatory">
+                          <div *ngIf="txnFields?.to_dt?.is_mandatory">
                             *
                           </div>
                         </div>
@@ -254,13 +254,13 @@
                           [ngClass]="{'add-edit-per-diem--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
                           class="add-edit-per-diem--text-label">
                           {{ (fg.controls.purpose.value ? txnFields?.purpose.field_name : 'Enter ' + txnFields?.purpose.field_name)| slice: 0:15 }}
-                          <div *ngIf="txnFields?.purpose?.mandatory">*</div>
+                          <div *ngIf="txnFields?.purpose?.is_mandatory">*</div>
                         </div>
                         
                         <input 
                           [disabled]="!txnFields.purpose?.canEdit" 
                           [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
-                          [required]="txnFields.purpose?.mandatory" 
+                          [required]="txnFields.purpose?.is_mandatory" 
                           [title]="'Enter'+txnFields.purpose?.field_name"
                           class="add-edit-per-diem--text-input"
                           formControlName="purpose">
@@ -422,7 +422,7 @@
                         <app-fy-select
                           [cacheName]="'perDiemCostCenterCache'"
                           [label]="fg.controls.costCenter.value ? txnFields.cost_center_id.field_name : 'Enter ' + txnFields.cost_center_id.field_name"
-                          [mandatory]="txnFields.cost_center_id.mandatory"
+                          [mandatory]="txnFields.cost_center_id.is_mandatory"
                           [options]="costCenters"
                           [selectModalHeader]="'Select Cost Center'"
                           [recentlyUsed]="recentCostCenters"

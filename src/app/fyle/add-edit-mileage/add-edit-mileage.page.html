@@ -117,7 +117,7 @@
                 <div [ngClass]="{'add-edit-mileage--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                      class="add-edit-mileage--date-label">
                   {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Start Date'}}
-                  <span *ngIf="txnFields?.txn_dt?.mandatory">*</span>
+                  <span *ngIf="txnFields?.txn_dt?.is_mandatory">*</span>
                 </div>
                 <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input date-input__format"
                        formControlName="dateOfSpend" type="date">
@@ -178,7 +178,7 @@
                         <span class="add-edit-mileage--text-label__unit"> ({{ mileageConfig.unit }})</span>
                       </ng-container>
                     </ng-template>
-                    <div *ngIf="txnFields?.distance?.mandatory">
+                    <div *ngIf="txnFields?.distance?.is_mandatory">
                       *
                     </div>
                   </div>
@@ -260,19 +260,19 @@
                     <div>
                       {{ fg.value.purpose ? txnFields.purpose?.field_name : 'Enter ' + txnFields.purpose?.field_name| slice: 0:15 }}
                     </div>
-                    <div *ngIf="txnFields.purpose?.mandatory">
+                    <div *ngIf="txnFields.purpose?.is_mandatory">
                       *
                     </div>
                   </div>
                   <input [disabled]="!txnFields.purpose?.canEdit" [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
-                         [required]="txnFields.purpose?.mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
+                         [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
                          class="add-edit-mileage--text-input add-edit-mileage--internal-block"
                          formControlName="purpose">
                 </div>
                 <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-mileage--internal-block">
                   <app-fy-select [disabled]="!txnFields.purpose?.canEdit"
                                  [label]="fg.value.purpose ? txnFields.purpose?.field_name : 'Enter ' + txnFields.purpose?.field_name"
-                                 [mandatory]="txnFields.purpose?.mandatory"
+                                 [mandatory]="txnFields.purpose?.is_mandatory"
                                  [options]="txnFields.purpose?.options"
                                  [selectModalHeader]="'Enter ' + txnFields.purpose?.field_name"
                                  formControlName="purpose">
@@ -414,7 +414,7 @@
                      class="add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}">
                   <app-fy-select [cacheName]="'mileageCostCenterCache'"
                                  [label]="fg.controls.costCenter.value ? 'Cost Center' : 'Select Cost Center'"
-                                 [mandatory]="txnFields.cost_center_id.mandatory"
+                                 [mandatory]="txnFields.cost_center_id.is_mandatory"
                                  [options]="costCenters"
                                  [selectModalHeader]="'Select Cost Center'"
                                  [recentlyUsed]="recentCostCenters"

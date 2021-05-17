@@ -1516,7 +1516,7 @@ export class AddEditExpensePage implements OnInit {
       // setup validations
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
-        if (txnFields[txnFieldKey].mandatory) {
+        if (txnFields[txnFieldKey].is_mandatory) {
           if (txnFieldKey === 'vendor_id') {
             if (isConnected) {
               control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
@@ -2002,7 +2002,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map(txnFields => {
-        return txnFields.flight_journey_travel_class && txnFields.flight_journey_travel_class.values.map(v => ({label: v, value: v}));
+        return txnFields.flight_journey_travel_class && txnFields.flight_journey_travel_class.options.map(v => ({label: v, value: v}));
       })
     );
 
