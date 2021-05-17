@@ -60,6 +60,8 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ToastController } from '@ionic/angular';
+import { IonBottomSheetModule } from 'ion-bottom-sheet';
+
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -192,7 +194,8 @@ export class AddEditExpensePage implements OnInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private ionBottomSheetModule: IonBottomSheetModule
   ) {
   }
 

@@ -1,4 +1,4 @@
-import {APP_INITIALIZER, ErrorHandler, NgModule} from '@angular/core';
+import {APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, ErrorHandler, NgModule, Component} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {RouteReuseStrategy} from '@angular/router';
 import {IonicModule, IonicRouteStrategy} from '@ionic/angular';
@@ -21,10 +21,12 @@ import {ConfigService} from './core/services/config.service';
 import {RouterAuthService} from './core/services/router-auth.service';
 import {TokenService} from './core/services/token.service';
 import {StorageService} from './core/services/storage.service';
+import { IonBottomSheetModule } from 'ion-bottom-sheet';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    IonBottomSheetModule
   ],
   entryComponents: [],
   imports: [
@@ -33,6 +35,7 @@ import {StorageService} from './core/services/storage.service';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    IonBottomSheetModule,
     AgmCoreModule.forRoot({
       apiKey: environment.GOOGLE_MAPS_API_KEY
     }),
@@ -43,6 +46,7 @@ import {StorageService} from './core/services/storage.service';
     SplashScreen,
     GooglePlus,
     InAppBrowser,
+    IonBottomSheetModule,
     ScreenOrientation,
     {
       provide: RouteReuseStrategy, useClass: IonicRouteStrategy
@@ -70,6 +74,7 @@ import {StorageService} from './core/services/storage.service';
       multi: true
     }
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]
 })
 export class AppModule {
