@@ -70,25 +70,25 @@ export class CustomInputsService {
         for (let i = 0; i < customInputs.length; i++) {
           let customInput = customInputs[i];
           let property = {
-            name: customInput.input_name,
+            name: customInput.field_name,
             value: null,
-            type: customInput.input_type,
-            mandatory: customInput.mandatory,
-            options: customInput.input_options
+            type: customInput.type,
+            mandatory: customInput.is_mandatory,
+            options: customInput.options
           };
           // defaults for types
-          if (customInput.input_type === 'BOOLEAN') {
+          if (customInput.type === 'BOOLEAN') {
             property.value = false;
-          } else if (customInput.input_type === 'SELECT' || customInput.input_type === 'MULTI_SELECT'){
+          } else if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT'){
             property.value = '';
-          } else if (customInput.input_type === 'USER_LIST'){
+          } else if (customInput.type === 'USER_LIST'){
             property.value = [];
           }
           if (customProperties) {
             // see if value is available
             // tslint:disable-next-line: prefer-for-of
             for (let j = 0; j < customProperties.length; j++) {
-              if (customProperties[j].name === customInput.input_name) {
+              if (customProperties[j].name === customInput.field_name) {
                 if (property.type === 'DATE' && customProperties[j].value) {
                   property.value = new Date(customProperties[j].value);
                 } else {
