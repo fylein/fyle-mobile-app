@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { shareReplay, map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
-import { Subject } from 'rxjs';
+import { from, Observable, Subject } from 'rxjs';
+import { AuthService } from './auth.service';
+import { ExpenseField } from '../models/V1/expense-field.model';
 
 const customInputssCacheBuster$ = new Subject<void>();
 
@@ -15,15 +17,24 @@ export class CustomInputsService {
   constructor(
     private apiService: ApiService,
     private decimalPipe: DecimalPipe,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private authService: AuthService
   ) { }
 
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$
   })
-  getAll(active: boolean) {
-    return this.apiService.get('/custom_inputs/custom_properties', { params: { active } }).pipe(
-      shareReplay(1)
+  getAll(active: boolean = false): Observable<ExpenseField[]> {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+        return this.apiService.get('/expense_fields', {
+          params: {
+            org_id: eou.ou.org_id,
+            is_enabled: active,
+            is_custom: true
+          }
+        })
+      })
     );
   }
 
