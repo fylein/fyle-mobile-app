@@ -177,7 +177,7 @@ export class MyExpensesPage implements OnInit {
 
   ionViewWillEnter() {
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
-      map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
+      map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled && orgUserSettings.insta_fyle_settings.allowed)
     );
 
     this.isBulkFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
