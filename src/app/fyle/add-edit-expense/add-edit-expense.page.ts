@@ -2917,8 +2917,7 @@ export class AddEditExpensePage implements OnInit {
     }
 
     const instaFyleEnabled$ = this.orgUserSettings$.pipe(
-      map(orgUserSettings => orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled),
-      take(1)
+      map(orgUserSettings => orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled)
     );
 
     return instaFyleEnabled$.pipe(

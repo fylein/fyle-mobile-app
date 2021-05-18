@@ -162,7 +162,7 @@ export class AppComponent implements OnInit {
           appVersion: deviceInfo.appVersion
         });
 
-        this.router.navigate(['/', 'auth', 'app_version', {message: res.message}]);
+        // this.router.navigate(['/', 'auth', 'app_version', {message: res.message}]);
       }
     });
   }
