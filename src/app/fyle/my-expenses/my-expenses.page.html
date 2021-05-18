@@ -111,28 +111,27 @@
 
   <div *ngIf="((count$ | async) === 0) && isConnected$|async" class="my-expenses--zero-state">
     <img alt="Create First Expenses" class="my-expenses--zero-state-img"
-         src="../../../assets/images/zero-states/expenses.svg">
+         src="../../../assets/images/zero-states/expenses.png">
     <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
       <ng-container *ngIf="isNewUser$|async; else isOldUser">
-        <p class="my-expenses--zero-state-subheader__title">
-          No expenses to show!
+        <p class="my-expenses--zero-state-header">
+          Ready to add your first expenses?
         </p>
-        You do not have any expenses yet. Add an expense to get started.
+        <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
       </ng-container>
       <ng-template #isOldUser>
         <p class="my-expenses--zero-state-subheader__title">
           <ng-container *ngIf="baseState === 'all'">
-            All your expenses are reported
+            <p class="my-expenses--zero-state-header">
+              Ready to add your expenses?
+            </p>
+            <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
           </ng-container>
           <ng-container *ngIf="baseState === 'draft'">
             <div>You're all set!</div>
             <div>All expenses reviewed.</div>
           </ng-container>
         </p>
-        <ng-container *ngIf="baseState === 'all'">
-          <p>Add a new expense using the button below or InstaFyle a paper receipt.</p>
-          <p>You can find old expenses inside their respective reports.</p>
-        </ng-container>
       </ng-template>
     </div>
 
@@ -141,7 +140,8 @@
     </div>
 
     <div *ngIf="(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-header">
-      You do not have any expenses for the selected filter(s)
+      <div>No Expenses Found</div>
+      <div class="my-expenses--zero-state-content">No expenses were found for the selected filter.</div>
     </div>
   </div>
   <ng-container *ngIf="syncing">
