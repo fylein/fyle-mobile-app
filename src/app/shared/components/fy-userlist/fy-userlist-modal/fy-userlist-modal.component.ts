@@ -179,11 +179,11 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         startWith(''),
         distinctUntilChanged(),
         debounceTime(400),
-        tap((searchText) => {
-          // if newly added value is a valid email
-          var emailRegex = /^\S+@\S+\.\S{2,}$/;
-          this.invalidEmail = searchText && searchText.length > 0 && !(emailRegex.test(searchText));
-        }),
+        // tap((searchText) => {
+        //   // if newly added value is a valid email
+        //   var emailRegex = /^\S+@\S+\.\S{2,}$/;
+        //   this.invalidEmail = searchText && searchText.length > 0 && !(emailRegex.test(searchText));
+        // }),
         switchMap((searchText) => {
           return this.processNewlyAddedItems(searchText);
         })
@@ -213,11 +213,9 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   onAddNew() {
     this.value = this.value.trim();
-    if (!this.invalidEmail) {
-      if (!(this.currentSelections.indexOf(this.value) > -1)) {
-        this.currentSelections.push(this.value);
-      }
-      this.clearValue();
+    if (!(this.currentSelections.indexOf(this.value) > -1)) {
+      this.currentSelections.push(this.value);
     }
+    this.clearValue();
   }
 }
