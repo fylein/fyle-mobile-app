@@ -2916,11 +2916,21 @@ export class AddEditExpensePage implements OnInit {
       fileType = 'pdf';
     }
 
-    return forkJoin({
-      imageData: from(this.getParsedReceipt(base64Image, fileType)),
-      filteredCategories: this.filteredCategories$.pipe(take(1)),
-      homeCurrency: this.offlineService.getHomeCurrency()
-    }).subscribe(({imageData, filteredCategories, homeCurrency}) => {
+    const instaFyleEnabled$ = this.orgUserSettings$.pipe(
+      map(orgUserSettings => orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled),
+      take(1)
+    );
+
+    return instaFyleEnabled$.pipe(
+      filter(instafyleEnabled => instafyleEnabled),
+      switchMap(() => {
+        return forkJoin({
+          imageData: from(this.getParsedReceipt(base64Image, fileType)),
+          filteredCategories: this.filteredCategories$.pipe(take(1)),
+          homeCurrency: this.offlineService.getHomeCurrency()
+        })
+      })
+    ).subscribe(({imageData, filteredCategories, homeCurrency}) => {
       const extractedData = {
         amount: imageData && imageData.data && imageData.data.amount,
         currency: imageData && imageData.data && imageData.data.currency,
