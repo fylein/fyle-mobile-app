@@ -152,6 +152,7 @@ export class AddEditExpensePage implements OnInit {
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   presetCurrency: string;
   initialFetch;
+  inpageExtractedData;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -2123,6 +2124,10 @@ export class AddEditExpensePage implements OnInit {
           policyProps.sub_category = this.fg.value.category && this.fg.value.category.sub_category;
         }
 
+        if (this.inpageExtractedData) {
+          etxn.tx.extracted_data = this.inpageExtractedData;
+        }
+
         return {
           tx: {
             ...etxn.tx,
@@ -2911,11 +2916,20 @@ export class AddEditExpensePage implements OnInit {
       fileType = 'pdf';
     }
 
-    return forkJoin({
-      imageData: from(this.getParsedReceipt(base64Image, fileType)),
-      filteredCategories: this.filteredCategories$.pipe(take(1)),
-      homeCurrency: this.offlineService.getHomeCurrency()
-    }).subscribe(({imageData, filteredCategories, homeCurrency}) => {
+    const instaFyleEnabled$ = this.orgUserSettings$.pipe(
+      map(orgUserSettings => orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled)
+    );
+
+    return instaFyleEnabled$.pipe(
+      filter(instafyleEnabled => instafyleEnabled),
+      switchMap(() => {
+        return forkJoin({
+          imageData: from(this.getParsedReceipt(base64Image, fileType)),
+          filteredCategories: this.filteredCategories$.pipe(take(1)),
+          homeCurrency: this.offlineService.getHomeCurrency()
+        })
+      })
+    ).subscribe(({imageData, filteredCategories, homeCurrency}) => {
       const extractedData = {
         amount: imageData && imageData.data && imageData.data.amount,
         currency: imageData && imageData.data && imageData.data.currency,
@@ -2924,6 +2938,8 @@ export class AddEditExpensePage implements OnInit {
         vendor: imageData && imageData.data && imageData.data.vendor_name,
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
+
+      this.inpageExtractedData = imageData.data;
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
@@ -2997,7 +3013,7 @@ export class AddEditExpensePage implements OnInit {
         this.isConnected$.pipe(
           take(1)
         ).subscribe((isConnected) => {
-          if (isConnected && data.actionSource === 'gallery_upload' && this.attachedReceiptsCount === 1) {
+          if (isConnected && this.attachedReceiptsCount === 1) {
             this.parseFile(fileInfo);
           }
         });
