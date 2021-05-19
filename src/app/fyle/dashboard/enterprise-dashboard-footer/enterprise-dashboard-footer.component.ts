@@ -26,12 +26,12 @@ export class EnterpriseDashboardFooterComponent implements OnInit, OnChanges {
   async setIconList() {
     const orgSettings = await this.offlineService.getOrgSettings().toPromise();
     const orgUserSettings = await this.offlineService.getOrgUserSettings().toPromise();
-    const isInstaFyleEnabled = orgUserSettings && orgUserSettings.insta_fyle_settings.enabled && orgUserSettings.insta_fyle_settings.allowed;
+    const isInstaFyleEnabled = orgUserSettings && orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     this.ctaList = [];
 
     if (this.canCreateExpense) {
-      let isMileageEnabled = orgSettings && orgSettings.mileage && orgSettings.mileage.enabled;
-      let isPerDiemEnabled = orgSettings && orgSettings.per_diem && orgSettings.per_diem.enabled;
+      const isMileageEnabled = orgSettings && orgSettings.mileage && orgSettings.mileage.enabled;
+      const isPerDiemEnabled = orgSettings && orgSettings.per_diem && orgSettings.per_diem.enabled;
       // Org Settings related
 
       const buttonList = {
