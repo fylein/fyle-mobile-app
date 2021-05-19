@@ -2137,6 +2137,7 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_currency,
             orig_amount: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_amount,
             project_id: this.fg.value.project && this.fg.value.project.project_id,
+            tax: this.fg.value.taxValue,
             org_category_id: this.fg.value.category && this.fg.value.category.id,
             fyle_category: this.fg.value.category && this.fg.value.category.fyle_category,
             policy_amount: null,
