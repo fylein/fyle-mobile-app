@@ -9,6 +9,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 import {NetworkService} from '../../core/services/network.service';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,7 +17,7 @@ import {NetworkService} from '../../core/services/network.service';
   styleUrls: ['./dashboard.page.scss'],
 })
 export class DashboardPage implements OnInit {
-  orgUserSettings$: Observable<any>;
+  orgUserSettings$: Observable<OrgUserSettings>;
   orgSettings$: Observable<any>;
   homeCurrency$: Observable<any>;
   isConnected$: Observable<boolean>;
