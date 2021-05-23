@@ -1,4 +1,5 @@
 $red: #f00;
+$container-border: #DFDFE2;
 
 .add-edit-expense {
   &--toolbar {
@@ -529,5 +530,59 @@ $red: #f00;
 
   &--error {
     color: $red;
+  }
+
+  &--card-header {
+    color: #5A5D72;
+    margin-bottom: 8px;
+  }
+
+  &--card-txn-container {
+    border: 1px solid $container-border;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    color: #A9ACBC;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  &--icon-corporate-card {
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
+  }
+
+  &--loading-suggestions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &--matching-card {
+    border-bottom: 1px solid $container-border;
+    display: flex;
+    padding: 4px;
+    justify-content: space-between;
+    font-size: 14px;
+    color:  #2C304E;
+
+    &__icon-loading {
+      width: 24px;
+      margin-right: 8px;
+      height: 24px;
+      border-radius: 4px;
+    }
+
+    &__text-loading {
+      min-width: 300px;
+      border-radius: 4px;
+      height: 24px;
+    }
+  }
+
+  &--matching-content {
+    display: flex;
+    justify-content: space-between;
   }
 }

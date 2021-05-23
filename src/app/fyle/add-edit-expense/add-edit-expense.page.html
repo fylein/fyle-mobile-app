@@ -214,7 +214,29 @@
         </div>
 
         <ng-container *ngIf="isCCCPaymentModeSelected$|async">
-          <div class="add-edit-expense--primary-block">
+          <div>
+            <div class="add-edit-expense--card-header">Card Transaction</div>
+            <div *ngIf="(!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && !selectedCCCTransaction" class="add-edit-expense--card-txn-container">
+              <mat-icon svgIcon="fy-corporate-card" class="add-edit-expense--icon-corporate-card"></mat-icon>
+              <div>Enter date and amount to search for the matching card transaction</div>
+            </div>
+
+            <div *ngIf="this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount" class="add-edit-expense--matching-card">
+              <div *ngIf="isLoadingSuggestions" class="add-edit-expense--loading-suggestions">
+                <ion-skeleton-text class="add-edit-expense--matching-card__icon-loading"></ion-skeleton-text>
+                <ion-skeleton-text class="add-edit-expense--matching-card__text-loading"></ion-skeleton-text>
+              </div>
+              <mat-icon *ngIf="selectedCCCTransaction && !isLoadingSuggestions" svgIcon="fy-corporate-card" class="add-edit-expense--icon-corporate-card"></mat-icon>
+              <div *ngIf="selectedCCCTransaction && !isLoadingSuggestions" (click)="openMatchingTransactions()" class="add-edit-expense--matching-content">
+                <span>{{ (selectedCCCTransaction.vendor || selectedCCCTransaction.description) | ellipsis:20}} , </span>
+                <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, yyyy'}} - </span>
+                <span>{{ selectedCCCTransaction.currency }} : </span>
+                <span>{{ selectedCCCTransaction.amount }}</span>
+              </div>
+              <mat-icon *ngIf="selectedCCCTransaction && !isLoadingSuggestions">keyboard_arrow_down</mat-icon>
+            </div>
+
+            <!-- To be removed -->
             <div class="add-edit-expense--match-card-header">
               <div class="add-edit-expense--match-card-header-title">
                 <mat-icon svgIcon="{{matchingCCCTransactions.length > 0 ? 'fy-matched-yes' : 'fy-matched-no'}}" class="add-edit-expense--match-card-header-title-icon"></mat-icon>
@@ -281,6 +303,7 @@
                 </div>
               </div>
             </div>
+            <!-- Above^ To be removed -->
           </div>
         </ng-container>
 
