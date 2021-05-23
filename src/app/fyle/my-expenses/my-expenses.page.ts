@@ -67,6 +67,7 @@ export class MyExpensesPage implements OnInit {
   openAddExpenseListLoader = false;
   clusterDomain: string;
   isNewUser$: Observable<boolean>;
+  isLoading: boolean = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
@@ -176,6 +177,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isLoading = true;
+
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
     );
@@ -396,6 +399,8 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.clearFilters();
     }
+
+    this.isLoading = false;
   }
 
   setupNetworkWatcher() {

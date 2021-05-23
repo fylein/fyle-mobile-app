@@ -34,6 +34,7 @@ import { ApproverDialogComponent } from './components/fy-apporver/approver-dialo
 import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
+import { FyLoadingScreenComponent } from './components/fy-loading-screen/fy-loading-screen.component';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -63,6 +64,7 @@ import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-s
 import {FyProjectSelectModalComponent} from './components/fy-select-project/fy-select-modal/fy-select-project-modal.component';
 import {FySelectProjectComponent} from './components/fy-select-project/fy-select-project.component';
 import { ExpenseState } from './pipes/expense-state.pipe';
+import { from } from 'rxjs';
 
 @NgModule({
   declarations: [
@@ -111,7 +113,8 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FyViewAttachmentComponent,
     FyHighlightTextComponent,
     FormatDateDirective,
-    ExpenseState
+    ExpenseState,
+    FyLoadingScreenComponent
   ],
   imports: [
     CommonModule,
@@ -165,7 +168,8 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FyViewAttachmentComponent,
     FyHighlightTextComponent,
     FormatDateDirective,
-    ExpenseState
+    ExpenseState,
+    FyLoadingScreenComponent
   ],
   providers: [
     DecimalPipe,
