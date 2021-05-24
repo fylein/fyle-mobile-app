@@ -396,7 +396,7 @@
               </div>
               <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block"
                 [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
-                <app-fy-select 
+                <app-fy-select
                   [cacheName]="'recentPurposeList'"
                   [disabled]="!txnFields.purpose?.canEdit"
                   [label]="fg.controls.purpose.value ? txnFields.purpose?.title : 'Enter ' + txnFields.purpose?.title"
@@ -447,7 +447,7 @@
               formControlName="tax"
             ></app-fy-select>
           </div>
-          <div *ngIf="fg.value.tax" class="add-edit-expense--text add-edit-expense--internal-block">
+          <div class="add-edit-expense--text add-edit-expense--internal-block">
             <div class="add-edit-expense--text-label">
               {{(taxSettings.name || 'Tax') | ellipsis: 11 }}
             </div>
@@ -482,7 +482,7 @@
                 {{fg.controls.from_dt.value ? txnFields.from_dt?.title : 'Select ' + txnFields.from_dt?.title}}
                 <span>*</span>
               </div>
-              <input appFormatDate [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="from_dt" name="fromDt" 
+              <input appFormatDate [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="from_dt" name="fromDt"
                      type="date">
             </div>
 
@@ -494,7 +494,7 @@
                 {{fg.controls.to_dt.value ? txnFields.to_dt?.title : 'Select ' + txnFields.to_dt?.title}}
                 <span>*</span>
               </div>
-              <input appFormatDate [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="to_dt" name="toDt" 
+              <input appFormatDate [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="to_dt" name="toDt"
                      type="date">
             </div>
 
@@ -563,7 +563,7 @@
                      *ngIf="txnFields.bus_travel_class?.type === 'TEXT'" [disabled]="!txnFields.bus_travel_class?.canEdit"
                      class="add-edit-expense--text-input add-edit-expense--text-input__large" formControlName="bus_travel_class"
                      type="text">
-              <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'" 
+              <app-fy-select *ngIf="txnFields.bus_travel_class?.type === 'SELECT'"
                 [disabled]="!txnFields.bus_travel_class?.canEdit"
                 [label]="fg.controls.bus_travel_class.value ? txnFields.bus_travel_class?.title : 'Enter ' + txnFields.bus_travel_class?.title"
                 [mandatory]="txnFields.bus_travel_class?.mandatory"
