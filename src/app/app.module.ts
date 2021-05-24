@@ -21,12 +21,10 @@ import {ConfigService} from './core/services/config.service';
 import {RouterAuthService} from './core/services/router-auth.service';
 import {TokenService} from './core/services/token.service';
 import {StorageService} from './core/services/storage.service';
-import { IonBottomSheetModule } from 'ion-bottom-sheet';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    IonBottomSheetModule
+    AppComponent
   ],
   entryComponents: [],
   imports: [
@@ -35,7 +33,6 @@ import { IonBottomSheetModule } from 'ion-bottom-sheet';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    IonBottomSheetModule,
     AgmCoreModule.forRoot({
       apiKey: environment.GOOGLE_MAPS_API_KEY
     }),
@@ -46,7 +43,6 @@ import { IonBottomSheetModule } from 'ion-bottom-sheet';
     SplashScreen,
     GooglePlus,
     InAppBrowser,
-    IonBottomSheetModule,
     ScreenOrientation,
     {
       provide: RouteReuseStrategy, useClass: IonicRouteStrategy

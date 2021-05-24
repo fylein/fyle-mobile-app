@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { IonBottomSheetModule } from 'ion-bottom-sheet';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -125,7 +126,8 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     MatButtonModule,
     ReactiveFormsModule,
     PinchZoomModule,
-    PdfViewerModule
+    PdfViewerModule,
+    IonBottomSheetModule
   ],
   exports: [
     EllipsisPipe,
@@ -165,7 +167,8 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FyViewAttachmentComponent,
     FyHighlightTextComponent,
     FormatDateDirective,
-    ExpenseState
+    ExpenseState,
+    IonBottomSheetModule
   ],
   providers: [
     DecimalPipe,

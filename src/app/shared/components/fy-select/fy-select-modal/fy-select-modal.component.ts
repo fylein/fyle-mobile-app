@@ -138,16 +138,16 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
-    this.modalController.dismiss();
-  }
+  // onDoneClick() {
+  //   this.modalController.dismiss();
+  // }
 
   onElementSelect(option) {
     if (this.cacheName && option.value) {
       option.custom = !(this.options.some(internalOption => internalOption.value !== option.value));
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
-    this.modalController.dismiss(option);
+    // this.modalController.dismiss(option);
   }
 
   saveToCacheAndUse() {

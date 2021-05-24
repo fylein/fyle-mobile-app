@@ -194,8 +194,7 @@ export class AddEditExpensePage implements OnInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
-    private toastCtrl: ToastController,
-    private ionBottomSheetModule: IonBottomSheetModule
+    private toastCtrl: ToastController
   ) {
   }
 
