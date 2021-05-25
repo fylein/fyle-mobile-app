@@ -401,9 +401,9 @@ export class TransactionService {
 
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
-
         const offset = orgUserSettings.locale.offset;
 
+        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset);
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (transaction.txn_dt) {
           transaction.txn_dt.setHours(12);
