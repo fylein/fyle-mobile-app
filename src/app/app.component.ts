@@ -1,5 +1,5 @@
 import {Component, OnInit, EventEmitter, NgZone} from '@angular/core';
-import {Platform, MenuController, AlertController} from '@ionic/angular';
+import {Platform, MenuController, AlertController, NavController} from '@ionic/angular';
 import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
@@ -74,7 +74,8 @@ export class AppComponent implements OnInit {
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private navController: NavController
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -103,6 +104,9 @@ export class AppComponent implements OnInit {
     this.platform.backButton.subscribeWithPriority(10, () => {
       if (this.router.url.includes('my_dashboard')) {
         this.showAppCloseAlert();
+      }
+      if (this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts')) {
+        this.navController.back();
       }
     });
   }
