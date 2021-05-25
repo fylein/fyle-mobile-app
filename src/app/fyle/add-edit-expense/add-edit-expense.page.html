@@ -139,6 +139,12 @@
           </div>
         </div>
 
+        <div>
+          <ion-button (click)="trigger()">
+          </ion-button>
+          <fy-bottom-sheet *ngIf="display" [type]="testValue"></fy-bottom-sheet>
+        </div>
+
         <div *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
           <div (click)="splitExpense()" class="add-edit-expense--split-expense-container">
             <mat-icon class="add-edit-expense--split-expense-icon" svgIcon="split-expense"></mat-icon>

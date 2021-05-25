@@ -61,6 +61,7 @@ import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ToastController } from '@ionic/angular';
 import { IonBottomSheetModule } from 'ion-bottom-sheet';
+import { FindValueSubscriber } from 'rxjs/internal/operators/find';
 
 
 @Component({
@@ -154,6 +155,8 @@ export class AddEditExpensePage implements OnInit {
   presetCostCenterId: number;
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   presetCurrency: string;
+  display: boolean = false;
+  testValue = 'Just a test';
   initialFetch;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
@@ -2687,6 +2690,10 @@ export class AddEditExpensePage implements OnInit {
         Instafyle: isInstaFyleExpense
       });
     });
+  }
+
+  trigger() {
+    this.display = !this.display;
   }
 
   addExpense(redirectedFrom) {

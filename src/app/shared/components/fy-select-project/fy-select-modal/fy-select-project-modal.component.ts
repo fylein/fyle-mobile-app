@@ -11,7 +11,7 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
-  selector: 'app-fy-select-modal',
+  selector: 'app-fy-select-project-modal',
   templateUrl: './fy-select-project-modal.component.html',
   styleUrls: ['./fy-select-project-modal.component.scss'],
 })
@@ -181,13 +181,13 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   }
 
   onDoneClick() {
-    this.modalController.dismiss();
+    // this.modalController.dismiss();
   }
 
   onElementSelect(option) {
     if (this.cacheName && option.value) {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
-    this.modalController.dismiss(option);
+    // this.modalController.dismiss(option);
   }
 }

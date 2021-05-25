@@ -35,7 +35,7 @@ import { ApproverDialogComponent } from './components/fy-apporver/approver-dialo
 import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
-
+import { FyBottomSheetComponent } from './components/fy-bottom-sheet/fy-bottom-sheet.component';
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 import { IconModule } from './icon/icon.module';
@@ -112,7 +112,8 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FyViewAttachmentComponent,
     FyHighlightTextComponent,
     FormatDateDirective,
-    ExpenseState
+    ExpenseState,
+    FyBottomSheetComponent
   ],
   imports: [
     CommonModule,
@@ -168,7 +169,8 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FyHighlightTextComponent,
     FormatDateDirective,
     ExpenseState,
-    IonBottomSheetModule
+    IonBottomSheetModule,
+    FyBottomSheetComponent
   ],
   providers: [
     DecimalPipe,

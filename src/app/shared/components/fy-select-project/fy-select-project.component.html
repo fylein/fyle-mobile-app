@@ -12,3 +12,11 @@
     chevron_right
   </mat-icon>
 </label>
+<app-fy-select-project-modal *ngIf="display"
+        [currentSelection] = "value"
+        [cacheName] = "cacheName"
+        [selectionElement] = "selectionElement"
+        [categoryIds] = "categoryIds"
+        [defaultValue] = "defaultValue"
+        [recentlyUsed] = "recentlyUsed"
+></app-fy-select-project-modal>

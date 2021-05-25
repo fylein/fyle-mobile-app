@@ -30,6 +30,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   private innerValue;
   displayValue;
+  display: boolean = false;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -73,25 +74,26 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   }
 
   async openModal() {
-    const projectModal = await this.modalController.create({
-      component: FyProjectSelectModalComponent,
-      componentProps: {
-        currentSelection: this.value,
-        cacheName: this.cacheName,
-        selectionElement: this.selectionElement,
-        categoryIds: this.categoryIds,
-        defaultValue: this.defaultValue,
-        recentlyUsed: this.recentlyUsed
-      }
-    });
+    this.display = !this.display;
+    // const projectModal = await this.modalController.create({
+    //   component: FyProjectSelectModalComponent,
+    //   componentProps: {
+    //     currentSelection: this.value,
+    //     cacheName: this.cacheName,
+    //     selectionElement: this.selectionElement,
+    //     categoryIds: this.categoryIds,
+    //     defaultValue: this.defaultValue,
+    //     recentlyUsed: this.recentlyUsed
+    //   }
+    // });
 
-    await projectModal.present();
+    // await projectModal.present();
 
-    const { data } = await projectModal.onWillDismiss();
+    // const { data } = await projectModal.onWillDismiss();
 
-    if (data) {
-      this.value = data.value;
-    }
+    // if (data) {
+    // this.value = data.value;
+    // }
   }
 
   onBlur() {
