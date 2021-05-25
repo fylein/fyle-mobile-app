@@ -2919,14 +2919,6 @@ export class AddEditExpensePage implements OnInit {
       fileType = 'pdf';
     }
 
-<<<<<<< HEAD
-    return forkJoin({
-      imageData: from(this.getParsedReceipt(base64Image, fileType)),
-      filteredCategories: this.filteredCategories$.pipe(take(1)),
-      homeCurrency: this.offlineService.getHomeCurrency(),
-      etxn: this.etxn$
-    }).subscribe(({imageData, filteredCategories, homeCurrency, etxn}) => {
-=======
     const instaFyleEnabled$ = this.orgUserSettings$.pipe(
       map(orgUserSettings => orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled)
     );
@@ -2941,7 +2933,6 @@ export class AddEditExpensePage implements OnInit {
         })
       })
     ).subscribe(({imageData, filteredCategories, homeCurrency}) => {
->>>>>>> master
       const extractedData = {
         amount: imageData && imageData.data && imageData.data.amount,
         currency: imageData && imageData.data && imageData.data.currency,
@@ -2951,11 +2942,7 @@ export class AddEditExpensePage implements OnInit {
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
 
-<<<<<<< HEAD
-      etxn.tx.extracted_data = extractedData;
-=======
       this.inpageExtractedData = imageData.data;
->>>>>>> master
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
