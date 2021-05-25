@@ -48,6 +48,7 @@ import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/ap
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 import { FormatDateDirective } from './directive/format-date.directive';
+import { PlaceholderDirective} from './components/placeholder/placeholder.directive';
 
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
@@ -64,6 +65,7 @@ import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-s
 import {FyProjectSelectModalComponent} from './components/fy-select-project/fy-select-modal/fy-select-project-modal.component';
 import {FySelectProjectComponent} from './components/fy-select-project/fy-select-project.component';
 import { ExpenseState } from './pipes/expense-state.pipe';
+import { AlertComponent } from './components/alert/alert.component';
 
 @NgModule({
   declarations: [
@@ -113,7 +115,9 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FyHighlightTextComponent,
     FormatDateDirective,
     ExpenseState,
-    FyBottomSheetComponent
+    FyBottomSheetComponent,
+    AlertComponent,
+    PlaceholderDirective
   ],
   imports: [
     CommonModule,
@@ -170,7 +174,9 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FormatDateDirective,
     ExpenseState,
     IonBottomSheetModule,
-    FyBottomSheetComponent
+    FyBottomSheetComponent,
+    AlertComponent,
+    PlaceholderDirective
   ],
   providers: [
     DecimalPipe,

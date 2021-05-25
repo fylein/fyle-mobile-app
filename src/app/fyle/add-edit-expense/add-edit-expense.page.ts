@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {Component, ComponentFactoryResolver, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import {combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, throwError} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
@@ -62,6 +62,8 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { ToastController } from '@ionic/angular';
 import { IonBottomSheetModule } from 'ion-bottom-sheet';
 import { FindValueSubscriber } from 'rxjs/internal/operators/find';
+import { AlertComponent } from 'src/app/shared/components/alert/alert.component';
+import { PlaceholderDirective } from 'src/app/shared/components/placeholder/placeholder.directive';
 
 
 @Component({
@@ -70,6 +72,7 @@ import { FindValueSubscriber } from 'rxjs/internal/operators/find';
   styleUrls: ['./add-edit-expense.page.scss'],
 })
 export class AddEditExpensePage implements OnInit {
+  @ViewChild(PlaceholderDirective, {static: false}) alertHost: PlaceholderDirective;
   etxn$: Observable<any>;
   paymentModes$: Observable<any[]>;
   recentlyUsedValues$: Observable<RecentlyUsed>;
@@ -162,6 +165,7 @@ export class AddEditExpensePage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
   @ViewChild('comments') commentsContainer: ElementRef;
+  closeSub: any;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -197,7 +201,8 @@ export class AddEditExpensePage implements OnInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private componentFactoryResolver: ComponentFactoryResolver
   ) {
   }
 
@@ -2692,8 +2697,24 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  showAlert(message: string) {
+    const alertCmpFactory = this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
+    const hostViewContainerRef = this.alertHost.viewContainerRef;
+    hostViewContainerRef.clear();
+
+    const componentRef = hostViewContainerRef.createComponent(alertCmpFactory);
+
+
+    componentRef.instance.message = message;
+    // this.closeSub = componentRef.instance.close.subscribe(() => {
+    //   this.closeSub.unsubscribe();
+    //   hostViewContainerRef.clear();
+    // });
+  }
+
   trigger() {
     this.display = !this.display;
+    this.showAlert('Heyyyyy');
   }
 
   addExpense(redirectedFrom) {

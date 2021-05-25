@@ -27,6 +27,8 @@
 
 
 <ion-content>
+  <ng-template appPlaceholder></ng-template>
+
   <div *ngIf="reviewList?.length && !focusState" class="add-edit-expense--review-nav">
     <div>
       <button (click)="goToPrev()" [disabled]="+activeIndex === 0" [ngClass]="{'add-edit-expense--review-go-left__disabled': +activeIndex === 0}"
@@ -142,7 +144,7 @@
         <div>
           <ion-button (click)="trigger()">
           </ion-button>
-          <fy-bottom-sheet *ngIf="display" [type]="testValue"></fy-bottom-sheet>
+          <!-- <app-alert *ngIf="display"></app-alert> -->
         </div>
 
         <div *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
