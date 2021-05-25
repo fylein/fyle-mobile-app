@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Output } from '@angular/core';
-import { TestComponentRenderer } from '@angular/core/testing';
-import { EventEmitter } from 'events';
+import { EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-alert',
@@ -9,10 +8,15 @@ import { EventEmitter } from 'events';
 })
 export class AlertComponent implements OnInit {
   @Input() message: string;
-  close: any;
+  @Output() outputMessage: EventEmitter<string> = new EventEmitter();
 
   constructor() { }
 
   ngOnInit() {}
+
+  onClick() {
+    this.message = 'Message received!!!!!';
+    this.outputMessage.emit(this.message);
+  }
 
 }

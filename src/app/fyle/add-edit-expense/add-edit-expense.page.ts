@@ -166,6 +166,7 @@ export class AddEditExpensePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef;
   @ViewChild('comments') commentsContainer: ElementRef;
   closeSub: any;
+  testVal: any;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2703,13 +2704,13 @@ export class AddEditExpensePage implements OnInit {
     hostViewContainerRef.clear();
 
     const componentRef = hostViewContainerRef.createComponent(alertCmpFactory);
-
-
     componentRef.instance.message = message;
-    // this.closeSub = componentRef.instance.close.subscribe(() => {
-    //   this.closeSub.unsubscribe();
-    //   hostViewContainerRef.clear();
-    // });
+    componentRef.instance.outputMessage.subscribe(res => {
+      if(componentRef) {
+        this.testVal = res;
+      }
+      hostViewContainerRef.clear();
+    });
   }
 
   trigger() {
