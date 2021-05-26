@@ -1,0 +1,14 @@
+<div class="stat-badge" matRipple (click)="onBadgeClicked()">
+  <div class="stat-badge--count" [ngClass]="{'stat-badge--count__black': color === StatBadgeColors.BLACK, 'stat-badge--count__blue': color === StatBadgeColors.BLUE, 'stat-badge--count__green': color === StatBadgeColors.GREEN}">
+    {{count}}
+  </div>
+  <div class="stat-badge--details">
+    <div class="stat-badge--name">
+      {{name}}
+    </div>
+    <div class="stat-badge--amount">
+      {{value | humanizeCurrency: currency: 2 }}
+    </div>
+  </div>
+</div>
+

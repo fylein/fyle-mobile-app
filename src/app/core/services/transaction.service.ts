@@ -153,7 +153,12 @@ export class TransactionService {
     return stateMap[state];
   }
 
-  getPaginatedETxncStats(params) {
+  getPaginatedETxncStats(params): Observable<{
+    total_amount: number,
+    total_count: number,
+    reimbursible_total: number,
+    non_reimbursible_total: number
+  }> {
     return this.apiService.get('/etxns/stats', { params });
   }
 

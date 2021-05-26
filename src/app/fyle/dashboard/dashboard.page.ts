@@ -1,15 +1,17 @@
-import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
-import { MobileEventService } from 'src/app/core/services/mobile-event.service';
-import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
+import { Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import {concat, forkJoin, from, Observable, Subject} from 'rxjs';
-import {filter, shareReplay, takeUntil} from 'rxjs/operators';
+import { concat, forkJoin, from, Observable, Subject } from 'rxjs';
+import { filter, shareReplay, takeUntil } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
-import {NetworkService} from '../../core/services/network.service';
+import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { StatsComponent } from './stats/stats.component';
+import { ActionSheetController } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { FooterState } from '../../shared/components/footer/footer-state';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,12 +25,16 @@ export class DashboardPage implements OnInit {
   isConnected$: Observable<boolean>;
   onPageExit$ = new Subject();
 
+  @ViewChild(StatsComponent) statsComponent: StatsComponent;
+
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,
     private storageService: StorageService,
     private popoverController: PopoverController,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private actionSheetController: ActionSheetController,
+    private router: Router
   ) { }
 
   ionViewWillLeave() {
@@ -67,16 +73,28 @@ export class DashboardPage implements OnInit {
       shareReplay(1),
     );
 
+    this.statsComponent.init();
+
     forkJoin({
       isGetStartedPopupShown: from(this.storageService.get('getStartedPopupShown')),
       totalCount: this.transactionService.getPaginatedETxncCount()
     }).pipe(
       filter(({isGetStartedPopupShown, totalCount}) => !isGetStartedPopupShown && totalCount.count === 0)
-    ).subscribe(_ => {
-      this.showGetStartedPopup();
-    })
+    ).subscribe(_ => this.showGetStartedPopup());
   }
 
   ngOnInit() {
+  }
+
+  get FooterState() {
+    return FooterState;
+  }
+
+  onTaskClicked() {
+    this.router.navigate(['/', 'enterprise', 'tasks']);
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay']);
   }
 }

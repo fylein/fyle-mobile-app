@@ -1,0 +1,14 @@
+<ion-header class="tasks--header" mode="md" translucent="true">
+  <ion-toolbar class="tasks--toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button mode="md"></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="page-title" mode="md">
+      Tasks
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <app-fy-footer (homeClicked)="onHomeClicked()" (cameraClicked)="onCameraClicked()" [activeState]="FooterState.TASKS"></app-fy-footer>
+</ion-content>
+

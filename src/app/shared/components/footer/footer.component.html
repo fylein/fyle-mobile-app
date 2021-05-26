@@ -1,0 +1,17 @@
+<div class="fy-footer">
+  <div mode="md">
+    <div class="fy-footer--buttons">
+      <div class="fy-footer--button" expand="full" [ngClass]="{'fy-footer--button__active': activeState === FooterState.HOME}" (click)="onHomeClick()">
+        <ion-icon class="fy-footer--icon" name="home"></ion-icon>
+        Home
+      </div>
+      <div class="fy-footer--primary-button-container" (click)="onCameraClick()">
+        <ion-icon class="fy-footer--icon fy-footer--primary-icon" name="camera"></ion-icon>
+      </div>
+      <div class="fy-footer--button" expand="full" [ngClass]="{'fy-footer--button__active': activeState === FooterState.TASKS}" (click)="onTasksClick()">
+        <ion-icon class="fy-footer--icon" name="notifications"></ion-icon>
+        Tasks
+      </div>
+    </div>
+  </div>
+</div>

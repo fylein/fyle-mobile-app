@@ -29,13 +29,13 @@ export class CameraOverlayPage implements OnInit {
   isCameraShown: boolean;
   recentImage: string;
   isBulkMode: boolean;
-  isCameraOpenedInOneClick = false;
   lastImage: string;
   captureCount: number;
   homeCurrency: string;
   activeFlashMode: string;
   showInstaFyleIntro: boolean;
   modeChanged: boolean;
+  instafyleEnabled: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -159,7 +159,7 @@ export class CameraOverlayPage implements OnInit {
 
     attachmentUrls.push(attachment);
 
-    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, true);
+    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.instafyleEnabled);
   }
 
   closeImagePreview() {
@@ -210,7 +210,7 @@ export class CameraOverlayPage implements OnInit {
 
     } else {
       // Single mode
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage}]);    }
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage, extractData: this.instafyleEnabled}]);    }
   }
 
   async onCapture() {
@@ -269,13 +269,15 @@ export class CameraOverlayPage implements OnInit {
     this.isCameraShown = false;
     this.setUpAndStartCamera();
     this.activeFlashMode = null;
-    // this.isCameraOpenedInOneClick = this.activatedRoute.snapshot.params.isOneClick;
 
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
     });
 
     this.showInstaFyleIntroImage();
+    this.offlineService.getOrgUserSettings().subscribe(orgUserSettings => {
+      this.instafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
+    });
   }
 
   ngOnInit() {
