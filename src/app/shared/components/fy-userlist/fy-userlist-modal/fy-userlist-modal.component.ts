@@ -27,6 +27,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   newlyAddedItems$: Observable<Partial<Employee>[]>;
   invalidEmail = false;
   currentSelectionsCopy = [];
+  isLoading = false;
 
   constructor(
     private modalController: ModalController,
@@ -58,17 +59,13 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       params.limit = 20;
     }
 
-    return from(this.loaderService.showLoader('Loading...')).pipe(
-      switchMap(_ => {
-        return this.orgUserService.getEmployeesBySearch(params);
-      }),
+    return from(this.orgUserService.getEmployeesBySearch(params)).pipe(
       map(eouc => {
         return eouc.map(eou => {
           eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
           return eou;
         });
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
+      })
     );
   }
 
@@ -95,6 +92,9 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   }
 
   getUsersList(searchText) {
+    this.isLoading = true;
+    // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+    this.cdr.detectChanges();
     if (searchText) {
       return this.getSearchedUsersList(searchText);
     } else {
@@ -106,6 +106,15 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
                 return !employees.find(employee => employee.us_email === searchedEmployee.us_email);
               });
               return employees.concat(searchedEmployees);
+            }),
+            finalize(() => {
+              // set isLoading to false
+              this.isLoading = false;
+              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+              this.cdr.detectChanges();
+              // set focus on input once data is loaded
+              const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+              searchInput.focus();
             })
           );
         })
