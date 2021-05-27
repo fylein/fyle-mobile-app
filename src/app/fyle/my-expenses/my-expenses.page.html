@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar class="my-expenses--toolbar-header" mode="md">
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
-      <ion-menu-button></ion-menu-button>
+      <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
@@ -147,8 +147,7 @@
   <ng-container *ngIf="syncing">
     <ng-container *ngIf="pendingTransactions.length > 0">
       <div class="my-expenses--syncing">
-        <span class="my-expenses--syncing-text">Sync in progress</span>
-        <img alt="" class="my-expenses--syncing-icon" src="../../../assets/svg/dots.svg">
+        <app-fy-alert-info [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
       </div>
     </ng-container>
   </ng-container>

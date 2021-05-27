@@ -10,4 +10,5 @@
   width: 100%;
   height: 20px;
   font-weight: bold;
+  margin-top: env(safe-area-inset-top);
 }
