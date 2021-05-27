@@ -1,3 +1,5 @@
+@import '../../../../theme/colors';
+
 .fy-footer {
   &--button {
     width: 100%;
@@ -18,8 +20,8 @@
     position: fixed;
     bottom: 0px;
     width: 100%;
-    background: #FFFFFF;
-    box-shadow: 0px -2px 12px rgba(215, 215, 215, 0.6);
+    background: $footer-background;
+    box-shadow: 0px -2px 12px $footer-primary-cta-shadow;
   }
 
   &--icon {
@@ -33,10 +35,8 @@
     position: relative;
     top: -28px;
     line-height: 1.2;
-    background: linear-gradient(
-                    137.88deg
-            , #FF3366 14.22%, #FE5196 85.5%);
-    box-shadow: 0px 4px 30px rgb(254 76 142 / 58%);
+    background: $footer-primary-button-gradient;
+    box-shadow: 0px 4px 30px $footer-primary-button-container;
   }
 
   &--primary-icon {
