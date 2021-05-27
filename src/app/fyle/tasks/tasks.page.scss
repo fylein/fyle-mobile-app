@@ -1,0 +1,15 @@
+@import '../../../theme/colors';
+
+.tasks {
+  &--toolbar {
+    border-bottom: 1px solid $toolbar-border-color;
+  }
+
+  &--body {
+    --background: #{$background-color};
+  }
+
+  &--zero-state {
+    margin: 42px 24px;
+  }
+}

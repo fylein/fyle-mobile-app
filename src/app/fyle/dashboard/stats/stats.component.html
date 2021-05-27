@@ -1,84 +1,79 @@
 <div class="stats">
-  <svg class="stats--wave-path-container">
-    <clipPath id="wave" clipPathUnits="objectBoundingBox">
-      <path class="stats--wave-path" d="M1,0c0,0-0.3,0.1-0.5,0.1S0.3,0,0,0.1V1h1L1,0z"/>
-    </clipPath>
-  </svg>
   <div class="stats--background">
-    <ion-grid>
-      <ion-row>
-        <ion-col size="2">
-          <div class="stats--menu-button">
-            <app-fy-menu-icon></app-fy-menu-icon>
-          </div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="stats--title">
-            Home
-          </div>
-        </ion-col>
-        <ion-col size="3">
-          <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-            <ion-icon class="stats--action-shortcut-icon" name="add-circle"></ion-icon>
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <div class="stats--header">
-            Reports
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="6">
-          <app-stat-badge [currency]="homeCurrency$|async"
-                          [color]="StatBadgeColors.BLACK"
-                          [name]="'Draft'"
-                          [count]="(draftStats$|async)?.count"
-                          [value]="(draftStats$|async)?.sum"
-                          (badgeClicked)="goToDraftState()"></app-stat-badge>
-        </ion-col>
-        <ion-col  size="6">
-          <app-stat-badge [currency]="homeCurrency$|async"
-                          [color]="StatBadgeColors.BLUE"
-                          [name]="'Reported'"
-                          [count]="(reportedStats$|async)?.count"
-                          [value]="(reportedStats$|async)?.sum"
-                          (badgeClicked)="goToReportedState()"
-          ></app-stat-badge>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col  size="6">
-          <app-stat-badge [currency]="homeCurrency$|async"
-                          [color]="StatBadgeColors.GREEN"
-                          [name]="'Approved'"
-                          [count]="(approvedStats$|async)?.count"
-                          [value]="(approvedStats$|async)?.sum"
-                          (badgeClicked)="goToApprovedState()"
-          ></app-stat-badge>
-        </ion-col>
-        <ion-col  size="6">
-          <app-stat-badge [currency]="homeCurrency$|async"
-                          [color]="StatBadgeColors.GREEN"
-                          [name]="'Payment Pending'"
-                          [count]="(paymentPendingStats$|async)?.count"
-                          [value]="(paymentPendingStats$|async)?.sum"
-                          (badgeClicked)="goToPaymentPendingState()"
-          ></app-stat-badge>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <div class="stats--header">
-            Expenses
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="2">
+            <div class="stats--menu-button">
+              <app-fy-menu-icon></app-fy-menu-icon>
+            </div>
+          </ion-col>
+          <ion-col size="7">
+            <div class="stats--title">
+              Home
+            </div>
+          </ion-col>
+          <ion-col size="3">
+            <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+              <mat-icon svgIcon="fy-plus"></mat-icon>
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row  *ngIf="isConnected$|async">
+          <ion-col>
+            <div class="stats--header">
+              Reports
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row  *ngIf="isConnected$|async">
+          <ion-col size="6">
+            <app-stat-badge [currency]="homeCurrency$|async"
+                            [color]="StatBadgeColors.BLACK"
+                            [name]="'Draft'"
+                            [count]="(draftStats$|async)?.count"
+                            [value]="(draftStats$|async)?.sum"
+                            (badgeClicked)="goToDraftState()"></app-stat-badge>
+          </ion-col>
+          <ion-col  size="6">
+            <app-stat-badge [currency]="homeCurrency$|async"
+                            [color]="StatBadgeColors.BLUE"
+                            [name]="'Reported'"
+                            [count]="(reportedStats$|async)?.count"
+                            [value]="(reportedStats$|async)?.sum"
+                            (badgeClicked)="goToReportedState()"
+            ></app-stat-badge>
+          </ion-col>
+        </ion-row>
+        <ion-row  *ngIf="isConnected$|async">
+          <ion-col  size="6">
+            <app-stat-badge [currency]="homeCurrency$|async"
+                            [color]="StatBadgeColors.GREEN"
+                            [name]="'Approved'"
+                            [count]="(approvedStats$|async)?.count"
+                            [value]="(approvedStats$|async)?.sum"
+                            (badgeClicked)="goToApprovedState()"
+            ></app-stat-badge>
+          </ion-col>
+          <ion-col  size="6">
+            <app-stat-badge [currency]="homeCurrency$|async"
+                            [color]="StatBadgeColors.GREEN"
+                            [name]="'Payment Pending'"
+                            [count]="(paymentPendingStats$|async)?.count"
+                            [value]="(paymentPendingStats$|async)?.sum"
+                            (badgeClicked)="goToPaymentPendingState()"
+            ></app-stat-badge>
+          </ion-col>
+        </ion-row>
+        <ion-row  *ngIf="isConnected$|async">
+          <ion-col>
+            <div class="stats--header">
+              Expenses
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
   </div>
-  <div class="stats--expenses-card" matRipple (click)="onExpenseStatsCardClick()">
+  <div *ngIf="isConnected$|async; else offlineMessage" class="stats--expenses-card" matRipple (click)="onExpenseStatsCardClick()">
     <div class="stats--expenses-values">
       <div class="stats--expenses-count">
         {{unreportedExpensesCount$ | async}}
@@ -91,5 +86,10 @@
       Unreported Expenses
     </div>
   </div>
+  <ng-template #offlineMessage>
+    <div class="stats--zero-state">
+      <app-fy-zero-state class="stats--zero-state" image="../../../../assets/images/no-internet.svg" header="You're Offline!" message="Fear not, you can still add expenses offline." [unscaledImage]="true"></app-fy-zero-state>
+    </div>
+  </ng-template>
 </div>
 

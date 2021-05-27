@@ -1,4 +1,4 @@
-import {Component, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {StatBadgeColors} from '../stat-badge/stat-badge-colors';
 import {DashboardService} from '../dashboard.service';
 import {Observable} from 'rxjs/internal/Observable';
@@ -7,6 +7,8 @@ import {map, startWith, tap} from 'rxjs/operators';
 import {CurrencyService} from '../../../core/services/currency.service';
 import {Params, Router} from '@angular/router';
 import {ActionSheetController} from '@ionic/angular';
+import {NetworkService} from '../../../core/services/network.service';
+import { concat } from 'rxjs';
 
 @Component({
   selector: 'app-stats',
@@ -47,6 +49,7 @@ export class StatsComponent implements OnInit {
   approvedStats$: Observable<{ count: number, sum: number }>;
   paymentPendingStats$: Observable<{ count: number, sum: number }>;
   homeCurrency$: Observable<string>;
+  isConnected$: Observable<boolean>;
 
   unreportedExpensesCount$: Observable<number>;
   unreportedExpensesAmount$: Observable<number>;
@@ -55,8 +58,17 @@ export class StatsComponent implements OnInit {
       private dashboardService: DashboardService,
       private currencyService: CurrencyService,
       private router: Router,
-      private actionSheetController: ActionSheetController
+      private actionSheetController: ActionSheetController,
+      private networkService: NetworkService
   ) {
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+        shareReplay(1)
+    );
   }
 
   initializeReportStats() {
@@ -115,6 +127,7 @@ export class StatsComponent implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
         shareReplay(1)
     );
+    this.setupNetworkWatcher();
   }
 
   redirectToReportsPage(queryParams: Params) {
@@ -155,27 +168,28 @@ export class StatsComponent implements OnInit {
     const actionSheet = await this.actionSheetController.create({
       header: 'Add Expense',
       mode: 'md',
+      cssClass: 'fy-action-sheet',
       buttons: [{
         text: 'Capture Receipt',
-        icon: 'camera',
+        icon: 'assets/svg/fy-camera.svg',
         handler: () => {
           that.router.navigate(['/', 'enterprise', 'camera_overlay']);
         }
       }, {
         text: 'Add Manually',
-        icon: 'document-text',
+        icon: 'assets/svg/fy-expense.svg',
         handler: () => {
           that.router.navigate(['/', 'enterprise', 'add_edit_expense']);
         }
       }, {
         text: 'Add Mileage',
-        icon: 'speedometer',
+        icon: 'assets/svg/fy-mileage.svg',
         handler: () => {
           that.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
         }
       }, {
         text: 'Add Per Diem',
-        icon: 'calendar',
+        icon: 'assets/svg/fy-calendar.svg',
         handler: () => {
           that.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
         }

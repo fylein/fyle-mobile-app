@@ -6,9 +6,8 @@
     align-items: center;
     min-height: 100%;
     justify-content: space-around;
-    opacity: .4;
-    &__active {
-      opacity: 1;
+    &__disabled {
+      opacity: .4;
     }
   }
   &--buttons {

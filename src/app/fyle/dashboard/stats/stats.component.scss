@@ -1,3 +1,5 @@
+@import '../../../../theme/colors';
+
 .stats {
   &--menu-button {
     display: flex;
@@ -13,7 +15,7 @@
     left: -12px;
     font-size: 20px;
     line-height: 26px;
-    color: #161528;
+    color: $title;
     font-weight: 500;
   }
 
@@ -30,20 +32,17 @@
   }
 
   &--background {
-    padding: 0 8px 16px;
-    position: relative;
-    width: 100%;
     top: 0;
-    background: linear-gradient(27.66deg, #E1EEFF 12.53%, #FFE4FB 83.29%);
-    box-shadow: 0px -2px 8px rgba(215, 215, 215, 0.25);
+    box-shadow: 0px -2px 8px rgb(215 215 215 / 25%);
     min-height: 320px;
-    clip-path: url(#wave);
+    background: url('../../../../assets/images/new-background.png') no-repeat bottom;
+    background-size: 105%;
   }
 
   &--header {
     font-size: 14px;
     line-height: 18px;
-    color: #A9ACBC;
+    color: $header;
   }
 
   &--container-row {
@@ -65,8 +64,8 @@
 
   &--expenses-card {
     position: relative;
-    top: -42px;
-    background: #FFFFFF;
+    top: -72px;
+    background: $card-background;
     box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
     border-radius: 16px;
     width: 94%;
@@ -85,19 +84,24 @@
     font-size: 18px;
     line-height: 28px;
     font-weight: 500;
-    color: #161528;
+    color: $card-amount;
   }
 
   &--expenses-title {
     font-size: 16px;
     line-height: 20px;
-    color: #2C304E;
+    color: $card-title;
   }
 
   &--expenses-count {
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
-    color: #161528;
+    color: $card-amount;
+  }
+
+  &--zero-state {
+    position: relative;
+    top: -124px;
   }
 }

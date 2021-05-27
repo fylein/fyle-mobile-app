@@ -1,9 +1,11 @@
-$item-border-color: #e0e0e0;
-$background-color: #fff;
-$menu-bottom-color: #000;
+@import '../../../theme/colors';
 
 .dashboard {
   &--toolbar {
     --background: none !important;
+  }
+
+  &--body {
+    --background: #{$background-color};
   }
 }

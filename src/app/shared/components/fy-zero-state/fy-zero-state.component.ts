@@ -13,6 +13,7 @@ export class FyZeroStateComponent implements OnInit {
   @Input() message: string;
   @Input() submessage: string;
   @Input() link: string;
+  @Input() unscaledImage = false;
 
   @Output() linkClicked = new EventEmitter();
 

@@ -1,5 +1,5 @@
 <div class="zero-state">
-  <img class="zero-state--image" [src]="image" alt="zero">
+  <img class="zero-state--image" [ngClass]="{'zero-state--image__unscaled': unscaledImage}" [src]="image" alt="zero">
   <div *ngIf="header" class="zero-state--header">
     {{header}}
   </div>

@@ -7,6 +7,10 @@
     margin: 12px;
     max-height: 128px;
     max-width: 128px;
+    &__unscaled {
+      max-height: initial;
+      max-width: initial;
+    }
   }
 
   &--header {

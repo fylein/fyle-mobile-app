@@ -1,14 +1,17 @@
 <ion-header class="tasks--header" mode="md" translucent="true">
   <ion-toolbar class="tasks--toolbar">
     <ion-buttons slot="start">
-      <ion-menu-button mode="md"></ion-menu-button>
+      <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
-    <ion-title class="page-title" mode="md">
+    <ion-title mode="md">
       Tasks
     </ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content>
+<ion-content class="tasks--body">
+  <div class="tasks--zero-state">
+    <app-fy-zero-state [unscaledImage]="true" image="../../../assets/images/coming-soon.png" header="Coming up soon" submessage="Once this page is ready, you'll never lose track of the actions pending on you. Watch this space for more!"></app-fy-zero-state>
+  </div>
   <app-fy-footer (homeClicked)="onHomeClicked()" (cameraClicked)="onCameraClicked()" [activeState]="FooterState.TASKS"></app-fy-footer>
 </ion-content>
 

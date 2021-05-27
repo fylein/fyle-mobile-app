@@ -1,6 +1,8 @@
+@import '../../../../theme/colors';
+
 .stat-badge {
   display: flex;
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: $badge-background;
   border-radius: 8px;
   min-height: 64px;
   display: flex;
@@ -12,20 +14,20 @@
     line-height: 2.1;
     height: 30px;
     border-radius: 50%;
-    color: #fff;
+    color: $badge-value;
     margin-left: 16px;
     margin-right: 8px;
     font-weight: 500;
     &__black {
-      background-color: #464D57;
+      background-color: $badge-highlight-black;
     }
 
     &__green {
-      background-color: #66BB6A;
+      background-color: $badge-highlight-green;
     }
 
     &__blue {
-      background-color: #5C98E5;
+      background-color: $badge-highlight-blue;
     }
   }
 
@@ -40,7 +42,7 @@
   &--name {
     font-size: 14px;
     line-height: 18px;
-    color: #2C304E;
+    color: $badge-name;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
