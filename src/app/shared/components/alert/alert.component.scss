@@ -1,5 +1,5 @@
-
-
 .bottom-sheet {
   position: fixed;
+  transition: all 2s ease-out 0s; 
+  transform: translateY(calc(100vh - 300px));
 }

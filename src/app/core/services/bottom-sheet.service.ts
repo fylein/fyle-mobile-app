@@ -14,6 +14,9 @@ export class BottomSheetService {
   setRootViewContainerRef(viewContainerRef) {
     this.rootViewContainer = viewContainerRef
   }
+  // Arguments
+  // Passing components and properties
+  // response should be a promise -> resolved in methods
   addFyBottomSheetComponent() {
     const factory = this.factoryResolver
                         .resolveComponentFactory(FyBottomSheetComponent)
