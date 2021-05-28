@@ -80,7 +80,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       concatMap(
         authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
       ),
-      concatMap(() => from(this.tokenService.getAccessToken())),
+      concatMap(() => from(this.tokenService.getAccessToken()))
     );
   }
 

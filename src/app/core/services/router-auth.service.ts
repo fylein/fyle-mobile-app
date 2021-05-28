@@ -34,7 +34,8 @@ export class RouterAuthService {
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private tripRequestPolicyService: TripRequestPolicyService,
-    private pushNotificationService: PushNotificationService  ) { }
+    private pushNotificationService: PushNotificationService
+  ) { }
 
   checkEmailExists(email) {
     return this.routerApiService.post('/auth/basic/email_exists', {
