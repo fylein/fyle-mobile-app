@@ -48,6 +48,7 @@ export class AppComponent implements OnInit {
   eou;
   device;
   dividerTitle: string;
+  previousUrl: string;
 
   constructor(
     private platform: Platform,
@@ -105,7 +106,7 @@ export class AppComponent implements OnInit {
       if (this.router.url.includes('my_dashboard')) {
         this.showAppCloseAlert();
       }
-      if (this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts')) {
+      if ((this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts')) && this.previousUrl.includes('enterprise')) {
         this.navController.back();
       }
     });
@@ -518,6 +519,7 @@ export class AppComponent implements OnInit {
 
     this.router.events.subscribe((ev) => {
       if (ev instanceof NavigationEnd) {
+        this.previousUrl = ev.url
         this.menuController.swipeGesture(false);
         if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
           this.menuController.swipeGesture(true);
