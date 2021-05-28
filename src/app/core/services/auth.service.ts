@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {StorageService} from './storage.service';
 import {TokenService} from './token.service';
 import {ApiService} from './api.service';
-import {switchMap, map, finalize} from 'rxjs/operators';
+import {switchMap, map, finalize, tap, catchError} from 'rxjs/operators';
 import {DataTransformService} from './data-transform.service';
 import {forkJoin, Observable, from, iif} from 'rxjs';
 import {ExtendedOrgUser} from '../models/extended-org-user.model';
@@ -53,6 +53,10 @@ export class AuthService {
         return that.apiService.post('/auth/access_token', {
           refresh_token: token
         }).pipe(
+          catchError(error => {
+            console.log("--2--", error);
+            return error;
+          }),
           switchMap((res) => {
             return from(that.tokenService.setAccessToken(res.access_token));
           }),

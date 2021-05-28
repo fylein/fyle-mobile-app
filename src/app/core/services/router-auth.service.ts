@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
-import { tap, switchMap, map } from 'rxjs/operators';
+import { tap, switchMap, map, catchError } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -15,6 +15,8 @@ import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { TripRequestPolicyService } from './trip-request-policy.service';
 import { PushNotificationService } from './push-notification.service';
+import { UserEventService } from './user-event.service';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +36,8 @@ export class RouterAuthService {
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private tripRequestPolicyService: TripRequestPolicyService,
-    private pushNotificationService: PushNotificationService
+    private pushNotificationService: PushNotificationService,
+    private userEventService: UserEventService
   ) { }
 
   checkEmailExists(email) {
