@@ -284,14 +284,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getDuplicates() {
-    return this.etxn$.pipe(
-      switchMap(etxn => {
-        return this.duplicateDetectionService.getDuplicates(etxn.tx.id);
-      })
-    );
-  }
-
   checkIfInvalidPaymentMode() {
     return this.etxn$.pipe(
       map(etxn => {

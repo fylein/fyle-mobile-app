@@ -30,12 +30,8 @@ export class DuplicateDetectionService {
     return ['Different expense', 'Other'];
   }
 
-  get(url, config?) {
-    return this.httpClient.get(this.ROOT_ENDPOINT + '/property_evaluator' + url, config);
-  }
-
   post(url, data, config?) {
-    return this.httpClient.post(this.ROOT_ENDPOINT + '/property_evaluator' + url, data, config);
+    return this.httpClient.post(this.ROOT_ENDPOINT + '/compliance/duplicates' + url, data, config);
   }
 
   getPossibleDuplicates(transaction) {
@@ -64,12 +60,8 @@ export class DuplicateDetectionService {
           transactionCopy.from_dt.setMilliseconds(0);
           transactionCopy.from_dt = this.timezoneService.convertToUtc(transactionCopy.from_dt, localeOffset);
         }
-        return this.post('/duplicate/test', transactionCopy);
+        return this.post('/l1_test', transactionCopy);
       })
     );
-  }
-
-  getDuplicates(transactionId: string) {
-    return this.get('/duplicate/violating_txns/' + transactionId);
   }
 }
