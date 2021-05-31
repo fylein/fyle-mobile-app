@@ -75,11 +75,14 @@
     padding: 4px;
   }
 
-  &--expenses-amount {
+  &--expenses-count, &--expenses-amount {
+    font-weight: 500;
     font-size: 18px;
     line-height: 28px;
-    font-weight: 500;
     color: $black;
+  }
+
+  &--expenses-amount {
     text-align: right;
   }
 
@@ -87,13 +90,6 @@
     font-size: 16px;
     line-height: 20px;
     color: $blue-black;
-  }
-
-  &--expenses-count {
-    font-weight: 500;
-    font-size: 18px;
-    line-height: 28px;
-    color: $black;
   }
 
   &--expenses-skeleton-text {
