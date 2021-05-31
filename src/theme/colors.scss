@@ -1,21 +1,19 @@
-$title: #161528;
-$header: #A9ACBC;
-$background-color: #fafafa;
+$black: #161528 !default;
+$black-light: #5a5d72 !default;
+$grey-light: #a9acbc !default;
+$white: #fafafa !default;
+$grey-lightest: #e6e6e6 !default;
+$pure-white: #fff !default;
+$blue-black: #2c304e !default;
+$translucent-white: #ffffff66 !default;
+$translucent-grey: #dfdfe280 !default;
+$highlight-black: #464d57 !default;
+$highlight-green: #66bb6a !default;
+$highlight-blue: #5c98e5 !default;
+$pink-shadow: #d7d7d799 !default;
+$brand-primary: #f36 !default;
+$brand-primary-light: #fe5196 !default;
+$pink: #fe4c8e !default;
 
-$toolbar-border-color: #e6e6e6;
 
-$card-background: #FFFFFF;
-$card-amount: #161528;
-$card-title: #2C304E;
-
-$badge-background: #ffffff66;
-$badge-value: #fff;
-$badge-highlight-black: #464D57;
-$badge-highlight-green: #66BB6A;
-$badge-highlight-blue: #5C98E5;
-$badge-name: #2C304E;
-
-$footer-background: #fff;
-$footer-primary-cta-shadow: #d7d7d799;
-$footer-primary-button-gradient: linear-gradient(137.88deg, #FF3366 14.22%, #FE5196 85.5%);
-$footer-primary-button-container: #fe4c8e94;
+$pink-gradient: linear-gradient(137.88deg, $brand-primary 14.22%, $brand-primary-light 85.5%);

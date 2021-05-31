@@ -2,14 +2,16 @@
 
 .tasks {
   &--toolbar {
-    border-bottom: 1px solid $toolbar-border-color;
+    border-bottom: 1px solid $grey-lightest;
   }
 
   &--body {
-    --background: #{$background-color};
+    --background: #{$white};
   }
 
   &--zero-state {
-    margin: 42px 24px;
+    position: relative;
+    top: 50%;
+    transform: translate(0, -50%);
   }
 }

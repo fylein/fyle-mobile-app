@@ -12,14 +12,20 @@ export class DashboardService {
   ) { }
 
   getUnreportedExpensesStats() {
-    return this.transactionService.getPaginatedETxncStats({
-      state: 'COMPLETE',
-      policy_amount: ['gt:0.0001', 'is:null']
+    return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      scalar: true,
+      tx_state: 'in.(COMPLETE)',
+      or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+      tx_report_id: 'is.null'
     }).pipe(
-        map(statsResponse => ({
-          totalCount: statsResponse.total_count,
-          totalAmount: statsResponse.total_amount
-        }))
+        map(rawStatsResponse => {
+          const countAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'count(tx_id)');
+          const amountAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'sum(tx_amount)');
+          return {
+            totalCount: countAggregate && countAggregate.function_value,
+            totalAmount: amountAggregate && amountAggregate.function_value
+          };
+        })
     );
   }
 

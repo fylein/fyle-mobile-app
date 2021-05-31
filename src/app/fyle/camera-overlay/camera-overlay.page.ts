@@ -35,7 +35,7 @@ export class CameraOverlayPage implements OnInit {
   activeFlashMode: string;
   showInstaFyleIntro: boolean;
   modeChanged: boolean;
-  instafyleEnabled: boolean;
+  isInstafyleEnabled: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -159,7 +159,7 @@ export class CameraOverlayPage implements OnInit {
 
     attachmentUrls.push(attachment);
 
-    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.instafyleEnabled);
+    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
   }
 
   closeImagePreview() {
@@ -210,7 +210,7 @@ export class CameraOverlayPage implements OnInit {
 
     } else {
       // Single mode
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage, extractData: this.instafyleEnabled}]);    }
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage, canExtractData: this.isInstafyleEnabled}]);    }
   }
 
   async onCapture() {
@@ -276,7 +276,7 @@ export class CameraOverlayPage implements OnInit {
 
     this.showInstaFyleIntroImage();
     this.offlineService.getOrgUserSettings().subscribe(orgUserSettings => {
-      this.instafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
+      this.isInstafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
   }
 

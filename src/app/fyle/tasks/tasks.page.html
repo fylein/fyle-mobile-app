@@ -10,7 +10,7 @@
 </ion-header>
 <ion-content class="tasks--body">
   <div class="tasks--zero-state">
-    <app-fy-zero-state [unscaledImage]="true" image="../../../assets/images/coming-soon.png" header="Coming up soon" submessage="Once this page is ready, you'll never lose track of the actions pending on you. Watch this space for more!"></app-fy-zero-state>
+    <app-fy-zero-state [unscaledImage]="true" [useNewStyling]="true" image="../../../assets/images/coming-soon.png" header="Coming up soon" message="Once this page is ready, you'll never lose track of the actions pending on you. Watch this space for more!"></app-fy-zero-state>
   </div>
   <app-fy-footer (homeClicked)="onHomeClicked()" (cameraClicked)="onCameraClicked()" [activeState]="FooterState.TASKS"></app-fy-footer>
 </ion-content>

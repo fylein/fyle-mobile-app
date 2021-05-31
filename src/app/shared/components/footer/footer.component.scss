@@ -18,10 +18,10 @@
     min-height: 60px;
     padding: 8px;
     position: fixed;
-    bottom: 0px;
+    bottom: 0;
     width: 100%;
-    background: $footer-background;
-    box-shadow: 0px -2px 12px $footer-primary-cta-shadow;
+    background: $pure-white;
+    box-shadow: 0 -2px 12px $pink-shadow;
   }
 
   &--icon {
@@ -35,11 +35,11 @@
     position: relative;
     top: -28px;
     line-height: 1.2;
-    background: $footer-primary-button-gradient;
-    box-shadow: 0px 4px 30px $footer-primary-button-container;
+    background: $pink-gradient;
+    box-shadow: 0 4px 30px $pink;
   }
 
   &--primary-icon {
-    color: #fff;
+    color: $pure-white;
   }
 }

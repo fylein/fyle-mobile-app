@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { StatBadgeColors } from './stat-badge-colors';
+import { ReportStates } from './report-states';
 
 @Component({
   selector: 'app-stat-badge',
@@ -8,17 +8,14 @@ import { StatBadgeColors } from './stat-badge-colors';
 })
 export class StatBadgeComponent implements OnInit {
 
-  @Input() color: StatBadgeColors;
+  @Input() reportState: ReportStates;
   @Input() name: string;
   @Input() count = 0;
   @Input() value = 0;
   @Input() currency: string;
+  @Input() loading = false;
 
   @Output() badgeClicked = new EventEmitter();
-
-  get StatBadgeColors() {
-    return StatBadgeColors;
-  }
 
   constructor(
   ) { }
@@ -27,6 +24,6 @@ export class StatBadgeComponent implements OnInit {
   }
 
   onBadgeClicked() {
-    this.badgeClicked.emit(this.name);
+    this.badgeClicked.emit(this.reportState);
   }
 }

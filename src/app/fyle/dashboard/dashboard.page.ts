@@ -74,7 +74,12 @@ export class DashboardPage implements OnInit {
     );
 
     this.statsComponent.init();
-
+    /**
+     * What does the _ mean in the subscribe block?
+     * It means the response is not being used.
+     * Heres a guy using it in the ionic forum
+     * https://forum.ionicframework.com/t/angular-variable-is-not-updating-when-i-return-to-previous-page/202919
+     * */
     forkJoin({
       isGetStartedPopupShown: from(this.storageService.get('getStartedPopupShown')),
       totalCount: this.transactionService.getPaginatedETxncCount()

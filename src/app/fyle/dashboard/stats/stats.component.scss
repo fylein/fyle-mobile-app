@@ -2,33 +2,39 @@
 
 .stats {
   &--menu-button {
-    display: flex;
-    position: relative;
-    left: -12px;
+    padding: 8px;
+  }
+  &--header-bar {
+    padding-top: 12px;
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
+  }
+
+  &--body {
+    padding-top: 0;
+    --ion-grid-padding: 16px;
   }
 
   &--title {
-    display: flex;
-    height: 100%;
     align-items: center;
     position: relative;
-    left: -12px;
     font-size: 20px;
     line-height: 26px;
-    color: $title;
+    color: $black;
     font-weight: 500;
-  }
-
-  &--action-shortcut {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-    height: 100%;
+    padding: 6px 0;
   }
 
   &--action-shortcut-icon {
     font-size: 24px;
+  }
+
+  &--action-shortcut {
+    text-align: right;
+    padding: 0 20px;
+    position: relative;
+    top: 50%;
+    transform: translate(0, -50%);
   }
 
   &--background {
@@ -42,13 +48,7 @@
   &--header {
     font-size: 14px;
     line-height: 18px;
-    color: $header;
-  }
-
-  &--container-row {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+    color: $grey-light;
   }
 
   &--wave-path-container {
@@ -64,44 +64,59 @@
 
   &--expenses-card {
     position: relative;
-    top: -72px;
-    background: $card-background;
+    top: -64px;
+    background: $pure-white;
     box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
     border-radius: 16px;
-    width: 94%;
+    width: 90%;
     margin: 0px;
     left: 50%;
     transform: translate(-50%, 0);
-    padding: 16px;
-  }
-
-  &--expenses-values {
-    display: flex;
-    justify-content: space-between;
+    padding: 4px;
   }
 
   &--expenses-amount {
     font-size: 18px;
     line-height: 28px;
     font-weight: 500;
-    color: $card-amount;
+    color: $black;
+    text-align: right;
   }
 
   &--expenses-title {
     font-size: 16px;
     line-height: 20px;
-    color: $card-title;
+    color: $blue-black;
   }
 
   &--expenses-count {
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
-    color: $card-amount;
+    color: $black;
+  }
+
+  &--expenses-skeleton-text {
+    height: 18px;
+    &__width-small {
+      width: 33%;
+    }
+
+    &__width-medium {
+      width: 66%;
+    }
+
+    &__width-large {
+      width: 80%;
+    }
+
+    &__align-right {
+      margin-left: auto;
+    }
   }
 
   &--zero-state {
     position: relative;
-    top: -124px;
+    top: -96px;
   }
 }

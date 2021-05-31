@@ -22,15 +22,15 @@ export class FooterComponent implements OnInit {
 
   ngOnInit() {}
 
-  onHomeClick() {
+  goToHome() {
     this.homeClicked.emit();
   }
 
-  onCameraClick() {
+  goToCameraMode() {
     this.cameraClicked.emit();
   }
 
-  onTasksClick() {
+  goToTasks() {
     this.taskClicked.emit();
   }
 }

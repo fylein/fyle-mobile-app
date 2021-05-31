@@ -1,33 +1,58 @@
 @import '../../../../theme/colors';
 
 .stat-badge {
-  display: flex;
-  background-color: $badge-background;
+  background-color: $translucent-white;
   border-radius: 8px;
   min-height: 64px;
-  display: flex;
-  align-items: center;
+
+  &--container {
+    padding: 8px;
+  }
+
+  &--grid {
+    --ion-grid-padding: 0;
+  }
+
+  &--grid-col {
+    --ion-grid-column-padding: 0;
+  }
 
   &--count {
     min-width: 30px;
+    max-width: 30px;
     text-align: center;
-    line-height: 2.1;
-    height: 30px;
+    line-height: 2.3;
+    height: 32px;
     border-radius: 50%;
-    color: $badge-value;
-    margin-left: 16px;
-    margin-right: 8px;
+    color: #fff;
     font-weight: 500;
-    &__black {
-      background-color: $badge-highlight-black;
+    &__draft {
+      background-color: $highlight-black;
     }
 
-    &__green {
-      background-color: $badge-highlight-green;
+    &__approver_pending {
+      background-color: $highlight-green;
     }
 
-    &__blue {
-      background-color: $badge-highlight-blue;
+    &__approved, &__payment_pending {
+      background-color: $highlight-blue;
+    }
+  }
+
+  &--count-loader {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+  }
+
+  &--skeleton-loader {
+    height: 12px;
+    &__width-medium {
+      width: 66%;
+    }
+
+    &__width-large {
+      width: 80%;
     }
   }
 
@@ -35,14 +60,10 @@
     font-weight: 500;
   }
 
-  &--details {
-    width: 64%;
-  }
-
   &--name {
     font-size: 14px;
     line-height: 18px;
-    color: $badge-name;
+    color: $blue-black;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;

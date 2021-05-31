@@ -29,6 +29,6 @@ export class StatsResponse {
     }
 
     getDatum(index: number) {
-        return this.data && this.data.length && this.data[index];
+        return this.data && this.data.length > 0 && this.data[index];
     }
 }

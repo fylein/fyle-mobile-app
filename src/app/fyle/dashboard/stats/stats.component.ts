@@ -1,14 +1,15 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {StatBadgeColors} from '../stat-badge/stat-badge-colors';
 import {DashboardService} from '../dashboard.service';
 import {Observable} from 'rxjs/internal/Observable';
 import {shareReplay} from 'rxjs/internal/operators/shareReplay';
-import {map, startWith, tap} from 'rxjs/operators';
+import {delay, map, startWith, tap} from 'rxjs/operators';
 import {CurrencyService} from '../../../core/services/currency.service';
 import {Params, Router} from '@angular/router';
 import {ActionSheetController} from '@ionic/angular';
 import {NetworkService} from '../../../core/services/network.service';
 import { concat } from 'rxjs';
+import {ReportStates} from '../stat-badge/report-states';
+import {OfflineService} from '../../../core/services/offline.service';
 
 @Component({
   selector: 'app-stats',
@@ -16,34 +17,6 @@ import { concat } from 'rxjs';
   styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent implements OnInit {
-  initialEmptyReportStats = {
-    draft: {
-      sum: 0,
-      count: 0
-    },
-    report: {
-      sum: 0,
-      count: 0
-    },
-    approved: {
-      sum: 0,
-      count: 0
-    },
-    paymentPending: {
-      sum: 0,
-      count: 0
-    }
-  };
-
-  initialEmptyExpenseStats = {
-    totalCount: 0,
-    totalAmount: 0
-  };
-
-  get StatBadgeColors() {
-    return StatBadgeColors;
-  }
-
   draftStats$: Observable<{ count: number, sum: number }>;
   reportedStats$: Observable<{ count: number, sum: number }>;
   approvedStats$: Observable<{ count: number, sum: number }>;
@@ -51,14 +24,22 @@ export class StatsComponent implements OnInit {
   homeCurrency$: Observable<string>;
   isConnected$: Observable<boolean>;
 
-  unreportedExpensesCount$: Observable<number>;
-  unreportedExpensesAmount$: Observable<number>;
+  unreportedExpensesCount$: Observable<{ count: number }>;
+  unreportedExpensesAmount$: Observable<{ amount: number }>;
+
+  actionSheetButtons = [];
+  reportStatsLoading = true;
+
+  get ReportStates() {
+    return ReportStates;
+  }
 
   constructor(
       private dashboardService: DashboardService,
       private currencyService: CurrencyService,
       private router: Router,
       private actionSheetController: ActionSheetController,
+      private offlineService: OfflineService,
       private networkService: NetworkService
   ) {
   }
@@ -72,8 +53,11 @@ export class StatsComponent implements OnInit {
   }
 
   initializeReportStats() {
+    this.reportStatsLoading = true;
     const reportStats$ = this.dashboardService.getReportsStats().pipe(
-        startWith(this.initialEmptyReportStats),
+        tap(() => {
+          this.reportStatsLoading = false;
+        }),
         shareReplay(1)
     );
 
@@ -96,17 +80,15 @@ export class StatsComponent implements OnInit {
 
   initializeExpensesStats() {
     const unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(
-        startWith(this.initialEmptyExpenseStats),
-        shareReplay(1),
-        tap(console.log)
+        shareReplay(1)
     );
 
     this.unreportedExpensesCount$ = unreportedExpensesStats$.pipe(
-        map(stats => stats.totalCount)
+        map(stats => ({ count: stats.totalCount }))
     );
 
     this.unreportedExpensesAmount$ = unreportedExpensesStats$.pipe(
-        map(stats => stats.totalAmount)
+        map(stats => ({ amount: stats.totalAmount }))
     );
   }
 
@@ -116,11 +98,54 @@ export class StatsComponent implements OnInit {
   * Here, I am setting up the initialize method to be called from the parent's ionViewWillEnter method.
   * **/
   init() {
-    this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
+    const that = this;
+    that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(
         shareReplay(1)
     );
-    this.initializeReportStats();
-    this.initializeExpensesStats();
+    that.initializeReportStats();
+    that.initializeExpensesStats();
+    that.offlineService.getOrgSettings().subscribe(orgSettings => {
+      this.setupActionSheet(orgSettings);
+    });
+  }
+
+  setupActionSheet(orgSettings) {
+    const that = this;
+    const mileageEnabled = orgSettings.mileage.enabled;
+    const isPerDiemEnabled = orgSettings.per_diem.enabled;
+    that.actionSheetButtons = [{
+      text: 'Capture Receipt',
+      icon: 'assets/svg/fy-camera.svg',
+      handler: () => {
+        that.router.navigate(['/', 'enterprise', 'camera_overlay']);
+      }
+    }, {
+      text: 'Add Manually',
+      icon: 'assets/svg/fy-expense.svg',
+      handler: () => {
+        that.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+      }
+    }];
+
+    if (mileageEnabled) {
+      this.actionSheetButtons.push({
+        text: 'Add Mileage',
+        icon: 'assets/svg/fy-mileage.svg',
+        handler: () => {
+          that.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
+        }
+      });
+    }
+
+    if (isPerDiemEnabled) {
+      that.actionSheetButtons.push({
+        text: 'Add Per Diem',
+        icon: 'assets/svg/fy-calendar.svg',
+        handler: () => {
+          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
+        }
+      });
+    }
   }
 
   ngOnInit() {
@@ -130,33 +155,14 @@ export class StatsComponent implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  redirectToReportsPage(queryParams: Params) {
+  goToReportsPage(state: ReportStates) {
+    const queryParams: Params = {filters: JSON.stringify({state: state.toString()})};
     this.router.navigate(['/', 'enterprise', 'my_reports'], {
       queryParams
     });
   }
 
-  goToDraftState() {
-    const queryParams: Params = {filters: JSON.stringify({state: 'DRAFT'})};
-    this.redirectToReportsPage(queryParams);
-  }
-
-  goToReportedState() {
-    const queryParams: Params = {filters: JSON.stringify({state: 'APPROVER_PENDING'})};
-    this.redirectToReportsPage(queryParams);
-  }
-
-  goToApprovedState() {
-    const queryParams: Params = {filters: JSON.stringify({state: 'APPROVED'})};
-    this.redirectToReportsPage(queryParams);
-  }
-
-  goToPaymentPendingState() {
-    const queryParams: Params = {filters: JSON.stringify({state: 'PAYMENT_PENDING'})};
-    this.redirectToReportsPage(queryParams);
-  }
-
-  onExpenseStatsCardClick() {
+  goToExpensesPage() {
     const queryParams: Params = {filters: JSON.stringify({state: 'READY_TO_REPORT'})};
     this.router.navigate(['/', 'enterprise', 'my_expenses'], {
       queryParams
@@ -166,34 +172,10 @@ export class StatsComponent implements OnInit {
   async openAddExpenseActionSheet() {
     const that = this;
     const actionSheet = await this.actionSheetController.create({
-      header: 'Add Expense',
+      header: 'ADD EXPENSE',
       mode: 'md',
       cssClass: 'fy-action-sheet',
-      buttons: [{
-        text: 'Capture Receipt',
-        icon: 'assets/svg/fy-camera.svg',
-        handler: () => {
-          that.router.navigate(['/', 'enterprise', 'camera_overlay']);
-        }
-      }, {
-        text: 'Add Manually',
-        icon: 'assets/svg/fy-expense.svg',
-        handler: () => {
-          that.router.navigate(['/', 'enterprise', 'add_edit_expense']);
-        }
-      }, {
-        text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
-        handler: () => {
-          that.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
-        }
-      }, {
-        text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
-        handler: () => {
-          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
-        }
-      }]
+      buttons: that.actionSheetButtons
     });
     await actionSheet.present();
   }

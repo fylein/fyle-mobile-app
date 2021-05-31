@@ -26,6 +26,7 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 @import "assets/fonts/font.css";
+@import "theme/colors";
 
 $header-input-interior: #eeeeee;
 $black: #000;
@@ -487,11 +488,18 @@ ref - https://stackoverflow.com/a/31162426
 .fy-action-sheet {
   --background: none;
   .action-sheet-button {
-    background: #fafafa;
+    background: $white;
   }
 
   .action-sheet-title {
-    background: #fafafa;
+    background: $white;
     border-radius: 16px 16px 0 0;
+    height: 40px;
+    padding: 16px;
+    font-size: 12px;
+  }
+
+  .action-sheet-button-inner {
+    border-bottom: 1px solid $translucent-grey;
   }
 }

@@ -1,14 +1,41 @@
 <div class="stat-badge" matRipple (click)="onBadgeClicked()">
-  <div class="stat-badge--count" [ngClass]="{'stat-badge--count__black': color === StatBadgeColors.BLACK, 'stat-badge--count__blue': color === StatBadgeColors.BLUE, 'stat-badge--count__green': color === StatBadgeColors.GREEN}">
-    {{count}}
-  </div>
-  <div class="stat-badge--details">
-    <div class="stat-badge--name">
-      {{name}}
-    </div>
-    <div class="stat-badge--amount">
-      {{value | humanizeCurrency: currency: 2 }}
-    </div>
-  </div>
+ <div class="stat-badge--container">
+   <ion-grid class="stat-badge--grid">
+     <ion-row>
+       <ion-col size="3">
+         <div *ngIf="!loading" [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()">
+           {{count}}
+         </div>
+         <div class="stat-badge--count-loader" *ngIf="loading">
+           <ion-skeleton-text animated></ion-skeleton-text>
+         </div>
+       </ion-col>
+       <ion-col size="9">
+         <ion-grid class="stat-badge--grid">
+           <ion-row>
+             <ion-col class="stat-badge--grid-col">
+               <div *ngIf="!loading" class="stat-badge--name">
+                 {{name}}
+               </div>
+               <div *ngIf="loading">
+                 <ion-skeleton-text class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-large" animated></ion-skeleton-text>
+               </div>
+             </ion-col>
+           </ion-row>
+           <ion-row>
+             <ion-col class="stat-badge--grid-col">
+               <div *ngIf="!loading" class="stat-badge--amount">
+                 {{value | humanizeCurrency: currency: 2 }}
+               </div>
+               <div *ngIf="loading">
+                 <ion-skeleton-text class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-medium" animated></ion-skeleton-text>
+               </div>
+             </ion-col>
+           </ion-row>
+         </ion-grid>
+       </ion-col>
+     </ion-row>
+   </ion-grid>
+ </div>
 </div>
 
