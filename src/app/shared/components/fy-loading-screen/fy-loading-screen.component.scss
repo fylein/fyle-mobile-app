@@ -2,8 +2,6 @@
   margin: 0 16px;
   padding: 16px 0;
   border-bottom: 1px solid #DFDFE2;
-  display: flex;
-  justify-content: center;
 
   &--icon {
     height: 74px;
@@ -11,27 +9,23 @@
     border-radius: 8px;
   }
 
-  &--content {
-    flex-grow: 1;
+  &--content-header {
+    height: 18px;
     border-radius: 2px;
-    margin: 2px 12px;
+    margin: 4px 12px 20px 0;
+    width: 90%;
+  }
 
-    &__header {
-      height: 18px;
-      margin: 4px 12px 20px 0;
-      width: 90%;
-    }
-
-    &__sub-header {
-      height: 10px;
-      width: 75%;
-      margin: 6px 0;
-    }
+  &--content-sub-header {
+    height: 10px;
+    border-radius: 2px;
+    width: 75%;
+    margin: 6px 0;
   }
 
   &--state {
     height: 18px;
-    flex-grow: 0.25;
-    margin-left: 12px;
+    border-radius: 2px;
+    margin-left: 24px;
   }
 }
