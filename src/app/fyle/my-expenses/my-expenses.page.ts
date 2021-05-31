@@ -177,7 +177,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.isLoading = true;
 
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.enabled)
@@ -194,7 +193,7 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    this.loaderService.showLoader('Loading Expenses...', 1000);
+    this.isLoading = true;
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
@@ -400,7 +399,9 @@ export class MyExpensesPage implements OnInit {
       this.clearFilters();
     }
 
-    this.isLoading = false;
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 1000);
   }
 
   setupNetworkWatcher() {
@@ -550,7 +551,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async setState(state: string) {
-    await this.loaderService.showLoader('Loading expenses', 1500);
+    this.isLoading = true;
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
@@ -558,6 +559,9 @@ export class MyExpensesPage implements OnInit {
     }
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   async addNewExpense() {
