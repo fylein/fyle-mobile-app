@@ -4,7 +4,7 @@ import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
 import {map, switchMap, shareReplay} from 'rxjs/operators';
-import {Router, NavigationEnd} from '@angular/router';
+import {Router, NavigationEnd, NavigationStart} from '@angular/router';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {OrgUserService} from 'src/app/core/services/org-user.service';
@@ -518,8 +518,10 @@ export class AppComponent implements OnInit {
     this.setupNetworkWatcher();
 
     this.router.events.subscribe((ev) => {
+      if (ev instanceof NavigationStart) {
+        this.previousUrl = this.router.url;
+      }
       if (ev instanceof NavigationEnd) {
-        this.previousUrl = ev.url
         this.menuController.swipeGesture(false);
         if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
           this.menuController.swipeGesture(true);
