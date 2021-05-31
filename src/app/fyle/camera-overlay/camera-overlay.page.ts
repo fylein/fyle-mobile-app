@@ -163,7 +163,7 @@ export class CameraOverlayPage implements OnInit {
 
     attachmentUrls.push(attachment);
 
-    this.transactionsOutboxService.addEntry(transaction, attachmentUrls);
+    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, true);
   }
 
   closeImagePreview() {

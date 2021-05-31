@@ -319,7 +319,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Switch Organization',
-            isVisible: (orgs.length > 1),
+            isVisible: (orgs.length > 1) && !this.isSwitchedToDelegator,
             icon: 'fy-switch-new',
             route: ['/', 'auth', 'switch_org', {choose: true}]
           },

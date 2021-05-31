@@ -32,6 +32,7 @@ import { InitialsPipe } from './pipes/initials.pipe';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ApproverDialogComponent } from './components/fy-apporver/approver-dialog/approver-dialog.component';
 import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
+import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 
@@ -63,6 +64,7 @@ import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-s
 import {FyProjectSelectModalComponent} from './components/fy-select-project/fy-select-modal/fy-select-project-modal.component';
 import {FySelectProjectComponent} from './components/fy-select-project/fy-select-project.component';
 import { ExpenseState } from './pipes/expense-state.pipe';
+import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/fy-alert-info.component';
 
 @NgModule({
   declarations: [
@@ -100,6 +102,7 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     ConfirmationCommentPopoverComponent,
     FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
+    FyMenuIconComponent,
     FyFlagExpenseComponent,
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
@@ -111,7 +114,8 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FyViewAttachmentComponent,
     FyHighlightTextComponent,
     FormatDateDirective,
-    ExpenseState
+    ExpenseState,
+    FyAlertInfoComponent
   ],
   imports: [
     CommonModule,
@@ -156,6 +160,7 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     ConfirmationCommentPopoverComponent,
     FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
+    FyMenuIconComponent,
     FyFlagExpenseComponent,
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
@@ -165,7 +170,8 @@ import { ExpenseState } from './pipes/expense-state.pipe';
     FyViewAttachmentComponent,
     FyHighlightTextComponent,
     FormatDateDirective,
-    ExpenseState
+    ExpenseState,
+    FyAlertInfoComponent
   ],
   providers: [
     DecimalPipe,

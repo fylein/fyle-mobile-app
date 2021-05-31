@@ -53,12 +53,13 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
 import {TokenService} from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
-import { RecentlyUsed } from 'src/app/core/models/V1/recently_used.model';
+import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/V1/org-category.model';
-import { ExtendedProject } from 'src/app/core/models/V2/extended-project.model';
-import { CostCenter } from 'src/app/core/models/V1/cost-center.model';
+import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -152,6 +153,7 @@ export class AddEditExpensePage implements OnInit {
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   presetCurrency: string;
   initialFetch;
+  inpageExtractedData;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -190,7 +192,8 @@ export class AddEditExpensePage implements OnInit {
     private trackingService: TrackingService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {
   }
 
@@ -940,7 +943,8 @@ export class AddEditExpensePage implements OnInit {
 
           if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
-            const category = categories.find(orgCategory => orgCategory.name === categoryName);
+            const enabledCategories = categories.filter(category => category.enabled);
+            const category = enabledCategories.find(orgCategory => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
           }
 
@@ -1426,7 +1430,7 @@ export class AddEditExpensePage implements OnInit {
                     name: [customField.name],
                     // Since in boolean, required validation is kinda unnecessary
                     value: [
-                      customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
+                      customField.type !== 'DATE' ? customField.value : customField.value && moment(customField.value).format('y-MM-DD'),
                       customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required
                     ]
                   })
@@ -1445,11 +1449,11 @@ export class AddEditExpensePage implements OnInit {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) => {
-        return this.offlineService.getTransactionFieldConfigurationsMap().pipe(switchMap(tfcMap => {
+        return this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
           const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
-          return this.transactionFieldConfigurationService
-            .filterByOrgCategoryId(
-              tfcMap,
+          return this.expenseFieldsService
+          .filterByOrgCategoryId(
+              expenseFieldsMap,
               fields,
               formValue.category
             );
@@ -1458,19 +1462,19 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.txnFields$ = txnFieldsMap$.pipe(
-      map((tfcMap: any) => {
-        if (tfcMap) {
-          for (const tfc of Object.keys(tfcMap)) {
-            if (tfcMap[tfc].values && tfcMap[tfc].values.length > 0) {
+      map((expenseFieldsMap: any) => {
+        if (expenseFieldsMap) {
+          for (const tfc of Object.keys(expenseFieldsMap)) {
+            if (expenseFieldsMap[tfc].options && expenseFieldsMap[tfc].options.length > 0) {
               if (tfc === 'vendor_id') {
-                tfcMap[tfc].values = tfcMap[tfc].values.map(value => ({label: value, value: { display_name: value}}));
+                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value: { display_name: value}}));
               } else {
-                tfcMap[tfc].values = tfcMap[tfc].values.map(value => ({label: value, value}));
+                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value}));
               }
             }
           }
         }
-        return tfcMap;
+        return expenseFieldsMap;
       }),
       shareReplay(1)
     );
@@ -1513,7 +1517,7 @@ export class AddEditExpensePage implements OnInit {
       // setup validations
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
-        if (txnFields[txnFieldKey].mandatory) {
+        if (txnFields[txnFieldKey].is_mandatory) {
           if (txnFieldKey === 'vendor_id') {
             if (isConnected) {
               control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
@@ -1560,7 +1564,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.etxn$.pipe(
       switchMap(() => txnFieldsMap$),
-      map((txnFields) => this.transactionFieldConfigurationService.getDefaultTxnFieldValues(txnFields)),
+      map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields)),
     ).subscribe((defaultValues) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
@@ -1999,7 +2003,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map(txnFields => {
-        return txnFields.flight_journey_travel_class && txnFields.flight_journey_travel_class.values.map(v => ({label: v, value: v}));
+        return txnFields.flight_journey_travel_class && txnFields.flight_journey_travel_class.options.map(v => ({label: v, value: v}));
       })
     );
 
@@ -2122,6 +2126,10 @@ export class AddEditExpensePage implements OnInit {
           policyProps.sub_category = this.fg.value.category && this.fg.value.category.sub_category;
         }
 
+        if (this.inpageExtractedData) {
+          etxn.tx.extracted_data = this.inpageExtractedData;
+        }
+
         return {
           tx: {
             ...etxn.tx,
@@ -2136,6 +2144,7 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_currency,
             orig_amount: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_amount,
             project_id: this.fg.value.project && this.fg.value.project.project_id,
+            tax: this.fg.value.taxValue,
             org_category_id: this.fg.value.category && this.fg.value.category.id,
             fyle_category: this.fg.value.category && this.fg.value.category.fyle_category,
             policy_amount: null,
@@ -2880,11 +2889,20 @@ export class AddEditExpensePage implements OnInit {
       fileType = 'pdf';
     }
 
-    return forkJoin({
-      imageData: from(this.getParsedReceipt(base64Image, fileType)),
-      filteredCategories: this.filteredCategories$.pipe(take(1)),
-      homeCurrency: this.offlineService.getHomeCurrency()
-    }).subscribe(({imageData, filteredCategories, homeCurrency}) => {
+    const instaFyleEnabled$ = this.orgUserSettings$.pipe(
+      map(orgUserSettings => orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled)
+    );
+
+    return instaFyleEnabled$.pipe(
+      filter(instafyleEnabled => instafyleEnabled),
+      switchMap(() => {
+        return forkJoin({
+          imageData: from(this.getParsedReceipt(base64Image, fileType)),
+          filteredCategories: this.filteredCategories$.pipe(take(1)),
+          homeCurrency: this.offlineService.getHomeCurrency()
+        })
+      })
+    ).subscribe(({imageData, filteredCategories, homeCurrency}) => {
       const extractedData = {
         amount: imageData && imageData.data && imageData.data.amount,
         currency: imageData && imageData.data && imageData.data.currency,
@@ -2893,6 +2911,8 @@ export class AddEditExpensePage implements OnInit {
         vendor: imageData && imageData.data && imageData.data.vendor_name,
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
+
+      this.inpageExtractedData = imageData.data;
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
@@ -2966,7 +2986,7 @@ export class AddEditExpensePage implements OnInit {
         this.isConnected$.pipe(
           take(1)
         ).subscribe((isConnected) => {
-          if (isConnected && data.actionSource === 'gallery_upload' && this.attachedReceiptsCount === 1) {
+          if (isConnected && this.attachedReceiptsCount === 1) {
             this.parseFile(fileInfo);
           }
         });

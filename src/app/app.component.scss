@@ -1,4 +1,3 @@
-$header-bg: #111023;
 $sidenav-bg: #161528;
 
 .list-md { // This is needed for android, need to overwrite internal css
@@ -25,8 +24,8 @@ $sidenav-bg: #161528;
     position: relative;
     height: 100%;
     width: 100%;
-    --background: #111023;
-    border-color: $header-bg;
+    --background: var(--ion-color-fyle-sidenav-bg);
+    border-color: $sidenav-bg;
   }
 
   &--header-wrapper{
