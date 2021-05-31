@@ -30,8 +30,7 @@ export class PushNotificationService {
 
   initPush() {
     if (Capacitor.platform !== 'web') {
-      // Need to enable this after we deprecating the old app.
-      // this.registerPush();
+      this.registerPush();
     }
   }
 

@@ -1,7 +1,7 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="my-profile--toolbar">
     <ion-buttons slot="start">
-      <ion-menu-button class="my-profile--menubutton" auto-hide="false"></ion-menu-button>
+      <app-fy-menu-icon class="my-profile--menubutton" auto-hide="false"></app-fy-menu-icon>
     </ion-buttons>
     <ion-title mode="md" class="page-title">My Settings</ion-title>
   </ion-toolbar>
@@ -60,8 +60,7 @@
     </div>
   </div>
 
-  <!-- Commented out now because PN is not working -->
-  <!-- <div class="my-profile--blocks">
+  <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Notifications</span>
     <div class="my-profile--card my-profile--card__action my-profile--card-item my-profile--manage-notif"
       [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
@@ -72,7 +71,7 @@
         <mat-icon>keyboard_arrow_right</mat-icon>
       </div>
     </div>
-  </div> -->
+  </div>
 
   <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Preferences</span>

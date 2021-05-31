@@ -2,8 +2,8 @@
   <div class="dashboard--header">
     <ion-toolbar class="dashboard--header-toolbar">
       <ion-buttons slot="start">
-        <ion-menu-button *ngIf="!isDashboardCardExpanded" class="dashboard--menubutton" auto-hide="false">
-        </ion-menu-button>
+        <app-fy-menu-icon *ngIf="!isDashboardCardExpanded" class="dashboard--menubutton" auto-hide="false">
+        </app-fy-menu-icon>
         <ion-button color="dark" class="dashboard--menubutton" *ngIf="isDashboardCardExpanded"
           (click)="backButtonClick()">
           <mat-icon>keyboard_backspace</mat-icon>

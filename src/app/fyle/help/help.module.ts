@@ -8,6 +8,7 @@ import { IonicModule } from '@ionic/angular';
 import { HelpPageRoutingModule } from './help-routing.module';
 
 import { HelpPage } from './help.page';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import { HelpPage } from './help.page';
     FormsModule,
     IonicModule,
     MatButtonModule,
-    HelpPageRoutingModule
+    HelpPageRoutingModule,
+    SharedModule
   ],
   declarations: [HelpPage]
 })

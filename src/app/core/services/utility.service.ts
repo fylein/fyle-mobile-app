@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {Observable} from 'rxjs';
+import { isArray } from 'lodash';
 
 @Injectable({
   providedIn: 'root'
@@ -53,12 +54,42 @@ export class UtilityService {
   searchArrayStream<T>(searchText: string) {
     return map((recentrecentlyUsedItems: {label: string, value: T} [] ) => {
       if (searchText && searchText.length > 0) {
-        var searchTextLowerCase = searchText.toLowerCase();
+        const searchTextLowerCase = searchText.toLowerCase();
         return recentrecentlyUsedItems.filter(item => {
           return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
         });
       }
       return recentrecentlyUsedItems;
     });
+  }
+
+  traverse(x, callback) {
+    const that = this;
+    if (isArray(x)) {
+      return that.traverseArray(x, callback);
+    } else if ((typeof x === 'object') && (x !== null) && !(x instanceof Date)) {
+      return that.traverseObject(x, callback);
+    } else {
+      return callback(x);
+    }
+  };
+
+  traverseArray(arr, callback) {
+    const that = this;
+    const modifiedArray = [];
+    arr.forEach((x) => {
+      modifiedArray.push(that.traverse(x, callback));
+    });
+    return modifiedArray;
+  }
+
+  traverseObject(obj, callback) {
+    const that = this;
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        obj[key] = that.traverse(obj[key], callback);
+      }
+    }
+    return obj;
   }
 }
