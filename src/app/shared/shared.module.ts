@@ -35,6 +35,7 @@ import { FyCategoryIconComponent } from './components/fy-category-icon/fy-catego
 import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
+import { IonBottomSheetModule } from 'ion-bottom-sheet';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -129,7 +130,8 @@ import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/
     MatButtonModule,
     ReactiveFormsModule,
     PinchZoomModule,
-    PdfViewerModule
+    PdfViewerModule,
+    IonBottomSheetModule
   ],
   exports: [
     EllipsisPipe,
@@ -171,7 +173,8 @@ import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/
     FyHighlightTextComponent,
     FormatDateDirective,
     ExpenseState,
-    FyAlertInfoComponent
+    FyAlertInfoComponent,
+    IonBottomSheetModule
   ],
   providers: [
     DecimalPipe,
