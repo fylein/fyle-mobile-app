@@ -1,12 +1,12 @@
 import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
-import {Observable, from, forkJoin, Subject, combineLatest, concat, noop} from 'rxjs';
+import {Observable, from, forkJoin, Subject, combineLatest, concat, noop, throwError} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil, scan, take} from 'rxjs/operators';
+import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil, scan, take, catchError} from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -130,6 +130,10 @@ export class ViewTeamExpensePage implements OnInit {
         return this.transactionService.getEtxn(txId);
       }),
       tap(() => this.loaderService.hideLoader()),
+      catchError(err => {
+        this.loaderService.hideLoader();
+        return throwError(err);
+      }),
       shareReplay(1)
     );
 

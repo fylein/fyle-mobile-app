@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit} from '@angular/core';
-import {Observable, from, noop, Subject, concat} from 'rxjs';
+import {Observable, from, noop, Subject, concat, throwError} from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController } from '@ionic/angular';
-import {switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil} from 'rxjs/operators';
+import {switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, catchError} from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
@@ -116,6 +116,10 @@ export class ViewTeamReportPage implements OnInit {
         return this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id);
       }),
       tap(() => this.loaderService.hideLoader()),
+      catchError(err => {
+        this.loaderService.hideLoader();
+        return throwError(err);
+      }),
       shareReplay(1),
     );
 

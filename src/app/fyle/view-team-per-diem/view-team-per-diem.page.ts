@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject } from 'rxjs';
+import { Observable, from, Subject, throwError } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap, tap } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, tap, catchError } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController } from '@ionic/angular';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
@@ -87,6 +87,10 @@ export class ViewTeamPerDiemPage implements OnInit {
         return this.transactionService.getExpenseV2(id);
       }),
       tap(() => this.loaderService.hideLoader()),
+      catchError(err => {
+        this.loaderService.hideLoader();
+        return throwError(err);
+      }),
       shareReplay(1)
     );
 
