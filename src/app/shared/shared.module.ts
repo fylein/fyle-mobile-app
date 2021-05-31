@@ -45,6 +45,7 @@ import { CommentsComponent } from './components/comments/comments.component';
 import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
 import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
+import { BottomSheetComponent } from './components/bottom-sheet/bottom-sheet.component';
 
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
@@ -116,7 +117,8 @@ import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/
     FyHighlightTextComponent,
     FormatDateDirective,
     ExpenseState,
-    FyAlertInfoComponent
+    FyAlertInfoComponent,
+    BottomSheetComponent
   ],
   imports: [
     CommonModule,
@@ -174,7 +176,8 @@ import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/
     FormatDateDirective,
     ExpenseState,
     FyAlertInfoComponent,
-    IonBottomSheetModule
+    IonBottomSheetModule,
+    BottomSheetComponent
   ],
   providers: [
     DecimalPipe,
