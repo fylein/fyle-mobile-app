@@ -400,7 +400,7 @@ export class MyExpensesPage implements OnInit {
 
     setTimeout(() => {
       this.isLoading = false;
-    }, 1000);
+    }, 500);
   }
 
   setupNetworkWatcher() {
