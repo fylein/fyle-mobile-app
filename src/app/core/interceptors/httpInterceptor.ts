@@ -19,6 +19,9 @@ import * as moment from 'moment';
 import { TokenService } from '../services/token.service';
 import { RouterAuthService } from '../services/router-auth.service';
 import { DeviceService } from '../services/device.service';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { UserEventService } from '../services/user-event.service';
+import { StorageService } from '../services/storage.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
@@ -29,7 +32,9 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
     private routerAuthService: RouterAuthService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private userEventService: UserEventService,
+    private storageService: StorageService
   ) { }
 
   secureUrl(url) {
@@ -66,6 +71,12 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       concatMap(
         refreshToken => this.routerAuthService.fetchAccessToken(refreshToken)
       ),
+      catchError(error => {
+        this.userEventService.logout();
+        this.storageService.clearAll();
+        globalCacheBusterNotifier.next();
+        return throwError(error); 
+      }),
       concatMap(
         authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
       ),

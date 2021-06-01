@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar class="my-expenses--toolbar-header" mode="md">
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
-      <ion-menu-button></ion-menu-button>
+      <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
@@ -113,28 +113,27 @@
 
   <div *ngIf="((count$ | async) === 0) && isConnected$|async" class="my-expenses--zero-state">
     <img alt="Create First Expenses" class="my-expenses--zero-state-img"
-         src="../../../assets/images/zero-states/expenses.svg">
+         src="../../../assets/images/zero-states/expenses.png">
     <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
       <ng-container *ngIf="isNewUser$|async; else isOldUser">
-        <p class="my-expenses--zero-state-subheader__title">
-          No expenses to show!
+        <p class="my-expenses--zero-state-header">
+          Ready to add your first expense?
         </p>
-        You do not have any expenses yet. Add an expense to get started.
+        <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
       </ng-container>
       <ng-template #isOldUser>
         <p class="my-expenses--zero-state-subheader__title">
           <ng-container *ngIf="baseState === 'all'">
-            All your expenses are reported
+            <p class="my-expenses--zero-state-header">
+              Ready to add your expenses?
+            </p>
+            <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
           </ng-container>
           <ng-container *ngIf="baseState === 'draft'">
-            <div>You're all set!</div>
-            <div>All expenses reviewed.</div>
+            <div class="my-expenses--zero-state-header">You're all set!</div>
+            <div class="my-expenses--zero-state-content">All expenses reviewed.</div>
           </ng-container>
         </p>
-        <ng-container *ngIf="baseState === 'all'">
-          <p>Add a new expense using the button below or InstaFyle a paper receipt.</p>
-          <p>You can find old expenses inside their respective reports.</p>
-        </ng-container>
       </ng-template>
     </div>
 
@@ -143,14 +142,14 @@
     </div>
 
     <div *ngIf="(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-header">
-      You do not have any expenses for the selected filter(s)
+      <div>No Expenses Found</div>
+      <div class="my-expenses--zero-state-content">No expenses were found for the selected filter.</div>
     </div>
   </div>
   <ng-container *ngIf="syncing">
     <ng-container *ngIf="pendingTransactions.length > 0">
       <div class="my-expenses--syncing">
-        <span class="my-expenses--syncing-text">Sync in progress</span>
-        <img alt="" class="my-expenses--syncing-icon" src="../../../assets/svg/dots.svg">
+        <app-fy-alert-info [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
       </div>
     </ng-container>
   </ng-container>

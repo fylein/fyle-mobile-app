@@ -170,27 +170,10 @@
   }
 
   &--syncing {
-    display: flex;
-    color: #f36;
     margin: 0 0 8px;
     padding: 0 12px;
   }
 
-  &--syncing-image {
-
-    width: 36px;
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 8px;
-
-  }
-
-  &--syncing-icon {
-    height: 8px;
-    top: 7px;
-    position: relative;
-    left: 4px;
-  }
 
   &--zero-state {
     display: flex;
@@ -200,17 +183,23 @@
     text-align: center;
 
     &-img {
-      margin: 32px;
+      margin: 20px;
     }
 
     &-header {
       margin: 12px;
-      font-size: 16px;
+      font-size: 18px;
       display: block;
       margin-bottom: 16px;
-      color: #4a4a4a;
+      color: #1C1F36;
       line-height: 1.5;
-      font-weight: 500;
+      font-weight: normal;
+    }
+
+    &-content {
+      color: #2C304E;
+      font-size: 14px;
+      font-weight: normal;
     }
 
     &-subheader {
