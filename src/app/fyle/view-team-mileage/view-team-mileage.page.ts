@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
-import {Observable, from, Subject, concat} from 'rxjs';
+import {Observable, from, Subject, concat, throwError} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import {switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil} from 'rxjs/operators';
+import {switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil, catchError} from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import { PopoverController, IonContent } from '@ionic/angular';
@@ -122,14 +122,15 @@ export class ViewTeamMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedMileage$ = this.updateFlag$.pipe(
+      tap(() => this.loaderService.showLoader()),
       switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getExpenseV2(id);
-          })
-        );
+        return this.transactionService.getExpenseV2(id);
       }),
-      finalize(() => from(this.loaderService.hideLoader())),
+      tap(() => this.loaderService.hideLoader()),
+      catchError(err => {
+        this.loaderService.hideLoader();
+        return throwError(err);
+      }),
       shareReplay(1)
     );
 

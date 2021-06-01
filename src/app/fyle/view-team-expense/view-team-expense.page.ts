@@ -1,12 +1,12 @@
 import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
-import {Observable, from, forkJoin, Subject, combineLatest, concat, noop} from 'rxjs';
+import {Observable, from, forkJoin, Subject, combineLatest, concat, noop, throwError} from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil, scan, take} from 'rxjs/operators';
+import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil, scan, take, catchError} from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -125,14 +125,15 @@ export class ViewTeamExpensePage implements OnInit {
     };
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
+      tap(() => this.loaderService.showLoader()),
       switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getEtxn(txId);
-          })
-        );
+        return this.transactionService.getEtxn(txId);
       }),
-      finalize(() => this.loaderService.hideLoader()),
+      tap(() => this.loaderService.hideLoader()),
+      catchError(err => {
+        this.loaderService.hideLoader();
+        return throwError(err);
+      }),
       shareReplay(1)
     );
 
@@ -156,7 +157,6 @@ export class ViewTeamExpensePage implements OnInit {
           res[0].tx_custom_properties = res[1];
           return res[0];
         }),
-        finalize(() => this.loaderService.hideLoader()),
         shareReplay(1)
       );
 

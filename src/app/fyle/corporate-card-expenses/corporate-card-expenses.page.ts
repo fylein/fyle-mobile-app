@@ -129,13 +129,7 @@ export class CorporateCardExpensesPage implements OnInit {
           order: orderByParams
         });
       }),
-      map(res => {
-        if (this.currentPageNumber === 1) {
-          this.acc = [];
-        }
-        this.acc = this.acc.concat(res.data);
-        return this.acc;
-      })
+      shareReplay(1)
     );
 
     const simpleSearchAllDataPipe = this.loadData$.pipe(
@@ -175,24 +169,24 @@ export class CorporateCardExpensesPage implements OnInit {
 
     this.cardTransactions$ = this.loadData$.pipe(
       switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
+        return iif(() => (params.searchString && params.searchString !== ''),
+          simpleSearchAllDataPipe,
+          paginatedPipe.pipe(
+            map(res => {
+              if (this.currentPageNumber === 1) {
+                this.acc = [];
+              }
+              this.acc = this.acc.concat(res.data);
+              return this.acc;
+            })
+          )
+        );
       }),
       shareReplay(1)
     );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap(params => {
-        let defaultState;
-        if (this.baseState === 'unclassified') {
-          defaultState = 'in.(INITIALIZED)';
-        } else if (this.baseState === 'classified') {
-          defaultState = 'in.(IN_PROGRESS,SETTLED)';
-        }
-
-        const queryParams = params.queryParams || {};
-        queryParams.state = queryParams.state || defaultState;
-        return this.corporateCreditCardExpenseService.getv2CardTransactionsCount(queryParams);
-      }),
+    this.count$ = paginatedPipe.pipe(
+      map(res => res.count),
       shareReplay(1)
     );
 

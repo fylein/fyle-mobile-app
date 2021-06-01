@@ -28,14 +28,16 @@ export class LoaderService {
     return this.loading;
   }
 
-  hideLoader() {
+  async hideLoader() {
     this.counter--;
     /**
      * Hiding loader if value of counter is 0.
      * This will make sure that we are hiding only the current active loader in the page.
      */
     if (this.counter === 0) {
-      return this.loading.dismiss().catch(noop);
+      await this.loading.dismiss();
     }
+
+    return this.loading;
   }
 }

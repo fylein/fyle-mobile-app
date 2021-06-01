@@ -465,8 +465,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
     }
 
-    const editAdvanceRequestPipe$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id)),
+    const editAdvanceRequestPipe$ = this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).pipe(
       map(res => {
         this.fg.patchValue({
           currencyObj: {
@@ -494,7 +493,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
         return res.areq;
       }),
-      finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 
@@ -515,7 +513,14 @@ export class AddEditAdvanceRequestPage implements OnInit {
       })
     );
 
-    this.extendedAdvanceRequest$ = iif(() => this.activatedRoute.snapshot.params.id, editAdvanceRequestPipe$, newAdvanceRequestPipe$);
+    this.extendedAdvanceRequest$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        return iif(() => this.activatedRoute.snapshot.params.id, editAdvanceRequestPipe$, newAdvanceRequestPipe$);
+      }),
+      shareReplay(1),
+      finalize(() => from(this.loaderService.hideLoader())),
+    );
+
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => {
         return orgSettings.projects && orgSettings.projects.enabled;
