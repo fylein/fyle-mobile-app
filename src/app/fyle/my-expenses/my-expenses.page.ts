@@ -68,6 +68,7 @@ export class MyExpensesPage implements OnInit {
   openAddExpenseListLoader = false;
   clusterDomain: string;
   isNewUser$: Observable<boolean>;
+  isLoading: boolean = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
@@ -221,6 +222,8 @@ export class MyExpensesPage implements OnInit {
     this.isPerDiemEnabled$ = this.offlineService.getOrgSettings().pipe(
       map(orgSettings => orgSettings.per_diem.enabled)
     );
+
+    this.isLoading = true;
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
@@ -393,6 +396,31 @@ export class MyExpensesPage implements OnInit {
     this.myExpenses$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
+    if (this.activatedRoute.snapshot.queryParams.filters) {
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else if (this.activatedRoute.snapshot.params.state) {
+      let filters = {};
+      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
+        filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
+        filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
+      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
+        filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
+      }
+      this.filters = Object.assign({}, this.filters, filters);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+    } else {
+      this.clearFilters();
+    }
+
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   setupNetworkWatcher() {
@@ -543,6 +571,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async setState(state: string) {
+    this.isLoading = true;
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
@@ -550,6 +579,9 @@ export class MyExpensesPage implements OnInit {
     }
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   async addNewExpense() {
