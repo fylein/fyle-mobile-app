@@ -1,4 +1,4 @@
-$red: #f00;
+$red: #DA1E28;
 
 .add-edit-expense {
   &--toolbar {
@@ -195,8 +195,6 @@ $red: #f00;
   &--primary-block {
     margin: 16px 0;
     padding: 0 16px;
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
   }
 
   &--internal-block {
@@ -204,19 +202,6 @@ $red: #f00;
     background: #fff;
     border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-
-    &_special {
-      border-bottom: 0;
-    }
-
-    &__invalid {
-      border-color: $red;
-    }
-
-    &:last-child {
-      border-bottom: 0;
-    }
   }
 
   &--split-expense-container {
@@ -529,5 +514,8 @@ $red: #f00;
 
   &--error {
     color: $red;
+    line-height: 16px;
+    margin-top: -12px;
+    font-size: 12px;
   }
 }
