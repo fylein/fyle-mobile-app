@@ -106,7 +106,7 @@ export class AppComponent implements OnInit {
       if (this.router.url.includes('my_dashboard')) {
         this.showAppCloseAlert();
       }
-      if ((this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts')) && this.previousUrl.includes('enterprise')) {
+      if ((this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts')) && this.previousUrl && this.previousUrl.includes('enterprise')) {
         this.navController.back();
       }
     });
