@@ -115,7 +115,7 @@
     <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
       <ng-container *ngIf="isNewUser$|async; else isOldUser">
         <p class="my-expenses--zero-state-header">
-          Ready to add your first expenses?
+          Ready to add your first expense?
         </p>
         <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
       </ng-container>
@@ -128,8 +128,8 @@
             <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
           </ng-container>
           <ng-container *ngIf="baseState === 'draft'">
-            <div>You're all set!</div>
-            <div>All expenses reviewed.</div>
+            <div class="my-expenses--zero-state-header">You're all set!</div>
+            <div class="my-expenses--zero-state-content">All expenses reviewed.</div>
           </ng-container>
         </p>
       </ng-template>
