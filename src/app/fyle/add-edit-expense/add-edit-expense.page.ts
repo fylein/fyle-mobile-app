@@ -60,7 +60,6 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { BottomSheetService } from 'src/app/core/services/bottom-sheet.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -194,8 +193,7 @@ export class AddEditExpensePage implements OnInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private bottomSheetService: BottomSheetService
+    private expenseFieldsService: ExpenseFieldsService
   ) {
   }
 
@@ -683,21 +681,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  showComponent(componentClassName) {
-    const selectComponent = this.bottomSheetService.addBottomSheetComponent({
-      componentClass: componentClassName, 
-      componentInputs: {
-        // cacheName: this.recentCategoryList,
-        // defaultLabelProp: displayName,
-        // label: fg.controls.category.value ? 'Category':'Select Category',
-        // mandatory: transactionMandatoyFields.category,
-        // options: categories,
-        selectModalHeader: 'Choose Category',
-        recentlyUsed: this.recentCategories
-        // formControlName: this.category
-      }
-    })
-  }
 
   getPaymentModes() {
     const accounts$ = this.isConnected$.pipe(

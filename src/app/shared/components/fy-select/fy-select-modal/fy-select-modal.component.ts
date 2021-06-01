@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import {from, fromEvent, Observable, of} from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { BottomSheetService } from 'src/app/core/services/bottom-sheet.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -31,10 +31,10 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   recentrecentlyUsedItems$: Observable<any[]>;
 
   constructor(
-    private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private bottomSheetService: BottomSheetService
 
   ) { }
 
@@ -139,7 +139,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   }
 
   onDoneClick() {
-    this.modalController.dismiss();
+    this.bottomSheetService.removeBottomSheetComponent();
   }
 
   onElementSelect(option) {
@@ -147,7 +147,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       option.custom = !(this.options.some(internalOption => internalOption.value !== option.value));
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
-    this.modalController.dismiss(option);
+    this.bottomSheetService.removeBottomSheetComponent(option);
   }
 
   saveToCacheAndUse() {

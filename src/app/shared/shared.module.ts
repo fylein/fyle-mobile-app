@@ -45,6 +45,7 @@ import { CommentsComponent } from './components/comments/comments.component';
 import { ViewCommentComponent } from './components/comments/view-comment/view-comment.component';
 import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
+import { BottomSheetContainerComponent } from './components/bottom-sheet-container/bottom-sheet-container.component';
 import { BottomSheetComponent } from './components/bottom-sheet/bottom-sheet.component';
 
 // directive imports
@@ -118,6 +119,7 @@ import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/
     FormatDateDirective,
     ExpenseState,
     FyAlertInfoComponent,
+    BottomSheetContainerComponent,
     BottomSheetComponent
   ],
   imports: [
@@ -177,6 +179,7 @@ import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/
     ExpenseState,
     FyAlertInfoComponent,
     IonBottomSheetModule,
+    BottomSheetContainerComponent,
     BottomSheetComponent
   ],
   providers: [

@@ -1,28 +1,42 @@
-import { ComponentFactoryResolver, Inject, Injectable } from '@angular/core';
+import { ComponentFactoryResolver, Injectable, Type, ViewContainerRef } from '@angular/core';
+import { BottomSheetComponent } from 'src/app/shared/components/bottom-sheet/bottom-sheet.component';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class BottomSheetService {
-  componentFactoryResolver: any;
-  alertHost: any;
-  testVal: any;
+  container: ViewContainerRef;
+  components = [];
 
   constructor(
-    
+    private componentFactoryResolver: ComponentFactoryResolver
   ) { }
 
 
   addBottomSheetComponent(config: {componentClass, componentInputs}) {
-    const alertCmpFactory = this.componentFactoryResolver.resolveComponentFactory(config.componentClass);
-    const hostViewContainerRef = this.alertHost.viewContainerRef;
-    hostViewContainerRef.clear();
-
-    const componentRef = hostViewContainerRef.createComponent(alertCmpFactory);
-    // componentRef.instance.message = message;
-    componentRef.instance.outputMessage.subscribe(res => {
-      if(componentRef) {
-        this.testVal = res;
-      }
-      hostViewContainerRef.clear();
-    });
+    const componentRef = this.addComponent(BottomSheetComponent)
+    componentRef.instance.componentClass = config.componentClass;
+    componentRef.instance.componentInputs = config.componentInputs;
+    return componentRef.instance.outputMessage;
   }
+
+  removeBottomSheetComponent(option?) {
+    this.container.clear();
+  }
+
+  private addComponent(componentClass: Type<any>) {
+    // Create component dynamically inside the ng-template
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(componentClass);
+    const component = this.container.createComponent(componentFactory);
+
+    // Push the component so that we can keep track of which components are created
+    this.components.push(component);
+
+    return component;
+  }
+
+  initialize(container: ViewContainerRef) {
+    this.container = container;
+  }
+
 }

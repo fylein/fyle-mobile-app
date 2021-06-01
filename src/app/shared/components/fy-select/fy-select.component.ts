@@ -1,10 +1,9 @@
 import { Component, OnInit, forwardRef, Input, ContentChild, TemplateRef, ElementRef, OnDestroy, Injector, Output } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, FormControl, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { BottomSheetService } from 'src/app/core/services/bottom-sheet.service';
 
 
 @Component({
@@ -52,9 +51,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
-    private modalController: ModalController,
     private injector: Injector,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private bottomSheetService: BottomSheetService
   ) { }
 
   ngOnInit() {
@@ -89,9 +87,9 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   async openModal() {
-    const selectionModal = await this.modalController.create({
-      component: FySelectModalComponent,
-      componentProps: {
+    const selectionModal = this.bottomSheetService.addBottomSheetComponent({
+      componentClass: FySelectModalComponent,
+      componentInputs: {
         options: this.options,
         currentSelection: this.value,
         selectionElement: this.selectionElement,
@@ -108,9 +106,9 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       }
     });
 
-    await selectionModal.present();
+    console.log("check prop of selectionmodal", selectionModal);
 
-    const { data } = await selectionModal.onWillDismiss();
+    const { data } = selectionModal.subscribe(noop)
 
     if (data) {
       this.value = data.value;
