@@ -15,6 +15,10 @@
     --ion-grid-padding: 16px;
   }
 
+  &--toolbar {
+    --background: none;
+  }
+
   &--title {
     align-items: center;
     position: relative;
@@ -30,17 +34,14 @@
   }
 
   &--action-shortcut {
-    text-align: right;
-    padding: 0 20px;
-    position: relative;
-    top: 50%;
-    transform: translate(0, -50%);
+    padding-right: 12px;
+    padding-top: 2px;
   }
 
   &--background {
     top: 0;
     box-shadow: 0px -2px 8px rgb(215 215 215 / 25%);
-    min-height: 320px;
+    min-height: 325px;
     background: url('../../../../assets/images/new-background.png') no-repeat bottom;
     background-size: 105%;
   }

@@ -19,23 +19,26 @@
 
   &--count {
     min-width: 30px;
+    min-height: 30px;
+    max-height: 30px;
     max-width: 30px;
     text-align: center;
-    line-height: 2.3;
+    line-height: 2.2;
     height: 32px;
     border-radius: 50%;
-    color: #fff;
+    color: $pure-white;
     font-weight: 500;
+    margin-top: 4px;
     &__draft {
       background-color: $highlight-black;
     }
 
     &__approver_pending {
-      background-color: $highlight-green;
+      background-color: $highlight-blue;
     }
 
     &__approved, &__payment_pending {
-      background-color: $highlight-blue;
+      background-color: $highlight-green;
     }
   }
 

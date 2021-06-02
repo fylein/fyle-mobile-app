@@ -10,8 +10,13 @@ import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
 import { ActionSheetController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 import { FooterState } from '../../shared/components/footer/footer-state';
+
+enum DashboardState {
+  home,
+  tasks
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -24,6 +29,7 @@ export class DashboardPage implements OnInit {
   homeCurrency$: Observable<any>;
   isConnected$: Observable<boolean>;
   onPageExit$ = new Subject();
+  currentStateIndex = 0;
 
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
@@ -34,6 +40,7 @@ export class DashboardPage implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private actionSheetController: ActionSheetController,
+    private activatedRoute: ActivatedRoute,
     private router: Router
   ) { }
 
@@ -63,6 +70,13 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    const currentState = this.activatedRoute.snapshot.params.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
+    if (currentState === DashboardState.tasks) {
+      this.currentStateIndex = 1;
+    } else {
+      this.currentStateIndex = 0;
+    }
+
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
      shareReplay(1),
     );
@@ -96,10 +110,24 @@ export class DashboardPage implements OnInit {
   }
 
   onTaskClicked() {
-    this.router.navigate(['/', 'enterprise', 'tasks']);
+    this.currentStateIndex = 1;
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams
+    });
   }
 
   onCameraClicked() {
     this.router.navigate(['/', 'enterprise', 'camera_overlay']);
+  }
+
+  onHomeClicked() {
+    this.currentStateIndex = 0;
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams
+    });
   }
 }

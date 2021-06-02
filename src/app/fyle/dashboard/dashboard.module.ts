@@ -12,6 +12,8 @@ import {GetStartedPopupComponent} from './get-started-popup/get-started-popup.co
 import {StatsComponent} from './stats/stats.component';
 import {StatBadgeComponent} from './stat-badge/stat-badge.component';
 import {MatRippleModule} from '@angular/material/core';
+import {MatTabsModule} from '@angular/material/tabs';
+import {TasksComponent} from "./tasks/tasks.component";
 
 @NgModule({
   imports: [
@@ -22,13 +24,15 @@ import {MatRippleModule} from '@angular/material/core';
     MatExpansionModule,
     SharedModule,
     MatIconModule,
-    MatRippleModule
+    MatRippleModule,
+    MatTabsModule
   ],
   declarations: [
     DashboardPage,
     GetStartedPopupComponent,
     StatsComponent,
-    StatBadgeComponent
+    StatBadgeComponent,
+    TasksComponent
   ],
   providers: [
     DashboardService

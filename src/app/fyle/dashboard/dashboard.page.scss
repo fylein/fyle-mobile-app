@@ -8,4 +8,10 @@
   &--body {
     --background: #{$white};
   }
+
+  &--tabs {
+    .mat-tab-header {
+      display: none;
+    }
+  }
 }

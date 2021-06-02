@@ -1,24 +1,20 @@
 <div class="stats">
   <div class="stats--background">
-    <ion-grid class="stats--header-bar">
-      <ion-row>
-        <ion-col size="2">
-          <div class="stats--menu-button">
-            <app-fy-menu-icon></app-fy-menu-icon>
-          </div>
-        </ion-col>
-        <ion-col size="8">
-          <div class="stats--title">
-            Home
-          </div>
-        </ion-col>
-        <ion-col size="2">
-          <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-            <mat-icon svgIcon="fy-plus"></mat-icon>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+  <ion-header mode="md">
+    <ion-toolbar class="stats--toolbar">
+      <ion-buttons slot="start">
+        <app-fy-menu-icon></app-fy-menu-icon>
+      </ion-buttons>
+      <ion-title mode="md">
+        Home
+      </ion-title>
+      <ion-buttons slot="end">
+        <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+          <mat-icon svgIcon="fy-plus"></mat-icon>
+        </div>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
     <ion-grid class="stats--body">
       <ion-row class="stats--report-stats-row" *ngIf="isConnected$|async">
         <ion-col>
