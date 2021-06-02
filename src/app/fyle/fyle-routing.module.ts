@@ -149,10 +149,6 @@ const routes: Routes = [
   {
     path: 'ccc_classified_actions',
     loadChildren: () => import('./ccc-classified-actions/ccc-classified-actions.module').then( m => m.CccClassifiedActionsPageModule)
-  },
-  {
-    path: 'tasks',
-    loadChildren: () => import('./tasks/tasks.module').then( m => m.TasksPageModule)
   }
 ];
 
