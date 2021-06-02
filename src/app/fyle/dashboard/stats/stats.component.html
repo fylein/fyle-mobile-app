@@ -1,20 +1,20 @@
 <div class="stats">
   <div class="stats--background">
-  <ion-header mode="md">
-    <ion-toolbar class="stats--toolbar">
-      <ion-buttons slot="start">
-        <app-fy-menu-icon></app-fy-menu-icon>
-      </ion-buttons>
-      <ion-title mode="md">
-        Home
-      </ion-title>
-      <ion-buttons slot="end">
-        <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-          <mat-icon svgIcon="fy-plus"></mat-icon>
-        </div>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
+    <ion-header mode="md">
+      <ion-toolbar class="stats--toolbar">
+        <ion-buttons slot="start">
+          <app-fy-menu-icon></app-fy-menu-icon>
+        </ion-buttons>
+        <ion-title mode="md">
+          Home
+        </ion-title>
+        <ion-buttons slot="end">
+          <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+            <mat-icon svgIcon="fy-plus"></mat-icon>
+          </div>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
     <ion-grid class="stats--body">
       <ion-row class="stats--report-stats-row" *ngIf="isConnected$|async">
         <ion-col>
@@ -75,26 +75,32 @@
       </ion-row>
     </ion-grid>
   </div>
-  <div *ngIf="isConnected$|async; else offlineMessage" class="stats--expenses-card" matRipple (click)="goToExpensesPage()">
+  <div *ngIf="isConnected$|async; else offlineMessage" class="stats--expenses-card" matRipple
+       (click)="goToExpensesPage()">
     <ion-grid>
       <ion-row>
         <ion-col size="6">
           <div class="stats--expenses-count">
-            <ng-container *ngIf="unreportedExpensesCount$ | async as unreportedExpensesCount; else expenseCountSkeleton">
+            <ng-container
+                    *ngIf="unreportedExpensesCount$ | async as unreportedExpensesCount; else expenseCountSkeleton">
               {{unreportedExpensesCount?.count}}
             </ng-container>
             <ng-template #expenseCountSkeleton>
-              <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small" animated></ion-skeleton-text>
+              <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small"
+                                 animated></ion-skeleton-text>
             </ng-template>
           </div>
         </ion-col>
         <ion-col size="6">
           <div class="stats--expenses-amount">
-            <ng-container *ngIf="unreportedExpensesAmount$ | async as unreportedExpensesAmount; else expenseAmountSkeleton">
+            <ng-container
+                    *ngIf="unreportedExpensesAmount$ | async as unreportedExpensesAmount; else expenseAmountSkeleton">
               {{ unreportedExpensesAmount?.amount | humanizeCurrency: (homeCurrency$|async): 2}}
             </ng-container>
             <ng-template #expenseAmountSkeleton>
-              <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium stats--expenses-skeleton-text__align-right" animated></ion-skeleton-text>
+              <ion-skeleton-text
+                      class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium stats--expenses-skeleton-text__align-right"
+                      animated></ion-skeleton-text>
             </ng-template>
           </div>
         </ion-col>
@@ -106,7 +112,8 @@
               Unreported Expenses
             </ng-container>
             <ng-template #unreportedExpensesStatsSkeleton>
-              <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-large" animated></ion-skeleton-text>
+              <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-large"
+                                 animated></ion-skeleton-text>
             </ng-template>
           </div>
         </ion-col>

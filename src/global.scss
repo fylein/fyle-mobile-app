@@ -510,4 +510,12 @@ ref - https://stackoverflow.com/a/31162426
       display: none;
     }
   }
+  &--refresher {
+    .refresher-refreshing-icon {
+      margin-top: 200px !important;
+      .spinner-circular {
+        --ion-color-primary: #{$primary};
+      }
+    }
+  }
 }

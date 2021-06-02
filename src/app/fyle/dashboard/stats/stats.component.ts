@@ -7,7 +7,7 @@ import {CurrencyService} from '../../../core/services/currency.service';
 import {Params, Router} from '@angular/router';
 import {ActionSheetController} from '@ionic/angular';
 import {NetworkService} from '../../../core/services/network.service';
-import { concat } from 'rxjs';
+import {concat, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
 
@@ -29,6 +29,8 @@ export class StatsComponent implements OnInit {
 
   actionSheetButtons = [];
   reportStatsLoading = true;
+
+  loadData$ = new Subject();
 
   get ReportStates() {
     return ReportStates;
