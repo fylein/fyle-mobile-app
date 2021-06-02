@@ -115,23 +115,18 @@ $red: #DA1E28;
   }
 
   &--date {
-    display: flex;
-    justify-content: space-between;
+    border-bottom: 1px solid #DFDFE2;
   }
 
   &--date-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    max-width: 90%;
+    min-width: 120px;
+    font-size: 12px;
+    color: #5A5D72;
+    line-height: 16px;
     white-space: nowrap;
-    max-width: 120px;
-    display: flex;
-
-    &__large {
-      max-width: 170px;
-    }
+    font-weight: 400;
 
     &__invalid {
       color: $red;
@@ -140,11 +135,13 @@ $red: #DA1E28;
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: left;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: #2C304E;
+    border: none;
+    width: 100%;
+    padding: 6px;
   }
 
   &--text {
@@ -198,10 +195,10 @@ $red: #DA1E28;
   }
 
   &--internal-block {
-    padding: 16px 0;
+    padding: 8px 0;
     background: #fff;
-    border: 0;
     line-height: 1;
+    margin-bottom: 12px;
   }
 
   &--split-expense-container {
