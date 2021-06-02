@@ -1,32 +1,62 @@
 .fy-select {
-    border: none;
+  $invalid: #DA1E28;
+  $placeholder: #A9ACBC;
+
+  &--label {
     width: 100%;
-    font-weight: 500;
-    font-size: 16px;
+    background-color: inherit;
+    font-weight: 400;
+  }
 
-    &--label-content {
-      margin: 0 8px 0 0;
-      font-size: 16px;
-      color: #ababab;
-      font-weight: 500;
-      line-height: 1.5;
-      white-space: nowrap;
-      min-width: 120px;
-      max-width: 170px;
-      text-overflow: ellipsis;
-      overflow: hidden;
+  &--label-content {
+    margin: 0 8px 0 0;
+    max-width: 90%;
+    min-width: 120px;
+    font-size: 12px;
+    color: #5A5D72;
+    line-height: 16px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
-      &__invalid {
-        color: red;
-      }
-    }
-
-    &--icon {
-      color: #ababab;
-    }
-
-    &--label {
-      display: flex;
-      align-items: center;
+    &__invalid {
+      color: $invalid;
     }
   }
+
+  &--input-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #DFDFE2;
+  }
+
+  &--input {
+    font-size: 14px;
+    line-height: 18px;
+    color: #2C304E;
+    border: none;
+    width: 100%;
+  }
+
+  &--input-invalid {
+    border-bottom: 1px solid $invalid;
+  }
+
+  &--mandatory {
+    color: #FF3366;
+  }
+
+  &--icon {
+    color: $placeholder;
+  }
+
+  input::placeholder {
+    color: $placeholder;
+  }
+
+  &--input-disabled {
+    opacity: 0.5;
+  }
+}

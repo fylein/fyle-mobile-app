@@ -8,7 +8,7 @@
     </span>
   </div>
   <div class="fy-select-project--input-container" [ngClass]="{'fy-select-project--input-invalid': !valid}">
-    <input class="fy-select-project--input" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+    <input class="fy-select-project--input" type="text" [placeholder]="'Select ' + label" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
     <mat-icon class="fy-select-project--icon">
       keyboard_arrow_down
     </mat-icon>

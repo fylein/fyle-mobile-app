@@ -3,12 +3,14 @@
     <span>
       {{label}}
     </span>
-    <span *ngIf="mandatory">
+    <span *ngIf="mandatory" class="fy-select-vendor--mandatory">
       *
     </span>
   </div>
-  <input class="fy-select-vendor" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
-  <mat-icon class="fy-select-vendor--icon">
-    chevron_right
-  </mat-icon>
+  <div class="fy-select-vendor--input-container" [ngClass]="{'fy-select-vendor--input-invalid': !valid}">
+    <input class="fy-select-vendor--input" type="text" [placeholder]="'Select ' + label" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+    <mat-icon class="fy-select-vendor--icon">
+      keyboard_arrow_down
+    </mat-icon>
+  </div>
 </label>

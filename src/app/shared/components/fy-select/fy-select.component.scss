@@ -1,3 +1,6 @@
+$invalid: #DA1E28;
+$placeholder: #A9ACBC;
+
 .fy-select {
   &--label {
     width: 100%;
@@ -32,18 +35,22 @@
   }
 
   &--input-invalid {
-    border-bottom: 1px solid #DA1E28;
+    border-bottom: 1px solid $invalid;
   }
 
   &--mandatory {
-    color: #DA1E28;
+    color: #FF3366;
   }
 
   &--icon {
-    color: #A9ACBC;
+    color: $placeholder;
   }
 
   &--input-disabled {
     opacity: 0.5;
+  }
+
+  input::placeholder {
+    color: $placeholder;
   }
 }

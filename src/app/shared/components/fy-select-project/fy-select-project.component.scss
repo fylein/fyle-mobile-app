@@ -1,4 +1,5 @@
 $invalid: #DA1E28;
+$placeholder: #A9ACBC;
 
 .fy-select-project {
   &--label {
@@ -44,10 +45,14 @@ $invalid: #DA1E28;
   }
 
   &--mandatory {
-    color: $invalid;
+    color: #FF3366;
   }
 
   &--icon {
-    color: #A9ACBC;
+    color: $placeholder;
+  }
+
+  input::placeholder {
+    color: $placeholder;
   }
 }
