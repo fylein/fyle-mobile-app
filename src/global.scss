@@ -292,7 +292,7 @@ input:focus, textarea:focus{
 }
 
 mat-checkbox {
-  .mat-checkbox-frame {
+  .mat-checkbox-background, .mat-checkbox-frame {
     border-radius: 4px !important;
   }
 
