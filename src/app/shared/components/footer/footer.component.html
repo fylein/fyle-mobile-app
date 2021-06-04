@@ -4,7 +4,7 @@
       <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.HOME?'fy-home-solid':'fy-home'"></mat-icon>
       Home
     </div>
-    <div class="fy-footer--primary-button-container" (click)="goToCameraMode()">
+    <div class="fy-footer--primary-button-container" matRipple (click)="goToCameraMode()">
       <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="fy-camera"></mat-icon>
     </div>
     <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.TASKS}" expand="full" (click)="goToTasks()">

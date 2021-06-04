@@ -66,6 +66,7 @@ import {FySelectProjectComponent} from './components/fy-select-project/fy-select
 import { ExpenseState } from './pipes/expense-state.pipe';
 import {FooterComponent} from './components/footer/footer.component';
 import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/fy-alert-info.component';
+import {MatRippleModule} from "@angular/material/core";
 
 @NgModule({
   declarations: [
@@ -131,7 +132,8 @@ import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/
     MatButtonModule,
     ReactiveFormsModule,
     PinchZoomModule,
-    PdfViewerModule
+    PdfViewerModule,
+    MatRippleModule
   ],
   exports: [
     EllipsisPipe,
