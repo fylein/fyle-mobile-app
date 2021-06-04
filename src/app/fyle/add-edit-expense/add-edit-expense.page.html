@@ -130,7 +130,7 @@
                   [txnDt]="etxn?.tx?.txn_dt">
                 </app-fy-currency>
                 <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
-                     class="add-edit-expense--error">
+                     class="add-edit-expense--amount-error">
                   Please enter the amount.
                 </div>
               </ng-container>
@@ -296,7 +296,7 @@
               <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                 <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                   <ng-container *ngIf="isProjectsVisible$|async">
-                    <div class="add-edit-expense--internal-block add-edit-expense--project-block">
+                    <div class="add-edit-expense--internal-block add-edit-expense--project-block" [ngClass]="{ 'add-edit-expense--no-project' : !fg.controls.project.value}">
                       <app-fy-select-project
                         [cacheName]="'expenseProjectCache'"
                         [defaultValue]="true"
@@ -452,7 +452,7 @@
               {{(taxSettings.name || 'Tax') | ellipsis: 30 }}
             </div>
             <input (blur)="focusState = false" (focus)="focusState = true" class="add-edit-expense--text-input" formControlName="taxValue"
-                   inputmode="decimal" type="number"/>
+                   inputmode="decimal" type="number" [placeholder]="'Enter ' + taxSettings.name || 'Tax'"/>
           </div>
         </div>
       </ng-container>
@@ -832,17 +832,17 @@
     <ion-toolbar mode="md">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">
-          <ion-button (click)="saveExpense()" [disabled]="saveExpenseLoader || saveAndNewExpenseLoader" [loadingText]="'SAVING'" [loading]="saveExpenseLoader"
-                      appFormButtonValidation class="add-edit-expense--primary-cta"
-                      color="fyle-primary" fill="solid">
-            Save
-          </ion-button>
           <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add' && !navigateBack"
                       [disabled]="fg.controls.add_to_new_report.value || (saveExpenseLoader || saveAndNewExpenseLoader)"
                       [loadingText]="'SAVING'" [loading]="saveAndNewExpenseLoader"
                       appFormButtonValidation
-                      class="add-edit-expense--primary-cta" color="fyle-primary" fill="solid">
-            Save and New
+                      class="add-edit-expense--primary-cta">
+            Save and new
+          </ion-button>
+          <ion-button (click)="saveExpense()" [disabled]="saveExpenseLoader || saveAndNewExpenseLoader" [loadingText]="'SAVING'" [loading]="saveExpenseLoader"
+                      appFormButtonValidation class="add-edit-expense--primary-cta"
+                      color="fyle-primary" fill="solid">
+            Save Expense
           </ion-button>
         </ion-buttons>
         <ion-buttons *ngIf="reviewList">
