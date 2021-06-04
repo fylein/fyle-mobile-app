@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
+import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of, throwError} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {ModalController, PopoverController} from '@ionic/angular';
@@ -223,8 +223,6 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    this.isLoading = true;
-
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
     });
@@ -278,6 +276,7 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
+      tap(() => this.isLoading = true),
       switchMap((params) => {
         let defaultState;
         if (this.baseState === 'all') {
@@ -298,6 +297,11 @@ export class MyExpensesPage implements OnInit {
           queryParams,
           order: orderByParams
         });
+      }),
+      tap(() => this.isLoading = false),
+      catchError(err => {
+        this.isLoading = false;
+        return throwError(err);
       }),
       shareReplay(1)
     );
@@ -381,10 +385,6 @@ export class MyExpensesPage implements OnInit {
     this.myExpenses$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
   }
 
   setupNetworkWatcher() {
@@ -535,7 +535,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   async setState(state: string) {
-    this.isLoading = true;
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
@@ -543,9 +542,6 @@ export class MyExpensesPage implements OnInit {
     }
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
   }
 
   async addNewExpense() {
