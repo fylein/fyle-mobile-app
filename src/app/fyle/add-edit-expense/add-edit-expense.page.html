@@ -479,11 +479,11 @@
                  class="add-edit-expense--date add-edit-expense--internal-block">
               <div [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
                    class="add-edit-expense--date-label add-edit-expense--date-label__large">
-                {{fg.controls.from_dt.value ? txnFields.from_dt?.field_name : 'Select ' + txnFields.from_dt?.field_name}}
+                {{txnFields.from_dt?.field_name}}
                 <span class="add-edit-expense--mandatory">*</span>
               </div>
               <input appFormatDate [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="from_dt" name="fromDt"
-                     type="date">
+                     type="date" [placeholder]="'Select '+ txnFields.from_dt?.field_name">
             </div>
 
             <div *ngIf="txnFields.to_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -491,11 +491,11 @@
                  class="add-edit-expense--date add-edit-expense--internal-block">
               <div [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
                    class="add-edit-expense--date-label add-edit-expense--date-label__large">
-                {{fg.controls.to_dt.value ? txnFields.to_dt?.field_name : 'Select ' + txnFields.to_dt?.field_name}}
+                {{txnFields.to_dt?.field_name}}
                 <span class="add-edit-expense--mandatory">*</span>
               </div>
               <input appFormatDate [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="to_dt" name="toDt"
-                     type="date">
+                     type="date" [placeholder]="'Select '+ txnFields.to_dt?.field_name">
             </div>
 
             <div *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -587,11 +587,11 @@
                    class="add-edit-expense--internal-block add-edit-expense--text">
                 <div [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
                      class="add-edit-expense--text-label">
-                  {{fg.controls.distance.value ? txnFields.distance?.field_name : 'Enter ' + txnFields.distance?.field_name}}
+                  {{txnFields.distance?.field_name}}
                   <span class="add-edit-expense--mandatory">*</span>
                 </div>
                 <input (blur)="focusState = false" (focus)="focusState = true" [disabled]="!txnFields.distance?.canEdit" class="add-edit-expense--text-input"
-                       formControlName="distance" inputmode="decimal"
+                       formControlName="distance" inputmode="decimal" [placeholder]="'Enter ' + txnFields.distance?.field_name"
                        type="number">
               </div>
 
@@ -624,11 +624,11 @@
                     *
                   </span>
                   </div>
-                  <input (blur)="focusState = false" (focus)="focusState = true" *ngIf="customInput.type === 'TEXT'"
+                  <input (blur)="focusState = false" (focus)="focusState = true" *ngIf="customInput.type === 'TEXT'" [placeholder]="'Enter ' + customInput.name | ellipsis: 30"
                          class="add-edit-expense--text-input" formControlName="value" type="text">
 
                   <input (blur)="focusState = false" (focus)="focusState = true" *ngIf="customInput.type === 'NUMBER'" class="add-edit-expense--text-input"
-                         formControlName="value" inputmode="decimal" type="number">
+                         formControlName="value" inputmode="decimal" type="number" [placeholder]="'Enter ' + customInput.name">
 
                   <input appFormatDate *ngIf="customInput.type === 'DATE'" class="add-edit-expense--date-input date-input__format" formControlName="value"
                          type="date" [placeholder]="'Select ' + customInput.name">

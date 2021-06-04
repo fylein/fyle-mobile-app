@@ -531,6 +531,11 @@ $placeholder: #A9ACBC;
     color: $placeholder;
   }
 
+  input[type="date"]::before { 
+    content: attr(data-placeholder);
+    width: 100%;
+  }
+
   &--mandatory {
     color: #ff3366;
   }
