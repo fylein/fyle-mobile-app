@@ -5,7 +5,7 @@ import { getCurrencySymbol } from '@angular/common';
   name: 'humanizeCurrency'
 })
 export class HumanizeCurrencyPipe implements PipeTransform {
-  transform(value: number, currencyCode: string, fraction: number): any {
+  transform(value: number, currencyCode: string, fraction: number, skipSymbol = false): any {
     const sign = value < 0 ? '-' : '';
     const amount = Math.abs(value) || 0;
     const si = ['', 'K', 'M', 'G', 'T', 'P', 'H'];
@@ -21,7 +21,9 @@ export class HumanizeCurrencyPipe implements PipeTransform {
       } else {
          // will implemnt later if no fraction passed
       }
-      fixedResult = currency + fixedResult;
+      if (!skipSymbol) {
+        fixedResult = currency + fixedResult;
+      }
     }
 
     fixedResult = fixedResult + si[exp];

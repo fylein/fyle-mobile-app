@@ -489,10 +489,16 @@ ref - https://stackoverflow.com/a/31162426
   --background: none;
   .action-sheet-button {
     background: $white;
+    min-height: 73px;
+    margin-inline-end: 16px;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin-right: 16px;
   }
 
   .action-sheet-icon {
     fill: $grey-light;
+    margin-inline-end: 16px;
   }
 
   .capture-receipt {
@@ -503,7 +509,7 @@ ref - https://stackoverflow.com/a/31162426
     background: $white;
     border-radius: 16px 16px 0 0;
     height: 40px;
-    padding: 16px;
+    padding: 24px 16px 16px 24px;
     font-size: 12px;
     --color: $grey-light;
     color: $grey-light;

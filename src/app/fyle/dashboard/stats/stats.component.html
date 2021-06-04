@@ -17,14 +17,14 @@
     </ion-header>
     <ion-grid class="stats--body">
       <ion-row class="stats--report-stats-row" *ngIf="isConnected$|async">
-        <ion-col>
+        <ion-col class="stats--report-stats-col">
           <div class="stats--header">
-            Reports
+            REPORTS
           </div>
         </ion-col>
       </ion-row>
       <ion-row *ngIf="isConnected$|async">
-        <ion-col size="6">
+        <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
           <app-stat-badge [currency]="homeCurrency$|async"
                           [name]="'Draft'"
                           [reportState]="ReportStates.DRAFT"
@@ -33,7 +33,7 @@
                           [loading]="reportStatsLoading"
                           (badgeClicked)="goToReportsPage($event)"></app-stat-badge>
         </ion-col>
-        <ion-col size="6">
+        <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
           <app-stat-badge [currency]="homeCurrency$|async"
                           [name]="'Reported'"
                           [reportState]="ReportStates.APPROVER_PENDING"
@@ -45,7 +45,7 @@
         </ion-col>
       </ion-row>
       <ion-row *ngIf="isConnected$|async">
-        <ion-col size="6">
+        <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__bottom" size="6">
           <app-stat-badge [currency]="homeCurrency$|async"
                           [name]="'Approved'"
                           [reportState]="ReportStates.APPROVED"
@@ -55,7 +55,7 @@
                           (badgeClicked)="goToReportsPage($event)"
           ></app-stat-badge>
         </ion-col>
-        <ion-col size="6">
+        <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__bottom" size="6">
           <app-stat-badge [currency]="homeCurrency$|async"
                           [name]="'Payment Pending'"
                           [reportState]="ReportStates.PAYMENT_PENDING"
@@ -66,10 +66,10 @@
           ></app-stat-badge>
         </ion-col>
       </ion-row>
-      <ion-row *ngIf="isConnected$|async">
-        <ion-col>
+      <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$|async">
+        <ion-col class="stats--expenses-stats-col">
           <div class="stats--header">
-            Expenses
+            EXPENSES
           </div>
         </ion-col>
       </ion-row>
@@ -95,7 +95,9 @@
           <div class="stats--expenses-amount">
             <ng-container
                     *ngIf="unreportedExpensesAmount$ | async as unreportedExpensesAmount; else expenseAmountSkeleton">
-              {{ unreportedExpensesAmount?.amount | humanizeCurrency: (homeCurrency$|async): 2}}
+              <span class="stats--expenses-amount-currency">
+                {{currencySymbol$|async}}
+              </span> {{ unreportedExpensesAmount?.amount | humanizeCurrency: (homeCurrency$|async): 2: true}}
             </ng-container>
             <ng-template #expenseAmountSkeleton>
               <ion-skeleton-text
@@ -106,7 +108,7 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col>
+        <ion-col class="stats--expenses-title-col">
           <div class="stats--expenses-title">
             <ng-container *ngIf="unreportedExpensesAmount$|async; else unreportedExpensesStatsSkeleton">
               Unreported Expenses

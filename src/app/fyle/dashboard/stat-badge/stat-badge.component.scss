@@ -4,6 +4,7 @@
   background-color: $translucent-white;
   border-radius: 8px;
   min-height: 64px;
+  max-height: 64px;
 
   &--container {
     padding: 8px;
@@ -15,6 +16,21 @@
 
   &--grid-col {
     --ion-grid-column-padding: 0;
+  }
+
+  &--currency {
+    font-size: 12px;
+    line-height: 15px;
+    color: $black-light;
+  }
+
+  &--grid-outer-col{
+    --ion-grid-column-padding: 4px;
+  }
+
+  &--count-col {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 
   &--count {
@@ -70,5 +86,6 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
+    padding-bottom: 2px;
   }
 }

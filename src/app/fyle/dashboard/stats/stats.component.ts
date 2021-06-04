@@ -10,6 +10,7 @@ import {NetworkService} from '../../../core/services/network.service';
 import {concat, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
+import {getCurrencySymbol} from "@angular/common";
 
 @Component({
   selector: 'app-stats',
@@ -23,6 +24,7 @@ export class StatsComponent implements OnInit {
   paymentPendingStats$: Observable<{ count: number, sum: number }>;
   homeCurrency$: Observable<string>;
   isConnected$: Observable<boolean>;
+  currencySymbol$: Observable<string>;
 
   unreportedExpensesCount$: Observable<{ count: number }>;
   unreportedExpensesAmount$: Observable<{ amount: number }>;
@@ -104,6 +106,10 @@ export class StatsComponent implements OnInit {
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(
         shareReplay(1)
     );
+    that.currencySymbol$ = that.homeCurrency$.pipe(
+        map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'narrow'))
+    );
+
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.offlineService.getOrgSettings().subscribe(orgSettings => {
