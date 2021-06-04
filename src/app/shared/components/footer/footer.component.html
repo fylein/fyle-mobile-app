@@ -1,14 +1,14 @@
 <div class="fy-footer">
   <div class="fy-footer--buttons">
     <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.HOME}" expand="full" (click)="goToHome()">
-      <mat-icon [svgIcon]="activeState === FooterState.HOME?'fy-home-solid':'fy-home'"></mat-icon>
+      <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.HOME?'fy-home-solid':'fy-home'"></mat-icon>
       Home
     </div>
     <div class="fy-footer--primary-button-container" (click)="goToCameraMode()">
-      <ion-icon class="fy-footer--icon fy-footer--primary-icon" name="camera"></ion-icon>
+      <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="fy-camera"></mat-icon>
     </div>
     <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.TASKS}" expand="full" (click)="goToTasks()">
-      <mat-icon [svgIcon]="activeState === FooterState.TASKS?'fy-notification-solid': 'fy-notification'"></mat-icon>
+      <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.TASKS?'fy-notification-solid': 'fy-notification'"></mat-icon>
       Tasks
     </div>
   </div>

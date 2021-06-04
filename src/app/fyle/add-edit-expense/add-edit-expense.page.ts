@@ -214,7 +214,12 @@ export class AddEditExpensePage implements OnInit {
       if (this.activatedRoute.snapshot.params.id) {
         this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Receipt'});
       }
-      this.goBack();
+
+      if (this.navigateBack) {
+        this.navController.back();
+      } else {
+        this.goBack();
+      }
     }
   }
 

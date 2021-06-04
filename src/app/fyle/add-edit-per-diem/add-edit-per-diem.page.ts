@@ -115,7 +115,7 @@ export class AddEditPerDiemPage implements OnInit {
     {label: 'Different expense', value: 'Different expense'},
     {label: 'Other', value: 'Other'}
   ];
-  
+
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -179,7 +179,11 @@ export class AddEditPerDiemPage implements OnInit {
       if (this.activatedRoute.snapshot.params.id) {
         this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Per Diem'});
       }
-      this.goBack();
+      if (this.navigateBack) {
+        this.navController.back();
+      } else {
+        this.goBack();
+      }
     }
   }
 

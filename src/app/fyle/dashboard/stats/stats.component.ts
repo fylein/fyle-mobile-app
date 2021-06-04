@@ -118,14 +118,19 @@ export class StatsComponent implements OnInit {
     that.actionSheetButtons = [{
       text: 'Capture Receipt',
       icon: 'assets/svg/fy-camera.svg',
+      cssClass: 'capture-receipt',
       handler: () => {
-        that.router.navigate(['/', 'enterprise', 'camera_overlay']);
+        that.router.navigate(['/', 'enterprise', 'camera_overlay', {
+          navigate_back: true
+        }]);
       }
     }, {
       text: 'Add Manually',
       icon: 'assets/svg/fy-expense.svg',
       handler: () => {
-        that.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+        that.router.navigate(['/', 'enterprise', 'add_edit_expense',{
+          navigate_back: true
+        }]);
       }
     }];
 
@@ -134,7 +139,9 @@ export class StatsComponent implements OnInit {
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         handler: () => {
-          that.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
+          that.router.navigate(['/', 'enterprise', 'add_edit_mileage',{
+            navigate_back: true
+          }]);
         }
       });
     }
@@ -144,7 +151,9 @@ export class StatsComponent implements OnInit {
         text: 'Add Per Diem',
         icon: 'assets/svg/fy-calendar.svg',
         handler: () => {
-          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
+          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem',{
+            navigate_back: true
+          }]);
         }
       });
     }

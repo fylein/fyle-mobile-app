@@ -13,4 +13,12 @@
     position: relative;
     margin-top: 80px;
   }
+
+  &--container {
+    height: calc(100vh - 124px);
+  }
+
+  &--container-row {
+    height: 100%;
+  }
 }

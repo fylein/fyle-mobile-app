@@ -491,12 +491,23 @@ ref - https://stackoverflow.com/a/31162426
     background: $white;
   }
 
+  .action-sheet-icon {
+    fill: $grey-light;
+  }
+
+  .capture-receipt {
+    stroke: $grey-light;
+  }
+
   .action-sheet-title {
     background: $white;
     border-radius: 16px 16px 0 0;
     height: 40px;
     padding: 16px;
     font-size: 12px;
+    --color: $grey-light;
+    color: $grey-light;
+    font-weight: 500;
   }
 
   .action-sheet-button-inner {

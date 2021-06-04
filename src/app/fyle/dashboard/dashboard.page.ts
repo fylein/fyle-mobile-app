@@ -119,7 +119,9 @@ export class DashboardPage implements OnInit {
   }
 
   onCameraClicked() {
-    this.router.navigate(['/', 'enterprise', 'camera_overlay']);
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', {
+      navigate_back: true
+    }]);
   }
 
   onHomeClicked() {

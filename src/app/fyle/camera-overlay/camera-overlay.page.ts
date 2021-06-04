@@ -1,22 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { Capacitor, Plugins } from '@capacitor/core';
-import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
-import { ActivatedRoute } from '@angular/router';
-import { Router } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {Capacitor, Plugins} from '@capacitor/core';
+import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
+import {ActivatedRoute} from '@angular/router';
+import {Router} from '@angular/router';
 
-const { CameraPreview } = Plugins;
+const {CameraPreview} = Plugins;
 import '@capacitor-community/camera-preview';
-import { CurrencyService } from 'src/app/core/services/currency.service';
+import {CurrencyService} from 'src/app/core/services/currency.service';
 
-import { from } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { toBase64String } from '@angular/compiler/src/output/source_map';
-import { PopoverController } from '@ionic/angular';
-import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-popup/gallery-upload-success-popup.component';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { StorageService } from 'src/app/core/services/storage.service';
+import {from} from 'rxjs';
+import {LoaderService} from 'src/app/core/services/loader.service';
+import {ImagePicker} from '@ionic-native/image-picker/ngx';
+import {toBase64String} from '@angular/compiler/src/output/source_map';
+import {NavController, PopoverController} from '@ionic/angular';
+import {GalleryUploadSuccessPopupComponent} from './gallery-upload-success-popup/gallery-upload-success-popup.component';
+import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {StorageService} from 'src/app/core/services/storage.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import {AuthService} from '../../core/services/auth.service';
 
@@ -36,19 +36,22 @@ export class CameraOverlayPage implements OnInit {
   showInstaFyleIntro: boolean;
   modeChanged: boolean;
   isInstafyleEnabled: boolean;
+  navigateBack = false;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private loaderService: LoaderService,
-    private router: Router,
-    private imagePicker: ImagePicker,
-    private popoverController: PopoverController,
-    private offlineService: OfflineService,
-    private storageService: StorageService,
-    private trackingService: TrackingService,
-    private authService: AuthService
-  ) { }
+      private activatedRoute: ActivatedRoute,
+      private transactionsOutboxService: TransactionsOutboxService,
+      private loaderService: LoaderService,
+      private router: Router,
+      private imagePicker: ImagePicker,
+      private popoverController: PopoverController,
+      private offlineService: OfflineService,
+      private storageService: StorageService,
+      private trackingService: TrackingService,
+      private authService: AuthService,
+      private navController: NavController
+  ) {
+  }
 
   setUpAndStartCamera() {
     if (this.isCameraShown === false) {
@@ -136,7 +139,7 @@ export class CameraOverlayPage implements OnInit {
 
     await galleryUploadSuccessPopup.present();
 
-    const { data } = await galleryUploadSuccessPopup.onWillDismiss();
+    const {data} = await galleryUploadSuccessPopup.onWillDismiss();
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
@@ -189,6 +192,8 @@ export class CameraOverlayPage implements OnInit {
     if (this.isBulkMode && this.captureCount > 0) {
       this.trackBulkUpload(this.captureCount);
       this.showGalleryUploadSuccessPopup(this.captureCount);
+    } else if (this.navigateBack) {
+      this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
@@ -210,7 +215,11 @@ export class CameraOverlayPage implements OnInit {
 
     } else {
       // Single mode
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {dataUrl: this.recentImage, canExtractData: this.isInstafyleEnabled}]);    }
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+        dataUrl: this.recentImage,
+        canExtractData: this.isInstafyleEnabled
+      }]);
+    }
   }
 
   async onCapture() {
@@ -269,6 +278,7 @@ export class CameraOverlayPage implements OnInit {
     this.isCameraShown = false;
     this.setUpAndStartCamera();
     this.activeFlashMode = null;
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
 
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
