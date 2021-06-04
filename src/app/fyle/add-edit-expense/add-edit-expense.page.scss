@@ -1,5 +1,8 @@
 $red: #DA1E28;
 $placeholder: #A9ACBC;
+$border-color: #DFDFE2;
+$label-color: #5A5D72;
+$input-color: #2C304E;
 
 .add-edit-expense {
   &--toolbar {
@@ -116,7 +119,7 @@ $placeholder: #A9ACBC;
   }
 
   &--date {
-    border-bottom: 1px solid #DFDFE2;
+    border-bottom: 1px solid $border-color;
   }
 
   &--date-label {
@@ -124,7 +127,7 @@ $placeholder: #A9ACBC;
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: #5A5D72;
+    color: $label-color;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -139,14 +142,14 @@ $placeholder: #A9ACBC;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
-    color: #2C304E;
+    color: $input-color;
     border: none;
     width: 100%;
     padding: 6px;
   }
 
   &--text {
-    border-bottom: 1px solid #DFDFE2;
+    border-bottom: 1px solid $border-color;
   }
 
   &--text-label {
@@ -154,7 +157,7 @@ $placeholder: #A9ACBC;
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: #5A5D72;
+    color: $label-color;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -170,14 +173,14 @@ $placeholder: #A9ACBC;
     font-weight: 400;
     height: 24px;
     line-height: 18px;
-    color: #2C304E;
+    color: $input-color;
     width: 100%;
     padding: 16px 0;
   }
 
   &--checkbox {
     font-size: 14px;
-    color: #2C304E;
+    color: $input-color;
     font-weight: 400;
   }
 
@@ -229,7 +232,7 @@ $placeholder: #A9ACBC;
 
   &--comment {
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $border-color;
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -238,7 +241,7 @@ $placeholder: #A9ACBC;
     display: flex;
     align-items: center;
     padding: 12px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $border-color;
     border-radius: 4px;
   }
 
@@ -538,5 +541,6 @@ $placeholder: #A9ACBC;
 
   &--mandatory {
     color: #ff3366;
+    display: inline-block;
   }
 }
