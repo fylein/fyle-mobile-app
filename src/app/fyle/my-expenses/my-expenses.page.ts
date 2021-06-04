@@ -278,14 +278,6 @@ export class MyExpensesPage implements OnInit {
       });
 
     const paginatedPipe = this.loadData$.pipe(
-      tap(console.log),
-      concatMap((params) => {
-        if (this.currentPageNumber === 1) {
-          return from(this.loaderService.showLoader('Loading Expenses...')).pipe(map(() => params));
-        } else {
-          return of(params);
-        }
-      }),
       switchMap((params) => {
         let defaultState;
         if (this.baseState === 'all') {
@@ -306,13 +298,6 @@ export class MyExpensesPage implements OnInit {
           queryParams,
           order: orderByParams
         });
-      }),
-      tap(() => {
-        if (this.currentPageNumber === 1) {
-          return from(this.loaderService.hideLoader());
-        } else {
-          return of(null);
-        }
       }),
       shareReplay(1)
     );
