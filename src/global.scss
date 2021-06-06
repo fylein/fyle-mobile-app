@@ -26,6 +26,7 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 @import "assets/fonts/font.css";
+@import "theme/colors";
 
 $header-input-interior: #eeeeee;
 $black: #000;
@@ -452,7 +453,7 @@ input[type="date"]::after {
 }
 /*
 using this class for all input type of date, the input value will be showin in format dd/mm/yyy by default
-and hiding the default value and showing the desired formatted value set by format-date.directive - 
+and hiding the default value and showing the desired formatted value set by format-date.directive -
 value set to date-date attribute.
 ref - https://stackoverflow.com/a/31162426
 */
@@ -472,14 +473,66 @@ ref - https://stackoverflow.com/a/31162426
     &::after {
       color: $black;
     }
-  
+
     &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
       display: none;
     }
-  
+
     &::-webkit-calendar-picker-indicator {
       position: absolute;
       right: 12px;
+    }
+  }
+}
+
+.fy-action-sheet {
+  --background: none;
+  .action-sheet-button {
+    background: $white;
+    min-height: 73px;
+    margin-inline-end: 16px;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin-right: 16px;
+  }
+
+  .action-sheet-icon {
+    fill: $grey-light;
+    margin-inline-end: 16px;
+  }
+
+  .capture-receipt {
+    stroke: $grey-light;
+  }
+
+  .action-sheet-title {
+    background: $white;
+    border-radius: 16px 16px 0 0;
+    height: 40px;
+    padding: 24px 16px 16px 24px;
+    font-size: 12px;
+    --color: $grey-light;
+    color: $grey-light;
+    font-weight: 500;
+  }
+
+  .action-sheet-button-inner {
+    border-bottom: 1px solid $translucent-grey;
+  }
+}
+
+.dashboard {
+  &--tabs {
+    .mat-tab-header {
+      display: none;
+    }
+  }
+  &--refresher {
+    .refresher-refreshing-icon {
+      margin-top: 200px !important;
+      .spinner-circular {
+        --ion-color-primary: #{$primary};
+      }
     }
   }
 }
