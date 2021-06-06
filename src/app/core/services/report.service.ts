@@ -574,7 +574,15 @@ export class ReportService {
   }
 
   getReportStats(params) {
-    return this.apiv2Service.get('/reports/stats', { params }).pipe(
+    return from(this.authService.getEou()).pipe(
+        switchMap(eou => {
+          return this.apiv2Service.get('/reports/stats', {
+            params: {
+              rp_org_user_id: `eq.${eou.ou.id}`,
+              ...params
+            }
+          });
+        }),
         map(rawStatsResponse => new StatsResponse(rawStatsResponse))
     );
   }

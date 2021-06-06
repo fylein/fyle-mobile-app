@@ -23,7 +23,7 @@ export class StatBadgeComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.currencySymbol = getCurrencySymbol(this.currency, 'narrow');
+    this.currencySymbol = getCurrencySymbol(this.currency, 'wide');
   }
 
   onBadgeClicked() {

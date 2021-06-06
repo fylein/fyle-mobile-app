@@ -8,7 +8,7 @@ export class HumanizeCurrencyPipe implements PipeTransform {
   transform(value: number, currencyCode: string, fraction: number, skipSymbol = false): any {
     const sign = value < 0 ? '-' : '';
     const amount = Math.abs(value) || 0;
-    const si = ['', 'K', 'M', 'G', 'T', 'P', 'H'];
+    const si = ['', 'K', 'M', 'B', 't', 'q', 'Q', 's', 'S', 'o', 'n'];
     const exp = Math.max(0, Math.floor(Math.log(amount) / Math.log(1000)));
     const result = amount / Math.pow(1000, exp);
     let fixedResult;

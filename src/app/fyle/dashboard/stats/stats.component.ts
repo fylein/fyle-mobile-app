@@ -107,7 +107,7 @@ export class StatsComponent implements OnInit {
         shareReplay(1)
     );
     that.currencySymbol$ = that.homeCurrency$.pipe(
-        map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'narrow'))
+        map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
     );
 
     that.initializeReportStats();
