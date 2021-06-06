@@ -56,6 +56,10 @@
     display: flex;
   }
 
+  &--shimmers {
+    overflow-y: scroll;
+  }
+
   &--state-pill {
     width: 47%;
     border: 1px solid #0077ee;
@@ -179,17 +183,23 @@
     text-align: center;
 
     &-img {
-      margin: 32px;
+      margin: 20px;
     }
 
     &-header {
       margin: 12px;
-      font-size: 16px;
+      font-size: 18px;
       display: block;
       margin-bottom: 16px;
-      color: #4a4a4a;
+      color: #1C1F36;
       line-height: 1.5;
-      font-weight: 500;
+      font-weight: normal;
+    }
+
+    &-content {
+      color: #2C304E;
+      font-size: 14px;
+      font-weight: normal;
     }
 
     &-subheader {
