@@ -12,6 +12,7 @@
       opacity: .4;
     }
   }
+
   &--buttons {
     display: flex;
     justify-content: space-around;
@@ -23,6 +24,9 @@
     width: 100%;
     background: $pure-white;
     box-shadow: 0 -2px 12px $pink-shadow;
+    &__message-gap {
+      margin-bottom: 36px;
+    }
   }
 
   &--icon {

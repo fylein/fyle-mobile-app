@@ -1,5 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {FooterState} from './footer-state';
+import {NetworkService} from '../../../core/services/network.service';
+import {ConnectionMessageStatus} from '../fy-connection/connection-status.enum';
+import {Observable} from 'rxjs/internal/Observable';
 
 @Component({
   selector: 'app-fy-footer',
@@ -14,13 +17,23 @@ export class FooterComponent implements OnInit {
 
   @Input() activeState: FooterState;
 
+  connectionState$: Observable<ConnectionMessageStatus>;
+
+  get ConnectionMessageStatus() {
+    return ConnectionMessageStatus;
+  }
+
   get FooterState() {
     return FooterState;
   }
 
-  constructor() { }
+  constructor(
+      private networkService: NetworkService
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.connectionState$ = this.networkService.getConnectionStatus();
+  }
 
   goToHome() {
     this.homeClicked.emit();
