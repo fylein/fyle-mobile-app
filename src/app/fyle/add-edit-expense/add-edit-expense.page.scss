@@ -131,10 +131,6 @@ $input-color: #2C304E;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
-
-    &__invalid {
-      color: $red;
-    }
   }
 
   &--date-input {
@@ -161,10 +157,6 @@ $input-color: #2C304E;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
-
-    &__invalid {
-      color: $red;
-    }
   }
 
   &--text-input {
