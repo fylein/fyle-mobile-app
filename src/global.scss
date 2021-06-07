@@ -55,6 +55,14 @@ body {
   --ion-color-tint: var(--ion-color-fyle-primary-tint);
 }
 
+.ion-color-success {
+  --ion-color-base: #24A148 !important;
+}
+
+.ion-color-danger {
+  --ion-color-base: #DA1E28 !important;
+}
+
 input:focus, textarea:focus{
   outline: none !important;
 }
@@ -275,6 +283,13 @@ input:focus, textarea:focus{
 
 .disabled {
   opacity: 0.2;
+}
+
+.toast {
+  font-size: 14px;
+  line-height: 10px;
+  top: -72px;
+  font-weight: 400;
 }
 
 /* Safari */

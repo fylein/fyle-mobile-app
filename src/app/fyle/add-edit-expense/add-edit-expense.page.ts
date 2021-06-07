@@ -60,6 +60,7 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ToastService } from 'src/app/core/services/toast.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -193,7 +194,8 @@ export class AddEditExpensePage implements OnInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private toastService: ToastService
   ) {
   }
 
@@ -3049,6 +3051,10 @@ export class AddEditExpensePage implements OnInit {
           }),
           finalize(() => {
             this.attachmentUploadInProgress = false;
+            this.toastService.addToast({
+              message: 'Receipt attached successfully.',
+              type: 'success'
+            });
           })
         ).subscribe((attachments) => {
           this.attachedReceiptsCount = attachments;
