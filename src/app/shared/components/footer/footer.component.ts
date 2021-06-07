@@ -43,7 +43,9 @@ export class FooterComponent implements OnInit {
     this.cameraClicked.emit();
   }
 
-  goToTasks() {
-    this.taskClicked.emit();
+  goToTasks(connectionState) {
+    if (connectionState !== ConnectionMessageStatus.disconnected) {
+      this.taskClicked.emit();
+    }
   }
 }
