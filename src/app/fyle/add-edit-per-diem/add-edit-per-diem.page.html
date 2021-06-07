@@ -291,8 +291,8 @@
                           *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
                           <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                             <ng-container *ngIf="isProjectVisible$|async">
-                              <div [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.project.touched && !fg.controls.project.valid}"
-                                 class="add-edit-per-diem--internal-block">
+                              <div [ngClass]="{'add-edit-per-diem--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
+                                 class="add-edit-per-diem--internal-block add-edit-per-diem--project-block">
                                 <app-fy-select-project
                                   [categoryIds]="projectCategoryIds"
                                   [cacheName]="'perDiemProjectCache'"
