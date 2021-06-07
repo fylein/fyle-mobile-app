@@ -726,7 +726,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getInstaFyleImageData() {
-    if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData) {
+    if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
       return from(this.transactionOutboxService.parseReceipt(b64Image))
