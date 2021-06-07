@@ -310,7 +310,7 @@
                     </ng-container>
 
                     <div *ngIf="fg.controls.project.value" class="add-edit-per-diem--internal-block">
-                      <mat-checkbox color="primary" formControlName="billable">
+                      <mat-checkbox formControlName="billable">
                         <span class="add-edit-per-diem--checkbox">
                           Billable
                         </span>
@@ -377,7 +377,7 @@
 
                         <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-per-diem--checkbox">
                           <label>
-                            <mat-checkbox color="primary" formControlName="value">
+                            <mat-checkbox formControlName="value">
                               {{customInput.name | ellipsis: 35 }}
                               <span class="add-edit-per-diem--mandatory" *ngIf="customInput.mandatory">*</span>
                             </mat-checkbox>
@@ -448,7 +448,7 @@
                             <app-fy-add-to-report *ngIf="reports.length > 0"
                                                   [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
                                                   [options]="reports" formControlName="report"></app-fy-add-to-report>
-                            <mat-checkbox *ngIf="reports.length === 0" color="primary"
+                            <mat-checkbox *ngIf="reports.length === 0" 
                                           formControlName="add_to_new_report">
                               <span class="add-edit-per-diem--text-label">
                                 Add to New Report

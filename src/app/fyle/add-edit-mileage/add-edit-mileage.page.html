@@ -188,7 +188,7 @@
             </ng-container>
 
             <div class="add-edit-mileage--internal-block" *ngIf="mileage_locations.controls.length < 3">
-              <mat-checkbox [disabled]="(isAmountDisabled$|async) || !fg.controls.distance" color="primary"
+              <mat-checkbox [disabled]="(isAmountDisabled$|async) || !fg.controls.distance" 
                             formControlName="round_trip">
                 <span class="add-edit-mileage--checkbox">
                   Round Trip
@@ -302,7 +302,7 @@
               </ng-container>
 
               <div *ngIf="fg.controls.project.value">
-                <mat-checkbox color="primary" formControlName="billable">
+                <mat-checkbox formControlName="billable">
                   <span class="add-edit-mileage--checkbox">
                     Billable
                   </span>
@@ -360,7 +360,7 @@
 
                   <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-mileage--checkbox">
                     <label>
-                      <mat-checkbox color="primary" formControlName="value">
+                      <mat-checkbox formControlName="value">
                         {{customInput.name | ellipsis: 35 }}
                         <span class="add-edit-mileage--mandatory" *ngIf="customInput.mandatory">*</span>
                       </mat-checkbox>
@@ -432,7 +432,7 @@
                       <app-fy-add-to-report *ngIf="reports.length > 0"
                                             [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                                             [options]="reports" formControlName="report"></app-fy-add-to-report>
-                      <mat-checkbox *ngIf="reports.length === 0" color="primary" formControlName="add_to_new_report">
+                      <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
                       <span class="add-edit-mileage--text-label">
                         Add to New Report
                       </span>

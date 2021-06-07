@@ -54,15 +54,15 @@
           [txnDt]="extendedAdvanceRequest?.created_at"
           [homeCurrency]="extendedAdvanceRequest.currency">
         </app-fy-currency>
-        <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid" class="add-edit-advance-request--mandatory-text">Please enter the amount.</div>
+        <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid" class="add-edit-advance-request--amount-error">Please enter the amount.</div>
       </div>
     </div>
 
     <div class="add-edit-advance-request--primary-block">
-      <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
+      <div class="add-edit-advance-request--internal-block">
         <app-fy-select formControlName="purpose"
           [mandatory]="true"
-          [label]="fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose '"
+          [label]="'Purpose '"
           [cacheName]="'recentPurposeList'"
           [customInput]="true"
           [showSaveButton]="true"
@@ -76,7 +76,7 @@
         <div class="add-edit-advance-request--internal-block">
           <app-fy-select-project
             formControlName="project"
-            [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
+            [label]="'Project'"
             [cacheName]="'advanceProjectCache'"
           ></app-fy-select-project>
         </div>
@@ -98,23 +98,22 @@
           <ng-container *ngFor="let customInput of customFields; index as i">
             <div class="add-edit-advance-request--custom-field-internal-block">
               <form [formGroup]="customInput.control">
-                <div class="add-edit-advance-request--text "
+                <div class="add-edit-advance-request--text" [ngClass]="{'add-edit-advance-request--text__invalid': fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid}" 
                   *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
-                  <div class="add-edit-advance-request--text-label"
-                    [ngClass]="{'add-edit-advance-request--mandatory-text': fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid}">
-                    {{customInput.name | ellipsis: 11}}
-                    <span *ngIf="customInput.mandatory">*</span>
+                  <div class="add-edit-advance-request--text-label">
+                    {{customInput.name | ellipsis: 30}}
+                    <span class="add-edit-advance-request--mandatory" *ngIf="customInput.mandatory">*</span>
                   </div>
                   <input class="add-edit-advance-request--text-input" type="text" formControlName="value" *ngIf="customInput.type === 'TEXT'">
-      
+
                   <input class="add-edit-advance-request--text-input" inputmode="decimal" type="number" formControlName="value" *ngIf="customInput.type === 'NUMBER'">
-      
+
                   <input appFormatDate class="add-edit-advance-request--date-input date-input__format" *ngIf="customInput.type === 'DATE'" type="date" formControlName="value">
                 </div>
-      
+
                 <div class="add-edit-advance-request--checkbox" *ngIf="customInput.type === 'BOOLEAN'">
                   <label>
-                    <mat-checkbox color="primary" formControlName="value">
+                    <mat-checkbox formControlName="value">
                       {{customInput.name | ellipsis: 35 }}
                     </mat-checkbox>
                   </label>
@@ -122,33 +121,33 @@
       
                 <div *ngIf="customInput.type === 'LOCATION'">
                   <app-fy-location 
-                    [label]="customInput.name | ellipsis: 11" 
+                    [label]="customInput.name | ellipsis: 30" 
                     [mandatory]="customInput.mandatory" 
                     formControlName="value">
                   </app-fy-location>
                 </div>
-      
+
                 <div *ngIf="customInput.type === 'SELECT'">
                   <app-fy-select 
-                    [label]="customInput.name | ellipsis: 11" 
+                    [label]="customInput.name | ellipsis: 30" 
                     [mandatory]="customInput.mandatory" 
                     [options]="customInput.options" 
                     formControlName="value">
                   </app-fy-select>
                 </div>
-      
+
                 <div *ngIf="customInput.type === 'MULTI_SELECT'">
                   <app-fy-multiselect 
-                    [label]="customInput.name | ellipsis: 11" 
+                    [label]="customInput.name | ellipsis: 30" 
                     [mandatory]="customInput.mandatory" 
                     [options]="customInput.options" 
                     formControlName="value">
                   </app-fy-multiselect>
                 </div>
-      
+
                 <div *ngIf="customInput.type === 'USER_LIST'">
                   <app-fy-userlist 
-                    [label]="customInput.name | ellipsis: 11" 
+                    [label]="customInput.name | ellipsis: 30" 
                     [mandatory]="customInput.mandatory" 
                     formControlName="value">
                   </app-fy-userlist>
@@ -190,13 +189,13 @@
   <ion-toolbar mode="md">
     <div class="add-edit-advance-request--cta-container">
       <ion-buttons>
-        <ion-button class="add-edit-advance-request--primary-cta" *ngIf="advanceActions?.can_save" (click)="showAdvanceSummaryPopover()" fill="outline" color="fyle-primary"
+        <ion-button class="add-edit-advance-request--primary-cta" *ngIf="advanceActions?.can_save" (click)="showAdvanceSummaryPopover()" 
           appFormButtonValidation [loading]="saveDraftAdvanceLoading" [loadingText]="'SAVING'" [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading">
-          SAVE DRAFT
+          Save draft
         </ion-button>
         <ion-button class="add-edit-advance-request--primary-cta" *ngIf="advanceActions?.can_submit" (click)="save('Submit')" fill="solid" color="fyle-primary"
         appFormButtonValidation [loading]="saveAdvanceLoading" [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading">
-          SUBMIT REQUEST
+          Submit Request
         </ion-button>
       </ion-buttons>
     </div>

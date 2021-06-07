@@ -312,7 +312,7 @@
             </ng-container>
   
             <div *ngIf="fg.controls.project.value">
-              <mat-checkbox color="primary" formControlName="billable">
+              <mat-checkbox formControlName="billable">
               <span class="add-edit-expense--checkbox">
                 Billable
               </span>
@@ -422,7 +422,7 @@
                       <app-fy-add-to-report *ngIf="reports.length > 0"
                                             [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                                             [options]="reports" formControlName="report"></app-fy-add-to-report>
-                      <mat-checkbox *ngIf="reports.length === 0" color="primary" formControlName="add_to_new_report">
+                      <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
                       <span class="add-edit-expense--text-label">
                         Add to New Report
                       </span>
@@ -574,7 +574,7 @@
             </div>
 
             <div *ngIf="fg.value?.category?.fyle_category === 'Hotel'" class="add-edit-expense--internal-block">
-              <mat-checkbox color="primary" formControlName="hotel_is_breakfast_provided">
+              <mat-checkbox formControlName="hotel_is_breakfast_provided">
                 <span class="add-edit-expense--text-label">
                   Breakfast Provided
                 </span>
@@ -616,7 +616,7 @@
                  class="add-edit-expense--internal-block">
               <form [formGroup]="customInput.control">
                 <div *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'"
-                     class="add-edit-expense--text ">
+                     class="add-edit-expense--text" [ngClass]="{'add-edit-expense--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                   <div [ngClass]="{'add-edit-expense--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        class="add-edit-expense--text-label">
                     {{customInput.name | ellipsis: 30}}
@@ -637,7 +637,7 @@
                 <div *ngIf="customInput.type === 'BOOLEAN'"
                      class="add-edit-expense--checkbox">
                   <label>
-                    <mat-checkbox color="primary" formControlName="value">
+                    <mat-checkbox formControlName="value">
                       {{customInput.name | ellipsis: 35 }}
                       <span class="add-edit-expense--mandatory" *ngIf="customInput.mandatory">
                       *

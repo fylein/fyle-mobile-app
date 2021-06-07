@@ -31,7 +31,7 @@
     <div class="my-create-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)">
       <span>Select a trip to associate with report:</span>
       <div class="my-create-report--select-trip">
-        <app-fy-select [label]="selectedTripRequest? 'Trip' : 'Select a Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest" [selectModalHeader]="'Select a Trip Request'" [cacheName]="'recentTripRequestsList'">
+        <app-fy-select [label]="'Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest" [selectModalHeader]="'Select a Trip Request'" [cacheName]="'recentTripRequestsList'">
         </app-fy-select>
       </div>
     </div>

@@ -146,6 +146,10 @@ $input-color: #2C304E;
 
   &--text {
     border-bottom: 1px solid $border-color;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
   }
 
   &--text-label {
