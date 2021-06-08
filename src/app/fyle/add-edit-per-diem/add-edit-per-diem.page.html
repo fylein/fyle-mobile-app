@@ -135,7 +135,7 @@
                           </div>
                           <input appFormatDate [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit" [min]="minDate"
                                  class="add-edit-per-diem--date-input date-input__format" [placeholder]="'Select ' + txnFields?.from_dt"
-                                 formControlName="from_dt"
+                                 formControlName="from_dt" [name]="txnFields?.from_dt.field_name" 
                                  type="date">
                         </div>
                       </ng-container>
@@ -155,7 +155,7 @@
                           <input appFormatDate [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
                                  [min]="minPerDiemDate" class="add-edit-per-diem--date-input date-input__format"
                                  formControlName="to_dt" [placeholder]="'Select ' + txnFields?.to_dt"
-                                 name="toDate"
+                                 [name]="txnFields?.to_dt.field_name"
                                  type="date">
                         </div>
                       </ng-container>
@@ -381,7 +381,7 @@
 
                           <input appFormatDate *ngIf="customInput.type === 'DATE'" class="add-edit-per-diem--date-input date-input__format"
                                  formControlName="value" [placeholder]="'Select ' + customInput.name"
-                                 type="date">
+                                 type="date" [name]="customInput.name">
                         </div>
 
                         <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-per-diem--checkbox">

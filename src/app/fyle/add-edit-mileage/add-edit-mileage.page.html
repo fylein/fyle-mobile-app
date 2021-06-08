@@ -118,7 +118,7 @@
                   {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Start Date'}}
                   <span class="add-edit-mileage--mandatory" *ngIf="txnFields?.txn_dt?.is_mandatory">*</span>
                 </div>
-                <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input date-input__format"
+                <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input date-input__format" [name]="txnFields?.txn_dt?.field_name" 
                        formControlName="dateOfSpend" type="date" [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Start Date'">
               </div>
               <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid" class="add-edit-mileage--error">
@@ -355,7 +355,7 @@
                            type="number" [placeholder]="'Enter ' + customInput.name">
 
                     <input appFormatDate *ngIf="customInput.type === 'DATE'" class="add-edit-mileage--date-input date-input__format" formControlName="value"
-                           type="date" [placeholder]="'Select ' + customInput.name">
+                           type="date" [placeholder]="'Select ' + customInput.name" [name]="customInput.name">
                   </div>
 
                   <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-mileage--checkbox">
