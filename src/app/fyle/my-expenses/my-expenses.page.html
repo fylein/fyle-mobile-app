@@ -146,8 +146,8 @@
       <div class="my-expenses--zero-state-content">No expenses were found for the selected filter.</div>
     </div>
   </div>
-  <ng-container *ngIf="syncing">
-    <ng-container *ngIf="pendingTransactions.length > 0">
+  <ng-container *ngIf="!syncing">
+    <ng-container *ngIf="pendingTransactions.length === 0">
       <div class="my-expenses--syncing">
         <app-fy-alert-info [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
       </div>
