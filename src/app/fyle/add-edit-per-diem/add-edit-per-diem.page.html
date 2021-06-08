@@ -128,7 +128,7 @@
                           <div
                             [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
                             class="add-edit-per-diem--date-label">
-                            {{ fg.controls.from_dt.value ? txnFields?.from_dt.field_name : 'Select From Date' }}
+                            {{ txnFields?.from_dt.field_name ? txnFields?.from_dt.field_name : 'From Date' }}
                             <div class="add-edit-per-diem--mandatory" *ngIf="txnFields?.from_dt?.is_mandatory">
                               *
                             </div>
@@ -137,10 +137,6 @@
                                  class="add-edit-per-diem--date-input date-input__format" [placeholder]="'Select ' + txnFields?.from_dt"
                                  formControlName="from_dt"
                                  type="date">
-                        </div>
-                        <div *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid"
-                             class="add-edit-per-diem--error">
-                          Please select {{ fg.controls.from_dt ? txnFields?.from_dt.field_name : 'Select From Date' }}
                         </div>
                       </ng-container>
                     </ng-container>
@@ -151,7 +147,7 @@
                           <div
                             [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
                             class="add-edit-per-diem--date-label">
-                            {{ fg.controls.to_dt.value ? txnFields?.to_dt.field_name : 'Select To Date' }}
+                            {{ txnFields?.to_dt.field_name ? txnFields?.to_dt.field_name : 'To Date' }}
                             <div class="add-edit-per-diem--mandatory" *ngIf="txnFields?.to_dt?.is_mandatory">
                               *
                             </div>
@@ -162,13 +158,26 @@
                                  name="toDate"
                                  type="date">
                         </div>
-                        <div *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid"
-                             class="add-edit-per-diem--error">
-                          Please select {{ fg.controls.to_dt ? txnFields?.to_dt.field_name : 'Select To Date' }}
-                        </div>
                       </ng-container>
                     </ng-container>
                   </div>
+
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="6">
+                        <div *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid"
+                          class="add-edit-per-diem--error">
+                          Please select {{ txnFields?.from_dt.field_name ? txnFields?.from_dt.field_name : 'From Date' }}
+                        </div>
+                      </ion-col>
+                      <ion-col size="6">
+                        <div *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid"
+                          class="add-edit-per-diem--error">
+                          Please select {{ txnFields?.to_dt.field_name ? txnFields?.to_dt.field_name : 'To Date' }}
+                        </div>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
 
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <ng-container *ngIf="txnFields?.num_days">
@@ -177,14 +186,14 @@
                         <div
                           [ngClass]="{'add-edit-per-diem--text-label__invalid': fg.controls.num_days.touched && !fg.controls.num_days.valid}"
                           class="add-edit-per-diem--text-label">
-                          {{ fg.controls.num_days.value ? txnFields?.num_days.field_name : 'Enter ' + txnFields?.num_days.field_name }}
+                          {{ txnFields?.num_days.field_name }}
                           <div class="add-edit-per-diem--mandatory">
                             *
                           </div>
                         </div>
                         <input [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit" [min]="0"
                                class="add-edit-per-diem--text-input"
-                               formControlName="num_days" inputmode="decimal"
+                               formControlName="num_days" inputmode="decimal" [placeholder]="'Enter ' + txnFields?.num_days.field_name"
                                type="number">
                       </div>
                       <div *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid"
@@ -260,7 +269,7 @@
 
                         <input 
                           [disabled]="!txnFields.purpose?.canEdit" 
-                          [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
+                          [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:30"
                           [required]="txnFields.purpose?.is_mandatory" 
                           [title]="'Enter'+txnFields.purpose?.field_name"
                           class="add-edit-per-diem--text-input"
