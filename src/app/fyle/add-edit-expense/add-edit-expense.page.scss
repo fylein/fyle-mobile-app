@@ -138,9 +138,6 @@ $input-color: #2C304E;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
-    color: $input-color;
-    border: none;
-    width: 100%;
     padding: 6px;
   }
 
@@ -509,11 +506,6 @@ $input-color: #2C304E;
 
   input::placeholder {
     color: $placeholder;
-  }
-
-  input[type="date"]::before { 
-    content: attr(data-placeholder);
-    width: 100%;
   }
 
   &--mandatory {
