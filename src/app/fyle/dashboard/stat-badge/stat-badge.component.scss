@@ -1,0 +1,91 @@
+@import '../../../../theme/colors';
+
+.stat-badge {
+  background-color: $translucent-white;
+  border-radius: 8px;
+  min-height: 64px;
+  max-height: 64px;
+
+  &--container {
+    padding: 8px;
+  }
+
+  &--grid {
+    --ion-grid-padding: 0;
+  }
+
+  &--grid-col {
+    --ion-grid-column-padding: 0;
+  }
+
+  &--currency {
+    font-size: 12px;
+    line-height: 15px;
+    color: $black-light;
+  }
+
+  &--grid-outer-col{
+    --ion-grid-column-padding: 4px;
+  }
+
+  &--count-col {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  &--count {
+    min-width: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    max-width: 30px;
+    text-align: center;
+    line-height: 2.2;
+    height: 32px;
+    border-radius: 50%;
+    color: $pure-white;
+    font-weight: 500;
+    margin-top: 4px;
+    &__draft {
+      background-color: $highlight-black;
+    }
+
+    &__approver_pending {
+      background-color: $highlight-blue;
+    }
+
+    &__approved, &__payment_pending {
+      background-color: $highlight-green;
+    }
+  }
+
+  &--count-loader {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+  }
+
+  &--skeleton-loader {
+    height: 12px;
+    &__width-medium {
+      width: 66%;
+    }
+
+    &__width-large {
+      width: 80%;
+    }
+  }
+
+  &--amount {
+    font-weight: 500;
+  }
+
+  &--name {
+    font-size: 14px;
+    line-height: 18px;
+    color: $blue-black;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    padding-bottom: 2px;
+  }
+}

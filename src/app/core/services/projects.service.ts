@@ -38,7 +38,7 @@ export class ProjectsService {
     });
   }
 
-  getbyId(projectId: string) {
+  getbyId(projectId: number) {
     return this.apiV2Service.get('/projects', {
       params: {
         project_id: `eq.${projectId}`

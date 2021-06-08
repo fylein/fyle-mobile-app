@@ -67,6 +67,7 @@ export class MyExpensesPage implements OnInit {
   openAddExpenseListLoader = false;
   clusterDomain: string;
   isNewUser$: Observable<boolean>;
+  isLoading: boolean = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
@@ -191,7 +192,7 @@ export class MyExpensesPage implements OnInit {
       map(orgSettings => orgSettings.per_diem.enabled)
     );
 
-    this.loaderService.showLoader('Loading Expenses...', 1000);
+    this.isLoading = true;
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
@@ -396,6 +397,10 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.clearFilters();
     }
+
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   setupNetworkWatcher() {
@@ -545,7 +550,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async setState(state: string) {
-    await this.loaderService.showLoader('Loading expenses', 1500);
+    this.isLoading = true;
     this.baseState = state;
     this.currentPageNumber = 1;
     if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
@@ -553,6 +558,9 @@ export class MyExpensesPage implements OnInit {
     }
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   async addNewExpense() {
