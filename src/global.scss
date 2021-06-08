@@ -120,6 +120,15 @@ input:focus, textarea:focus{
   }
 }
 
+.pop-up-in-center {
+  .popover-content {
+    position:static;
+    width: 86%;
+    margin-left: 7%;
+    max-height: 80%;
+  }
+}
+
 .split-expense-popover {
   .popover-wrapper {
     .popover-content {
