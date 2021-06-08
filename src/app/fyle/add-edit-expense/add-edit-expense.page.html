@@ -802,7 +802,7 @@
         </ion-buttons>
         <ion-buttons *ngIf="reviewList">
           <ion-button (click)="saveExpenseAndGotoNext()" [loadingText]="'SAVING'" [loading]="saveAndNextExpenseLoader"
-                      appFormButtonValidation class="btn--primary">
+                      appFormButtonValidation class="btn-primary">
             {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
           </ion-button>
         </ion-buttons>

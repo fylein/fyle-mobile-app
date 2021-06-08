@@ -21,13 +21,7 @@ $input-color: #2C304E;
   }
 
   &--primary-cta {
-    height: 48px;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    --border-radius: 4px !important;
-    margin: 14px;
-    width: 100%;
+    margin: 14px !important;
   }
 
   &--receipt-currency {
