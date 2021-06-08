@@ -1,0 +1,19 @@
+<div>
+  <ion-header class="tasks--header" mode="md" translucent="true">
+    <ion-toolbar class="tasks--toolbar">
+      <ion-buttons slot="start">
+        <app-fy-menu-icon></app-fy-menu-icon>
+      </ion-buttons>
+      <ion-title mode="md">
+        Tasks
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-grid class="tasks--container">
+    <ion-row class="tasks--container-row">
+      <ion-col size="12" class="ion-align-self-center">
+        <app-fy-zero-state [unscaledImage]="true" [useNewStyling]="true" image="../../../assets/images/coming-soon.png" header="Coming up soon" message="Once this page is ready, you'll never lose track of the actions pending on you. Watch this space for more!"></app-fy-zero-state>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</div>

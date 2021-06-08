@@ -12,7 +12,6 @@ import {UserEventService} from 'src/app/core/services/user-event.service';
 import {PermissionsService} from 'src/app/core/services/permissions.service';
 import {DeviceService} from 'src/app/core/services/device.service';
 import {AppVersionService} from './core/services/app-version.service';
-
 import {environment} from 'src/environments/environment';
 import {RouterAuthService} from './core/services/router-auth.service';
 import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
@@ -101,7 +100,7 @@ export class AppComponent implements OnInit {
 
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(10, () => {
-      if (this.router.url.includes('my_dashboard')) {
+      if (this.router.url.includes('my_dashboard') || this.router.url.includes('tasks')) {
         this.showAppCloseAlert();
       }
     });

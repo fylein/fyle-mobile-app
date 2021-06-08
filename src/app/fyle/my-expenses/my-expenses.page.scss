@@ -56,6 +56,10 @@
     display: flex;
   }
 
+  &--shimmers {
+    overflow-y: scroll;
+  }
+
   &--state-pill {
     width: 47%;
     border: 1px solid #0077ee;
