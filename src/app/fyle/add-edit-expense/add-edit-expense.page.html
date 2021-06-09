@@ -154,7 +154,7 @@
                 <span class="add-edit-expense--mandatory" *ngIf="txnFields.txn_dt?.is_mandatory">*</span>
               </div>
               <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" [placeholder]="'Select ' + txnFields.txn_dt?.field_name || 'Date of Spend'"
-                    class="add-edit-expense--date-input date-input__format" formControlName="dateOfSpend" type="date" name="txnFields.txn_dt?.field_name || 'Date of Spend'">
+                    class="add-edit-expense--date-input date-input__format" formControlName="dateOfSpend" type="date" [name]="txnFields.txn_dt?.field_name || 'Date of Spend'">
             </div>
             <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
                  class="add-edit-expense--error">
@@ -439,7 +439,7 @@
                 {{txnFields.from_dt?.field_name}}
                 <span class="add-edit-expense--mandatory">*</span>
               </div>
-              <input appFormatDate [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="from_dt" name="txnFields.from_dt?.field_name"
+              <input appFormatDate [disabled]="!txnFields.from_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="from_dt" [name]="txnFields.from_dt?.field_name"
                      type="date" [placeholder]="'Select '+ txnFields.from_dt?.field_name">
             </div>
 
@@ -451,7 +451,7 @@
                 {{txnFields.to_dt?.field_name}}
                 <span class="add-edit-expense--mandatory">*</span>
               </div>
-              <input appFormatDate [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="to_dt" name="txnFields.to_dt?.field_name"
+              <input appFormatDate [disabled]="!txnFields.to_dt?.canEdit" class="add-edit-expense--date-input date-input__format" formControlName="to_dt" [name]="txnFields.to_dt?.field_name"
                      type="date" [placeholder]="'Select '+ txnFields.to_dt?.field_name">
             </div>
 
