@@ -82,7 +82,14 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         categoryIds: this.categoryIds,
         defaultValue: this.defaultValue,
         recentlyUsed: this.recentlyUsed
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await projectModal.present();
