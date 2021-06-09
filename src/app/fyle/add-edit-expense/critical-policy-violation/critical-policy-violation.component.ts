@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 
 @Component({
   selector: 'app-critical-policy-violation',
@@ -9,18 +9,23 @@ import { ModalController } from '@ionic/angular';
 export class CriticalPolicyViolationComponent implements OnInit {
 
   @Input() criticalViolationMessages = [];
+  maximumPopoverHeight: string;
+  minimumPopoverHeight: string;
 
   constructor(
-    private modalController: ModalController
+    private popoverController: PopoverController
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.maximumPopoverHeight = window.innerHeight * 0.70 + 'px';
+    this.minimumPopoverHeight = window.innerHeight * 0.45 + 'px';
+  }
 
   cancel() {
-    this.modalController.dismiss(false);
+    this.popoverController.dismiss(false);
   }
 
   continue() {
-    this.modalController.dismiss(true);
+    this.popoverController.dismiss(true);
   }
 }

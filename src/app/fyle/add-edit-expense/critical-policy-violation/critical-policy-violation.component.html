@@ -1,17 +1,19 @@
-<ion-content>
-  <div class="critical-policy-violation">
+<div class="critical-policy-violation">
+  <ion-header>
     <div class="critical-policy-violation--header">
       Critical Policy Violation
     </div>
     <div class="critical-policy-violation--info">
       This expense violates the below policies/guidelines of your company. Kindly resolve the issues to be able to submit this expense. 
     </div>
+  </ion-header>
 
-    <div class="critical-policy-violation--block">
+  <ion-content class="critical-policy-violation--content">
+    <div class="critical-policy-violation--body">
       <ion-grid>
         <ion-row>
           <ion-col size="2">
-            <mat-icon class="sidemenu--icon" svgIcon="fy-error"></mat-icon>
+            <mat-icon class="critical-policy-violation--error-icon" svgIcon="fy-error"></mat-icon>
           </ion-col>
           <ion-col size="10">
             <ul class="critical-policy-violation--list">
@@ -42,46 +44,57 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-      
     </div>
 
-    <app-fy-alert-info [message]="'An expense with a critical policy violation cannot be added to any report.'"></app-fy-alert-info>
     
     
-    <div>
-      An expense with a critical policy violation cannot be added to any report. 
-    </div>
-
-  </div>
-  
-  <!-- <div class="critical-policy-violation">
-    <div>
-      <mat-icon class="critical-policy-violation--warning-icon">
-        warning
-      </mat-icon>
-    </div>
-
-    <div class="critical-policy-violation--header">
-      Critical Policy Violation Detected
-    </div>
-
-    <div class="critical-policy-violation--sub-header">
-      This expense violates following guideline of your company’s policy. Please
-      contact your admin for any clarifications.
-    </div>
-
-    <div class="critical-policy-violation--reasons">
-      <div *ngFor="let criticalViolationMessage of criticalViolationMessages">
-        {{criticalViolationMessage}}
+    <!-- <div class="critical-policy-violation">
+      <div>
+        <mat-icon class="critical-policy-violation--warning-icon">
+          warning
+        </mat-icon>
       </div>
+
+      <div class="critical-policy-violation--header">
+        Critical Policy Violation Detected
+      </div>
+
+      <div class="critical-policy-violation--sub-header">
+        This expense violates following guideline of your company’s policy. Please
+        contact your admin for any clarifications.
+      </div>
+
+      <div class="critical-policy-violation--reasons">
+        <div *ngFor="let criticalViolationMessage of criticalViolationMessages">
+          {{criticalViolationMessage}}
+        </div>
+      </div>
+
+      <div class="critical-policy-violation--content-footer">
+        This violation is critical. You may not be able to make a report.
+      </div>
+    </div> -->
+  </ion-content>
+
+  <ion-footer class="critical-policy-violation--footer">
+    <div class="critical-policy-violation--alert-info">
+      <app-fy-alert-info [message]="'An expense with a critical policy violation cannot be added to any report.'"></app-fy-alert-info>
     </div>
 
-    <div class="critical-policy-violation--content-footer">
-      This violation is critical. You may not be able to make a report.
+    <div class="critical-policy-violation--cta">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <button class="critical-policy-violation--secondary-cta" (click)="cancel()">Cancel</button>
+          </ion-col>
+          <ion-col size="6">
+            <button class="critical-policy-violation--primary-cta" (click)="continue()">Continue</button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
-  </div> -->
-</ion-content>
-
+  </ion-footer>
+</div>
 <!-- <ion-footer>
   <ion-toolbar mode="md">
     <ion-buttons class="critical-policy-violation--buttons">
