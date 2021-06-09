@@ -250,6 +250,11 @@ input:focus, textarea:focus{
   font-size: 28px !important;
 }
 
+.ios .stats--background {
+  min-height: calc(360px + constant(safe-area-inset-top)) !important;
+  min-height: calc(360px + env(safe-area-inset-top)) !important;
+}
+
 @mixin loader {
   border-radius: 50%;
   width: 14px;
