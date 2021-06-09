@@ -1,3 +1,14 @@
+<ion-header class="tasks--header" mode="md" translucent="true" *ngIf="currentStateIndex===1">
+  <ion-toolbar class="dashboard--toolbar">
+    <ion-buttons slot="start">
+      <app-fy-menu-icon></app-fy-menu-icon>
+    </ion-buttons>
+    <ion-title mode="md">
+      Tasks
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
