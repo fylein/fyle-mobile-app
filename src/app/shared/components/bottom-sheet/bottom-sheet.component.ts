@@ -9,6 +9,7 @@ export class BottomSheetComponent implements OnInit, AfterViewInit {
 
   @Input() componentClass: Type<any>;
   @Input() componentInputs;
+  // add input for height
 
   @Output() outputMessage = new EventEmitter();
 

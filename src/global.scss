@@ -483,3 +483,41 @@ ref - https://stackoverflow.com/a/31162426
     }
   }
 }
+
+.modal-sheet {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0px 0px !important;
+    margin-top: 40%;
+  }
+
+  .modal-shadow{
+    display: none;
+  }
+}
+
+
+ion-modal {
+  @media (min-height: 500px) {
+      ion-backdrop {
+          visibility: visible;
+      }
+  }
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  .modal-wrapper {
+    max-height: 90%;
+    opacity: 0;
+    height: auto;
+    
+    border-radius: 5px;
+    padding: 5px;
+
+    .ion-page{
+        overflow-y: auto;
+    }
+  }
+}
