@@ -18,7 +18,7 @@ import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {NetworkService} from './core/services/network.service';
-import {Plugins} from '@capacitor/core';
+import {Plugins, StatusBarStyle} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
@@ -29,6 +29,7 @@ import {LoginInfoService} from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
 
 const {App} = Plugins;
+const CapStatusBar = Plugins.StatusBar;
 
 @Component({
   selector: 'app-root',
@@ -117,6 +118,9 @@ export class AppComponent implements OnInit {
 
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
+      CapStatusBar.setStyle({
+        style: StatusBarStyle.Dark
+      })
       this.splashScreen.hide();
 
       // Global cache config
