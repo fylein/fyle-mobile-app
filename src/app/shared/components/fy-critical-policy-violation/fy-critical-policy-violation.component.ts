@@ -1,12 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { Component, Input, OnInit } from '@angular/core';
+import { PopoverController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-critical-policy-violation',
-  templateUrl: './critical-policy-violation.component.html',
-  styleUrls: ['./critical-policy-violation.component.scss'],
+  selector: 'app-fy-critical-policy-violation',
+  templateUrl: './fy-critical-policy-violation.component.html',
+  styleUrls: ['./fy-critical-policy-violation.component.scss'],
 })
-export class CriticalPolicyViolationComponent implements OnInit {
+export class FyCriticalPolicyViolationComponent implements OnInit {
 
   @Input() criticalViolationMessages = [];
   maximumPopoverHeight: string;
@@ -28,4 +28,5 @@ export class CriticalPolicyViolationComponent implements OnInit {
   continue() {
     this.popoverController.dismiss(true);
   }
+
 }
