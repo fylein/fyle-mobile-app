@@ -1,12 +1,12 @@
 <div class="zero-state">
-  <img class="zero-state--image" [src]="image" alt="zero">
-  <div *ngIf="header" class="zero-state--header">
+  <img class="zero-state--image" [ngClass]="{'zero-state--image__unscaled': unscaledImage}" [src]="image" alt="zero">
+  <div *ngIf="header" [ngClass]="{'zero-state--header__new': useNewStyling}" class="zero-state--header">
     {{header}}
   </div>
-  <div *ngIf="message" class="zero-state--description">
+  <div *ngIf="message" [ngClass]="{'zero-state--description__new': useNewStyling}" class="zero-state--description">
     {{message}}
   </div>
-  <div *ngIf="submessage" class="zero-state--description">
+  <div *ngIf="submessage" [ngClass]="{'zero-state--description__new': useNewStyling}" class="zero-state--description">
     {{submessage}}
   </div>
   <button type="button" mat-flat-button color="primary" *ngIf="link" (click)="onLinkClick($event)">{{link}}</button>

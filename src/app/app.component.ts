@@ -12,14 +12,13 @@ import {UserEventService} from 'src/app/core/services/user-event.service';
 import {PermissionsService} from 'src/app/core/services/permissions.service';
 import {DeviceService} from 'src/app/core/services/device.service';
 import {AppVersionService} from './core/services/app-version.service';
-
 import {environment} from 'src/environments/environment';
 import {RouterAuthService} from './core/services/router-auth.service';
 import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {NetworkService} from './core/services/network.service';
-import {Plugins} from '@capacitor/core';
+import {Plugins, StatusBarStyle} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
@@ -30,6 +29,7 @@ import {LoginInfoService} from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
 
 const {App} = Plugins;
+const CapStatusBar = Plugins.StatusBar;
 
 @Component({
   selector: 'app-root',
@@ -103,7 +103,7 @@ export class AppComponent implements OnInit {
 
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(10, () => {
-      if (this.router.url.includes('my_dashboard')) {
+      if (this.router.url.includes('my_dashboard') || this.router.url.includes('tasks')) {
         this.showAppCloseAlert();
       }
       if ((this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts'))) {
@@ -127,6 +127,9 @@ export class AppComponent implements OnInit {
 
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
+      CapStatusBar.setStyle({
+        style: StatusBarStyle.Dark
+      })
       this.splashScreen.hide();
 
       // Global cache config
