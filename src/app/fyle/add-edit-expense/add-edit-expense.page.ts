@@ -38,6 +38,7 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
 import {SplitExpensePopoverComponent} from './split-expense-popover/split-expense-popover.component';
 import {ModalController, NavController, PopoverController} from '@ionic/angular';
+import {FyCriticalPolicyViolationComponent} from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {StatusService} from 'src/app/core/services/status.service';
 import {FileService} from 'src/app/core/services/file.service';
@@ -59,7 +60,6 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -2409,7 +2409,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const currencyModal = await this.popoverController.create({
+    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
@@ -2417,9 +2417,9 @@ export class AddEditExpensePage implements OnInit {
       cssClass: 'pop-up-in-center'
     });
 
-    await currencyModal.present();
+    await fyCriticalPolicyViolationPopOver.present();
 
-    const {data} = await currencyModal.onWillDismiss();
+    const {data} = await fyCriticalPolicyViolationPopOver.onWillDismiss();
     return !!data;
   }
 

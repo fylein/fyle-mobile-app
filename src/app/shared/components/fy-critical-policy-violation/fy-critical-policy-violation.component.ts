@@ -9,16 +9,12 @@ import { PopoverController } from '@ionic/angular';
 export class FyCriticalPolicyViolationComponent implements OnInit {
 
   @Input() criticalViolationMessages = [];
-  maximumPopoverHeight: string;
-  minimumPopoverHeight: string;
 
   constructor(
     private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
-    this.maximumPopoverHeight = window.innerHeight * 0.70 + 'px';
-    this.minimumPopoverHeight = window.innerHeight * 0.45 + 'px';
   }
 
   cancel() {
