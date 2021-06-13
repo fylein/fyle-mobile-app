@@ -784,7 +784,14 @@ export class MyExpensesPage implements OnInit {
       component: AddTxnToReportDialogComponent,
       componentProps: {
         txId: event.tx_id
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
     await addExpenseToReportModal.present();
 

@@ -37,7 +37,14 @@ export class CommentsComponent implements OnInit {
         objectType: this.objectType,
         objectId: this.objectId,
         mode: this.mode
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await modal.present();

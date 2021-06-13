@@ -72,7 +72,14 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
       componentProps: {
         currentSelection: this.value,
         allowCustom: this.allowCustom
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await selectionModal.present();

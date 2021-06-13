@@ -105,7 +105,14 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,
         recentlyUsed: this.recentlyUsed
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await selectionModal.present();

@@ -65,7 +65,14 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
       componentProps: {
         options: this.options,
         currentSelection: this.value
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await selectionModal.present();

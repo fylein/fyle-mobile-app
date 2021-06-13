@@ -33,7 +33,14 @@ export class FyApporverComponent implements OnInit {
         id: this.id,
         from: this.from,
         ownerEmail: this.ownerEmail
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await approversListModal.present();

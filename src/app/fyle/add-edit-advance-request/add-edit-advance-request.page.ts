@@ -141,7 +141,14 @@ export class AddEditAdvanceRequestPage implements OnInit {
           latestComment,
           violatedPolicyRules,
           policyViolationActionDescription
-        }
+        },
+        cssClass: 'fy-modal',
+        showBackdrop: true,
+        swipeToClose: true,
+        presentingElement: await this.modalController.getTop(),
+        backdropDismiss: true,
+        animated: true,
+        mode: "ios"
       });
 
       await policyViolationModal.present();
@@ -364,7 +371,14 @@ export class AddEditAdvanceRequestPage implements OnInit {
       componentProps: {
         attachments,
         canEdit: true
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await attachmentsModal.present();

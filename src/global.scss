@@ -546,8 +546,10 @@ ref - https://stackoverflow.com/a/31162426
 
 .fy-modal {
   .modal-wrapper {
-    --border-radius: 16px !important;
-    margin-top: 32%;
+    --border-radius: 16px 16px 0 0 !important;
+    max-height: 90%;
+    position: absolute;
+    top: 10%;
   }
 
   .modal-shadow{
@@ -570,4 +572,5 @@ ref - https://stackoverflow.com/a/31162426
 .fy-modal-toolbar {
   border-bottom: 1px solid #DFDFE2;
   margin-bottom: 8px;
+  padding-top: 0 !important;
 }

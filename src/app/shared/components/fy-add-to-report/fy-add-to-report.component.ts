@@ -91,7 +91,14 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
         customInput: this.customInput,
         subheader: this.subheader,
         enableSearch: this.enableSearch
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await selectionModal.present();

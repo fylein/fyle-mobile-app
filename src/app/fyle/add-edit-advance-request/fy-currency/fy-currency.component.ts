@@ -127,7 +127,14 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       component: FyCurrencyChooseCurrencyComponent,
       componentProps: {
         currentSelection: this.fg.controls.currency.value
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await currencyModal.present();

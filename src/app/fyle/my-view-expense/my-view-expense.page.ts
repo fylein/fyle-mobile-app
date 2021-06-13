@@ -218,7 +218,14 @@ export class MyViewExpensePage implements OnInit {
         component: FyViewAttachmentComponent,
         componentProps: {
           attachments
-        }
+        },
+        cssClass: 'fy-modal',
+        showBackdrop: true,
+        swipeToClose: true,
+        presentingElement: await this.modalController.getTop(),
+        backdropDismiss: true,
+        animated: true,
+        mode: "ios"
       });
 
       await attachmentsModal.present();

@@ -116,7 +116,14 @@ export class MyEditReportPage implements OnInit {
       component: AddExpensesToReportComponent,
       componentProps: {
         unReportedEtxns: this.unReportedEtxns
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await AddExpensesToReportModal.present();

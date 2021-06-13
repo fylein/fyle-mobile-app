@@ -361,7 +361,14 @@ export class AddEditExpensePage implements OnInit {
           matchingCCCTransactions: this.matchingCCCTransactions,
           mode: this.mode,
           selectedCCCTransaction: this.selectedCCCTransaction
-        }
+        },
+        cssClass: 'fy-modal',
+        showBackdrop: true,
+        swipeToClose: true,
+        presentingElement: await this.modalController.getTop(),
+        backdropDismiss: true,
+        animated: true,
+        mode: "ios"
       });
 
       await matchExpensesModal.present();
@@ -2413,7 +2420,14 @@ export class AddEditExpensePage implements OnInit {
       component: CriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await currencyModal.present();
@@ -2428,7 +2442,14 @@ export class AddEditExpensePage implements OnInit {
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await currencyModal.present();
@@ -3129,7 +3150,14 @@ export class AddEditExpensePage implements OnInit {
           componentProps: {
             attachments,
             canEdit: true
-          }
+          },
+          cssClass: 'fy-modal',
+          showBackdrop: true,
+          swipeToClose: true,
+          presentingElement: await this.modalController.getTop(),
+          backdropDismiss: true,
+          animated: true,
+          mode: "ios"
         });
 
         await attachmentsModal.present();

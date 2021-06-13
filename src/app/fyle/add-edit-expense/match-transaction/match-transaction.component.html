@@ -1,11 +1,12 @@
 <ion-header>
-  <ion-toolbar>
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar class="fy-modal-toolbar">
     <ion-title mode="md">
       Match a Transaction
     </ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
-        <mat-icon>close</mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

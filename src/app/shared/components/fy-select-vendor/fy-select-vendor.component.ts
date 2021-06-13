@@ -71,7 +71,14 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
       component: FySelectVendorModalComponent,
       componentProps: {
         currentSelection: this.value
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await currencyModal.present();

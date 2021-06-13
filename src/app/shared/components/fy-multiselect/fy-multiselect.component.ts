@@ -78,7 +78,14 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
         currentSelections: this.value,
         selectModalHeader: this.selectModalHeader,
         subheader: this.subheader
-      }
+      },
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      presentingElement: await this.modalController.getTop(),
+      backdropDismiss: true,
+      animated: true,
+      mode: "ios"
     });
 
     await selectionModal.present();
