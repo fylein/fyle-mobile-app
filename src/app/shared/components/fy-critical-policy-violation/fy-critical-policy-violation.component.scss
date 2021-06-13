@@ -1,8 +1,7 @@
 @import '../../../../theme/colors';
 $small-screen: 700px;
-$breakpoint-tablet: 768px;
+
 .critical-policy-violation {
-  font-family: Aktiv Grotesk;
   padding: 10px 15px 0 15px;
 
   &--header {
