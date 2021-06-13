@@ -9,8 +9,6 @@
   </div>
   <div class="fy-select-vendor--input-container" [ngClass]="{'fy-select-vendor--input-invalid': !valid}">
     <input class="fy-select-vendor--input" type="text" [placeholder]="'Select ' + label" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
-    <mat-icon class="fy-select-vendor--icon">
-      keyboard_arrow_down
-    </mat-icon>
+    <mat-icon class="fy-select-vendor--icon" svgIcon="fy-arrow-down"></mat-icon>
   </div>
 </label>

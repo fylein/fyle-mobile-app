@@ -169,7 +169,7 @@
               <app-fy-select
                 [disabled]="isExpenseBankTxn"
                 [enableSearch]="false"
-                [label]="fg.controls.paymentMode.value?'Payment Mode':'Select Payment Mode'"
+                [label]="'Payment Mode'"
                 [mandatory]="true"
                 [nullOption]="false"
                 [options]="paymentModes"
@@ -237,7 +237,7 @@
               <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, yyyy'}} - </span>
               <span>{{ selectedCCCTransaction.amount | currency: selectedCCCTransaction.currency: 'symbol-narrow'}}</span>
             </div>
-            <mat-icon *ngIf="selectedCCCTransaction && !isLoadingSuggestions" class="add-edit-expense--card-arrow">keyboard_arrow_down</mat-icon>
+            <mat-icon *ngIf="selectedCCCTransaction && !isLoadingSuggestions" class="add-edit-expense--card-arrow" svgIcon="fy-arrow-down"></mat-icon>
           </div>
         </ng-container>
 
@@ -785,7 +785,7 @@
 </ion-content>
 
 <ng-container *ngIf="fg">
-  <ion-footer>
+  <ion-footer class="cta-footer">
     <ion-toolbar mode="md">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">

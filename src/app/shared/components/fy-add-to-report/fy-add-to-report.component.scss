@@ -22,7 +22,7 @@ $placeholder: #A9ACBC;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 6px 0;
     border-bottom: 1px solid #DFDFE2;
   }
 
@@ -32,6 +32,7 @@ $placeholder: #A9ACBC;
     color: #2C304E;
     border: none;
     width: 100%;
+    padding: 0;
   }
 
   &--input-invalid {
@@ -40,6 +41,8 @@ $placeholder: #A9ACBC;
 
   &--mandatory {
     color: #FF3366;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--icon {
