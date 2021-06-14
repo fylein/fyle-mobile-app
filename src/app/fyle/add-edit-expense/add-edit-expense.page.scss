@@ -1,5 +1,11 @@
 @import "../../../theme/colors.scss";
 
+$red: #DA1E28;
+$placeholder: #A9ACBC;
+$border-color: #DFDFE2;
+$label-color: #5A5D72;
+$input-color: #2C304E;
+
 .add-edit-expense {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
@@ -228,7 +234,7 @@
 
   &--comment {
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $border-color;
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -237,7 +243,7 @@
     display: flex;
     align-items: center;
     padding: 12px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $border-color;
     border-radius: 4px;
   }
 
@@ -517,5 +523,6 @@
 
   &--mandatory {
     color: $primary;
+    display: inline-block;
   }
 }

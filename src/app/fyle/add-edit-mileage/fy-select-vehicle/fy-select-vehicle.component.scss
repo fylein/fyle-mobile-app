@@ -4,10 +4,10 @@
   &--label {
     margin: 0 8px 0 0;
     min-width: 145px;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 14px;
+    color: #2C304E;
+    font-weight: 400;
+    line-height: 16px;
     white-space: nowrap;
   }
   &--selectors {
@@ -19,7 +19,10 @@
     font-size: 24px;
     color: #ababab;
     &__selected {
-        color: #f36;
+      color: #f36;
     }
+  }
+  &--mandatory {
+    color: #ff3366;
   }
 }

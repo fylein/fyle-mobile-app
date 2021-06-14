@@ -654,7 +654,7 @@
                class="add-edit-expense--primary-block">
             <div *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
                  class="add-edit-expense--internal-block">
-              <app-fy-select [cacheName]="'recentCostCenterList'" [label]="fg.controls.costCenter.value ? txnFields.cost_center_id?.field_name : 'Enter ' + txnFields.cost_center_id?.field_name"
+              <app-fy-select [cacheName]="'recentCostCenterList'" [label]="txnFields.cost_center_id?.field_name"
                              [mandatory]="txnFields.cost_center_id?.is_mandatory"
                              [options]="costCenters"
                              [selectModalHeader]="'Select Cost Center'"
