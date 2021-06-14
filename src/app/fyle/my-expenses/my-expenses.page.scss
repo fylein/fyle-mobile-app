@@ -1,3 +1,5 @@
+@import '../../../theme/colors';
+
 .my-expenses {
   &--toolbar-header {
     border-bottom: 1px solid #e6e6e6;
@@ -15,6 +17,10 @@
     font-weight: 700;
     padding-left: 0px;
     line-height: 2;
+  }
+
+  &--content {
+    --background: #fafafa;
   }
 
   &--state-toolbar {
@@ -81,15 +87,24 @@
     }
   }
 
+  &--simple-search-container {
+    padding: 0 16px;
+    mat-form-field {
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
+      }
+    }
+  }
+
   &--simple-search {
     width: 100%;
     font-size: 14px;
 
     &-icon {
-      width: 14px;
       font-size: 18px;
       margin-right: 6px;
-      color: #aaa;
+      color: $black-light;
+      height: auto;
     }
 
     &-close {

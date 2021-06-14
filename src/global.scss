@@ -250,6 +250,11 @@ input:focus, textarea:focus{
   font-size: 28px !important;
 }
 
+.ios .stats--background {
+  min-height: calc(360px + constant(safe-area-inset-top));
+  min-height: calc(360px + env(safe-area-inset-top));
+}
+
 @mixin loader {
   border-radius: 50%;
   width: 14px;
@@ -288,8 +293,9 @@ input:focus, textarea:focus{
   100% { transform: rotate(360deg); }
 }
 .page-title {
-  font-weight: 700;
-  line-height: 1.3;
+  line-height: 26px;
+  color: #161528;
+  font-weight: 400;
 }
 
 mat-checkbox {

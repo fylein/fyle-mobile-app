@@ -512,12 +512,12 @@ export class AppComponent implements OnInit {
     this.setupNetworkWatcher();
 
     this.router.events.subscribe((ev) => {
-      if (ev instanceof NavigationEnd) {
-        this.menuController.swipeGesture(false);
-        if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
-          this.menuController.swipeGesture(true);
-        }
-      }
+      // if (ev instanceof NavigationEnd) {
+      //   this.menuController.swipeGesture(false);
+      //   if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
+      //     this.menuController.swipeGesture(true);
+      //   }
+      // }
     });
   }
 

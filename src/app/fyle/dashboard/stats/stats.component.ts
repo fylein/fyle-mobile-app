@@ -10,7 +10,7 @@ import {NetworkService} from '../../../core/services/network.service';
 import {concat, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
-import {getCurrencySymbol} from "@angular/common";
+import {getCurrencySymbol} from '@angular/common';
 
 @Component({
   selector: 'app-stats',
@@ -180,7 +180,7 @@ export class StatsComponent implements OnInit {
   }
 
   goToExpensesPage() {
-    const queryParams: Params = {filters: JSON.stringify({state: 'READY_TO_REPORT'})};
+    const queryParams: Params = {filters: JSON.stringify({state: ['READY_TO_REPORT']})};
     this.router.navigate(['/', 'enterprise', 'my_expenses'], {
       queryParams
     });

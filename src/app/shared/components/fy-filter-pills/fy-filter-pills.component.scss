@@ -1,0 +1,36 @@
+.filter-pills {
+  &--pills {
+    display: flex;
+    overflow-x: scroll;
+    ::-webkit-scrollbar {
+      background: transparent;
+    }
+  }
+
+  &--pill {
+    background: #FFFFFF;
+    border: 1px solid #DFDFE2;
+    border-radius: 16px;
+    color: #5A5D72;
+    padding: 4px 8px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    line-height: 15px;
+    &__clear-all {
+      justify-content: center;
+      color: #f36;
+    }
+  }
+
+  &--label {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  &--value {
+    font-size: 12px;
+    font-weight: 400;
+  }
+}

@@ -1,0 +1,26 @@
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        {{header}}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        {{body}}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button fill="clear" (click)="cancel()">
+          Cancel
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button (click)="delete()" color="danger" appFormButtonValidation [loaderPosition]="LoaderPosition.prefix" [loading]="deleteCallInProgress">
+          Delete
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

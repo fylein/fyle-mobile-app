@@ -1,0 +1,104 @@
+<ion-header mode="md">
+  <ion-toolbar mode="md">
+    <ion-buttons mode="md" slot="start">
+      <ion-button mode="md" (click)="cancel()">
+        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title mode="md">
+      Filter and Sort
+    </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <ion-button mode="md" color="fy-primary" (click)="clearAll()">
+        Clear All
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-grid class="fy-filters--grid">
+    <ion-row class="fy-filters--row">
+      <ion-col size="6" class="fy-filters--filter-col">
+        <ion-item mode="md" class="fy-filters--filter-item" [ngClass]="{'fy-filters--filter-item__active': activeFilter.name === filterDefinition.name}" *ngFor="let filterDefinition of filterOptions" button (click)="onFilterClick(filterDefinition)">
+          <ion-label>
+            <div class="fy-filters--filter-item-label">
+              <div>
+                {{filterDefinition.name}}
+              </div>
+              <div>
+                <ng-container *ngIf="filterDefinition.optionType === FilterOptionType.singleselect && currentFilterValueMap[filterDefinition.name]">
+                  1
+                </ng-container>
+                <ng-container *ngIf="filterDefinition.optionType === FilterOptionType.date && currentFilterValueMap[filterDefinition.name]">
+                  1
+                </ng-container>
+                <ng-container *ngIf="filterDefinition.optionType === FilterOptionType.multiselect && currentFilterValueMap[filterDefinition.name]?.length">
+                  {{currentFilterValueMap[filterDefinition.name]?.length}}
+                </ng-container>
+              </div>
+            </div>
+          </ion-label>
+        </ion-item>
+      </ion-col>
+
+      <ion-col size="6">
+        <ng-container *ngIf="activeFilter.optionType === FilterOptionType.multiselect">
+          <ion-item mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
+            <mat-checkbox color="fyle-primary" disabled="true"
+                          [checked]="currentFilterValueMap[activeFilter.name]?.includes(option.value)">
+              {{option.label}}
+            </mat-checkbox>
+          </ion-item>
+        </ng-container>
+
+        <ng-container *ngIf="activeFilter.optionType === FilterOptionType.singleselect">
+          <ion-item mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
+            <mat-radio-button color="fyle-primary" disabled="true" [checked]="currentFilterValueMap[activeFilter.name] === option.value">
+              {{option.label}}
+            </mat-radio-button>
+          </ion-item>
+        </ng-container>
+
+        <ng-container *ngIf="activeFilter.optionType === FilterOptionType.date">
+          <ion-item mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
+            <mat-radio-button color="fyle-primary" [disabled]="true"
+                              [checked]="currentFilterValueMap[activeFilter.name] === option.value">
+              {{option.label}}
+            </mat-radio-button>
+          </ion-item>
+          <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === 'custom'">
+            <div class="fy-filters--custom-date-filters">
+              <mat-form-field>
+                <mat-label>start date</mat-label>
+                <input matInput [(ngModel)]="startDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker1">
+                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label> end date</mat-label>
+                <input matInput [(ngModel)]="endDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker2">
+                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </ng-container>
+        </ng-container>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="secondary">
+      <ion-button (click)="cancel()" expand="block" color="fyle-primary" fill="clear">
+        Cancel
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="primary">
+      <ion-button (click)="save()" expand="block" color="fyle-primary" fill="solid">
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

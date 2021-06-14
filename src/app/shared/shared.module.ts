@@ -67,6 +67,12 @@ import {ExpenseState} from './pipes/expense-state.pipe';
 import {FooterComponent} from './components/footer/footer.component';
 import {FyAlertInfoComponent} from './components/fy-alert-info.component.html/fy-alert-info.component';
 import {MatRippleModule} from '@angular/material/core';
+import {FyHeaderComponent} from './components/fy-header/fy-header.component';
+import {FyDeleteDialogComponent} from './components/fy-delete-dialog/fy-delete-dialog.component';
+import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
 
 @NgModule({
   declarations: [
@@ -119,7 +125,11 @@ import {MatRippleModule} from '@angular/material/core';
     ExpenseState,
     FooterComponent,
     FyLoadingScreenComponent,
-    FyAlertInfoComponent
+    FyAlertInfoComponent,
+    FyHeaderComponent,
+    FyDeleteDialogComponent,
+    FyFiltersComponent,
+    FyFilterPillsComponent
   ],
   imports: [
     CommonModule,
@@ -134,7 +144,9 @@ import {MatRippleModule} from '@angular/material/core';
     ReactiveFormsModule,
     PinchZoomModule,
     PdfViewerModule,
-    MatRippleModule
+    MatRippleModule,
+    MatRadioModule,
+    MatDatepickerModule
   ],
   exports: [
     EllipsisPipe,
@@ -176,10 +188,13 @@ import {MatRippleModule} from '@angular/material/core';
     FyHighlightTextComponent,
     FormatDateDirective,
     ExpenseState,
-    FyAlertInfoComponent,
     FooterComponent,
     FyLoadingScreenComponent,
-    FyAlertInfoComponent
+    FyAlertInfoComponent,
+    FyHeaderComponent,
+    FyDeleteDialogComponent,
+    FyFiltersComponent,
+    FyFilterPillsComponent
   ],
   providers: [
     DecimalPipe,
