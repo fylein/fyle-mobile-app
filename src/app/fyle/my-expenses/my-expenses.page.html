@@ -180,7 +180,15 @@
 
   <ng-container *ngIf="isConnected$|async; else isNotConnected">
     <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-      <app-my-expenses-card
+      <app-expenses-card 
+      [expense]="expense"
+      [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+      [isSelectionModeEnabled]="selectionMode"
+      [isSelected]="selectedElements"
+      [isProjectMandatory]="true">
+
+      </app-expenses-card>
+      <!-- <app-my-expenses-card
         (addTransactionToNewReport)="onAddTransactionToNewReport($event)" (addTransactionToReport)="onAddTransactionToReport($event)" (cardClickedForSelection)="selectExpense($event)"
         (deleteTransaction)="onDeleteExpenseClick($event)" (goToTransaction)="goToTransaction($event)"
         [baseState]="baseState"
@@ -190,7 +198,7 @@
         [selectedElements]="selectedElements"
         [selectionMode]="selectionMode"
         [isSyncInProgress]="syncing">
-      </app-my-expenses-card>
+      </app-my-expenses-card> -->
     </div>
 
     <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="100px">

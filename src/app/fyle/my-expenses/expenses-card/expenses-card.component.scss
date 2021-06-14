@@ -1,0 +1,47 @@
+.expenses-card{
+
+  &--body {
+    background:#fff;
+    min-height: 106px;
+    border-bottom: 1px solid #DFDFE2;
+  }
+
+  &--date {
+    color: #a9acbc;
+    font-size: 14px;
+    padding: 26px 0 12px 21px;
+    background: #fafafa;
+  }
+
+  &--receipt-container {
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    height: 74px;
+  }
+
+  &--category {
+    color: #161528;
+    font-size: 18px;
+    line-height: 23px;
+  }
+
+  &--policy-violated-icon {
+    margin-left: 10px;
+    width: 21px;
+    height: 21px;
+  }
+
+  &--vendor  {
+    color: #2c304e;
+    font-size: 14px;
+    line-height: 18px;
+    margin: 1px 0 8px 0;
+  }
+
+  &--project {
+    color: #5a5d72;
+    font-style: 14px;
+  }
+
+
+}

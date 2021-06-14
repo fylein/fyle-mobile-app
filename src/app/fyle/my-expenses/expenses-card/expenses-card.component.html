@@ -1,0 +1,57 @@
+
+<div *ngIf="showDt" class="expenses-card--date">
+  {{expense.tx_txn_dt | date: 'MMM dd, yyyy'}}
+</div>
+
+
+
+<div class="expenses-card--body">
+
+  
+  
+  <ng-container *ngIf="expenseFields$|async as expenseFields">
+
+    <ion-grid>
+      <ion-row>
+        <ion-col size="2.65">
+          <div class="expenses-card--receipt-container">
+            <ion-img [src]="receipt"></ion-img>
+          </div>
+          
+        </ion-col>
+  
+        <ion-col size="6">
+          <!-- <ion-grid> -->
+            <ion-row>
+              <div class="expenses-card--category">
+                {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
+              </div>
+              <mat-icon *ngIf="isCriticalPolicyViolated || isPolicyViolated" class="expenses-card--policy-violated-icon" svgIcon="fy-error"></mat-icon>
+            </ion-row>
+            <ion-row>
+              <div class="expenses-card--vendor">
+                {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
+              </div>
+            </ion-row>
+            <ion-row>
+              <div *ngIf="isProjectMandatory" class="expenses-card--project">
+                {{(expense.tx_project_name ? 'Project: ' +  expense.tx_project_name : 'Project not filled') | ellipsis: 20}}
+              </div>
+            </ion-row>
+          <!-- </ion-grid> -->
+  
+        </ion-col>
+  
+        <ion-col size="3.35">
+  
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </ng-container>
+  
+
+
+
+
+</div>

@@ -17,6 +17,7 @@ import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-ex
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 import {AddExpensePopoverComponent} from './add-expense-popover/add-expense-popover.component';
 import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { ExpensesCardComponent } from './expenses-card/expenses-card.component';
 
 @NgModule({
   imports: [
@@ -39,6 +40,7 @@ import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-
   declarations: [
     MyExpensesPage,
     MyExpensesCardComponent,
+    ExpensesCardComponent,
     MyExpensesSearchFilterComponent,
     MyExpensesSortFilterComponent,
     AddExpensePopoverComponent,
