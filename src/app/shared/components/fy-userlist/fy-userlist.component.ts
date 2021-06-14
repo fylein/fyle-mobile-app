@@ -6,6 +6,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import {FyUserlistModalComponent} from './fy-userlist-modal/fy-userlist-modal.component';
 import { Employee } from 'src/app/core/models/employee.model';
 import { cloneDeep } from 'lodash';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-userlist',
@@ -45,6 +46,7 @@ export class FyUserlistComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -76,13 +78,9 @@ export class FyUserlistComponent implements OnInit {
         currentSelections: cloneDeep(this.value) || [],
         allowCustomValues: this.allowCustomValues
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();

@@ -8,6 +8,7 @@ import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-
 import { isEqual } from 'lodash';
 import {concatMap, map, switchMap} from 'rxjs/operators';
 import {CurrencyService} from '../../../core/services/currency.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-currency',
@@ -50,6 +51,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     private fb: FormBuilder,
     private modalController: ModalController,
     private currencyService: CurrencyService,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -188,13 +190,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         txnDt: this.txnDt,
         exchangeRate: (this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) ? (this.fg.value.homeCurrencyAmount / this.fg.value.amount) : null
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
     await exchangeRateModal.present();
     const { data } = await exchangeRateModal.onWillDismiss();
@@ -230,13 +228,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       componentProps: {
         currentSelection: this.fg.controls.currency.value
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();

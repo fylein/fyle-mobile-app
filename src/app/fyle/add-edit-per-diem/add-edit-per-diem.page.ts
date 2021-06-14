@@ -48,6 +48,7 @@ import {RecentlyUsed} from 'src/app/core/models/v1/recently_used.model';
 import {ExtendedProject} from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -145,7 +146,8 @@ export class AddEditPerDiemPage implements OnInit {
     private currencyPipe: CurrencyPipe,
     private tokenService: TokenService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private modalProperties: ModalPropertiesService
   ) {
   }
 
@@ -1442,13 +1444,9 @@ export class AddEditPerDiemPage implements OnInit {
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();
@@ -1464,13 +1462,9 @@ export class AddEditPerDiemPage implements OnInit {
         policyViolationMessages: policyViolations,
         policyActionDescription
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();

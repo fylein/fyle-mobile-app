@@ -5,6 +5,7 @@ import {ModalController} from '@ionic/angular';
 import {RecentLocalStorageItemsService} from '../../../core/services/recent-local-storage-items.service';
 import {isEqual} from 'lodash';
 import {FyAddToReportModalComponent} from './fy-add-to-report-modal/fy-add-to-report-modal.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-add-to-report',
@@ -47,6 +48,7 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -92,13 +94,9 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
         subheader: this.subheader,
         enableSearch: this.enableSearch
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await selectionModal.present();

@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 
 @Component({
@@ -54,6 +55,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   constructor(
     private modalController: ModalController,
     private injector: Injector,
+    private modalProperties: ModalPropertiesService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) { }
 
@@ -106,13 +108,9 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         defaultLabelProp: this.defaultLabelProp,
         recentlyUsed: this.recentlyUsed
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await selectionModal.present();

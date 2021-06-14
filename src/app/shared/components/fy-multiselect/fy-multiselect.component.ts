@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-multiselect',
@@ -43,6 +44,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -79,13 +81,9 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
         selectModalHeader: this.selectModalHeader,
         subheader: this.subheader
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await selectionModal.present();

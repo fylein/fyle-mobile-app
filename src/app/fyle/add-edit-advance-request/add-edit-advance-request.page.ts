@@ -22,6 +22,7 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -67,7 +68,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private transactionsOutboxService: TransactionsOutboxService,
     private fileService: FileService,
     private popupService: PopupService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private modalProperties: ModalPropertiesService
   ) { }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -142,13 +144,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
           violatedPolicyRules,
           policyViolationActionDescription
         },
-        cssClass: 'fy-modal',
-        showBackdrop: true,
-        swipeToClose: true,
+        mode: 'ios',
         presentingElement: await this.modalController.getTop(),
-        backdropDismiss: true,
-        animated: true,
-        mode: "ios"
+        ...this.modalProperties.getModalDefaultProperties()
       });
 
       await policyViolationModal.present();
@@ -372,13 +370,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
         attachments,
         canEdit: true
       },
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      swipeToClose: true,
+      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      backdropDismiss: true,
-      animated: true,
-      mode: "ios"
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await attachmentsModal.present();
