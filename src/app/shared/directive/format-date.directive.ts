@@ -15,7 +15,11 @@ export class FormatDateDirective implements OnInit {
       if (value) {
         this.elementRef.nativeElement.setAttribute('data-date', moment(value).format('MMM DD, YYYY'));
       } else {
-        this.elementRef.nativeElement.setAttribute('data-date', '');
+        if (this.elementRef.nativeElement.name) {
+          this.elementRef.nativeElement.setAttribute('data-date', 'Select ' + this.elementRef.nativeElement.name);
+        } else {
+          this.elementRef.nativeElement.setAttribute('data-date', 'Select date');
+        }
       }
     }
   }

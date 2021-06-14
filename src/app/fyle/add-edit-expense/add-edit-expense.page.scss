@@ -143,7 +143,9 @@ $input-color: #2C304E;
     color: $blue-black;
     border: none;
     width: 100%;
-    padding: 6px;
+    padding: 0;
+    height: 18px;
+    margin: 6px 0;
   }
 
   &--text {

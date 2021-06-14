@@ -115,10 +115,9 @@ $input-color: #2C304E;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
-    color: $input-color;
-    border: none;
     width: 100%;
-    padding: 12px;
+    padding: 16px;
+    height: 20px;
   }
 
   &--element-container {

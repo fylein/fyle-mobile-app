@@ -482,11 +482,11 @@ ref - https://stackoverflow.com/a/31162426
       left: 4px;
       content: attr(data-date);
       display: inline-block;
-      color: $black;
+      color: #2C304E;
     }
 
     &::after {
-      color: $black;
+      color: #2C304E;
     }
 
     &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
@@ -550,4 +550,28 @@ ref - https://stackoverflow.com/a/31162426
       }
     }
   }
+}
+
+.btn-primary {
+  background: linear-gradient(162.38deg, #FF3366 3.01%, #FE5196 111.5%);
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  line-height: 18px;
+  color: #fff;
+  font-weight: 400 !important;
+  height: 52px !important;
+  text-transform: inherit;
+  width: 100%;
+  margin: 12px 0 !important;
+}
+
+.btn-secondary {
+  color: #161528;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 400 !important;
+  height: 52px !important;
+  text-transform: inherit;
+  width: 100%;
+  margin: 12px 0 !important;
 }

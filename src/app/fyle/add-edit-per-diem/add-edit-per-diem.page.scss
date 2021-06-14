@@ -21,13 +21,7 @@ $input-color: #2C304E;
   }
 
   &--primary-cta {
-    height: 48px;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    --border-radius: 4px !important;
-    margin: 14px;
-    width: 100%;
+    margin: 14px !important;
   }
 
   &--receipt-currency {
@@ -120,10 +114,9 @@ $input-color: #2C304E;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
-    color: $input-color;
-    border: none;
     width: 100%;
-    padding: 6px;
+    padding: 16px;
+    height: 20px;
   }
 
   &--text {

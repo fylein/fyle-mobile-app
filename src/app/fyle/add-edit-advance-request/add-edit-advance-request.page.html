@@ -85,10 +85,10 @@
 
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
         <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">
-          {{fg.controls.notes.value ? 'Additional Notes' : 'Enter Additional Notes'}}
+          Additional Notes
         </div>
         <input class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input"
-          formControlName="notes">
+          formControlName="notes" placeholder="Enter Additional Notes">
       </div>
     </div>
 
@@ -104,11 +104,11 @@
                     {{customInput.name | ellipsis: 30}}
                     <span class="add-edit-advance-request--mandatory" *ngIf="customInput.mandatory">*</span>
                   </div>
-                  <input class="add-edit-advance-request--text-input" type="text" formControlName="value" *ngIf="customInput.type === 'TEXT'">
+                  <input class="add-edit-advance-request--text-input" type="text" formControlName="value" *ngIf="customInput.type === 'TEXT'" [placeholder]="'Enter ' + customInput.name">
 
-                  <input class="add-edit-advance-request--text-input" inputmode="decimal" type="number" formControlName="value" *ngIf="customInput.type === 'NUMBER'">
+                  <input class="add-edit-advance-request--text-input" inputmode="decimal" type="number" formControlName="value" *ngIf="customInput.type === 'NUMBER'" [placeholder]="'Enter ' + customInput.name">
 
-                  <input appFormatDate class="add-edit-advance-request--date-input date-input__format" *ngIf="customInput.type === 'DATE'" type="date" formControlName="value">
+                  <input appFormatDate class="add-edit-advance-request--date-input date-input__format" *ngIf="customInput.type === 'DATE'" type="date" formControlName="value" [name]="customInput.name">
                 </div>
 
                 <div class="add-edit-advance-request--checkbox" *ngIf="customInput.type === 'BOOLEAN'">
@@ -189,11 +189,11 @@
   <ion-toolbar mode="md">
     <div class="add-edit-advance-request--cta-container">
       <ion-buttons>
-        <ion-button class="add-edit-advance-request--primary-cta" *ngIf="advanceActions?.can_save" (click)="showAdvanceSummaryPopover()" 
+        <ion-button class="btn-secondary" *ngIf="advanceActions?.can_save" (click)="showAdvanceSummaryPopover()" 
           appFormButtonValidation [loading]="saveDraftAdvanceLoading" [loadingText]="'SAVING'" [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading">
           Save draft
         </ion-button>
-        <ion-button class="add-edit-advance-request--primary-cta" *ngIf="advanceActions?.can_submit" (click)="save('Submit')" fill="solid" color="fyle-primary"
+        <ion-button class="btn-primary" *ngIf="advanceActions?.can_submit" (click)="save('Submit')" 
         appFormButtonValidation [loading]="saveAdvanceLoading" [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading">
           Submit Request
         </ion-button>

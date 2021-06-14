@@ -118,7 +118,7 @@
                   {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Start Date'}}
                   <span class="add-edit-mileage--mandatory" *ngIf="txnFields?.txn_dt?.is_mandatory">*</span>
                 </div>
-                <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input date-input__format"
+                <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate" class="add-edit-mileage--date-input date-input__format" [name]="txnFields?.txn_dt?.field_name" 
                        formControlName="dateOfSpend" type="date" [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Start Date'">
               </div>
               <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid" class="add-edit-mileage--error">
@@ -355,7 +355,7 @@
                            type="number" [placeholder]="'Enter ' + customInput.name">
 
                     <input appFormatDate *ngIf="customInput.type === 'DATE'" class="add-edit-mileage--date-input date-input__format" formControlName="value"
-                           type="date" [placeholder]="'Select ' + customInput.name">
+                           type="date" [placeholder]="'Select ' + customInput.name" [name]="customInput.name">
                   </div>
 
                   <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-mileage--checkbox">
@@ -532,11 +532,11 @@
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
           <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'" [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
-            class="add-edit-mileage--primary-cta" 
+            class="btn-secondary"
             appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'SAVING'">
             Save and new
           </ion-button>
-          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid"
+          <ion-button (click)="saveExpense()" class="btn-primary" 
             appFormButtonValidation [loading]="saveMileageLoader" [loadingText]="'SAVING'"
             [disabled]="saveMileageLoader || saveAndNewMileageLoader">
             Save Expense
@@ -546,8 +546,8 @@
 
       <div *ngIf="reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
-          <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" color="fyle-primary"
-            fill="solid" appFormButtonValidation [loading]="saveAndNextMileageLoader" [loadingText]="'SAVING'">
+          <ion-button (click)="saveExpenseAndGotoNext()" class="btn-primary" 
+            appFormButtonValidation [loading]="saveAndNextMileageLoader" [loadingText]="'SAVING'">
             {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
           </ion-button>
         </ion-buttons>
