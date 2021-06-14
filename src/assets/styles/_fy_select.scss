@@ -1,12 +1,10 @@
-$brand-primary: #f36;
-$list-element-color: #2C304E;
-$header-border: #DFDFE2;
+@import "../../theme/colors.scss";
 $sub-title: #ababab;
 
 // autocomplete loader SCSS and animation
 %autocomplete-loader {
   animation: loading-circular 0.5s linear infinite;
-  fill: $brand-primary;
+  fill: $primary;
   height: 16px;
   width: 16px;
   margin-right: 4px;
@@ -43,7 +41,7 @@ $sub-title: #ababab;
 }
 
 %fy-select-list-element-default-border-color-font {
-  border-bottom: 1px solid $header-border;
+  border-bottom: 1px solid $grey-lighter;
   font-weight: 400;
   font-size: 14px;
   line-height: 18px;
@@ -55,7 +53,7 @@ $sub-title: #ababab;
   font-weight: 400;
   height: 100%;
   line-height: 26px;
-  color: #161528;
+  color: $black;
   margin-left: -15%;
   text-align: center;
 }
@@ -71,7 +69,7 @@ $sub-title: #ababab;
   margin: 0;
   padding: 10px 15px;
   font-size: 14px;
-  border-bottom: 1px solid $header-border;
+  border-bottom: 1px solid $grey-lighter;
   color: $sub-title;
 }
 

@@ -348,7 +348,7 @@ textarea, input {
 
 .selection-modal--form-field {
   .mat-form-field-wrapper {
-    border: 1px solid #DFDFE2;
+    border: 1px solid $grey-lighter;
     border-radius: 4px;
     height: 40px;
   }
@@ -570,7 +570,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .fy-modal-toolbar {
-  border-bottom: 1px solid #DFDFE2;
+  border-bottom: 1px solid $grey-lighter;
   margin-bottom: 8px;
   padding-top: 0 !important;
 }
