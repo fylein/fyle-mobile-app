@@ -116,7 +116,7 @@
                     </mat-icon>
                   </div>
                 </div>
-                <div class="add-edit-trip--text add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].from_city.touched && !control['controls'].from_city.valid}">
+                <div class="add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].from_city.touched && !control['controls'].from_city.valid}">
                   <app-fy-location
                     [label]="control['controls'].from_city.value ? 'From City' : 'Select From City'"
                     [mandatory]="true"
@@ -127,7 +127,7 @@
                   Please select from location.
                 </div>
 
-                <div class="add-edit-trip--text add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].to_city.touched && !control['controls'].to_city.valid}">
+                <div class="add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].to_city.touched && !control['controls'].to_city.valid}">
                   <app-fy-location
                     [label]="control['controls'].to_city.value ? 'To City' : 'Select To City'"
                     [mandatory]="true"
