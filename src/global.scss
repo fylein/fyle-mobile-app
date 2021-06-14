@@ -299,7 +299,7 @@ input:focus, textarea:focus{
 
 .mat-checkbox-checked.mat-accent {
   .mat-checkbox-background {
-    background-color: #2C304E !important;
+    background-color: $blue-black !important;
   }
 }
 
@@ -310,7 +310,7 @@ input:focus, textarea:focus{
 mat-checkbox {
   .mat-checkbox-background, .mat-checkbox-frame {
     border-radius: 4px !important;
-    border-color: #161528 !important;
+    border-color: $black-2 !important;
     border-width: 1px !important;
   }
 
@@ -462,7 +462,7 @@ input[type="date"]::after {
 }
 
 input::placeholder {
-  color: #A9ACBC !important;
+  color: $grey-light !important;
 }
 
 #fc_frame {
@@ -491,11 +491,11 @@ ref - https://stackoverflow.com/a/31162426
       position: absolute;
       content: attr(data-date);
       display: inline-block;
-      color: #2C304E;
+      color: $blue-black;
     }
 
     &::after {
-      color: #2C304E;
+      color: $blue-black;
     }
 
     &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
@@ -566,7 +566,7 @@ ref - https://stackoverflow.com/a/31162426
   border-radius: 4px !important;
   font-size: 14px !important;
   line-height: 18px;
-  color: #fff;
+  color: $pure-white;
   font-weight: 400 !important;
   height: 52px !important;
   text-transform: inherit;
@@ -575,7 +575,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .btn-secondary {
-  color: #161528;
+  color: $black-2;
   font-size: 16px !important;
   line-height: 20px;
   font-weight: 400 !important;

@@ -1,8 +1,4 @@
-$red: #DA1E28;
-$placeholder: #A9ACBC;
-$item-border-color: #DFDFE2;
-$label-color: #5A5D72;
-$input-color: #2C304E;
+@import "../../../../theme/colors.scss";
 
 .other-details {
 
@@ -46,7 +42,7 @@ $input-color: #2C304E;
   &--text {
     padding: 10px;
 
-    border-bottom: 1px solid $item-border-color;
+    border-bottom: 1px solid $grey-lighter;
     margin: 16px 0;
 
     &__invalid {
@@ -64,7 +60,7 @@ $input-color: #2C304E;
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $label-color;
+    color: $black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -86,7 +82,7 @@ $input-color: #2C304E;
     font-weight: 400;
     height: 24px;
     line-height: 18px;
-    color: $input-color;
+    color: $blue-black;
     width: 100%;
     padding: 12px 0;
     margin: 4px 0 !important;

@@ -127,7 +127,7 @@ $background-color: #fff;
   }
 
   &--mandatory {
-    color: #ff3366;
+    color: $primary;
     font-size: 14px;
     font-weight: 400;
   }
@@ -177,7 +177,7 @@ $background-color: #fff;
     min-width: inherit;
     border-color: transparent;
     background: none;
-    color: #ff3366;
+    color: $primary;
     &:focus {
       outline: 0;
     }
