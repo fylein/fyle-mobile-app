@@ -115,7 +115,7 @@
   }
 
   &--date {
-    border-bottom: 1px solid #DFDFE2;
+    border-bottom: 1px solid $grey-lighter;
   }
 
   &--date-label {
@@ -123,7 +123,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: #5A5D72;
+    color: $black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -145,7 +145,7 @@
   }
 
   &--text {
-    border-bottom: 1px solid #DFDFE2;
+    border-bottom: 1px solid $grey-lighter;
   }
 
   &--text-label {
@@ -153,7 +153,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: #5A5D72;
+    color: $black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -440,7 +440,7 @@
   }
 
   &--card-header {
-    color: #5A5D72;
+    color: $black-light;
     margin-bottom: 8px;
   }
 
@@ -449,7 +449,7 @@
     border-radius: 8px;
     padding: 8px;
     display: flex;
-    color: #A9ACBC;
+    color: $grey-light;
     align-items: center;
     margin-top: 8px;
   }
@@ -496,7 +496,7 @@
   }
 
   &--card-arrow {
-    color: #A9ACBC;
+    color: $grey-light;
   }
 
   &--error {
@@ -513,11 +513,6 @@
 
   input::placeholder {
     color: $grey-light;
-  }
-
-  input[type="date"]::before { 
-    content: attr(data-placeholder);
-    width: 100%;
   }
 
   &--mandatory {

@@ -1,15 +1,15 @@
-$item-border-color: #DFDFE2;
+@import "../../../theme/colors.scss";
+
 $menu-botton-color: #000;
 $background-color: #fff;
-$invalid-color: #DA1E28;
 
 .split-expense {
   &--header {
     background-color: $background-color;
     // height: 80px !important;
-    border-bottom: 1px solid $item-border-color;
+    border-bottom: 1px solid $grey-lighter;
     // &-toolbar {
-    //   border-bottom: 1px solid $item-border-color;
+    //   border-bottom: 1px solid $grey-lighter;
     // }
 
     &-closebutton{
@@ -58,7 +58,7 @@ $invalid-color: #DA1E28;
     padding: 16px;
     margin-top: 24px;
     border-radius: 8px;
-    border: 1px solid $item-border-color;
+    border: 1px solid $grey-lighter;
   }
 
   &--card-header {
@@ -97,7 +97,7 @@ $invalid-color: #DA1E28;
     padding: 8px 0;
     background: #fff;
     border: 0;
-    border-bottom: 1px solid $item-border-color;
+    border-bottom: 1px solid $grey-lighter;
     line-height: 16px;
   }
 
@@ -112,7 +112,7 @@ $invalid-color: #DA1E28;
   }
 
   &--invalid {
-    border-bottom: 1px solid $invalid-color;
+    border-bottom: 1px solid $red;
   }
 
   &--input {
@@ -122,11 +122,11 @@ $invalid-color: #DA1E28;
     line-height: 1.5;
     height: 24px;
     border: 0;
-    color: #2C304E;
+    color: $blue-black;
   }
 
   &--mandatory {
-    color: #ff3366;
+    color: $primary;
   }
 
   &--date {
@@ -148,14 +148,14 @@ $invalid-color: #DA1E28;
 
   &--date-invalid {
     float: right;
-    color: $invalid-color;
-    border-bottom: 1px solid $invalid-color;
+    color: $red;
+    border-bottom: 1px solid $red;
   }
 
   &--date-error {
     width: 50%;
     float: right;
-    color: $invalid-color;
+    color: $red;
     font-size: 12px;
     margin: -12px;
   }

@@ -1,5 +1,4 @@
-$invalid: #DA1E28;
-$placeholder: #A9ACBC;
+@import "../../../../theme/colors.scss";
 
 .fy-select {
   &--label {
@@ -13,7 +12,7 @@ $placeholder: #A9ACBC;
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: #5A5D72;
+    color: $black-light;
     line-height: 16px;
     white-space: nowrap;
   }
@@ -23,30 +22,26 @@ $placeholder: #A9ACBC;
     align-items: center;
     justify-content: space-between;
     padding: 8px 0;
-    border-bottom: 1px solid #DFDFE2;
+    border-bottom: 1px solid $grey-lighter;
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: #2C304E;
+    color: $blue-black;
     border: none;
     width: 100%;
   }
 
   &--input-invalid {
-    border-bottom: 1px solid $invalid;
+    border-bottom: 1px solid $red;
   }
 
   &--mandatory {
-    color: #FF3366;
+    color: $primary;
   }
 
   &--icon {
-    color: $placeholder;
-  }
-
-  input::placeholder {
-    color: $placeholder;
+    color: $grey-light;
   }
 }
