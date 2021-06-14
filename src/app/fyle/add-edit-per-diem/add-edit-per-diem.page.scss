@@ -1,8 +1,4 @@
-$red: #DA1E28;
-$placeholder: #A9ACBC;
-$border-color: #DFDFE2;
-$label-color: #5A5D72;
-$input-color: #2C304E;
+@import "../../../theme/colors.scss";
 
 .add-edit-per-diem {
   &--toolbar {
@@ -76,7 +72,7 @@ $input-color: #2C304E;
   }
 
   &--mandatory {
-    color: #ff3366;
+    color: $primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -95,7 +91,7 @@ $input-color: #2C304E;
   }
 
   &--date {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid $grey-lighter;
     padding: 4px 0 !important;
     width: 100%;
   }
@@ -105,7 +101,7 @@ $input-color: #2C304E;
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $label-color;
+    color: $black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -123,7 +119,7 @@ $input-color: #2C304E;
   }
 
   &--text {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid $grey-lighter;
 
     &__invalid {
       border-bottom: 1px solid $red;
@@ -135,7 +131,7 @@ $input-color: #2C304E;
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $label-color;
+    color: $black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -153,7 +149,7 @@ $input-color: #2C304E;
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $input-color;
+    color: $blue-black;
     width: 100%;
     padding: 0;
     margin: 6px 0;

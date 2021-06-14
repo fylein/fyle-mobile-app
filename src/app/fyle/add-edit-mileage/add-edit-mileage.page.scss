@@ -1,8 +1,4 @@
-$red: #DA1E28;
-$placeholder: #A9ACBC;
-$border-color: #DFDFE2;
-$label-color: #5A5D72;
-$input-color: #2C304E;
+@import "../../../theme/colors.scss";
 
 .add-edit-mileage {
   &--toolbar {
@@ -62,7 +58,7 @@ $input-color: #2C304E;
   }
 
   &--date {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid $grey-lighter;
     padding: 4px 0 !important;
   }
 
@@ -71,7 +67,7 @@ $input-color: #2C304E;
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $label-color;
+    color: $black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -89,7 +85,7 @@ $input-color: #2C304E;
   }
 
   &--text {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid $grey-lighter;
 
     &__invalid {
       border-bottom: 1px solid $red;
@@ -101,7 +97,7 @@ $input-color: #2C304E;
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $label-color;
+    color: $black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -118,7 +114,7 @@ $input-color: #2C304E;
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $input-color;
+    color: $blue-black;
     width: 100%;
     padding: 0;
     margin: 6px 0;
@@ -126,7 +122,7 @@ $input-color: #2C304E;
 
   &--checkbox {
     font-size: 14px;
-    color: $input-color;
+    color: $blue-black;
     font-weight: 400;
   }
 
@@ -162,7 +158,7 @@ $input-color: #2C304E;
   }
 
   &--conversion {
-    border: 1px solid $border-color;
+    border: 1px solid $grey-lighter;
     background-color: #f2f2f2;
     border-radius: 4px;
   }
@@ -172,7 +168,7 @@ $input-color: #2C304E;
     align-items: center;
     padding: 12px;
     border-radius: 4px;
-    border: 1px solid $border-color;
+    border: 1px solid $grey-lighter;
   }
 
   &--delete-icon {
@@ -237,7 +233,7 @@ $input-color: #2C304E;
   &--amount {
     width: calc(100% - 100px);
     padding: 0 0 4px;
-    border-right: 1px solid $border-color;
+    border-right: 1px solid $grey-lighter;
     color: #ababab;
   }
 
@@ -275,7 +271,7 @@ $input-color: #2C304E;
   }
 
   &--comment {
-    border: 1px solid $border-color;
+    border: 1px solid $grey-lighter;
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -400,12 +396,8 @@ $input-color: #2C304E;
     font-size: 12px;
   }
 
-  input::placeholder {
-    color: $placeholder;
-  }
-
   &--mandatory {
-    color: #ff3366;
+    color: $primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
