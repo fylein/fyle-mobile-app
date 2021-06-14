@@ -8,16 +8,13 @@ $small-screen: 700px;
     color: $black;
     font-weight: 500;
     font-size: 18px;
-    text-align: center;
     line-height: 23px;
     padding: 14px 0;
   }
 
   &--info {
     color: $blue-black;
-    font-weight: 400;
     font-size: 14px;
-    text-align: center;
     line-height: 18px;
     padding-bottom: 18px;
   }
@@ -45,8 +42,6 @@ $small-screen: 700px;
   }
 
   &--list {
-    margin: 0;
-    padding: 0;
     margin-left: 10px;
 
     &__elements {
@@ -66,7 +61,6 @@ $small-screen: 700px;
     width: 90%;
     background: transparent;
     color: $black;
-    text-align: center;
     font-size: 14px;
     line-height: 18px;
   }
@@ -76,7 +70,6 @@ $small-screen: 700px;
     width: 90%;
     background: $pink-gradient-1;
     color: $white-1;
-    text-align: center;
     font-size: 12px;
     line-height: 15px;
     border-radius: 4px;

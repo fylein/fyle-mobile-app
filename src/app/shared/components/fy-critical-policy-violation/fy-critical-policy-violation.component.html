@@ -1,9 +1,9 @@
 <div class="critical-policy-violation">
   <ion-header>
-    <div class="critical-policy-violation--header">
+    <div class="critical-policy-violation--header text-center">
       Critical Policy Violation
     </div>
-    <div class="critical-policy-violation--info">
+    <div class="critical-policy-violation--info text-center">
       This expense violates the below policies/guidelines of your company. Kindly resolve the issues to be able to submit this expense. 
     </div>
   </ion-header>
@@ -16,7 +16,7 @@
             <mat-icon class="critical-policy-violation--error-icon" svgIcon="fy-error"></mat-icon>
           </ion-col>
           <ion-col size="10">
-            <ul class="critical-policy-violation--list">
+            <ul class="critical-policy-violation--list m-0 p-0">
               <ng-container  *ngFor="let criticalViolationMessage of criticalViolationMessages">
                 <li class="critical-policy-violation--list__elements">
                   {{criticalViolationMessage}}
@@ -38,10 +38,10 @@
       <ion-grid>
         <ion-row>
           <ion-col size="6">
-            <button class="critical-policy-violation--secondary-cta" (click)="cancel()">Cancel</button>
+            <button type="button" class="critical-policy-violation--secondary-cta text-center" (click)="cancel()">Cancel</button>
           </ion-col>
           <ion-col size="6">
-            <button class="critical-policy-violation--primary-cta" (click)="continue()">Continue</button>
+            <button type="submit" class="critical-policy-violation--primary-cta text-center" (click)="continue()">Continue</button>
           </ion-col>
         </ion-row>
       </ion-grid>
