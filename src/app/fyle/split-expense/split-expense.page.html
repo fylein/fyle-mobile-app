@@ -29,60 +29,64 @@
       </div>
 
       <ng-container [formGroup]="splitExpenseForm">
-        <div class="split-expense--internal-block" *ngIf="splitType === 'categories'">
-          <div *ngIf="categories$|async as categories">
-            <app-fy-select 
-              [label]="splitExpenseForm.controls.category.value? 'Category' : 'Select Category'"
-              formControlName="category" 
-              [options]="categories"
-              [mandatory]="true"
-              [cacheName]="'splitExpenseCategoryCache'">
-            </app-fy-select>
-          </div>
-        </div>
-
-        <div class="split-expense--internal-block" *ngIf="splitType === 'projects'">
-          <app-fy-select-project 
-            [label]="splitExpenseForm.controls.project.value? 'Project' : 'Select Project'"
-            formControlName="project"
-            [mandatory]="true"
-            [cacheName]="'splitExpenseProjectCache'">
-          </app-fy-select-project>
-        </div>
-
-        <div class="split-expense--internal-block" *ngIf="splitType === 'cost centers'">
-          <div *ngIf="costCenters$|async as costCenters">
-            <app-fy-select 
-              [label]="splitExpenseForm.controls.cost_center.value? 'Cost Centers' : 'Select Cost Centers'"
-              formControlName="cost_center" 
-              [options]="costCenters"
-              [mandatory]="true"
-              [cacheName]="'splitExpenseCostCenterCache'">
-            </app-fy-select>
-          </div>
-        </div>
-
-        <div class="split-expense--item split-expense--date">
-          <div class="split-expense--label split-expense--date-label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid}">Date*</div>
-          <input appFormatDate class="split-expense--input split-expense--date-input date-input__format" type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
-        </div>
-
-        <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid">
-          Please select a valid date
-        </div>
-
         <div class="split-expense--amount-percentage">
           <div class="split-expense--item">
-            <span class="split-expense--label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid || (splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async))}">{{currency}}*</span>
+            <span class="split-expense--label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid || (splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async))}">{{currency}}</span>
+            <span class="split-expense--mandatory">*</span>
             <input inputmode="decimal" [min]="(isCorporateCardsEnabled$|async) ? null : 0.01" type="number" class="split-expense--input" formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm, i)">
           </div>
 
-          <div class="split-expense--item">
+          <div class="split-expense--item split-expense--percentage">
             <span class="split-expense--label">%</span>
             <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" [min]="0.01" (ngModelChange)="onChangePercentage(splitExpenseForm, i)">
           </div>
         </div>
-        
+
+        <div class="split-expense--main-block">
+          <div class="split-expense--internal-block" *ngIf="splitType === 'categories'">
+            <div *ngIf="categories$|async as categories">
+              <app-fy-select 
+                [label]="'Category'"
+                formControlName="category" 
+                [options]="categories"
+                [mandatory]="true"
+                [cacheName]="'splitExpenseCategoryCache'">
+              </app-fy-select>
+            </div>
+          </div>
+
+          <div class="split-expense--internal-block" *ngIf="splitType === 'projects'">
+            <app-fy-select-project 
+              [label]="'Project'"
+              formControlName="project"
+              [mandatory]="true"
+              [cacheName]="'splitExpenseProjectCache'">
+            </app-fy-select-project>
+          </div>
+
+          <div class="split-expense--internal-block" *ngIf="splitType === 'cost centers'">
+            <div *ngIf="costCenters$|async as costCenters">
+              <app-fy-select 
+                [label]="'Cost Centers'"
+                formControlName="cost_center" 
+                [options]="costCenters"
+                [mandatory]="true"
+                [cacheName]="'splitExpenseCostCenterCache'">
+              </app-fy-select>
+            </div>
+          </div>
+
+          <div class="split-expense--item split-expense--date" [ngClass]="{'split-expense--date-invalid': splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid}">
+            <div class="split-expense--label split-expense--date-label">Date </div>
+            <span class="split-expense--mandatory">*</span>
+            <input appFormatDate class="split-expense--input split-expense--date-input date-input__format" type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
+          </div>
+        </div>
+
+        <div class="split-expense--date-error" *ngIf="splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid">
+          Please select a valid date
+        </div>
+
         <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async)"></div>
       </ng-container>
     </div>

@@ -1,5 +1,4 @@
 @import "../../../theme/colors.scss";
-$red: #f00;
 
 .add-edit-expense {
   &--toolbar {
@@ -24,8 +23,8 @@ $red: #f00;
   &--primary-cta {
     height: 48px;
     font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
+    text-transform: inherit;
+    font-weight: 600;
     border-radius: 8px;
     width: 100%;
     margin: 12px 0;
@@ -116,23 +115,18 @@ $red: #f00;
   }
 
   &--date {
-    display: flex;
-    justify-content: space-between;
+    border-bottom: 1px solid #DFDFE2;
   }
 
   &--date-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    max-width: 90%;
+    min-width: 120px;
+    font-size: 12px;
+    color: #5A5D72;
+    line-height: 16px;
     white-space: nowrap;
-    max-width: 120px;
-    display: flex;
-
-    &__large {
-      max-width: 170px;
-    }
+    font-weight: 400;
 
     &__invalid {
       color: $red;
@@ -141,33 +135,28 @@ $red: #f00;
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: left;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: $blue-black;
+    border: none;
+    width: 100%;
+    padding: 6px;
   }
 
   &--text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-bottom: 1px solid #DFDFE2;
   }
 
   &--text-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 2;
-    white-space: nowrap;
-    display: flex;
-    max-width: 170px;
+    max-width: 90%;
     min-width: 120px;
-
-    &__large {
-      max-width: 170px;
-    }
+    font-size: 12px;
+    color: #5A5D72;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
 
     &__invalid {
       color: $red;
@@ -176,48 +165,45 @@ $red: #f00;
 
   &--text-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 14px;
+    font-weight: 400;
     height: 24px;
-    min-width: calc(100% - 120px);
-
-    &__large {
-      min-width: calc(100% - 170px);
-    }
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    padding: 16px 0;
   }
 
   &--checkbox {
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
+    font-size: 14px;
+    color: $blue-black;
+    font-weight: 400;
+  }
+
+  &--project-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &--no-project {
+    margin-right: 0 !important;
+  }
+
+  &--project-block {
+    flex-grow: 1;
+    margin-right: 24px;
   }
 
   &--primary-block {
     margin: 16px 0;
-    padding: 0 16px;
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
   }
 
   &--internal-block {
-    padding: 16px 0;
+    padding: 8px 0;
     background: #fff;
-    border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-
-    &_special {
-      border-bottom: 0;
-    }
-
-    &__invalid {
-      border-color: $red;
-    }
-
-    &:last-child {
-      border-bottom: 0;
-    }
+    margin-bottom: 12px;
   }
 
   &--split-expense-container {
@@ -485,7 +471,7 @@ $red: #f00;
     padding: 4px;
     justify-content: space-between;
     font-size: 14px;
-    color:  #2C304E;
+    color: $blue-black;
   }
 
   &--icon-loading {
@@ -511,5 +497,30 @@ $red: #f00;
 
   &--card-arrow {
     color: #A9ACBC;
+  }
+
+  &--error {
+    color: $red;
+    line-height: 16px;
+    margin-top: -12px;
+    font-size: 12px;
+  }
+
+  &--amount-error {
+    color: $red;
+    font-size: 12px;
+  }
+
+  input::placeholder {
+    color: $grey-light;
+  }
+
+  input[type="date"]::before { 
+    content: attr(data-placeholder);
+    width: 100%;
+  }
+
+  &--mandatory {
+    color: $primary;
   }
 }

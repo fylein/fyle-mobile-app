@@ -1,6 +1,7 @@
-$item-border-color: #e0e0e0;
+$item-border-color: #DFDFE2;
 $menu-botton-color: #000;
 $background-color: #fff;
+$invalid-color: #DA1E28;
 
 .split-expense {
   &--header {
@@ -26,12 +27,18 @@ $background-color: #fff;
     padding: 0 16px 16px;
   }
 
+  &--main-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   &--internal-block {
     padding: 16px 0;
     background: #fff;
     border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
+    width: 50%;
   }
 
   &--message {
@@ -50,8 +57,8 @@ $background-color: #fff;
   &--card {
     padding: 16px;
     margin-top: 24px;
-    border-radius: 4px;
-    box-shadow: 0 5px 28px -15px #838fa1 !important;
+    border-radius: 8px;
+    border: 1px solid $item-border-color;
   }
 
   &--card-header {
@@ -81,52 +88,77 @@ $background-color: #fff;
     justify-content: space-between;
   }
 
+  &--percentage {
+    margin-left: 16px;
+  }
+
   &--item {
-    width: 48%;
-    padding: 16px 0;
+    width: 100%;
+    padding: 8px 0;
     background: #fff;
     border: 0;
-    border-bottom: 1px solid #e0e0e0;
-    line-height: 1;
+    border-bottom: 1px solid $item-border-color;
+    line-height: 16px;
   }
 
   &--label {
-    width: 25%;
-    margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
+    width: 100%;
+    margin-right: 2px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
     line-height: 1.5;
+    color: #5A5D72;
   }
 
-  &--label-invalid {
-    color: red;
+  &--invalid {
+    border-bottom: 1px solid $invalid-color;
   }
 
   &--input {
-    width: 65%;
-    font-size: 16px;
-    font-weight: 500;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 400;
     line-height: 1.5;
     height: 24px;
     border: 0;
+    color: #2C304E;
+  }
+
+  &--mandatory {
+    color: #ff3366;
   }
 
   &--date {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%
+    width: 50%;
+    padding: 2px 0;
+    margin-left: 16px;
   }
 
   &--date-label {
-    width: 30%;
+    width: 100%;
+    margin-bottom: 4px;
+    display: contents;
   }
 
   &--date-input {
-    width: 60%;
+    width: 100%;
+    height: 32px;
   }
 
+  &--date-invalid {
+    float: right;
+    color: $invalid-color;
+    border-bottom: 1px solid $invalid-color;
+  }
+
+  &--date-error {
+    width: 50%;
+    float: right;
+    color: $invalid-color;
+    font-size: 12px;
+    margin: -12px;
+  }
 
   &--add-more {
     justify-content: center;
