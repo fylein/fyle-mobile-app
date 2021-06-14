@@ -135,12 +135,12 @@ $input-color: #2C304E;
     border: 0;
     font-size: 14px;
     font-weight: 400;
-    height: 24px;
+    height: 18px;
     line-height: 18px;
     color: $input-color;
     width: 100%;
-    padding: 8px 0;
-    margin: 4px 0 !important;
+    padding: 0;
+    margin: 6px 0 !important;
   }
 
   &--checkbox {
@@ -154,8 +154,9 @@ $input-color: #2C304E;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
-    padding: 16px;
-    height: 20px;
+    padding: 0;
+    margin: 6px 0;
+    height: 18px;
   }
 
   &--additional-notes-label {
@@ -176,6 +177,8 @@ $input-color: #2C304E;
   &--mandatory {
     color: #ff3366;
     display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--amount-error {
@@ -220,7 +223,7 @@ $input-color: #2C304E;
 
   &--cta-container {
     height: 80px;
-    padding: 0 16px;
+    padding: 14px 16px 14px 16px;
     justify-content: space-between;
   }
 }

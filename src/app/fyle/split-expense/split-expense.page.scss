@@ -94,7 +94,7 @@ $background-color: #fff;
 
   &--item {
     width: 100%;
-    padding: 8px 0;
+    padding: 6px 0;
     background: #fff;
     border: 0;
     border-bottom: 1px solid $grey-lighter;
@@ -123,10 +123,13 @@ $background-color: #fff;
     height: 24px;
     border: 0;
     color: $blue-black;
+    padding: 0;
   }
 
   &--mandatory {
-    color: $primary;
+    color: #ff3366;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--date {

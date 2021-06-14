@@ -7,8 +7,6 @@
   </div>
   <div class="fy-select--input-container" [ngClass]="{'fy-select--input-invalid': !valid}">
     <input class="fy-select--input" type="text" [placeholder]="'Select ' + label" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()" [ngClass]="{'fy-select--input-disabled': disabled}" [disabled]="disabled">
-    <mat-icon class="fy-select--icon" [ngClass]="{'fy-select--input-disabled': disabled}">
-      keyboard_arrow_down
-    </mat-icon>
+    <mat-icon class="fy-select--icon" [ngClass]="{'fy-select--input-disabled': disabled}" svgIcon="fy-arrow-down"></mat-icon>
   </div>
 </label>

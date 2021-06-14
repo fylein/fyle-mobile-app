@@ -1,7 +1,6 @@
 @import "../../../theme/colors.scss";
 
 $red: #DA1E28;
-$placeholder: #A9ACBC;
 $border-color: #DFDFE2;
 $label-color: #5A5D72;
 $input-color: #2C304E;
@@ -23,7 +22,7 @@ $input-color: #2C304E;
   }
 
   &--footer-toolbar {
-    padding: 0 12px;
+    padding: 14px 16px 14px 16px;
   }
 
   &--primary-cta {
@@ -145,7 +144,7 @@ $input-color: #2C304E;
     width: 100%;
     padding: 0;
     height: 18px;
-    margin: 6px 0;
+    margin: 6px;
   }
 
   &--text {
@@ -171,11 +170,12 @@ $input-color: #2C304E;
     border: 0;
     font-size: 14px;
     font-weight: 400;
-    height: 24px;
+    height: 18px;
     line-height: 18px;
     color: $blue-black;
     width: 100%;
-    padding: 16px 0;
+    margin: 6px 0;
+    padding: 0;
   }
 
   &--checkbox {
@@ -196,7 +196,7 @@ $input-color: #2C304E;
 
   &--project-block {
     flex-grow: 1;
-    margin-right: 24px;
+    margin-right: 26px;
   }
 
   &--primary-block {
@@ -446,6 +446,9 @@ $input-color: #2C304E;
   &--card-header {
     color: $black-light;
     margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15.36px;
   }
 
   &--card-txn-container {
@@ -456,6 +459,9 @@ $input-color: #2C304E;
     color: $grey-light;
     align-items: center;
     margin-top: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15.36px;
   }
 
   &--icon-corporate-card {
@@ -515,12 +521,10 @@ $input-color: #2C304E;
     font-size: 12px;
   }
 
-  input::placeholder {
-    color: $grey-light;
-  }
-
   &--mandatory {
     color: $primary;
     display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
   }
 }

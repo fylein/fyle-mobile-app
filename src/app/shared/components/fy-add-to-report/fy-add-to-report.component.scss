@@ -21,7 +21,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 6px 0;
     border-bottom: 1px solid $grey-lighter;
   }
 
@@ -31,6 +31,7 @@
     color: $blue-black;
     border: none;
     width: 100%;
+    padding: 0;
   }
 
   &--input-invalid {
@@ -39,6 +40,8 @@
 
   &--mandatory {
     color: $primary;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--icon {
