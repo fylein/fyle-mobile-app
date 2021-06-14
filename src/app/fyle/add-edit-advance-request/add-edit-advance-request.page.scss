@@ -1,3 +1,9 @@
+$red: #DA1E28;
+$placeholder: #A9ACBC;
+$border-color: #DFDFE2;
+$label-color: #5A5D72;
+$input-color: #2C304E;
+
 .add-edit-advance-request {
   &--form {
     padding: 0 16px;
@@ -85,19 +91,17 @@
 
   &--primary-block {
     margin: 16px 0;
-    padding: 0 16px;
-    border: 1px solid #e5e5e5;
     border-radius: 4px;
   }
 
   &--internal-block {
-    padding: 16px 0;
+    padding: 8px 0;
     background: #fff;
-    border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-    &:last-child {
-      border-bottom: 0;
+    margin-bottom: 12px;
+
+    &__invalid {
+      border-color: $red;
     }
   }
 
@@ -106,40 +110,37 @@
     background: #fff;
     border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-    &:last-child {
-      border-bottom: 0;
-    }
   }
 
   &--text {
-    display: flex;
-    align-items: center;
+    border-bottom: 1px solid $border-color;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
   }
 
   &--text-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 2;
-    white-space: nowrap;
-    display: flex;
+    max-width: 90%;
     min-width: 120px;
-    max-width: 120px;
-
-    &__invalid {
-      color: red;
-    }
+    font-size: 12px;
+    color: $label-color;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
   }
 
   &--text-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 14px;
+    font-weight: 400;
     height: 24px;
-    max-width: calc(100% - 120px);
+    line-height: 18px;
+    color: $input-color;
+    width: 100%;
+    padding: 8px 0;
+    margin: 4px 0 !important;
   }
 
   &--checkbox {
@@ -150,12 +151,13 @@
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: right;
-    background: transparent;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: $input-color;
+    border: none;
+    width: 100%;
+    padding: 6px;
   }
 
   &--additional-notes-label {
@@ -167,13 +169,27 @@
   }
 
   &--mandatory-text {
-    color: #f00;
+    color: $red;
+    line-height: 16px;
+    margin-top: -16px;
+    font-size: 12px;
+  }
+
+  &--mandatory {
+    color: #ff3366;
+    display: inline-block;
+  }
+
+  &--amount-error {
+    color: $red;
+    font-size: 12px;
   }
 
   &--primary-cta {
     height: 48px;
     width: 100%;
     --border-radius: 4px !important;
+    text-transform: inherit;
   }
 
   &--common-action-block {

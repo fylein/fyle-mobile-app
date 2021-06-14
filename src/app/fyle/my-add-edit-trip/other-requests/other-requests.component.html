@@ -34,7 +34,7 @@
               <div class="other-details--element-container">
                 <div class="other-details--special-elements">
                   <label>
-                    <mat-checkbox color="primary" class="other-details--need-checkbox" formControlName="needBooking"></mat-checkbox>
+                    <mat-checkbox class="other-details--need-checkbox" formControlName="needBooking"></mat-checkbox>
                     Need Booking
                   </label>
                 </div>
@@ -76,7 +76,7 @@
     
                 <ng-container *ngIf="currencies$|async as currencies">
                   <div class="other-details--text">
-                    <app-fy-select [label]="control['controls'].currency.value ? 'Currency' : 'Select Currency'" formControlName="currency"
+                    <app-fy-select [label]="'Currency'" formControlName="currency"
                     [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
                     <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
                       <div>
@@ -134,7 +134,7 @@
                       [ngClass]="{'other-details--text__invalid': customInput.mandatory && customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'BOOLEAN'">
                         <div class="other-details--checkbox">
-                          <mat-checkbox color="primary" formControlName="value">
+                          <mat-checkbox formControlName="value">
                             {{customInput.input_name | ellipsis: 20 }}
                           </mat-checkbox>
                         </div>
@@ -234,13 +234,13 @@
               <div class="other-details--element-container">
                 <div class="other-details--special-elements">
                   <label>
-                    <mat-checkbox color="primary" class="other-details--need-checkbox" formControlName="needBooking"></mat-checkbox>
+                    <mat-checkbox class="other-details--need-checkbox" formControlName="needBooking"></mat-checkbox>
                     Need Booking
                   </label>
                 </div>
                 
                 <div class="other-details--text" [ngClass]="{'other-details--text__invalid': control['controls'].transportMode.touched && !control.controls.transportMode.valid}">
-                  <app-fy-select [mandatory]="true" [label]="control['controls'].transportMode.value ? 'Transportation Mode' : 'Select Transportation Mode'" formControlName="transportMode" 
+                  <app-fy-select [mandatory]="true" [label]="'Transportation Mode'" formControlName="transportMode" 
                   [options]="transportationMode$|async" [nullOption]="false"></app-fy-select>
                 </div>
                 <div *ngIf="control['controls'].transportMode.touched && !control['controls'].transportMode.valid" class="other-details--mandatory-text">
@@ -248,13 +248,13 @@
                 </div>
     
                 <div class="other-details--text">
-                  <app-fy-select [label]="control['controls'].transportTiming.value ? 'Preferred Timing' : 'Select Preferred Timing'" formControlName="transportTiming" 
+                  <app-fy-select [label]="'Preferred Timing'" formControlName="transportTiming" 
                   [options]="preferredTransportationTiming$|async" [nullOption]="false"></app-fy-select>
                 </div>
-  
+
                 <ng-container *ngIf="currencies$|async as currencies">
                   <div class="other-details--text">
-                    <app-fy-select [label]="control['controls'].currency.value ? 'Currency' : 'Select Currency'" formControlName="currency"
+                    <app-fy-select [label]="'Currency'" formControlName="currency"
                     [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
                     <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
                       <div>
@@ -313,7 +313,7 @@
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'BOOLEAN'">
                         <div class="other-details--checkbox">
-                          <mat-checkbox color="primary" formControlName="value">
+                          <mat-checkbox formControlName="value">
                             {{customInput.input_name | ellipsis: 20 }}
                           </mat-checkbox>
                         </div>
@@ -322,25 +322,25 @@
                       <div class="other-details--text"
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'LOCATION'">
-                        <app-fy-location [label]="customInput.input_name | ellipsis: 11" formControlName="value"></app-fy-location>
+                        <app-fy-location [label]="customInput.input_name | ellipsis: 30" formControlName="value"></app-fy-location>
                       </div>
         
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'SELECT'">
-                        <app-fy-select [label]="customInput.input_name | ellipsis: 11" [options]="customInput.input_options" formControlName="value"></app-fy-select>
+                        <app-fy-select [label]="customInput.input_name | ellipsis: 30" [options]="customInput.input_options" formControlName="value"></app-fy-select>
                       </div>
         
                       <div class="other-details--text"
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'MULTI_SELECT'">
-                        <app-fy-multiselect [label]="customInput.input_name | ellipsis: 11" [options]="customInput.input_options" formControlName="value"></app-fy-multiselect>
+                        <app-fy-multiselect [label]="customInput.input_name | ellipsis: 30" [options]="customInput.input_options" formControlName="value"></app-fy-multiselect>
                       </div>
         
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                        *ngIf="customInput.input_type === 'USER_LIST'">
-                        <app-fy-userlist [label]="customInput.input_name | ellipsis: 11" formControlName="value"></app-fy-userlist>
+                        <app-fy-userlist [label]="customInput.input_name | ellipsis: 30" formControlName="value"></app-fy-userlist>
                       </div>
 
                       <div *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid" class="other-details--mandatory-text">
@@ -373,7 +373,7 @@
               <div class="other-details--element-container">
                 <ng-container *ngIf="currencies$|async as currencies">
                   <div class="other-details--text" [ngClass]="{'other-details--text__invalid': control.controls.currency.touched && !control.controls.currency.valid}">
-                    <app-fy-select [mandatory]="true" [label]="control['controls'].currency.value ? 'Currency' : 'Select Currency'" formControlName="currency"
+                    <app-fy-select [mandatory]="true" [label]="'Currency'" formControlName="currency"
                     [selectionElement]="currency" [options]="currencies" [nullOption]="false" ></app-fy-select>
                     <ng-template #currency let-label="value" let-currency="label" let-selected="selected" let-display="displayValue">
                       <div>
@@ -428,53 +428,53 @@
                        *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'">
                         <div class="other-details--text-label"
                         [ngClass]="{'other-details--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
-                          {{customInput.name | ellipsis: 20}}
+                          {{customInput.name | ellipsis: 30}}
                           <span *ngIf="customInput.mandatory">
                             *
                           </span>
                         </div>
                         <input class="other-details--text-input" type="text" formControlName="value"
                           *ngIf="customInput.type === 'TEXT'">
-            
+
                         <input class="other-details--text-input" type="number" formControlName="value"
                           *ngIf="customInput.type === 'NUMBER'">
-            
+
                         <input appFormatDate class="other-details--date-input date-input__format" *ngIf="customInput.type === 'DATE'" type="date"
                           formControlName="value">
                       </div>
-        
+
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'BOOLEAN'">
                         <div class="other-details--checkbox">
-                          <mat-checkbox color="primary" formControlName="value">
+                          <mat-checkbox formControlName="value">
                             {{customInput.name | ellipsis: 20 }}
                           </mat-checkbox>
                         </div>
                       </div>
-        
+
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'LOCATION'">
-                        <app-fy-location [label]="customInput.name | ellipsis: 11" formControlName="value"></app-fy-location>
+                        <app-fy-location [label]="customInput.name | ellipsis: 30" formControlName="value"></app-fy-location>
                       </div>
-        
+
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'SELECT'">
-                        <app-fy-select [label]="customInput.name | ellipsis: 11" [options]="customInput.options" formControlName="value"></app-fy-select>
+                        <app-fy-select [label]="customInput.name | ellipsis: 30" [options]="customInput.options" formControlName="value"></app-fy-select>
                       </div>
-        
+
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'MULTI_SELECT'">
-                        <app-fy-multiselect [label]="customInput.name | ellipsis: 11" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
+                        <app-fy-multiselect [label]="customInput.name | ellipsis: 30" [options]="customInput.options" formControlName="value"></app-fy-multiselect>
                       </div>
-        
+
                       <div class="other-details--text" 
                       [ngClass]="{'other-details--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
                       *ngIf="customInput.type === 'USER_LIST'">
-                        <app-fy-userlist [label]="customInput.name | ellipsis: 11" formControlName="value"></app-fy-userlist>
+                        <app-fy-userlist [label]="customInput.name | ellipsis: 30" formControlName="value"></app-fy-userlist>
                       </div>
 
                       <div *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid" class="other-details--mandatory-text">
@@ -485,7 +485,6 @@
                 </ng-container>
               </div>
             </div>
-            
 
             <div (click)="addAdvance()" class="other-details--add-advance">
               <mat-icon class="other-details--add-advance-add-icon">add_circle</mat-icon> Add Advance
@@ -499,7 +498,7 @@
     </div>
     <div class="other-details--cta-block">
       <div class="other-details--cta-container">
-        <ion-button *ngIf="tripActions?.can_save" (click)="saveDraft()" class="other-details--cta-container-cta" fill="outline" color="fyle-primary" type="button"
+        <ion-button *ngIf="tripActions?.can_save" (click)="saveDraft()" class="other-details--cta-container-cta" type="button"
         appFormButtonValidation [loading]="saveDratTripLoading" [loadingText]="'SAVING'" [disabled]="saveDratTripLoading || submitTripLoading">Save Draft</ion-button>
         
         <ion-button type="submit" class="other-details--cta-container-cta" fill="solid" color="fyle-primary" type="submit"

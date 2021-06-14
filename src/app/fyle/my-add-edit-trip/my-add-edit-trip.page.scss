@@ -1,4 +1,8 @@
-$item-border-color: #e0e0e0;
+$red: #DA1E28;
+$placeholder: #A9ACBC;
+$item-border-color: #DFDFE2;
+$label-color: #5A5D72;
+$input-color: #2C304E;
 
 .add-edit-trip {
   &--toolbar {
@@ -55,7 +59,7 @@ $item-border-color: #e0e0e0;
   }
   
   &--delete-traveller {
-    color: red;
+    color: $red;
     font-size: 16px;
     height: 16px;
     width: 16px;
@@ -63,55 +67,58 @@ $item-border-color: #e0e0e0;
 
   &--mandatory-text {
     color: #f00;
+    font-size: 12px;
   }
 
   &--text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 16px 0;
+    border-bottom: 1px solid $item-border-color;
+    margin: 16px 0;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
 
     &__dynamic {
       padding: 16px 0 16px 16px;
-    }
-
-    &__invalid {
-      border-bottom-color: red !important;
     }
   }
 
   &--text-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 2;
+    max-width: 90%;
+    min-width: 120px;
+    font-size: 12px;
+    color: $label-color;
+    line-height: 16px;
     white-space: nowrap;
-    display: flex;
-    max-width: 170px;
+    font-weight: 400;
 
     &__invalid {
-      color: red;
+      color: $red;
     }
   }
 
   &--text-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 14px;
+    font-weight: 400;
     height: 24px;
-    max-width: calc(100% - 170px);
+    line-height: 18px;
+    color: $input-color;
+    width: 100%;
+    padding: 12px 0;
+    margin: 4px 0 !important;
   }
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: left;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: $input-color;
+    border: none;
+    width: 100%;
+    padding: 12px;
   }
 
   &--element-container {
@@ -145,6 +152,7 @@ $item-border-color: #e0e0e0;
   &--cta-container {
     display: flex;
     justify-content: space-between;
+    text-transform: inherit;
 
     &-cta {
       height: 48px;

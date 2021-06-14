@@ -18,10 +18,6 @@ $placeholder: #A9ACBC;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-
-    &__invalid {
-      color: $invalid;
-    }
   }
 
   &--input-container {

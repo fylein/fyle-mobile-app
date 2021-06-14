@@ -297,6 +297,12 @@ input:focus, textarea:focus{
   line-height: 1.3;
 }
 
+.mat-checkbox-checked.mat-accent {
+  .mat-checkbox-background {
+    background-color: #2C304E !important;
+  }
+}
+
 mat-checkbox {
   .mat-checkbox-background, .mat-checkbox-frame {
     border-radius: 4px !important;

@@ -16,10 +16,6 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-
-    &__invalid {
-      color: $red;
-    }
   }
 
   &--input-container {
