@@ -1642,10 +1642,7 @@ export class AddEditMileagePage implements OnInit {
       component: CriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      }
     });
 
     await currencyModal.present();
@@ -1893,7 +1890,7 @@ export class AddEditMileagePage implements OnInit {
                   Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
                   Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
                   Used_Autofilled_VehicleType: (etxn.tx.mileage_vehicle_type && this.presetVehicleType && (etxn.tx.mileage_vehicle_type === this.presetVehicleType)),
-                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && (etxn.tx.locations[0].display === this.presetLocation))
+                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && etxn.tx.locations[0] && (etxn.tx.locations[0].display === this.presetLocation))
                 });
               } else {
                 // tracking expense closed without editing
@@ -2121,7 +2118,7 @@ export class AddEditMileagePage implements OnInit {
                   Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
                   Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
                   Used_Autofilled_VehicleType: (etxn.tx.mileage_vehicle_type && this.presetVehicleType && (etxn.tx.mileage_vehicle_type === this.presetVehicleType)),
-                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && (etxn.tx.locations[0].display === this.presetLocation))
+                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && etxn.tx.locations[0] && (etxn.tx.locations[0].display === this.presetLocation))
                 });
 
                 if (comment) {

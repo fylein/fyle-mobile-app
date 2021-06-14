@@ -1443,10 +1443,7 @@ export class AddEditPerDiemPage implements OnInit {
       component: CriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      }
     });
 
     await currencyModal.present();
