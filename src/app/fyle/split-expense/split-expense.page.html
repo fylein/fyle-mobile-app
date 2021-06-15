@@ -79,7 +79,7 @@
           <div class="split-expense--item split-expense--date" [ngClass]="{'split-expense--date-invalid': splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid}">
             <div class="split-expense--label split-expense--date-label">Date </div>
             <span class="split-expense--mandatory">*</span>
-            <input appFormatDate class="split-expense--input split-expense--date-input date-input__format" type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
+            <input appFormatDate class="split-expense--date-input date-input__format" type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
           </div>
         </div>
 
