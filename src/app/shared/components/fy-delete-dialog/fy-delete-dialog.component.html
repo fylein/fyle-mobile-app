@@ -1,25 +1,29 @@
 <ion-content>
-  <ion-grid>
+  <ion-grid class="fy-delete-dialog--grid">
     <ion-row>
       <ion-col>
-        {{header}}
+        <div class="fy-delete-dialog--header">
+          {{header}}
+        </div>
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col>
-        {{body}}
+        <div class="fy-delete-dialog--body">
+          {{body}}
+        </div>
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>
-        <ion-button fill="clear" (click)="cancel()">
+      <ion-col size="6">
+        <div class="fy-delete-dialog--cancel" (click)="cancel()">
           Cancel
-        </ion-button>
+        </div>
       </ion-col>
-      <ion-col>
-        <ion-button (click)="delete()" color="danger" appFormButtonValidation [loaderPosition]="LoaderPosition.prefix" [loading]="deleteCallInProgress">
+      <ion-col size="6">
+        <div class="fy-delete-dialog--delete" (click)="delete()" appFormButtonValidation [loaderPosition]="LoaderPosition.prefix" [loading]="deleteCallInProgress">
           Delete
-        </ion-button>
+        </div>
       </ion-col>
     </ion-row>
   </ion-grid>

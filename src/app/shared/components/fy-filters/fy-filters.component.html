@@ -1,15 +1,15 @@
-<ion-header mode="md">
+<ion-header class="fy-filters--header" mode="md">
   <ion-toolbar mode="md">
     <ion-buttons mode="md" slot="start">
       <ion-button mode="md" (click)="cancel()">
-        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../../assets/svg/fy-chevron-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md">
+    <ion-title class="fy-filter--title" mode="md">
       Filter and Sort
     </ion-title>
     <ion-buttons mode="md" slot="end">
-      <ion-button mode="md" color="fy-primary" (click)="clearAll()">
+      <ion-button class="fy-filters--clear-all" mode="md" color="fy-primary" (click)="clearAll()">
         Clear All
       </ion-button>
     </ion-buttons>
@@ -43,28 +43,38 @@
 
       <ion-col size="6">
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.multiselect">
-          <ion-item mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
-            <mat-checkbox color="fyle-primary" disabled="true"
-                          [checked]="currentFilterValueMap[activeFilter.name]?.includes(option.value)">
-              {{option.label}}
-            </mat-checkbox>
+          <ion-item class="fy-filters--filter-option" mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
+            <ng-container *ngIf="currentFilterValueMap[activeFilter.name]?.includes(option.value); else uncheckedCheckbox">
+              <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/fy-checkbox-checked.svg"></ion-icon>
+            </ng-container>
+            <ng-template #uncheckedCheckbox>
+              <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/fy-checkbox-unchecked.svg"></ion-icon>
+            </ng-template>
+            {{option.label}}
           </ion-item>
         </ng-container>
 
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.singleselect">
-          <ion-item mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
-            <mat-radio-button color="fyle-primary" disabled="true" [checked]="currentFilterValueMap[activeFilter.name] === option.value">
-              {{option.label}}
-            </mat-radio-button>
+          <ion-item class="fy-filters--filter-option" mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
+            <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === option.value; else uncheckedSSRadioBtn">
+              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-checked.svg"></ion-icon>
+            </ng-container>
+            <ng-template #uncheckedSSRadioBtn>
+              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-unchecked.svg"></ion-icon>
+            </ng-template>
+            {{option.label}}
           </ion-item>
         </ng-container>
 
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.date">
-          <ion-item mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
-            <mat-radio-button color="fyle-primary" [disabled]="true"
-                              [checked]="currentFilterValueMap[activeFilter.name] === option.value">
-              {{option.label}}
-            </mat-radio-button>
+          <ion-item class="fy-filters--filter-option" mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
+            <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === option.value; else uncheckedSSRadioBtn">
+              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-checked.svg"></ion-icon>
+            </ng-container>
+            <ng-template #uncheckedSSRadioBtn>
+              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-unchecked.svg"></ion-icon>
+            </ng-template>
+            {{option.label}}
           </ion-item>
           <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === 'custom'">
             <div class="fy-filters--custom-date-filters">
@@ -90,15 +100,13 @@
 </ion-content>
 <ion-footer>
   <ion-toolbar>
-    <ion-buttons slot="secondary">
-      <ion-button (click)="cancel()" expand="block" color="fyle-primary" fill="clear">
+    <div class="fy-filters--footer-toolbar">
+      <ion-button class="fy-filters--cancel" (click)="cancel()" fill="clear">
         Cancel
       </ion-button>
-    </ion-buttons>
-    <ion-buttons slot="primary">
-      <ion-button (click)="save()" expand="block" color="fyle-primary" fill="solid">
+      <ion-button class="fy-filters--save" (click)="save()" expand="block" color="fyle-primary" fill="solid">
         Save
       </ion-button>
-    </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-footer>

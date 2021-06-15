@@ -863,8 +863,8 @@ export class MyExpensesPage implements OnInit {
     const dateFilter = selectedFilters.find(filter => filter.name === 'Date');
     if (dateFilter) {
       generatedFilters.date = dateFilter.value;
-      generatedFilters.customDateStart = dateFilter.associatedData.from;
-      generatedFilters.customDateStart = dateFilter.associatedData.to;
+      generatedFilters.customDateStart = dateFilter.associatedData?.from;
+      generatedFilters.customDateStart = dateFilter.associatedData?.to;
     }
 
     const receiptAttachedFilter = selectedFilters.find(filter => filter.name === 'Receipts Attached');
@@ -1321,6 +1321,7 @@ export class MyExpensesPage implements OnInit {
   async deleteSelectedExpenses() {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
       componentProps: {
         header: 'Delete Expense',
         body: `Are you sure you want to delete the ${this.selectedElements.length} expenses?`,

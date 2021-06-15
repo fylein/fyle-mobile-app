@@ -12,7 +12,7 @@
     border: 1px solid #DFDFE2;
     border-radius: 16px;
     color: #5A5D72;
-    padding: 4px 8px;
+    padding: 8px 8px 8px 16px;
     white-space: nowrap;
     display: flex;
     align-items: center;
@@ -21,7 +21,14 @@
     &__clear-all {
       justify-content: center;
       color: #f36;
+      padding-right: 16px;
+
     }
+  }
+
+  &--close-icon {
+    font-size: 14px;
+    color: #DFDFE2;
   }
 
   &--label {
@@ -32,5 +39,8 @@
   &--value {
     font-size: 12px;
     font-weight: 400;
+    margin-left: 4px;
+    margin-right: 4px;
+    text-transform: capitalize;
   }
 }
