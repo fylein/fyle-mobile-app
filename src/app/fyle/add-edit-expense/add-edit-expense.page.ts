@@ -478,15 +478,57 @@ export class AddEditExpensePage implements OnInit {
     return this.checkForDuplicates();
   }
 
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => {
-        return this.getPossibleDuplicates();
-      })
-    );
 
+  getPossibleTest(a, b) {
+    const duplicateFieldsToBeCompared = ['currencyObj', 'dateOfSpend', 'category', 'location_1', 'location_2', 'from_dt', 'to_dt'];
+    console.log("*********this.fg.touched**************")
+    console.log(this.fg.touched);
+    console.log("*********this.fg.touched**************")
+    
+    for (const fieldName of duplicateFieldsToBeCompared) {
+      if (!isEqual(a[fieldName], b[fieldName])) {
+        return false;
+      }
+    };
+    return true;
+  }
+
+
+  setupDuplicateDetection() {
+    console.log("**********in setupDuplicateDetection*******************");
+    console.log(this.fg.touched);
+    console.log("**********in setupDuplicateDetection*******************");
+    if(this.fg.touched) {
+      this.duplicates$ = this.fg.valueChanges.pipe(
+        debounceTime(1000),
+        distinctUntilChanged((a, b) => this.getPossibleTest(a, b)),
+        switchMap(() => {
+          return this.getPossibleDuplicates();
+        })
+      );
+    } else {
+      this.duplicates$ = this.fg.valueChanges.pipe(
+        debounceTime(1000),
+        distinctUntilChanged((a, b) => this.getPossibleTest(a, b)),
+        switchMap(() => {
+          return this.getPossibleDuplicates();
+        })
+      );
+      this.duplicates$ = this.etxn$.pipe(
+        switchMap((etxn) => {
+          console.log("**********etxn*******************");
+          console.log(etxn);
+          console.log("**********etxn*******************");
+          if (etxn.tx.duplicates) {
+            return etxn.tx.duplicates;
+          }
+          return [];
+        })
+      );
+    }
+    console.log("**********duplicates*******************");
+    console.log(this.duplicates$);
+    console.log("**********duplicates*******************");
     this.duplicates$.pipe(
       filter(duplicates => duplicates && duplicates.length),
       take(1)
@@ -1806,8 +1848,6 @@ export class AddEditExpensePage implements OnInit {
     this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
 
     this.setupExpenseSuggestions();
-
-    this.setupDuplicateDetection();
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -1992,6 +2032,8 @@ export class AddEditExpensePage implements OnInit {
     this.setupTfc();
 
     this.setupTransactionMandatoryFields();
+
+    this.setupDuplicateDetection();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map(txnFields => {
