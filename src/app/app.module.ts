@@ -21,6 +21,7 @@ import {ConfigService} from './core/services/config.service';
 import {RouterAuthService} from './core/services/router-auth.service';
 import {TokenService} from './core/services/token.service';
 import {StorageService} from './core/services/storage.service';
+import '@capacitor-community/camera-preview';
 
 @NgModule({
   declarations: [

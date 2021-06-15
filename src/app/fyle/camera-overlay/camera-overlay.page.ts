@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
-
 import '@capacitor-community/camera-preview';
 import {from} from 'rxjs';
 import {LoaderService} from 'src/app/core/services/loader.service';

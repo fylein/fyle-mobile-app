@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {forkJoin, from} from 'rxjs';
+import {forkJoin, from, of} from 'rxjs';
 import { Device } from '@capacitor/device';
 import { App } from '@capacitor/app';
-import {map, switchMap} from 'rxjs/operators';
+import {catchError, map, switchMap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,16 +13,22 @@ export class DeviceService {
 
   getDeviceInfo() {
     return forkJoin({
-      deviceInfo: from(Device.getInfo()),
-      appInfo: from(App.getInfo()),
-      appId: from(Device.getId())
+      deviceInfo: from(Device.getInfo()).pipe(
+          catchError(() => of(null))
+      ),
+      appInfo: from(App.getInfo()).pipe(
+          catchError(() => of(null))
+      ),
+      appId: from(Device.getId()).pipe(
+          catchError(() => of(null))
+      )
     }).pipe(
         map(({ deviceInfo, appInfo, appId }) => ({
-          uuid: appId.uuid,
-          appVersion: appInfo.version,
-          platform: deviceInfo.platform,
-          operatingSystem: deviceInfo.operatingSystem,
-          osVersion: deviceInfo.osVersion
+          uuid: appId?.uuid,
+          appVersion: appInfo?.version,
+          platform: deviceInfo?.platform,
+          operatingSystem: deviceInfo?.operatingSystem,
+          osVersion: deviceInfo?.osVersion
         }))
     );
   }

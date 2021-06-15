@@ -24,7 +24,7 @@
     "@angular/platform-browser-dynamic": "~10.0.0",
     "@angular/router": "~10.0.0",
     "@auth0/angular-jwt": "^5.0.1",
-    "@capacitor-community/camera-preview": "^1.0.6",
+    "@capacitor-community/camera-preview": "^1.2.1",
     "@capacitor/android": "^3.0.1",
     "@capacitor/app": "^1.0.1",
     "@capacitor/browser": "^1.0.1",
