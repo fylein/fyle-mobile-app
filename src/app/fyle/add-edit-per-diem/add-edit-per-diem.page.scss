@@ -112,7 +112,6 @@
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
-    width: 100%;
     padding: 0;
     height: 18px;
     margin: 6px 0;
@@ -438,5 +437,9 @@
 
   &--date-error {
     margin-top: -10px !important;
+  }
+
+  &--to-date-error {
+    margin-left: 12px;
   }
 }
