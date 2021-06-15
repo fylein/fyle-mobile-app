@@ -533,11 +533,11 @@
         <ion-buttons>
           <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'" [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
             class="btn-secondary"
-            appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'SAVING'">
+            appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'Saving'">
             Save and new
           </ion-button>
           <ion-button (click)="saveExpense()" class="btn-primary" 
-            appFormButtonValidation [loading]="saveMileageLoader" [loadingText]="'SAVING'"
+            appFormButtonValidation [loading]="saveMileageLoader" [loadingText]="'Saving'"
             [disabled]="saveMileageLoader || saveAndNewMileageLoader">
             Save Expense
           </ion-button>
@@ -547,7 +547,7 @@
       <div *ngIf="reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
           <ion-button (click)="saveExpenseAndGotoNext()" class="btn-primary" 
-            appFormButtonValidation [loading]="saveAndNextMileageLoader" [loadingText]="'SAVING'">
+            appFormButtonValidation [loading]="saveAndNextMileageLoader" [loadingText]="'Saving'">
             {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
           </ion-button>
         </ion-buttons>

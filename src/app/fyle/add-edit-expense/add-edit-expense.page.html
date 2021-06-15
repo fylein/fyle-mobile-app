@@ -791,17 +791,17 @@
         <ion-buttons *ngIf="!reviewList">
           <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add' && !navigateBack"
                       [disabled]="fg.controls.add_to_new_report.value || (saveExpenseLoader || saveAndNewExpenseLoader)"
-                      [loadingText]="'SAVING'" [loading]="saveAndNewExpenseLoader"
+                      [loadingText]="'Saving'" [loading]="saveAndNewExpenseLoader"
                       appFormButtonValidation class="btn-secondary">
             Save and new
           </ion-button>
-          <ion-button (click)="saveExpense()" [disabled]="saveExpenseLoader || saveAndNewExpenseLoader" [loadingText]="'SAVING'" [loading]="saveExpenseLoader"
+          <ion-button (click)="saveExpense()" [disabled]="saveExpenseLoader || saveAndNewExpenseLoader" [loadingText]="'Saving'" [loading]="saveExpenseLoader"
                       appFormButtonValidation class="btn-primary">
             Save Expense
           </ion-button>
         </ion-buttons>
         <ion-buttons *ngIf="reviewList">
-          <ion-button (click)="saveExpenseAndGotoNext()" [loadingText]="'SAVING'" [loading]="saveAndNextExpenseLoader"
+          <ion-button (click)="saveExpenseAndGotoNext()" [loadingText]="'Saving'" [loading]="saveAndNextExpenseLoader"
                       appFormButtonValidation class="btn-primary">
             {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
           </ion-button>

@@ -190,7 +190,7 @@
     <div class="add-edit-advance-request--cta-container">
       <ion-buttons>
         <ion-button class="btn-secondary" *ngIf="advanceActions?.can_save" (click)="showAdvanceSummaryPopover()" 
-          appFormButtonValidation [loading]="saveDraftAdvanceLoading" [loadingText]="'SAVING'" [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading">
+          appFormButtonValidation [loading]="saveDraftAdvanceLoading" [loadingText]="'Saving'" [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading">
           Save draft
         </ion-button>
         <ion-button class="btn-primary" *ngIf="advanceActions?.can_submit" (click)="save('Submit')" 
