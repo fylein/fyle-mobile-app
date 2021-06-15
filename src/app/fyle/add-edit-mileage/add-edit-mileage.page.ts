@@ -45,11 +45,11 @@ import {TokenService} from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { LocationService } from 'src/app/core/services/location.service';
-import { GeolocationPosition } from '@capacitor/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { GeolocationPosition } from '@capacitor/geolocation';
 
 @Component({
   selector: 'app-add-edit-mileage',

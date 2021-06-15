@@ -17,7 +17,13 @@ export class DeviceService {
       appInfo: from(App.getInfo()),
       appId: from(Device.getId())
     }).pipe(
-        map(({ deviceInfo, appInfo, appId }) => ({ uuid: appId.uuid, appVersion: appInfo.version, platform: deviceInfo.platform }))
+        map(({ deviceInfo, appInfo, appId }) => ({
+          uuid: appId.uuid,
+          appVersion: appInfo.version,
+          platform: deviceInfo.platform,
+          operatingSystem: deviceInfo.operatingSystem,
+          osVersion: deviceInfo.osVersion
+        }))
     );
   }
 }
