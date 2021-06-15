@@ -1,3 +1,5 @@
+@import '../../../../theme/colors';
+
 .filter-pills {
   &--pills {
     display: flex;
@@ -8,10 +10,10 @@
   }
 
   &--pill {
-    background: #FFFFFF;
-    border: 1px solid #DFDFE2;
+    background: $pure-white;
+    border: 1px solid $grey;
     border-radius: 16px;
-    color: #5A5D72;
+    color: $black-light;
     padding: 8px 8px 8px 16px;
     white-space: nowrap;
     display: flex;
@@ -20,15 +22,14 @@
     line-height: 15px;
     &__clear-all {
       justify-content: center;
-      color: #f36;
+      color: $primary;
       padding-right: 16px;
-
     }
   }
 
   &--close-icon {
     font-size: 14px;
-    color: #DFDFE2;
+    color: $grey;
   }
 
   &--label {

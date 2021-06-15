@@ -2,7 +2,7 @@
 
 .fy-filters {
   &--header {
-    border-bottom: 1px solid rgba(223, 223, 226, 0.7);
+    border-bottom: 1px solid $grey-2;
   }
 
   &--title {
@@ -33,10 +33,10 @@
     --inner-padding-start: 16px;
     --inner-padding-top: 13px;
     --inner-padding-bottom: 14px;
-    --background: #fafafa;
+    --background: $white;
 
     &__active {
-      --background: #fff;
+      --background: $pure-white;
     }
   }
 
@@ -48,10 +48,10 @@
   &--filter-option {
     --inner-padding-top: 25px;
     --inner-padding-bottom: 24px;
-    --background: #fff;
+    --background: $pure-white;
     font-size: 14px;
     line-height: 18px;
-    color: #2C304E;
+    color: $blue-black;
   }
 
   &--filter-item-label {
@@ -59,11 +59,11 @@
     justify-content: space-between;
     font-size: 14px;
     line-height: 18px;
-    color: #161528;
+    color: $black;
   }
 
   &--filter-col {
-    background-color: #fafafa;
+    background-color: $white;
   }
 
   &--custom-date-filters {
@@ -79,7 +79,7 @@
   &--save {
     width: 160px;
     height: 60px;
-    background: linear-gradient(162.38deg, #FF3366 3.01%, #FE5196 111.5%);
+    background: $pink-gradient-2;
     border-radius: 4px;
     padding: 16px 24px;
     font-size: 14px;

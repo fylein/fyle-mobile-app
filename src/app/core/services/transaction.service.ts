@@ -387,10 +387,11 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$
   })
   deleteBulk(txnIds: string[]) {
-    const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
+    const chunkSize = 10;
+    const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
     return range(0, count).pipe(
         concatMap(page => {
-          const filteredtxnIds = txnIds.slice(50 * page, 50);
+          const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize);
           return this.apiService.post('/transactions/delete/bulk', {
             txn_ids: filteredtxnIds
           });
