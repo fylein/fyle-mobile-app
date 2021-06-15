@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {Capacitor, Plugins, PushNotification, PushNotificationActionPerformed, PushNotificationToken} from '@capacitor/core';
 import { forkJoin, iif, noop, of } from 'rxjs';
 import { concatMap, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { DeepLinkService } from './deep-link.service';
 import { DeviceService } from './device.service';
 import { UserService } from './user.service';
-const { PushNotifications } = Plugins;
+import {Capacitor} from '@capacitor/core';
+import {ActionPerformed, PushNotifications, PushNotificationSchema, Token} from '@capacitor/push-notifications';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,7 @@ export class PushNotificationService {
     private deviceService: DeviceService,
     private httpClient: HttpClient,
     private deepLinkService: DeepLinkService
-  ) { 
+  ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
@@ -29,32 +29,33 @@ export class PushNotificationService {
   }
 
   initPush() {
-    if (Capacitor.platform !== 'web') {
+    if (Capacitor.getPlatform() !== 'web') {
       this.registerPush();
     }
   }
 
   registerPush() {
-    let that = this;
+    const that = this;
     // If we don't call removeAllListeners() then PushNotifications will start add listeners every time user open the app
-    PushNotifications.removeAllListeners();
-    PushNotifications.requestPermission().then( result => {
-      if (result.granted) {
-        PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
-      }
-    });
- 
-    PushNotifications.addListener('registration',(token: PushNotificationToken) => {
-      that.postDeviceInfo(token.value).subscribe(noop);
-    });
+    PushNotifications.removeAllListeners().then(() => {
+      PushNotifications.requestPermissions().then( result => {
+        if (result.receive === 'granted') {
+          PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
+        }
+      });
 
-    PushNotifications.addListener('pushNotificationReceived', (notification: PushNotification) => {
-      that.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
-    });
+      PushNotifications.addListener('registration', (token: Token) => {
+        that.postDeviceInfo(token.value).subscribe(noop);
+      });
 
-    PushNotifications.addListener('pushNotificationActionPerformed', (notification: PushNotificationActionPerformed) => {
-      that.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(() => {
-        that.deepLinkService.redirect(that.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
+      PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+        that.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
+      });
+
+      PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
+        that.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(() => {
+          that.deepLinkService.redirect(that.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
+        });
       });
     });
   }
@@ -86,15 +87,15 @@ export class PushNotificationService {
       switchMap(userProperties => {
         return this.userService.upsertProperties(userProperties);
       })
-    )
+    );
   }
 
-  updateDeliveryStatus(notification_id) {
-    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/delivered','');
+  updateDeliveryStatus(notificationId) {
+    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notificationId + '/delivered', '');
   }
 
-  updateReadStatus(notification_id) {
-    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/read','');
+  updateReadStatus(notificationId) {
+    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notificationId + '/read', '');
   }
 
   updateNotificationStatusAndRedirect(notificationData, wasTapped?: boolean) {
@@ -102,11 +103,11 @@ export class PushNotificationService {
       concatMap(() => {
         return iif(() => wasTapped, this.updateReadStatus(notificationData.notification_id), of(null).pipe(
           map(() => {
-            return notificationData
+            return notificationData;
           })
-        ))
+        ));
       })
-    )
+    );
   }
 
 }

@@ -18,7 +18,6 @@ import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {NetworkService} from './core/services/network.service';
-import {Plugins} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
@@ -27,8 +26,7 @@ import {PushNotificationService} from './core/services/push-notification.service
 import {TrackingService} from './core/services/tracking.service';
 import {LoginInfoService} from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
-
-const {App} = Plugins;
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-root',

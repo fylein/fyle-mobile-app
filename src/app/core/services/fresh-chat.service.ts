@@ -2,14 +2,11 @@ import {EventEmitter, Injectable} from '@angular/core';
 import {OfflineService} from './offline.service';
 import {AuthService} from './auth.service';
 import {StorageService} from './storage.service';
-import {Plugins} from '@capacitor/core';
 import {OrgUserSettingsService} from './org-user-settings.service';
 import {NetworkService} from './network.service';
 import {concat} from 'rxjs';
 import {environment} from 'src/environments/environment';
-
-const {Device} = Plugins;
-
+import { Device } from '@capacitor/device';
 
 @Injectable({
   providedIn: 'root'

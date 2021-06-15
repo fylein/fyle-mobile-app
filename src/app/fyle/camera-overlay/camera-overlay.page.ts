@@ -1,17 +1,12 @@
 import {Component, OnInit} from '@angular/core';
-import {Capacitor, Plugins} from '@capacitor/core';
-import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
+import {CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 
-const {CameraPreview} = Plugins;
 import '@capacitor-community/camera-preview';
-import {CurrencyService} from 'src/app/core/services/currency.service';
-
 import {from} from 'rxjs';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {ImagePicker} from '@ionic-native/image-picker/ngx';
-import {toBase64String} from '@angular/compiler/src/output/source_map';
 import {NavController, PopoverController} from '@ionic/angular';
 import {GalleryUploadSuccessPopupComponent} from './gallery-upload-success-popup/gallery-upload-success-popup.component';
 import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';

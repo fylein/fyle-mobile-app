@@ -1,10 +1,8 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { Plugins, CameraResultType, CameraSource, CameraDirection } from '@capacitor/core';
-const { Camera } = Plugins;
-import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
+import {Camera, CameraDirection, CameraResultType, CameraSource} from '@capacitor/camera';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -23,8 +21,8 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   ngOnInit() { }
 
-  closeClicked() {
-    this.popoverController.dismiss();
+  async closeClicked() {
+    await this.popoverController.dismiss();
   }
 
   async getImageFromPicture() {
@@ -36,7 +34,7 @@ export class CameraOptionsPopupComponent implements OnInit {
     });
 
     if (image) {
-      this.popoverController.dismiss({
+      await this.popoverController.dismiss({
         type: image.format,
         dataUrl: image.dataUrl
       });
@@ -54,12 +52,12 @@ export class CameraOptionsPopupComponent implements OnInit {
 
       if (file) {
         const dataUrl = await that.fileService.readFile(file);
-        that.popoverController.dismiss({
+        await that.popoverController.dismiss({
           type: file.type,
           dataUrl
         });
       } else {
-        that.closeClicked();
+        await that.closeClicked();
       }
     };
 

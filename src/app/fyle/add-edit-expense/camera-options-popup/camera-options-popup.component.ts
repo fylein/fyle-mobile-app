@@ -1,11 +1,9 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { Plugins, CameraResultType, CameraSource, CameraDirection } from '@capacitor/core';
-const { Camera } = Plugins;
-import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
 import {TrackingService} from '../../../core/services/tracking.service';
+import {Camera, CameraDirection, CameraResultType, CameraSource} from '@capacitor/camera';
 
 @Component({
   selector: 'app-camera-options-popup',

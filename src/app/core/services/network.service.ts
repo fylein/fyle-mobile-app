@@ -1,10 +1,7 @@
 import {EventEmitter, Injectable} from '@angular/core';
-import {Plugins} from '@capacitor/core';
 import {from} from 'rxjs';
 import {map} from 'rxjs/operators';
-
-
-const { Network } = Plugins;
+import { Network } from '@capacitor/network';
 
 @Injectable({
   providedIn: 'root'

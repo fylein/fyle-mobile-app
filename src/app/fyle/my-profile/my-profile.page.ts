@@ -18,13 +18,11 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { Plugins } from '@capacitor/core';
 import { TokenService } from 'src/app/core/services/token.service';
 import {TrackingService} from '../../core/services/tracking.service';
 import { environment } from 'src/environments/environment';
 import { StatsOneDResponse } from 'src/app/core/models/stats-one-dimension.model';
-
-const { Browser } = Plugins;
+import { Browser } from '@capacitor/browser';
 
 @Component({
   selector: 'app-my-profile',
@@ -242,7 +240,7 @@ export class MyProfilePage implements OnInit {
       dimension_1_1: 'tx_source'
     }).pipe(
       map(statsRes => this.setMyExpensesCountBySource(new StatsOneDResponse(statsRes[0])))
-    )
+    );
 
     this.org$ = this.offlineService.getCurrentOrg();
 
