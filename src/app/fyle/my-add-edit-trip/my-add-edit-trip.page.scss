@@ -64,6 +64,18 @@
   &--mandatory-text {
     color: $red;
     font-size: 12px;
+    margin-top: -16px;
+  }
+
+  &--mandatory-location {
+    margin-top: 0 !important;
+  }
+
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--text {
@@ -112,7 +124,7 @@
     font-weight: 400;
     line-height: 18px;
     width: 100%;
-    padding: 16px;
+    padding: 16px 0;
     height: 20px;
   }
 
@@ -154,5 +166,9 @@
       width: 100%;
       --border-radius: 4px;
     }
+  }
+
+  &--select {
+    border-bottom: none !important;
   }
 }

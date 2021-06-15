@@ -51,6 +51,18 @@
   &--mandatory-text {
     color: $red;
     font-size: 12px;
+    margin-top: -16px;
+  }
+
+  &--mandatory-location {
+    margin-top: 0 !important;
+  }
+
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--text-label {
@@ -92,7 +104,7 @@
     font-weight: 400;
     line-height: 18px;
     width: 100%;
-    padding: 16px;
+    padding: 16px 0;
     height: 20px;
   }
 
@@ -139,5 +151,9 @@
       vertical-align: text-top;
       text-align-last: center;
     }
+  }
+
+  &--select {
+    border-bottom: none !important;
   }
 }
