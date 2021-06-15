@@ -214,7 +214,12 @@ export class AddEditExpensePage implements OnInit {
       if (this.activatedRoute.snapshot.params.id) {
         this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Receipt'});
       }
-      this.goBack();
+
+      if (this.navigateBack) {
+        this.navController.back();
+      } else {
+        this.goBack();
+      }
     }
   }
 
@@ -755,7 +760,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getInstaFyleImageData() {
-    if (this.activatedRoute.snapshot.params.dataUrl) {
+    if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
       return from(this.transactionOutboxService.parseReceipt(b64Image))
@@ -1478,7 +1483,7 @@ export class AddEditExpensePage implements OnInit {
         shareReplay(1)
       );
   }
-  
+
   setupTfc() {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
@@ -2893,9 +2898,9 @@ export class AddEditExpensePage implements OnInit {
                   /**
                    * NOTE: expense will be sync only if we are redirected to expense page, or else it will be in the outbox (storage service)
                    * if (this.fg.value.add_to_new_report i.e entry) is present we will sync to the expense page list
-                   * else if (if the expense is created from ccc page) we need to sync expense than only 
+                   * else if (if the expense is created from ccc page) we need to sync expense than only
                    *        the count on ccc page for classified and unclassified expense will be updated
-                   * else (this will be the case of normal expense) we are adding entry but not syncing as it will be 
+                   * else (this will be the case of normal expense) we are adding entry but not syncing as it will be
                    *        redirected to expense page at the end and sync will take place
                    */
                   if (entry) {

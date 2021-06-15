@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { EnterpriseDashboardFooterComponent } from './enterprise-dashboard-footer.component';
+import { FooterComponent } from './footer.component';
 
-describe('EnterpriseDashboardFooterComponent', () => {
-  let component: EnterpriseDashboardFooterComponent;
-  let fixture: ComponentFixture<EnterpriseDashboardFooterComponent>;
+describe('FooterComponent', () => {
+  let component: FooterComponent;
+  let fixture: ComponentFixture<FooterComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EnterpriseDashboardFooterComponent ],
+      declarations: [ FooterComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EnterpriseDashboardFooterComponent);
+    fixture = TestBed.createComponent(FooterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
