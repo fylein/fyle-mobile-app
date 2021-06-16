@@ -495,7 +495,7 @@ ref - https://stackoverflow.com/a/31162426
     }
 
     &::after {
-      color: $blue-black;
+      color: $grey-light;
     }
 
     &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
@@ -505,6 +505,12 @@ ref - https://stackoverflow.com/a/31162426
     &::-webkit-calendar-picker-indicator {
       position: absolute;
       right: 12px;
+    }
+  }
+
+  &__placeholder {
+    &::before {
+      color: $grey-light;
     }
   }
 }
