@@ -17,7 +17,7 @@
         <!-- </ion-col>
         <ion-col size="10"> -->
           <ng-container *ngIf="criticalViolationMessages.length === 1">
-            {{criticalViolationMessages[0]}}
+            <span class="critical-policy-violation--list__elements">{{criticalViolationMessages[0]}}</span>
           </ng-container>
           <ul *ngIf="criticalViolationMessages.length !== 1" class="critical-policy-violation--list m-0 p-0">
             <ng-container *ngFor="let criticalViolationMessage of criticalViolationMessages">
