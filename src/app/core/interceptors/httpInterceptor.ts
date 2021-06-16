@@ -47,6 +47,9 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       if (
         url.indexOf('/api/auth/') >= 0 ||
         url.indexOf('routerapi/auth/') >= 0) {
+          if (url.indexOf('api/auth/logout') >= 0) {
+            return true;
+          }
         return false;
       }
       return true;
