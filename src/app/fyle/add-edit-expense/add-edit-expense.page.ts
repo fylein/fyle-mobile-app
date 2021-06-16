@@ -480,34 +480,54 @@ export class AddEditExpensePage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
   }
 
-  getPossibleTest() {
-    const duplicateFieldsToBeCompared = ['amount', 'currency', 'txn_dt', 'category', 'locations', 'from_dt', 'to_dt'];
-    let oldExpenseObject = {}
-    let currentExpenseObject = {}
-    this.transactionCopyForDuplicateCheck.subscribe(expense => oldExpenseObject = expense.tx);
-    this.etxn$.subscribe(expense => currentExpenseObject = expense.tx);
-    
-    for (const fieldName of duplicateFieldsToBeCompared) {
-      if (!isEqual(oldExpenseObject[fieldName], currentExpenseObject[fieldName])) {
-        return true;
-      }
-    };
-    return false;
+  getPossibleDuplicates() {
+    const duplicateFieldsToBeCompared = ['amount', 'fyle_category', 'currency', 'txn_dt', 'to_dt', 'from_dt', 'locations'];
+
+    const customFields$ = this.getCustomFields();
+    let currentExpenseObject$ = this.generateEtxnFromFg(this.etxn$, customFields$);
+
+    return forkJoin(
+      {
+        currentExpenseObject: currentExpenseObject$,
+        originalExpenseObject: this.etxn$
+      }).pipe(
+        map(({currentExpenseObject, originalExpenseObject}) => {
+          for (const fieldName of duplicateFieldsToBeCompared) {
+
+            if (['txn_dt', 'to_dt', 'from_dt'].includes(fieldName)) {
+              let currentDate = currentExpenseObject.tx[fieldName] && moment(currentExpenseObject.tx[fieldName]).format('y-MM-DD');
+              let originalDate = originalExpenseObject.tx[fieldName] && moment(originalExpenseObject.tx[fieldName]).format('y-MM-DD');
+              if (!isEqual(currentDate, originalDate)) {
+                return true;
+              }
+            } else {
+              if (!isEqual(currentExpenseObject.tx[fieldName], originalExpenseObject.tx[fieldName])) {
+                return true;
+              }
+            }
+          }
+          return false;
+        })
+      )
   }
 
   getDuplicates() {
-    let duplicatesFromDB;
-    this.etxn$.subscribe(expense => duplicatesFromDB = expense.tx.duplicates);
-    return duplicatesFromDB;
+    return this.etxn$.pipe(
+      map(etxn => etxn.tx.duplicates)
+    )
   }
-
 
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
-      switchMap(() => 
-        iif(() => this.getPossibleTest(), this.checkForDuplicates(), this.getDuplicates())
-      )
+      switchMap(() => this.getPossibleDuplicates()),
+      switchMap((test) => {
+        if(test) {
+          return this.checkForDuplicates();
+        } else {
+          return this.getDuplicates();
+        }
+      })
     );
 
     this.duplicates$.pipe(
@@ -1947,8 +1967,6 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
     );
-
-    this.transactionCopyForDuplicateCheck = cloneDeep(this.etxn$);
 
     orgSettings$.pipe(
       filter(orgSettings => orgSettings.corporate_credit_card_settings.enabled),

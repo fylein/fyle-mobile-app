@@ -280,15 +280,52 @@ export class AddEditMileagePage implements OnInit {
 
 
   getPossibleDuplicates() {
-    return this.checkForDuplicates();
+    const duplicateFieldsToBeCompared = ['amount', 'fyle_category', 'currency', 'txn_dt', 'to_dt', 'from_dt', 'locations'];
+
+    const customFields$ = this.getCustomFields();
+    let currentExpenseObject$ = this.generateEtxnFromFg(this.etxn$, customFields$, this.getCalculateDistance());
+
+    return forkJoin(
+      {
+        currentExpenseObject: currentExpenseObject$,
+        originalExpenseObject: this.etxn$
+      }).pipe(
+        map(({currentExpenseObject, originalExpenseObject}) => {
+          for (const fieldName of duplicateFieldsToBeCompared) {
+
+            if (['txn_dt', 'to_dt', 'from_dt'].includes(fieldName)) {
+              let currentDate = currentExpenseObject.tx[fieldName] && moment(currentExpenseObject.tx[fieldName]).format('y-MM-DD');
+              let originalDate = originalExpenseObject.tx[fieldName] && moment(originalExpenseObject.tx[fieldName]).format('y-MM-DD');
+              if (!isEqual(currentDate, originalDate)) {
+                return true;
+              }
+            } else {
+              if (!isEqual(currentExpenseObject.tx[fieldName], originalExpenseObject.tx[fieldName])) {
+                return true;
+              }
+            }
+          }
+          return false;
+        })
+      )
+  }
+
+  getDuplicates() {
+    return this.etxn$.pipe(
+      map(etxn => etxn.tx.duplicates)
+    )
   }
 
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => {
-        return this.getPossibleDuplicates();
+      switchMap(() => this.getPossibleDuplicates()),
+      switchMap((test) => {
+        if(test) {
+          return this.checkForDuplicates();
+        } else {
+          return this.getDuplicates();
+        }
       })
     );
 
