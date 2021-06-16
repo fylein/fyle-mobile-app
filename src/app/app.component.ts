@@ -1,10 +1,10 @@
 import {Component, OnInit, EventEmitter, NgZone} from '@angular/core';
-import {Platform, MenuController, AlertController} from '@ionic/angular';
+import {Platform, MenuController, AlertController, NavController} from '@ionic/angular';
 import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
 import {map, switchMap, shareReplay} from 'rxjs/operators';
-import {Router, NavigationEnd} from '@angular/router';
+import {Router, NavigationEnd, NavigationStart} from '@angular/router';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
 import {OrgUserService} from 'src/app/core/services/org-user.service';
@@ -18,7 +18,7 @@ import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {NetworkService} from './core/services/network.service';
-import {Plugins} from '@capacitor/core';
+import {Plugins, StatusBarStyle} from '@capacitor/core';
 import {FreshChatService} from './core/services/fresh-chat.service';
 import {DeepLinkService} from './core/services/deep-link.service';
 import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
@@ -29,6 +29,7 @@ import {LoginInfoService} from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
 
 const {App} = Plugins;
+const CapStatusBar = Plugins.StatusBar;
 
 @Component({
   selector: 'app-root',
@@ -47,6 +48,7 @@ export class AppComponent implements OnInit {
   eou;
   device;
   dividerTitle: string;
+  previousUrl: string;
 
   constructor(
     private platform: Platform,
@@ -73,7 +75,8 @@ export class AppComponent implements OnInit {
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private navController: NavController
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -103,6 +106,13 @@ export class AppComponent implements OnInit {
       if (this.router.url.includes('my_dashboard') || this.router.url.includes('tasks')) {
         this.showAppCloseAlert();
       }
+      if ((this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts'))) {
+        if (this.previousUrl && this.previousUrl.includes('enterprise')) {
+          this.navController.back();
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        }
+      }
     });
   }
 
@@ -117,6 +127,9 @@ export class AppComponent implements OnInit {
 
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
+      CapStatusBar.setStyle({
+        style: StatusBarStyle.Dark
+      })
       this.splashScreen.hide();
 
       // Global cache config
@@ -512,6 +525,9 @@ export class AppComponent implements OnInit {
     this.setupNetworkWatcher();
 
     this.router.events.subscribe((ev) => {
+      if (ev instanceof NavigationStart) {
+        this.previousUrl = this.router.url;
+      }
       if (ev instanceof NavigationEnd) {
         this.menuController.swipeGesture(false);
         if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {

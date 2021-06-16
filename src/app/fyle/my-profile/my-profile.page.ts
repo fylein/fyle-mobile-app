@@ -75,7 +75,6 @@ export class MyProfilePage implements OnInit {
   ) { }
 
   logOut() {
-    this.userEventService.logout();
     forkJoin({
       device: this.deviceService.getDeviceInfo(),
       eou: from(this.authService.getEou())
@@ -85,11 +84,13 @@ export class MyProfilePage implements OnInit {
           device_id: device.uuid,
           user_id: eou.us.id
         });
+      }),
+      finalize(() => {
+        this.userEventService.logout();
+        this.storageService.clearAll();
+        globalCacheBusterNotifier.next();
       })
     ).subscribe(noop);
-
-    this.storageService.clearAll();
-    globalCacheBusterNotifier.next();
   }
 
   toggleUsageDetails() {
