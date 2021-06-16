@@ -245,6 +245,8 @@ export class CameraOverlayPage implements OnInit {
         this.activeFlashMode = this.activeFlashMode || 'off';
         CameraPreview.setFlashMode({flashMode: this.activeFlashMode});
       }
+    }).catch(err => {
+      // do nothing
     });
   }
 
