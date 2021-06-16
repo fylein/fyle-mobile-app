@@ -15,7 +15,7 @@ $small-screen: 700px;
   &--info {
     color: $blue-black;
     font-size: 14px;
-    line-height: 18px;
+    line-height: 17.92px;
     padding-bottom: 18px;
   }
 
@@ -37,17 +37,21 @@ $small-screen: 700px;
     height: 20px;
     width: 20px;
     font-size: 20px;
-    margin-right: 8px;
+  }
+
+  &--container {
+    margin-left: 8px;
+    font-size: 12px;
+    line-height: 20px;
+    align-items: center;
+    color: $blue-black;
   }
 
   &--list {
-    margin-left: 10px;
+    margin-left: 8px;
 
     &__elements {
-      font-size: 12px;
-      line-height: 20px;
-      align-items: center;
-      color: $blue-black;
+      margin-left: 8px;
     }
   }
 
@@ -76,5 +80,9 @@ $small-screen: 700px;
 
   &--alert-info {
     margin: 10px 0 5px;
+    font-size: 12px;
+    line-height: 15px;
   }
 }
+
+

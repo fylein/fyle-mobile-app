@@ -9,26 +9,19 @@
   </ion-header>
 
   <div class="critical-policy-violation--body">
-    <!-- <ion-grid>
-      <ion-row>
-        <ion-col size="2"> -->
-          <!-- <mat-icon class="critical-policy-violation--error-icon" svgIcon="fy-error"></mat-icon> -->
-          <img class="critical-policy-violation--error-icon" src="assets/svg/fy-error.svg">
-        <!-- </ion-col>
-        <ion-col size="10"> -->
-          <ng-container *ngIf="criticalViolationMessages.length === 1">
-            <span class="critical-policy-violation--list__elements">{{criticalViolationMessages[0]}}</span>
-          </ng-container>
-          <ul *ngIf="criticalViolationMessages.length !== 1" class="critical-policy-violation--list m-0 p-0">
-            <ng-container *ngFor="let criticalViolationMessage of criticalViolationMessages">
-              <li class="critical-policy-violation--list__elements">
-                {{criticalViolationMessage}}
-              </li>
-            </ng-container>
-          </ul>
-        <!-- </ion-col>
-      </ion-row>
-    </ion-grid> -->
+    <img class="critical-policy-violation--error-icon" src="assets/svg/fy-error.svg">
+    <div class="critical-policy-violation--container">
+      <ng-container *ngIf="criticalViolationMessages.length === 1">
+        <span class="critical-policy-violation--list__element">{{criticalViolationMessages[0]}}</span>
+      </ng-container>
+      <ul *ngIf="criticalViolationMessages.length !== 1" class="critical-policy-violation--list m-0 p-0">
+        <ng-container *ngFor="let criticalViolationMessage of criticalViolationMessages">
+          <li class="critical-policy-violation--list__elements">
+            {{criticalViolationMessage}}
+          </li>
+        </ng-container>
+      </ul>
+    </div>
   </div>
 
   <ion-footer class="critical-policy-violation--footer">
