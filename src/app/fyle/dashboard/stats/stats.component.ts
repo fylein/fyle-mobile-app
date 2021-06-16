@@ -1,13 +1,13 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {DashboardService} from '../dashboard.service';
 import {Observable} from 'rxjs/internal/Observable';
 import {shareReplay} from 'rxjs/internal/operators/shareReplay';
-import {delay, map, startWith, tap} from 'rxjs/operators';
+import {delay, map, startWith, switchMap, tap} from 'rxjs/operators';
 import {CurrencyService} from '../../../core/services/currency.service';
 import {Params, Router} from '@angular/router';
-import {ActionSheetController} from '@ionic/angular';
+import {ActionSheetController, IonSlides} from '@ionic/angular';
 import {NetworkService} from '../../../core/services/network.service';
-import {concat, Subject} from 'rxjs';
+import {concat, iif, of, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
 import {getCurrencySymbol} from "@angular/common";
@@ -18,6 +18,12 @@ import {getCurrencySymbol} from "@angular/common";
   styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent implements OnInit {
+  @ViewChild('slides', {static: true}) slides: IonSlides;
+
+  slideOpts = {
+    initialSlide: 1,
+    slidesPerView: 1.1
+  };
   draftStats$: Observable<{ count: number, sum: number }>;
   reportedStats$: Observable<{ count: number, sum: number }>;
   approvedStats$: Observable<{ count: number, sum: number }>;
@@ -25,6 +31,7 @@ export class StatsComponent implements OnInit {
   homeCurrency$: Observable<string>;
   isConnected$: Observable<boolean>;
   currencySymbol$: Observable<string>;
+  assignedCCCCount$: Observable<number>;
 
   unreportedExpensesCount$: Observable<{ count: number }>;
   unreportedExpensesAmount$: Observable<{ amount: number }>;
@@ -78,7 +85,8 @@ export class StatsComponent implements OnInit {
     );
 
     this.paymentPendingStats$ = reportStats$.pipe(
-        map(stats => stats.paymentPending)
+        map(stats => stats.paymentPending),
+        tap(console.log)
     );
   }
 
@@ -93,6 +101,17 @@ export class StatsComponent implements OnInit {
 
     this.unreportedExpensesAmount$ = unreportedExpensesStats$.pipe(
         map(stats => ({ amount: stats.totalAmount }))
+    );
+  }
+
+  initializeCCCStats() {
+    const assignedCCCDetails$ = this.dashboardService.getCCCDetails().pipe(
+      shareReplay(1)
+  );
+
+    this.assignedCCCCount$ = assignedCCCDetails$.pipe(
+      map(res => res.count),
+      tap(console.log)
     );
   }
 
@@ -114,6 +133,9 @@ export class StatsComponent implements OnInit {
     that.initializeExpensesStats();
     that.offlineService.getOrgSettings().subscribe(orgSettings => {
       this.setupActionSheet(orgSettings);
+      if (orgSettings.corporate_credit_card_settings.enabled) {
+        that.initializeCCCStats();
+      }
     });
   }
 

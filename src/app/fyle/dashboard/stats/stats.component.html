@@ -122,6 +122,215 @@
       </ion-row>
     </ion-grid>
   </div>
+
+  <div *ngIf="isConnected$|async" class="stats--ccc-cards-section">
+    <ng-container *ngIf="assignedCCCCount$ | async as assignedCCCCount">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="7">
+            <div class="stats--header">
+              CARD TRANSACTIONS ({{ assignedCCCCount }})
+            </div>
+          </ion-col>
+          <ion-col size="5">
+            <div>
+              <span class="stats--pager-dots"></span>
+              <span class="stats--pager-dots stats--pager-dots__active"></span>
+              <span class="stats--pager-dots"></span>
+              <span class="stats--pager-dots"></span>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
+
+    <ion-slides [options]="slideOpts">
+      <ion-slide>
+        <div class="stats--card-section">
+          <div class="stats--bank">
+              <ion-grid>
+              <ion-row>
+                  <ion-col size="6">
+                  <div class="stats--bank-name">
+                      HDFC Bank
+                  </div>
+                  </ion-col>
+                  <ion-col size="6">
+                  <div class="stats--card-info">
+                      Corporate Card
+                  </div>
+                  </ion-col>
+              </ion-row>
+              <ion-row>
+                  <ion-col>
+                  <div class="stats--card-number">
+                      xxxx x123
+                  </div>
+                  </ion-col>
+              </ion-row>
+              </ion-grid>
+          </div>
+          <div class="stats--sync-detail">
+              Last synced at 24 Jan 2021, 12.45 pm
+          </div>
+          </div>
+          
+          <div class="stats--stats">
+          <div class="stats--start-info">
+              Showing all transactions from Jan15, 2021
+          </div>
+          <div>
+              <div class="stats--classified-stats">
+              <div class="stats--classified-count">
+                  123
+              </div>
+              <div class="stats--classified-amount">
+                  $120003
+              </div>
+              </div>
+              <div class="stats--stats-title">
+              Classified Transactions
+              </div>
+              <hr class="stats--border-bottom">
+              <div class="stats--classified-stats stats--classified-stats__margin-top">
+              <div class="stats--classified-count">
+                  13
+              </div>
+              <div class="stats--classified-amount">
+                  $1000
+              </div>
+              </div>
+              <div class="stats--stats-title">
+              Unclassified Transactions
+              </div>
+          </div>
+          </div>
+      </ion-slide>
+      <ion-slide>
+        <div class="stats--card-section">
+          <div class="stats--bank">
+              <ion-grid>
+              <ion-row>
+                  <ion-col size="6">
+                  <div class="stats--bank-name">
+                      HDFC Bank
+                  </div>
+                  </ion-col>
+                  <ion-col size="6">
+                  <div class="stats--card-info">
+                      Corporate Card
+                  </div>
+                  </ion-col>
+              </ion-row>
+              <ion-row>
+                  <ion-col>
+                  <div class="stats--card-number">
+                      xxxx x123
+                  </div>
+                  </ion-col>
+              </ion-row>
+              </ion-grid>
+          </div>
+          <div class="stats--sync-detail">
+              Last synced at 24 Jan 2021, 12.45 pm
+          </div>
+          </div>
+          
+          <div class="stats--stats">
+          <div class="stats--start-info">
+              Showing all transactions from Jan15, 2021
+          </div>
+          <div>
+              <div class="stats--classified-stats">
+              <div class="stats--classified-count">
+                  123
+              </div>
+              <div class="stats--classified-amount">
+                  $120003
+              </div>
+              </div>
+              <div class="stats--stats-title">
+              Classified Transactions
+              </div>
+              <hr class="stats--border-bottom">
+              <div class="stats--classified-stats stats--classified-stats__margin-top">
+              <div class="stats--classified-count">
+                  13
+              </div>
+              <div class="stats--classified-amount">
+                  $1000
+              </div>
+              </div>
+              <div class="stats--stats-title">
+              Unclassified Transactions
+              </div>
+          </div>
+          </div>
+      </ion-slide>
+      <ion-slide>
+        <div class="stats--card-section">
+          <div class="stats--bank">
+              <ion-grid>
+              <ion-row>
+                  <ion-col size="6">
+                  <div class="stats--bank-name">
+                      HDFC Bank
+                  </div>
+                  </ion-col>
+                  <ion-col size="6">
+                  <div class="stats--card-info">
+                      Corporate Card
+                  </div>
+                  </ion-col>
+              </ion-row>
+              <ion-row>
+                  <ion-col>
+                  <div class="stats--card-number">
+                      xxxx x123
+                  </div>
+                  </ion-col>
+              </ion-row>
+              </ion-grid>
+          </div>
+          <div class="stats--sync-detail">
+              Last synced at 24 Jan 2021, 12.45 pm
+          </div>
+          </div>      
+          <div class="stats--stats">
+          <div class="stats--start-info">
+              Showing all transactions from Jan15, 2021
+          </div>
+          <div>
+              <div class="stats--classified-stats">
+              <div class="stats--classified-count">
+                  123
+              </div>
+              <div class="stats--classified-amount">
+                  $120003
+              </div>
+              </div>
+              <div class="stats--stats-title">
+              Classified Transactions
+              </div>
+              <hr class="stats--border-bottom">
+              <div class="stats--classified-stats stats--classified-stats__margin-top">
+              <div class="stats--classified-count">
+                  13
+              </div>
+              <div class="stats--classified-amount">
+                  $1000
+              </div>
+              </div>
+              <div class="stats--stats-title">
+              Unclassified Transactions
+              </div>
+          </div>
+          </div>
+      </ion-slide>
+    </ion-slides>
+  </div>
+  
+
   <ng-template #offlineMessage>
     <div class="stats--zero-state">
       <app-fy-zero-state class="stats--zero-state" image="../../../../assets/images/no-internet.svg"

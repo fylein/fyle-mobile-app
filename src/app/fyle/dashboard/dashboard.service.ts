@@ -1,14 +1,19 @@
 import { Injectable } from '@angular/core';
 import {ReportService} from '../../core/services/report.service';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import {StatsResponse} from '../../core/models/v2/stats-response.model';
 import {TransactionService} from '../../core/services/transaction.service';
+import { from } from 'rxjs';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 
 @Injectable()
 export class DashboardService {
   constructor(
       private reportService: ReportService,
-      private transactionService: TransactionService
+      private transactionService: TransactionService,
+      private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
   ) { }
 
   getUnreportedExpensesStats() {
@@ -72,5 +77,9 @@ export class DashboardService {
       approved: approvedReportStats,
       paymentPending: paymentPendingReportStats
     };
+  }
+
+  getCCCDetails() {
+    return this.corporateCreditCardExpenseService.getAssignedCards();
   }
 }
