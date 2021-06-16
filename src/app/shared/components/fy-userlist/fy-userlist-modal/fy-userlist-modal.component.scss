@@ -83,4 +83,15 @@ $list-element-color: #333;
   &--new-item-name {
     word-break: break-all;
   }
+
+  &--autocomplete-loader {
+    @extend %autocomplete-loader;
+  }
+  &--spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
 }
