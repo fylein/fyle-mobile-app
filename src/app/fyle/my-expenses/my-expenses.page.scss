@@ -20,7 +20,7 @@
   }
 
   &--content {
-    --background: $white;
+    --background: #{$white};
   }
 
   &--state-toolbar {

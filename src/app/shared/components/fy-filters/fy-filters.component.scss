@@ -33,10 +33,10 @@
     --inner-padding-start: 16px;
     --inner-padding-top: 13px;
     --inner-padding-bottom: 14px;
-    --background: $white;
+    --background: #{$white};
 
     &__active {
-      --background: $pure-white;
+      --background: #{$pure-white};
     }
   }
 
@@ -48,7 +48,7 @@
   &--filter-option {
     --inner-padding-top: 25px;
     --inner-padding-bottom: 24px;
-    --background: $pure-white;
+    --background: #{$pure-white};
     font-size: 14px;
     line-height: 18px;
     color: $blue-black;
