@@ -17,7 +17,6 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
@@ -51,7 +50,6 @@ import {MatButtonModule} from '@angular/material/button';
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
-    SplitExpensePopoverComponent,
     CriticalPolicyViolationComponent,
     PolicyViolationComponent,
     CameraOptionsPopupComponent,
