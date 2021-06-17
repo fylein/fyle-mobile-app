@@ -3,8 +3,6 @@
   {{expense.tx_txn_dt | date: 'MMM dd, yyyy'}}
 </div>
 
-
-
 <div class="expenses-card--body">
 
   
@@ -15,18 +13,19 @@
       <ion-row>
         <ion-col size="2.65">
           <div class="expenses-card--receipt-container">
-            <ion-img [src]="receipt"></ion-img>
+            <!-- <ion-img [src]="receipt"></ion-img> -->
+            <mat-icon svgIcon="{{receipt}}"></mat-icon>
           </div>
           
         </ion-col>
   
-        <ion-col size="6">
+        <ion-col size="5.35">
           <!-- <ion-grid> -->
             <ion-row>
               <div class="expenses-card--category">
                 {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
               </div>
-              <mat-icon *ngIf="isCriticalPolicyViolated || isPolicyViolated" class="expenses-card--policy-violated-icon" svgIcon="fy-error"></mat-icon>
+              <mat-icon *ngIf="isCriticalPolicyViolated || isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
             </ion-row>
             <ion-row>
               <div class="expenses-card--vendor">
@@ -42,7 +41,36 @@
   
         </ion-col>
   
-        <ion-col size="3.35">
+        <ion-col size="4">
+          <div class="ion-text-right">
+            <div>
+              <span class="expenses-card--currency">{{currencySymbol}}</span>
+              <span class="expenses-card--amount">{{(expense.tx_amount || 0) | humanizeCurrency: homeCurrency: 2: true }}</span>
+              <span>
+                <mat-icon svgIcon="{{icon}}"></mat-icon>
+              </span>
+            </div>
+
+            <div *ngIf="expense.tx_orig_currency && expense.tx_orig_amount">
+              <div class="expenses-card--exchange-rate">
+                ({{expense.tx_orig_currency}} {{expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency : 2: true }} at {{currencySymbol}} {{(expense.tx_amount / expense.tx_orig_amount) | number: '1.0-2'}})
+              </div>
+            </div>
+            <div *ngIf="expense.tx_state.toLowerCase() === 'draft'">
+              <span class="expenses-card--state">
+                {{expense.tx_state | titlecase}}
+              </span>
+              
+            </div>
+            <div>
+              <div class="expenses-card--critical-policy-violatios" *ngIf="isCriticalPolicyViolated">
+                Critical policy violations
+              </div>
+            </div>
+
+          </div>
+            
+
   
         </ion-col>
       </ion-row>

@@ -1,9 +1,16 @@
+@import '../../../../theme/colors';
+
+ion-col, ion-grid {
+  padding: 0;
+}
+
 .expenses-card{
 
   &--body {
     background:#fff;
     min-height: 106px;
     border-bottom: 1px solid #DFDFE2;
+    padding: 16px;
   }
 
   &--date {
@@ -23,25 +30,72 @@
     color: #161528;
     font-size: 18px;
     line-height: 23px;
+    margin-left: 11px;
   }
 
   &--policy-violated-icon {
     margin-left: 10px;
-    width: 21px;
-    height: 21px;
+    color: $red;
+    font-size: 20px;
   }
 
   &--vendor  {
     color: #2c304e;
     font-size: 14px;
     line-height: 18px;
-    margin: 1px 0 8px 0;
+    margin: 1px 0 8px 11px;
   }
 
   &--project {
     color: #5a5d72;
     font-style: 14px;
+    margin-left: 11px;
   }
 
+  &--currency-amount-container {
+    width: 100%;
+  }
+
+  &--currency {
+    color: #5a5d72;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 20px;
+  }
+
+  &--amount {
+    color: #161528;
+    font-size: 20px;
+    line-height: 26px;
+  }
+
+  &--exchange-rate {
+    color: #5a5d72;
+    font-size: 12px;
+    line-height: 15px;
+  }
+
+
+  &--critical-policy-violatios {
+    color: #da1e28;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 13px;
+    background: #DA1E2817;
+    padding: 1px;
+    border-radius: 3px;
+    margin-top: 8px;
+  }
+
+  &--state {
+    font-size: 12px;
+    line-height: 15px;
+    color: #ffffff;
+    text-align: center;
+    background: #464D57;
+    border-radius: 16px;
+    padding: 4px 29px;
+    margin-top: 6px;
+  }
 
 }
