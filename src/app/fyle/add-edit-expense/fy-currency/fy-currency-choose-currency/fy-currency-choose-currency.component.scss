@@ -4,7 +4,8 @@
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 14px;
+    padding: 18px 0;
+    margin: 0 16px;
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
     // list-item-layout
@@ -41,7 +42,6 @@
   &--container {
     display: flex;
     flex-direction: column;
-    padding: 0 16px;
   }
 
   &--recently-used-block {

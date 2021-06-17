@@ -348,7 +348,9 @@ textarea, input {
 
 .selection-modal--form-field {
   .mat-form-field-wrapper {
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
+    border: 1px solid $grey-lighter;
+    border-radius: 4px;
+    height: 40px;
   }
 }
 
@@ -540,4 +542,35 @@ ref - https://stackoverflow.com/a/31162426
       }
     }
   }
+}
+
+.fy-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    max-height: 90%;
+    position: absolute;
+    top: 10%;
+  }
+
+  .modal-shadow{
+    display: none;
+  }
+}
+
+.fy-modal-top-bar {
+  width: 52px !important;
+  height: 4px !important;
+  display: flex !important;
+  margin: 16px auto 0 auto;
+}
+
+.fy-icon-close {
+  height: 20px !important;
+  width: 20px !important;
+}
+
+.fy-modal-toolbar {
+  border-bottom: 1px solid $grey-lighter;
+  margin-bottom: 8px;
+  padding-top: 0 !important;
 }

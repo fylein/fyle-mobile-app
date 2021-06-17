@@ -60,6 +60,7 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -193,7 +194,8 @@ export class AddEditExpensePage implements OnInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private modalProperties: ModalPropertiesService
   ) {
   }
 
@@ -361,7 +363,10 @@ export class AddEditExpensePage implements OnInit {
           matchingCCCTransactions: this.matchingCCCTransactions,
           mode: this.mode,
           selectedCCCTransaction: this.selectedCCCTransaction
-        }
+        },
+        mode: 'ios',
+        presentingElement: await this.modalController.getTop(),
+        ...this.modalProperties.getModalDefaultProperties()
       });
 
       await matchExpensesModal.present();
@@ -2428,7 +2433,10 @@ export class AddEditExpensePage implements OnInit {
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();
@@ -3129,7 +3137,10 @@ export class AddEditExpensePage implements OnInit {
           componentProps: {
             attachments,
             canEdit: true
-          }
+          },
+          mode: 'ios',
+          presentingElement: await this.modalController.getTop(),
+          ...this.modalProperties.getModalDefaultProperties()
         });
 
         await attachmentsModal.present();
