@@ -5,6 +5,7 @@ import { map, switchMap, startWith } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from './view-comment/view-comment.component';
 import {TrackingService} from '../../../core/services/tracking.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-comments',
@@ -27,7 +28,8 @@ export class CommentsComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private statusService: StatusService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private modalProperties: ModalPropertiesService
   ) { }
 
   async presentModal() {
@@ -37,7 +39,10 @@ export class CommentsComponent implements OnInit {
         objectType: this.objectType,
         objectId: this.objectId,
         mode: this.mode
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await modal.present();

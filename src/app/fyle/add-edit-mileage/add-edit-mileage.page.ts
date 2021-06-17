@@ -50,6 +50,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -150,7 +151,8 @@ export class AddEditMileagePage implements OnInit {
     private tokenService: TokenService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private locationService: LocationService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private modalProperties: ModalPropertiesService
   ) { }
 
   ngOnInit() {
@@ -1655,7 +1657,10 @@ export class AddEditMileagePage implements OnInit {
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();
@@ -1885,7 +1890,7 @@ export class AddEditMileagePage implements OnInit {
                   Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
                   Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
                   Used_Autofilled_VehicleType: (etxn.tx.mileage_vehicle_type && this.presetVehicleType && (etxn.tx.mileage_vehicle_type === this.presetVehicleType)),
-                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && (etxn.tx.locations[0].display === this.presetLocation))
+                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && etxn.tx.locations[0] && (etxn.tx.locations[0].display === this.presetLocation))
                 });
               } else {
                 // tracking expense closed without editing
@@ -2113,7 +2118,7 @@ export class AddEditMileagePage implements OnInit {
                   Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
                   Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
                   Used_Autofilled_VehicleType: (etxn.tx.mileage_vehicle_type && this.presetVehicleType && (etxn.tx.mileage_vehicle_type === this.presetVehicleType)),
-                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && (etxn.tx.locations[0].display === this.presetLocation))
+                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && etxn.tx.locations[0] && (etxn.tx.locations[0].display === this.presetLocation))
                 });
 
                 if (comment) {
