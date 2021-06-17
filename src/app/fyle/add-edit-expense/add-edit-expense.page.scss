@@ -521,4 +521,9 @@
     font-size: 14px;
     font-weight: 400;
   }
+
+  &--ccc-expense {
+    pointer-events: none;
+    color: $grey-light;
+  }
 }
