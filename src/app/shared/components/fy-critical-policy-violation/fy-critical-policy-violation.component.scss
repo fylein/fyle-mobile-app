@@ -20,7 +20,7 @@ $small-screen: 700px;
   }
 
   &--body {
-    background: $white-1;
+    background: $pure-white;
     border: 1px solid $grey-lighter;
     box-sizing: border-box;
     border-radius: 8px;
@@ -73,7 +73,7 @@ $small-screen: 700px;
     min-height: 35px;
     width: 90%;
     background: $pink-gradient-1;
-    color: $white-1;
+    color: $pure-white;
     font-size: 12px;
     line-height: 15px;
     border-radius: 4px;
