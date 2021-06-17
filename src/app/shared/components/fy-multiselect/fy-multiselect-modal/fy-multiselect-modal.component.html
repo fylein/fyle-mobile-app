@@ -28,7 +28,7 @@
     <div class="selection-modal--sub-title">
       {{subheader}}
     </div>
-    <mat-checkbox color="primary" class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" [(ngModel)]="filteredListItem.selected" (ngModelChange)="onElementSelected(filteredListItem)">
+    <mat-checkbox class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" [(ngModel)]="filteredListItem.selected" (ngModelChange)="onElementSelected(filteredListItem)">
       {{filteredListItem.label}}
     </mat-checkbox>
   </div>

@@ -34,7 +34,7 @@
     <div class="selection-modal--list-container" *ngFor="let newlyAddedItem of newlyAddedItems$ | async as list">
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
-          <mat-checkbox color="primary" *ngIf="!newlyAddedItem.isNew" [checked]="newlyAddedItem.is_selected" (change)="onSelect(newlyAddedItem, $event)"></mat-checkbox>
+          <mat-checkbox *ngIf="!newlyAddedItem.isNew" [checked]="newlyAddedItem.is_selected" (change)="onSelect(newlyAddedItem, $event)"></mat-checkbox>
           <span *ngIf="!newlyAddedItem.isNew" class="selection-modal--approver-details">
             <span>{{newlyAddedItem.us_email}}</span>
           </span>
@@ -51,7 +51,7 @@
     <div class="selection-modal--list-container" *ngFor="let filteredListItem of filteredOptions$ | async as list">
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
-          <mat-checkbox color="primary" [checked]="filteredListItem.is_selected" (change)="onSelect(filteredListItem, $event)"></mat-checkbox>
+          <mat-checkbox [checked]="filteredListItem.is_selected" (change)="onSelect(filteredListItem, $event)"></mat-checkbox>
           <span class="selection-modal--approver-details">
             <span class="selection-modal--approver-details_name">{{filteredListItem.us_full_name}}</span>
             <span>{{filteredListItem.us_email}}</span>

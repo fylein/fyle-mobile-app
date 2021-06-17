@@ -26,7 +26,7 @@
     <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$|async as approverList">
       <div class="approver-list--list-element">
         <label class="approver-list--list-element-label">
-          <mat-checkbox color="primary" [checked]="approver.is_selected" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
+          <mat-checkbox [checked]="approver.is_selected" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
           <span class="approver-list--approver-details">
             <span class="approver-list--approver-details_name">{{approver.us_full_name}}</span>
             <span>{{approver.us_email}}</span>

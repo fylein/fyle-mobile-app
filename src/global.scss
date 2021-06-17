@@ -297,7 +297,23 @@ input:focus, textarea:focus{
   line-height: 1.3;
 }
 
+.mat-checkbox-checked.mat-accent {
+  .mat-checkbox-background {
+    background-color: $blue-black !important;
+  }
+}
+
+.mat-checkbox-checkmark {
+  padding: 2px;
+}
+
 mat-checkbox {
+  .mat-checkbox-background, .mat-checkbox-frame {
+    border-radius: 4px !important;
+    border-color: $black-2 !important;
+    border-width: 1.5px !important;
+  }
+
   .mat-checkbox-layout {
     .mat-checkbox-inner-container {
       padding: 8px !important;
@@ -447,6 +463,10 @@ input[type="date"]::after {
   width: auto !important;
 }
 
+input::placeholder {
+  color: $grey-light !important;
+}
+
 #fc_frame {
   display: none;
   padding-top: constant(safe-area-inset-top); /*for iOS 11.2 and above*/
@@ -471,14 +491,13 @@ ref - https://stackoverflow.com/a/31162426
 
     &::before {
       position: absolute;
-      left: 4px;
       content: attr(data-date);
       display: inline-block;
-      color: $black;
+      color: $blue-black;
     }
 
     &::after {
-      color: $black;
+      color: $grey-light;
     }
 
     &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
@@ -488,6 +507,12 @@ ref - https://stackoverflow.com/a/31162426
     &::-webkit-calendar-picker-indicator {
       position: absolute;
       right: 12px;
+    }
+  }
+
+  &__placeholder {
+    &::before {
+      color: $grey-light;
     }
   }
 }
@@ -542,6 +567,42 @@ ref - https://stackoverflow.com/a/31162426
       }
     }
   }
+}
+
+.btn-primary {
+  background: linear-gradient(162.38deg, #FF3366 3.01%, #FE5196 111.5%);
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  line-height: 18px;
+  color: $pure-white;
+  font-weight: 400 !important;
+  height: 52px !important;
+  text-transform: inherit;
+  width: 100%;
+  letter-spacing: 0px !important;
+}
+
+.btn-secondary {
+  color: $black-2;
+  font-size: 16px !important;
+  line-height: 20px;
+  font-weight: 400 !important;
+  height: 52px !important;
+  text-transform: inherit;
+  width: 100%;
+  letter-spacing: 0px !important;
+}
+
+.cta-footer {
+  box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
+}
+
+.footer-ios ion-toolbar:first-of-type {
+  --border-width: 0 !important;
+}
+
+.footer-md::before {
+  background-image: none !important;
 }
 
 .fy-modal {

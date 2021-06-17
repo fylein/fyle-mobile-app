@@ -1,14 +1,14 @@
 <label class="fy-select-project--label">
-  <div class="fy-select-project--label-content" [ngClass]="{'fy-select-project--label-content__invalid': !valid}">
+  <div class="fy-select-project--label-content">
     <span>
       {{label}}
     </span>
-    <span *ngIf="mandatory">
+    <span *ngIf="mandatory" class="fy-select-project--mandatory">
       *
     </span>
   </div>
-  <input class="fy-select-project" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
-  <mat-icon class="fy-select-project--icon">
-    chevron_right
-  </mat-icon>
+  <div class="fy-select-project--input-container" [ngClass]="{'fy-select-project--input-invalid': !valid}">
+    <input class="fy-select-project--input" type="text" [placeholder]="'Select ' + label" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
+    <mat-icon class="fy-select-project--icon" svgIcon="fy-arrow-down"></mat-icon>
+  </div>
 </label>
