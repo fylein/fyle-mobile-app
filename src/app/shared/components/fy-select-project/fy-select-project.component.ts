@@ -4,6 +4,7 @@ import {noop} from 'rxjs';
 import {ModalController} from '@ionic/angular';
 import {FyProjectSelectModalComponent} from './fy-select-modal/fy-select-project-modal.component';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-select-project',
@@ -44,6 +45,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -82,7 +84,10 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         categoryIds: this.categoryIds,
         defaultValue: this.defaultValue,
         recentlyUsed: this.recentlyUsed
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await projectModal.present();

@@ -3,6 +3,7 @@ import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, NgControl } from '@angul
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor-modal.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-select-vendor',
@@ -38,6 +39,7 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -71,7 +73,10 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
       component: FySelectVendorModalComponent,
       componentProps: {
         currentSelection: this.value
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();

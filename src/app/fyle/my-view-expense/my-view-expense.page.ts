@@ -13,6 +13,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import {NetworkService} from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-my-view-expense',
@@ -51,6 +52,7 @@ export class MyViewExpensePage implements OnInit {
     private modalController: ModalController,
     private navController: NavController,
     private networkService: NetworkService,
+    private modalProperties: ModalPropertiesService,
     private router: Router
   ) { }
 
@@ -218,7 +220,10 @@ export class MyViewExpensePage implements OnInit {
         component: FyViewAttachmentComponent,
         componentProps: {
           attachments
-        }
+        },
+        mode: 'ios',
+        presentingElement: await this.modalController.getTop(),
+        ...this.modalProperties.getModalDefaultProperties()
       });
 
       await attachmentsModal.present();

@@ -18,6 +18,7 @@ import {NetworkService} from '../../core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { cloneDeep } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-my-edit-report',
@@ -62,7 +63,8 @@ export class MyEditReportPage implements OnInit {
     private tripRequestsService: TripRequestsService,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private modalProperties: ModalPropertiesService
   ) { }
 
   goBack() {
@@ -116,7 +118,10 @@ export class MyEditReportPage implements OnInit {
       component: AddExpensesToReportComponent,
       componentProps: {
         unReportedEtxns: this.unReportedEtxns
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await AddExpensesToReportModal.present();
