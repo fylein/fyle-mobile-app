@@ -32,14 +32,14 @@
       </app-fy-alert-info>
     </div>
 
-    <div class="critical-policy-violation--cta">
+    <div class="critical-policy-violation--cta-container">
       <ion-grid>
         <ion-row>
           <ion-col size="6">
-            <button type="button" class="critical-policy-violation--secondary-cta text-center" (click)="cancel()">Cancel</button>
+            <button type="button" class="critical-policy-violation--cta-button critical-policy-violation--secondary-cta text-center" (click)="cancel()">Cancel</button>
           </ion-col>
           <ion-col size="6">
-            <button type="submit" class="critical-policy-violation--primary-cta text-center" (click)="continue()">Continue</button>
+            <button type="submit" class="critical-policy-violation--cta-button critical-policy-violation--primary-cta text-center" (click)="continue()">Continue</button>
           </ion-col>
         </ion-row>
       </ion-grid>

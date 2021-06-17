@@ -56,13 +56,17 @@ $small-screen: 700px;
     }
   }
 
-  &--cta {
+  &--cta-container {
     margin-bottom: 5px;
+  }
+
+  &--cta-button {
+    font-weight: 500;
+    width: 90%;
   }
 
   &--secondary-cta {
     height: 100%;
-    width: 90%;
     background: transparent;
     color: $black;
     font-size: 14px;
@@ -71,7 +75,6 @@ $small-screen: 700px;
 
   &--primary-cta {
     min-height: 35px;
-    width: 90%;
     background: $pink-gradient-1;
     color: $pure-white;
     font-size: 12px;
