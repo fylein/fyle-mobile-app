@@ -94,5 +94,8 @@
   "description": "An Ionic project",
   "config": {
     "ionic_generate_source_map": "true"
+  },
+  "engines": {
+    "node": ">=14.16.0"
   }
 }

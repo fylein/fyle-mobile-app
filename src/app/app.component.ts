@@ -28,6 +28,7 @@ import {TrackingService} from './core/services/tracking.service';
 import {LoginInfoService} from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
 import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
@@ -151,30 +152,34 @@ export class AppComponent implements OnInit {
   }
 
   checkAppSupportedVersion() {
-    this.deviceService.getDeviceInfo().pipe(
-      switchMap((deviceInfo) => {
-        const data = {
-          app_version: deviceInfo.appVersion,
-          device_os: deviceInfo.platform
-        };
+    const platform = Capacitor.getPlatform();
 
-        return this.appVersionService.isSupported(data);
-      })
-    ).subscribe(async (res: { message: string, supported: boolean }) => {
-      if (!res.supported && environment.production) {
-        const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-        const eou = await this.authService.getEou();
+    if (platform === 'android' || platform === 'ios') {
+      this.deviceService.getDeviceInfo().pipe(
+        switchMap((deviceInfo) => {
+          const data = {
+            app_version: deviceInfo?.appVersion,
+            device_os: deviceInfo?.platform
+          };
 
-        this.trackingService.eventTrack('Auto Logged out', {
-          Asset: 'Mobile',
-          lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
-          user_email: eou && eou.us && eou.us.email,
-          appVersion: deviceInfo.appVersion
-        });
+          return this.appVersionService.isSupported(data);
+        })
+      ).subscribe(async (res: { message: string, supported: boolean }) => {
+        if (!res.supported && environment.production) {
+          const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
+          const eou = await this.authService.getEou();
 
-        this.router.navigate(['/', 'auth', 'app_version', {message: res.message}]);
-      }
-    });
+          this.trackingService.eventTrack('Auto Logged out', {
+            Asset: 'Mobile',
+            lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
+            user_email: eou && eou.us && eou.us.email,
+            appVersion: deviceInfo?.appVersion
+          });
+
+          this.router.navigate(['/', 'auth', 'app_version', {message: res.message}]);
+        }
+      });
+    }
   }
 
   async showSideMenu() {
@@ -232,7 +237,7 @@ export class AppComponent implements OnInit {
       const orgSettings = res.orgSettings;
       const orgUserSettings = res.orgUserSettings;
       const isDelegatee = res.delegatedAccounts.length > 0;
-      this.appVersion = (res.deviceInfo && res.deviceInfo.appVersion) || '1.2.3';
+      this.appVersion = (res.deviceInfo && res.deviceInfo?.appVersion) || '1.2.3';
       const allowedReportsActions = res.allowedActions && res.allowedActions.allowedReportsActions;
       const allowedAdvancesActions = res.allowedActions && res.allowedActions.allowedAdvancesActions;
       const allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
@@ -493,12 +498,11 @@ export class AppComponent implements OnInit {
       const lstorage = (window as any).localStorage;
       Object.keys(lstorage).filter(key => key.match(/^fyle/)).forEach(key => lstorage.removeItem(key));
     }
+    const platform = Capacitor.getPlatform();
 
-    from(this.deviceService.getDeviceInfo()).subscribe(res => {
-      if (res.platform === 'android' || res.platform === 'ios') {
-        this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
-      }
-    });
+    if (platform === 'android' || platform === 'ios') {
+      this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
+    }
 
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {

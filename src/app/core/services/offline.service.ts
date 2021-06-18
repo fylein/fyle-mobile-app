@@ -25,6 +25,7 @@ import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
+import { Capacitor } from '@capacitor/core';
 
 @Injectable({
   providedIn: 'root'
@@ -70,11 +71,13 @@ export class OfflineService {
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
 
-    this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
-      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
+    const platform = Capacitor.getPlatform();
+    if (platform === 'android' || platform === 'ios') {
+      this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
         this.appVersionService.load();
-      }
-    });
+      });
+    }
+    
 
     return forkJoin([
       orgSettings$,

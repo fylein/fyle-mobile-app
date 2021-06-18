@@ -125,8 +125,8 @@ export class NewPasswordPage implements OnInit {
 
   async trackLoginInfo() {
     const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-    this.trackingService.eventTrack('Added Login Info', {Asset: 'Mobile', label: deviceInfo.appVersion});
-    await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
+    this.trackingService.eventTrack('Added Login Info', {Asset: 'Mobile', label: deviceInfo?.appVersion});
+    await this.loginInfoService.addLoginInfo(deviceInfo?.appVersion, new Date());
   }
 
 }

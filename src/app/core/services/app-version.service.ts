@@ -46,18 +46,18 @@ export class AppVersionService {
     );
     const platformOS$ = deviceInfo$.pipe(
       map(
-        deviceInfo => deviceInfo.operatingSystem as string
+        deviceInfo => deviceInfo?.operatingSystem as string
       )
     );
     const platformVersion$ = deviceInfo$.pipe(
       map(
-        deviceInfo => deviceInfo.osVersion
+        deviceInfo => deviceInfo?.osVersion
       )
     );
 
     const currentVersion$ = deviceInfo$.pipe(
       map(
-        deviceInfo => deviceInfo.appVersion
+        deviceInfo => deviceInfo?.appVersion
       )
     );
 

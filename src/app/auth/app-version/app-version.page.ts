@@ -24,11 +24,11 @@ export class AppVersionPage implements OnInit {
 
   updateApp() {
     const deviceIos$ = this.deviceService.getDeviceInfo().pipe(
-      filter(deviceInfo => deviceInfo.platform === 'ios')
+      filter(deviceInfo => deviceInfo?.platform === 'ios')
     );
 
     const deviceAndroid$ = this.deviceService.getDeviceInfo().pipe(
-      filter(deviceInfo => deviceInfo.platform === 'android')
+      filter(deviceInfo => deviceInfo?.platform === 'android')
     );
 
     deviceAndroid$.subscribe(async () => {

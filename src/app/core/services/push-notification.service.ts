@@ -74,7 +74,7 @@ export class PushNotificationService {
           };
         }
         const currenctDevice = {
-          id: deviceInfo.uuid,
+          id: deviceInfo?.uuid,
           fcm_token: token
         };
         userProperties.devices = userProperties.devices.filter(userDevice => {

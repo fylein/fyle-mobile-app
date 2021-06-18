@@ -131,11 +131,14 @@ export class HttpConfigInterceptor implements HttpInterceptor {
             const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
             request = request.clone({params});
           }
-          const appVersion = deviceInfo.appVersion || '0.0.0';
-          const osVersion = deviceInfo.osVersion;
-          const operatingSystem = deviceInfo.operatingSystem;
-          const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
-          request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
+
+          if (deviceInfo) {
+            const appVersion = deviceInfo?.appVersion || '0.0.0';
+            const osVersion = deviceInfo?.osVersion;
+            const operatingSystem = deviceInfo?.operatingSystem;
+            const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
+            request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
+          }
 
           return next.handle(request).pipe(
             catchError((error) => {
