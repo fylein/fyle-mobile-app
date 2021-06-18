@@ -593,8 +593,8 @@ export class TransactionService {
     });
   }
 
-  getVendorDetails(expense: Expense) {
-    const category = expense.tx_org_category && expense.tx_org_category.toLowerCase();
+  getVendorDetails(expense: Expense): string {
+    const category = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
     let vendorName = expense.tx_vendor;
 
     if (category === 'mileage') {
