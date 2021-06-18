@@ -215,7 +215,7 @@
 
         <ng-container *ngIf="isCCCPaymentModeSelected$|async">
           <div class="add-edit-expense--card-header">Card Transaction</div>
-          <div *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC" class="add-edit-expense--card-txn-container">
+          <div *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC && !((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && selectedCCCTransaction)" class="add-edit-expense--card-txn-container">
             <mat-icon svgIcon="fy-corporate-card" class="add-edit-expense--icon-corporate-card"></mat-icon>
             <div *ngIf="(!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount)">Enter date and amount to search for the matching card transaction</div>
             <div *ngIf="this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && !selectedCCCTransaction && !isLoadingSuggestions">
