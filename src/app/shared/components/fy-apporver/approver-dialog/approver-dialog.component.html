@@ -1,15 +1,16 @@
 <ion-header mode="md">
-  <ion-toolbar class="approver-list--toolbar">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar class="approver-list--toolbar fy-modal-toolbar">
     <ion-toolbar mode="md">
-      <ion-buttons slot="end">
+      <ion-buttons slot="start">
         <ion-button (click)="closeApproverModal()">
-          <mat-icon>close</mat-icon>
+          <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
         </ion-button>
       </ion-buttons>
       <ion-title>Choose Approvers</ion-title>
     </ion-toolbar>
     <ion-toolbar class="approver-list--form-field-container">
-      <mat-form-field class="approver-list--form-field mat-form-field-no-padding" appearance="outline">
+      <mat-form-field class="approver-list--form-field mat-form-field-no-padding" appearance="none">
         <input #searchBar id="approver-list--search-input" class="approver-list--search-input" matInput placeholder="Search" [(ngModel)]="value">
         <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
           <mat-icon>close</mat-icon>
@@ -25,7 +26,7 @@
     <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$|async as approverList">
       <div class="approver-list--list-element">
         <label class="approver-list--list-element-label">
-          <mat-checkbox color="primary" [checked]="approver.is_selected" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
+          <mat-checkbox [checked]="approver.is_selected" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
           <span class="approver-list--approver-details">
             <span class="approver-list--approver-details_name">{{approver.us_full_name}}</span>
             <span>{{approver.us_email}}</span>

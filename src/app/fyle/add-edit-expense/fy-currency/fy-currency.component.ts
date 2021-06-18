@@ -8,6 +8,7 @@ import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-
 import { isEqual } from 'lodash';
 import {concatMap, map, switchMap} from 'rxjs/operators';
 import {CurrencyService} from '../../../core/services/currency.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-currency',
@@ -50,6 +51,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     private fb: FormBuilder,
     private modalController: ModalController,
     private currencyService: CurrencyService,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -222,7 +224,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       component: FyCurrencyChooseCurrencyComponent,
       componentProps: {
         currentSelection: this.fg.controls.currency.value
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();

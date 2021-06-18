@@ -1,4 +1,4 @@
-$red: #f00;
+@import "../../../theme/colors.scss";
 
 .add-edit-mileage {
   &--toolbar {
@@ -17,15 +17,15 @@ $red: #f00;
   }
 
   &--cta-container {
-    padding: 16px;
+    padding: 14px 16px 14px 16px;
     justify-content: space-between;
   }
 
   &--primary-cta {
     height: 48px;
     font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
+    text-transform: inherit;
+    font-weight: 600;
     --border-radius: 4px !important;
     width: 100%;
     margin: 0 4px;
@@ -58,58 +58,49 @@ $red: #f00;
   }
 
   &--date {
-    display: flex;
-    justify-content: space-between;
+    border-bottom: 1px solid $grey-lighter;
+    padding: 4px 0 !important;
   }
 
   &--date-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
-    white-space: nowrap;
+    max-width: 90%;
     min-width: 120px;
-    max-width: 170px;
-    display: flex;
-
-    &__invalid {
-      color: red;
-    }
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
   }
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: right;
-    background-color: white;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    width: 100%;
+    padding: 0;
+    height: 18px;
+    margin: 6px 0;
   }
 
   &--text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-bottom: 1px solid $grey-lighter;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
   }
 
   &--text-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
-    white-space: nowrap;
+    max-width: 90%;
     min-width: 120px;
-    display: flex;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 170px;
-
-    &__invalid {
-      color: red;
-    }
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
 
     &__unit {
       font-size: 12px;
@@ -119,35 +110,47 @@ $red: #f00;
 
   &--text-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    max-width: calc(100% - 145px);
-    height: 24px;
+    font-size: 14px;
+    font-weight: 400;
+    height: 18px;
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    padding: 0;
+    margin: 6px 0;
   }
 
   &--checkbox {
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
+    font-size: 14px;
+    color: $blue-black;
+    font-weight: 400;
+  }
+
+  &--project-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &--no-project {
+    margin-right: 0 !important;
+  }
+
+  &--project-block {
+    flex-grow: 1;
+    margin-right: 26px;
   }
 
   &--primary-block {
     margin: 16px 0;
-    padding: 0 16px;
-    border: 1px solid #e5e5e5;
     border-radius: 4px;
   }
 
   &--internal-block {
-    padding: 16px 0;
+    padding: 8px 0;
     background: #fff;
-    border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-    &:last-child {
-      border-bottom: 0;
-    }
+    margin-bottom: 12px;
 
     &__invalid {
       border-color: $red;
@@ -155,7 +158,7 @@ $red: #f00;
   }
 
   &--conversion {
-    border: 1px solid #e0e0e0;
+    border: 1px solid $grey-lighter;
     background-color: #f2f2f2;
     border-radius: 4px;
   }
@@ -165,7 +168,7 @@ $red: #f00;
     align-items: center;
     padding: 12px;
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $grey-lighter;
   }
 
   &--delete-icon {
@@ -204,7 +207,10 @@ $red: #f00;
   }
 
   &--error {
-    color: red;
+    color: $red;
+    line-height: 16px;
+    margin-top: -16px;
+    font-size: 12px;
   }
 
   &--critical-policy {
@@ -227,7 +233,7 @@ $red: #f00;
   &--amount {
     width: calc(100% - 100px);
     padding: 0 0 4px;
-    border-right: 1px solid #e0e0e0;
+    border-right: 1px solid $grey-lighter;
     color: #ababab;
   }
 
@@ -261,11 +267,11 @@ $red: #f00;
   }
 
   &--remove-stop {
-    color: #f00;
+    margin-left: 12px;
   }
 
   &--comment {
-    border: 1px solid #e0e0e0;
+    border: 1px solid $grey-lighter;
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -388,5 +394,26 @@ $red: #f00;
   &--payment-mode-type {
     color: #ababab;
     font-size: 12px;
+  }
+
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  &--distance-error {
+    margin-top: -8px;
+  }
+
+  &--location-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &--location {
+    flex-grow: 1;
   }
 }
