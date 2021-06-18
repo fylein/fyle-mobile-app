@@ -339,12 +339,10 @@
                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                 <div [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
                      class="add-edit-expense--text-label">
-                  <div>
                     {{ txnFields.purpose?.field_name | slice: 0:15 }}
-                  </div>
-                  <div class="add-edit-expense--mandatory" *ngIf="txnFields.purpose?.is_mandatory">
+                  <span class="add-edit-expense--mandatory" *ngIf="txnFields.purpose?.is_mandatory">
                     *
-                  </div>
+                  </span>
                 </div>
                 <input [disabled]="!txnFields.purpose?.canEdit" [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
                        [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
