@@ -56,28 +56,27 @@ export class ExpensesCardComponent implements OnInit {
     }
 
     if (this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
-      this.receipt = 'fy-mileage';
+      this.receipt = 'assets/svg/fy-mileage.svg';
     } else if ((this.expense.tx_fyle_category.toLowerCase() === 'per diem')) {
-      this.receipt = 'fy-calendar';
+      this.receipt = 'assets/svg/fy-calendar.svg';
     } else {
-      this.receipt = 'fy-expense';
+      this.receipt = 'assets/svg/fy-expense.svg';
     }
 
-    let a;
 
-  if (this.expense.source_account_type === "PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT") {
-      if (this.expense.tx_corporate_credit_card_expense_group_id) {
-        this.icon = 'fy-matched';
+    if (this.expense.source_account_type === "PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT") {
+        if (this.expense.tx_corporate_credit_card_expense_group_id) {
+          this.icon = 'fy-matched';
+        } else {
+          this.icon = 'fy-unmatched';
+        }
+    } else {
+      if (!this.expense.tx_skip_reimbursement) {
+        this.icon = 'fy-reimbursable';
       } else {
-        this.icon = 'fy-unmatched';
+        this.icon = 'fy-non-reimbursable';
       }
-  } else {
-    if (!this.expense.tx_skip_reimbursement) {
-      this.icon = 'fy-reimbursable';
-    } else {
-      this.icon = 'fy-non-reimbursable';
     }
-  }
 
   
 

@@ -1,29 +1,39 @@
 @import '../../../../theme/colors';
 
-ion-col, ion-grid {
-  padding: 0;
-}
-
 .expenses-card{
-
-  &--body {
-    background:#fff;
-    min-height: 106px;
-    border-bottom: 1px solid #DFDFE2;
-    padding: 16px;
-  }
 
   &--date {
     color: #a9acbc;
     font-size: 14px;
-    padding: 26px 0 12px 21px;
+    padding: 16px 16px; // Confirm with @aditi
     background: #fafafa;
+  }
+
+  &--body {
+    background:#fff;
+    min-height: 106px;
+    padding: 16px;
+    
+    &__with-border {
+      padding-top: 0;
+    }
+  }
+
+  &--divider {
+    border-bottom: 1px solid #DFDFE2;
+    margin-bottom: 16px;
   }
 
   &--receipt-container {
     background-color: #f2f2f2;
     border-radius: 8px;
     height: 74px;
+    padding: 20px;
+  }
+
+  &--receipt-icon {
+    height: 35px;
+    width: 35px;
   }
 
   &--category {
@@ -61,12 +71,21 @@ ion-col, ion-grid {
     font-weight: 500;
     font-size: 16px;
     line-height: 20px;
+    margin-right: 2px;
   }
 
   &--amount {
     color: #161528;
     font-size: 20px;
     line-height: 26px;
+    margin-right: 6px; // Confirm it with @aditi, layout issue in figma
+  }
+
+  &--icon {
+    vertical-align: text-bottom;
+    height: 20px;
+    width: 20px;
+    font-size: 20px;
   }
 
   &--exchange-rate {
@@ -84,7 +103,7 @@ ion-col, ion-grid {
     background: #DA1E2817;
     padding: 1px;
     border-radius: 3px;
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
   &--state {
@@ -97,5 +116,7 @@ ion-col, ion-grid {
     padding: 4px 29px;
     margin-top: 6px;
   }
+
+  
 
 }
