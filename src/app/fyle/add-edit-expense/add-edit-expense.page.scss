@@ -5,6 +5,13 @@ $red: #f00;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
+  &--title {
+    &__centered {
+      text-align: center;
+      padding-inline-end: 0;
+    }
+  }
+
   &--sub-header {
     color: #ababab;
     font-size: 14px;

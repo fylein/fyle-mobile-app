@@ -50,6 +50,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments/view-comment/view-comment.component';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -2198,5 +2199,19 @@ export class AddEditMileagePage implements OnInit {
         });
       }
     }
+  }
+
+  async openCommensModal() {
+    const etxn = await this.etxn$.toPromise();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx.id,
+        mode: 'edit'
+      }
+    });
+
+    await modal.present();
   }
 }

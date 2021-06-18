@@ -1,50 +1,51 @@
 <ion-header mode="md">
   <ion-toolbar class="add-edit-expense--toolbar">
-    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+    <ion-buttons *ngIf="navigateBack && !reviewList?.length" mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="mode" class="page-title" mode="md">
+    <ion-buttons mode="md" slot="start" *ngIf="reviewList?.length">
+      <ion-button>
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title *ngIf="mode" class="page-title" mode="md" [ngClass]="{'add-edit-expense--title__centered': reviewList?.length}">
       <div *ngIf="mode === 'add'">
         Add Expense
       </div>
       <div *ngIf="mode === 'edit'">
-        <div>
-          {{title}} Expense
-        </div>
-        <div *ngIf="reviewList?.length" class="add-edit-expense--sub-header">
-          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
-        </div>
+        <ng-container *ngIf="reviewList?.length;else editMode">
+          Review Expense
+          <div class="add-edit-expense--sub-header">
+            {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+          </div>
+        </ng-container>
+        <ng-template #editMode>
+          <div>
+            Edit Expense
+          </div>
+        </ng-template>
       </div>
     </ion-title>
 
-    <ion-buttons *ngIf="!navigateBack" slot="end">
+    <ion-buttons *ngIf="!navigateBack&&!reviewList?.length" slot="end">
       <ion-button (click)="showClosePopup()" mode="md">
         <mat-icon slot="icon-only">close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons *ngIf="reviewList?.length" slot="end">
+      <ion-button (click)="openCommensModal()">
+        <ion-icon name="chatbubble-ellipses-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="deleteExpense()">
+        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div *ngIf="reviewList?.length && !focusState" class="add-edit-expense--review-nav">
-    <div>
-      <button (click)="goToPrev()" [disabled]="+activeIndex === 0" [ngClass]="{'add-edit-expense--review-go-left__disabled': +activeIndex === 0}"
-              class="add-edit-expense--review-go-left">
-        <mat-icon>
-          keyboard_arrow_left
-        </mat-icon>
-      </button>
-    </div>
-    <div>
-      <button (click)="goToNext()" [disabled]="+activeIndex === reviewList?.length - 1"
-              [ngClass]="{'add-edit-expense--review-go-right__disabled': +activeIndex === reviewList?.length - 1}"
-              class="add-edit-expense--review-go-right">
-        <mat-icon>
-          keyboard_arrow_right
-        </mat-icon>
-      </button>
-    </div>
-  </div>
+  
   <ng-container *ngIf="fg">
     <div class="add-edit-expense--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-expense--duplicate-pointer">
@@ -768,20 +769,22 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="etxn$|async as etxn">
-        <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-expense--comment">
-          <app-comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments"></app-comments>
-        </div>
-
-        <div (click)="deleteExpense()"
-             *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete" class="add-edit-expense--delete" matRipple>
-          <mat-icon class="add-edit-expense--delete-icon" svgIcon="">
-            delete
-          </mat-icon>
-          <div class="add-edit-expense--delete-msg">
-            Delete Expense
+      <ng-container *ngIf="!reviewList?.length">
+        <ng-container *ngIf="etxn$|async as etxn">
+          <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-expense--comment">
+            <app-comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments"></app-comments>
           </div>
-        </div>
+
+          <div (click)="deleteExpense()"
+              *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete" class="add-edit-expense--delete" matRipple>
+            <mat-icon class="add-edit-expense--delete-icon" svgIcon="">
+              delete
+            </mat-icon>
+            <div class="add-edit-expense--delete-msg">
+              Delete Expense
+            </div>
+          </div>
+        </ng-container>
       </ng-container>
 
       <ng-container *ngIf="isConnected$">
@@ -827,6 +830,26 @@
 
 <ng-container *ngIf="fg">
   <ion-footer>
+    <ion-toolbar *ngIf="reviewList?.length">
+      <div class="add-edit-expense--footer-toolbar">
+        <ion-buttons>
+          <ion-button 
+            (click)="goToPrev()" 
+            [disabled]="+activeIndex === 0" 
+            class="add-edit-expense--primary-cta"
+            fill="clear">
+            Previous
+          </ion-button>
+          <ion-button 
+            (click)="goToNext()" 
+            [disabled]="+activeIndex === reviewList?.length - 1"
+            class="add-edit-expense--primary-cta"
+            fill="clear">
+            Next
+          </ion-button>
+        </ion-buttons>
+      </div>
+    </ion-toolbar>
     <ion-toolbar mode="md">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">
@@ -844,6 +867,17 @@
           </ion-button>
         </ion-buttons>
         <ion-buttons *ngIf="reviewList">
+          <ion-button 
+            *ngIf="activeIndex !== 0 && reviewList?.length > 0" 
+            (click)="saveExpenseAndGotoPrev()" 
+            [loadingText]="'SAVING'" 
+            [loading]="saveAndNextExpenseLoader"
+            appFormButtonValidation
+            class="add-edit-expense--primary-cta" 
+            fill="clear"
+            >
+            Save and Previous
+          </ion-button>
           <ion-button (click)="saveExpenseAndGotoNext()" [loadingText]="'SAVING'" [loading]="saveAndNextExpenseLoader"
                       appFormButtonValidation
                       class="add-edit-expense--primary-cta" color="fyle-primary" fill="solid">

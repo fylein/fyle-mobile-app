@@ -578,6 +578,26 @@
 
 <ng-container *ngIf="fg">
   <ion-footer *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0">
+    <ion-toolbar *ngIf="reviewList?.length">
+      <div class="add-edit-expense--footer-toolbar">
+        <ion-buttons>
+          <ion-button 
+            (click)="goToPrev()" 
+            [disabled]="+activeIndex === 0" 
+            class="add-edit-expense--primary-cta"
+            fill="clear">
+            Previous
+          </ion-button>
+          <ion-button 
+            (click)="goToNext()" 
+            [disabled]="+activeIndex === reviewList?.length - 1"
+            class="add-edit-expense--primary-cta"
+            fill="clear">
+            Next
+          </ion-button>
+        </ion-buttons>
+      </div>
+    </ion-toolbar>
     <ion-toolbar mode="md">
       <ion-buttons *ngIf="!reviewList">
         <ion-button (click)="savePerDiem()" class="add-edit-per-diem--primary-cta" color="fyle-primary" fill="solid"

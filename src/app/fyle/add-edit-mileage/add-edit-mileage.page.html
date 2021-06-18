@@ -1,24 +1,42 @@
 <ion-header mode="md">
   <ion-toolbar class="add-edit-mileage--toolbar">
-    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+    <ion-buttons *ngIf="navigateBack && !reviewList?.length" mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons mode="md" slot="start" *ngIf="reviewList?.length">
+      <ion-button>
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title *ngIf="mode" class="page-title" mode="md">
       <div *ngIf="mode === 'add'">
         Add Mileage
       </div>
       <div *ngIf="mode === 'edit'">
-        <div>
-          {{title}} Mileage
-        </div>
-        <div *ngIf="reviewList?.length" class="add-edit-mileage--sub-header">
-          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
-        </div>
+        <ng-container *ngIf="reviewList?.length;else editMode">
+          Review Mileage
+          <div class="add-edit-mileage--sub-header">
+            {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+          </div>
+        </ng-container>
+        <ng-template #editMode>
+          <div>
+            Edit Mileage
+          </div>
+        </ng-template>
       </div>
     </ion-title>
-    <ion-buttons *ngIf="!navigateBack" slot="end">
+    <ion-buttons *ngIf="!navigateBack&&!reviewList?.length" slot="end">
       <ion-button (click)="goBack()" mode="md">
         <mat-icon slot="icon-only">close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons *ngIf="reviewList?.length" slot="end">
+      <ion-button (click)="openCommensModal()">
+        <ion-icon name="chatbubble-ellipses-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="deleteExpense()">
+        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -26,21 +44,6 @@
 
 <ion-content>
   <div>
-    <div *ngIf="reviewList?.length" class="add-edit-mileage--review-nav">
-      <button (click)="goToPrev()" [disabled]="+activeIndex === 0" [ngClass]="{'add-edit-mileage--review-go-left__disabled': +activeIndex === 0}"
-              class="add-edit-mileage--review-go-left">
-        <mat-icon>
-          keyboard_arrow_left
-        </mat-icon>
-      </button>
-      <button (click)="goToNext()" [disabled]="+activeIndex === reviewList?.length - 1"
-              [ngClass]="{'add-edit-mileage--review-go-right__disabled': +activeIndex === reviewList?.length - 1}"
-              class="add-edit-mileage--review-go-right">
-        <mat-icon>
-          keyboard_arrow_right
-        </mat-icon>
-      </button>
-    </div>
     <div class="add-edit-mileage--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-mileage--duplicate-pointer">
         <div class="add-edit-mileage--duplicate-pointer-text">
@@ -486,26 +489,6 @@
             </ng-container>
           </div>
 
-          <ng-container *ngIf="etxn$|async as etxn">
-            <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-mileage--comment">
-              <app-comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments">
-              </app-comments>
-            </div>
-
-
-            <ng-container *ngIf="etxn$|async as etxn">
-              <div (click)="deleteExpense()"
-                   *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete" class="add-edit-mileage--delete" matRipple>
-                <mat-icon class="add-edit-mileage--delete-icon">
-                  delete
-                </mat-icon>
-                <div class="add-edit-mileage--delete-msg">
-                  Delete Expense
-                </div>
-              </div>
-            </ng-container>
-          </ng-container>
-
           <ng-container *ngIf="isConnected$">
             <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
               <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
@@ -533,6 +516,26 @@
 </ion-content>
 <ng-container *ngIf="fg">
   <ion-footer>
+    <ion-toolbar *ngIf="reviewList?.length">
+      <div class="add-edit-mileage--footer-toolbar">
+        <ion-buttons>
+          <ion-button 
+            (click)="goToPrev()" 
+            [disabled]="+activeIndex === 0" 
+            class="add-edit-mileage--primary-cta"
+            fill="clear">
+            Previous
+          </ion-button>
+          <ion-button 
+            (click)="goToNext()" 
+            [disabled]="+activeIndex === reviewList?.length - 1"
+            class="add-edit-mileage--primary-cta"
+            fill="clear">
+            Next
+          </ion-button>
+        </ion-buttons>
+      </div>
+    </ion-toolbar>
     <ion-toolbar mode="md">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>

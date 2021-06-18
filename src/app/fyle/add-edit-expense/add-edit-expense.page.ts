@@ -60,6 +60,8 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { CommentsComponent } from 'src/app/shared/components/comments/comments.component';
+import { ViewCommentComponent } from 'src/app/shared/components/comments/view-comment/view-comment.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -133,6 +135,7 @@ export class AddEditExpensePage implements OnInit {
   saveExpenseLoader = false;
   saveAndNewExpenseLoader = false;
   saveAndNextExpenseLoader = false;
+  saveAndPrevExpenseLoader = false;
   canAttachReceipts: boolean;
   duplicateDetectionReasons = [];
   tfcDefaultValues$: Observable<any>;
@@ -2373,6 +2376,41 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  saveExpenseAndGotoPrev() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.closeAddEditExpenses();
+          } else {
+            that.goToPrev();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.closeAddEditExpenses();
+          } else {
+            that.goToPrev();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }
+
   saveExpenseAndGotoNext() {
     const that = this;
     if (that.fg.valid) {
@@ -2462,6 +2500,7 @@ export class AddEditExpensePage implements OnInit {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
+    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE'; 
 
     this.trackPolicyCorrections();
 
@@ -2668,6 +2707,7 @@ export class AddEditExpensePage implements OnInit {
           this.saveExpenseLoader = false;
           this.saveAndNewExpenseLoader = false;
           this.saveAndNextExpenseLoader = false;
+          this.saveAndPrevExpenseLoader = false;
         })
       );
   }
@@ -2702,6 +2742,8 @@ export class AddEditExpensePage implements OnInit {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
+    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+    
     const customFields$ = this.getCustomFields();
 
     this.trackAddExpense();
@@ -2892,6 +2934,7 @@ export class AddEditExpensePage implements OnInit {
           this.saveExpenseLoader = false;
           this.saveAndNewExpenseLoader = false;
           this.saveAndNextExpenseLoader = false;
+          this.saveAndPrevExpenseLoader = false;
         })
       );
   }
@@ -3198,5 +3241,19 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     }
+  }
+
+  async openCommensModal() {
+    const etxn = await this.etxn$.toPromise();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx.id,
+        mode: 'edit'
+      }
+    });
+
+    await modal.present();
   }
 }
