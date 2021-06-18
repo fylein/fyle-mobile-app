@@ -651,13 +651,13 @@ export class MyExpensesPage implements OnInit {
           type: 'sort',
           value: 'amount - low to high'
         });
-      } else if (filter.sortParam === 'tx_category' && filter.sortDir === 'asc') {
+      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
         filterPills.push({
           label: 'Sort By',
           type: 'sort',
           value: 'category - a to z'
         });
-      } else if (filter.sortParam === 'tx_category' && filter.sortDir === 'desc') {
+      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
         filterPills.push({
           label: 'Sort By',
           type: 'sort',
@@ -836,12 +836,12 @@ export class MyExpensesPage implements OnInit {
           name: 'Sort By',
           value: 'amountLowToHigh'
         });
-      } else if (filter.sortParam === 'tx_category' && filter.sortDir === 'asc') {
+      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
         generatedFilters.push({
           name: 'Sort By',
           value: 'categoryAToZ'
         });
-      } else if (filter.sortParam === 'tx_category' && filter.sortDir === 'desc') {
+      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
         generatedFilters.push({
           name: 'Sort By',
           value: 'categoryZToA'
@@ -895,10 +895,10 @@ export class MyExpensesPage implements OnInit {
         generatedFilters.sortParam = 'tx_amount';
         generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'categoryAToZ') {
-        generatedFilters.sortParam = 'tx_category';
+        generatedFilters.sortParam = 'tx_org_category';
         generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'categoryZToA') {
-        generatedFilters.sortParam = 'tx_category';
+        generatedFilters.sortParam = 'tx_org_category';
         generatedFilters.sortDir = 'desc';
       }
     }
