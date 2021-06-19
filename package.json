@@ -11,6 +11,9 @@
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
+  "resolutions": {
+    "webpack": "^5.0.0"
+  },
   "private": true,
   "dependencies": {
     "@agm/core": "^3.0.0-beta.0",
