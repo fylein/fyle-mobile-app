@@ -598,7 +598,7 @@ export class TransactionService {
     let vendorName = expense.tx_vendor;
 
     if (category === 'mileage') {
-      vendorName = expense.tx_distance;
+      vendorName = expense.tx_distance || 0;
       vendorName += ' ' + expense.tx_distance_unit;
     } else if (category === 'per diem') {
       vendorName = expense.tx_num_days;

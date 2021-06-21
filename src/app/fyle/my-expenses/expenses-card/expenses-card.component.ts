@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { noop, Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
@@ -18,9 +18,12 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
   @Input() previousExpenseTxnDate;
+  @Input() previousExpenseCreatedAt;
   @Input() isSelectionModeEnabled: boolean;
   @Input() isSelected: boolean;
   @Input() isProjectMandatory: boolean;
+
+  @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
   receipt: any;
   showDt = true;
@@ -30,12 +33,18 @@ export class ExpensesCardComponent implements OnInit {
   homeCurrency: string;
   icon: string;
   isScanInProgress: boolean;
+  test: string;
 
   constructor(
     private transactionService: TransactionService,
     private expenseFieldsService: ExpenseFieldsService,
     private offlineService: OfflineService
   ) { }
+
+
+  onGoToTransaction() {
+    this.goToTransaction.emit(this.expense);
+  }
 
   ngOnInit() {
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
@@ -50,9 +59,10 @@ export class ExpensesCardComponent implements OnInit {
     ).subscribe(noop);
     this.currencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
 
-    if (this.previousExpenseTxnDate) {
-      const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt)).toDateString());
-      const previousDate = (this.previousExpenseTxnDate && (new Date(this.previousExpenseTxnDate)).toDateString());
+    if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
+      const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());
+      const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
+      this.test = currentDate + '-' + previousDate;
       this.showDt = currentDate !== previousDate;
     }
 

@@ -24,6 +24,27 @@
     margin-bottom: 16px;
   }
 
+  &--scaning-receipt {
+    
+    &__header {
+      color: #161528;
+      font-weight: 500;
+      font-size: 18px;
+      line-height: 23px;
+      margin-left: 11px;
+    }
+
+    &__content {
+      color: #2c304e;
+      font-size: 14px;
+      line-height: 18px;
+      margin-left: 11px;
+      margin-top: 10px;
+    }
+
+    
+  }
+
   &--receipt-container {
     background-color: #f2f2f2;
     border-radius: 8px;
@@ -115,6 +136,11 @@
     border-radius: 16px;
     padding: 4px 29px;
     margin-top: 6px;
+  }
+
+  &--state-container {
+    text-align: right;
+    margin-top: 2px;
   }
 
   

@@ -183,9 +183,11 @@
       <app-expenses-card 
       [expense]="expense"
       [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+      [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
       [isSelectionModeEnabled]="selectionMode"
       [isSelected]="selectedElements"
-      [isProjectMandatory]="true">
+      [isProjectMandatory]="true"
+      (goToTransaction)="goToTransaction($event)">
 
       </app-expenses-card>
       <!-- <app-my-expenses-card
