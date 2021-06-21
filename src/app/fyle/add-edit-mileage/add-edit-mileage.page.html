@@ -250,12 +250,10 @@
                 <div *ngIf="txnFields.purpose?.type === 'TEXT'"
                      class="add-edit-mileage--text add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                   <div class="add-edit-mileage--text-label">
-                    <div>
-                      {{ txnFields.purpose?.field_name| slice: 0:30 }}
-                    </div>
-                    <div *ngIf="txnFields.purpose?.is_mandatory">
+                    {{ txnFields.purpose?.field_name| slice: 0:30 }}
+                    <span class="add-edit-mileage--mandatory" *ngIf="txnFields.purpose?.is_mandatory">
                       *
-                    </div>
+                    </span>
                   </div>
                   <input [disabled]="!txnFields.purpose?.canEdit" [placeholder]="'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
                          [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
