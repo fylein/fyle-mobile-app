@@ -29,6 +29,7 @@ export class ExpensesCardComponent implements OnInit {
   currencySymbol = '';
   homeCurrency: string;
   icon: string;
+  isScanInProgress: boolean;
 
   constructor(
     private transactionService: TransactionService,
@@ -55,6 +56,8 @@ export class ExpensesCardComponent implements OnInit {
       this.showDt = currentDate !== previousDate;
     }
 
+    this.isScanInProgress = this.getScanningReceiptCard(this.expense);
+
     if (this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
       this.receipt = 'assets/svg/fy-mileage.svg';
     } else if ((this.expense.tx_fyle_category.toLowerCase() === 'per diem')) {
@@ -62,7 +65,6 @@ export class ExpensesCardComponent implements OnInit {
     } else {
       this.receipt = 'assets/svg/fy-expense.svg';
     }
-
 
     if (this.expense.source_account_type === "PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT") {
         if (this.expense.tx_corporate_credit_card_expense_group_id) {
@@ -83,6 +85,17 @@ export class ExpensesCardComponent implements OnInit {
     // this.expenseFields$.subscribe((res) => {
     //   debugger;
     // })
+  }
+  getScanningReceiptCard(expense: Expense): boolean {
+    if (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem') {
+      return false;
+    } else {
+      if (!expense.tx_extracted_data && !expense.tx_transcribed_data) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 
 }
