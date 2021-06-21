@@ -98,6 +98,7 @@ export class AddEditMileagePage implements OnInit {
   saveMileageLoader = false;
   saveAndNewMileageLoader = false;
   saveAndNextMileageLoader = false;
+  saveAndPrevMileageLoader = false;
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
@@ -1532,6 +1533,41 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
+  saveExpenseAndGotoPrev() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense('SAVE_AND_PREV_MILEAGE').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.close();
+          } else {
+            that.goToPrev();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense('SAVE_AND_PREV_MILEAGE').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.close();
+          } else {
+            that.goToPrev();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      }
+    } 
+  }
+
   saveExpenseAndGotoNext() {
     const that = this;
     if (that.fg.valid) {
@@ -1760,6 +1796,7 @@ export class AddEditMileagePage implements OnInit {
     this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
     this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
     this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+    this.saveAndPrevMileageLoader = redirectedFrom === 'SAVE_AND_PREV_MILEAGE';
 
     const customFields$ = this.getCustomFields();
 
@@ -1963,6 +2000,7 @@ export class AddEditMileagePage implements OnInit {
           this.saveMileageLoader = false;
           this.saveAndNewMileageLoader = false;
           this.saveAndNextMileageLoader = false;
+          this.saveAndPrevMileageLoader = false;
         })
       );
   }
@@ -1971,6 +2009,7 @@ export class AddEditMileagePage implements OnInit {
     this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
     this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
     this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+    this.saveAndPrevMileageLoader = redirectedFrom === 'SAVE_AND_PREV_MILEAGE';
 
     const customFields$ = this.getCustomFields();
 
@@ -2151,6 +2190,7 @@ export class AddEditMileagePage implements OnInit {
           this.saveMileageLoader = false;
           this.saveAndNewMileageLoader = false;
           this.saveAndNextMileageLoader = false;
+          this.saveAndPrevMileageLoader = false;
         })
       );
   }

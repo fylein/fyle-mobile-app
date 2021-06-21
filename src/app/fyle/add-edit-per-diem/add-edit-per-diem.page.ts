@@ -48,6 +48,7 @@ import {RecentlyUsed} from 'src/app/core/models/v1/recently_used.model';
 import {ExtendedProject} from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments/view-comment/view-comment.component';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -95,6 +96,7 @@ export class AddEditPerDiemPage implements OnInit {
   navigateBack = false;
   savePerDiemLoader = false;
   saveAndNextPerDiemLoader = false;
+  saveAndPrevPerDiemLoader = false;
   clusterDomain: string;
   initialFetch;
   individualPerDiemRatesEnabled$: Observable<boolean>;
@@ -1468,6 +1470,7 @@ export class AddEditPerDiemPage implements OnInit {
   addExpense(redirectedFrom) {
     this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
     this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
+    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
 
     const customFields$ = this.customInputs$.pipe(
       take(1),
@@ -1621,6 +1624,7 @@ export class AddEditPerDiemPage implements OnInit {
         finalize(() => {
           this.savePerDiemLoader = false;
           this.saveAndNextPerDiemLoader = false;
+          this.saveAndPrevPerDiemLoader = false;
         })
       );
   }
@@ -1650,6 +1654,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
     this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
+    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
 
     this.trackPolicyCorrections();
 
@@ -1833,6 +1838,7 @@ export class AddEditPerDiemPage implements OnInit {
         finalize(() => {
           this.savePerDiemLoader = false;
           this.saveAndNextPerDiemLoader = false;
+          this.saveAndPrevPerDiemLoader = false;
         })
       );
   }
@@ -1941,6 +1947,42 @@ export class AddEditPerDiemPage implements OnInit {
         }
       }
     });
+  }
+
+  saveExpenseAndGotoPrev() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.close();
+          } else {
+            that.goToPrev();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.close();
+          } else {
+            that.goToPrev();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
   }
 
   saveExpenseAndGotoNext() {
@@ -2052,6 +2094,20 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     });
+  }
+
+  async openCommensModal() {
+    const etxn = await this.etxn$.toPromise();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx.id,
+        mode: 'edit'
+      }
+    });
+
+    await modal.present();
   }
 }
 

@@ -23,11 +23,20 @@ $red: #f00;
     justify-content: space-around;
   }
 
-  &--footer-toolbar {
-    padding: 0 12px;
+  &--footer-container {
+    &::before {
+      content: none;
+    }
   }
 
-  &--primary-cta {
+  &--footer-toolbar {
+    padding: 0 12px;
+    &__shadow {
+      box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    }
+  }
+
+  &--primary-cta, &--secondary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: uppercase;
@@ -43,6 +52,28 @@ $red: #f00;
 
     &:last-child {
       margin-left: 4px;
+    }
+  }
+
+  &--secondary-cta {
+    margin: 0;
+    border-radius: 0;
+    &__border {
+      border-right: 1px solid #DFDFE2;
+    }
+  }
+
+  &--secondary-cta-text {
+    min-width: 80px;
+  }
+
+  &--secondary-cta-icon {
+    &__left {
+      margin-right: 18px;
+    }
+
+    &__right {
+      margin-left: 18px; 
     }
   }
 

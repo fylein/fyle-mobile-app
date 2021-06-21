@@ -11,6 +11,13 @@ $red: #f00;
     font-weight: 400;
   }
 
+  &--title {
+    &__centered {
+      text-align: center;
+      padding-inline-end: 0;
+    }
+  }
+
   &--footer {
     display: flex;
     justify-content: space-around;
@@ -21,7 +28,7 @@ $red: #f00;
     justify-content: space-between;
   }
 
-  &--primary-cta {
+  &--primary-cta, &--secondary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: uppercase;

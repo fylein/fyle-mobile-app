@@ -4,11 +4,11 @@
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <ion-buttons mode="md" slot="start" *ngIf="reviewList?.length">
-      <ion-button>
+      <ion-button (click)="goBack()">
         <ion-icon name="close" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title *ngIf="mode" class="page-title" mode="md">
+    <ion-title *ngIf="mode" class="page-title" mode="md" [ngClass]="{'add-edit-mileage--title__centered': reviewList?.length}">
       <div *ngIf="mode === 'add'">
         Add Mileage
       </div>
@@ -33,10 +33,10 @@
     </ion-buttons>
     <ion-buttons *ngIf="reviewList?.length" slot="end">
       <ion-button (click)="openCommensModal()">
-        <ion-icon name="chatbubble-ellipses-outline" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
       <ion-button (click)="deleteExpense()">
-        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -515,48 +515,41 @@
   </div>
 </ion-content>
 <ng-container *ngIf="fg">
-  <ion-footer>
-    <ion-toolbar *ngIf="reviewList?.length">
-      <div class="add-edit-mileage--footer-toolbar">
-        <ion-buttons>
-          <ion-button 
-            (click)="goToPrev()" 
-            [disabled]="+activeIndex === 0" 
-            class="add-edit-mileage--primary-cta"
-            fill="clear">
-            Previous
-          </ion-button>
-          <ion-button 
-            (click)="goToNext()" 
-            [disabled]="+activeIndex === reviewList?.length - 1"
-            class="add-edit-mileage--primary-cta"
-            fill="clear">
-            Next
-          </ion-button>
-        </ion-buttons>
-      </div>
-    </ion-toolbar>
+  <app-review-footer 
+    *ngIf="reviewList?.length"
+    [activeIndex]="+activeIndex" 
+    [reviewList]="reviewList" 
+    [saveAndPrevLoader]="saveAndPrevMileageLoader" 
+    [saveAndNextLoader]="saveAndNextMileageLoader"
+    (goToPrev)="goToPrev()"
+    (goToNext)="goToNext()"
+    (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
+    (saveAndGoToNext)="saveExpenseAndGotoNext()"
+  ></app-review-footer>
+  <ion-footer *ngIf="!reviewList?.length">
     <ion-toolbar mode="md">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
-          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid"
-            appFormButtonValidation [loading]="saveMileageLoader" [loadingText]="'SAVING'"
+          <ion-button 
+            (click)="saveExpense()" 
+            class="add-edit-mileage--primary-cta" 
+            color="fyle-primary" fill="solid"
+            appFormButtonValidation 
+            [loading]="saveMileageLoader" 
+            [loadingText]="'SAVING'"
             [disabled]="saveMileageLoader || saveAndNewMileageLoader">
             Save
           </ion-button>
-          <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'" [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
-            class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid"
-            appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'SAVING'">
+          <ion-button 
+            (click)="saveAndNewExpense()" 
+            *ngIf="mode === 'add'" 
+            [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
+            class="add-edit-mileage--primary-cta" 
+            color="fyle-primary" fill="solid"
+            appFormButtonValidation 
+            [loading]="saveAndNewMileageLoader" 
+            [loadingText]="'SAVING'">
             Save & New
-          </ion-button>
-        </ion-buttons>
-      </div>
-
-      <div *ngIf="reviewList" class="add-edit-mileage--cta-container">
-        <ion-buttons>
-          <ion-button (click)="saveExpenseAndGotoNext()" class="add-edit-mileage--primary-cta" color="fyle-primary"
-            fill="solid" appFormButtonValidation [loading]="saveAndNextMileageLoader" [loadingText]="'SAVING'">
-            {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
           </ion-button>
         </ion-buttons>
       </div>

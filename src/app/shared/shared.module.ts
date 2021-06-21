@@ -67,6 +67,7 @@ import {ExpenseState} from './pipes/expense-state.pipe';
 import {FooterComponent} from './components/footer/footer.component';
 import {FyAlertInfoComponent} from './components/fy-alert-info.component.html/fy-alert-info.component';
 import {MatRippleModule} from '@angular/material/core';
+import { ReviewFooterComponent } from './components/review-footer/review-footer.component';
 
 @NgModule({
   declarations: [
@@ -119,7 +120,8 @@ import {MatRippleModule} from '@angular/material/core';
     ExpenseState,
     FooterComponent,
     FyLoadingScreenComponent,
-    FyAlertInfoComponent
+    FyAlertInfoComponent,
+    ReviewFooterComponent
   ],
   imports: [
     CommonModule,
@@ -179,7 +181,8 @@ import {MatRippleModule} from '@angular/material/core';
     FyAlertInfoComponent,
     FooterComponent,
     FyLoadingScreenComponent,
-    FyAlertInfoComponent
+    FyAlertInfoComponent,
+    ReviewFooterComponent
   ],
   providers: [
     DecimalPipe,

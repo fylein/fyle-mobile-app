@@ -1,0 +1,37 @@
+<ion-footer mode="md" class="review-footer--footer-container">
+  <ion-toolbar class="review-footer--footer-toolbar__shadow">
+    <div class="review-footer--footer-toolbar">
+      <ion-buttons>
+        <ion-button (click)="onGoToPrev()" [disabled]="+activeIndex === 0"
+          class="review-footer--secondary-cta review-footer--secondary-cta__border text-capitalize" fill="clear">
+          <ion-icon class="review-footer--secondary-cta-icon review-footer--secondary-cta-icon__left"
+            name="chevron-back-outline"></ion-icon>
+          <div class="review-footer--secondary-cta-text">
+            Previous
+          </div>
+        </ion-button>
+        <ion-button (click)="onGoToNext()" [disabled]="+activeIndex === reviewList?.length - 1"
+          class="review-footer--secondary-cta text-capitalize" fill="clear">
+          <div class="review-footer--secondary-cta-text">
+            Next
+          </div>
+          <ion-icon class="review-footer--secondary-cta-icon review-footer--secondary-cta-icon__right"
+            name="chevron-forward-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </div>
+  </ion-toolbar>
+  <ion-toolbar mode="md" class="review-footer--footer-toolbar__shadow review-footer--footer-toolbar__spacing">
+    <ion-buttons>
+      <ion-button *ngIf="activeIndex !== 0 && reviewList?.length > 0" (click)="onSaveAndGoToPrev()"
+        [loadingText]="'SAVING'" [loading]="saveAndPrevLoader" appFormButtonValidation
+        class="review-footer--secondary-cta text-capitalize" fill="clear">
+        Save and Previous
+      </ion-button>
+      <ion-button (click)="onSaveAndGoToNext()" [loadingText]="'SAVING'" [loading]="saveAndNextLoader"
+        appFormButtonValidation class="review-footer--primary-cta text-capitalize" color="fyle-primary" fill="solid">
+        {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
