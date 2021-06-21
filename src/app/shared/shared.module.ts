@@ -68,6 +68,7 @@ import {FooterComponent} from './components/footer/footer.component';
 import {FyAlertInfoComponent} from './components/fy-alert-info.component.html/fy-alert-info.component';
 import {MatRippleModule} from '@angular/material/core';
 import { ReviewFooterComponent } from './components/review-footer/review-footer.component';
+import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 
 @NgModule({
   declarations: [
@@ -121,7 +122,8 @@ import { ReviewFooterComponent } from './components/review-footer/review-footer.
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
-    ReviewFooterComponent
+    ReviewFooterComponent,
+    FyCriticalPolicyViolationComponent
   ],
   imports: [
     CommonModule,
@@ -182,7 +184,8 @@ import { ReviewFooterComponent } from './components/review-footer/review-footer.
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
-    ReviewFooterComponent
+    ReviewFooterComponent,
+    FyCriticalPolicyViolationComponent
   ],
   providers: [
     DecimalPipe,

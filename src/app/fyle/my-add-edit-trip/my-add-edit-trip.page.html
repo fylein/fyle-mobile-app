@@ -58,7 +58,7 @@
         </div>
 
         <div class="add-edit-trip--element-container">
-          <div class="add-edit-trip--text">
+          <div class="add-edit-trip--text add-edit-trip--select">
             <app-fy-select 
               [disabled]="mode === 'edit'" 
               [label]="'Trip Type'" 
@@ -70,17 +70,16 @@
           </div>
 
           <div class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': (fg.controls.startDate.touched && !fg.controls.startDate.valid)}">
-            <div [ngClass]="{'add-edit-trip--text-label__invalid': (fg.controls.startDate.touched && !fg.controls.startDate.valid)}"
-                 class="add-edit-trip--text-label">
-              Start date<span>*</span>
+            <div class="add-edit-trip--text-label">
+              Start date <span class="add-edit-trip--mandatory">*</span>
             </div>
             <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="tripDate.startMin" class="add-edit-trip--date-input date-input__format"
                    formControlName="startDate" type="date">
           </div>
 
           <div class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': fg.controls.endDate.touched && !fg.controls.endDate.valid}">
-            <div class="add-edit-trip--text-label" [ngClass]="{'add-edit-trip--text-label__invalid': fg.controls.endDate.touched && !fg.controls.endDate.valid}">
-              {{ fg.controls.endDate.value ? 'End Date ' : 'Select End Date ' }}  <span>*</span>
+            <div class="add-edit-trip--text-label">
+              End Date <span class="add-edit-trip--mandatory">*</span>
             </div>
             <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="fg.controls.startDate.value" class="add-edit-trip--date-input date-input__format"
                    formControlName="endDate" type="date">
@@ -89,13 +88,13 @@
             Please select end date.
           </div>
 
-          <div class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
+          <div class="add-edit-trip--text add-edit-trip--select">
             <app-fy-select 
               [cacheName]="'tripsRecentPurposeList'"
               [customInput]="true"
-              [label]="fg.controls.purpose.value ? 'Purpose ' : 'Enter Purpose '"
+              [label]="'Purpose'"
               [mandatory]="true"
-              [placeholder]="'Enter Purpose'"
+              [placeholder]="'Purpose'"
               [selectModalHeader]="'Enter Purpose'"
               [showSaveButton]="true"
               formControlName="purpose">
@@ -116,32 +115,31 @@
                     </mat-icon>
                   </div>
                 </div>
-                <div class="add-edit-trip--text add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].from_city.touched && !control['controls'].from_city.valid}">
+                <div class="add-edit-trip--text__dynamic">
                   <app-fy-location
-                    [label]="control['controls'].from_city.value ? 'From City' : 'Select From City'"
+                    [label]="'From City'"
                     [mandatory]="true"
                     formControlName="from_city">
                   </app-fy-location>
                 </div>
-                <div *ngIf="control['controls'].from_city.touched && !control['controls'].from_city.valid" class="add-edit-trip--mandatory-text">
+                <div *ngIf="control['controls'].from_city.touched && !control['controls'].from_city.valid" class="add-edit-trip--mandatory-text add-edit-trip--mandatory-location">
                   Please select from location.
                 </div>
 
-                <div class="add-edit-trip--text add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].to_city.touched && !control['controls'].to_city.valid}">
+                <div class="add-edit-trip--text__dynamic">
                   <app-fy-location
-                    [label]="control['controls'].to_city.value ? 'To City' : 'Select To City'"
+                    [label]="'To City'"
                     [mandatory]="true"
                     formControlName="to_city">
                   </app-fy-location>
                 </div>
-                <div *ngIf="control['controls'].to_city.touched && !control['controls'].to_city.valid" class="add-edit-trip--mandatory-text">
+                <div *ngIf="control['controls'].to_city.touched && !control['controls'].to_city.valid" class="add-edit-trip--mandatory-text add-edit-trip--mandatory-location">
                   Please select to location.
                 </div>
 
                 <div class="add-edit-trip--text add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].onward_dt.touched && !control['controls'].onward_dt.valid}">
-                  <div [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.onward_dt.touched && !control.controls.onward_dt.valid}"
-                       class="add-edit-trip--text-label">
-                    {{control['controls'].onward_dt.value ? 'Depart Date' : 'Select Depart Date'}}<span>*</span>
+                  <div class="add-edit-trip--text-label">
+                    {{control['controls'].onward_dt.value ? 'Depart Date' : 'Select Depart Date'}}<span class="add-edit-trip--mandatory">*</span>
                   </div>
                   
                   <ng-container *ngIf="fg.controls.tripType.value === 'ONE_WAY' || fg.controls.tripType.value === 'ROUND'">
@@ -161,9 +159,8 @@
 
                 <div *ngIf="fg.controls.tripType.value === 'ROUND'"
                      class="add-edit-trip--text add-edit-trip--text__dynamic" [ngClass]="{'add-edit-trip--text__invalid': control['controls'].return_date.touched && !control['controls'].return_date.valid}">
-                  <div [ngClass]="{'add-edit-trip--text-label__invalid': control.controls.return_date.touched && !control.controls.return_date.valid}"
-                       class="add-edit-trip--text-label">
-                    {{control['controls'].return_date.value ? 'Return Date' : 'Select Return Date'}}<span>*</span>
+                  <div class="add-edit-trip--text-label">
+                    {{control['controls'].return_date.value ? 'Return Date' : 'Select Return Date'}}<span class="add-edit-trip--mandatory">*</span>
                   </div>
                   <input appFormatDate (keydown)="$event.preventDefault()" [max]="fg.controls.endDate.value" [min]="control['controls'].onward_dt.value ? control['controls'].onward_dt.value : fg.controls.startDate.value" class="add-edit-trip--date-input date-input__format"
                          formControlName="return_date"
@@ -181,19 +178,19 @@
             </div>
           </ng-container>
           <!-- show if projects .length > 0 -->
-          <div *ngIf="(projects$|async)?.length > 0" class="add-edit-trip--text">
+          <div *ngIf="(projects$|async)?.length > 0" class="add-edit-trip--text add-edit-trip--select">
             <app-fy-select-project
               [cacheName]="'tripProjectCache'"
-              [label]="fg.controls.project.value ? 'Project' : 'Select Project'"
+              [label]="'Project'"
               formControlName="project">
             </app-fy-select-project>
           </div>
 
           <!-- show if travel agent length > 0 -->
           <ng-container *ngIf="travelAgents$|async as travelAgents">
-            <div *ngIf="travelAgents.length > 0" class="add-edit-trip--text">
+            <div *ngIf="travelAgents.length > 0" class="add-edit-trip--text add-edit-trip--select">
               <app-fy-select
-                [label]="fg.controls.travelAgent.value ? 'Agent' : 'Select Agent'"
+                [label]="'Agent'"
                 [nullOption]="false"
                 [options]="travelAgents"
                 formControlName="travelAgent">
@@ -201,11 +198,11 @@
             </div>
           </ng-container>
 
-          <div class="add-edit-trip--text">
+          <div class="add-edit-trip--text add-edit-trip--select">
             <app-fy-select 
               [cacheName]="'recentNotesList'"
               [customInput]="true"
-              [label]="fg.controls.notes.value ? 'Notes ' : 'Enter Notes '"
+              [label]="'Notes'"
               [nullOption]="true"
               [placeholder]="'Enter Notes'"
               [selectModalHeader]="'Enter Notes'"
@@ -228,10 +225,9 @@
               <form [formGroup]="customInput.control">
                 <div *ngIf="customInput.input_type !== 'BOOLEAN' && customInput.input_type !== 'SELECT' && customInput.input_type !== 'MULTI_SELECT' && customInput.input_type !== 'USER_LIST' && customInput.input_type !== 'LOCATION'"
                       class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
-                  <div [ngClass]="{'add-edit-trip--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                        class="add-edit-trip--text-label">
+                  <div class="add-edit-trip--text-label">
                     {{customInput.input_name | ellipsis: 11}}
-                    <span *ngIf="customInput.mandatory">
+                    <span class="add-edit-trip--mandatory" *ngIf="customInput.mandatory">
                       *
                     </span>
                   </div>
@@ -247,17 +243,17 @@
   
                 <div *ngIf="customInput.input_type === 'BOOLEAN'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                   <div class="add-edit-trip--checkbox">
-                    <mat-checkbox color="primary" formControlName="value">
+                    <mat-checkbox formControlName="value">
                       {{customInput.input_name | ellipsis: 35 }}
                     </mat-checkbox>
                   </div>
                 </div>
   
-                <div *ngIf="customInput.input_type === 'LOCATION'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                <div *ngIf="customInput.input_type === 'LOCATION'" class="add-edit-trip--text add-edit-trip--select">
                   <app-fy-location [mandatory]="customInput.mandatory" [label]="customInput.input_name | ellipsis: 11" formControlName="value"></app-fy-location>
                 </div>
-  
-                <div *ngIf="customInput.input_type === 'SELECT'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+
+                <div *ngIf="customInput.input_type === 'SELECT'" class="add-edit-trip--text add-edit-trip--select" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                   <app-fy-select 
                     [mandatory]="customInput.mandatory"
                     [label]="customInput.input_name | ellipsis: 11" 
@@ -266,7 +262,7 @@
                   </app-fy-select>
                 </div>
   
-                <div *ngIf="customInput.input_type === 'MULTI_SELECT'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                <div *ngIf="customInput.input_type === 'MULTI_SELECT'" class="add-edit-trip--text add-edit-trip--select" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                   <app-fy-multiselect 
                     [mandatory]="customInput.mandatory"
                     [label]="customInput.input_name | ellipsis: 11" 
@@ -275,7 +271,7 @@
                   </app-fy-multiselect>
                 </div>
   
-                <div *ngIf="customInput.input_type === 'USER_LIST'" class="add-edit-trip--text" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
+                <div *ngIf="customInput.input_type === 'USER_LIST'" class="add-edit-trip--text add-edit-trip--select" [ngClass]="{'add-edit-trip--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                   <app-fy-userlist 
                     [mandatory]="customInput.mandatory"
                     [label]="customInput.input_name | ellipsis: 11" 
@@ -295,21 +291,21 @@
       <div>
         <div *ngIf="isHotelEnabled$|async" class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox [disabled]="isHotelRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" color="primary" formControlName="hotelRequest"></mat-checkbox>
+            <mat-checkbox [disabled]="isHotelRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" formControlName="hotelRequest"></mat-checkbox>
             Request Hotel
           </label>
         </div>
 
         <div *ngIf="isTransportationEnabled$|async" class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox [disabled]="isTransportationRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" color="primary" formControlName="transportationRequest"></mat-checkbox>
+            <mat-checkbox [disabled]="isTransportationRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" formControlName="transportationRequest"></mat-checkbox>
             Request Transportation
           </label>
         </div>
 
         <div *ngIf="isAdvanceEnabled$|async" class="add-edit-trip--other-requests">
           <label>
-            <mat-checkbox [disabled]="isAdvanceRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" color="primary" formControlName="advanceRequest" id="advanceRequest"></mat-checkbox>
+            <mat-checkbox [disabled]="isAdvanceRequestAlreadyAdded" class="add-edit-trip--other-requests-checkbox" formControlName="advanceRequest" id="advanceRequest"></mat-checkbox>
             Request Advance
           </label>
         </div>

@@ -32,8 +32,8 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {PolicyService} from 'src/app/core/services/policy.service';
 import {DataTransformService} from 'src/app/core/services/data-transform.service';
-import {CriticalPolicyViolationComponent} from './critical-policy-violation/critical-policy-violation.component';
-import {ModalController, NavController} from '@ionic/angular';
+import {FyCriticalPolicyViolationComponent} from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import {ModalController, NavController, PopoverController} from '@ionic/angular';
 import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {StatusService} from 'src/app/core/services/status.service';
@@ -49,6 +49,7 @@ import {ExtendedProject} from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments/view-comment/view-comment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -147,7 +148,9 @@ export class AddEditPerDiemPage implements OnInit {
     private currencyPipe: CurrencyPipe,
     private tokenService: TokenService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private popoverController: PopoverController,
+    private modalProperties: ModalPropertiesService
   ) {
   }
 
@@ -1439,16 +1442,17 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const currencyModal = await this.modalController.create({
-      component: CriticalPolicyViolationComponent,
+    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
+      component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
-      }
+      },
+      cssClass: 'pop-up-in-center'
     });
 
-    await currencyModal.present();
+    await fyCriticalPolicyViolationPopOver.present();
 
-    const {data} = await currencyModal.onWillDismiss();
+    const {data} = await fyCriticalPolicyViolationPopOver.onWillDismiss();
     return !!data;
   }
 
@@ -1458,7 +1462,10 @@ export class AddEditPerDiemPage implements OnInit {
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();

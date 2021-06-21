@@ -1,4 +1,4 @@
-$red: #f00;
+@import "../../../theme/colors.scss";
 
 .add-edit-per-diem {
   &--toolbar {
@@ -29,7 +29,7 @@ $red: #f00;
     text-transform: uppercase;
     font-weight: 700;
     --border-radius: 4px !important;
-    margin: 14px;
+    margin: 14px !important;
     width: 100%;
   }
 
@@ -84,69 +84,87 @@ $red: #f00;
     padding: 0 16px 16px 16px;
   }
 
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  &--from-date {
+    margin-right: 8px;
+  }
+
+  &--to-date {
+    margin-left: 8px;
+  }
+
+  &--num-days-error {
+    margin-top: -8px !important;
+  }
+
   &--date {
-    display: flex;
-    justify-content: space-between;
+    border-bottom: 1px solid $grey-lighter;
+    padding: 4px 0 !important;
+    width: 100%;
   }
 
   &--date-label {
     margin: 0 8px 0 0;
+    max-width: 90%;
     min-width: 120px;
-    max-width: 170px;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
     white-space: nowrap;
-    display: flex;
-
-    &__invalid {
-      color: red;
-    }
-
-    div {
-      display: inline;
-    }
+    font-weight: 400;
   }
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: right;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    padding: 0;
+    height: 18px;
+    margin: 6px 0;
   }
 
   &--text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-bottom: 1px solid $grey-lighter;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
   }
 
   &--text-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
+    max-width: 90%;
     min-width: 120px;
-    max-width: 170px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 2;
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
     white-space: nowrap;
+    font-weight: 400;
     display: flex;
 
-    &__invalid {
-      color: red;
+    &__unit {
+      font-size: 12px;
+      margin-top: 4px;
     }
   }
 
   &--text-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    max-width: calc(100% - 145px);
+    font-size: 14px;
+    font-weight: 400;
+    height: 18px;
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    padding: 0;
+    margin: 6px 0;
   }
 
   &--checkbox {
@@ -155,22 +173,38 @@ $red: #f00;
     font-weight: 500;
   }
 
+  &--project-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &--no-project {
+    margin-right: 0 !important;
+  }
+
+  &--project-block {
+    flex-grow: 1;
+    margin-right: 26px;
+  }
+
+  &--date-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+  }
+
   &--primary-block {
     margin: 16px 0;
-    padding: 0 16px;
-    border: 1px solid #e5e5e5;
     border-radius: 4px;
   }
 
   &--internal-block {
-    padding: 16px 0;
+    padding: 8px 0;
     background: #fff;
-    border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-    &:last-child {
-      border-bottom: 0;
-    }
+    margin-bottom: 12px;
 
     &__invalid {
       border-color: $red;
@@ -208,7 +242,10 @@ $red: #f00;
   }
 
   &--error {
-    color: red;
+    color: $red;
+    line-height: 16px;
+    margin-top: -16px;
+    font-size: 12px;
   }
 
   &--critical-policy {
@@ -405,5 +442,17 @@ $red: #f00;
   &--payment-mode-type {
     color: #ababab;
     font-size: 12px;
+  }
+
+  &--date-block {
+    width: 96%;
+  }
+
+  &--date-error {
+    margin-top: -10px !important;
+  }
+
+  &--to-date-error {
+    margin-left: 12px;
   }
 }

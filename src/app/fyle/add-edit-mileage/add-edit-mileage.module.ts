@@ -18,7 +18,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
-import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 
 @NgModule({
   imports: [
@@ -39,7 +38,6 @@ import { CriticalPolicyViolationComponent } from './critical-policy-violation/cr
   declarations: [
     AddEditMileagePage,
     FySelectVehicleComponent,
-    CriticalPolicyViolationComponent,
     PolicyViolationComponent
   ]
 })

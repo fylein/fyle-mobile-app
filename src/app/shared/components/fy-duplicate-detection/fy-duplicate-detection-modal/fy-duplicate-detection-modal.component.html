@@ -1,18 +1,19 @@
-<ion-header mode="md" >
-  <ion-toolbar mode="md">
+<ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="selection-modal--title">
         Select Items
       </div>
     </ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
-        <mat-icon>close</mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
-    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
+    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
       <input #searchBar id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search">
     </mat-form-field>
   </ion-toolbar>

@@ -1,4 +1,4 @@
-$red: #f00;
+@import "../../../theme/colors.scss";
 
 .add-edit-expense {
   &--toolbar {
@@ -30,7 +30,7 @@ $red: #f00;
   }
 
   &--footer-toolbar {
-    padding: 0 12px;
+    padding: 14px 16px 14px 16px;
     &__shadow {
       box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     }
@@ -39,8 +39,8 @@ $red: #f00;
   &--primary-cta, &--secondary-cta {
     height: 48px;
     font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
+    text-transform: inherit;
+    font-weight: 600;
     border-radius: 8px;
     width: 100%;
     margin: 12px 0;
@@ -153,108 +153,93 @@ $red: #f00;
   }
 
   &--date {
-    display: flex;
-    justify-content: space-between;
+    border-bottom: 1px solid $grey-lighter;
   }
 
   &--date-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    max-width: 90%;
+    min-width: 120px;
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
     white-space: nowrap;
-    max-width: 120px;
-    display: flex;
-
-    &__large {
-      max-width: 170px;
-    }
-
-    &__invalid {
-      color: $red;
-    }
+    font-weight: 400;
   }
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: left;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    border: none;
+    width: 100%;
+    padding: 0;
+    height: 18px;
+    margin: 6px 0;
   }
 
   &--text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-bottom: 1px solid $grey-lighter;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
   }
 
   &--text-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 2;
-    white-space: nowrap;
-    display: flex;
-    max-width: 170px;
+    max-width: 90%;
     min-width: 120px;
-
-    &__large {
-      max-width: 170px;
-    }
-
-    &__invalid {
-      color: $red;
-    }
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
   }
 
   &--text-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    min-width: calc(100% - 120px);
-
-    &__large {
-      min-width: calc(100% - 170px);
-    }
+    font-size: 14px;
+    font-weight: 400;
+    height: 18px;
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    margin: 6px 0;
+    padding: 0;
   }
 
   &--checkbox {
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
+    font-size: 14px;
+    color: $blue-black;
+    font-weight: 400;
+  }
+
+  &--project-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &--no-project {
+    margin-right: 0 !important;
+  }
+
+  &--project-block {
+    flex-grow: 1;
+    margin-right: 26px;
   }
 
   &--primary-block {
     margin: 16px 0;
-    padding: 0 16px;
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
   }
 
   &--internal-block {
-    padding: 16px 0;
+    padding: 8px 0;
     background: #fff;
-    border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-
-    &_special {
-      border-bottom: 0;
-    }
-
-    &__invalid {
-      border-color: $red;
-    }
-
-    &:last-child {
-      border-bottom: 0;
-    }
+    margin-bottom: 12px;
   }
 
   &--split-expense-container {
@@ -279,7 +264,7 @@ $red: #f00;
 
   &--comment {
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $grey-lighter;
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -288,7 +273,7 @@ $red: #f00;
     display: flex;
     align-items: center;
     padding: 12px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $grey-lighter;
     border-radius: 4px;
   }
 
@@ -486,86 +471,97 @@ $red: #f00;
     font-size: 12px;
   }
 
-  &--match-card-header {
+  &--error {
+    color: $red;
+  }
+
+  &--card-header {
+    color: $black-light;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15.36px;
+  }
+
+  &--card-txn-container {
+    border: 1px solid $grey-lighter;
+    border-radius: 8px;
+    padding: 8px;
     display: flex;
-    justify-content: space-between;
+    color: $grey-light;
     align-items: center;
-    padding-top: 16px;
-    padding-bottom: 8px;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15.36px;
   }
 
-  &--match-card-header-title {
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-  }
-
-  &--match-card-header-title-icon {
-    width: 24px;
-    padding: 5px 4px 0 0;
-  }
-
-  &--match-card-button {
-    color: #f36;
-    font-weight: 500;
-  }
-
-  &--matched-card {
-    padding: 16px;
-    min-height: 120px;
-    background-color: rgba(216, 216, 216, 0.2);
-    margin-bottom: 18px;
-  }
-
-  &--matched-card-zero-state {
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    text-align: center;
-    min-height: 120px;
-    color: #ababab;
-    flex-direction: column;
-  }
-
-  &--matched-card-zero-state-title {
-    margin-bottom: 10px;
-    font-size: 16px;
-    color: #4a4a4a;
-  }
-
-  &--matched-expense {
-
-  }
-
-  &--matched-expense-value {
-
-  }
-
-  &--matched-currency {
-    font-size: 20px;
-    line-height: 1.2;
-    color: #ababab;
+  &--icon-corporate-card {
+    height: 24px;
+    width: 28px;
     margin-right: 8px;
-
   }
 
-  &--matched-amount {
-    font-weight: 500;
-    line-height: 1.6;
-    font-size: 20px;
+  &--loading-suggestions {
+    display: flex;
+    flex-grow: 1;
   }
 
-  &--matched-expense-txn-dt {
-
+  &--matching-card {
+    border-bottom: 1px solid $grey-lighter;
+    display: flex;
+    padding: 4px 0;
+    justify-content: space-between;
+    font-size: 14px;
+    color: $blue-black;
   }
 
-  &--matched-expense-vendor {
-    font-size: 16px;
-    color: #ababab;
-    margin-top: 2px;
+  &--icon-loading {
+    width: 24px;
+    margin-right: 8px;
+    height: 24px;
+    border-radius: 4px;
+  }
+
+  &--text-loading {
+    border-radius: 4px;
+    height: 24px;
+  }
+
+  &--matching-content {
+    flex: 80;
+    line-height: 24px;
+  }
+
+  &--no-matching-card {
+    border-bottom: none;
+  }
+
+  &--card-arrow {
+    color: $grey-light;
   }
 
   &--error {
     color: $red;
+    line-height: 16px;
+    margin-top: -12px;
+    font-size: 12px;
+  }
+
+  &--amount-error {
+    color: $red;
+    font-size: 12px;
+  }
+
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  &--ccc-expense {
+    pointer-events: none;
+    color: $grey-light;
   }
 }

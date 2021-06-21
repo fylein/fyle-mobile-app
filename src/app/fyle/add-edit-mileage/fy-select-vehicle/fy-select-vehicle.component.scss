@@ -1,13 +1,15 @@
+@import "../../../../theme/colors.scss";
+
 .fy-select-vehicle {
   display: flex;
   align-items: center;
   &--label {
     margin: 0 8px 0 0;
     min-width: 145px;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 14px;
+    color: $blue-black;
+    font-weight: 400;
+    line-height: 16px;
     white-space: nowrap;
   }
   &--selectors {
@@ -19,7 +21,12 @@
     font-size: 24px;
     color: #ababab;
     &__selected {
-        color: #f36;
+      color: $primary;
     }
+  }
+  &--mandatory {
+    color: $primary;
+    font-size: 14px;
+    font-weight: 400;
   }
 }

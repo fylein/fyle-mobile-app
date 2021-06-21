@@ -38,7 +38,7 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
 import {SplitExpensePopoverComponent} from './split-expense-popover/split-expense-popover.component';
 import {ModalController, NavController, PopoverController} from '@ionic/angular';
-import {CriticalPolicyViolationComponent} from './critical-policy-violation/critical-policy-violation.component';
+import {FyCriticalPolicyViolationComponent} from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {StatusService} from 'src/app/core/services/status.service';
 import {FileService} from 'src/app/core/services/file.service';
@@ -62,6 +62,7 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { CommentsComponent } from 'src/app/shared/components/comments/comments.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments/view-comment/view-comment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -196,7 +197,8 @@ export class AddEditExpensePage implements OnInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private modalProperties: ModalPropertiesService
   ) {
   }
 
@@ -364,7 +366,10 @@ export class AddEditExpensePage implements OnInit {
           matchingCCCTransactions: this.matchingCCCTransactions,
           mode: this.mode,
           selectedCCCTransaction: this.selectedCCCTransaction
-        }
+        },
+        mode: 'ios',
+        presentingElement: await this.modalController.getTop(),
+        ...this.modalProperties.getModalDefaultProperties()
       });
 
       await matchExpensesModal.present();
@@ -2447,16 +2452,17 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const currencyModal = await this.modalController.create({
-      component: CriticalPolicyViolationComponent,
+    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
+      component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
-      }
+      },
+      cssClass: 'pop-up-in-center'
     });
 
-    await currencyModal.present();
+    await fyCriticalPolicyViolationPopOver.present();
 
-    const {data} = await currencyModal.onWillDismiss();
+    const {data} = await fyCriticalPolicyViolationPopOver.onWillDismiss();
     return !!data;
   }
 
@@ -2466,7 +2472,10 @@ export class AddEditExpensePage implements OnInit {
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();
@@ -3172,7 +3181,10 @@ export class AddEditExpensePage implements OnInit {
           componentProps: {
             attachments,
             canEdit: true
-          }
+          },
+          mode: 'ios',
+          presentingElement: await this.modalController.getTop(),
+          ...this.modalProperties.getModalDefaultProperties()
         });
 
         await attachmentsModal.present();
