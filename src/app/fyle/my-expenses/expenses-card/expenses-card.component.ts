@@ -24,6 +24,7 @@ export class ExpensesCardComponent implements OnInit {
   @Input() isProjectMandatory: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+  @Output() onHomeClicked: EventEmitter<Expense> = new EventEmitter();
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
   receipt: any;
   showDt = true;

@@ -177,7 +177,7 @@
       </app-my-expenses-card>
     </div>
   </div>
-
+A- 
   <ng-container *ngIf="isConnected$|async; else isNotConnected">
     <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
       <app-expenses-card 
@@ -187,7 +187,8 @@
       [isSelectionModeEnabled]="selectionMode"
       [isSelected]="selectedElements"
       [isProjectMandatory]="true"
-      (goToTransaction)="goToTransaction($event)">
+      (goToTransaction)="goToTransaction($event)"
+      (onHomeClicked)="onHomeClicked($event)">
 
       </app-expenses-card>
       <!-- <app-my-expenses-card

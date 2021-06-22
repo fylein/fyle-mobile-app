@@ -799,4 +799,8 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  onHomeClicked() {
+    console.log("------------")
+  }
+
 }
