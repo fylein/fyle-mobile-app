@@ -181,7 +181,7 @@
                          type="number" placeholder="Enter Distance">
                 </div>
                 <div *ngIf="fg.controls.distance.touched && !fg.controls.distance.valid"
-                     class="add-edit-mileage--error add-edit-mileage--distance-error">
+                     class="add-edit-mileage--error add-edit-mileage--text-error">
                   Please enter the distance
                 </div>
               </ng-container>
@@ -269,7 +269,7 @@
                                  formControlName="purpose">
                   </app-fy-select>
                 </div>
-                <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid" class="add-edit-mileage--error">
+                <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid" class="add-edit-mileage--error add-edit-mileage--text-error">
                   Please enter a {{ txnFields.purpose?.field_name }}
                 </div>
               </ng-container>
