@@ -19,6 +19,7 @@ import {AddExpensePopoverComponent} from './add-expense-popover/add-expense-popo
 import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { ExpensesCardComponent } from './expenses-card/expenses-card.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ReportStates } from '../dashboard/stat-badge/report-states';
 
 @NgModule({
   imports: [

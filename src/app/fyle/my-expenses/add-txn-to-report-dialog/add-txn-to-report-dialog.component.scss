@@ -1,57 +1,64 @@
 .report-list {
   &--container {
-    padding: 10px 20px;
+    padding: 16px;
   }
 
   &--header {
-    padding: 24px 0;
-    font-size: 20px;
-    height: 100%;
-    line-height: 1.3;
-    font-weight: 400;
-  }
-
-  &--title {
-    color: #ababab;
     font-size: 14px;
-    font-weight: 700;
-    margin: 0 0 8px;
-    line-height: 1.7;
+    line-height: 17.92px;;
+    font-weight: 400;
+    color: #a9acbc;
   }
 
   &--list {
     margin-top: 10px;
   }
 
-  &--report-tile {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
-    border-radius: 4px;
-    margin-bottom: 24px;
-    border: 1px solid #fff;
-    padding: 16px;
+  &--currency {
+    color: #5a5d72;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    margin-right: 2px;
   }
 
-  &--date-amount-block {
-    justify-content: space-between;
-    display: flex;
-    color: #ababab;
-    vertical-align: bottom;
-
-    &-date {
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    &-amount {
-      font-weight: 700;
-    }
+  &--amount {
+    color: #161528;
+    font-size: 20px;
+    line-height: 26px;
   }
 
   &--purpose {
-    font-size: 16px;
-    font-weight: 700;
-    white-space: normal;
-    color: #666;
-    margin-top: 10px;
+    font-weight: 400;
+    color: #161528;
+    font-size: 18px;
+    line-height: 23px;
+  }
+
+  &--count {
+    color: #2c304e;
+    font-size: 14px;
+    line-height: 18px;
+    margin-top: 2px;
+  }
+
+  &--divider {
+    border-bottom: 1px solid #DFDFE2;
+    margin-bottom: 14px;
+  }
+
+  &--state {
+    font-size: 12px;
+    line-height: 15px;
+    color: #ffffff;
+    text-align: center;
+    background: #464D57;
+    border-radius: 16px;
+    padding: 4px 17px;
+    max-width: 86px;
+
+    &__reported {
+      background: #2896F3;
+    }
   }
 }

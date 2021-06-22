@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/c
 import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
-import {ModalController, PopoverController} from '@ionic/angular';
+import {ActionSheetController, ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
@@ -91,7 +91,8 @@ export class MyExpensesPage implements OnInit {
     private storageService: StorageService,
     private tokenService: TokenService,
     private apiV2Service: ApiV2Service,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private actionSheetController: ActionSheetController
   ) { }
 
   clearText() {
@@ -801,14 +802,12 @@ export class MyExpensesPage implements OnInit {
 
 
   async onAddTransactionsToReport() {
-    const addExpenseToReportModal = await this.modalController.create({
+    const addExpenseToReportModal = await this.popoverController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
         txId: 'event.tx_id'
       },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      cssClass: 'dialog-popover'
     });
     await addExpenseToReportModal.present();
 
@@ -816,6 +815,25 @@ export class MyExpensesPage implements OnInit {
     if (data && data.reload) {
       this.doRefresh();
     }
+
+    // let actionSheetButtons = [{
+    //   text: '<ion-content>abc</ion-content>',
+    //   cssClass: 'capture-receipt',
+    //   handler: () => {
+    //     that.router.navigate(['/', 'enterprise', 'camera_overlay', {
+    //       navigate_back: true
+    //     }]);
+    //   }
+    // }]
+
+    // const that = this;
+    // const actionSheet = await this.actionSheetController.create({
+    //   header: 'ADD TO REPORT',
+    //   mode: 'md',
+    //   cssClass: 'fy-action-sheet',
+    //   buttons: actionSheetButtons
+    // });
+    // await actionSheet.present();
   }
 
   onHomeClicked() {

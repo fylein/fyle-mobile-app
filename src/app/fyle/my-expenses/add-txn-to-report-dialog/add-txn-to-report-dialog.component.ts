@@ -4,7 +4,9 @@ import { Observable, from, noop } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ReportService } from 'src/app/core/services/report.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { switchMap, finalize, tap } from 'rxjs/operators';
+import { switchMap, finalize, tap, map } from 'rxjs/operators';
+import { getCurrencySymbol } from '@angular/common';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-add-txn-to-report-dialog',
@@ -15,12 +17,14 @@ export class AddTxnToReportDialogComponent implements OnInit {
 
   @Input() txId;
   approverPendingReports$: Observable<any>;
+  reportCurrencySymbol: string;
 
 
   constructor(
     private modalController: ModalController,
     private reportService: ReportService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private offlineService: OfflineService
   ) { }
 
   closeAddToReportModal() {
@@ -48,6 +52,12 @@ export class AddTxnToReportDialogComponent implements OnInit {
       }),
       finalize(() => this.loaderService.hideLoader())
     );
+
+    this.offlineService.getHomeCurrency().pipe(
+      map((homeCurrency) => {
+        this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+      })
+    ).subscribe(noop);
   }
 
 }
