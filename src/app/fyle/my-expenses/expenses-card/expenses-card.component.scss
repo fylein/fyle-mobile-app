@@ -19,6 +19,15 @@
     }
   }
 
+  &--checkbox-container{
+    margin-top: 12px;
+  }
+
+  &--checkbox {
+    width: 20px;
+    height: 20px;
+  }
+
   &--divider {
     border-bottom: 1px solid #DFDFE2;
     margin-bottom: 16px;
@@ -32,6 +41,7 @@
       font-size: 18px;
       line-height: 23px;
       margin-left: 11px;
+      white-space: nowrap;
     }
 
     &__content {
