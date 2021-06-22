@@ -799,6 +799,25 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+
+  async onAddTransactionsToReport() {
+    const addExpenseToReportModal = await this.modalController.create({
+      component: AddTxnToReportDialogComponent,
+      componentProps: {
+        txId: 'event.tx_id'
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
+    });
+    await addExpenseToReportModal.present();
+
+    const { data } = await addExpenseToReportModal.onDidDismiss();
+    if (data && data.reload) {
+      this.doRefresh();
+    }
+  }
+
   onHomeClicked() {
     console.log("------------");
     console.log(this.selectExpense.length);
