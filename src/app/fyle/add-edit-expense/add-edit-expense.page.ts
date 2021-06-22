@@ -36,9 +36,8 @@ import {PolicyService} from 'src/app/core/services/policy.service';
 import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
-import {SplitExpensePopoverComponent} from './split-expense-popover/split-expense-popover.component';
-import {ModalController, NavController, PopoverController} from '@ionic/angular';
-import {FyCriticalPolicyViolationComponent} from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import {ActionSheetController, ModalController, NavController, PopoverController} from '@ionic/angular';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {StatusService} from 'src/app/core/services/status.service';
 import {FileService} from 'src/app/core/services/file.service';
@@ -155,6 +154,7 @@ export class AddEditExpensePage implements OnInit {
   presetCurrency: string;
   initialFetch;
   inpageExtractedData;
+  actionSheetButtons = [];
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -195,7 +195,8 @@ export class AddEditExpensePage implements OnInit {
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
     private expenseFieldsService: ExpenseFieldsService,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private actionSheetController: ActionSheetController
   ) {
   }
 
@@ -554,21 +555,38 @@ export class AddEditExpensePage implements OnInit {
       const areCostCentersAvailable = res.costCenters.length > 0;
       const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
 
-      const splitExpensePopover = await this.popoverController.create({
-        component: SplitExpensePopoverComponent,
-        componentProps: {
-          areProjectsAvailable,
-          areCostCentersAvailable
-        },
-        cssClass: 'dialog-popover'
-      });
-      await splitExpensePopover.present();
+      this.actionSheetButtons = [{
+        text: 'Category',
+        handler: () => {
+          this.openSplitExpenseModal('categories')
+        }
+      }];
 
-      const {data} = await splitExpensePopover.onWillDismiss();
-
-      if (data && data.type) {
-        this.openSplitExpenseModal(data.type);
+      if (areProjectsAvailable) {
+        this.actionSheetButtons.push({
+          text: 'Project',
+          handler: () => {
+            this.openSplitExpenseModal('projects')
+          }
+        });
       }
+
+      if (areCostCentersAvailable) {
+        this.actionSheetButtons.push({
+          text: 'Cost Center',
+          handler: () => {
+            this.openSplitExpenseModal('cost centers')
+          }
+        });
+      }
+
+      const actionSheet = await this.actionSheetController.create({
+        header: 'SPLIT EXPENSE BY',
+        mode: 'md',
+        cssClass: 'fy-action-sheet',
+        buttons: this.actionSheetButtons
+      });
+      await actionSheet.present();
     });
   }
 

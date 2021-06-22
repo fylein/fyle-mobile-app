@@ -17,7 +17,6 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
@@ -50,7 +49,6 @@ import {MatButtonModule} from '@angular/material/button';
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
-    SplitExpensePopoverComponent,
     PolicyViolationComponent,
     CameraOptionsPopupComponent,
     MatchTransactionComponent
