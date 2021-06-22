@@ -18,6 +18,7 @@ import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expens
 import {AddExpensePopoverComponent} from './add-expense-popover/add-expense-popover.component';
 import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { ExpensesCardComponent } from './expenses-card/expenses-card.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [
@@ -35,6 +36,7 @@ import { ExpensesCardComponent } from './expenses-card/expenses-card.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
+    MatCheckboxModule,
     SharedModule
   ],
   declarations: [

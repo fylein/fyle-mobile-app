@@ -29,8 +29,9 @@ export class ExpensesCardComponent implements OnInit {
   showDt = true;
   isPolicyViolated: boolean;
   isCriticalPolicyViolated: boolean;
-  currencySymbol = '';
   homeCurrency: string;
+  homeCurrencySymbol = '';
+  foreignCurrencySymbol = '';
   icon: string;
   isScanInProgress: boolean;
   test: string;
@@ -48,16 +49,17 @@ export class ExpensesCardComponent implements OnInit {
 
   ngOnInit() {
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
-    this.expenseFields$ = this.expenseFieldsService.getAllMap();
+    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
     this.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
     this.isCriticalPolicyViolated = (typeof this.expense.tx_policy_amount === 'number' && this.expense.tx_policy_amount < 0.0001);
     this.offlineService.getHomeCurrency().pipe(
       map((homeCurrency) => {
         this.homeCurrency = homeCurrency;
-        this.currencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+        this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+        this.foreignCurrencySymbol = getCurrencySymbol(this.expense.tx_orig_currency, 'wide');
       })
     ).subscribe(noop);
-    this.currencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
+    this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
 
     if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());
@@ -92,9 +94,10 @@ export class ExpensesCardComponent implements OnInit {
 
   
 
-    // this.expenseFields$.subscribe((res) => {
-    //   debugger;
-    // })
+    this.expenseFields$.subscribe((res) => {
+      const a = this.expense;
+      //debugger;
+    })
   }
   getScanningReceiptCard(expense: Expense): boolean {
     if (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem') {

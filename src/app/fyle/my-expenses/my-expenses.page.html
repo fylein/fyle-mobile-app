@@ -218,7 +218,7 @@
   </ng-template>
 </ion-content>
 
-<ion-footer mode="md">
+<!-- <ion-footer mode="md">
   <div class="my-expenses--footer-container">
     <ng-container *ngIf="allExpensesStats$|async as allExpensesStats">
       <div *ngIf="baseState === 'all' && allExpensesStats && filters?.state !== 'NEEDS_RECEIPT'">
@@ -286,4 +286,7 @@
     </ion-toolbar>
 
   </div>
+</ion-footer> -->
+<ion-footer>
+  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
 </ion-footer>
