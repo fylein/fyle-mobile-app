@@ -573,7 +573,7 @@ export class AddEditExpensePage implements OnInit {
 
       if (areCostCentersAvailable) {
         this.actionSheetButtons.push({
-          text: 'Cost center',
+          text: 'Cost Center',
           handler: () => {
             this.openSplitExpenseModal('cost centers')
           }
