@@ -110,7 +110,7 @@
                         [mandatory]="true"
                         [nullOption]="false"
                         [options]="allowedPerDiemRateOptions"
-                        [selectModalHeader]="'Choose Per Diem Type'"
+                        [selectModalHeader]="'Select Per Diem Type'"
                         formControlName="per_diem_rate">
                       </app-fy-select>
                     </div>
@@ -208,7 +208,7 @@
                         [mandatory]="true"
                         [nullOption]="false"
                         [options]="paymentModes"
-                        [selectModalHeader]="'Choose Payment Mode'"
+                        [selectModalHeader]="'Select Payment Mode'"
                         [selectionElement]="paymentMode"
                         formControlName="paymentMode">
                       </app-fy-select>
@@ -335,7 +335,7 @@
                             [label]="'Sub Category'"
                             [mandatory]="true"
                             [options]="subCategories"
-                            [selectModalHeader]="'Choose Sub Category'"
+                            [selectModalHeader]="'Select Sub Category'"
                             [nullOption]="false"
                             formControlName="sub_category">
                           </app-fy-select>
@@ -397,7 +397,7 @@
                             [label]="customInput.name | ellipsis: 30"
                             [mandatory]="customInput.mandatory"
                             [options]="customInput.options"
-                            [selectModalHeader]="'Choose '+customInput.name"
+                            [selectModalHeader]="'Select '+customInput.name"
                             formControlName="value">
                           </app-fy-select>
                         </div>
@@ -407,7 +407,7 @@
                             [label]="customInput.name | ellipsis: 30" 
                             [mandatory]="customInput.mandatory"
                             [options]="customInput.options"
-                            [selectModalHeader]="'Choose '+customInput.name"
+                            [selectModalHeader]="'Select '+customInput.name"
                             [subheader]="customInput.name"
                             formControlName="value">
                           </app-fy-multiselect>
@@ -577,7 +577,7 @@
       </form>
     </ng-container>
     <div *ngIf="invalidPaymentMode" class="add-edit-per-diem--error-message-block">
-      Expense greater than balance in selected Payment Mode. Please choose a different Payment Mode.
+      Expense greater than balance in selected Payment Mode. Please select a different Payment Mode.
     </div>
   </div>
 </ion-content>

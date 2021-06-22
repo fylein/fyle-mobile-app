@@ -173,7 +173,7 @@
                 [mandatory]="true"
                 [nullOption]="false"
                 [options]="paymentModes"
-                [selectModalHeader]="'Choose Payment Mode'"
+                [selectModalHeader]="'Select Payment Mode'"
                 [selectionElement]="paymentMode"
                 formControlName="paymentMode">
               </app-fy-select>
@@ -294,7 +294,7 @@
                       [label]="'Category'"
                       [mandatory]="transactionMandatoyFields.category"
                       [options]="categories"
-                      [selectModalHeader]="'Choose Category'"
+                      [selectModalHeader]="'Select Category'"
                       [recentlyUsed]="recentCategories"
                       formControlName="category">
                     </app-fy-select>
@@ -460,7 +460,7 @@
                 [label]="txnFields.flight_journey_travel_class?.field_name"
                 [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
                 [options]="txnFields.flight_journey_travel_class?.options"
-                [selectModalHeader]="'Choose Travel Class'"
+                [selectModalHeader]="'Select Travel Class'"
                 formControlName="flight_journey_travel_class">
               </app-fy-select>
             </div>
@@ -472,7 +472,7 @@
                   [label]="txnFields.flight_return_travel_class?.field_name"
                   [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
                   [options]="txnFields.flight_journey_travel_class?.options"
-                  [selectModalHeader]="'Choose Travel Class'"
+                  [selectModalHeader]="'Select Travel Class'"
                   formControlName="flight_return_travel_class"
                   name="flightReturnClass">
               </app-fy-select>
@@ -522,7 +522,7 @@
                 [label]="txnFields.bus_travel_class?.field_name"
                 [mandatory]="txnFields.bus_travel_class?.is_mandatory"
                 [options]="txnFields.bus_travel_class?.options"
-                [selectModalHeader]="'Choose Travel Class'"
+                [selectModalHeader]="'Select Travel Class'"
                 formControlName="bus_travel_class" hide-none="true">
               </app-fy-select>
             </div>
@@ -556,7 +556,7 @@
                   formControlName="distance_unit"
                   name="taxiDistanceUnit"
                   sub-title="Units"
-                  title="Choose Unit"></app-fy-select>
+                  title="Select Unit"></app-fy-select>
               </div>
             </ng-container>
           </div>
@@ -611,7 +611,7 @@
                     [label]="customInput.name  | ellipsis: 30"
                     [mandatory]="customInput.mandatory"
                     [options]="customInput.options"
-                    [selectModalHeader]="'Choose '+customInput.name"
+                    [selectModalHeader]="'Select '+customInput.name"
                     formControlName="value">
                   </app-fy-select>
                 </div>
@@ -621,7 +621,7 @@
                     [label]="customInput.name  | ellipsis: 30"
                     [mandatory]="customInput.mandatory"
                     [options]="customInput.options"
-                    [selectModalHeader]="'Choose '+customInput.name"
+                    [selectModalHeader]="'Select '+customInput.name"
                     [subheader]="customInput.name" formControlName="value">
                   </app-fy-multiselect>
                 </div>
@@ -777,7 +777,7 @@
   <!--      Click me for errors!-->
   <!--    </ion-button>-->
   <div *ngIf="invalidPaymentMode" class="add-edit-expense--error-message-block">
-    Expense greater than balance in selected Payment Mode. Please choose a different Payment Mode.
+    Expense greater than balance in selected Payment Mode. Please select a different Payment Mode.
   </div>
 </ion-content>
 

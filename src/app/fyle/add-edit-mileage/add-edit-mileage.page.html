@@ -205,7 +205,7 @@
                   [mandatory]="true"
                   [nullOption]="false"
                   [options]="paymentModes"
-                  [selectModalHeader]="'Choose Payment Mode'"
+                  [selectModalHeader]="'Select Payment Mode'"
                   [selectionElement]="paymentMode"
                   formControlName="paymentMode">
                 </app-fy-select>
@@ -320,7 +320,7 @@
                                  [label]="'Sub Category'"
                                  [mandatory]="true"
                                  [options]="subCategories"
-                                 [selectModalHeader]="'Choose Sub Category'"
+                                 [selectModalHeader]="'Select Sub Category'"
                                  formControlName="sub_category"
                   >
 
@@ -376,7 +376,7 @@
                       [label]="customInput.name | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="'Choose '+customInput.name"
+                      [selectModalHeader]="'Select '+customInput.name"
                       formControlName="value"
                     >
                     </app-fy-select>
@@ -387,7 +387,7 @@
                       [label]="customInput.name | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="'Choose '+customInput.name"
+                      [selectModalHeader]="'Select '+customInput.name"
                       [subheader]="customInput.name"
                       formControlName="value"
                     >
@@ -519,7 +519,7 @@
         </form>
       </ng-container>
       <div *ngIf="invalidPaymentMode" class="add-edit-mileage--error-message-block">
-        Expense greater than balance in selected Payment Mode. Please choose a different Payment Mode.
+        Expense greater than balance in selected Payment Mode. Please select a different Payment Mode.
       </div>
     </ng-container>
   </div>
