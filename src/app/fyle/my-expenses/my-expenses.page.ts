@@ -800,7 +800,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   onHomeClicked() {
-    console.log("------------")
+    console.log("------------");
+    console.log(this.selectExpense.length);
   }
 
 }

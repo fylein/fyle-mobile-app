@@ -12,7 +12,7 @@
         <ion-col [size]="isSelectionModeEnabled ? 3.85 : 2.65" class="ion-no-padding">
           <div class="abc">
             <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
-              <mat-checkbox [checked]="expense.isSelected" class="expenses-card--checkbox"></mat-checkbox>
+              <mat-checkbox [checked]="isSelected" class="expenses-card--checkbox"></mat-checkbox>
             </div>
             <div class="expenses-card--receipt-container">
               <ion-img class="expenses-card--receipt-icon" [src]="receipt"></ion-img>

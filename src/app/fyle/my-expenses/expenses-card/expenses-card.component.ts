@@ -20,7 +20,7 @@ export class ExpensesCardComponent implements OnInit {
   @Input() previousExpenseTxnDate;
   @Input() previousExpenseCreatedAt;
   @Input() isSelectionModeEnabled: boolean;
-  @Input() isSelected: boolean;
+  @Input() selectedElements: [];
   @Input() isProjectMandatory: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
@@ -46,6 +46,10 @@ export class ExpensesCardComponent implements OnInit {
 
   onGoToTransaction() {
     this.goToTransaction.emit(this.expense);
+  }
+
+  get isSelected() {
+    return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
   }
 
   ngOnInit() {
