@@ -3,7 +3,7 @@
   {{(expense.tx_txn_dt || expense.tx_created_at) | date: 'MMM dd, yyyy'}}
 </div>
 <!-- a- {{isSelectionModeEnabled}} -->
-<div class="expenses-card--body" [ngClass]="{'expenses-card--body__with-border': !showDt}">
+<div class="expenses-card--body" [ngClass]="{'expenses-card--body__with-border': !showDt}" (click)="onGoToTransaction()">
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
   <ng-container *ngIf="expenseFields$|async as expenseFields">
       <ion-grid class="ion-no-padding">
@@ -12,7 +12,8 @@
         <ion-col [size]="isSelectionModeEnabled ? 3.85 : 2.65" class="ion-no-padding">
           <div class="abc">
             <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
-              <mat-checkbox [checked]="isSelected" class="expenses-card--checkbox"></mat-checkbox>
+              <mat-checkbox *ngIf="isSelected" [checked]="true" class="expenses-card--checkbox"></mat-checkbox>
+              <mat-checkbox *ngIf="!isSelected" [checked]="false" class="expenses-card--checkbox"></mat-checkbox>
             </div>
             <div class="expenses-card--receipt-container">
               <ion-img class="expenses-card--receipt-icon" [src]="receipt"></ion-img>
@@ -20,7 +21,7 @@
           </div>
         </ion-col>
        
-        <ion-col [size]="isSelectionModeEnabled ? 4.15 : 5.35" class="ion-no-padding" (click)="onGoToTransaction()">
+        <ion-col [size]="isSelectionModeEnabled ? 4.15 : 5.35" class="ion-no-padding" >
           <ng-container *ngIf="isScanInProgress">
             <div class="x">
             <div class="expenses-card--scaning-receipt__header">
@@ -56,7 +57,7 @@
           </ng-container>
         </ion-col>
     
-        <ion-col size="4" class="ion-no-padding" (click)="onGoToTransaction()">
+        <ion-col size="4" class="ion-no-padding">
           <ng-container *ngIf="isScanInProgress">
             <div class="expenses-card--state-container ion-text-right">
               <span class="expenses-card--state">

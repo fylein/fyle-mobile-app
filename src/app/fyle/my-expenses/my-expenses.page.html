@@ -180,7 +180,6 @@
 
   <ng-container *ngIf="isConnected$|async; else isNotConnected">
     <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-      A- {{selectedElements.length}}
       <app-expenses-card 
       [expense]="expense"
       [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
@@ -189,7 +188,8 @@
       [selectedElements]="selectedElements"
       [isProjectMandatory]="true"
       (goToTransaction)="goToTransaction($event)"
-      (onHomeClicked)="onHomeClicked($event)">
+      (onHomeClicked)="onHomeClicked($event)"
+      (cardClickedForSelection)="selectExpense($event)">
 
       </app-expenses-card>
       <!-- <app-my-expenses-card
@@ -290,5 +290,28 @@
   </div>
 </ion-footer> -->
 <ion-footer>
-  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
+  <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
+  <div *ngIf="selectionMode">
+    <div class="my-expenses--footer-conatiner">
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col size="6" class="ion-no-padding">
+            <button type="button" class="my-expenses--cta-button my-expenses--secondary-cta text-center" (click)="cancel()">Add to reports</button>
+          </ion-col>
+          <ion-col size="6" class="ion-no-padding">
+            <button type="submit" class="my-expenses--cta-button my-expenses--primary-cta text-center" (click)="openCreateReportWithSelectedIds()">Create New Report</button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <!-- <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.HOME}" expand="full" (click)="goToHome()">
+        <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.HOME?'fy-home-solid':'fy-home'"></mat-icon>
+        Home
+      </div>
+      <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.TASKS}" expand="full" (click)="goToTasks()">
+        <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.TASKS?'fy-notification-solid': 'fy-notification'"></mat-icon>
+        Tasks
+      </div> -->
+    </div>
+
+  </div>
 </ion-footer>

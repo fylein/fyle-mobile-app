@@ -1,3 +1,5 @@
+@import '../../../theme/colors';
+
 .my-expenses {
   &--toolbar-header {
     border-bottom: 1px solid #e6e6e6;
@@ -140,15 +142,15 @@
     }
   }
 
-  &--primary-cta {
-    height: 48px;
-    display: block;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    border-radius: 8px;
-    width: 100%;
-  }
+  // &--primary-cta {
+  //   height: 48px;
+  //   display: block;
+  //   font-size: 14px;
+  //   text-transform: uppercase;
+  //   font-weight: 700;
+  //   border-radius: 8px;
+  //   width: 100%;
+  // }
 
   &--offline-header {
     font-size: 16px;
@@ -275,6 +277,41 @@
       color: #ababab;
       margin-bottom: 16px;
     }
+  }
+
+  &--footer-conatiner {
+    display: flex;
+    justify-content: space-around;
+    padding: 14px 35.5px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 -2px 12px #d7d7d799;
+    z-index: 999;
+  }
+
+  &--cta-button {
+    font-weight: 500;
+    width: 100%;
+  }
+
+  &--secondary-cta {
+    height: 100%;
+    background: transparent;
+    color: $black;
+    font-size: 16px;
+    line-height: 20px;
+  }
+
+  &--primary-cta {
+    min-height: 52px;
+    background: $pink-gradient-1;
+    color: $pure-white;
+    font-size: 14px;
+    line-height: 17.92px;
+    border-radius: 4px;
+    width: 100%;
   }
 }
 

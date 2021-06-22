@@ -20,11 +20,13 @@ export class ExpensesCardComponent implements OnInit {
   @Input() previousExpenseTxnDate;
   @Input() previousExpenseCreatedAt;
   @Input() isSelectionModeEnabled: boolean;
-  @Input() selectedElements: [];
+  @Input() selectedElements: Expense[];
   @Input() isProjectMandatory: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() onHomeClicked: EventEmitter<Expense> = new EventEmitter();
+  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
   receipt: any;
   showDt = true;
@@ -45,8 +47,15 @@ export class ExpensesCardComponent implements OnInit {
 
 
   onGoToTransaction() {
-    this.goToTransaction.emit(this.expense);
+    if (!this.isSelectionModeEnabled) {
+      this.goToTransaction.emit(this.expense);
+    } else {
+      // need to put restriction to add draft and critical policy violation 
+        this.cardClickedForSelection.emit(this.expense);
+    }
   }
+
+  
 
   get isSelected() {
     return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
