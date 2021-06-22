@@ -1478,6 +1478,10 @@ export class AddEditExpensePage implements OnInit {
             if (expenseFieldsMap[tfc].options && expenseFieldsMap[tfc].options.length > 0) {
               if (tfc === 'vendor_id') {
                 expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value: { display_name: value}}));
+                if (expenseFieldsMap[tfc].default_value) {
+                  this.fg.value.vendor_id = {};
+                  this.fg.value.vendor_id.display_name = expenseFieldsMap[tfc].default_value;
+                }
               } else {
                 expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value}));
               }
