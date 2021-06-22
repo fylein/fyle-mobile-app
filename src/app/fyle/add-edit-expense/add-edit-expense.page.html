@@ -215,7 +215,7 @@
 
         <ng-container *ngIf="isCCCPaymentModeSelected$|async">
           <div class="add-edit-expense--card-header">Card Transaction</div>
-          <div *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC" class="add-edit-expense--card-txn-container">
+          <div *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC && !((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && selectedCCCTransaction)" class="add-edit-expense--card-txn-container">
             <mat-icon svgIcon="fy-corporate-card" class="add-edit-expense--icon-corporate-card"></mat-icon>
             <div *ngIf="(!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount)">Enter date and amount to search for the matching card transaction</div>
             <div *ngIf="this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && !selectedCCCTransaction && !isLoadingSuggestions">
@@ -335,16 +335,13 @@
 
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="txnFields?.purpose">
-              <div *ngIf="txnFields.purpose?.type === 'TEXT'" class="add-edit-expense--text add-edit-expense--internal-block"
-                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
-                <div [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                     class="add-edit-expense--text-label">
-                  <div>
-                    {{ txnFields.purpose?.field_name | slice: 0:15 }}
-                  </div>
-                  <div class="add-edit-expense--mandatory" *ngIf="txnFields.purpose?.is_mandatory">
+              <div *ngIf="txnFields.purpose?.type === 'TEXT'" class="add-edit-expense--text add-edit-expense--text-block"
+                   [ngClass]="{'add-edit-expense--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
+                <div class="add-edit-expense--text-label">
+                    {{ txnFields.purpose?.field_name | slice: 0:30 }}
+                  <span class="add-edit-expense--mandatory" *ngIf="txnFields.purpose?.is_mandatory">
                     *
-                  </div>
+                  </span>
                 </div>
                 <input [disabled]="!txnFields.purpose?.canEdit" [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
                        [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
