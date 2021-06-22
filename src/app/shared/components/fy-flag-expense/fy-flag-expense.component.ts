@@ -45,7 +45,7 @@ export class FyFlagExpenseComponent implements OnInit {
           return this.statusService.post('transactions', this.etxn.tx_id, comment, true);
         }),
         concatMap(() => {
-          // tslint:disable-next-line: max-line-length
+          // eslint-disable-next-line max-len
           return this.etxn.tx_manual_flag ?  this.transactionService.manualUnflag(this.etxn.tx_id) : this.transactionService.manualFlag(this.etxn.tx_id);
         }),
         finalize(() => {

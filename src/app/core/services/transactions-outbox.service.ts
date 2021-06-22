@@ -78,14 +78,14 @@ export class TransactionsOutboxService {
       this.dataExtractionQueue = [];
     }
 
-    // tslint:disable-next-line: prefer-for-of
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.queue.length; i++) {
       const entry = this.queue[i];
       // In localStorage the date objects are stored as string, have to convert them to date instance
       entry.transaction = this.dateService.fixDates(entry.transaction);
     }
 
-    // tslint:disable-next-line: prefer-for-of
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.dataExtractionQueue.length; i++) {
       const entry = this.dataExtractionQueue[i];
       // In localStorage the date objects are stored as string, have to convert them to date instance

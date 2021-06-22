@@ -841,7 +841,7 @@ export class OtherRequestsComponent implements OnInit {
         if (this.otherRequests[0].hotel && this.hotelDetails.length === 0) {
           this.fgValues.cities.forEach((city, index) => {
 
-            // tslint:disable-next-line: max-line-length
+            // eslint-disable-next-line max-len
             const checkOutDate = this.fgValues.cities.length > 1 && this.fgValues.cities[index + 1] ? this.fgValues.cities[index + 1].onward_dt : null;
 
             const details = this.formBuilder.group({

@@ -117,7 +117,7 @@ export class AppComponent implements OnInit {
   }
 
   initializeApp() {
-    // tslint:disable-next-line:max-line-length
+    // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
     App.addListener('appUrlOpen', (data) => {
       this.zone.run(() => {
@@ -282,7 +282,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Trips',
-            // tslint:disable-next-line: max-line-length
+            // eslint-disable-next-line max-len
             isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
             icon: 'fy-trips-new',
             route: ['/', 'enterprise', 'my_trips']
@@ -385,7 +385,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Trips',
-            // tslint:disable-next-line: max-line-length
+            // eslint-disable-next-line max-len
             isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
             icon: 'fy-trips-new',
             route: ['/', 'enterprise', 'my_trips'],

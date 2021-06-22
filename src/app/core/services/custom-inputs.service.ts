@@ -66,7 +66,7 @@ export class CustomInputsService {
         customInputs.sort(this.sortByRank);
 
         let filledCustomProperties = [];
-        // tslint:disable-next-line: prefer-for-of
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < customInputs.length; i++) {
           let customInput = customInputs[i];
           let property = {
@@ -86,7 +86,7 @@ export class CustomInputsService {
           }
           if (customProperties) {
             // see if value is available
-            // tslint:disable-next-line: prefer-for-of
+            // eslint-disable-next-line @typescript-eslint/prefer-for-of
             for (let j = 0; j < customProperties.length; j++) {
               if (customProperties[j].name === customInput.field_name) {
                 if (property.type === 'DATE' && customProperties[j].value) {

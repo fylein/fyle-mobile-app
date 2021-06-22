@@ -53,7 +53,7 @@ export class ProjectsService {
     Partial<{
       orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds
     }>): Observable<ExtendedProject[]> {
-    // tslint:disable-next-line: prefer-const
+    // eslint-disable-next-line prefer-const
     let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds }
       = projectParams;
     sortOrder = sortOrder || 'project_updated_at';
