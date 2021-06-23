@@ -1403,7 +1403,6 @@ export class AddEditExpensePage implements OnInit {
         categories: this.offlineService.getAllEnabledCategories()
       }).pipe(
         map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
-          debugger;
           const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (!isCategoryExtracted && (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
