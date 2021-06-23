@@ -119,11 +119,11 @@ export class SignInPage implements OnInit {
         );
 
       const saml$ = checkEmailExists$.pipe(
-        filter(res => !res.saml ? true : false)
+        filter(res => res.saml ? true : false)
       );
 
       const basicSignIn$ = checkEmailExists$.pipe(
-        filter(res => res.saml ? true : false)
+        filter(res => !res.saml ? true : false)
       );
 
       basicSignIn$.subscribe(() => {
