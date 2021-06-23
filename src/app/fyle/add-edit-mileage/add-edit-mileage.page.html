@@ -181,7 +181,7 @@
                          type="number" placeholder="Enter Distance">
                 </div>
                 <div *ngIf="fg.controls.distance.touched && !fg.controls.distance.valid"
-                     class="add-edit-mileage--error add-edit-mileage--distance-error">
+                     class="add-edit-mileage--error add-edit-mileage--text-error">
                   Please enter the distance
                 </div>
               </ng-container>
@@ -205,7 +205,7 @@
                   [mandatory]="true"
                   [nullOption]="false"
                   [options]="paymentModes"
-                  [selectModalHeader]="'Choose Payment Mode'"
+                  [selectModalHeader]="'Select Payment Mode'"
                   [selectionElement]="paymentMode"
                   formControlName="paymentMode">
                 </app-fy-select>
@@ -250,12 +250,10 @@
                 <div *ngIf="txnFields.purpose?.type === 'TEXT'"
                      class="add-edit-mileage--text add-edit-mileage--internal-block" [ngClass]="{'add-edit-mileage--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                   <div class="add-edit-mileage--text-label">
-                    <div>
-                      {{ txnFields.purpose?.field_name| slice: 0:30 }}
-                    </div>
-                    <div *ngIf="txnFields.purpose?.is_mandatory">
+                    {{ txnFields.purpose?.field_name| slice: 0:30 }}
+                    <span class="add-edit-mileage--mandatory" *ngIf="txnFields.purpose?.is_mandatory">
                       *
-                    </div>
+                    </span>
                   </div>
                   <input [disabled]="!txnFields.purpose?.canEdit" [placeholder]="'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
                          [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
@@ -271,7 +269,7 @@
                                  formControlName="purpose">
                   </app-fy-select>
                 </div>
-                <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid" class="add-edit-mileage--error">
+                <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid" class="add-edit-mileage--error add-edit-mileage--text-error">
                   Please enter a {{ txnFields.purpose?.field_name }}
                 </div>
               </ng-container>
@@ -322,7 +320,7 @@
                                  [label]="'Sub Category'"
                                  [mandatory]="true"
                                  [options]="subCategories"
-                                 [selectModalHeader]="'Choose Sub Category'"
+                                 [selectModalHeader]="'Select Sub Category'"
                                  formControlName="sub_category"
                   >
 
@@ -378,7 +376,7 @@
                       [label]="customInput.name | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="'Choose '+customInput.name"
+                      [selectModalHeader]="'Select '+customInput.name"
                       formControlName="value"
                     >
                     </app-fy-select>
@@ -389,7 +387,7 @@
                       [label]="customInput.name | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="'Choose '+customInput.name"
+                      [selectModalHeader]="'Select '+customInput.name"
                       [subheader]="customInput.name"
                       formControlName="value"
                     >
@@ -521,7 +519,7 @@
         </form>
       </ng-container>
       <div *ngIf="invalidPaymentMode" class="add-edit-mileage--error-message-block">
-        Expense greater than balance in selected Payment Mode. Please choose a different Payment Mode.
+        Expense greater than balance in selected Payment Mode. Please select a different Payment Mode.
       </div>
     </ng-container>
   </div>

@@ -526,4 +526,8 @@
     pointer-events: none;
     color: $grey-light;
   }
+
+  &--text-block {
+    margin-bottom: 12px;
+  }
 }
