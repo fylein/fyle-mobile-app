@@ -740,10 +740,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
-      map(catogories => catogories.filter(category => category.enabled === true)),
       map(catogories => this.categoriesService.filterRequired(catogories))
     );
   }
@@ -829,7 +828,7 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
-      categories: this.offlineService.getAllCategories(),
+      categories: this.offlineService.getAllEnabledCategories(),
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$,
@@ -971,8 +970,7 @@ export class AddEditExpensePage implements OnInit {
 
           if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
-            const enabledCategories = categories.filter(category => category.enabled);
-            const category = enabledCategories.find(orgCategory => orgCategory.name === categoryName);
+            const category = categories.find(orgCategory => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
           }
 
@@ -1170,6 +1168,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCostCenters}) => {
+      debugger;
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1369,7 +1368,7 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
-      categories: this.offlineService.getAllCategories()
+      categories: this.offlineService.getAllEnabledCategories()
     }).pipe(
       map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
         const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
@@ -1379,6 +1378,7 @@ export class AddEditExpensePage implements OnInit {
             if (etxn.tx.state === 'DRAFT' && (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified')) {
               return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, category);
             } else {
+              debugger;
               return categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id);
             }
           } else if (etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
@@ -1402,9 +1402,10 @@ export class AddEditExpensePage implements OnInit {
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
-        categories: this.offlineService.getAllCategories()
+        categories: this.offlineService.getAllEnabledCategories()
       }).pipe(
         map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
+          debugger;
           const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (!isCategoryExtracted && (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
@@ -1666,7 +1667,7 @@ export class AddEditExpensePage implements OnInit {
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           return forkJoin({
             instaFyleSettings: instaFyleSettings$,
-            allCategories: this.offlineService.getAllCategories()
+            allCategories: this.offlineService.getAllEnabledCategories()
           }).pipe(
             switchMap(({instaFyleSettings, allCategories}) => {
               const shouldExtractAmount = instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1;

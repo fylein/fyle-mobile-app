@@ -282,6 +282,13 @@ export class OfflineService {
   }
 
   @Cacheable()
+  getAllEnabledCategories() {
+    return this.getAllCategories().pipe(
+      map((catogories)=> catogories.filter(category => category.enabled === true))
+    )
+  }
+
+  @Cacheable()
   getAccounts() {
     return this.networkService.isOnline().pipe(
       switchMap(
