@@ -687,6 +687,11 @@ export class MyExpensesPage implements OnInit {
 
   openCreateReportWithSelectedIds() {
     this.trackingService.addToReport({Asset: 'Mobile'});
+
+    const expensesWithCriticalPolicyViolation = this.selectedElements.filter((expense) => expense.isCriticalPolicyViolated);
+    const expensesInDraftState = this.selectedElements.filter((expense) => expense.isDraft);
+
+
     const txnIds = this.selectedElements.map(expense => expense.tx_id);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
   }

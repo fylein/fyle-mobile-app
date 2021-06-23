@@ -40,7 +40,7 @@
                   <div class="expenses-card--category">
                     {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
                   </div>
-                  <mat-icon *ngIf="isCriticalPolicyViolated || isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
+                  <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
                 </div>
               </ion-row>
               <ion-row>
@@ -77,13 +77,13 @@
                 ({{foreignCurrencySymbol}}{{expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency : 2: true }} at {{homeCurrencySymbol}}{{(expense.tx_amount / expense.tx_orig_amount) | number: '1.0-2'}})
               </div>
   
-              <div *ngIf="expense.tx_state.toLowerCase() === 'draft'" class="expenses-card--state-container ion-text-right">
+              <div *ngIf="expense.isDraft" class="expenses-card--state-container ion-text-right">
                 <span class="expenses-card--state">
                   {{expense.tx_state | titlecase}}
                 </span>
               </div>
   
-              <div class="expenses-card--critical-policy-violatios" *ngIf="isCriticalPolicyViolated">
+              <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
                 Critical Policy violations
               </div>
             </div>
