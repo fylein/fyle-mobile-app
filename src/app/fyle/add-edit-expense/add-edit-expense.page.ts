@@ -1168,7 +1168,6 @@ export class AddEditExpensePage implements OnInit {
       }),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCostCenters}) => {
-      debugger;
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1378,7 +1377,6 @@ export class AddEditExpensePage implements OnInit {
             if (etxn.tx.state === 'DRAFT' && (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified')) {
               return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, category);
             } else {
-              debugger;
               return categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id);
             }
           } else if (etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
@@ -1849,7 +1847,7 @@ export class AddEditExpensePage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
@@ -2229,7 +2227,7 @@ export class AddEditExpensePage implements OnInit {
 
         policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
-        return this.offlineService.getAllCategories().pipe(
+        return this.offlineService.getAllEnabledCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {
