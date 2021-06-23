@@ -24,6 +24,7 @@ import { environment } from 'src/environments/environment';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-report-toast-message/expenses-added-to-report-toast-message.component';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-my-expenses',
@@ -688,7 +689,11 @@ export class MyExpensesPage implements OnInit {
   openCreateReportWithSelectedIds() {
     this.trackingService.addToReport({Asset: 'Mobile'});
 
-    const expensesWithCriticalPolicyViolation = this.selectedElements.filter((expense) => expense.isCriticalPolicyViolated);
+    let selectedElements = cloneDeep(this.selectedElements);
+
+
+    const expensesWithOutCriticalPolicyViolation = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
+    const no1 = selectedElements.length - expensesWithOutCriticalPolicyViolation.length;
     const expensesInDraftState = this.selectedElements.filter((expense) => expense.isDraft);
 
 
