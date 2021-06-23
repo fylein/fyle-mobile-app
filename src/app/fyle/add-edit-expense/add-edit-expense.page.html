@@ -345,7 +345,7 @@
                 </div>
                 <input [disabled]="!txnFields.purpose?.canEdit" [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
                        [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
-                       class="add-edit-expense--text-input add-edit-expense--internal-block"
+                       class="add-edit-expense--text-input"
                        formControlName="purpose">
               </div>
               <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block"

@@ -254,7 +254,7 @@
                     <ng-container *ngIf="txnFields?.purpose">
                       <div *ngIf="txnFields?.purpose.type === 'TEXT'"
                            [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                           class="add-edit-per-diem--text add-edit-per-diem--internal-block">
+                           class="add-edit-per-diem--text">
                         <div class="add-edit-per-diem--text-label">
                           {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
                           <span class="add-edit-per-diem--mandatory" *ngIf="txnFields?.purpose?.is_mandatory">*</span>
