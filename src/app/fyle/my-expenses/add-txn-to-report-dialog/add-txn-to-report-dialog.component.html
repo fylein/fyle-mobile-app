@@ -19,7 +19,7 @@
     <div class="report-list--header">ADD TO REPORT</div>
 
     <div class="report-list--list" *ngFor="let report of approverPendingReports$|async as approverPendingReports; index as i">
-      <div mat-ripple (click)="addTransactionToReport(report.rp_id)">
+      <div mat-ripple (click)="addTransactionToReport(report)">
         <div *ngIf="i > 0" class="report-list--divider"></div>
       <ion-grid class="ion-no-padding">
         <ion-row>

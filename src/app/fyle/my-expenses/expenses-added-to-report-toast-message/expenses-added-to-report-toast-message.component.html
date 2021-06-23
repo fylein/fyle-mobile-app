@@ -1,0 +1,12 @@
+<div class="abc">
+  <div class="flex">
+    <mat-icon class="add-report-success-toast--tick-icon">check_box</mat-icon>
+    <span class="add-report-success-toast--message">{{report_type === 'draft' ? 'Expenses added to an existing draft report' : 'Expenses added to report successfully'}}</span>
+    <span class="add-report-success-toast--view-report ion-text-right" (click)="viewReport()">View Report</span>
+    <mat-icon class="add-report-success-toast--close-icon ion-text-right" (click)="close()">close</mat-icon>
+
+  </div>
+
+</div>
+
+

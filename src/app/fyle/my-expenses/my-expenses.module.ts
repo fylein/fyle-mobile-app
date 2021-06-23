@@ -20,6 +20,7 @@ import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-
 import { ExpensesCardComponent } from './expenses-card/expenses-card.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ReportStates } from '../dashboard/stat-badge/report-states';
+import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-report-toast-message/expenses-added-to-report-toast-message.component';
 
 @NgModule({
   imports: [
@@ -38,7 +39,7 @@ import { ReportStates } from '../dashboard/stat-badge/report-states';
     MatNativeDateModule,
     MatIconModule,
     MatCheckboxModule,
-    SharedModule
+    SharedModule,
   ],
   declarations: [
     MyExpensesPage,
@@ -47,7 +48,8 @@ import { ReportStates } from '../dashboard/stat-badge/report-states';
     MyExpensesSearchFilterComponent,
     MyExpensesSortFilterComponent,
     AddExpensePopoverComponent,
-    AddTxnToReportDialogComponent
+    AddTxnToReportDialogComponent,
+    ExpensesAddedToReportToastMessageComponent
   ]
 })
 export class MyExpensesPageModule { }

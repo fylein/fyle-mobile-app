@@ -1,0 +1,28 @@
+.abc {
+    background: #24A148;
+    color: #fff;
+    padding: 12px 8px;
+}
+
+.flex {
+ display: flex;
+}
+
+.add-report-success-toast {
+  &--tick-icon {
+    font-size: 20px;
+  } 
+
+  &--message {
+    margin-left: 10px;
+  }
+
+  &--view-report {
+    margin-left: 19px;
+    white-space: nowrap;
+  }
+
+  &--close-icon {
+    margin-left: 20px;
+  }
+}

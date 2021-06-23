@@ -32,7 +32,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
     this.popoverController.dismiss();
   }
 
-  addTransactionToReport(reportId) {
+  addTransactionToReport(report) {
     // from(this.loaderService.showLoader('Adding transaction to report')).pipe(
     //   switchMap(() => {
     //     return this.reportService.addTransactions(reportId, [this.txId]);
@@ -41,7 +41,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
     // ).subscribe(() => {
     //   this.modalController.dismiss({reload: true});
     // });
-    this.popoverController.dismiss({reportId: reportId})
+    this.popoverController.dismiss({report})
   }
 
   ngOnInit() {

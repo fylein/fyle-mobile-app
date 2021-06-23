@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/c
 import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
-import {ActionSheetController, ModalController, PopoverController, ToastController} from '@ionic/angular';
+import {ActionSheetController, AnimationBuilder, AnimationController, ModalController, PopoverController, ToastController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
@@ -23,6 +23,7 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-report-toast-message/expenses-added-to-report-toast-message.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -803,7 +804,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async showAddToReportSuccessToast() {
+  async showAddToReportSuccessToastDummy() {
     // Stop multiple toasts 
     try {
       this.toastController.dismiss().then(() => {
@@ -866,17 +867,29 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  async onAddTransactionsToReport() {
-    const a = await this.popoverController.create({
-      component: AddTxnToReportDialogComponent,
-      cssClass: 'toast-popover'
+  async showAddToReportSuccessToast(report) {
+
+    const expensesAddedToReportToastController = await this.popoverController.create({
+      component: ExpensesAddedToReportToastMessageComponent,
+      cssClass: 'toast-popover',
+      componentProps: {
+        report_type: report.rp_type
+      },
+      animated: true
     })
 
-    await a.present();
+    await expensesAddedToReportToastController.present();
+
+    const { data } = await expensesAddedToReportToastController.onDidDismiss(); 
+    if (data && data.action) {
+      if (data.action === 'view_report') {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.rp_id, navigateBack: true }]);
+      }
+    }
   }
 
 
-  async onAddTransactionsToReport1() {
+  async onAddTransactionsToReport() {
     const addExpenseToReportModal = await this.popoverController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
@@ -886,38 +899,18 @@ export class MyExpensesPage implements OnInit {
     await addExpenseToReportModal.present();
 
     const { data } = await addExpenseToReportModal.onDidDismiss();
-    if (data && data.reportId) {
+    if (data && data.report) {
       from(this.loaderService.showLoader('Adding transaction to report')).pipe(
         switchMap(() => {
+          // Todo implement API call
           //return this.reportService.addTransactions(data.reportId, this.selectedElements);
           return of(null);
         }),
         finalize(() => this.loaderService.hideLoader())
       ).subscribe(() => {
-        this.showAddToReportSuccessToast();
-        //this.doRefresh();
-      });
-      
+        this.showAddToReportSuccessToast(data.report);
+      }); 
     }
-
-    // let actionSheetButtons = [{
-    //   text: '<ion-content>abc</ion-content>',
-    //   cssClass: 'capture-receipt',
-    //   handler: () => {
-    //     that.router.navigate(['/', 'enterprise', 'camera_overlay', {
-    //       navigate_back: true
-    //     }]);
-    //   }
-    // }]
-
-    // const that = this;
-    // const actionSheet = await this.actionSheetController.create({
-    //   header: 'ADD TO REPORT',
-    //   mode: 'md',
-    //   cssClass: 'fy-action-sheet',
-    //   buttons: actionSheetButtons
-    // });
-    // await actionSheet.present();
   }
 
   onHomeClicked() {
