@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/c
 import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
-import {ActionSheetController, ModalController, PopoverController} from '@ionic/angular';
+import {ActionSheetController, ModalController, PopoverController, ToastController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
@@ -22,6 +22,7 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ReportService } from 'src/app/core/services/report.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -92,7 +93,9 @@ export class MyExpensesPage implements OnInit {
     private tokenService: TokenService,
     private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private reportService: ReportService,
+    private toastController: ToastController
   ) { }
 
   clearText() {
@@ -800,20 +803,101 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  async showAddToReportSuccessToast() {
+    // Stop multiple toasts 
+    try {
+      this.toastController.dismiss().then(() => {
+      }).catch(() => {
+      }).finally(() => {
+        console.log('Closed')
+      });
+    } catch(e) {}
+
+    let message = `<img class="add-to-report-success--icon" src="assets/svg/tick-square-filled.svg"/>Hello`;
+
+    let message1 = `<ion-grid>
+    <ion-row>
+    <ion-col size="6">a</ion-col>
+    <ion-col size="6">b</ion-col>
+    </ion-row>
+    </ion-grid>`
+
+    // this.toastController.create({
+    //   component: 'ModalPage',
+    //   cssClass: 'my-custom-class'
+    // })
+    
+    this.toastController.create({
+      position: 'bottom',
+      cssClass: 'toast-custom-class',
+      buttons: [
+        {
+          side: 'start',
+          icon: 'assets/svg/tick-square-filled.svg',
+          handler: () => {
+            console.log('Favorite clicked');
+          }
+        }, 
+        {
+          side: 'start',
+          text: 'Hello',
+          handler: () => {
+            console.log('Favorite clicked');
+          }
+        },
+        {
+          side: 'end',
+          text: 'View Report',
+          cssClass: 'add-to-report-success--view-report',
+          handler: () => {
+            console.log('Favorite clicked');
+          }
+        }, {
+          icon: 'close',
+          role: 'cancel',
+          cssClass: 'add-to-report-success--view-close',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        }
+      ]
+    }).then((toast) => {
+      toast.present();
+    });
+  }
 
   async onAddTransactionsToReport() {
+    const a = await this.popoverController.create({
+      component: AddTxnToReportDialogComponent,
+      cssClass: 'toast-popover'
+    })
+
+    await a.present();
+  }
+
+
+  async onAddTransactionsToReport1() {
     const addExpenseToReportModal = await this.popoverController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
-        txId: 'event.tx_id'
       },
-      cssClass: 'dialog-popover'
+      cssClass: 'bottom-popover'
     });
     await addExpenseToReportModal.present();
 
     const { data } = await addExpenseToReportModal.onDidDismiss();
-    if (data && data.reload) {
-      this.doRefresh();
+    if (data && data.reportId) {
+      from(this.loaderService.showLoader('Adding transaction to report')).pipe(
+        switchMap(() => {
+          //return this.reportService.addTransactions(data.reportId, this.selectedElements);
+          return of(null);
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      ).subscribe(() => {
+        this.showAddToReportSuccessToast();
+        //this.doRefresh();
+      });
+      
     }
 
     // let actionSheetButtons = [{

@@ -1,6 +1,6 @@
 .report-list {
   &--container {
-    padding: 16px;
+    padding: 24px 16px;
   }
 
   &--header {
@@ -8,6 +8,7 @@
     line-height: 17.92px;;
     font-weight: 400;
     color: #a9acbc;
+    margin-bottom: 16px;
   }
 
   &--list {
@@ -56,6 +57,7 @@
     border-radius: 16px;
     padding: 4px 17px;
     max-width: 86px;
+    margin-left: auto;
 
     &__reported {
       background: #2896F3;

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { Observable, from, noop } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -24,22 +24,24 @@ export class AddTxnToReportDialogComponent implements OnInit {
     private modalController: ModalController,
     private reportService: ReportService,
     private loaderService: LoaderService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private popoverController: PopoverController
   ) { }
 
   closeAddToReportModal() {
-    this.modalController.dismiss();
+    this.popoverController.dismiss();
   }
 
   addTransactionToReport(reportId) {
-    from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-      switchMap(() => {
-        return this.reportService.addTransactions(reportId, [this.txId]);
-      }),
-      finalize(() => this.loaderService.hideLoader())
-    ).subscribe(() => {
-      this.modalController.dismiss({reload: true});
-    });
+    // from(this.loaderService.showLoader('Adding transaction to report')).pipe(
+    //   switchMap(() => {
+    //     return this.reportService.addTransactions(reportId, [this.txId]);
+    //   }),
+    //   finalize(() => this.loaderService.hideLoader())
+    // ).subscribe(() => {
+    //   this.modalController.dismiss({reload: true});
+    // });
+    this.popoverController.dismiss({reportId: reportId})
   }
 
   ngOnInit() {

@@ -71,6 +71,49 @@ input:focus, textarea:focus{
   }
 }
 
+.toast-popover {
+  .popover-wrapper {
+    .popover-content {
+      bottom: 133px !important;
+      top: auto !important;
+      left: 0 !important;
+      height: auto;
+      width: 92%;
+      border-radius: 16px 16px 0 0;
+      margin: 0 16px 0 16px;
+    }
+  }
+
+  .popover-viewport {
+    height: 100%;
+    &.sc-ion-popover-ios {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+}
+
+
+.bottom-popover {
+  background: rgba(22, 21, 40, 0.5);
+  .popover-wrapper {
+    .popover-content {
+      bottom: 0 !important;
+      top: auto !important;
+      left: 0 !important;
+      height: auto;
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+    }
+  }
+
+  .popover-viewport {
+    height: 100%;
+    &.sc-ion-popover-ios {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+}
+
 .dialog-popover {
   .popover-wrapper {
     .popover-content {
@@ -527,6 +570,72 @@ ref - https://stackoverflow.com/a/31162426
   }
 }
 
+.add-to-report-success--conatiner{ 
+  color: red;
+}
+
+.add-to-report-success--view-report{
+  color: red
+}
+
+ion-toast {
+  .toast-message {
+    color: red;
+  }
+}
+
+::ng-deep {
+  .toast-button{
+      color: var(--button-color);
+      font-size: 12px;
+  }
+}
+
+.toast-custom-class {
+  --background: #24A148;
+  --color: #fff; 
+  .toast-wrapper {
+    --background: blue;
+    opacity: 0.8;
+    border-radius: 5px;
+    text-align: center;
+  }
+
+  ::part(message) {
+    color: blue;
+    opacity: 1;
+  }
+
+  .toast-button {
+    --color: red;
+    color: green;
+  }
+  ::ng-deep {
+    .toast-wrapper {
+      color: green;
+      --color: red;
+    }
+ }
+}
+
+.toast-message {
+  --color: yellow;
+}
+
+.add-to-report-success--icon {
+  color:red;
+}
+.add-to-report-success {
+
+  &--conatiner {
+    display: flex;
+  }
+  &--icon {
+    height: 20px;
+    width: 20px;
+  }
+}
+
 .fy-action-sheet {
   --background: none;
   .action-sheet-button {
@@ -618,7 +727,7 @@ ref - https://stackoverflow.com/a/31162426
 .fy-modal {
   .modal-wrapper {
     --border-radius: 16px 16px 0 0 !important;
-    // max-height: 90%;
+    max-height: 90%;
     position: absolute;
     top: 10%;
   }
