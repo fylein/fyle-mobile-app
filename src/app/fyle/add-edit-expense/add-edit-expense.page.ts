@@ -527,8 +527,8 @@ export class AddEditExpensePage implements OnInit {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
       switchMap(() => this.getPossibleDuplicates()),
-      switchMap((test) => {
-        if(test) {
+      switchMap((isPossibleDuplicate) => {
+        if(isPossibleDuplicate) {
           return this.checkForDuplicates();
         } else {
           return this.getDuplicates();
