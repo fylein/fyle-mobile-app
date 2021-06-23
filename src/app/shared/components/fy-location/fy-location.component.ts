@@ -4,6 +4,7 @@ import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-location',
@@ -41,6 +42,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -72,7 +74,10 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
       componentProps: {
         currentSelection: this.value,
         allowCustom: this.allowCustom
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await selectionModal.present();
