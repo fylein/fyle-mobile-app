@@ -24,7 +24,7 @@ import { environment } from 'src/environments/environment';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-report-toast-message/expenses-added-to-report-toast-message.component';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, difference, sumBy } from 'lodash';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -724,17 +724,45 @@ export class MyExpensesPage implements OnInit {
 
     let selectedElements = cloneDeep(this.selectedElements);
 
+    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => expense.isCriticalPolicyViolated);
+    const expensesInDraftState = selectedElements.filter((expense) => expense.isDraft);
 
-    const expensesWithOutCriticalPolicyViolation = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
-    const noOfExpenseInCriticalPolicyViolation = selectedElements.length - expensesWithOutCriticalPolicyViolation.length;
-    const expensesInDraftState = expensesWithOutCriticalPolicyViolation.filter((expense) => expense.isDraft);
-    const noOfExpenseInDraftState = expensesInDraftState.length;
+    const totalAmountofCriticalPolicyViolationExpenses = sumBy(expensesWithCriticalPolicyViolations, 'tx_amount');
+    debugger
 
-    const title = noOfExpenseInCriticalPolicyViolation + ' Critical Policy & ' + noOfExpenseInDraftState + ' Draft Expenses blocking the way';
+  //  let titleList = [];
+  //  let 
+  //   if (expensesWithCriticalPolicyViolations.length > 0) {
+  //     messageList.push(`${expensesWithCriticalPolicyViolations.length} Critical Policy`);
+  //   }
 
-    const message = 'Critical policy blocking these ' + noOfExpenseInCriticalPolicyViolation +' expenses worth $100 from being submitted. Also 2 other expenses are in draft states';
+  //   if (expensesInDraftState.length > 0) {
+  //     messageList.push(`${expensesInDraftState.length} Draft`);
+  //   }
 
-    if (noOfExpenseInCriticalPolicyViolation || noOfExpenseInDraftState) {
+  const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
+  const noOfexpensesInDraftState = expensesInDraftState.length;
+  let title = '';
+  let message = '';
+
+  if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfexpensesInDraftState > 0) {
+    title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfexpensesInDraftState} Draft Expenses blocking the way`;
+    message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth amount from being submitted. Also ${noOfexpensesInDraftState} other expenses are in draft states`
+  } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
+    title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
+  } else if (noOfexpensesInDraftState > 0) {
+    title = `${noOfexpensesInDraftState} Draft Expenses blocking the way`;
+  }
+
+
+    debugger;
+
+
+    // const title = noOfExpenseInCriticalPolicyViolation + ' Critical Policy & ' + noOfExpenseInDraftState + ' Draft Expenses blocking the way';
+
+    //const message = 'Critical policy blocking these ' + noOfExpenseInCriticalPolicyViolation +' expenses worth $100 from being submitted. Also 2 other expenses are in draft states';
+
+    if ((expensesWithCriticalPolicyViolations.length > 0) || (expensesInDraftState.length > 0)) {
       this.openCriticalPolicyViolationPopOver(title, message);
     } else {
       this.openCreateNewReportModal();
@@ -883,69 +911,6 @@ export class MyExpensesPage implements OnInit {
     if (data && data.reload) {
       this.doRefresh();
     }
-  }
-
-  async showAddToReportSuccessToastDummy() {
-    // Stop multiple toasts 
-    try {
-      this.toastController.dismiss().then(() => {
-      }).catch(() => {
-      }).finally(() => {
-        console.log('Closed')
-      });
-    } catch(e) {}
-
-    let message = `<img class="add-to-report-success--icon" src="assets/svg/tick-square-filled.svg"/>Hello`;
-
-    let message1 = `<ion-grid>
-    <ion-row>
-    <ion-col size="6">a</ion-col>
-    <ion-col size="6">b</ion-col>
-    </ion-row>
-    </ion-grid>`
-
-    // this.toastController.create({
-    //   component: 'ModalPage',
-    //   cssClass: 'my-custom-class'
-    // })
-    
-    this.toastController.create({
-      position: 'bottom',
-      cssClass: 'toast-custom-class',
-      buttons: [
-        {
-          side: 'start',
-          icon: 'assets/svg/tick-square-filled.svg',
-          handler: () => {
-            console.log('Favorite clicked');
-          }
-        }, 
-        {
-          side: 'start',
-          text: 'Hello',
-          handler: () => {
-            console.log('Favorite clicked');
-          }
-        },
-        {
-          side: 'end',
-          text: 'View Report',
-          cssClass: 'add-to-report-success--view-report',
-          handler: () => {
-            console.log('Favorite clicked');
-          }
-        }, {
-          icon: 'close',
-          role: 'cancel',
-          cssClass: 'add-to-report-success--view-close',
-          handler: () => {
-            console.log('Cancel clicked');
-          }
-        }
-      ]
-    }).then((toast) => {
-      toast.present();
-    });
   }
 
   async showAddToReportSuccessToast(report) {
