@@ -1,5 +1,6 @@
 @import '../../../../../assets/styles/fy_select';
 
+$list-element-color: #333;
 
 .selection-modal {
   color: black;
@@ -46,6 +47,19 @@
 
   &--recently-used-block {
     margin-bottom: 20px;
+  }
+
+  &--recently-used-icon {
+    height: 22px;
+    width: 22px;
+    min-height: 22px;
+    min-width: 22px;
+    fill: $list-element-color;
+    margin-right: 12px;
+  }
+
+  &--recently-used-item-content {
+    @extend %flex-layout-row;
   }
 
   &--sub-title {

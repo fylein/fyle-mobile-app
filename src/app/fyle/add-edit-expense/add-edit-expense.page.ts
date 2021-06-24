@@ -146,8 +146,10 @@ export class AddEditExpensePage implements OnInit {
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  recentCurrencies: { label: string, value: string }[];
   presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedCurrencies$: Observable<{ label: string; value: string; }[]>;
   recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
   presetCostCenterId: number;
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
@@ -1109,6 +1111,18 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
+    this.recentlyUsedCurrencies$ = forkJoin({
+      recentValues: this.recentlyUsedValues$,
+      currencies: this.offlineService.getCurrencies()
+    }).pipe(
+      switchMap(({recentValues, currencies}) => {
+        return this.recentlyUsedItemsService.getRecentCurrencies(
+          currencies,
+          recentValues
+        );
+      })
+    );
+
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         if (etxn.tx.cost_center_id) {
@@ -1162,12 +1176,13 @@ export class AddEditExpensePage implements OnInit {
           orgUserSettings: this.orgUserSettings$,
           recentValue: this.recentlyUsedValues$,
           recentProjects: this.recentlyUsedProjects$,
+          recentCurrencies: this.recentlyUsedCurrencies$,
           recentCostCenters: this.recentlyUsedCostCenters$,
           recentCategories: this.recentlyUsedCategories$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCostCenters}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1233,6 +1248,10 @@ export class AddEditExpensePage implements OnInit {
 
       if (recentProjects && recentProjects.length > 0) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
+      }
+
+      if (recentCurrencies && recentCurrencies.length > 0) {
+        this.recentCurrencies = recentCurrencies;
       }
 
       /* Autofill project during these cases:

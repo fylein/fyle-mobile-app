@@ -77,4 +77,18 @@ export class RecentlyUsedItemsService {
       return of(null);
     }
   }
+
+  getRecentCurrencies(currencies, recentValue): Observable<{ label: string, value: string }[]> {
+    if (currencies && recentValue && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
+      const recentCurrenciesList = recentValue.recent_currencies.map(id => (
+        { id: id, value: currencies[id]})).filter(id => id);
+      if (recentCurrenciesList) {
+        return of(recentCurrenciesList.map(currency => ({ label: currency.id, value: currency.value })));
+      } else {
+        return of(null);
+      }
+    } else {
+      return of(null);
+    }
+  }
 }

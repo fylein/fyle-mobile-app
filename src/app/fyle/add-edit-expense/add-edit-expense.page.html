@@ -127,6 +127,8 @@
                 <app-fy-currency
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
+                  [cacheName]="'recentCurrencyCache'"
+                  [recentlyUsed]="recentCurrencies"
                   [txnDt]="etxn?.tx?.txn_dt">
                 </app-fy-currency>
                 <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
