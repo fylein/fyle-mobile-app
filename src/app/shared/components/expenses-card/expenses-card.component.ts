@@ -35,9 +35,8 @@ export class ExpensesCardComponent implements OnInit {
   homeCurrency: string;
   homeCurrencySymbol = '';
   foreignCurrencySymbol = '';
-  icon: string;
+  paymentModeIcon: string;
   isScanInProgress: boolean;
-  test: string;
 
   constructor(
     private transactionService: TransactionService,
@@ -51,6 +50,7 @@ export class ExpensesCardComponent implements OnInit {
       this.goToTransaction.emit(this.expense);
     } else {
       // need to put restriction to add draft and critical policy violation 
+      // can't put here, beacuse we allow to delete multiple expense in page now
         this.cardClickedForSelection.emit(this.expense);
     }
   }
@@ -59,6 +59,17 @@ export class ExpensesCardComponent implements OnInit {
 
   get isSelected() {
     return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+  }
+
+  getReceipt() {
+    if (this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
+      this.receipt = 'assets/svg/fy-mileage.svg';
+    } else if ((this.expense.tx_fyle_category.toLowerCase() === 'per diem')) {
+      this.receipt = 'assets/svg/fy-calendar.svg';
+    } else {
+      // Todo: Get thumbnail of image in V2
+      this.receipt = 'assets/svg/fy-expense.svg';
+    }
   }
 
   ngOnInit() {
@@ -80,40 +91,27 @@ export class ExpensesCardComponent implements OnInit {
     if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
-      this.test = currentDate + '-' + previousDate;
       this.showDt = currentDate !== previousDate;
     }
 
-    this.isScanInProgress = this.getScanningReceiptCard(this.expense);
+    this.getReceipt();
 
-    if (this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
-      this.receipt = 'assets/svg/fy-mileage.svg';
-    } else if ((this.expense.tx_fyle_category.toLowerCase() === 'per diem')) {
-      this.receipt = 'assets/svg/fy-calendar.svg';
-    } else {
-      this.receipt = 'assets/svg/fy-expense.svg';
-    }
+    this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
     if (this.expense.source_account_type === "PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT") {
         if (this.expense.tx_corporate_credit_card_expense_group_id) {
-          this.icon = 'fy-matched';
+          this.paymentModeIcon = 'fy-matched';
         } else {
-          this.icon = 'fy-unmatched';
+          this.paymentModeIcon = 'fy-unmatched';
         }
     } else {
       if (!this.expense.tx_skip_reimbursement) {
-        this.icon = 'fy-reimbursable';
+        this.paymentModeIcon = 'fy-reimbursable';
       } else {
-        this.icon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'fy-non-reimbursable';
       }
     }
 
-  
-
-    this.expenseFields$.subscribe((res) => {
-      const a = this.expense;
-      //debugger;
-    })
   }
 
   getScanningReceiptCard(expense: Expense): boolean {
@@ -123,13 +121,10 @@ export class ExpensesCardComponent implements OnInit {
       if (!expense.tx_currency && !expense.tx_amount) {
         if (!expense.tx_extracted_data && !expense.tx_transcribed_data) {
           return true;
-        } else {
-          return false;
         }
-      } else {
-        return false;
       }
     }
+    return false;
   }
 
 }
