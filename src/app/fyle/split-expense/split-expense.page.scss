@@ -13,18 +13,36 @@ $background-color: #fff;
     // }
 
     &-closebutton{
-      height: 65px;
+      height: 60px;
+    }
+
+    &-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
     }
 
     &-title {
-      color: #4a4a4a;
+      color: $black-2;
       font-size: 20px;
-      font-weight: 700;
+      font-weight: 500;
+      text-align: center;
+      margin-left: 10%;
+    }
+
+    &-save {
+      color: $primary;
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 500;
+      text-align: right;
+      margin-left: 20px;
     }
   }
 
   &--container {
     padding: 0 16px 16px;
+    margin-top: 12px;
   }
 
   &--main-block {
@@ -34,7 +52,7 @@ $background-color: #fff;
   }
 
   &--internal-block {
-    padding: 16px 0;
+    padding: 14px 0;
     background: #fff;
     border: 0;
     line-height: 1;
@@ -59,6 +77,7 @@ $background-color: #fff;
     margin-top: 24px;
     border-radius: 8px;
     border: 1px solid $grey-lighter;
+    height: 190px;
   }
 
   &--card-header {
@@ -68,18 +87,19 @@ $background-color: #fff;
   }
 
   &--index {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
-    color: #4a4a4a;
+    color: $grey-light;
+    margin: 0 auto 12px;
+    line-height: 18px;
+  }
+
+  &--remove {
+    margin-left: 44%;
   }
 
   &--remove-card-button {
-    transition: opacity 0.1s;
-    padding: 0 6px;
-    min-width: initial;
-    border-color: transparent;
     background: none;
-    color: #444;
   }
 
   &--amount-percentage {
@@ -169,34 +189,20 @@ $background-color: #fff;
   }
 
   &--add-more {
-    justify-content: center;
-    margin-top: 16px;
-    border-radius: 6px;
-    box-shadow: 0 5px 28px -15px #838fa1 !important;
     display: flex;
-    flex-direction: column;
-  }
-
-  &--add-more-button {
-    padding: 0 6px 10px 6px;
-    min-width: inherit;
-    border-color: transparent;
-    background: none;
-    color: $primary;
-    &:focus {
-      outline: 0;
-    }
+    align-items: center;
+    margin: 36px 0;
   }
 
   &--add-more-icon {
-    font-size: 30px;
-    font-weight: 600;
+    margin-right: 8px;
   }
 
   &--add-more-label {
-    color: #3a94f6;
-    font-size: 16px;
-    text-align: center !important;
+    color: $black-light;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 500;
   }
 
   &--primary-cta {

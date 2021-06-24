@@ -1,30 +1,30 @@
 <ion-header class="ion-no-border">
   <div class="split-expense--header">
     <ion-toolbar class="ion-no-border split-expense--header-toolbar">
-      <ion-buttons mode="md" slot="end">
+      <ion-buttons mode="md" slot="start">
         <ion-button class="split-expense--header-closebutton" (click)="goBack()" [disabled]="saveSplitExpenseLoading">
           <mat-icon>close</mat-icon>
         </ion-button>
       </ion-buttons>
 
-      <ion-title class="split-expense--header-title" mode="md">Split Expense</ion-title>
+      <div class="split-expense--header-block">
+        <div class="split-expense--header-title" mode="md">Split by {{ splitType }}</div>
+        <div class="split-expense--header-save" (click)="save()" appFormButtonValidation>Save</div>
+      </div>
     </ion-toolbar>
   </div>
 </ion-header>
 
 <ion-content>
   <div class="split-expense--container">
-
-    <p class="split-expense--message">You are splitting across {{ splitType }}. <span *ngIf="currency && amount">The splits must total upto {{ currency }} {{ amount  }}.</span></p>
-    <p class="split-expense--warning">Splitting an expense cannot be undone</p>
-
+    <app-fy-alert-info [type]="'warning'" [message]="'Split expense cannot be undone'"></app-fy-alert-info>
 
     <div class="split-expense--card" *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i">
 
       <div class="split-expense--card-header">
-        <p class="split-expense--index">Split {{ i + 1 }}</p>
+        <p class="split-expense--index" [ngClass]="{'split-expense--remove': splitExpensesFormArray.controls.length > 2}">SPLIT {{ i + 1 }}</p>
         <button type="button" class="split-expense--remove-card-button" *ngIf="splitExpensesFormArray.controls.length > 2" (click)="remove(i)">
-          <mat-icon>close</mat-icon>
+          <mat-icon svgIcon="fy-delete"></mat-icon>
         </button>
       </div>
 
@@ -91,49 +91,10 @@
       </ng-container>
     </div>
 
-    <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 10">
-      <button type="button" class="split-expense--add-more-button" (click)="add()">
-        <mat-icon class="split-expense--add-more-icon">add</mat-icon>
-      </button>
-      <p class="text-center split-expense--add-more-label">Split More</p>
+    <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 10" (click)="add()">
+      <mat-icon class="split-expense--add-more-icon" svgIcon="plus"></mat-icon>
+      <div class="text-center split-expense--add-more-label">Add Split</div>
     </div>
 
   </div>
 </ion-content>
-
-<ion-footer class="ion-no-border">
-  <ion-toolbar mode="md">
-    <div class="split-expense--error-message-block" *ngIf="showErrorBlock">
-      <p class="split-expense--error-message">{{errorMessage}}</p>
-    </div>
-
-    <div class="split-expense--sub-footer" *ngIf="amount">
-      <div class="split-expense--sub-footer__total">Total:
-        <span class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}/{{amount}}</span>
-      </div>
-      <div class="split-expense--sub-footer__remaining">Remaining:
-        <span class="split-expense--split-amount">{{ currency }} {{ remainingAmount }}</span>
-      </div>
-    </div>
-
-    <div class="split-expense--cta-container">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="6">
-            <ion-button class="split-expense--primary-cta" fill="outline" color="fyle-primary" (click)="goBack()"
-              [disabled]="saveSplitExpenseLoading">
-              CANCEL
-            </ion-button>
-          </ion-col>
-          <ion-col size="6">
-            <ion-button class="split-expense--primary-cta" fill="solid" color="fyle-primary" (click)="save()"
-            appFormButtonValidation [loading]="saveSplitExpenseLoading" [loadingText]="'SPLITTING'">
-              SPLIT
-            </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-
-  </ion-toolbar>
-</ion-footer>
