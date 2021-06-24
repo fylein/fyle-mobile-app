@@ -304,7 +304,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   checkFieldsForChange(a, b) {
-    const duplicateFieldsToBeCompared = ['dateOfSpend', 'mileage_locations', 'mileage_vehicle_type', 'distance'];
+    const duplicateFieldsToBeCompared = ['dateOfSpend', 'mileage_locations', 'mileage_vehicle_type', 'distance', 'custom_inputs'];
     for (const fieldName of duplicateFieldsToBeCompared) {
       if (!isEqual(a[fieldName], b[fieldName])) {
         return false;

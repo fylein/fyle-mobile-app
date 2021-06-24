@@ -297,7 +297,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   checkFieldsForChange(a, b) {
-    const duplicateFieldsToBeCompared = ['currencyObj','to_dt', 'from_dt'];
+    const duplicateFieldsToBeCompared = ['currencyObj','to_dt', 'from_dt', 'custom_inputs'];
     for (const fieldName of duplicateFieldsToBeCompared) {
       if (!isEqual(a[fieldName], b[fieldName])) {
         return false;
