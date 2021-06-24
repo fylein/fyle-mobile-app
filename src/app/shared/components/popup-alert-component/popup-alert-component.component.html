@@ -1,0 +1,63 @@
+<div class="popup-alert">
+  <ion-header>
+    <div class="popup-alert--header text-center">
+      {{title}}
+    </div>
+  </ion-header>
+
+  <!-- <div class="critical-policy-violation--body">
+    <mat-icon class="critical-policy-violation--error-icon">error</mat-icon>
+
+    <div class="critical-policy-violation--container">
+      <ng-container *ngIf="criticalViolationMessages.length === 1">
+        <span class="critical-policy-violation--list__element">{{criticalViolationMessages[0]}}</span>
+      </ng-container>
+      <ul *ngIf="criticalViolationMessages.length !== 1" class="critical-policy-violation--list m-0 p-0">
+        <ng-container *ngFor="let criticalViolationMessage of criticalViolationMessages">
+          <li class="critical-policy-violation--list__elements">
+            {{criticalViolationMessage}}
+          </li>
+        </ng-container>
+      </ul>
+    </div>
+  </div> -->
+
+    <div class="popup-alert--body ion-text-center">
+      {{message}}
+    </div>
+
+  <ion-footer class="popup-alert--footer">
+    <!-- <ion-toolbar mode="md"> -->
+      <div class="popup-alert--cta-container">
+        <!-- <ion-buttons>
+          <ion-button (click)="saveAndNewExpense()" class="btn-secondary">
+            {{secondaryCta.text}}
+          </ion-button>
+          <ion-button class="btn-primary popup-alert--primary-cta">
+            {{primaryCta.text}}
+          </ion-button>
+        </ion-buttons> -->
+
+        <!-- <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col size="6" class="ion-no-padding"> -->
+            <button type="button" class="popup-alert--cta-button popup-alert--secondary-cta text-center" (click)="secondaryCtaClicked()">{{secondaryCta.text}}</button>
+          <!-- </ion-col>
+          <ion-col size="6" class="ion-no-padding"> -->
+            <button type="submit" class="popup-alert--cta-button popup-alert--primary-cta text-center" (click)="primaryCtaClicked()">{{primaryCta.text}}</button>
+          <!-- </ion-col>
+        </ion-row>
+      </ion-grid> -->
+
+
+      </div>
+    <!-- </ion-toolbar> -->
+
+  </ion-footer>
+</div>
+
+
+
+
+
+      

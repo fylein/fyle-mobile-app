@@ -71,6 +71,21 @@ input:focus, textarea:focus{
   }
 }
 
+.mat-bottom-sheet-1 {
+  padding: 24px 16px !important;
+  border-radius: 16px 16px 0px 0px !important;
+}
+
+.mat-snack-bar-1 {
+  background: #24A148;
+  color: #fff;
+  border-radius: 16px !important;
+  margin-bottom: 25% !important;
+  margin-left: 16px !important;
+  margin-right: 16px !important;
+  padding: 12px 8px !important;
+}
+
 .toast-popover {
   .popover-wrapper {
     .popover-content {

@@ -17,10 +17,12 @@ import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-ex
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 import {AddExpensePopoverComponent} from './add-expense-popover/add-expense-popover.component';
 import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import { ExpensesCardComponent } from './expenses-card/expenses-card.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ReportStates } from '../dashboard/stat-badge/report-states';
 import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-report-toast-message/expenses-added-to-report-toast-message.component';
+import { ExpensesCardComponent } from './expenses-card/expenses-card.component';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -38,8 +40,11 @@ import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
+    MatButtonModule,
     MatCheckboxModule,
-    SharedModule,
+    MatBottomSheetModule,
+    MatSnackBarModule,
+    SharedModule
   ],
   declarations: [
     MyExpensesPage,

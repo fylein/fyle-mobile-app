@@ -25,6 +25,10 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ReportService } from 'src/app/core/services/report.service';
 import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-report-toast-message/expenses-added-to-report-toast-message.component';
 import { cloneDeep } from 'lodash';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-my-expenses',
@@ -97,7 +101,9 @@ export class MyExpensesPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private actionSheetController: ActionSheetController,
     private reportService: ReportService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private matBottomSheet: MatBottomSheet,
+    private matSnackBar: MatSnackBar
   ) { }
 
   clearText() {
@@ -686,6 +692,33 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
+  async openCriticalPolicyViolationPopOver(title, message) {
+    const criticalPolicyViolationPopOver = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: 'Exclude and Continue'
+        },
+        secondaryCta: {
+          text: 'Cancel'
+        }
+      },
+      cssClass: 'pop-up-in-center'
+    });
+
+    await criticalPolicyViolationPopOver.present();
+
+    const {data} = await criticalPolicyViolationPopOver.onWillDismiss();
+
+    if( data && data.action) {
+      if (data.action === 'primary') {
+        this.openCreateNewReportModal();
+      }
+    }
+  }
+ 
   openCreateReportWithSelectedIds() {
     this.trackingService.addToReport({Asset: 'Mobile'});
 
@@ -693,12 +726,41 @@ export class MyExpensesPage implements OnInit {
 
 
     const expensesWithOutCriticalPolicyViolation = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
-    const no1 = selectedElements.length - expensesWithOutCriticalPolicyViolation.length;
-    const expensesInDraftState = this.selectedElements.filter((expense) => expense.isDraft);
+    const noOfExpenseInCriticalPolicyViolation = selectedElements.length - expensesWithOutCriticalPolicyViolation.length;
+    const expensesInDraftState = expensesWithOutCriticalPolicyViolation.filter((expense) => expense.isDraft);
+    const noOfExpenseInDraftState = expensesInDraftState.length;
+
+    const title = noOfExpenseInCriticalPolicyViolation + ' Critical Policy & ' + noOfExpenseInDraftState + ' Draft Expenses blocking the way';
+
+    const message = 'Critical policy blocking these ' + noOfExpenseInCriticalPolicyViolation +' expenses worth $100 from being submitted. Also 2 other expenses are in draft states';
+
+    if (noOfExpenseInCriticalPolicyViolation || noOfExpenseInDraftState) {
+      this.openCriticalPolicyViolationPopOver(title, message);
+    } else {
+      this.openCreateNewReportModal();
+    }
+    
 
 
+    // const txnIds = this.selectedElements.map(expense => expense.tx_id);
+    // this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
+  }
+
+  async openCreateNewReportModal() {
     const txnIds = this.selectedElements.map(expense => expense.tx_id);
-    this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
+    const addExpenseToReportModal = await this.modalController.create({
+      component: CreateNewReportComponent,
+      componentProps: {
+        txnIds
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
+    });
+    await addExpenseToReportModal.present();
+
+    
+    //this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
   }
 
   openCreateReport() {
@@ -878,6 +940,25 @@ export class MyExpensesPage implements OnInit {
   }
 
   async showAddToReportSuccessToast(report) {
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ExpensesAddedToReportToastMessageComponent, {
+      data: {rp_state: report.rp_state},
+      panelClass: ["mat-snack-bar-1"],
+      verticalPosition: 'bottom',
+      // duration: 3000
+    });
+
+    // expensesAddedToReportSnackBar.afterDismissed().subscribe(() => {
+    //   console.log('The snack-bar was dismissed');
+    // });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.rp_id, navigateBack: true }]);
+    });
+    
+  }
+
+  // old with popovercontroller
+  async showAddToReportSuccessToast1(report) {
 
     const expensesAddedToReportToastController = await this.popoverController.create({
       component: ExpensesAddedToReportToastMessageComponent,
@@ -898,8 +979,34 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-
   async onAddTransactionsToReport() {
+    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
+
+    const openReports = await this.reportService.getAllExtendedReports({queryParams}).toPromise();
+    const abc = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
+      data: { openReports },
+      panelClass: ['mat-bottom-sheet-1']
+    });
+
+
+    const data =  await abc.afterDismissed().toPromise();
+    if (data && data.report) {
+      from(this.loaderService.showLoader('Adding transaction to report')).pipe(
+        switchMap(() => {
+          // Todo implement API call
+          //return this.reportService.addTransactions(data.reportId, this.selectedElements);
+          return of(null);
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      ).subscribe(() => {
+        this.showAddToReportSuccessToast(data.report);
+      }); 
+    }
+  }
+
+
+  // Bottom sheet with popover, old
+  async onAddTransactionsToReport1() {
     const addExpenseToReportModal = await this.popoverController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {

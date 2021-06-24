@@ -68,6 +68,8 @@ import {FooterComponent} from './components/footer/footer.component';
 import {FyAlertInfoComponent} from './components/fy-alert-info.component.html/fy-alert-info.component';
 import {MatRippleModule} from '@angular/material/core';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
+import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
 
 @NgModule({
   declarations: [
@@ -121,7 +123,9 @@ import { FyCriticalPolicyViolationComponent } from './components/fy-critical-pol
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
-    FyCriticalPolicyViolationComponent
+    FyCriticalPolicyViolationComponent,
+    PopupAlertComponentComponent,
+    CreateNewReportComponent
   ],
   imports: [
     CommonModule,
@@ -182,7 +186,9 @@ import { FyCriticalPolicyViolationComponent } from './components/fy-critical-pol
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
-    FyCriticalPolicyViolationComponent
+    FyCriticalPolicyViolationComponent,
+    PopupAlertComponentComponent,
+    CreateNewReportComponent
   ],
   providers: [
     DecimalPipe,

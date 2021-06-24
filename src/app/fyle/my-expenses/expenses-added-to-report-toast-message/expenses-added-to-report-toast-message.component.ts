@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
+import { MatSnackBar, MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -9,18 +10,21 @@ import { PopoverController } from '@ionic/angular';
 export class ExpensesAddedToReportToastMessageComponent implements OnInit {
 
   constructor(
-    private popoverController: PopoverController
+    private matSnackBar: MatSnackBar,
+    @Inject(MAT_SNACK_BAR_DATA) public data: any,
+    private snackBarRef: MatSnackBarRef<ExpensesAddedToReportToastMessageComponent>
   ) { }
-  @Input() report_type: string;
 
-  ngOnInit() {}
-
-  close() {
-    this.popoverController.dismiss({action: 'close'})
+  ngOnInit() {
+    console.log(this.data);
   }
 
-  viewReport() {
-    this.popoverController.dismiss({action: 'view_report'})
+  closeEvent() {
+    this.snackBarRef.dismiss();
+  }
+
+  actionEvent() {
+    this.snackBarRef.dismissWithAction();
   }
  
 

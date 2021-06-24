@@ -1,14 +1,8 @@
-.abc {
-    background: #24A148;
-    color: #fff;
-    padding: 12px 8px;
-}
-
-.flex {
- display: flex;
-}
-
 .add-report-success-toast {
+  &--body {
+    display: flex;
+  }
+
   &--tick-icon {
     font-size: 20px;
   } 
@@ -24,5 +18,6 @@
 
   &--close-icon {
     margin-left: 20px;
+    font-size: 20px;
   }
 }
