@@ -271,21 +271,7 @@ export class AddEditPerDiemPage implements OnInit {
         originalExpenseObject: this.etxn$
       }).pipe(
         map(({currentExpenseObject, originalExpenseObject}) => {
-          for (const fieldName of duplicateFieldsToBeCompared) {
-
-            if (['txn_dt', 'to_dt', 'from_dt'].includes(fieldName)) {
-              let currentDate = currentExpenseObject.tx[fieldName] && moment(currentExpenseObject.tx[fieldName]).format('y-MM-DD');
-              let originalDate = originalExpenseObject.tx[fieldName] && moment(originalExpenseObject.tx[fieldName]).format('y-MM-DD');
-              if (!isEqual(currentDate, originalDate)) {
-                return true;
-              }
-            } else {
-              if (!isEqual(currentExpenseObject.tx[fieldName], originalExpenseObject.tx[fieldName])) {
-                return true;
-              }
-            }
-          }
-          return false;
+          return this.transactionService.compareExpense(currentExpenseObject, originalExpenseObject);
         })
       )
   }
