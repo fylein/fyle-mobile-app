@@ -20,7 +20,6 @@ import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ReportStates } from '../dashboard/stat-badge/report-states';
 import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-report-toast-message/expenses-added-to-report-toast-message.component';
-import { ExpensesCardComponent } from './expenses-card/expenses-card.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 
@@ -49,7 +48,6 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
   declarations: [
     MyExpensesPage,
     MyExpensesCardComponent,
-    ExpensesCardComponent,
     MyExpensesSearchFilterComponent,
     MyExpensesSortFilterComponent,
     AddExpensePopoverComponent,

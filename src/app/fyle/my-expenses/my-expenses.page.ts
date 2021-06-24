@@ -747,17 +747,26 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openCreateNewReportModal() {
-    const txnIds = this.selectedElements.map(expense => expense.tx_id);
-    const addExpenseToReportModal = await this.modalController.create({
+    
+    const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
-        txnIds
+        selectedExpensesToReport: this.selectedElements
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties()
     });
-    await addExpenseToReportModal.present();
+    await addExpenseToNewReportModal.present();
+
+    const { data } = await addExpenseToNewReportModal.onDidDismiss();
+
+    if (data && data.reportActionType && data.selectedExpense) {
+      const txnIds = data.selectedExpense.map(expense => expense.tx_id);
+      //call 2 different API based on reportActionType
+    }
+
+    
 
     
     //this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
@@ -944,7 +953,8 @@ export class MyExpensesPage implements OnInit {
       data: {rp_state: report.rp_state},
       panelClass: ["mat-snack-bar-1"],
       verticalPosition: 'bottom',
-      // duration: 3000
+      duration: 3000
+      //Todo: Animation need to check
     });
 
     // expensesAddedToReportSnackBar.afterDismissed().subscribe(() => {

@@ -70,6 +70,7 @@ import {MatRippleModule} from '@angular/material/core';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
 import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
+import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
 
 @NgModule({
   declarations: [
@@ -125,7 +126,8 @@ import { CreateNewReportComponent } from './components/create-new-report/create-
     FyAlertInfoComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
-    CreateNewReportComponent
+    CreateNewReportComponent,
+    ExpensesCardComponent
   ],
   imports: [
     CommonModule,
@@ -188,7 +190,8 @@ import { CreateNewReportComponent } from './components/create-new-report/create-
     FyAlertInfoComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
-    CreateNewReportComponent
+    CreateNewReportComponent,
+    ExpensesCardComponent
   ],
   providers: [
     DecimalPipe,

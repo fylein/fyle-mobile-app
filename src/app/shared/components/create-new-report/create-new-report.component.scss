@@ -1,0 +1,115 @@
+
+@import '../../../../theme/colors.scss';
+
+.create-new-report {
+
+  &--body {
+    background: #fafafa;
+    height: 100%;
+  }
+
+  &--name {
+    padding: 16px;
+    background: #fff;
+  }
+
+  &--text {
+    border-bottom: 1px solid $grey-lighter;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
+  }
+
+  &--text-label {
+    margin: 0 8px 0 0;
+    max-width: 90%;
+    min-width: 120px;
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
+  }
+
+  &--text-input {
+    border: 0;
+    font-size: 14px;
+    font-weight: 400;
+    height: 18px;
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    margin: 6px 0;
+    padding: 0;
+  }
+
+
+  &--heading {
+    color: #a9acbc;
+    font-size: 14px;
+    padding: 16px 16px; // Confirm with @aditi
+    background: #fafafa;
+  }
+
+  &--select-all-checkbox {
+    font-size: 14px;
+    padding: 16px 16px; 
+    background: #fff;
+  }
+
+  &--add-more-container {
+    padding: 16px;
+    display: flex;
+  }
+
+  &--add-more-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+  
+  &--add-more-text {
+    margin-left: 5px;
+  }
+
+  &--cta-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 35.5px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 -2px 12px #d7d7d799;
+    z-index: 999;
+  }
+
+  &--cta-button {
+    font-weight: 500;
+  }
+
+  &--secondary-cta {
+    height: auto;
+    background: transparent;
+    color: $black;
+    font-size: 16px;
+    line-height: 20px;
+    min-width: 40%;
+  }
+
+  &--primary-cta {
+    min-height: 52px;
+    background: $pink-gradient-1;
+    color: $pure-white;
+    font-size: 14px;
+    line-height: 18px;
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-width: 50%;
+  }
+
+   
+
+}
+
