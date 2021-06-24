@@ -29,9 +29,8 @@ export class DuplicateDetectionService {
   getDuplicateReasons() {
     return ['Different expense', 'Other'];
   }
-
-  post(url, data, config?) {
-    return this.httpClient.post(this.ROOT_ENDPOINT + '/compliance/duplicates' + url, data, config);
+  post(url: string, expense: any) {
+    return this.httpClient.post(this.ROOT_ENDPOINT + '/compliance/duplicates' + url, expense);
   }
 
   getPossibleDuplicates(transaction) {

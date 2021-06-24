@@ -15,6 +15,8 @@ import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import {isEqual} from 'lodash';
+import * as moment from 'moment';
 
 const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({
@@ -592,4 +594,24 @@ export class TransactionService {
       }
     });
   }
+
+  compareExpense(currentExpenseObject, originalExpenseObject) {
+    const duplicateFieldsToBeCompared = ['amount', 'fyle_category', 'currency', 'txn_dt', 'to_dt', 'from_dt', 'locations'];
+    for (const fieldName of duplicateFieldsToBeCompared) {
+
+      if (['txn_dt', 'to_dt', 'from_dt'].includes(fieldName)) {
+        let currentDate = currentExpenseObject.tx[fieldName] && moment(currentExpenseObject.tx[fieldName]).format('y-MM-DD');
+        let originalDate = originalExpenseObject.tx[fieldName] && moment(originalExpenseObject.tx[fieldName]).format('y-MM-DD');
+        if (!isEqual(currentDate, originalDate)) {
+          return true;
+        }
+      } else {
+        if (!isEqual(currentExpenseObject.tx[fieldName], originalExpenseObject.tx[fieldName])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
 }

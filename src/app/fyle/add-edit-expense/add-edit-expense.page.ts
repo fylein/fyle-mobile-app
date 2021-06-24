@@ -498,21 +498,7 @@ export class AddEditExpensePage implements OnInit {
         originalExpenseObject: this.etxn$
       }).pipe(
         map(({currentExpenseObject, originalExpenseObject}) => {
-          for (const fieldName of duplicateFieldsToBeCompared) {
-
-            if (['txn_dt', 'to_dt', 'from_dt'].includes(fieldName)) {
-              let currentDate = currentExpenseObject.tx[fieldName] && moment(currentExpenseObject.tx[fieldName]).format('y-MM-DD');
-              let originalDate = originalExpenseObject.tx[fieldName] && moment(originalExpenseObject.tx[fieldName]).format('y-MM-DD');
-              if (!isEqual(currentDate, originalDate)) {
-                return true;
-              }
-            } else {
-              if (!isEqual(currentExpenseObject.tx[fieldName], originalExpenseObject.tx[fieldName])) {
-                return true;
-              }
-            }
-          }
-          return false;
+          return this.transactionService.compareExpense(currentExpenseObject, originalExpenseObject);
         })
       )
   }
@@ -523,9 +509,20 @@ export class AddEditExpensePage implements OnInit {
     )
   }
 
+  checkFieldsForChange(a, b) {
+    const duplicateFieldsToBeCompared = ['currencyObj','dateOfSpend', 'location_1', 'location_2', 'from_dt', 'to_dt', 'custom_inputs', 'category'];
+    for (const fieldName of duplicateFieldsToBeCompared) {
+      if (!isEqual(a[fieldName], b[fieldName])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
+      distinctUntilChanged((a, b) => this.checkFieldsForChange(a, b)),
       switchMap(() => this.getPossibleDuplicates()),
       switchMap((isPossibleDuplicate) => {
         if(isPossibleDuplicate) {

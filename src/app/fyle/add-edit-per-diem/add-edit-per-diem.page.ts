@@ -296,9 +296,20 @@ export class AddEditPerDiemPage implements OnInit {
     )
   }
 
+  checkFieldsForChange(a, b) {
+    const duplicateFieldsToBeCompared = ['currencyObj','to_dt', 'from_dt'];
+    for (const fieldName of duplicateFieldsToBeCompared) {
+      if (!isEqual(a[fieldName], b[fieldName])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
+      distinctUntilChanged((a, b) => this.checkFieldsForChange(a, b)),
       switchMap(() => this.getPossibleDuplicates()),
       switchMap((isPossibleDuplicate) => {
         if(isPossibleDuplicate) {
