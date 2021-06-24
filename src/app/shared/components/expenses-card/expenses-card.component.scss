@@ -35,6 +35,10 @@
   }
 
   &--scaning-receipt {
+
+    &__container {
+      margin-left: 11px;
+    }
     
     &__header {
       color: #161528;
@@ -173,39 +177,5 @@
     border-radius: 16px;
     padding: 4px 29px;
   }
-
-
-
-  
-
-}
-
-.abc {
-  display: flex;
-}
-
-.a1 {
-  // margin-right: 16px;
-}
-
-.a2 {
-  margin-right: 11px;
-  width: 50%
-}
-
-.a21 {
-  width: 40%;
-}
-
-.a4 {
-  margin-left: auto;
-}
-
-.x {
-  margin-left: 11px;
-}
-
-.y {
-  display: flex;
 }
 
