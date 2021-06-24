@@ -727,8 +727,15 @@ export class MyExpensesPage implements OnInit {
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => expense.isCriticalPolicyViolated);
     const expensesInDraftState = selectedElements.filter((expense) => expense.isDraft);
 
-    const totalAmountofCriticalPolicyViolationExpenses = sumBy(expensesWithCriticalPolicyViolations, 'tx_amount');
+    // const totalAmountofCriticalPolicyViolationExpenses = sumBy(expensesWithCriticalPolicyViolations, 'tx_amount');
     debugger
+
+    const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
+        const amount = current.tx_amount || current.tx_user_amount;
+        return prev + amount
+    }, 0);
+
+    debugger;
 
   //  let titleList = [];
   //  let 
@@ -747,7 +754,7 @@ export class MyExpensesPage implements OnInit {
 
   if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfexpensesInDraftState > 0) {
     title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfexpensesInDraftState} Draft Expenses blocking the way`;
-    message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth amount from being submitted. Also ${noOfexpensesInDraftState} other expenses are in draft states`
+    message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfexpensesInDraftState} other expenses are in draft states`
   } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
     title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
   } else if (noOfexpensesInDraftState > 0) {

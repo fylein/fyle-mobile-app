@@ -62,9 +62,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt() {
-    if (this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
+    if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
       this.receipt = 'assets/svg/fy-mileage.svg';
-    } else if ((this.expense.tx_fyle_category.toLowerCase() === 'per diem')) {
+    } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem') {
       this.receipt = 'assets/svg/fy-calendar.svg';
     } else {
       // Todo: Get thumbnail of image in V2
