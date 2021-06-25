@@ -699,7 +699,8 @@ export class MyExpensesPage implements OnInit {
         title: config.title,
         message: config.message,
         primaryCta: {
-          text: 'Exclude and Continue'
+          text: 'Exclude and Continue',
+          isDisabled: this.transactionService.getReportAbleExpenses(this.selectedElements).length === 0
         },
         secondaryCta: {
           text: 'Cancel'

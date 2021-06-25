@@ -23,6 +23,9 @@ $small-screen: 700px;
 
   &--cta-button {
     font-weight: 500;
+    &__disabled {
+      opacity: .2;
+    }
   }
 
   &--secondary-cta {
