@@ -74,7 +74,7 @@
               [mandatory]="true"
               [cacheName]="'splitExpenseProjectCache'">
             </app-fy-select-project>
-            <div *ngIf="splitExpenseForm.controls.category.touched && !splitExpenseForm.controls.category.valid"
+            <div *ngIf="splitExpenseForm.controls.project.touched && !splitExpenseForm.controls.project.valid"
                   class="split-expense--error">
               Please select a project.
             </div>
@@ -83,14 +83,14 @@
           <div class="split-expense--internal-block" *ngIf="splitType === 'cost centers'">
             <div *ngIf="costCenters$|async as costCenters">
               <app-fy-select 
-                [label]="'Cost Centers'"
+                [label]="'Cost Center'"
                 formControlName="cost_center" 
                 [options]="costCenters"
                 [mandatory]="true"
                 [cacheName]="'splitExpenseCostCenterCache'">
               </app-fy-select>
             </div>
-            <div *ngIf="splitExpenseForm.controls.category.touched && !splitExpenseForm.controls.category.valid"
+            <div *ngIf="splitExpenseForm.controls.cost_center.touched && !splitExpenseForm.controls.cost_center.valid"
                   class="split-expense--error">
               Please select a cost center.
             </div>
@@ -116,8 +116,10 @@
       <mat-icon class="split-expense--add-more-icon" svgIcon="plus"></mat-icon>
       <div class="text-center split-expense--add-more-label">Add Split</div>
     </div>
+  </div>
 
-    <app-fy-alert-info *ngIf="splitExpensesFormArray.controls.length > 10" [type]="'warning'" [message]="'Limit Reached: You cannot split an expense into more than 10 parts.'"></app-fy-alert-info>
+  <div class="split-expense--limit">
+    <app-fy-alert-info *ngIf="splitExpensesFormArray.controls.length === 10" [type]="'warning'" [message]="'Limit Reached: You cannot split an expense into more than 10 parts.'"></app-fy-alert-info>
   </div>
 </ion-content>
 

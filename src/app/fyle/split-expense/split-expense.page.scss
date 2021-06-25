@@ -244,6 +244,11 @@ $background-color: #fff;
     color: $blue-black;
   }
 
+  &--limit {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
   &--error-message-block {
     width: 100%;
     bottom: 80px;
