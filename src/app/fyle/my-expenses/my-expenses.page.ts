@@ -765,18 +765,6 @@ export class MyExpensesPage implements OnInit {
         this.showNewReportModal();
       } 
     }
-
-
-    // const title = noOfExpenseInCriticalPolicyViolation + ' Critical Policy & ' + noOfExpenseInDraftState + ' Draft Expenses blocking the way';
-
-    //const message = 'Critical policy blocking these ' + noOfExpenseInCriticalPolicyViolation +' expenses worth $100 from being submitted. Also 2 other expenses are in draft states';
-
-    
-    
-
-
-    // const txnIds = this.selectedElements.map(expense => expense.tx_id);
-    // this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
   }
 
   async showNewReportModal() {
