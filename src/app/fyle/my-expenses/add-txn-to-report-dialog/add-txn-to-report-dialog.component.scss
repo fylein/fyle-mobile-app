@@ -1,9 +1,11 @@
+@import '../../../../theme/colors.scss';
+
 .report-list {
   &--header {
     font-size: 14px;
     line-height: 17.92px;;
     font-weight: 400;
-    color: #a9acbc;
+    color: $grey-light;
     margin-bottom: 16px;
   }
 
@@ -12,7 +14,7 @@
   }
 
   &--currency {
-    color: #5a5d72;
+    color: $black-light;
     font-weight: 500;
     font-size: 14px;
     line-height: 18px;
@@ -20,43 +22,43 @@
   }
 
   &--amount {
-    color: #161528;
+    color: $black;
     font-size: 20px;
     line-height: 26px;
   }
 
   &--purpose {
     font-weight: 400;
-    color: #161528;
+    color: $black;
     font-size: 18px;
     line-height: 23px;
   }
 
   &--count {
-    color: #2c304e;
+    color: $blue-black;
     font-size: 14px;
     line-height: 18px;
     margin-top: 2px;
   }
 
   &--divider {
-    border-bottom: 1px solid #DFDFE2;
+    border-bottom: 1px solid $grey-lighter;
     margin-bottom: 14px;
   }
 
   &--state {
     font-size: 12px;
     line-height: 15px;
-    color: #ffffff;
+    color: $pure-white;
     text-align: center;
-    background: #464D57;
+    background: $highlight-black;
     border-radius: 16px;
     padding: 4px 17px;
     max-width: 86px;
     margin-left: auto;
 
     &__reported {
-      background: #2896F3;
+      background: $blue-1;
     }
   }
 }
