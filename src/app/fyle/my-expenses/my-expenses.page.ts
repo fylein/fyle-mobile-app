@@ -960,28 +960,6 @@ export class MyExpensesPage implements OnInit {
     
   }
 
-  // old with popovercontroller
-  async showAddToReportSuccessToast1(report) {
-
-    const expensesAddedToReportToastController = await this.popoverController.create({
-      component: ExpensesAddedToReportToastMessageComponent,
-      cssClass: 'toast-popover',
-      componentProps: {
-        report_type: report.rp_type
-      },
-      animated: true
-    })
-
-    await expensesAddedToReportToastController.present();
-
-    const { data } = await expensesAddedToReportToastController.onDidDismiss(); 
-    if (data && data.action) {
-      if (data.action === 'view_report') {
-        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.rp_id, navigateBack: true }]);
-      }
-    }
-  }
-
   async showOldReportsMatBottomSheet() {
     let selectedElements = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
     selectedElements = selectedElements.filter((expense) => !expense.isDraft);
@@ -1001,32 +979,6 @@ export class MyExpensesPage implements OnInit {
         switchMap(() => {
           // Todo implement API call
           return this.reportService.addTransactions(data.report.rp_id, selectedExpensesId);
-        }),
-        finalize(() => this.loaderService.hideLoader())
-      ).subscribe(() => {
-        this.showAddToReportSuccessToast(data.report);
-      }); 
-    }
-  }
-
-
-  // Bottom sheet with popover, old
-  async onAddTransactionsToReport1() {
-    const addExpenseToReportModal = await this.popoverController.create({
-      component: AddTxnToReportDialogComponent,
-      componentProps: {
-      },
-      cssClass: 'bottom-popover'
-    });
-    await addExpenseToReportModal.present();
-
-    const { data } = await addExpenseToReportModal.onDidDismiss();
-    if (data && data.report) {
-      from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-        switchMap(() => {
-          // Todo implement API call
-          //return this.reportService.addTransactions(data.reportId, this.selectedElements);
-          return of(null);
         }),
         finalize(() => this.loaderService.hideLoader())
       ).subscribe(() => {
