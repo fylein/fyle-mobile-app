@@ -155,55 +155,35 @@
     </ng-container>
   </ng-container>
 
-
-  <div *ngIf="pendingTransactions.length > 0" class="my-expenses--offline-message">
-    <div>
-      <div class="my-expenses--offline-header">
-        Offline Expenses
-      </div>
-      <div class="my-expenses--offline-sub-header">
-        Expenses will be synced when connected to the internet
-      </div>
-    </div>
-  </div>
-
   <div *ngIf="!isLoading">
-    <div *ngFor="let expense of pendingTransactions as list; let i = index">
-      <app-my-expenses-card (addTransactionToNewReport)="onAddTransactionToNewReport($event)" (addTransactionToReport)="onAddTransactionToReport($event)" (deleteTransaction)="onDeleteExpenseClick($event, i)"
-                            [canOpenCard]="false" [dateComparatorProp]="'tx_txn_dt'"
-                            [expense]="expense"
-                            [prevExpense]="list[i-1]"
-                            [skipDate]="true"
-                            [isSyncInProgress]="syncing">
-      </app-my-expenses-card>
+    <div *ngFor="let pendingTransactions of pendingTransactions as list; let i = index">
+      <app-expenses-card 
+          [expense]="pendingTransactions"
+          [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+          [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+          [isSelectionModeEnabled]="selectionMode"
+          [selectedElements]="selectedElements"
+          [isProjectMandatory]="true"
+          (onHomeClicked)="onHomeClicked($event)"
+          (cardClickedForSelection)="selectExpense($event)">
+      </app-expenses-card>
+
     </div>
   </div>
 
   <ng-container *ngIf="isConnected$|async; else isNotConnected">
     <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
       <app-expenses-card 
-      [expense]="expense"
-      [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
-      [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
-      [isSelectionModeEnabled]="selectionMode"
-      [selectedElements]="selectedElements"
-      [isProjectMandatory]="true"
-      (goToTransaction)="goToTransaction($event)"
-      (onHomeClicked)="onHomeClicked($event)"
-      (cardClickedForSelection)="selectExpense($event)">
-
+          [expense]="expense"
+          [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+          [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+          [isSelectionModeEnabled]="selectionMode"
+          [selectedElements]="selectedElements"
+          [isProjectMandatory]="true"
+          (goToTransaction)="goToTransaction($event)"
+          (onHomeClicked)="onHomeClicked($event)"
+          (cardClickedForSelection)="selectExpense($event)">
       </app-expenses-card>
-      <!-- <app-my-expenses-card
-        (addTransactionToNewReport)="onAddTransactionToNewReport($event)" (addTransactionToReport)="onAddTransactionToReport($event)" (cardClickedForSelection)="selectExpense($event)"
-        (deleteTransaction)="onDeleteExpenseClick($event)" (goToTransaction)="goToTransaction($event)"
-        [baseState]="baseState"
-        [dateComparatorProp]="'tx_txn_dt'"
-        [expense]="expense"
-        [prevExpense]="list[i-1]"
-        [selectedElements]="selectedElements"
-        [selectionMode]="selectionMode"
-        [isSyncInProgress]="syncing">
-      </app-my-expenses-card> -->
     </div>
 
     <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="100px">
@@ -211,14 +191,6 @@
       </ion-infinite-scroll-content>
     </ion-infinite-scroll>
   </ng-container>
-  <ng-template #isNotConnected>
-    <app-fy-zero-state
-      [header]="'You\'re not connected to internet'"
-      [image]="'../../../assets/images/zero-states/offline.svg'"
-      [message]="'You can still add expenses, we\'ll sync them to your account once you\'re connected to the internet again.'"
-      [submessage]="'You can\'t access existing expenses or reports without internet connectivity.'">
-    </app-fy-zero-state>
-  </ng-template>
 </div>
 
   <div class="my-expenses--footer">
@@ -237,7 +209,7 @@
                 class="my-expenses--cta-button my-expenses--primary-cta text-center" [ngClass]="{'my-expenses--primary-cta__disabled': isReportAbleExpensesSelected}"
                 (click)="openCreateReportWithSelectedIds('new_report')">Create New Report</button>
             </ion-col>
-            
+
           </ion-row>
         </ion-grid>
       </div>
