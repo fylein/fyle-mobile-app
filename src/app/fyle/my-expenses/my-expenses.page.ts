@@ -29,6 +29,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ExtendedReport } from 'src/app/core/models/report.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -80,6 +81,7 @@ export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
   isReportAbleExpensesSelected = true;
+  openReports$: Observable<ExtendedReport[]>;
 
 
   constructor(
@@ -416,6 +418,10 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       this.isLoading = false;
     }, 500);
+
+    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
+
+    this.openReports$ = this.reportService.getAllExtendedReports({queryParams});
   }
 
   setupNetworkWatcher() {
@@ -924,27 +930,31 @@ export class MyExpensesPage implements OnInit {
   async showOldReportsMatBottomSheet() {
     let reportAbleExpenses = this.transactionService.getReportAbleExpenses(this.selectedElements);
     let selectedExpensesId = reportAbleExpenses.map(expenses => expenses.tx_id);
-    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
 
-    const openReports = await this.reportService.getAllExtendedReports({queryParams}).toPromise();
-    const abc = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
-      data: { openReports },
-      panelClass: ['mat-bottom-sheet-1']
+    this.openReports$.pipe(
+      switchMap((openReports) => {
+        const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
+          data: { openReports },
+          panelClass: ['mat-bottom-sheet-1']
+        });
+        return addTxnToReportDialog.afterDismissed();
+      }),
+      // tap(() => this.loaderService.showLoader('Adding transaction to report')),
+      switchMap((data) => {
+        if (data && data.report) {
+          return this.reportService.addTransactions(data.report.rp_id, selectedExpensesId).pipe(
+            map(() => data.report)
+          )
+        } else {
+          return of(null)
+        }
+      }),
+      // finalize(() => this.loaderService.hideLoader())
+    ).subscribe((report) => {
+      if (report) {
+        this.showAddToReportSuccessToast(report);
+      }
     });
-
-
-    const data =  await abc.afterDismissed().toPromise();
-    if (data && data.report) {
-      from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-        switchMap(() => {
-          // Todo implement API call
-          return this.reportService.addTransactions(data.report.rp_id, selectedExpensesId);
-        }),
-        finalize(() => this.loaderService.hideLoader())
-      ).subscribe(() => {
-        this.showAddToReportSuccessToast(data.report);
-      }); 
-    }
   }
 
   onTaskClicked() {
