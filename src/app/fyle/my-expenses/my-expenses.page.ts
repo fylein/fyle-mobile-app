@@ -768,12 +768,11 @@ export class MyExpensesPage implements OnInit {
   }
 
   async showNewReportModal() {
-    let selectedElements = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
-    selectedElements = selectedElements.filter((expense) => !expense.isDraft);
+    let reportAbleExpenses = this.transactionService.getReportAbleExpenses(this.selectedElements);
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
-        selectedExpensesToReport: selectedElements
+        selectedExpensesToReport: reportAbleExpenses
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
@@ -949,9 +948,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   async showOldReportsMatBottomSheet() {
-    let selectedElements = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
-    selectedElements = selectedElements.filter((expense) => !expense.isDraft);
-    let selectedExpensesId = selectedElements.map(expenses => expenses.tx_id);
+    let reportAbleExpenses = this.transactionService.getReportAbleExpenses(this.selectedElements);
+    let selectedExpensesId = reportAbleExpenses.map(expenses => expenses.tx_id);
     const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
 
     const openReports = await this.reportService.getAllExtendedReports({queryParams}).toPromise();
