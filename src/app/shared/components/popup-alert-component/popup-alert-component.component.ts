@@ -14,15 +14,9 @@ export class PopupAlertComponentComponent implements OnInit {
 
   ngOnInit() {}
 
-  primaryCtaClicked() {
+  ctaClickedEvent(action) {
     this.popoverController.dismiss({
-      action: 'primary'
-    });
-  }
-
-  secondaryCtaClicked() {
-    this.popoverController.dismiss({
-      action: 'secondary'
+      action
     });
   }
   

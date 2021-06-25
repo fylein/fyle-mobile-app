@@ -708,10 +708,12 @@ export class MyExpensesPage implements OnInit {
         message: config.message,
         primaryCta: {
           text: 'Exclude and Continue',
+          action: 'continue',
           isDisabled: this.transactionService.getReportAbleExpenses(this.selectedElements).length === 0
         },
         secondaryCta: {
-          text: 'Cancel'
+          text: 'Cancel',
+          action: 'cancel'
         }
       },
       cssClass: 'pop-up-in-center'
@@ -722,7 +724,7 @@ export class MyExpensesPage implements OnInit {
     const {data} = await criticalPolicyViolationPopOver.onWillDismiss();
 
     if( data && data.action) {
-      if (data.action === 'primary') {
+      if (data.action === 'continue') {
         if (config.report_type === 'old_report') {
           this.showOldReportsMatBottomSheet();
         } else {
