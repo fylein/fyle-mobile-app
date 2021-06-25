@@ -221,120 +221,27 @@
   </ng-template>
 </div>
 
-<div class="my-expenses--footer">
-  <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
-  <div *ngIf="selectionMode">
-    <div class="my-expenses--footer-conatiner">
-      <ion-grid class="ion-no-padding">
-        <ion-row>
-          <ion-col size="6" class="ion-no-padding">
-            <button type="button" [disabled]="isReportAbleExpensesSelected" 
-              class="my-expenses--cta-button my-expenses--secondary-cta text-center" [ngClass]="{'my-expenses--secondary-cta__disabled': isReportAbleExpensesSelected}"
-              (click)="openCreateReportWithSelectedIds('old_report')">Add to reports</button>
-          </ion-col>
-          <ion-col size="6" class="ion-no-padding">
-            <button type="submit" [disabled]="isReportAbleExpensesSelected" 
-              class="my-expenses--cta-button my-expenses--primary-cta text-center" [ngClass]="{'my-expenses--primary-cta__disabled': isReportAbleExpensesSelected}"
-              (click)="openCreateReportWithSelectedIds('new_report')">Create New Report</button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-
-  </div>
-</div>
-
-
-
-</ion-content>
-
-<!-- <ion-footer mode="md">
-  <div class="my-expenses--footer-container">
-    <ng-container *ngIf="allExpensesStats$|async as allExpensesStats">
-      <div *ngIf="baseState === 'all' && allExpensesStats && filters?.state !== 'NEEDS_RECEIPT'">
-        <div class="my-expenses--stats">
-          <div class="my-expenses--amount">
-            <span class="my-expenses--homeCurrency">{{homeCurrency$ | async}}</span>
-            {{(allExpensesStats.amount|number:'1.2-2')}}
-          </div>
-          <div class="my-expenses--count">
-            across {{allExpensesStats.count}} unreported expenses
-          </div>
-        </div>
-      </div>
-    </ng-container>
-
-    <div *ngIf="filters?.state === 'NEEDS_RECEIPT'">
-      <div class="my-expenses--needs-receipt">
-        <div class="my-expenses--needs-receipt-header">
-          You have {{count$|async}} expense(s) without receipt
-        </div>
-        <div class="my-expenses--needs-receipt-sub-header">
-          Upload all reimbursable receipt here and we will classify and attach them with the associated transaction.
-        </div>
-      </div>
-    </div>
-    <ion-toolbar *ngIf="baseState === 'all' && !selectionMode && filters?.state !== 'NEEDS_RECEIPT'" mode="md">
-      <ion-button (click)="addNewExpense()" class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block"
-                  fill="solid" mode="md" appFormButtonValidation [loading]="openAddExpenseListLoader">
-        ADD NEW EXPENSE
-      </ion-button>
-    </ion-toolbar>
-    <ion-toolbar *ngIf="baseState === 'all' && !selectionMode && filters?.state === 'NEEDS_RECEIPT'" mode="md">
-      <ion-button (click)="uploadCameraOveralay()" class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block"
-                  fill="solid"
-                  mode="md">
-        UPLOAD RECEIPTS
-      </ion-button>
-    </ion-toolbar>
-    <ion-toolbar *ngIf="baseState === 'draft'" mode="md">
-      <ion-button [disabled]="(count$ | async) === 0" (click)="openReviewExpenses()" class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block"
-                  fill="solid"
-                  mode="md">
-        START REVIEW
-      </ion-button>
-    </ion-toolbar>
-    <ion-toolbar (click)="openCreateReport()" *ngIf="baseState === 'all' && selectionMode && selectedElements.length === 0"
-                 mode="md">
-      <ion-button class="my-expenses--primary-cta flat-button" color="fyle-primary" expand="block" fill="solid"
-                  mode="md">
-        CREATE REPORT
-      </ion-button>
-    </ion-toolbar>
-    <ion-toolbar *ngIf="baseState === 'all' && selectionMode && selectedElements.length > 0" mode="md">
-      <div class="my-expenses--cta-container">
-        <ion-button (click)="openCreateReportWithSelectedIds()" class="my-expenses--primary-cta my-expenses--selected-expense-primary-cta flat-button"
-                    color="fyle-primary" fill="solid"
-                    mode="md">
-          CREATE REPORT
-        </ion-button>
-        <ion-button (click)="openReviewExpenses()" class="my-expenses--primary-cta" color="fyle-primary" fill="outline"
-                    mode="md">
-          START REVIEW
-        </ion-button>
-      </div>
-    </ion-toolbar>
-
-  </div>
-</ion-footer> -->
-<!-- <ion-footer class="ion-no-border">
-  <ion-toolbar class="my-expenses--footer-toolbar">
+  <div class="my-expenses--footer">
     <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
     <div *ngIf="selectionMode">
       <div class="my-expenses--footer-conatiner">
         <ion-grid class="ion-no-padding">
           <ion-row>
             <ion-col size="6" class="ion-no-padding">
-              <button type="button" class="my-expenses--cta-button my-expenses--secondary-cta text-center" (click)="onAddTransactionsToReport()">Add to reports</button>
+              <button type="button" [disabled]="isReportAbleExpensesSelected" 
+                class="my-expenses--cta-button my-expenses--secondary-cta text-center" [ngClass]="{'my-expenses--secondary-cta__disabled': isReportAbleExpensesSelected}"
+                (click)="openCreateReportWithSelectedIds('old_report')">Add to reports</button>
             </ion-col>
             <ion-col size="6" class="ion-no-padding">
-              <button type="submit" class="my-expenses--cta-button my-expenses--primary-cta text-center" (click)="openCreateReportWithSelectedIds()">Create New Report</button>
+              <button type="submit" [disabled]="isReportAbleExpensesSelected" 
+                class="my-expenses--cta-button my-expenses--primary-cta text-center" [ngClass]="{'my-expenses--primary-cta__disabled': isReportAbleExpensesSelected}"
+                (click)="openCreateReportWithSelectedIds('new_report')">Create New Report</button>
             </ion-col>
+            
           </ion-row>
         </ion-grid>
       </div>
-
     </div>
+  </div>
+</ion-content>
 
-  </ion-toolbar>
-</ion-footer> -->
