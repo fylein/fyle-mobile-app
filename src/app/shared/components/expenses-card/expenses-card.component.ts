@@ -115,7 +115,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getScanningReceiptCard(expense: Expense): boolean {
-    if (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem') {
+    if (expense.tx_fyle_category && (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
       return false;
     } else {
       if (!expense.tx_currency && !expense.tx_amount) {

@@ -105,6 +105,7 @@
 </ion-header>
 
 <ion-content>
+  <div class="my-expenses--body">
   <app-fy-loading-screen *ngIf="isLoading" class="my-expenses--shimmers"></app-fy-loading-screen>
 
   <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
@@ -218,6 +219,29 @@
       [submessage]="'You can\'t access existing expenses or reports without internet connectivity.'">
     </app-fy-zero-state>
   </ng-template>
+</div>
+
+<div class="my-expenses--footer">
+  <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
+  <div *ngIf="selectionMode">
+    <div class="my-expenses--footer-conatiner">
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col size="6" class="ion-no-padding">
+            <button type="button" class="my-expenses--cta-button my-expenses--secondary-cta text-center" (click)="onAddTransactionsToReport()">Add to reports</button>
+          </ion-col>
+          <ion-col size="6" class="ion-no-padding">
+            <button type="submit" class="my-expenses--cta-button my-expenses--primary-cta text-center" (click)="openCreateReportWithSelectedIds()">Create New Report</button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+  </div>
+</div>
+
+
+
 </ion-content>
 
 <!-- <ion-footer mode="md">
@@ -289,29 +313,24 @@
 
   </div>
 </ion-footer> -->
-<ion-footer>
-  <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
-  <div *ngIf="selectionMode">
-    <div class="my-expenses--footer-conatiner">
-      <ion-grid class="ion-no-padding">
-        <ion-row>
-          <ion-col size="6" class="ion-no-padding">
-            <button type="button" class="my-expenses--cta-button my-expenses--secondary-cta text-center" (click)="onAddTransactionsToReport()">Add to reports</button>
-          </ion-col>
-          <ion-col size="6" class="ion-no-padding">
-            <button type="submit" class="my-expenses--cta-button my-expenses--primary-cta text-center" (click)="openCreateReportWithSelectedIds()">Create New Report</button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-      <!-- <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.HOME}" expand="full" (click)="goToHome()">
-        <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.HOME?'fy-home-solid':'fy-home'"></mat-icon>
-        Home
+<!-- <ion-footer class="ion-no-border">
+  <ion-toolbar class="my-expenses--footer-toolbar">
+    <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
+    <div *ngIf="selectionMode">
+      <div class="my-expenses--footer-conatiner">
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="6" class="ion-no-padding">
+              <button type="button" class="my-expenses--cta-button my-expenses--secondary-cta text-center" (click)="onAddTransactionsToReport()">Add to reports</button>
+            </ion-col>
+            <ion-col size="6" class="ion-no-padding">
+              <button type="submit" class="my-expenses--cta-button my-expenses--primary-cta text-center" (click)="openCreateReportWithSelectedIds()">Create New Report</button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
       </div>
-      <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.TASKS}" expand="full" (click)="goToTasks()">
-        <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.TASKS?'fy-notification-solid': 'fy-notification'"></mat-icon>
-        Tasks
-      </div> -->
+
     </div>
 
-  </div>
-</ion-footer>
+  </ion-toolbar>
+</ion-footer> -->

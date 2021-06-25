@@ -279,6 +279,20 @@
     }
   }
 
+  &--body {
+    padding-bottom: 20px;
+    background: #fafafa;
+  }
+
+  &--footer {
+    min-height: 100px;
+    background: #fafafa;
+  }
+
+  &--footer-toolbar {
+    --min-height: 120px;
+  }
+
   &--footer-conatiner {
     display: flex;
     justify-content: space-around;
