@@ -85,7 +85,9 @@ export class CreateNewReportComponent implements OnInit {
   ctaClickedEvent(reportActionType) {
     this.modalController.dismiss({
       reportActionType,
-      selectedExpense: this.selectedElements
+      selectedExpense: this.selectedElements,
+      reportTitle: this.reportTitle,
+      selectedTotalAmount: this.selectedTotalAmount
     });
 
   }

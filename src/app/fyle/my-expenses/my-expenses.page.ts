@@ -782,7 +782,6 @@ export class MyExpensesPage implements OnInit {
   async showNewReportModal() {
     let selectedElements = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
     selectedElements = selectedElements.filter((expense) => !expense.isDraft);
-    debugger;
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
@@ -796,9 +795,37 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await addExpenseToNewReportModal.onDidDismiss();
 
-    if (data && data.reportActionType && data.selectedExpense) {
+    if (data && data.reportActionType && data.selectedExpense && data.reportTitle) {
+      const report = {
+        purpose: data.reportTitle,
+        source: 'MOBILE',
+      };
+
       const txnIds = data.selectedExpense.map(expense => expense.tx_id);
-      //call 2 different API based on reportActionType
+      if (data.reportActionType === 'create_draft_report') {
+        this.reportService.createDraft(report).pipe(
+          tap(() => {
+            this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: data.selectedTotalAmount});
+          }),
+          switchMap((report) => {
+            return this.reportService.addTransactions(report.id, txnIds).pipe(
+              map(() => report)
+            );
+          })
+        ).subscribe((report => {
+          this.showAddToReportSuccessToast(report);
+        }));
+      } else {
+        this.reportService.create(report, txnIds).pipe(
+          tap(() => this.trackingService.createReport({
+            Asset: 'Mobile',
+            Expense_Count: txnIds.length,
+            Report_Value: data.selectedTotalAmount
+          }))
+        ).subscribe((report) => {
+          this.showAddToReportSuccessToast(report);
+        });
+      }
     }
   }
 
@@ -917,15 +944,18 @@ export class MyExpensesPage implements OnInit {
 
   async showAddToReportSuccessToast(report) {
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ExpensesAddedToReportToastMessageComponent, {
-      data: {rp_state: report.rp_state},
+      data: {rp_state: report.rp_state || report.state},
       panelClass: ["mat-snack-bar-1"],
       verticalPosition: 'bottom',
       duration: 3000
       //Todo: Animation need to check
     });
 
+    this.selectionMode = false;
+    this.doRefresh();
+
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.rp_id, navigateBack: true }]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.rp_id || report.id, navigateBack: true }]);
     });
     
   }
@@ -975,8 +1005,6 @@ export class MyExpensesPage implements OnInit {
         finalize(() => this.loaderService.hideLoader())
       ).subscribe(() => {
         this.showAddToReportSuccessToast(data.report);
-        this.selectionMode = false;
-        this.doRefresh();
       }); 
     }
   }
