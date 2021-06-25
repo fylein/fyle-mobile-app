@@ -909,7 +909,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async showAddToReportSuccessToast(report) {
+  showAddToReportSuccessToast(report) {
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ExpensesAddedToReportToastMessageComponent, {
       data: {rp_state: report.rp_state || report.state},
       panelClass: ["mat-snack-bar-1"],
@@ -927,7 +927,18 @@ export class MyExpensesPage implements OnInit {
     
   }
 
-  async showOldReportsMatBottomSheet() {
+  addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
+    return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
+      switchMap(() => {
+        return this.reportService.addTransactions(report.rp_id, selectedExpensesId).pipe(
+          map(() => report)
+        )
+      }),
+      finalize(() => this.loaderService.hideLoader())
+    ) 
+  }
+
+  showOldReportsMatBottomSheet() {
     let reportAbleExpenses = this.transactionService.getReportAbleExpenses(this.selectedElements);
     let selectedExpensesId = reportAbleExpenses.map(expenses => expenses.tx_id);
 
@@ -939,17 +950,13 @@ export class MyExpensesPage implements OnInit {
         });
         return addTxnToReportDialog.afterDismissed();
       }),
-      // tap(() => this.loaderService.showLoader('Adding transaction to report')),
       switchMap((data) => {
         if (data && data.report) {
-          return this.reportService.addTransactions(data.report.rp_id, selectedExpensesId).pipe(
-            map(() => data.report)
-          )
+          return this.addTransactionsToReport(data.report, selectedExpensesId)
         } else {
           return of(null)
         }
       }),
-      // finalize(() => this.loaderService.hideLoader())
     ).subscribe((report) => {
       if (report) {
         this.showAddToReportSuccessToast(report);
