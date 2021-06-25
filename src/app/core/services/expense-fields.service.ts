@@ -45,7 +45,7 @@ export class ExpenseFieldsService {
   getExpenseFieldsMap(expenseFields): Observable<Partial<ExpenseFieldsMap>> {
     const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
 
-    expenseFields.forEach(expenseField => {
+    expenseFields && expenseFields.forEach(expenseField => {
       let expenseFieldsList = [];
 
       if (expenseFieldMap[expenseField.column_name]) {
@@ -60,7 +60,7 @@ export class ExpenseFieldsService {
   }
 
   getCustomFields(expenseFields): Observable<ExpenseField[]> {
-    return of(expenseFields.filter(expenseField => !!expenseField.is_custom.is_custom === true));
+    return of(expenseFields && expenseFields.filter(expenseField => !!expenseField.is_custom === true));
   }
 
   getUserRoles(): Observable<string[]> {

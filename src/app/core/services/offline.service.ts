@@ -7,7 +7,6 @@ import {CategoriesService} from './categories.service';
 import {CostCentersService} from './cost-centers.service';
 import {ProjectsService} from './projects.service';
 import {PerDiemService} from './per-diem.service';
-import {CustomInputsService} from './custom-inputs.service';
 import {OrgService} from './org.service';
 import {AccountsService} from './accounts.service';
 import {TransactionFieldConfigurationsService} from './transaction-field-configurations.service';
@@ -22,7 +21,6 @@ import {OrgUserService} from './org-user.service';
 import { intersection } from 'lodash';
 import { DeviceService } from './device.service';
 import { ExpenseFieldsService } from './expense-fields.service';
-import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 
@@ -40,7 +38,6 @@ export class OfflineService {
     private costCentersService: CostCentersService,
     private projectsService: ProjectsService,
     private perDiemsService: PerDiemService,
-    private customInputsService: CustomInputsService,
     private orgService: OrgService,
     private accountsService: AccountsService,
     private transactionFieldConfigurationsService: TransactionFieldConfigurationsService,
@@ -61,7 +58,6 @@ export class OfflineService {
     const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
     const perDiemRates$ = this.getPerDiemRates();
-    const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
@@ -85,7 +81,6 @@ export class OfflineService {
       costCenters$,
       projects$,
       perDiemRates$,
-      customInputs$,
       currentOrg$,
       orgs$,
       accounts$,
@@ -375,25 +370,6 @@ export class OfflineService {
             );
           } else {
             return from(this.storageService.get('cachedPerDiemRates'));
-          }
-        }
-      )
-    );
-  }
-
-  @Cacheable()
-  getCustomInputs(): Observable<ExpenseField[]> {
-    return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.customInputsService.getAll(true).pipe(
-              tap((customInputs) => {
-                this.storageService.set('cachedCustomInputs', customInputs);
-              })
-            );
-          } else {
-            return from(this.storageService.get('cachedCustomInputs'));
           }
         }
       )
