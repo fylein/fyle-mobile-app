@@ -112,6 +112,10 @@
     font-size: 16px;
     line-height: 20px;
     min-width: 40%;
+
+    &__disabled {
+      opacity: 0.2;
+    }
   }
 
   &--primary-cta {
@@ -123,9 +127,9 @@
     border-radius: 4px;
     padding: 10px 12px;
     min-width: 50%;
+    &__disabled {
+      opacity: 0.8;
+    }
   }
-
-   
-
 }
 

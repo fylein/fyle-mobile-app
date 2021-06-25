@@ -316,6 +316,9 @@
     color: $black;
     font-size: 16px;
     line-height: 20px;
+    &__disabled {
+      opacity: 0.2;
+    }
   }
 
   &--primary-cta {
@@ -326,6 +329,10 @@
     line-height: 17.92px;
     border-radius: 4px;
     width: 100%;
+
+    &__disabled {
+      opacity: 0.8;
+    }
   }
 }
 

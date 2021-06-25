@@ -2,11 +2,12 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-create-new-report',
@@ -22,11 +23,14 @@ export class CreateNewReportComponent implements OnInit {
   selectedTotalTxns = 0;
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
   reportTitle: string;
+  submitReportLoader = false;
+  saveDraftReportLoader = false;
 
   constructor(
     private offlineService: OfflineService,
     private modalController: ModalController,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private trackingService: TrackingService
   ) {
     
   }
@@ -83,12 +87,47 @@ export class CreateNewReportComponent implements OnInit {
   }
 
   ctaClickedEvent(reportActionType) {
-    this.modalController.dismiss({
-      reportActionType,
-      selectedExpense: this.selectedElements,
-      reportTitle: this.reportTitle,
-      selectedTotalAmount: this.selectedTotalAmount
-    });
+    const report = {
+      purpose: this.reportTitle,
+      source: 'MOBILE',
+    };
 
+    const txnIds = this.selectedElements.map(expense => expense.tx_id);
+    if (reportActionType === 'create_draft_report') {
+      this.saveDraftReportLoader = true;
+      return this.reportService.createDraft(report).pipe(
+        tap(() => {
+          this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount});
+        }),
+        switchMap((report) => {
+          return this.reportService.addTransactions(report.id, txnIds).pipe(
+            map(() => report)
+          );
+        }),
+        finalize(() => {
+         this.saveDraftReportLoader = false;
+        })
+      ).subscribe((report => {
+        this.modalController.dismiss({
+          report
+        });
+      }));
+    } else {
+      this.submitReportLoader = true;
+      this.reportService.create(report, txnIds).pipe(
+        tap(() => this.trackingService.createReport({
+          Asset: 'Mobile',
+          Expense_Count: txnIds.length,
+          Report_Value: this.selectedTotalAmount
+        })),
+        finalize(() => {
+          this.submitReportLoader = false;
+        })
+      ).subscribe((report) => {
+        this.modalController.dismiss({
+          report
+        });
+      });
+    }
   }
 }

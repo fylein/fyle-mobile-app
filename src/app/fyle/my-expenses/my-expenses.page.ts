@@ -79,6 +79,7 @@ export class MyExpensesPage implements OnInit {
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
+  isReportAbleExpensesSelected = true;
 
 
   constructor(
@@ -651,6 +652,7 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.selectedElements.push(expense);
     }
+    this.isReportAbleExpensesSelected = this.transactionService.getReportAbleExpenses(this.selectedElements).length === 0;
     // setting Expenses count and amount stats on select
     this.setExpenseStatsOnSelect();
   }
@@ -783,37 +785,8 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await addExpenseToNewReportModal.onDidDismiss();
 
-    if (data && data.reportActionType && data.selectedExpense && data.reportTitle) {
-      const report = {
-        purpose: data.reportTitle,
-        source: 'MOBILE',
-      };
-
-      const txnIds = data.selectedExpense.map(expense => expense.tx_id);
-      if (data.reportActionType === 'create_draft_report') {
-        this.reportService.createDraft(report).pipe(
-          tap(() => {
-            this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: data.selectedTotalAmount});
-          }),
-          switchMap((report) => {
-            return this.reportService.addTransactions(report.id, txnIds).pipe(
-              map(() => report)
-            );
-          })
-        ).subscribe((report => {
-          this.showAddToReportSuccessToast(report);
-        }));
-      } else {
-        this.reportService.create(report, txnIds).pipe(
-          tap(() => this.trackingService.createReport({
-            Asset: 'Mobile',
-            Expense_Count: txnIds.length,
-            Report_Value: data.selectedTotalAmount
-          }))
-        ).subscribe((report) => {
-          this.showAddToReportSuccessToast(report);
-        });
-      }
+    if (data && data.report) {
+      this.showAddToReportSuccessToast(data.report);
     }
   }
 
