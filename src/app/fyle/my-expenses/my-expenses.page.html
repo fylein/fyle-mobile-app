@@ -186,7 +186,7 @@
         </app-expenses-card>
       </div>
 
-      <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="150px">
+      <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="100px">
         <ion-infinite-scroll-content loadingSpinner="">
           <app-fy-loading-screen class="my-expenses--shimmers"></app-fy-loading-screen>
         </ion-infinite-scroll-content>
