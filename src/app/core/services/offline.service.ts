@@ -65,7 +65,7 @@ export class OfflineService {
     const currentOrg$ = this.getCurrentOrg();
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
-    const expenseFieldsMap$ = this.getExpenseFieldsMap();
+    const expenseFields$ = this.getExpenseFields();
     const transactionFieldConfigurationsMap$ = this.getTransactionFieldConfigurationsMap();
     const currencies$ = this.getCurrencies();
     const homeCurrency$ = this.getHomeCurrency();
@@ -90,7 +90,7 @@ export class OfflineService {
       orgs$,
       accounts$,
       transactionFieldConfigurationsMap$,
-      expenseFieldsMap$,
+      expenseFields$,
       currencies$,
       homeCurrency$,
       delegatedAccounts$
@@ -486,18 +486,18 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getExpenseFieldsMap(): Observable<Partial<ExpenseFieldsMap>> {
+  getExpenseFields(): Observable<ExpenseField[]> {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
           if (isOnline) {
-            return this.expenseFieldsService.getAllMap().pipe(
-              tap(expenseFieldMap => {
-                this.storageService.set('cachedExpenseFieldsMap', expenseFieldMap);
+            return this.expenseFieldsService.getAllEnabled().pipe(
+              tap(expenseField => {
+                this.storageService.set('cachedExpenseFields', expenseField);
               })
             );
           } else {
-            return from(this.storageService.get('cachedExpenseFieldsMap'));
+            return from(this.storageService.get('cachedExpenseFields'));
           }
         }
       )
