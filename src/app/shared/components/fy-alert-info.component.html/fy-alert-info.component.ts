@@ -12,8 +12,6 @@ export class FyAlertInfoComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
-    console.log("check the type", this.type);
-  }
+  ngOnInit() {}
 
 }
