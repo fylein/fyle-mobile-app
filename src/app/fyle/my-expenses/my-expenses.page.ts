@@ -23,7 +23,6 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ExpensesAddedToReportToastMessageComponent } from './expenses-added-to-report-toast-message/expenses-added-to-report-toast-message.component';
 import { cloneDeep, difference, sumBy } from 'lodash';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
