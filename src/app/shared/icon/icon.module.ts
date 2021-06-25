@@ -39,7 +39,7 @@ export class IconModule {
       "fy-wallet.svg",
     "gas.svg",
     "hotel.svg",
-    "insta-fyle.svg", "instafyle.svg", "internet.svg", "ionic-log-out-outline.svg", "plus.svg",
+    "insta-fyle.svg", "instafyle.svg", "internet.svg", "ionic-log-out-outline.svg", "plus-red.svg",
     "logo-icon-white.svg", "logo-white.svg",
     "mail.svg", "mileage.svg",
     "office-supplies.svg",

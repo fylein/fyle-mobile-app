@@ -1,7 +1,8 @@
+import { getCurrencySymbol } from '@angular/common';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Observable } from 'rxjs';
+import { noop, Observable } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
@@ -20,11 +21,12 @@ export class CreateNewReportComponent implements OnInit {
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
   selectedElements: Expense[];
   selectedTotalAmount = 0;
-  selectedTotalTxns = 0;
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
   reportTitle: string;
   submitReportLoader = false;
   saveDraftReportLoader = false;
+  homeCurrency: any;
+  homeCurrencySymbol: string;
 
   constructor(
     private offlineService: OfflineService,
@@ -39,7 +41,6 @@ export class CreateNewReportComponent implements OnInit {
     //const etxns = this.selectedElements.filter(etxn => etxn.isSelected);
     const txnIds = this.selectedElements.map(etxn => etxn.tx_id);
     this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
-    this.selectedTotalTxns = txnIds.length;
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
       return this.reportService.getReportPurpose({ids: txnIds}).pipe(
@@ -55,10 +56,16 @@ export class CreateNewReportComponent implements OnInit {
   ngOnInit() {
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
     this.selectedElements = this.selectedExpensesToReport;
+    this.offlineService.getHomeCurrency().pipe(
+      map((homeCurrency) => {
+        this.homeCurrency = homeCurrency;
+        this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+      })
+    ).subscribe(noop);
     
   }
 
-  ngAfterViewInit() {
+  ionViewWillEnter() {
     this.getReportTitle();
   }
 
