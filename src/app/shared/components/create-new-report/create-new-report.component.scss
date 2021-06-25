@@ -3,6 +3,22 @@
 
 .create-new-report {
 
+  &--title-container {
+    margin-left: -15%;
+    color: #161528;
+    padding: 16px;
+  }
+
+  &--title {
+    font-size: 20px;
+    line-height: 26px;
+  }
+
+  &--sub-title {
+    font-size: 14px;
+    line-height: 18px;
+  }
+
   &--body {
     background: #fafafa;
     height: 100%;

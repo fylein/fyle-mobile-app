@@ -692,12 +692,12 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
-  async openCriticalPolicyViolationPopOver(title, message) {
+  async openCriticalPolicyViolationPopOver(config: Partial<{ title, message, report_type}>) {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
-        title,
-        message,
+        title: config.title,
+        message: config.message,
         primaryCta: {
           text: 'Exclude and Continue'
         },
@@ -714,12 +714,17 @@ export class MyExpensesPage implements OnInit {
 
     if( data && data.action) {
       if (data.action === 'primary') {
-        this.openCreateNewReportModal();
+        if (config.report_type === 'old_report') {
+          this.showOldReportsMatBottomSheet();
+        } else {
+          this.showNewReportModal();
+        }
+        
       }
     }
   }
  
-  openCreateReportWithSelectedIds() {
+  openCreateReportWithSelectedIds(report_type: 'old_report' | 'new_report') {
     this.trackingService.addToReport({Asset: 'Mobile'});
 
     let selectedElements = cloneDeep(this.selectedElements);
@@ -727,53 +732,46 @@ export class MyExpensesPage implements OnInit {
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => expense.isCriticalPolicyViolated);
     const expensesInDraftState = selectedElements.filter((expense) => expense.isDraft);
 
-    // const totalAmountofCriticalPolicyViolationExpenses = sumBy(expensesWithCriticalPolicyViolations, 'tx_amount');
-    debugger
-
     const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
         const amount = current.tx_amount || current.tx_user_amount;
         return prev + amount
     }, 0);
 
-    debugger;
+    const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
+    const noOfexpensesInDraftState = expensesInDraftState.length;
+    let title = '';
+    let message = '';
 
-  //  let titleList = [];
-  //  let 
-  //   if (expensesWithCriticalPolicyViolations.length > 0) {
-  //     messageList.push(`${expensesWithCriticalPolicyViolations.length} Critical Policy`);
-  //   }
+    if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfexpensesInDraftState > 0)) {
 
-  //   if (expensesInDraftState.length > 0) {
-  //     messageList.push(`${expensesInDraftState.length} Draft`);
-  //   }
+      this.homeCurrency$.subscribe(homeCurrency => {
+        if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfexpensesInDraftState > 0) {
+          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfexpensesInDraftState} Draft Expenses blocking the way`;
+          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfexpensesInDraftState} other expenses are in draft states.`
+        } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
+          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
+          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`
+        } else if (noOfexpensesInDraftState > 0) {
+          title = `${noOfexpensesInDraftState} Draft Expenses blocking the way`;
+          message = `${noOfexpensesInDraftState} expenses are in draft states.`
+        }
+        this.openCriticalPolicyViolationPopOver({title, message, report_type});
+      });
 
-  const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
-  const noOfexpensesInDraftState = expensesInDraftState.length;
-  let title = '';
-  let message = '';
-
-  if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfexpensesInDraftState > 0) {
-    title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfexpensesInDraftState} Draft Expenses blocking the way`;
-    message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfexpensesInDraftState} other expenses are in draft states`
-  } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
-    title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-  } else if (noOfexpensesInDraftState > 0) {
-    title = `${noOfexpensesInDraftState} Draft Expenses blocking the way`;
-  }
-
-
-    debugger;
+    } else {
+      if (report_type === 'old_report') {
+        this.showOldReportsMatBottomSheet();
+      } else {
+        this.showNewReportModal();
+      } 
+    }
 
 
     // const title = noOfExpenseInCriticalPolicyViolation + ' Critical Policy & ' + noOfExpenseInDraftState + ' Draft Expenses blocking the way';
 
     //const message = 'Critical policy blocking these ' + noOfExpenseInCriticalPolicyViolation +' expenses worth $100 from being submitted. Also 2 other expenses are in draft states';
 
-    if ((expensesWithCriticalPolicyViolations.length > 0) || (expensesInDraftState.length > 0)) {
-      this.openCriticalPolicyViolationPopOver(title, message);
-    } else {
-      this.openCreateNewReportModal();
-    }
+    
     
 
 
@@ -781,12 +779,14 @@ export class MyExpensesPage implements OnInit {
     // this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
   }
 
-  async openCreateNewReportModal() {
-    
+  async showNewReportModal() {
+    let selectedElements = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
+    selectedElements = selectedElements.filter((expense) => !expense.isDraft);
+    debugger;
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
-        selectedExpensesToReport: this.selectedElements
+        selectedExpensesToReport: selectedElements
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
@@ -800,11 +800,6 @@ export class MyExpensesPage implements OnInit {
       const txnIds = data.selectedExpense.map(expense => expense.tx_id);
       //call 2 different API based on reportActionType
     }
-
-    
-
-    
-    //this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
   }
 
   openCreateReport() {
@@ -929,10 +924,6 @@ export class MyExpensesPage implements OnInit {
       //Todo: Animation need to check
     });
 
-    // expensesAddedToReportSnackBar.afterDismissed().subscribe(() => {
-    //   console.log('The snack-bar was dismissed');
-    // });
-
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.rp_id, navigateBack: true }]);
     });
@@ -961,7 +952,10 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async onAddTransactionsToReport() {
+  async showOldReportsMatBottomSheet() {
+    let selectedElements = this.selectedElements.filter((expense) => !expense.isCriticalPolicyViolated);
+    selectedElements = selectedElements.filter((expense) => !expense.isDraft);
+    let selectedExpensesId = selectedElements.map(expenses => expenses.tx_id);
     const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
 
     const openReports = await this.reportService.getAllExtendedReports({queryParams}).toPromise();
@@ -976,12 +970,13 @@ export class MyExpensesPage implements OnInit {
       from(this.loaderService.showLoader('Adding transaction to report')).pipe(
         switchMap(() => {
           // Todo implement API call
-          //return this.reportService.addTransactions(data.reportId, this.selectedElements);
-          return of(null);
+          return this.reportService.addTransactions(data.report.rp_id, selectedExpensesId);
         }),
         finalize(() => this.loaderService.hideLoader())
       ).subscribe(() => {
         this.showAddToReportSuccessToast(data.report);
+        this.selectionMode = false;
+        this.doRefresh();
       }); 
     }
   }
