@@ -63,7 +63,7 @@
       Save as Draft
     </button>
     <button type="submit" appFormButtonValidation class="create-new-report--cta-button create-new-report--primary-cta text-center" 
-          [loadingText]="'Submitting Report'" [loading]="submitReportLoader" [disabled]="selectedElements.length !== 0 || (submitReportLoader || saveDraftReportLoader)"
+          [loadingText]="'Submitting Report'" [loading]="submitReportLoader" [disabled]="selectedElements.length === 0 || (submitReportLoader || saveDraftReportLoader)"
           [ngClass]="{'create-new-report--primary-cta__disabled': (selectedElements.length === 0 || submitReportLoader || saveDraftReportLoader)}" (click)="ctaClickedEvent('submit_report')">
       Submit Report
     </button>

@@ -116,7 +116,8 @@ export class CreateNewReportComponent implements OnInit {
         })
       ).subscribe((report => {
         this.modalController.dismiss({
-          report
+          report,
+          message: 'Expenses added to a new report'
         });
       }));
     } else {
@@ -132,7 +133,8 @@ export class CreateNewReportComponent implements OnInit {
         })
       ).subscribe((report) => {
         this.modalController.dismiss({
-          report
+          report,
+          message: 'Expenses submitted for approval'
         });
       });
     }

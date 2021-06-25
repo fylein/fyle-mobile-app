@@ -30,6 +30,7 @@ import { CreateNewReportComponent } from 'src/app/shared/components/create-new-r
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -80,7 +81,7 @@ export class MyExpensesPage implements OnInit {
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
-  isReportAbleExpensesSelected = true;
+  isReportAbleExpensesSelected = false;
   openReports$: Observable<ExtendedReport[]>;
 
 
@@ -658,7 +659,7 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.selectedElements.push(expense);
     }
-    this.isReportAbleExpensesSelected = this.transactionService.getReportAbleExpenses(this.selectedElements).length === 0;
+    this.isReportAbleExpensesSelected = this.transactionService.getReportAbleExpenses(this.selectedElements).length > 0;
     // setting Expenses count and amount stats on select
     this.setExpenseStatsOnSelect();
   }
@@ -792,7 +793,7 @@ export class MyExpensesPage implements OnInit {
     const { data } = await addExpenseToNewReportModal.onDidDismiss();
 
     if (data && data.report) {
-      this.showAddToReportSuccessToast(data.report);
+      this.showAddToReportSuccessToast({report: data.report, message: data.message});
     }
   }
 
@@ -909,20 +910,25 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showAddToReportSuccessToast(report) {
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ExpensesAddedToReportToastMessageComponent, {
-      data: {rp_state: report.rp_state || report.state},
+  showAddToReportSuccessToast(config: Partial<{ message, report}>) {
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      data: {
+        icon: 'tick-square-filled',
+        message: config.message,
+        redirectionText: 'View Report',
+      },
       panelClass: ["mat-snack-bar-1"],
       verticalPosition: 'bottom',
       duration: 3000
       //Todo: Animation need to check
     });
 
+    this.isReportAbleExpensesSelected = false;
     this.selectionMode = false;
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.rp_id || report.id, navigateBack: true }]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id || config.report.id, navigateBack: true }]);
     });
     
   }
@@ -957,9 +963,15 @@ export class MyExpensesPage implements OnInit {
           return of(null)
         }
       }),
-    ).subscribe((report) => {
+    ).subscribe((report: ExtendedReport) => {
       if (report) {
-        this.showAddToReportSuccessToast(report);
+        let message = '';
+        if (report.rp_state.toLowerCase() === 'draft') {
+          message = 'Expenses added to an existing draft report'
+        } else {
+          message = 'Expenses added to report successfully'
+        }
+        this.showAddToReportSuccessToast({message, report});
       }
     });
   }

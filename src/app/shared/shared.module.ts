@@ -71,6 +71,7 @@ import { FyCriticalPolicyViolationComponent } from './components/fy-critical-pol
 import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
 import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
 import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
+import { ToastMessageComponent } from './components/toast-message/toast-message.component';
 
 @NgModule({
   declarations: [
@@ -127,7 +128,8 @@ import { ExpensesCardComponent } from './components/expenses-card/expenses-card.
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
     CreateNewReportComponent,
-    ExpensesCardComponent
+    ExpensesCardComponent,
+    ToastMessageComponent
   ],
   imports: [
     CommonModule,
@@ -191,7 +193,8 @@ import { ExpensesCardComponent } from './components/expenses-card/expenses-card.
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
     CreateNewReportComponent,
-    ExpensesCardComponent
+    ExpensesCardComponent,
+    ToastMessageComponent
   ],
   providers: [
     DecimalPipe,
