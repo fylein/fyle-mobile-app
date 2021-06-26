@@ -60,6 +60,7 @@ import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -155,6 +156,7 @@ export class AddEditExpensePage implements OnInit {
   initialFetch;
   inpageExtractedData;
   actionSheetButtons = [];
+  expenseFields: ExpenseField[];
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1140,7 +1142,7 @@ export class AddEditExpensePage implements OnInit {
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap(etxn => {
-        return this.offlineService.getCustomInputs().pipe(map(customFields => {
+        return this.expenseFieldsService.getCustomFields(this.expenseFields).pipe(map(customFields => {
           return this.customFieldsService
             .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
         }));
@@ -1425,7 +1427,7 @@ export class AddEditExpensePage implements OnInit {
         }),
         switchMap((category) => {
           const formValue = this.fg.value;
-          return this.offlineService.getCustomInputs().pipe(
+          return this.expenseFieldsService.getCustomFields(this.expenseFields).pipe(
             map(customFields => {
               return this.customFieldsService
                 .standardizeCustomFields(
@@ -1475,7 +1477,7 @@ export class AddEditExpensePage implements OnInit {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) => {
-        return this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
+        return this.expenseFieldsService.getExpenseFieldsMap(this.expenseFields).pipe(switchMap(expenseFieldsMap => {
           const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
           return this.expenseFieldsService
           .filterByOrgCategoryId(
@@ -1862,6 +1864,10 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.setupNetworkWatcher();
+
+    from(this.offlineService.getExpenseFields()).subscribe(expenseFields => {
+      this.expenseFields = expenseFields;
+    });
 
     this.recentlyUsedValues$ = this.isConnected$.pipe(
       take(1),

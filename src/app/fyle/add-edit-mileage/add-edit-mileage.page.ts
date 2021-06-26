@@ -51,6 +51,7 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -110,6 +111,7 @@ export class AddEditMileagePage implements OnInit {
   presetLocation: string;
   initialFetch;
   isProjectVisible$: Observable<boolean>;
+  expenseFields: ExpenseField[];
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -374,7 +376,7 @@ export class AddEditMileagePage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          expenseFieldsMap: this.expenseFieldsService.getExpenseFieldsMap(this.expenseFields),
           mileageCategoriesContainer: this.getMileageCategories()
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
@@ -408,7 +410,7 @@ export class AddEditMileagePage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          expenseFieldsMap: this.expenseFieldsService.getExpenseFieldsMap(this.expenseFields),
           mileageCategoriesContainer: this.getMileageCategories()
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
@@ -503,7 +505,7 @@ export class AddEditMileagePage implements OnInit {
         }),
         switchMap((category) => {
           const formValue = this.fg.value;
-          return this.offlineService.getCustomInputs().pipe(
+          return this.expenseFieldsService.getCustomFields(this.expenseFields).pipe(
             map(customFields => {
 
               return this.customFieldsService
@@ -823,6 +825,10 @@ export class AddEditMileagePage implements OnInit {
     }));
 
     this.setupNetworkWatcher();
+
+    from(this.offlineService.getExpenseFields()).subscribe(expenseFields => {
+      this.expenseFields = expenseFields;
+    });
 
     this.recentlyUsedValues$ = this.isConnected$.pipe(
       take(1),
@@ -1225,7 +1231,7 @@ export class AddEditMileagePage implements OnInit {
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap(etxn => {
-        return this.offlineService.getCustomInputs().pipe(map(customFields => {
+        return this.expenseFieldsService.getCustomFields(this.expenseFields).pipe(map(customFields => {
           return this.customFieldsService
             .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
         }));
