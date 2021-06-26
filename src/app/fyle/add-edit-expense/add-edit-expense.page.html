@@ -662,7 +662,7 @@
       </ng-container>
 
       <div class="add-edit-expense--split-expense-block" *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
-        <div class="add-edit-expense--split-expense-container" (click)="this.fg.valid && splitExpense()" appFormdivValidation>
+        <div class="add-edit-expense--split-expense-container" (click)="splitExpense()">
           <div class="add-edit-expense--split-expense-title">Split Expense</div>
         </div>
         <div class="add-edit-expense--split-info-container">

@@ -546,48 +546,61 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async splitExpense() {
-    return forkJoin({
-      orgSettings$: this.offlineService.getOrgSettings(),
-      costCenters: this.costCenters$,
-      projects: this.offlineService.getProjects()
-    }).subscribe(async res => {
-      const orgSettings = res.orgSettings$;
-      const areCostCentersAvailable = res.costCenters.length > 0;
-      const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
+    if (this.fg.valid) {
+      return forkJoin({
+        orgSettings$: this.offlineService.getOrgSettings(),
+        costCenters: this.costCenters$,
+        projects: this.offlineService.getProjects()
+      }).subscribe(async res => {
+        const orgSettings = res.orgSettings$;
+        const areCostCentersAvailable = res.costCenters.length > 0;
+        const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
 
-      this.actionSheetButtons = [{
-        text: 'Category',
-        handler: () => {
-          this.openSplitExpenseModal('categories')
+        this.actionSheetButtons = [{
+          text: 'Category',
+          handler: () => {
+            this.openSplitExpenseModal('categories')
+          }
+        }];
+
+        if (areProjectsAvailable) {
+          this.actionSheetButtons.push({
+            text: 'Project',
+            handler: () => {
+              this.openSplitExpenseModal('projects')
+            }
+          });
         }
-      }];
 
-      if (areProjectsAvailable) {
-        this.actionSheetButtons.push({
-          text: 'Project',
-          handler: () => {
-            this.openSplitExpenseModal('projects')
-          }
+        if (areCostCentersAvailable) {
+          this.actionSheetButtons.push({
+            text: 'Cost Center',
+            handler: () => {
+              this.openSplitExpenseModal('cost centers')
+            }
+          });
+        }
+
+        const actionSheet = await this.actionSheetController.create({
+          header: 'SPLIT EXPENSE BY',
+          mode: 'md',
+          cssClass: 'fy-action-sheet',
+          buttons: this.actionSheetButtons
         });
-      }
-
-      if (areCostCentersAvailable) {
-        this.actionSheetButtons.push({
-          text: 'Cost Center',
-          handler: () => {
-            this.openSplitExpenseModal('cost centers')
-          }
-        });
-      }
-
-      const actionSheet = await this.actionSheetController.create({
-        header: 'SPLIT EXPENSE BY',
-        mode: 'md',
-        cssClass: 'fy-action-sheet',
-        buttons: this.actionSheetButtons
+        await actionSheet.present();
       });
-      await actionSheet.present();
-    });
+    } else {
+      this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
   }
 
   ngOnInit() {
