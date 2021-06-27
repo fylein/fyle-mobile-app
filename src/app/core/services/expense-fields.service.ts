@@ -23,7 +23,8 @@ export class ExpenseFieldsService {
         return this.apiService.get('/expense_fields', {
           params: {
             org_id: eou.ou.org_id,
-            is_enabled: true
+            is_enabled: true,
+            is_custom: false
           }
         });
       })
@@ -42,25 +43,26 @@ export class ExpenseFieldsService {
       distance: (2) [{…}, {…}]
       ... }
    */
-  getExpenseFieldsMap(expenseFields): Observable<Partial<ExpenseFieldsMap>> {
-    const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
+  getAllMap(): Observable<Partial<ExpenseFieldsMap>> {
+    return this.getAllEnabled().pipe(
+      map(
+        expenseFields => {
+          const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
 
-    expenseFields && expenseFields.forEach(expenseField => {
-      let expenseFieldsList = [];
+          expenseFields.forEach(expenseField => {
+            let expenseFieldsList = [];
 
-      if (expenseFieldMap[expenseField.column_name]) {
-        expenseFieldsList = expenseFieldMap[expenseField.column_name];
-      }
+            if (expenseFieldMap[expenseField.column_name]) {
+              expenseFieldsList = expenseFieldMap[expenseField.column_name];
+            }
 
-      expenseFieldsList.push(expenseField);
-      expenseFieldMap[expenseField.column_name] = expenseFieldsList;
-    });
-
-    return of(expenseFieldMap);
-  }
-
-  getCustomFields(expenseFields): Observable<ExpenseField[]> {
-    return of(expenseFields && expenseFields.filter(expenseField => !!expenseField.is_custom === true));
+            expenseFieldsList.push(expenseField);
+            expenseFieldMap[expenseField.column_name] = expenseFieldsList;
+          });
+          return expenseFieldMap;
+        }
+      )
+    );
   }
 
   getUserRoles(): Observable<string[]> {
