@@ -62,7 +62,7 @@
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
         <div *ngIf="instaFyleCancelled">
-          Instafyle is taking longer than expected due to a bad network, please add the details manually
+          Extracting receipt details is taking longer than expected due to a bad network, please add the details manually
         </div>
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit'  && etxn.tx.policy_flag">
