@@ -9,6 +9,7 @@ import { ExtendedProject } from '../models/v2/extended-project.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgCategoryListItem } from '../models/v1/org-category.model';
+import { Currency } from '../models/currency.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -78,12 +79,12 @@ export class RecentlyUsedItemsService {
     }
   }
 
-  getRecentCurrencies(currencies, recentValue): Observable<{ label: string, value: string }[]> {
+  getRecentCurrencies(currencies, recentValue): Observable<Currency[]> {
     if (currencies && recentValue && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
       const recentCurrenciesList = recentValue.recent_currencies.map(id => (
-        { id: id, value: currencies[id]})).filter(id => id);
+        { id: id, value: currencies[id]}));
       if (recentCurrenciesList) {
-        return of(recentCurrenciesList.map(currency => ({ label: currency.id, value: currency.value })));
+        return of(recentCurrenciesList.map(currency => ({ shortCode: currency.id, longName: currency.value })));
       } else {
         return of(null);
       }

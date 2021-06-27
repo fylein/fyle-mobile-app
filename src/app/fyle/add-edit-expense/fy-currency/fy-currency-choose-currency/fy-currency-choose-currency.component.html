@@ -26,13 +26,13 @@
   <div class="selection-modal--container">
     <div class="selection-modal--recently-used-block" *ngIf="cacheName && (recentrecentlyUsedItems$|async)?.length > 0">
 
-      <div matRipple class="selection-modal--list-element" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list" (click)="onElementSelect(recentrecentlyUsedItem)">
-        <ng-template #defaultSelectionElement  let-label="label" let-selected="selected">
+      <div matRipple class="selection-modal--list-element" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list" (click)="onCurrencySelect(recentrecentlyUsedItem)">
+        <ng-template #defaultSelectionElement  let-label="shortCode" let-currency="longName" let-selected="selected">
           <div class="selection-modal--recently-used-item-content">
             <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
             <span class="selection-modal--label">
               <app-fy-highlight-text
-                [fullText]="label"
+                [fullText]="label + ' - ' + currency"
                 [queryText]="value">
               </app-fy-highlight-text>
             </span>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { Observable, from, noop, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ModalController } from '@ionic/angular';
@@ -31,7 +31,8 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
     private modalController: ModalController,
     private loaderService: LoaderService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   clearValue() {
@@ -99,10 +100,17 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       switchMap((searchText) => {
         return this.getRecentlyUsedItems().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
+          map(
+            currencies => currencies
+              .filter(
+                currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
+                  || currency.longName.toLowerCase().includes(searchText.toLowerCase())
+              )
+          )
         );
       })
     );
+    this.cdr.detectChanges();
   }
 
   onDoneClick() {
