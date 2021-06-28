@@ -47,7 +47,7 @@
                 </div>
               </ion-row>
               <ion-row>
-                <div *ngIf="isProjectMandatory" class="expenses-card--project">
+                <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project">
                   {{expense.tx_project_name ? 'Project: ' +  expense.tx_project_name : 'Project not filled'}}
                 </div>
               </ion-row>

@@ -21,7 +21,6 @@ export class ExpensesCardComponent implements OnInit {
   @Input() previousExpenseCreatedAt;
   @Input() isSelectionModeEnabled: boolean;
   @Input() selectedElements: Expense[];
-  @Input() isProjectMandatory: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() onHomeClicked: EventEmitter<Expense> = new EventEmitter();
@@ -37,6 +36,7 @@ export class ExpensesCardComponent implements OnInit {
   foreignCurrencySymbol = '';
   paymentModeIcon: string;
   isScanInProgress: boolean;
+  isProjectMandatory$: Observable<boolean>;
 
   constructor(
     private transactionService: TransactionService,
@@ -87,6 +87,11 @@ export class ExpensesCardComponent implements OnInit {
       })
     ).subscribe(noop);
     this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
+    this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
+      map((orgSettings) => {
+         return orgSettings.transaction_fields_settings && orgSettings.transaction_fields_settings.transaction_mandatory_fields && orgSettings.transaction_fields_settings.transaction_mandatory_fields.project;
+      })
+    );
 
     if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());

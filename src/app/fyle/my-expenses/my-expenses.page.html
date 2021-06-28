@@ -163,7 +163,6 @@
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
-          [isProjectMandatory]="true"
           (onHomeClicked)="onHomeClicked($event)"
           (cardClickedForSelection)="selectExpense($event)">
       </app-expenses-card>
@@ -179,7 +178,6 @@
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
-          [isProjectMandatory]="true"
           (goToTransaction)="goToTransaction($event)"
           (onHomeClicked)="onHomeClicked($event)"
           (cardClickedForSelection)="selectExpense($event)">
