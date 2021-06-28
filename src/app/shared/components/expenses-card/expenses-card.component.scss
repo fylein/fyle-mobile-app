@@ -89,6 +89,14 @@
     font-size: 18px;
     font-weight: 500;
     line-height: 23px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+
+    &__small {
+      max-width: 70px;
+    }
   }
 
   &--policy-violated-icon {

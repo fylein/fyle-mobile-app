@@ -915,7 +915,7 @@ export class MyExpensesPage implements OnInit {
         redirectionText: 'View Report',
         showCloseButton: true
       },
-      panelClass: ["mat-snack-bar-success"],
+      panelClass: ['mat-snack-bar-success'],
       duration: 3000,
     });
 
@@ -954,18 +954,18 @@ export class MyExpensesPage implements OnInit {
       }),
       switchMap((data) => {
         if (data && data.report) {
-          return this.addTransactionsToReport(data.report, selectedExpensesId)
+          return this.addTransactionsToReport(data.report, selectedExpensesId);
         } else {
-          return of(null)
+          return of(null);
         }
       }),
     ).subscribe((report: ExtendedReport) => {
       if (report) {
         let message = '';
         if (report.rp_state.toLowerCase() === 'draft') {
-          message = 'Expenses added to an existing draft report'
+          message = 'Expenses added to an existing draft report';
         } else {
-          message = 'Expenses added to report successfully'
+          message = 'Expenses added to report successfully';
         }
         this.showAddToReportSuccessToast({message, report});
       }
