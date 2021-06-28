@@ -38,16 +38,11 @@ export class CreateNewReportComponent implements OnInit {
   }
 
   getReportTitle() {
-    //const etxns = this.selectedElements.filter(etxn => etxn.isSelected);
     const txnIds = this.selectedElements.map(etxn => etxn.tx_id);
     this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
-      return this.reportService.getReportPurpose({ids: txnIds}).pipe(
-        map(res => {
-          return res;
-        })
-      ).subscribe(res => {
+      return this.reportService.getReportPurpose({ids: txnIds}).subscribe(res => {
         this.reportTitle = res;
       });
     }
@@ -62,7 +57,6 @@ export class CreateNewReportComponent implements OnInit {
         this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
       })
     ).subscribe(noop);
-    
   }
 
   ionViewWillEnter() {
@@ -80,7 +74,6 @@ export class CreateNewReportComponent implements OnInit {
   }
 
   toggleSelectAll(value) {
-    this.getReportTitle();
     if (value) {
       this.selectedElements =  this.selectedExpensesToReport;
     } else {
@@ -103,9 +96,7 @@ export class CreateNewReportComponent implements OnInit {
     if (reportActionType === 'create_draft_report') {
       this.saveDraftReportLoader = true;
       return this.reportService.createDraft(report).pipe(
-        tap(() => {
-          this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount});
-        }),
+        tap(() => this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount})),
         switchMap((report) => {
           return this.reportService.addTransactions(report.id, txnIds).pipe(
             map(() => report)
@@ -123,11 +114,7 @@ export class CreateNewReportComponent implements OnInit {
     } else {
       this.submitReportLoader = true;
       this.reportService.create(report, txnIds).pipe(
-        tap(() => this.trackingService.createReport({
-          Asset: 'Mobile',
-          Expense_Count: txnIds.length,
-          Report_Value: this.selectedTotalAmount
-        })),
+        tap(() => this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount})),
         finalize(() => {
           this.submitReportLoader = false;
         })
