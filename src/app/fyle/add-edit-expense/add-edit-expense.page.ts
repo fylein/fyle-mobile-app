@@ -740,10 +740,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
-      map(catogories => catogories.filter(category => category.enabled === true)),
       map(catogories => this.categoriesService.filterRequired(catogories))
     );
   }
@@ -829,7 +828,7 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
-      categories: this.offlineService.getAllCategories(),
+      categories: this.offlineService.getAllEnabledCategories(),
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$,
@@ -971,8 +970,7 @@ export class AddEditExpensePage implements OnInit {
 
           if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
-            const enabledCategories = categories.filter(category => category.enabled);
-            const category = enabledCategories.find(orgCategory => orgCategory.name === categoryName);
+            const category = categories.find(orgCategory => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
           }
 
@@ -1369,7 +1367,7 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
-      categories: this.offlineService.getAllCategories()
+      categories: this.offlineService.getAllEnabledCategories()
     }).pipe(
       map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
         const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
@@ -1402,7 +1400,7 @@ export class AddEditExpensePage implements OnInit {
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
-        categories: this.offlineService.getAllCategories()
+        categories: this.offlineService.getAllEnabledCategories()
       }).pipe(
         map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
           const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
@@ -1666,7 +1664,7 @@ export class AddEditExpensePage implements OnInit {
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           return forkJoin({
             instaFyleSettings: instaFyleSettings$,
-            allCategories: this.offlineService.getAllCategories()
+            allCategories: this.offlineService.getAllEnabledCategories()
           }).pipe(
             switchMap(({instaFyleSettings, allCategories}) => {
               const shouldExtractAmount = instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1;
@@ -1848,7 +1846,7 @@ export class AddEditExpensePage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
@@ -2228,7 +2226,7 @@ export class AddEditExpensePage implements OnInit {
 
         policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
-        return this.offlineService.getAllCategories().pipe(
+        return this.offlineService.getAllEnabledCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {

@@ -57,6 +57,7 @@ export class OfflineService {
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const allCategories$ = this.getAllCategories();
+    const allEnabledCategories$ = this.getAllEnabledCategories();
     const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
     const perDiemRates$ = this.getPerDiemRates();
@@ -80,6 +81,7 @@ export class OfflineService {
       orgSettings$,
       orgUserSettings$,
       allCategories$,
+      allEnabledCategories$,
       costCenters$,
       projects$,
       perDiemRates$,
@@ -278,6 +280,13 @@ export class OfflineService {
           }
         }
       )
+    );
+  }
+
+  @Cacheable()
+  getAllEnabledCategories() {
+    return this.getAllCategories().pipe(
+      map((categories)=> categories.filter(category => category.enabled === true))
     );
   }
 
