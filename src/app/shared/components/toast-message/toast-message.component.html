@@ -5,7 +5,7 @@
   </div>
 
   <div class="display-flex ion-text-right">
-    <span class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{data.redirectionText}}</span>
-    <mat-icon class="toast-message--right-icon ion-text-right" (click)="closeEvent()">close</mat-icon>
+    <span *ngIf="data.redirectionText" class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{data.redirectionText}}</span>
+    <mat-icon *ngIf="data.showCloseButton" class="toast-message--right-icon ion-text-right" (click)="closeEvent()">close</mat-icon>
   </div>
 </div>

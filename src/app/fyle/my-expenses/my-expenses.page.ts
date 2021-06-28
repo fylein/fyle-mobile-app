@@ -913,11 +913,10 @@ export class MyExpensesPage implements OnInit {
         icon: 'tick-square-filled',
         message: config.message,
         redirectionText: 'View Report',
+        showCloseButton: true
       },
-      panelClass: ["mat-snack-bar-1"],
-      verticalPosition: 'bottom',
-      duration: 3000
-      //Todo: Animation need to check
+      panelClass: ["mat-snack-bar-success"],
+      duration: 3000,
     });
 
     this.isReportAbleExpensesSelected = false;

@@ -76,7 +76,7 @@ input:focus, textarea:focus{
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.mat-snack-bar-1 {
+.mat-snack-bar-success {
   background: $green-1;
   color: $pure-white;
   border-radius: 16px !important;
@@ -86,6 +86,15 @@ input:focus, textarea:focus{
   padding: 12px 8px !important;
 }
 
+.mat-snack-bar-failure {
+  background: $red;
+  color: $pure-white;
+  border-radius: 16px !important;
+  margin-bottom: 133px !important;
+  margin-left: 16px !important;
+  margin-right: 16px !important;
+  padding: 12px 8px !important;
+}
 
 .dialog-popover {
   .popover-wrapper {
