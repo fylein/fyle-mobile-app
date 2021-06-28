@@ -70,7 +70,7 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    const currentState = this.activatedRoute.snapshot.params.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
+    const currentState = this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
     if (currentState === DashboardState.tasks) {
       this.currentStateIndex = 1;
     } else {

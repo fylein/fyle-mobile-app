@@ -10,6 +10,18 @@
     --padding-end: 8px !important;
   }
 
+  &--filter-pills {
+    position: fixed;
+    width: 100%;
+    background-color: #fafafab0;
+    z-index: 99;
+  }
+
+  &--filter-pills-container {
+    display: block;
+    min-height: 52px;
+  }
+
   &--toolbar {
     align-items: center;
     display: inline-flex;
@@ -26,6 +38,7 @@
 
   &--content {
     --background: #{$white};
+    --padding-bottom: 82px;
   }
 
   &--state-toolbar {
