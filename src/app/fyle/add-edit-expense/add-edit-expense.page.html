@@ -662,9 +662,9 @@
       </ng-container>
 
       <div class="add-edit-expense--split-expense-block" *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
-        <div class="add-edit-expense--split-expense-container" (click)="splitExpense()">
+        <button class="add-edit-expense--split-expense-container" (click)="splitExpense()">
           <div class="add-edit-expense--split-expense-title">Split Expense</div>
-        </div>
+        </button>
         <div class="add-edit-expense--split-info-container">
           <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
           <div class="add-edit-expense--split-info-message">Fill all the required fields before splitting an expense.</div>
