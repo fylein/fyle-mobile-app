@@ -20,9 +20,11 @@
     align-items: center;
     justify-content: space-between;
     line-height: 15px;
+    margin-right: 8px;
     &__clear-all {
-      justify-content: center;
       color: $primary;
+      display: inline-block;
+      padding-left: 16px;
       padding-right: 16px;
     }
   }

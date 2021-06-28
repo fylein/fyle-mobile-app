@@ -7,10 +7,10 @@
 >
   <ng-container base>
     <ion-buttons mode="md" slot="end">
-      <ion-button (click)="headerState = HeaderState.simpleSearch">
+      <ion-button class="my-expenses--header-btn" (click)="headerState = HeaderState.simpleSearch">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
       </ion-button>
-      <ion-button (click)="openFilters()">
+      <ion-button class="my-expenses--header-btn" (click)="openFilters()">
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
           <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
         </ng-container>
@@ -18,7 +18,7 @@
           <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
-      <ion-button (click)="openActionSheet()">
+      <ion-button class="my-expenses--header-btn" (click)="openActionSheet()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -45,7 +45,7 @@
     </ion-title>
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="deleteSelectedExpenses()">
-        <ion-icon name="trash"></ion-icon>
+        <ion-icon src="../../../assets/svg/fy-delete.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ng-container>

@@ -5,6 +5,11 @@
     border-bottom: 1px solid #e6e6e6;
   }
 
+  &--header-btn {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+  }
+
   &--toolbar {
     align-items: center;
     display: inline-flex;
@@ -88,7 +93,8 @@
   }
 
   &--simple-search-container {
-    padding: 0 16px;
+    padding-left: 18px;
+    padding-right: 4px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
         color: $black-light !important;
@@ -102,7 +108,7 @@
 
     &-icon {
       font-size: 18px;
-      margin-right: 6px;
+      margin-right: 8px;
       color: $black-light;
       height: auto;
     }
