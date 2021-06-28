@@ -111,6 +111,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
           orgSettings,
           orgUserSettings,
           allCategories,
+          allEnabledCategories,
           costCenters,
           projects,
           perDiemRates,
