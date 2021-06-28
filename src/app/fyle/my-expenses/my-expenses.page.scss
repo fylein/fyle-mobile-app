@@ -271,12 +271,12 @@
 
   &--body {
     padding-bottom: 20px;
-    background: #fafafa;
+    background: $white;
   }
 
   &--footer {
     min-height: 100px;
-    background: #fafafa;
+    background: $white;
   }
 
   &--footer-toolbar {
@@ -290,8 +290,8 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    background: #fff;
-    box-shadow: 0 -2px 12px #d7d7d799;
+    background: $pure-white;
+    box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
   }
 
