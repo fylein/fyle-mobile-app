@@ -1,5 +1,5 @@
 <ion-content class="camera-overlay--camera-preview">
-  <div id="cameraPreview"></div>
+  <div [hidden]="!isCameraShown" id="cameraPreview"></div>
 
   <div class="camera-overlay--preview-container" *ngIf="!isCameraShown">
     <ion-img class="camera-overlay--preview-receipt" [src]="recentImage" *ngIf="recentImage"></ion-img>

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
@@ -43,12 +43,33 @@ export class CameraOverlayPage implements OnInit {
       private storageService: StorageService,
       private trackingService: TrackingService,
       private authService: AuthService,
-      private navController: NavController
+      private navController: NavController,
+      private cdr: ChangeDetectorRef,
   ) {
   }
 
+  removePosterFromVideoTag(callback) {
+    const that = this;
+
+    const cameraPreviewElement = document.getElementById('cameraPreview');
+    const videoTag = cameraPreviewElement.querySelector('video') as HTMLVideoElement;
+    if (!videoTag) {
+      setTimeout(()=> {
+        that.removePosterFromVideoTag(callback);
+      }, 100);
+    } else {
+      videoTag.poster = 'nope';
+      setTimeout(()=> {
+        that.cdr.detectChanges();
+        callback();
+      }, 100); 
+    }
+  }
+
   setUpAndStartCamera() {
-    if (this.isCameraShown === false) {
+    const that = this;
+
+    if (!that.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
         x: 0,
@@ -60,10 +81,11 @@ export class CameraOverlayPage implements OnInit {
       };
 
       CameraPreview.start(cameraPreviewOptions).then(res => {
-        this.isCameraShown = true;
-        this.getFlashModes();
+        that.removePosterFromVideoTag(()=> {
+          that.isCameraShown = true;
+          that.getFlashModes();
+        })
       });
-
     }
   }
 
