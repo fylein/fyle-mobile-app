@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/c
 import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
-import {ActionSheetController, AnimationBuilder, AnimationController, ModalController, PopoverController, ToastController} from '@ionic/angular';
+import {ModalController, PopoverController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
@@ -23,7 +23,7 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep, difference, sumBy } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -102,9 +102,7 @@ export class MyExpensesPage implements OnInit {
     private tokenService: TokenService,
     private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
-    private actionSheetController: ActionSheetController,
     private reportService: ReportService,
-    private toastController: ToastController,
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar
   ) { }
