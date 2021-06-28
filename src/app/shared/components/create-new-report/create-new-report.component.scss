@@ -5,7 +5,7 @@
 
   &--title-container {
     margin-left: -15%;
-    color: #161528;
+    color: $black;
     padding: 16px;
   }
 
@@ -20,13 +20,13 @@
   }
 
   &--body {
-    background: #fafafa;
+    background: $white;
     height: 100%;
   }
 
   &--name {
     padding: 16px;
-    background: #fff;
+    background: $pure-white;
   }
 
   &--text {
@@ -62,16 +62,16 @@
 
 
   &--heading {
-    color: #a9acbc;
+    color: $grey-light;
     font-size: 14px;
     padding: 16px 16px; // Confirm with @aditi
-    background: #fafafa;
+    background: $white;
   }
 
   &--select-all-checkbox {
     font-size: 14px;
     padding: 16px 16px; 
-    background: #fff;
+    background: $pure-white;
   }
 
   &--add-more-container {
@@ -96,8 +96,8 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    background: #fff;
-    box-shadow: 0 -2px 12px #d7d7d799;
+    background: $pure-white;
+    box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
   }
 
