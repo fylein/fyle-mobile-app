@@ -698,7 +698,7 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
-  async openCriticalPolicyViolationPopOver(config: Partial<{ title, message, report_type}>) {
+  async openCriticalPolicyViolationPopOver(config: Partial<{ title: string, message: string, report_type: string}>) {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
@@ -706,8 +706,7 @@ export class MyExpensesPage implements OnInit {
         message: config.message,
         primaryCta: {
           text: 'Exclude and Continue',
-          action: 'continue',
-          isDisabled: this.transactionService.getReportAbleExpenses(this.selectedElements).length === 0
+          action: 'continue'
         },
         secondaryCta: {
           text: 'Cancel',
@@ -721,14 +720,13 @@ export class MyExpensesPage implements OnInit {
 
     const {data} = await criticalPolicyViolationPopOver.onWillDismiss();
 
-    if( data && data.action) {
+    if (data && data.action) {
       if (data.action === 'continue') {
         if (config.report_type === 'old_report') {
           this.showOldReportsMatBottomSheet();
         } else {
           this.showNewReportModal();
         }
-        
       }
     }
   }
@@ -743,26 +741,26 @@ export class MyExpensesPage implements OnInit {
 
     const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
         const amount = current.tx_amount || current.tx_user_amount;
-        return prev + amount
+        return prev + amount;
     }, 0);
 
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
-    const noOfexpensesInDraftState = expensesInDraftState.length;
+    const noOfExpensesInDraftState = expensesInDraftState.length;
     let title = '';
     let message = '';
 
-    if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfexpensesInDraftState > 0)) {
+    if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfExpensesInDraftState > 0)) {
 
       this.homeCurrency$.subscribe(homeCurrency => {
-        if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfexpensesInDraftState > 0) {
-          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfexpensesInDraftState} Draft Expenses blocking the way`;
+        if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
+          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
           message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfexpensesInDraftState} other expenses are in draft states.`
         } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
           title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
           message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`
-        } else if (noOfexpensesInDraftState > 0) {
-          title = `${noOfexpensesInDraftState} Draft Expenses blocking the way`;
-          message = `${noOfexpensesInDraftState} expenses are in draft states.`
+        } else if (noOfExpensesInDraftState > 0) {
+          title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+          message = `${noOfExpensesInDraftState} expenses are in draft states.`
         }
         this.openCriticalPolicyViolationPopOver({title, message, report_type});
       });
