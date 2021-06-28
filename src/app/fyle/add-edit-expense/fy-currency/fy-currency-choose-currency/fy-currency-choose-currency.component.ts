@@ -19,7 +19,6 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   @Input() currentSelection: string;
   @Input() recentlyUsed: { label: string, value: string }[];
-  @Input() cacheName;
 
   currencies$: Observable<{ shortCode: string, longName: string }[]>;
   filteredCurrencies$: Observable<{ shortCode: string, longName: string }[]>;
@@ -63,15 +62,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
     if (this.recentlyUsed) {
       return of(this.recentlyUsed);
     } else {
-      return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => {
-          return options
-            .map(option => {
-              option.selected = isEqual(option.value, this.currentSelection);
-              return option;
-            });
-        })
-      );
+      return of([]);
     }
   }
 

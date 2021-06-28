@@ -86,10 +86,10 @@ export class RecentlyUsedItemsService {
       if (recentCurrenciesList) {
         return of(recentCurrenciesList.map(currency => ({ shortCode: currency.id, longName: currency.value })));
       } else {
-        return of(null);
+        return of([]);
       }
     } else {
-      return of(null);
+      return of([]);
     }
   }
 }

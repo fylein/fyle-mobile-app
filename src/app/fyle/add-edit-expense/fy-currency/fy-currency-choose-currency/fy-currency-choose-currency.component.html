@@ -24,7 +24,7 @@
 
 <ion-content>
   <div class="selection-modal--container">
-    <div class="selection-modal--recently-used-block" *ngIf="cacheName && (recentrecentlyUsedItems$|async)?.length > 0">
+    <div class="selection-modal--recently-used-block" *ngIf="(recentrecentlyUsedItems$|async)?.length > 0">
 
       <div matRipple class="selection-modal--list-element" *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list" (click)="onCurrencySelect(recentrecentlyUsedItem)">
         <ng-template #defaultSelectionElement  let-label="shortCode" let-currency="longName" let-selected="selected">
