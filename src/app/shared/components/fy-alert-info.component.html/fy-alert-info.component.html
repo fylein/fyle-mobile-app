@@ -1,4 +1,5 @@
 <div class="alert-info-container">
-  <img class="alert-info-container--icon" src="assets/svg/fy-info.svg">
+  <mat-icon *ngIf="type === 'information'" class="alert-info-container--icon" svgIcon="fy-info"></mat-icon>
+  <mat-icon *ngIf="type === 'warning'" class="alert-info-container--icon" svgIcon="danger"></mat-icon>
   <div class="alert-info-container--message"> {{ message }} </div>
 </div>

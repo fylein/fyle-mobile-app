@@ -149,7 +149,7 @@
   <ng-container *ngIf="syncing">
     <ng-container *ngIf="pendingTransactions.length > 0">
       <div class="my-expenses--syncing">
-        <app-fy-alert-info [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
+        <app-fy-alert-info [type]="'information'" [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
       </div>
     </ng-container>
   </ng-container>
