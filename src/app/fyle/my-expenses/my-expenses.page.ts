@@ -2,12 +2,21 @@ import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/c
 import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
 import {NetworkService} from 'src/app/core/services/network.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
-import {ModalController, PopoverController} from '@ionic/angular';
+import {ActionSheetController, ModalController, PopoverController, ToastController} from '@ionic/angular';
 import {DateService} from 'src/app/core/services/date.service';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {catchError, debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  map,
+  shareReplay,
+  switchMap,
+  take,
+  tap
+} from 'rxjs/operators';
 import {TransactionService} from 'src/app/core/services/transaction.service';
-import {MyExpensesSearchFilterComponent} from './my-expenses-search-filter/my-expenses-search-filter.component';
 import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 import {Expense} from 'src/app/core/models/expense.model';
 import {CurrencyService} from 'src/app/core/services/currency.service';
@@ -18,10 +27,30 @@ import {PopupService} from 'src/app/core/services/popup.service';
 import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
-import { TokenService } from 'src/app/core/services/token.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { environment } from 'src/environments/environment';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import {TokenService} from 'src/app/core/services/token.service';
+import {ApiV2Service} from 'src/app/core/services/api-v2.service';
+import {environment} from 'src/environments/environment';
+import {HeaderState} from '../../shared/components/fy-header/header-state.enum';
+import {FyDeleteDialogComponent} from '../../shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import {FyFiltersComponent} from '../../shared/components/fy-filters/fy-filters.component';
+import {FilterOptions} from '../../shared/components/fy-filters/filter-options.interface';
+import {FilterOptionType} from '../../shared/components/fy-filters/filter-option-type.enum';
+import {DateFilters} from '../../shared/components/fy-filters/date-filters.enum';
+import {SelectedFilters} from '../../shared/components/fy-filters/selected-filters.interface';
+import {FilterPill} from '../../shared/components/fy-filter-pills/filter-pill.interface';
+import * as moment from 'moment';
+
+type Filters = Partial<{
+  state: string[],
+  date: string,
+  customDateStart: Date,
+  customDateEnd: Date,
+  receiptsAttached: string,
+  type: string[],
+  sortParam: string,
+  sortDir: string
+}>;
 
 @Component({
   selector: 'app-my-expenses',
@@ -42,15 +71,7 @@ export class MyExpensesPage implements OnInit {
   }>>;
   currentPageNumber = 1;
   acc = [];
-  filters: Partial<{
-    state: string;
-    date: string;
-    customDateStart: Date;
-    customDateEnd: Date;
-    sortParam: string;
-    sortDir: string;
-  }>;
-  baseState: string;
+  filters: Filters;
   allExpensesStats$: Observable<{ count: number; amount: number }>;
   draftExpensesCount$: Observable<number>;
   homeCurrency$: Observable<string>;
@@ -68,11 +89,18 @@ export class MyExpensesPage implements OnInit {
   openAddExpenseListLoader = false;
   clusterDomain: string;
   isNewUser$: Observable<boolean>;
-  isLoading: boolean = false;
+  isLoading = false;
+  headerState: HeaderState = HeaderState.base;
+  actionSheetButtons = [];
+  selectAll = false;
+  filterPills = [];
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
 
+  get HeaderState() {
+    return HeaderState;
+  }
 
   constructor(
     private networkService: NetworkService,
@@ -91,7 +119,9 @@ export class MyExpensesPage implements OnInit {
     private storageService: StorageService,
     private tokenService: TokenService,
     private apiV2Service: ApiV2Service,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private actionSheetController: ActionSheetController,
+    private toastController: ToastController
   ) { }
 
   clearText() {
@@ -115,17 +145,28 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  switchSelectionMode() {
+  switchSelectionMode(expense?) {
     this.selectionMode = !this.selectionMode;
     if (!this.selectionMode) {
+      if (this.loadData$.getValue().searchString) {
+        this.headerState = HeaderState.simpleSearch;
+      } else {
+        this.headerState = HeaderState.base;
+      }
+
       this.selectedElements = [];
       this.setAllExpensesCountAndAmount();
     } else {
+      this.headerState = HeaderState.multiselect;
       // setting Expense amount & count stats to zero on select init
       this.allExpensesStats$ = of({
         count: 0,
         amount: 0
       });
+    }
+
+    if (expense) {
+      this.selectExpense(expense);
     }
   }
 
@@ -150,15 +191,9 @@ export class MyExpensesPage implements OnInit {
       switchMap(params => {
         const queryParams = params.queryParams || {};
 
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
+        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
         return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
@@ -178,6 +213,55 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
+  setupActionSheet(orgSettings) {
+    const that = this;
+    const mileageEnabled = orgSettings.mileage.enabled;
+    const isPerDiemEnabled = orgSettings.per_diem.enabled;
+    that.actionSheetButtons = [{
+      text: 'Capture Receipt',
+      icon: 'assets/svg/fy-camera.svg',
+      cssClass: 'capture-receipt',
+      handler: () => {
+        that.router.navigate(['/', 'enterprise', 'camera_overlay', {
+          navigate_back: true
+        }]);
+      }
+    }, {
+      text: 'Add Manually',
+      icon: 'assets/svg/fy-expense.svg',
+      handler: () => {
+        that.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+          navigate_back: true
+        }]);
+      }
+    }];
+
+    if (mileageEnabled) {
+      this.actionSheetButtons.push({
+        text: 'Add Mileage',
+        icon: 'assets/svg/fy-mileage.svg',
+        handler: () => {
+          that.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
+            navigate_back: true
+          }]);
+        }
+      });
+    }
+
+    if (isPerDiemEnabled) {
+      that.actionSheetButtons.push({
+        text: 'Add Per Diem',
+        icon: 'assets/svg/fy-calendar.svg',
+        handler: () => {
+          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
+            navigate_back: true
+          }]);
+        }
+      });
+    }
+  }
+
+
   ionViewWillEnter() {
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled)
@@ -193,6 +277,12 @@ export class MyExpensesPage implements OnInit {
     this.isPerDiemEnabled$ = this.offlineService.getOrgSettings().pipe(
       map(orgSettings => orgSettings.per_diem.enabled)
     );
+
+    this.offlineService.getOrgSettings().subscribe(orgSettings => {
+      this.setupActionSheet(orgSettings);
+    });
+
+    this.headerState = HeaderState.base;
 
     this.isLoading = true;
 
@@ -231,10 +321,6 @@ export class MyExpensesPage implements OnInit {
       }
     });
 
-    this.baseState = 'all';
-    if (this.activatedRoute.snapshot.params.state === 'needsReview') {
-      this.baseState = 'draft';
-    }
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
@@ -253,17 +339,10 @@ export class MyExpensesPage implements OnInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
         let queryParams = params.queryParams || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
+        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return this.transactionService.getMyExpensesCount(queryParams).pipe(
@@ -300,15 +379,8 @@ export class MyExpensesPage implements OnInit {
       switchMap(params => {
         let queryParams = params.queryParams || {};
 
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = queryParams.tx_state || defaultState;
+        queryParams.tx_state =  'in.(COMPLETE,DRAFT)';
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
@@ -345,7 +417,7 @@ export class MyExpensesPage implements OnInit {
           scalar: true,
           tx_state: 'in.(COMPLETE,DRAFT)',
           tx_report_id: 'is.null'
-        })
+        });
       }),
       map(stats => {
         const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
@@ -359,7 +431,7 @@ export class MyExpensesPage implements OnInit {
           scalar: true,
           tx_report_id: 'is.null',
           tx_state: 'in.(DRAFT)'
-        })
+        });
       }),
       map(stats => {
         const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
@@ -383,6 +455,7 @@ export class MyExpensesPage implements OnInit {
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
       if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
@@ -396,6 +469,7 @@ export class MyExpensesPage implements OnInit {
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
     } else {
       this.clearFilters();
     }
@@ -455,38 +529,162 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
+  generateFilterPills(filter: Filters) {
+    const filterPills: FilterPill[] = [];
+
+    if (filter.state && filter.state.length) {
+      filterPills.push({
+        label: 'Type',
+        type: 'state',
+        value: filter.state.map(state => state.replace(/_/g, ' ').toLowerCase()).reduce((state1, state2) => `${state1}, ${state2}`)
+      });
+    }
+
+    if (filter.receiptsAttached) {
+      filterPills.push({
+        label: 'Receipts Attached',
+        type: 'receiptsAttached',
+        value: filter.receiptsAttached.toLowerCase()
+      });
+    }
+
+    if (filter.date) {
+      if (filter.date === DateFilters.thisWeek) {
+        filterPills.push({
+          label: 'Date',
+          type: 'date',
+          value: 'this Week'
+        });
+      }
+
+      if (filter.date === DateFilters.thisMonth) {
+        filterPills.push({
+          label: 'Date',
+          type: 'date',
+          value: 'this Month'
+        });
+      }
+
+      if (filter.date === DateFilters.all) {
+        filterPills.push({
+          label: 'Date',
+          type: 'date',
+          value: 'All'
+        });
+      }
+
+      if (filter.date === DateFilters.lastMonth) {
+        filterPills.push({
+          label: 'Date',
+          type: 'date',
+          value: 'Last Month'
+        });
+      }
+
+      if (filter.date === DateFilters.custom) {
+        const startDate = filter.customDateStart && moment(filter.customDateStart).format('yyyy-MM-DD');
+        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('yyyy-MM-DD');
+
+        if (startDate && endDate) {
+          filterPills.push({
+            label: 'Date',
+            type: 'date',
+            value: `${startDate} to ${endDate}`
+          });
+        } else if (startDate) {
+          filterPills.push({
+            label: 'Date',
+            type: 'date',
+            value: `>= ${startDate}`
+          });
+        } else if (startDate) {
+          filterPills.push({
+            label: 'Date',
+            type: 'date',
+            value: `<= ${endDate}`
+          });
+        }
+      }
+    }
+
+    if (filter.type && filter.type.length) {
+      const combinedValue = filter.type.map(type => {
+        if (type === 'RegularExpenses') {
+          return 'Regular Expenses';
+        } else if (type === 'PerDiem') {
+          return 'Per Diem';
+        } else if (type === 'Mileage') {
+          return 'Mileage';
+        } else {
+          return type;
+        }
+      }).reduce((type1, type2) => `${type1}, ${type2}`);
+
+      filterPills.push({
+        label: 'Expense Type',
+        type: 'type',
+        value: combinedValue
+        });
+      }
+
+
+    if (filter.sortParam && filter.sortDir) {
+      if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
+        filterPills.push({
+          label: 'Sort By',
+          type: 'sort',
+          value: 'date - new to old'
+        });
+      } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
+        filterPills.push({
+          label: 'Sort By',
+          type: 'sort',
+          value: 'date - old to new'
+        });
+      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
+        filterPills.push({
+          label: 'Sort By',
+          type: 'sort',
+          value: 'amount - high to low'
+        });
+      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
+        filterPills.push({
+          label: 'Sort By',
+          type: 'sort',
+          value: 'amount - low to high'
+        });
+      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+        filterPills.push({
+          label: 'Sort By',
+          type: 'sort',
+          value: 'category - a to z'
+        });
+      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+        filterPills.push({
+          label: 'Sort By',
+          type: 'sort',
+          value: 'category - z to a'
+        });
+      }
+    }
+
+    return filterPills;
+  }
+
   addNewFiltersToParams() {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {};
+    const newQueryParams: any = {
+      or: []
+    };
 
-    if (this.filters.state) {
-      newQueryParams.tx_report_id = 'is.null';
-      if (this.filters.state === 'READY_TO_REPORT') {
-        newQueryParams.tx_state = 'in.(COMPLETE)';
-        newQueryParams.or = '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)';
-      } else if (this.filters.state === 'POLICY_VIOLATED') {
-        newQueryParams.tx_policy_flag = 'eq.true';
-        newQueryParams.or = '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)';
-      } else if (this.filters.state === 'CANNOT_REPORT') {
-        newQueryParams.tx_policy_amount = 'lt.0.0001';
-      } else if (this.filters.state === 'NEEDS_RECEIPT') {
-        newQueryParams.tx_receipt_required = 'eq.true';
-      }
-    }
+    this.generateDateParams(newQueryParams);
 
-    if (this.filters.date) {
-      if (this.filters.date === 'THISMONTH') {
-        newQueryParams.and =
-          `(tx_txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
-      } else if (this.filters.date === 'LASTMONTH') {
-        newQueryParams.and =
-          `(tx_txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
-      } else if (this.filters.date === 'CUSTOMDATE') {
-        newQueryParams.and =
-          `(tx_txn_dt.gte.${this.filters.customDateStart.toISOString()},tx_txn_dt.lt.${this.filters.customDateEnd.toISOString()})`;
-      }
-    }
+    this.generateReceiptAttachedParams(newQueryParams);
+
+    this.generateStateFilters(newQueryParams);
+
+    this.generateTypeFilters(newQueryParams);
 
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
@@ -500,25 +698,349 @@ export class MyExpensesPage implements OnInit {
     return currentParams;
   }
 
-  async openFilters() {
-    const filterPopover = await this.popoverController.create({
-        component: MyExpensesSearchFilterComponent,
-        componentProps: {
-          filters: this.filters,
-          draftMode: this.baseState === 'draft'
-        },
-        cssClass: 'dialog-popover'
+  private generateTypeFilters(newQueryParams) {
+    const typeOrFilter = [];
+
+    if (this.filters.type) {
+      if (this.filters.type.includes('Mileage')) {
+        typeOrFilter.push('tx_fyle_category.eq.Mileage');
+      }
+
+      if (this.filters.type.includes('PerDiem')) {
+        // The space encoding is done by angular into %20 so no worries here
+        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
+      }
+
+      if (this.filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
+      }
+    }
+
+    if (typeOrFilter.length > 0) {
+      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
+      newQueryParams.or.push(combinedTypeOrFilter);
+    }
+  }
+
+  private generateStateFilters(newQueryParams) {
+    const stateOrFilter = [];
+
+    if (this.filters.state) {
+      newQueryParams.tx_report_id = 'is.null';
+      if (this.filters.state.includes('READY_TO_REPORT')) {
+        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (this.filters.state.includes('POLICY_VIOLATED')) {
+        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (this.filters.state.includes('CANNOT_REPORT')) {
+        stateOrFilter.push('tx_policy_amount.lt.0.0001');
+      }
+
+      if (this.filters.state.includes('DRAFT')) {
+        stateOrFilter.push('tx_state.in.(DRAFT)');
+      }
+    }
+
+    if (stateOrFilter.length > 0) {
+      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedStateOrFilter = `(${combinedStateOrFilter})`;
+      newQueryParams.or.push(combinedStateOrFilter);
+    }
+  }
+
+  private generateReceiptAttachedParams(newQueryParams) {
+    if (this.filters.receiptsAttached) {
+      if (this.filters.receiptsAttached === 'YES') {
+        newQueryParams.tx_receipt_required = 'eq.true';
+      }
+
+      if (this.filters.receiptsAttached === 'NO') {
+        newQueryParams.tx_receipt_required = 'eq.false';
+      }
+    }
+  }
+
+  private generateDateParams(newQueryParams) {
+    if (this.filters.date) {
+      if (this.filters.date === DateFilters.thisMonth) {
+        newQueryParams.and =
+            `(tx_txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
+      } else if (this.filters.date === DateFilters.thisWeek) {
+        newQueryParams.and =
+            `(tx_txn_dt.gte.${this.dateService.getThisWeekRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisWeekRange().to.toISOString()})`;
+      } else if (this.filters.date === DateFilters.lastMonth) {
+        newQueryParams.and =
+            `(tx_txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
+      } else if (this.filters.date === DateFilters.custom) {
+        newQueryParams.and =
+            `(tx_txn_dt.gte.${this.filters.customDateStart.toISOString()},tx_txn_dt.lt.${this.filters.customDateEnd.toISOString()})`;
+      }
+    }
+  }
+
+  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
+    const generatedFilters: SelectedFilters<any>[] = [];
+
+    if (filter.state) {
+      generatedFilters.push({
+        name: 'Type',
+        value: filter.state
       });
+    }
+
+    if (filter.receiptsAttached) {
+      generatedFilters.push({
+        name: 'Receipts Attached',
+        value: filter.receiptsAttached
+      });
+    }
+
+    if (filter.date) {
+      generatedFilters.push({
+        name: 'Date',
+        value: filter.date,
+        associatedData: {
+          from: filter.customDateStart,
+          to: filter.customDateEnd
+        }
+      });
+    }
+
+    if (filter.type) {
+      generatedFilters.push({
+        name: 'Expense Type',
+        value: filter.type
+      });
+    }
+
+    if (filter.sortParam && filter.sortDir) {
+      if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
+        generatedFilters.push({
+          name: 'Sort By',
+          value: 'dateNewToOld'
+        });
+      } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
+        generatedFilters.push({
+          name: 'Sort By',
+          value: 'dateOldToNew'
+        });
+      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
+        generatedFilters.push({
+          name: 'Sort By',
+          value: 'amountHighToLow'
+        });
+      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
+        generatedFilters.push({
+          name: 'Sort By',
+          value: 'amountLowToHigh'
+        });
+      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+        generatedFilters.push({
+          name: 'Sort By',
+          value: 'categoryAToZ'
+        });
+      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+        generatedFilters.push({
+          name: 'Sort By',
+          value: 'categoryZToA'
+        });
+      }
+    }
+
+    return generatedFilters;
+  }
+
+  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
+    const generatedFilters: Filters = {};
+
+    const typeFilter = selectedFilters.find(filter => filter.name === 'Type');
+    if (typeFilter) {
+      generatedFilters.state = typeFilter.value;
+    }
+
+    const dateFilter = selectedFilters.find(filter => filter.name === 'Date');
+    if (dateFilter) {
+      generatedFilters.date = dateFilter.value;
+      generatedFilters.customDateStart = dateFilter.associatedData?.from;
+      generatedFilters.customDateStart = dateFilter.associatedData?.to;
+    }
+
+    const receiptAttachedFilter = selectedFilters.find(filter => filter.name === 'Receipts Attached');
+
+    if (receiptAttachedFilter) {
+      generatedFilters.receiptsAttached = receiptAttachedFilter.value;
+    }
+
+    const expenseTypeFilter = selectedFilters.find(filter => filter.name === 'Expense Type');
+
+    if (expenseTypeFilter) {
+      generatedFilters.type = expenseTypeFilter.value;
+    }
+
+    const sortBy = selectedFilters.find(filter => filter.name === 'Sort By');
+
+    if (sortBy) {
+      if (sortBy.value === 'dateNewToOld') {
+        generatedFilters.sortParam = 'tx_txn_dt';
+        generatedFilters.sortDir = 'asc';
+      } else if (sortBy.value === 'dateOldToNew') {
+        generatedFilters.sortParam = 'tx_txn_dt';
+        generatedFilters.sortDir = 'desc';
+      } else if (sortBy.value === 'amountHighToLow') {
+        generatedFilters.sortParam = 'tx_amount';
+        generatedFilters.sortDir = 'desc';
+      } else if (sortBy.value === 'amountLowToHigh') {
+        generatedFilters.sortParam = 'tx_amount';
+        generatedFilters.sortDir = 'asc';
+      } else if (sortBy.value === 'categoryAToZ') {
+        generatedFilters.sortParam = 'tx_org_category';
+        generatedFilters.sortDir = 'asc';
+      } else if (sortBy.value === 'categoryZToA') {
+        generatedFilters.sortParam = 'tx_org_category';
+        generatedFilters.sortDir = 'desc';
+      }
+    }
+
+    return generatedFilters;
+  }
+
+  async openFilters(activeFilterInitialName?: string) {
+    const filterPopover = await this.modalController.create({
+      component: FyFiltersComponent,
+      componentProps: {
+        filterOptions: [
+          {
+            name: 'Type',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Ready To Report',
+                value: 'READY_TO_REPORT'
+              },
+              {
+                label: 'Policy Violated',
+                value: 'POLICY_VIOLATED'
+              },
+              {
+                label: 'Cannot Report',
+                value: 'CANNOT_REPORT'
+              },
+              {
+                label: 'Draft',
+                value: 'DRAFT'
+              }
+            ]
+          } as FilterOptions<string>,
+          {
+            name: 'Date',
+            optionType: FilterOptionType.date,
+            options: [
+              {
+                label: 'All',
+                value: DateFilters.all
+              },
+              {
+                label: 'This Week',
+                value: DateFilters.thisWeek
+              },
+              {
+                label: 'This Month',
+                value: DateFilters.thisMonth
+              },
+              {
+                label: 'Last Month',
+                value: DateFilters.lastMonth
+              },
+              {
+                label: 'Custom',
+                value: DateFilters.custom
+              }
+            ]
+          } as FilterOptions<DateFilters>,
+          {
+            name: 'Receipts Attached',
+            optionType: FilterOptionType.singleselect,
+            options: [
+              {
+                label: 'Yes',
+                value: 'YES'
+              },
+              {
+                label: 'No',
+                value: 'NO'
+              }
+            ]
+          } as FilterOptions<string>,
+          {
+            name: 'Expense Type',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Mileage',
+                value: 'Mileage'
+              },
+              {
+                label: 'Per Diem',
+                value: 'PerDiem'
+              },
+              {
+                label: 'Regular Expenses',
+                value: 'RegularExpenses'
+              }
+            ]
+          } as FilterOptions<string>,
+          {
+            name: 'Sort By',
+            optionType: FilterOptionType.singleselect,
+            options: [
+              {
+                label: 'Date - New to Old',
+                value: 'dateNewToOld'
+              },
+              {
+                label: 'Date - Old to New',
+                value: 'dateOldToNew'
+              },
+              {
+                label: 'Amount - High to Low',
+                value: 'amountHighToLow'
+              },
+              {
+                label: 'Amount - Low to High',
+                value: 'amountLowToHigh'
+              },
+              {
+                label: 'Category - A to Z',
+                value: 'categoryAToZ'
+              },
+              {
+                label: 'Category - Z to A',
+                value: 'categoryZToA'
+              }
+            ]
+          } as FilterOptions<string>
+        ],
+        selectedFilterValues: this.generateSelectedFilters(this.filters),
+        activeFilterInitialName
+      },
+      cssClass: 'dialog-popover'
+    });
 
     await filterPopover.present();
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
-      this.filters = Object.assign({}, this.filters, data.filters);
+      console.log(data);
+      // await this.loaderService.showLoader('Loading Expenses...', 1000);
+      this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
     }
   }
 
@@ -541,6 +1063,7 @@ export class MyExpensesPage implements OnInit {
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
     }
   }
 
@@ -549,15 +1072,12 @@ export class MyExpensesPage implements OnInit {
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
+    this.filterPills = this.generateFilterPills(this.filters);
   }
 
   async setState(state: string) {
     this.isLoading = true;
-    this.baseState = state;
     this.currentPageNumber = 1;
-    if (state === 'draft' && this.filters.state === 'READY_TO_REPORT') {
-      delete this.filters.state;
-    }
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
     setTimeout(() => {
@@ -614,7 +1134,7 @@ export class MyExpensesPage implements OnInit {
           return iif(() => !etxn.tx_id,
             of(this.transactionOutboxService.deleteOfflineExpense(index)),
             this.transactionService.delete(etxn.tx_id)
-          )
+          );
         }),
         tap(() => this.trackingService.deleteExpense({Asset: 'Mobile'})),
         finalize(async () => {
@@ -697,16 +1217,9 @@ export class MyExpensesPage implements OnInit {
       switchMap(params => {
         const queryParams = params.queryParams || {};
 
-        let defaultState;
-        if (this.baseState === 'all') {
-          defaultState = 'in.(COMPLETE,DRAFT)';
-        } else if (this.baseState === 'draft') {
-          defaultState = 'in.(DRAFT)';
-        }
-
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
 
-        queryParams.tx_state = queryParams.tx_state || defaultState;
+        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
@@ -799,4 +1312,131 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  async openActionSheet() {
+    const that = this;
+    const actionSheet = await this.actionSheetController.create({
+      header: 'ADD EXPENSE',
+      mode: 'md',
+      cssClass: 'fy-action-sheet',
+      buttons: that.actionSheetButtons
+    });
+    await actionSheet.present();
+  }
+
+  async deleteSelectedExpenses() {
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      componentProps: {
+        header: 'Delete Expense',
+        body: `Are you sure you want to delete the ${this.selectedElements.length} expenses?`,
+        deleteMethod: () => {
+          return this.transactionService.deleteBulk(
+              this.selectedElements.map(selectedExpense => selectedExpense.tx_id)
+          );
+        }
+      }
+    });
+
+    await deletePopover.present();
+
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data) {
+      if (data.status === 'success') {
+        const toastMessage = await this.toastController.create({
+          color: 'success',
+          message: `${this.selectedElements.length} Expenses have been deleted`,
+          duration: 800
+        });
+
+        await toastMessage.present();
+      } else {
+        const toastMessage = await this.toastController.create({
+          color: 'danger',
+          message: `We could not delete the expenses. Please try again `,
+          duration: 800
+        });
+
+        await toastMessage.present();
+      }
+
+      this.doRefresh();
+    }
+
+  }
+
+  onSelectAll(checked: boolean) {
+    if (checked) {
+      this.loadData$.pipe(
+          take(1),
+          map(params => {
+            let queryParams = params.queryParams || {};
+
+            queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+            queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+            queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+            return queryParams;
+          }),
+          switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
+      ).subscribe(allExpenses => {
+        this.selectedElements = allExpenses;
+        this.setExpenseStatsOnSelect();
+      });
+    } else {
+      this.selectedElements = [];
+      this.setExpenseStatsOnSelect();
+    }
+  }
+
+  onSimpleSearchCancel() {
+    this.headerState = HeaderState.base;
+    this.clearText();
+  }
+
+  onFilterPillsClearAll() {
+    this.clearFilters();
+  }
+
+  async onFilterClick(filterType: string) {
+    if (filterType === 'state') {
+      await this.openFilters('Type');
+    } else if (filterType === 'receiptsAttached') {
+      await this.openFilters('Receipts Attached');
+    } else if (filterType === 'type') {
+      await this.openFilters('Expense Type');
+    } else if (filterType === 'date') {
+      await this.openFilters('Date');
+    } else if (filterType === 'sort') {
+      await this.openFilters('Sort By');
+    }
+  }
+
+  onFilterClose(filterType: string) {
+    delete this.filters[filterType];
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
+    this.filterPills = this.generateFilterPills(this.filters);
+  }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', {
+      navigate_back: true
+    }]);
+  }
 }

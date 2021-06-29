@@ -19,7 +19,6 @@ export class MyExpensesCardComponent implements OnInit {
   @Input() skipDate = false;
   @Input() selectionMode = false;
   @Input() selectedElements = [];
-  @Input() baseState;
   @Input() canOpenCard = true;
   @Input() isSyncInProgress: boolean;
 
@@ -30,6 +29,7 @@ export class MyExpensesCardComponent implements OnInit {
   @Output() selectTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() deleteTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   showDt = true;
   vendorDetails = '';
@@ -95,10 +95,12 @@ export class MyExpensesCardComponent implements OnInit {
   onGoToTransaction() {
     if (!this.selectionMode) {
       this.goToTransaction.emit(this.expense);
-    } else {
-      if ((!this.isDraft || this.baseState === 'draft') && !this.isCriticalPolicyViolated) {
-        this.cardClickedForSelection.emit(this.expense);
-      }
+    }
+  }
+
+  onTapTransaction() {
+    if (this.selectionMode) {
+      this.cardClickedForSelection.emit(this.expense);
     }
   }
 
@@ -125,5 +127,11 @@ export class MyExpensesCardComponent implements OnInit {
 
   onDeleteTransaction() {
     this.deleteTransaction.emit(this.expense);
+  }
+
+  onSetMultiselectMode() {
+    if (!this.selectionMode) {
+      this.setMultiselectMode.emit(this.expense);
+    }
   }
 }

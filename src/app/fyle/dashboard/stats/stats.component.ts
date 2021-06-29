@@ -203,7 +203,7 @@ export class StatsComponent implements OnInit {
   }
 
   goToExpensesPage() {
-    const queryParams: Params = {filters: JSON.stringify({state: 'READY_TO_REPORT'})};
+    const queryParams: Params = {filters: JSON.stringify({state: ['READY_TO_REPORT']})};
     this.router.navigate(['/', 'enterprise', 'my_expenses'], {
       queryParams
     });

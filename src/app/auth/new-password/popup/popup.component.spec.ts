@@ -1,7 +1,7 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 import {IonicModule} from '@ionic/angular';
+import { ErrorComponent } from '../../sign-in/error/error.component';
 
-import {ErrorComponent} from './popup.component';
 
 describe('ErrorComponent', () => {
   let component: ErrorComponent;

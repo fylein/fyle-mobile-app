@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -260,5 +261,20 @@ export class DateService {
     };
 
     return range;
-  };
+  }
+
+  firstOfThisWeek() {
+    return moment().startOf('week');
+  }
+
+  lastOfThisWeek() {
+    return moment().startOf('week').add(7, 'days');
+  }
+
+  getThisWeekRange() {
+    return {
+      from: this.firstOfThisWeek(),
+      to: this.lastOfThisWeek()
+    };
+  }
 }

@@ -1,5 +1,5 @@
 import {APP_INITIALIZER, ErrorHandler, NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {BrowserModule, HammerModule} from '@angular/platform-browser';
 import {RouteReuseStrategy} from '@angular/router';
 import {IonicModule, IonicRouteStrategy} from '@ionic/angular';
 import {SplashScreen} from '@ionic-native/splash-screen/ngx';
@@ -36,7 +36,8 @@ import {StorageService} from './core/services/storage.service';
     AgmCoreModule.forRoot({
       apiKey: environment.GOOGLE_MAPS_API_KEY
     }),
-    SharedModule
+    SharedModule,
+    HammerModule
   ],
   providers: [
     StatusBar,
