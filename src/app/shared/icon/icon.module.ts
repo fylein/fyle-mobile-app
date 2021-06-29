@@ -36,7 +36,7 @@ export class IconModule {
       "fy-receipt-attached.svg", "fy-receipt-not-attached.svg", "fy-receipt.svg", "fy-receipts-new.svg", "fy-receipts.svg", "fy-recently-used.svg", "fy-rectangle.svg", "fy-reports-new.svg", "fy-reports.svg", 
       "fy-settings.svg", "fy-sort-ascending.svg", "fy-sort-descending.svg", "fy-spinner-circle.svg", "fy-switch-new.svg", "fy-switch.svg", 
       "fy-team-advances-new.svg", "fy-team-reports-new.svg", "fy-team-trips-new.svg", "fy-trips-new.svg", "fy-trips.svg", 
-      "fy-wallet.svg","fy-search.svg",
+      "fy-wallet.svg","fy-search.svg", "fy-clear.svg",
     "gas.svg",
     "hotel.svg",
     "insta-fyle.svg", "instafyle.svg", "internet.svg", "ionic-log-out-outline.svg",
