@@ -45,7 +45,7 @@ export class IconModule {
     "office-supplies.svg",
     "parking.svg", "per_diem.svg", "phone.svg", "professional-service.svg",
     "search.svg", "settings.svg", "single.svg", "snacks.svg", "software.svg", "split-expense.svg",
-    "tax.svg", "taxi.svg", "toll-charge.svg", "train.svg", "training.svg", "tick-square-filled.svg", "tick-square-filled-1.svg",
+    "tax.svg", "taxi.svg", "toll-charge.svg", "train.svg", "training.svg", "tick-square-filled.svg",
     "utility.svg",
     "warning-inverted.svg", "warning.svg"
   ];
