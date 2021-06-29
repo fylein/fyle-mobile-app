@@ -21,7 +21,7 @@ export class IconModule {
     "bulk.svg", "bus.svg",
     "chevron-right.svg", "create-expense.svg", "create-mileage.svg", "create-per-diem.svg", "curve.svg",
     "danger.svg",
-    "entertainment.svg", "expense.svg",
+    "entertainment.svg", "expense.svg", "error.svg",
     "flight.svg", "food.svg", 
       "fy-add-new-expense.svg", "fy-advances-new.svg", "fy-arrow-down.svg", "fy-attachment.svg", 
       "fy-bike.svg", "fy-bot.svg", 

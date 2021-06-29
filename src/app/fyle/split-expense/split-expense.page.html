@@ -9,7 +9,7 @@
 
       <div class="split-expense--header-block">
         <div class="split-expense--header-title" mode="md">Split by {{ splitType }}</div>
-        <div class="split-expense--header-save" (click)="save()" appFormButtonValidation>Save</div>
+        <div class="split-expense--header-save text-right" (click)="save()" appFormButtonValidation>Save</div>
       </div>
     </ion-toolbar>
   </div>
@@ -118,15 +118,16 @@
     </div>
   </div>
 
-  <div class="split-expense--limit">
-    <app-fy-alert-info *ngIf="splitExpensesFormArray.controls.length === 10" [type]="'warning'" [message]="'Limit Reached: You cannot split an expense into more than 10 parts.'"></app-fy-alert-info>
+  <div class="split-expense--limit" *ngIf="splitExpensesFormArray.controls.length === 10">
+    <app-fy-alert-info [type]="'warning'" [message]="'Limit Reached: You cannot split an expense into more than 10 parts.'"></app-fy-alert-info>
   </div>
 </ion-content>
 
-<ion-footer class="ion-no-border" *ngIf="showErrorBlock">
-  <ion-toolbar mode="md">
+<ion-footer>
+  <div *ngIf="showErrorBlock" class="split-expense--error-container">
     <div class="split-expense--error-message-block">
+      <mat-icon class="split-expense--error-icon" svgIcon="error"></mat-icon>
       <p class="split-expense--error-message">{{errorMessage}}</p>
     </div>
-  </ion-toolbar>
+  </div>
 </ion-footer>
