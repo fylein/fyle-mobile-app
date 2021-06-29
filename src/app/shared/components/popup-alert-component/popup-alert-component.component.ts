@@ -19,6 +19,4 @@ export class PopupAlertComponentComponent implements OnInit {
       action
     });
   }
-  
-
 }
