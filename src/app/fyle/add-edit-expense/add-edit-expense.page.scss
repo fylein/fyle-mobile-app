@@ -207,7 +207,6 @@
   &--split-expense-container {
     display: flex;
     flex-direction: row;
-    margin-top: 12px;
     background-color: $pure-white;
   }
 
@@ -225,7 +224,7 @@
   &--split-expense-block {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 12px;
   }
 
