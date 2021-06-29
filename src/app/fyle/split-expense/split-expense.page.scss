@@ -237,12 +237,11 @@ $background-color: #fff;
 
   &--error-message-block {
     width: 100%;
-    bottom: 80px;
-    left: 0;
-    color: #fff;
+    color: $pure-white;
     padding: 16px;
     display: flex;
     align-items: center;
+    height: 44px;
   }
 
   &--error-message {
