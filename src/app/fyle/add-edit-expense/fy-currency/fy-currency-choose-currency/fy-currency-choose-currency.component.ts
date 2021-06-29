@@ -20,7 +20,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   currencies$: Observable<{ shortCode: string, longName: string }[]>;
   filteredCurrencies$: Observable<{ shortCode: string, longName: string }[]>;
-  recentrecentlyUsedItems$: Observable<any[]>;
+  recentlyUsedItems$: Observable<any[]>;
   value;
 
   constructor(
@@ -79,7 +79,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       })
     );
 
-    this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+    this.recentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
