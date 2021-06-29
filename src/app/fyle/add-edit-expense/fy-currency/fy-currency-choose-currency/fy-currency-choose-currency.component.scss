@@ -60,6 +60,7 @@ $list-element-color: #333;
 
   &--recently-used-item-content {
     @extend %flex-layout-row;
+    align-items: center;
   }
 
   &--sub-title {
