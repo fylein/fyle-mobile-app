@@ -28,7 +28,7 @@ export class IconModule {
       "fy-dashboard-new.svg", "fy-delegate-switch.svg", "fy-delete.svg", "fy-dismiss.svg", "fy-done.svg", 
       "fy-electric-car.svg", "fy-email.svg", "fy-expense.svg", "fy-expenses-new.svg", 
       "fy-filter.svg", "fy-help-new.svg", "fy-home-solid.svg", "fy-home.svg", 
-      "fy-individual.svg", "fy-iphone.svg", 
+      "fy-individual.svg", "fy-iphone.svg", "fy-info.svg",
       "fy-matched-no.svg", "fy-matched-yes.svg", "fy-mileage.svg", 
       "fy-notification-solid.svg", "fy-notification.svg", 
       "fy-plus.svg", 

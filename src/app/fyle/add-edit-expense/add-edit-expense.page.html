@@ -138,12 +138,6 @@
           </div>
         </div>
 
-        <div *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
-          <div (click)="splitExpense()" class="add-edit-expense--split-expense-container">
-            <mat-icon class="add-edit-expense--split-expense-icon" svgIcon="split-expense"></mat-icon>
-            <div class="add-edit-expense--split-expense-title">Split Expense</div>
-          </div>
-        </div>
         <div class="add-edit-expense--primary-block">
           <ng-container *ngIf="txnFields$|async as txnFields">
             <div *ngIf="txnFields?.txn_dt" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
@@ -666,6 +660,16 @@
           </div>
         </ng-container>
       </ng-container>
+
+      <div class="add-edit-expense--split-expense-block" *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
+        <button class="add-edit-expense--split-expense-container" (click)="splitExpense()">
+          <div class="add-edit-expense--split-expense-title">Split Expense</div>
+        </button>
+        <div class="add-edit-expense--split-info-container">
+          <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
+          <div class="add-edit-expense--split-info-message">Fill all the required fields before splitting an expense.</div>
+        </div>
+      </div>
 
       <app-fy-alert *ngIf="isNotReimbursable$|async" [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
                     [type]="'information'">
