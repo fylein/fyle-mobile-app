@@ -6,6 +6,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, map, finalize, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { RecentLocalStorageItemsService } from '../../../../core/services/recent-local-storage-items.service';
 import {OfflineService} from '../../../../core/services/offline.service';
+import { Currency } from 'src/app/core/models/currency.model';
 
 @Component({
   selector: 'app-fy-currency-choose-currency',
@@ -20,7 +21,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   currencies$: Observable<{ shortCode: string, longName: string }[]>;
   filteredCurrencies$: Observable<{ shortCode: string, longName: string }[]>;
-  recentlyUsedItems$: Observable<any[]>;
+  recentlyUsedItems$: Observable<Currency[]>;
   value;
 
   constructor(
