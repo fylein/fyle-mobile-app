@@ -1,9 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { noop, Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
-import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import {getCurrencySymbol} from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -27,7 +25,7 @@ export class ExpensesCardComponent implements OnInit {
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
-  receipt: any;
+  receipt: string;
   showDt = true;
   isPolicyViolated: boolean;
   isCriticalPolicyViolated: boolean;
@@ -40,7 +38,6 @@ export class ExpensesCardComponent implements OnInit {
 
   constructor(
     private transactionService: TransactionService,
-    private expenseFieldsService: ExpenseFieldsService,
     private offlineService: OfflineService
   ) { }
 
@@ -49,13 +46,9 @@ export class ExpensesCardComponent implements OnInit {
     if (!this.isSelectionModeEnabled) {
       this.goToTransaction.emit(this.expense);
     } else {
-      // need to put restriction to add draft and critical policy violation 
-      // can't put here, beacuse we allow to delete multiple expense in page now
-        this.cardClickedForSelection.emit(this.expense);
+      this.cardClickedForSelection.emit(this.expense);
     }
   }
-
-  
 
   get isSelected() {
     return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
@@ -89,7 +82,9 @@ export class ExpensesCardComponent implements OnInit {
     this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
       map((orgSettings) => {
-         return orgSettings.transaction_fields_settings && orgSettings.transaction_fields_settings.transaction_mandatory_fields && orgSettings.transaction_fields_settings.transaction_mandatory_fields.project;
+         return orgSettings.transaction_fields_settings && 
+                orgSettings.transaction_fields_settings.transaction_mandatory_fields && 
+                orgSettings.transaction_fields_settings.transaction_mandatory_fields.project;
       })
     );
 
