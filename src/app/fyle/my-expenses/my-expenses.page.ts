@@ -754,13 +754,13 @@ export class MyExpensesPage implements OnInit {
       this.homeCurrency$.subscribe(homeCurrency => {
         if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
           title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfexpensesInDraftState} other expenses are in draft states.`
+          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
         } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
           title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`
+          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
         } else if (noOfExpensesInDraftState > 0) {
           title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          message = `${noOfExpensesInDraftState} expenses are in draft states.`
+          message = `${noOfExpensesInDraftState} expenses are in draft states.`;
         }
         this.openCriticalPolicyViolationPopOver({title, message, report_type});
       });
