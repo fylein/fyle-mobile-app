@@ -21,6 +21,7 @@ import {StorageService} from '../../core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { environment } from 'src/environments/environment';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -89,7 +90,8 @@ export class MyExpensesPage implements OnInit {
     private trackingService: TrackingService,
     private storageService: StorageService,
     private tokenService: TokenService,
-    private apiV2Service: ApiV2Service
+    private apiV2Service: ApiV2Service,
+    private modalProperties: ModalPropertiesService
   ) { }
 
   clearText() {
@@ -784,7 +786,10 @@ export class MyExpensesPage implements OnInit {
       component: AddTxnToReportDialogComponent,
       componentProps: {
         txId: event.tx_id
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
     await addExpenseToReportModal.present();
 

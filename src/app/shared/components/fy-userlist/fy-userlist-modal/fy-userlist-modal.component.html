@@ -1,33 +1,40 @@
-<ion-header mode="md" >
-  <ion-toolbar mode="md">
+<ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="selection-modal--title">
         Select Items
       </div>
     </ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
-        <mat-icon>close</mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
-    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
+    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
       <input #searchBar [(ngModel)]="value" class="selection-modal--search-input" id="election-modal--search-input"
              matInput placeholder="{{placeholder || 'Search'}}">
-      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+      <mat-icon *ngIf="isLoading && value" class="selection-modal--autocomplete-loader" svgIcon="fy-spinner-circle" matSuffix></mat-icon>
+      <button (click)="clearValue()" *ngIf="!isLoading && value" aria-label="Clear" mat-button mat-icon-button matSuffix>
         <mat-icon>close</mat-icon>
       </button>
-    </mat-form-field>  
+    </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ng-container *ngIf="isLoading">
+    <div class="selection-modal--spinner">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  </ng-container>
   <div>
     <div class="selection-modal--list-container" *ngFor="let newlyAddedItem of newlyAddedItems$ | async as list">
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
-          <mat-checkbox color="primary" *ngIf="!newlyAddedItem.isNew" [checked]="newlyAddedItem.is_selected" (change)="onSelect(newlyAddedItem, $event)"></mat-checkbox>
+          <mat-checkbox *ngIf="!newlyAddedItem.isNew" [checked]="newlyAddedItem.is_selected" (change)="onSelect(newlyAddedItem, $event)"></mat-checkbox>
           <span *ngIf="!newlyAddedItem.isNew" class="selection-modal--approver-details">
             <span>{{newlyAddedItem.us_email}}</span>
           </span>
@@ -44,7 +51,7 @@
     <div class="selection-modal--list-container" *ngFor="let filteredListItem of filteredOptions$ | async as list">
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
-          <mat-checkbox color="primary" [checked]="filteredListItem.is_selected" (change)="onSelect(filteredListItem, $event)"></mat-checkbox>
+          <mat-checkbox [checked]="filteredListItem.is_selected" (change)="onSelect(filteredListItem, $event)"></mat-checkbox>
           <span class="selection-modal--approver-details">
             <span class="selection-modal--approver-details_name">{{filteredListItem.us_full_name}}</span>
             <span>{{filteredListItem.us_email}}</span>

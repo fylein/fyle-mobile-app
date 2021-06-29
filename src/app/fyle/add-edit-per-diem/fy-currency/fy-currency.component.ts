@@ -5,6 +5,7 @@ import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-currency',
@@ -49,6 +50,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   constructor(
     private fb: FormBuilder,
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
   ) { }
 
@@ -158,7 +160,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         component: FyCurrencyChooseCurrencyComponent,
         componentProps: {
           currentSelection: this.fg.controls.currency.value
-        }
+        },
+        mode: 'ios',
+        presentingElement: await this.modalController.getTop(),
+        ...this.modalProperties.getModalDefaultProperties()
       });
 
       await currencyModal.present();
@@ -176,7 +181,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
               currentCurrency: this.homeCurrency,
               newCurrency: shortCode,
               txnDt: this.txnDt
-            }
+            },
+            mode: 'ios',
+            presentingElement: await this.modalController.getTop(),
+            ...this.modalProperties.getModalDefaultProperties()
           });
 
           await exchangeRateModal.present();

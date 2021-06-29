@@ -14,6 +14,7 @@ import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pul
 import { PopupService } from 'src/app/core/services/popup.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -37,7 +38,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private popoverController: PopoverController,
     private popupService: PopupService,
     private modalController: ModalController,
-    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService
+    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
+    private modalProperties: ModalPropertiesService
   ) { }
 
   getReceiptExtension(name) {
@@ -192,7 +194,10 @@ export class MyViewAdvanceRequestPage implements OnInit {
       component: FyViewAttachmentComponent,
       componentProps: {
         attachments
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await attachmentsModal.present();

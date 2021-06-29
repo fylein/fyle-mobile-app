@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { ApproverDialogComponent } from './approver-dialog/approver-dialog.component';
 import { Router } from '@angular/router';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 
 @Component({
@@ -22,7 +23,8 @@ export class FyApporverComponent implements OnInit {
   approverList$: Observable<any>;
 
   constructor(
-    private modalController: ModalController
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) { }
 
   async openApproverListDialog() {
@@ -33,7 +35,10 @@ export class FyApporverComponent implements OnInit {
         id: this.id,
         from: this.from,
         ownerEmail: this.ownerEmail
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await approversListModal.present();

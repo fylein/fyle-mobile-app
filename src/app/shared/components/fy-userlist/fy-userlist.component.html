@@ -1,15 +1,14 @@
 <label class="fy-select--label">
-  <div [ngClass]="{'fy-select--label-content__invalid': !valid}" class="fy-select--label-content">
+  <div class="fy-select--label-content">
     <span>
       {{label}}
     </span>
-    <span *ngIf="mandatory">
+    <span *ngIf="mandatory" class="fy-select--mandatory">
       *
     </span>
   </div>
-  <input (blur)="onBlur()" (click)="openModal()" [ngModel]="displayValue" class="fy-select"
-    type="text">
-  <mat-icon class="fy-select--icon">
-    chevron_right
-  </mat-icon>
+  <div class="fy-select--input-container" [ngClass]="{'fy-select--input-invalid': !valid}">
+    <input class="fy-select--input" type="text" [placeholder]="'Select ' + label" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()" [ngClass]="{'fy-select--input-disabled': disabled}" [disabled]="disabled">
+    <mat-icon class="fy-select--icon" [ngClass]="{'fy-select--input-disabled': disabled}" svgIcon="fy-arrow-down"></mat-icon>
+  </div>
 </label>
