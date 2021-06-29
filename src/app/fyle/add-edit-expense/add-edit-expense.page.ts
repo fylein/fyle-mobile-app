@@ -155,6 +155,7 @@ export class AddEditExpensePage implements OnInit {
   initialFetch;
   inpageExtractedData;
   actionSheetButtons = [];
+  isExpandedView = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -1778,6 +1779,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isExpandedView = false;
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
