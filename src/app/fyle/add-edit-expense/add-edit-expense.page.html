@@ -4,7 +4,7 @@
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <ion-buttons mode="md" slot="start" *ngIf="reviewList?.length">
-      <ion-button>
+      <ion-button (click)="showClosePopup()" mode="md">
         <ion-icon name="close" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
