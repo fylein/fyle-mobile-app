@@ -110,6 +110,8 @@ export class AddEditMileagePage implements OnInit {
   presetLocation: string;
   initialFetch;
   isProjectVisible$: Observable<boolean>;
+  isExpandedView = false;
+  vehicleOptions$: Observable<{label: string, value: string}[]>;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -860,6 +862,40 @@ export class AddEditMileagePage implements OnInit {
     this.mileageConfig$ = this.getMileageConfig();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
+
+    this.vehicleOptions$ = forkJoin({
+      mileageConfig: this.mileageConfig$,
+      etxn: this.etxn$
+    }).pipe(
+      map(({mileageConfig, etxn}) => {
+        console.log(etxn);
+        const options = [];
+        if (mileageConfig.two_wheeler || etxn?.tx?.mileage_vehicle_type === 'two_wheeler') {
+          options.push({
+            label: 'Two Wheeler',
+            value: 'two_wheeler'
+          });
+        }
+
+        if (mileageConfig.four_wheeler || etxn?.tx?.mileage_vehicle_type === 'four_wheeler') {
+          options.push({
+            label: 'Four Wheeler - Type 1',
+            value: 'four_wheeler'
+          });
+        }
+
+        if (mileageConfig.four_wheeler1 || etxn?.tx?.mileage_vehicle_type === 'four_wheeler1') {
+          options.push({
+            label: 'Four Wheeler - Type 2',
+            value: 'four_wheeler1'
+          });
+        }
+
+        return options;
+      }),
+      shareReplay(1)
+    );
+
 
     this.fg.controls.mileage_locations.valueChanges.pipe(
       switchMap((locations) => {

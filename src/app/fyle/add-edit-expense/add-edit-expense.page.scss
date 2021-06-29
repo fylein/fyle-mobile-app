@@ -211,6 +211,22 @@
     }
   }
 
+  &--expansion-btn {
+    display: flex;
+    align-items: center;
+    color: #5A5D72;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 500;
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  &--expansion-icon {
+    color: #f36;
+    font-size: 18px;
+  }
+
   &--split-expense-container {
     display: flex;
     justify-content: flex-end;

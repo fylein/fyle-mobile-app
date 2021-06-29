@@ -327,18 +327,18 @@
               <div>
                 <ion-grid class="add-edit-expense--grid">
                   <ion-row>
-                    <ion-col size="6" *ngIf="txnFields.location1?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)">
-                      <div
-                        class="add-edit-expense--internal-block"
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid}">
+                    <ion-col
+                      *ngIf="txnFields.location1?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)">
+                      <div class="add-edit-expense--internal-block"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid, 'add-edit-expense--internal-block__margin': txnFields.location2?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}">
                         <app-fy-location [label]="txnFields.location1?.field_name"
                           [mandatory]="txnFields.location1?.is_mandatory" formControlName="location_1">
                         </app-fy-location>
                       </div>
                     </ion-col>
-                    <ion-col size="6" *ngIf="txnFields.location2?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)">
-                      <div
-                        class="add-edit-expense--internal-block"
+                    <ion-col
+                      *ngIf="txnFields.location2?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)">
+                      <div class="add-edit-expense--internal-block"
                         [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_2.touched && !fg.controls.location_2.valid}">
                         <app-fy-location [label]="txnFields.location2?.field_name"
                           [mandatory]="txnFields.location2?.is_mandatory" formControlName="location_2">
@@ -348,64 +348,76 @@
                   </ion-row>
                 </ion-grid>
 
-                <div
-                  *ngIf="txnFields.from_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
-                  class="add-edit-expense--date add-edit-expense--internal-block">
-                  <div
-                    [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
-                    class="add-edit-expense--date-label add-edit-expense--date-label__large">
-                    {{txnFields.from_dt?.field_name}}
-                    <span class="add-edit-expense--mandatory">*</span>
-                  </div>
-                  <input appFormatDate [disabled]="!txnFields.from_dt?.canEdit"
-                    class="add-edit-expense--date-input date-input__format" formControlName="from_dt"
-                    [name]="txnFields.from_dt?.field_name" type="date"
-                    [placeholder]="'Select '+ txnFields.from_dt?.field_name">
-                </div>
+                <ion-grid class="add-edit-expense--grid">
+                  <ion-row>
+                    <ion-col
+                      *ngIf="txnFields.from_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)">
+                      <div
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}"
+                        class="add-edit-expense--date add-edit-expense--internal-block">
+                        <div
+                          [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
+                          class="add-edit-expense--date-label add-edit-expense--date-label__large">
+                          {{txnFields.from_dt?.field_name}}
+                          <span class="add-edit-expense--mandatory">*</span>
+                        </div>
+                        <input appFormatDate [disabled]="!txnFields.from_dt?.canEdit"
+                          class="add-edit-expense--date-input date-input__format" formControlName="from_dt"
+                          [name]="txnFields.from_dt?.field_name" type="date"
+                          [placeholder]="'Select '+ txnFields.from_dt?.field_name">
+                      </div>
+                    </ion-col>
+                    <ion-col
+                      *ngIf="txnFields.to_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)">
+                      <div
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
+                        class="add-edit-expense--date add-edit-expense--internal-block">
+                        <div
+                          [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
+                          class="add-edit-expense--date-label add-edit-expense--date-label__large">
+                          {{txnFields.to_dt?.field_name}}
+                          <span class="add-edit-expense--mandatory">*</span>
+                        </div>
+                        <input appFormatDate [disabled]="!txnFields.to_dt?.canEdit"
+                          class="add-edit-expense--date-input date-input__format" formControlName="to_dt"
+                          [name]="txnFields.to_dt?.field_name" type="date"
+                          [placeholder]="'Select '+ txnFields.to_dt?.field_name">
+                      </div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
 
-                <div
-                  *ngIf="txnFields.to_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
-                  class="add-edit-expense--date add-edit-expense--internal-block">
-                  <div
-                    [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
-                    class="add-edit-expense--date-label add-edit-expense--date-label__large">
-                    {{txnFields.to_dt?.field_name}}
-                    <span class="add-edit-expense--mandatory">*</span>
-                  </div>
-                  <input appFormatDate [disabled]="!txnFields.to_dt?.canEdit"
-                    class="add-edit-expense--date-input date-input__format" formControlName="to_dt"
-                    [name]="txnFields.to_dt?.field_name" type="date"
-                    [placeholder]="'Select '+ txnFields.to_dt?.field_name">
-                </div>
-
-                <div
-                  *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
-                  class="add-edit-expense--internal-block"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid}">
-                  <app-fy-select *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                    [disabled]="!txnFields.flight_journey_travel_class?.canEdit"
-                    [label]="txnFields.flight_journey_travel_class?.field_name"
-                    [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
-                    [options]="txnFields.flight_journey_travel_class?.options"
-                    [selectModalHeader]="'Select Travel Class'" formControlName="flight_journey_travel_class">
-                  </app-fy-select>
-                </div>
-
-                <div
-                  *ngIf="txnFields.flight_return_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
-                  class="add-edit-expense--internal-block"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid}">
-                  <app-fy-select *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                    [disabled]="!txnFields.flight_return_travel_class?.canEdit"
-                    [label]="txnFields.flight_return_travel_class?.field_name"
-                    [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
-                    [options]="txnFields.flight_journey_travel_class?.options"
-                    [selectModalHeader]="'Select Travel Class'" formControlName="flight_return_travel_class"
-                    name="flightReturnClass">
-                  </app-fy-select>
-                </div>
+                <ion-grid class="add-edit-expense--grid">
+                  <ion-row>
+                    <ion-col *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)">
+                      <div
+                        class="add-edit-expense--internal-block"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid, 'add-edit-expense--internal-block__margin': txnFields.flight_return_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}">
+                        <app-fy-select *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
+                          [disabled]="!txnFields.flight_journey_travel_class?.canEdit"
+                          [label]="txnFields.flight_journey_travel_class?.field_name"
+                          [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
+                          [options]="txnFields.flight_journey_travel_class?.options"
+                          [selectModalHeader]="'Select Travel Class'" formControlName="flight_journey_travel_class">
+                        </app-fy-select>
+                      </div>
+                    </ion-col>
+                    <ion-col *ngIf="txnFields.flight_return_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)">
+                      <div
+                        class="add-edit-expense--internal-block"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid}">
+                        <app-fy-select *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
+                          [disabled]="!txnFields.flight_return_travel_class?.canEdit"
+                          [label]="txnFields.flight_return_travel_class?.field_name"
+                          [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
+                          [options]="txnFields.flight_journey_travel_class?.options"
+                          [selectModalHeader]="'Select Travel Class'" formControlName="flight_return_travel_class"
+                          name="flightReturnClass">
+                        </app-fy-select>
+                      </div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
 
                 <div
                   *ngIf="txnFields.train_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -459,7 +471,7 @@
                   </app-fy-select>
                 </div>
 
-                <div *ngIf="fg.value?.category?.fyle_category === 'Hotel'" class="add-edit-expense--internal-block">
+                <div *ngIf="fg.value?.category?.fyle_category === 'Hotel' && isExpandedView" class="add-edit-expense--internal-block">
                   <mat-checkbox formControlName="hotel_is_breakfast_provided">
                     <span class="add-edit-expense--text-label">
                       Breakfast Provided
@@ -699,16 +711,16 @@
 
       <div>
         <ng-container *ngIf="isExpandedView;else expandViewContent">
-          <ion-button fill="clear" (click)="isExpandedView=false">
+          <div class="add-edit-expense--expansion-btn" fill="clear" (click)="isExpandedView=false">
             Hide more fields
-            <ion-icon name="chevron-up"></ion-icon>
-          </ion-button>
+            <ion-icon class="add-edit-expense--expansion-icon" name="chevron-up"></ion-icon>
+          </div>
         </ng-container>
         <ng-template #expandViewContent>
-          <ion-button fill="clear" (click)="isExpandedView=true">
+          <div class="add-edit-expense--expansion-btn" fill="clear" (click)="isExpandedView=true">
             Show more fields
-            <ion-icon name="chevron-down"></ion-icon>
-          </ion-button>
+            <ion-icon class="add-edit-expense--expansion-icon" name="chevron-down"></ion-icon>
+          </div>
         </ng-template>
       </div>
 
