@@ -46,8 +46,6 @@ export class ExpensesCardComponent implements OnInit {
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
       this.goToTransaction.emit(this.expense);
-    } else {
-      this.cardClickedForSelection.emit(this.expense);
     }
   }
 
@@ -131,6 +129,12 @@ export class ExpensesCardComponent implements OnInit {
   onSetMultiselectMode() {
     if (!this.isSelectionModeEnabled) {
       this.setMultiselectMode.emit(this.expense);
+    }
+  }
+
+  onTapTransaction() {
+    if (this.isSelectionModeEnabled) {
+      this.cardClickedForSelection.emit(this.expense);
     }
   }
 

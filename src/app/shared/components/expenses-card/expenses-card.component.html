@@ -1,7 +1,8 @@
 <div *ngIf="showDt" class="expenses-card--date">
   {{(expense.tx_txn_dt || expense.tx_created_at) | date: 'MMM dd, yyyy'}}
 </div>
-<div class="expenses-card--body" [ngClass]="{'expenses-card--body__with-border': !showDt}" (click)="onGoToTransaction()">
+
+<div class="expenses-card--body" [ngClass]="{'expenses-card--body__with-border': !showDt}" (click)="onGoToTransaction()" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
   <ng-container *ngIf="expenseFields$|async as expenseFields">
       <ion-grid class="ion-no-padding">
