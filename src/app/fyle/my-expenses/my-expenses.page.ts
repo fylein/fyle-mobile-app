@@ -1579,10 +1579,12 @@ export class MyExpensesPage implements OnInit {
           switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
       ).subscribe(allExpenses => {
         this.selectedElements = allExpenses;
+        this.isReportAbleExpensesSelected = this.transactionService.getReportAbleExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       });
     } else {
       this.selectedElements = [];
+      this.isReportAbleExpensesSelected = this.transactionService.getReportAbleExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
     }
   }

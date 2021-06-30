@@ -59,6 +59,7 @@
 </app-fy-header>
 
 <ion-content class="my-expenses--content">
+  <div class="my-expenses--body">
   <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -145,8 +146,11 @@
       </ion-infinite-scroll-content>
     </ion-infinite-scroll>
   </ng-container>
+  </div>
+</ion-content>
 
 
+<ion-footer>
   <div class="my-expenses--footer">
     <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
     <div *ngIf="selectionMode">
@@ -171,5 +175,5 @@
       </div>
     </div>
   </div>
-</ion-content>
+</ion-footer>
 
