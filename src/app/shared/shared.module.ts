@@ -72,6 +72,12 @@ import { PopupAlertComponentComponent } from './components/popup-alert-component
 import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
 import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
 import { ToastMessageComponent } from './components/toast-message/toast-message.component';
+import {FyHeaderComponent} from './components/fy-header/fy-header.component';
+import {FyDeleteDialogComponent} from './components/fy-delete-dialog/fy-delete-dialog.component';
+import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
 
 @NgModule({
   declarations: [
@@ -129,7 +135,11 @@ import { ToastMessageComponent } from './components/toast-message/toast-message.
     PopupAlertComponentComponent,
     CreateNewReportComponent,
     ExpensesCardComponent,
-    ToastMessageComponent
+    ToastMessageComponent,
+    FyHeaderComponent,
+    FyDeleteDialogComponent,
+    FyFiltersComponent,
+    FyFilterPillsComponent
   ],
   imports: [
     CommonModule,
@@ -144,7 +154,9 @@ import { ToastMessageComponent } from './components/toast-message/toast-message.
     ReactiveFormsModule,
     PinchZoomModule,
     PdfViewerModule,
-    MatRippleModule
+    MatRippleModule,
+    MatRadioModule,
+    MatDatepickerModule
   ],
   exports: [
     EllipsisPipe,
@@ -186,7 +198,6 @@ import { ToastMessageComponent } from './components/toast-message/toast-message.
     FyHighlightTextComponent,
     FormatDateDirective,
     ExpenseState,
-    FyAlertInfoComponent,
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
@@ -194,7 +205,11 @@ import { ToastMessageComponent } from './components/toast-message/toast-message.
     PopupAlertComponentComponent,
     CreateNewReportComponent,
     ExpensesCardComponent,
-    ToastMessageComponent
+    ToastMessageComponent,
+    FyHeaderComponent,
+    FyDeleteDialogComponent,
+    FyFiltersComponent,
+    FyFilterPillsComponent
   ],
   providers: [
     DecimalPipe,

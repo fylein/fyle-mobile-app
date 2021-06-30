@@ -546,48 +546,61 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async splitExpense() {
-    return forkJoin({
-      orgSettings$: this.offlineService.getOrgSettings(),
-      costCenters: this.costCenters$,
-      projects: this.offlineService.getProjects()
-    }).subscribe(async res => {
-      const orgSettings = res.orgSettings$;
-      const areCostCentersAvailable = res.costCenters.length > 0;
-      const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
+    if (this.fg.valid) {
+      return forkJoin({
+        orgSettings$: this.offlineService.getOrgSettings(),
+        costCenters: this.costCenters$,
+        projects: this.offlineService.getProjects()
+      }).subscribe(async res => {
+        const orgSettings = res.orgSettings$;
+        const areCostCentersAvailable = res.costCenters.length > 0;
+        const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
 
-      this.actionSheetButtons = [{
-        text: 'Category',
-        handler: () => {
-          this.openSplitExpenseModal('categories')
+        this.actionSheetButtons = [{
+          text: 'Category',
+          handler: () => {
+            this.openSplitExpenseModal('categories')
+          }
+        }];
+
+        if (areProjectsAvailable) {
+          this.actionSheetButtons.push({
+            text: 'Project',
+            handler: () => {
+              this.openSplitExpenseModal('projects')
+            }
+          });
         }
-      }];
 
-      if (areProjectsAvailable) {
-        this.actionSheetButtons.push({
-          text: 'Project',
-          handler: () => {
-            this.openSplitExpenseModal('projects')
-          }
+        if (areCostCentersAvailable) {
+          this.actionSheetButtons.push({
+            text: 'Cost Center',
+            handler: () => {
+              this.openSplitExpenseModal('cost centers')
+            }
+          });
+        }
+
+        const actionSheet = await this.actionSheetController.create({
+          header: 'SPLIT EXPENSE BY',
+          mode: 'md',
+          cssClass: 'fy-action-sheet',
+          buttons: this.actionSheetButtons
         });
-      }
-
-      if (areCostCentersAvailable) {
-        this.actionSheetButtons.push({
-          text: 'Cost Center',
-          handler: () => {
-            this.openSplitExpenseModal('cost centers')
-          }
-        });
-      }
-
-      const actionSheet = await this.actionSheetController.create({
-        header: 'SPLIT EXPENSE BY',
-        mode: 'md',
-        cssClass: 'fy-action-sheet',
-        buttons: this.actionSheetButtons
+        await actionSheet.present();
       });
-      await actionSheet.present();
-    });
+    } else {
+      this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
   }
 
   ngOnInit() {
@@ -740,10 +753,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
-      map(catogories => catogories.filter(category => category.enabled === true)),
       map(catogories => this.categoriesService.filterRequired(catogories))
     );
   }
@@ -829,7 +841,7 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
-      categories: this.offlineService.getAllCategories(),
+      categories: this.offlineService.getAllEnabledCategories(),
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$,
@@ -971,8 +983,7 @@ export class AddEditExpensePage implements OnInit {
 
           if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
-            const enabledCategories = categories.filter(category => category.enabled);
-            const category = enabledCategories.find(orgCategory => orgCategory.name === categoryName);
+            const category = categories.find(orgCategory => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
           }
 
@@ -1369,7 +1380,7 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
-      categories: this.offlineService.getAllCategories()
+      categories: this.offlineService.getAllEnabledCategories()
     }).pipe(
       map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
         const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
@@ -1402,7 +1413,7 @@ export class AddEditExpensePage implements OnInit {
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
-        categories: this.offlineService.getAllCategories()
+        categories: this.offlineService.getAllEnabledCategories()
       }).pipe(
         map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
           const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
@@ -1666,7 +1677,7 @@ export class AddEditExpensePage implements OnInit {
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           return forkJoin({
             instaFyleSettings: instaFyleSettings$,
-            allCategories: this.offlineService.getAllCategories()
+            allCategories: this.offlineService.getAllEnabledCategories()
           }).pipe(
             switchMap(({instaFyleSettings, allCategories}) => {
               const shouldExtractAmount = instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1;
@@ -1848,7 +1859,7 @@ export class AddEditExpensePage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
@@ -2228,7 +2239,7 @@ export class AddEditExpensePage implements OnInit {
 
         policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
-        return this.offlineService.getAllCategories().pipe(
+        return this.offlineService.getAllEnabledCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {

@@ -206,22 +206,43 @@
 
   &--split-expense-container {
     display: flex;
-    justify-content: flex-end;
     flex-direction: row;
-    margin-top: 12px;
-  }
-
-  &--split-expense-icon {
-    height: 20px;
-    width: 20px;
-    margin: 0 8px;
+    background-color: $pure-white;
   }
 
   &--split-expense-title {
-    font-size: 20px;
+    font-size: 12px;
     font-weight: 500;
-    color: #3a94f6;
-    margin: 0 0 10px;
+    color: $black-2;
+    margin-bottom: 20px;
+    border: 1px solid $grey-light;
+    border-radius: 4px;
+    padding: 10px 20px;
+    width: max-content;
+  }
+
+  &--split-expense-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  &--split-info-container {
+    display: flex;
+    margin-left: 20px;
+  }
+
+  &--split-info-icon {
+    margin-right: 10px;
+  }
+
+  &--split-info-message {
+    width: 100%;
+    color: $blue-black;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: .16px;
   }
 
   &--comment {
