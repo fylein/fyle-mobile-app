@@ -249,43 +249,6 @@
                     </ng-container>
                   </ng-container>
 
-
-                  <ng-container *ngIf="txnFields$|async as txnFields">
-                    <ng-container *ngIf="txnFields?.purpose">
-                      <div *ngIf="txnFields?.purpose.type === 'TEXT'"
-                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                           class="add-edit-per-diem--text">
-                        <div class="add-edit-per-diem--text-label">
-                          {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
-                          <span class="add-edit-per-diem--mandatory" *ngIf="txnFields?.purpose?.is_mandatory">*</span>
-                        </div>
-
-                        <input 
-                          [disabled]="!txnFields.purpose?.canEdit" 
-                          [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:30"
-                          [required]="txnFields.purpose?.is_mandatory" 
-                          [title]="'Enter'+txnFields.purpose?.field_name"
-                          class="add-edit-per-diem--text-input"
-                          formControlName="purpose">
-
-                      </div>
-                      <div *ngIf="txnFields?.purpose.type === 'SELECT'" class="add-edit-per-diem--internal-block">
-                        <app-fy-select
-                          [disabled]="mode === 'edit' && !txnFields?.purpose.canEdit"
-                          [label]="txnFields?.purpose.field_name"
-                          [options]="txnFields?.purpose?.options"
-                          [selectModalHeader]="'Enter Purpose'"
-                          class="add-edit-per-diem--text-input"
-                          formControlName="purpose">
-                        </app-fy-select>
-                      </div>
-                      <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid"
-                           class="add-edit-per-diem--error">
-                        Please enter {{ txnFields?.purpose.field_name }}.
-                      </div>
-                    </ng-container>
-                  </ng-container>
-
                   <div class="add-edit-per-diem--project-container">
                     <ng-container *ngIf="isConnected$|async">
                       <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
@@ -345,6 +308,64 @@
                           Please select a sub Category.
                         </div>
                       </ng-container>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container *ngIf="costCenters$|async as costCenters">
+                    <ng-container *ngIf="txnFields$|async as txnFields">
+                      <div *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
+                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
+                           class="add-edit-per-diem--internal-block">
+                        <app-fy-select
+                          [cacheName]="'perDiemCostCenterCache'"
+                          [label]="txnFields.cost_center_id.field_name"
+                          [mandatory]="txnFields.cost_center_id.is_mandatory"
+                          [options]="costCenters"
+                          [selectModalHeader]="'Select Cost Center'"
+                          [recentlyUsed]="recentCostCenters"
+                          formControlName="costCenter">
+                        </app-fy-select>
+                      </div>
+                      <div *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
+                           class="add-edit-per-diem--error">
+                        Please select a Cost Center.
+                      </div>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container *ngIf="txnFields$|async as txnFields">
+                    <ng-container *ngIf="txnFields?.purpose">
+                      <div *ngIf="txnFields?.purpose.type === 'TEXT'"
+                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
+                           class="add-edit-per-diem--text">
+                        <div class="add-edit-per-diem--text-label">
+                          {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
+                          <span class="add-edit-per-diem--mandatory" *ngIf="txnFields?.purpose?.is_mandatory">*</span>
+                        </div>
+
+                        <input 
+                          [disabled]="!txnFields.purpose?.canEdit" 
+                          [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:30"
+                          [required]="txnFields.purpose?.is_mandatory" 
+                          [title]="'Enter'+txnFields.purpose?.field_name"
+                          class="add-edit-per-diem--text-input"
+                          formControlName="purpose">
+
+                      </div>
+                      <div *ngIf="txnFields?.purpose.type === 'SELECT'" class="add-edit-per-diem--internal-block">
+                        <app-fy-select
+                          [disabled]="mode === 'edit' && !txnFields?.purpose.canEdit"
+                          [label]="txnFields?.purpose.field_name"
+                          [options]="txnFields?.purpose?.options"
+                          [selectModalHeader]="'Enter Purpose'"
+                          class="add-edit-per-diem--text-input"
+                          formControlName="purpose">
+                        </app-fy-select>
+                      </div>
+                      <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid"
+                           class="add-edit-per-diem--error">
+                        Please enter {{ txnFields?.purpose.field_name }}.
+                      </div>
                     </ng-container>
                   </ng-container>
 
@@ -420,27 +441,6 @@
                     </div>
                   </ng-container>
 
-                  <ng-container *ngIf="costCenters$|async as costCenters">
-                    <ng-container *ngIf="txnFields$|async as txnFields">
-                      <div *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
-                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
-                           class="add-edit-per-diem--internal-block">
-                        <app-fy-select
-                          [cacheName]="'perDiemCostCenterCache'"
-                          [label]="txnFields.cost_center_id.field_name"
-                          [mandatory]="txnFields.cost_center_id.is_mandatory"
-                          [options]="costCenters"
-                          [selectModalHeader]="'Select Cost Center'"
-                          [recentlyUsed]="recentCostCenters"
-                          formControlName="costCenter">
-                        </app-fy-select>
-                      </div>
-                      <div *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
-                           class="add-edit-per-diem--error">
-                        Please select a Cost Center.
-                      </div>
-                    </ng-container>
-                  </ng-container>
 
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="reports$|async as reports">

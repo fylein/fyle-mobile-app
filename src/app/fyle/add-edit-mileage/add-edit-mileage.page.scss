@@ -59,7 +59,6 @@
 
   &--date {
     border-bottom: 1px solid $grey-lighter;
-    padding: 4px 0 !important;
   }
 
   &--date-label {
@@ -147,10 +146,14 @@
   }
 
   &--internal-block {
-    padding: 8px 0;
+    padding: 7px 0;
     background: #fff;
     line-height: 1;
     margin-bottom: 12px;
+
+    &__margin {
+      margin-right: 12px;    
+    }
 
     &__invalid {
       border-color: $red;
@@ -420,5 +423,21 @@
   &--grid {
     --ion-grid-padding: 0;
     --ion-grid-column-padding: 0;
+  }
+
+  &--expansion-btn {
+    display: flex;
+    align-items: center;
+    color: #5A5D72;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 500;
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  &--expansion-icon {
+    color: #f36;
+    font-size: 18px;
   }
 }
