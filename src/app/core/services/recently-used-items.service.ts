@@ -79,17 +79,15 @@ export class RecentlyUsedItemsService {
     }
   }
 
-  getRecentCurrencies(currencies: string[], recentValue:RecentlyUsed): Observable<Currency[]> {
+  getRecentCurrencies(currencies: string[], recentValue: RecentlyUsed): Observable<Currency[]> {
     if (currencies && recentValue && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
       const recentCurrenciesList = recentValue.recent_currencies.map(id => (
-        { id: id, value: currencies[id]}));
+        { id: id, value: currencies[id] }
+      ));
       if (recentCurrenciesList) {
         return of(recentCurrenciesList.map(currency => ({ shortCode: currency.id, longName: currency.value })));
-      } else {
-        return of([]);
       }
-    } else {
-      return of([]);
     }
+    return of([]);
   }
 }
