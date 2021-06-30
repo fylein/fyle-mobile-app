@@ -51,7 +51,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MyExpensesSearchFilterComponent,
     MyExpensesSortFilterComponent,
     AddExpensePopoverComponent,
-    AddTxnToReportDialogComponent,
+    AddTxnToReportDialogComponent
   ]
 })
 export class MyExpensesPageModule { }

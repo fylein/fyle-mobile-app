@@ -356,7 +356,7 @@ export class MyExpensesPage implements OnInit {
 
     this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-    })
+    });
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
