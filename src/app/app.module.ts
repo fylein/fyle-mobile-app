@@ -24,11 +24,12 @@ import {StorageService} from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 
 export class MyHammerConfig extends HammerGestureConfig {
-  overrides = <any> {
-      'pinch': { enable: false },
-      'rotate': { enable: false }
+  overrides = <any>{
+    'pinch': { enable: false },
+    'rotate': { enable: false }
   }
-}
+};
+
 @NgModule({
   declarations: [
     AppComponent
@@ -53,9 +54,8 @@ export class MyHammerConfig extends HammerGestureConfig {
     InAppBrowser,
     ScreenOrientation,
     {
-      provide: HAMMER_GESTURE_CONFIG,
-      useClass: MyHammerConfig
-  },
+      provide: HAMMER_GESTURE_CONFIG, useClass: MyHammerConfig
+    },
     {
       provide: RouteReuseStrategy, useClass: IonicRouteStrategy
     },
