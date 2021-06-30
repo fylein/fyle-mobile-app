@@ -199,7 +199,8 @@
               <ion-row>
                 <ion-col>
                   <ng-container *ngIf="txnFields$|async as txnFields">
-                    <div *ngIf="txnFields?.txn_dt" class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
+                    <div *ngIf="txnFields?.txn_dt"
+                      class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
                       [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}">
                       <div class="add-edit-mileage--date-label">
                         {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Start Date'}}
@@ -265,9 +266,9 @@
             </ng-container>
 
 
-            <div class="add-edit-mileage--project-container">
-              <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-                <ng-container *ngIf="transactionMandatoyFields.project || isExpandedView">
+            <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+              <ng-container *ngIf="transactionMandatoyFields.project || isExpandedView">
+                <div class="add-edit-mileage--project-container">
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container
                       *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
@@ -292,12 +293,13 @@
                       </span>
                     </mat-checkbox>
                   </div>
-                </ng-container>
+                </div>
+
+                <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-mileage--error">
+                  Please select a project.
+                </div>
               </ng-container>
-              <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-mileage--error">
-                Please select a project.
-              </div>
-            </div>
+            </ng-container>
 
             <ng-container *ngIf="filteredCategories$|async as subCategories">
               <ng-container *ngIf="subCategories.length > 0">
