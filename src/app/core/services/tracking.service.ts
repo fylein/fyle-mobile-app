@@ -728,4 +728,16 @@ export class TrackingService {
   footerButtonClicked(properties) {
     this.eventTrack('footer button clicked', properties);
   }
+
+  myExpensesBulkDeleteExpenses(properties) {
+    this.eventTrack('bulk delete of expenses from my expenses page', properties);
+  }
+
+  myExpensesActionSheetAction(properties) {
+    this.eventTrack('my expenses action sheet action clicked', properties);
+  }
+
+  myExpensesFilterApplied(properties) {
+    this.eventTrack('my expenses filters applied', properties);
+  }
 }
