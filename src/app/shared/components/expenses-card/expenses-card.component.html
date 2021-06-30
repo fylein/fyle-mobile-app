@@ -5,89 +5,85 @@
 <div class="expenses-card--body" [ngClass]="{'expenses-card--body__with-border': !showDt}" (click)="onGoToTransaction()" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
   <ng-container *ngIf="expenseFields$|async as expenseFields">
-      <ion-grid class="ion-no-padding">
-      <ion-row>        
-        <ion-col [size]="isSelectionModeEnabled ? 3.85 : 2.65" class="ion-no-padding">
-          <div class="display-flex">
-            <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
-              <mat-checkbox *ngIf="isSelected" [checked]="true" class="expenses-card--checkbox"></mat-checkbox>
-              <mat-checkbox *ngIf="!isSelected" [checked]="false" class="expenses-card--checkbox"></mat-checkbox>
+    <div class="display-flex">
+      <div class="display-flex">
+        <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
+          <mat-checkbox *ngIf="isSelected" [checked]="true" class="expenses-card--checkbox"></mat-checkbox>
+          <mat-checkbox *ngIf="!isSelected" [checked]="false" class="expenses-card--checkbox"></mat-checkbox>
+        </div>
+        <div class="expenses-card--receipt-container">
+          <ion-img class="expenses-card--receipt-icon" [src]="receipt"></ion-img>
+        </div>
+      </div>
+
+      <div class="display-flex expenses-card--deatils-block">
+        <ng-container *ngIf="isScanInProgress">
+          <div class="expenses-card--scaning-receipt__container">
+            <div class="expenses-card--scaning-receipt__header">
+              Scanning receipt
             </div>
-            <div class="expenses-card--receipt-container">
-              <ion-img class="expenses-card--receipt-icon" [src]="receipt"></ion-img>
+            <div class="expenses-card--scaning-receipt__content">
+              Your receipt details will be auto-extracted shortly.
             </div>
           </div>
-        </ion-col>
-       
-        <ion-col [size]="isSelectionModeEnabled ? 4.15 : 5.35" class="ion-no-padding" >
-          <ng-container *ngIf="isScanInProgress">
-            <div class="expenses-card--scaning-receipt__container">
-              <div class="expenses-card--scaning-receipt__header">
-                Scanning receipt
-              </div>
-              <div class="expenses-card--scaning-receipt__content">
-                Your receipt details will be auto-extracted shortly.
-              </div>
-            </div>
-          </ng-container>
+        </ng-container>
 
-          <ng-container *ngIf="!isScanInProgress">
-            <div class="expenses-card--category-vendor-project-container">
-              <ion-row>
-                <div class="display-flex">
-                  <div class="expenses-card--category" [ngClass]="{'expenses-card--category__small': isSelectionModeEnabled}">
-                    {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
-                  </div>
-                  <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
+        <ng-container *ngIf="!isScanInProgress">
+          <div class="expenses-card--category-vendor-project-container">
+            <ion-row>
+              <div class="display-flex expenses-card--category-icon-container">
+                <div class="expenses-card--category" [ngClass]="{'expenses-card--category__small': isSelectionModeEnabled}">
+                  {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
                 </div>
-              </ion-row>
-              <ion-row>
-                <div class="expenses-card--vendor">
-                  {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
-                </div>
-              </ion-row>
-              <ion-row>
-                <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project">
-                  {{expense.tx_project_name ? 'Project: ' +  expense.tx_project_name : 'Project not filled'}}
-                </div>
-              </ion-row>
-            </div>
-          </ng-container>
-        </ion-col>
+                <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
+              </div>
+            </ion-row>
+            <ion-row>
+              <div class="expenses-card--vendor">
+                {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
+              </div>
+            </ion-row>
+            <ion-row>
+              <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project">
+                {{expense.tx_project_name ? 'Project: ' +  expense.tx_project_name : 'Project not filled'}}
+              </div>
+            </ion-row>
+          </div>
+        </ng-container>
+      </div>
     
-        <ion-col size="4" class="ion-no-padding">
-          <ng-container *ngIf="expense.isDraft && isScanInProgress">
-            <div class="expenses-card--state-container ion-text-right">
+      <div class="display-flex">
+        <ng-container *ngIf="expense.isDraft && isScanInProgress">
+          <div class="expenses-card--state-container ion-text-right">
+            <span class="expenses-card--state">
+              {{expense.tx_state | titlecase}}
+            </span>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="!isScanInProgress">
+          <div>
+            <div class="expenses-card--currency-amount-container ion-text-right">
+              <span class="expenses-card--currency">{{homeCurrencySymbol}}</span>
+              <span class="expenses-card--amount">{{(expense.tx_amount || 0) | humanizeCurrency: homeCurrency: 2: true }}</span>
+              <mat-icon class="expenses-card--icon" svgIcon="{{paymentModeIcon}}"></mat-icon>
+            </div>
+
+            <div *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"class="expenses-card--exchange-rate ion-text-right">
+              ({{foreignCurrencySymbol}}{{expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency : 2: true }} at {{homeCurrencySymbol}}{{(expense.tx_amount / expense.tx_orig_amount) | number: '1.0-2'}})
+            </div>
+
+            <div *ngIf="expense.isDraft" class="expenses-card--state-container ion-text-right">
               <span class="expenses-card--state">
                 {{expense.tx_state | titlecase}}
               </span>
             </div>
-          </ng-container>
-          <ng-container *ngIf="!isScanInProgress">
-            <div>
-              <div class="expenses-card--currency-amount-container ion-text-right">
-                <span class="expenses-card--currency">{{homeCurrencySymbol}}</span>
-                <span class="expenses-card--amount">{{(expense.tx_amount || 0) | humanizeCurrency: homeCurrency: 2: true }}</span>
-                <mat-icon class="expenses-card--icon" svgIcon="{{paymentModeIcon}}"></mat-icon>
-              </div>
-  
-              <div *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"class="expenses-card--exchange-rate ion-text-right">
-                ({{foreignCurrencySymbol}}{{expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency : 2: true }} at {{homeCurrencySymbol}}{{(expense.tx_amount / expense.tx_orig_amount) | number: '1.0-2'}})
-              </div>
-  
-              <div *ngIf="expense.isDraft" class="expenses-card--state-container ion-text-right">
-                <span class="expenses-card--state">
-                  {{expense.tx_state | titlecase}}
-                </span>
-              </div>
-  
-              <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
-                Critical Policy violations
-              </div>
+
+            <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
+              Critical Policy violations
             </div>
-          </ng-container>
-        </ion-col>
-      </ion-row>
-    </ion-grid> 
+          </div>
+        </ng-container>
+      </div>
+    </div>
   </ng-container>
 </div>

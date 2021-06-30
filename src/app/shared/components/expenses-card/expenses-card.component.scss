@@ -19,6 +19,12 @@
     }
   }
 
+  &--deatils-block {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &--checkbox-container{
     margin-top: 22px;
     margin-right: 16px;
@@ -37,7 +43,9 @@
   &--scaning-receipt {
 
     &__container {
-      margin-left: 11px;
+      padding-left: 11px;
+      padding-right: 11px;
+      overflow: hidden;
     }
     
     &__header {
@@ -77,8 +85,15 @@
   }
 
   &--category-vendor-project-container {
-    margin-left: 11px;
-    margin-right: 11px;
+    padding-left: 11px;
+    padding-right: 23px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--category-icon-container {
+    width: 100%;
   }
 
   &--category {
@@ -89,11 +104,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100px;
-
-    &__small {
-      max-width: 70px;
-    }
   }
 
   &--policy-violated-icon {
@@ -171,6 +181,8 @@
 
   &--state-container {
     margin-top: 6px;
+    width: 100%;
+    white-space: nowrap;
   }
 
   &--state {
