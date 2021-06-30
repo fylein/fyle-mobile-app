@@ -762,7 +762,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
-
+    this.isExpandedView = true;
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
     });

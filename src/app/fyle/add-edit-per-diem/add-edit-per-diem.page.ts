@@ -107,6 +107,7 @@ export class AddEditPerDiemPage implements OnInit {
   presetCostCenterId: number;
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   isProjectVisible$: Observable<boolean>;
+  isExpandedView = false;
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -649,6 +650,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isExpandedView = false;
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     const today = new Date();
