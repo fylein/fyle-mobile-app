@@ -235,6 +235,10 @@ export class MyExpensesPage implements OnInit {
       icon: 'assets/svg/fy-camera.svg',
       cssClass: 'capture-receipt',
       handler: () => {
+        this.trackingService.myExpensesActionSheetAction({
+          Asset: 'Mobile',
+          Action: 'capture receipts'
+        });
         that.router.navigate(['/', 'enterprise', 'camera_overlay', {
           navigate_back: true
         }]);
@@ -243,6 +247,10 @@ export class MyExpensesPage implements OnInit {
       text: 'Add Manually',
       icon: 'assets/svg/fy-expense.svg',
       handler: () => {
+        this.trackingService.myExpensesActionSheetAction({
+          Asset: 'Mobile',
+          Action: 'Add Expense'
+        });
         that.router.navigate(['/', 'enterprise', 'add_edit_expense', {
           navigate_back: true
         }]);
@@ -254,6 +262,10 @@ export class MyExpensesPage implements OnInit {
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         handler: () => {
+          this.trackingService.myExpensesActionSheetAction({
+            Asset: 'Mobile',
+            Action: 'Add Mileage'
+          });
           that.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
             navigate_back: true
           }]);
@@ -266,6 +278,10 @@ export class MyExpensesPage implements OnInit {
         text: 'Add Per Diem',
         icon: 'assets/svg/fy-calendar.svg',
         handler: () => {
+          this.trackingService.myExpensesActionSheetAction({
+            Asset: 'Mobile',
+            Action: 'Add Per Diem'
+          });
           that.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
             navigate_back: true
           }]);
@@ -1058,6 +1074,10 @@ export class MyExpensesPage implements OnInit {
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
+      this.trackingService.myExpensesFilterApplied({
+        Asset: 'Mobile',
+        ...this.filters
+      });
     }
   }
 
@@ -1517,6 +1537,10 @@ export class MyExpensesPage implements OnInit {
     const { data } = await deletePopover.onDidDismiss();
 
     if (data) {
+      this.trackingService.myExpensesBulkDeleteExpenses({
+        Asset:'Mobile',
+        count: this.selectedElements.length
+      });
       if (data.status === 'success') {
         const toastMessage = await this.toastController.create({
           color: 'success',
