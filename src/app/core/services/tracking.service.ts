@@ -684,4 +684,60 @@ export class TrackingService {
   corporateCardsOpenedDropdown(properties) {
     this.eventTrack('corporate cards opened dropdown', properties);
   }
+
+  // Instafyle Actions
+
+  instafyleIntroDisabled(properties) {
+    this.eventTrack('instafyle intro disabled', properties);
+  }
+
+  switchedToInstafyleBulkMode(properties) {
+    this.eventTrack('switched to bulk instafyle', properties); 
+  }
+
+  switchedToInstafyleSingleMode(properties) {
+    this.eventTrack('switched to single instafyle', properties); 
+  }
+
+  instafyleGalleryUploadOpened(properties) {
+    this.eventTrack('instafyle gallery upload opened', properties);  
+  }
+
+  flashModeSet(properties) {
+    this.eventTrack('instafyle flash mode set', properties);
+  }
+
+  // New Dashboard Actions
+  dashboardActionSheetOpened(properties) {
+    this.eventTrack('dashboard action sheet opened', properties);
+  }
+
+  dashboardActionSheetButtonClicked(properties) {
+    this.eventTrack('dashboard action sheet button clicked', properties);
+  }
+
+  dashboardOnUnreportedExpensesClick(properties) {
+    this.eventTrack('dashboard unreported expenses clicked', properties);
+  }
+
+  dashboardOnReportPillClick(properties) {
+    this.eventTrack('dashboard report pill clicked', properties);
+  }
+
+  // Footer
+  footerButtonClicked(properties) {
+    this.eventTrack('footer button clicked', properties);
+  }
+
+  myExpensesBulkDeleteExpenses(properties) {
+    this.eventTrack('bulk delete of expenses from my expenses page', properties);
+  }
+
+  myExpensesActionSheetAction(properties) {
+    this.eventTrack('my expenses action sheet action clicked', properties);
+  }
+
+  myExpensesFilterApplied(properties) {
+    this.eventTrack('my expenses filters applied', properties);
+  }
 }

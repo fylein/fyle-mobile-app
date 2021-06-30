@@ -6,6 +6,7 @@ import { environment } from './environments/environment';
 
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import * as Sentry from '@sentry/angular';
+import 'hammerjs';
 
 Sentry.init({
   dsn: environment.SENTRY_DSN,

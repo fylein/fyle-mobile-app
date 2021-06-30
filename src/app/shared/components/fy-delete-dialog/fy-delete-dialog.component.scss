@@ -1,0 +1,46 @@
+@import '../../../../theme/colors';
+
+.fy-delete-dialog {
+  &--grid {
+    --ion-grid-padding: 32px;
+    --ion-grid-column-padding: 0;
+  }
+
+  &--header {
+    font-size: 18px;
+    line-height: 23px;
+    text-align: center;
+    color: $black;
+    padding: 7px;
+    font-width: 500;
+  }
+
+  &--body {
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+    color: $blue-black;
+    padding: 7px 7px 32px;
+    width: 247px;
+  }
+
+  &--delete {
+    min-width: 124px;
+    min-height: 35px;
+    background: $red;
+    border-radius: 4px;
+    color: $pure-white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--cancel {
+    min-width: 124px;
+    min-height: 35px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
