@@ -23,6 +23,7 @@ export class ExpensesCardComponent implements OnInit {
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() onHomeClicked: EventEmitter<Expense> = new EventEmitter();
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
   receipt: string;
@@ -125,6 +126,12 @@ export class ExpensesCardComponent implements OnInit {
       }
     }
     return false;
+  }
+
+  onSetMultiselectMode() {
+    if (!this.isSelectionModeEnabled) {
+      this.setMultiselectMode.emit(this.expense);
+    }
   }
 
 }

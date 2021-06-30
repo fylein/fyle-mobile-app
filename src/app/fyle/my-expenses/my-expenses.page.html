@@ -117,6 +117,7 @@
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
           (onHomeClicked)="onHomeClicked($event)"
+          (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
       </app-expenses-card>
 
@@ -133,6 +134,7 @@
           [selectedElements]="selectedElements"
           (goToTransaction)="goToTransaction($event)"
           (onHomeClicked)="onHomeClicked($event)"
+          (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
       </app-expenses-card>
     </div>
