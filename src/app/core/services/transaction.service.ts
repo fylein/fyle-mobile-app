@@ -628,8 +628,16 @@ export class TransactionService {
   }
 
   getReportAbleExpenses(expenses: Expense[]): Expense[] {
-    let reportAbleExpenses = expenses.filter((expense) => !expense.isCriticalPolicyViolated);
-    reportAbleExpenses = reportAbleExpenses.filter((expense) => !expense.isDraft);
+    let reportAbleExpenses = expenses.filter((expense) => !this.getIsCriticalPolicyViolated(expense));
+    reportAbleExpenses = reportAbleExpenses.filter((expense) => !this.getIsDraft(expense));
     return reportAbleExpenses;
+  }
+
+  getIsCriticalPolicyViolated(expense: Expense): boolean{
+    return (typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001);
+  }
+
+  getIsDraft(expense: Expense): boolean {
+    return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 }

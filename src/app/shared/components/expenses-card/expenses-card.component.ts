@@ -65,9 +65,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.expense.isDraft = this.expense.tx_state && this.expense.tx_state.toLowerCase() === 'draft';
+    this.expense.isDraft = this.transactionService.getIsDraft(this.expense)
     this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
-    this.expense.isCriticalPolicyViolated = (typeof this.expense.tx_policy_amount === 'number' && this.expense.tx_policy_amount < 0.0001);
+    this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
 

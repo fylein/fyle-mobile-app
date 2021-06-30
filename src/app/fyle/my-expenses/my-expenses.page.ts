@@ -48,6 +48,7 @@ import {DateFilters} from '../../shared/components/fy-filters/date-filters.enum'
 import {SelectedFilters} from '../../shared/components/fy-filters/selected-filters.interface';
 import {FilterPill} from '../../shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
+import { getCurrencySymbol } from '@angular/common';
 
 type Filters = Partial<{
   state: string[],
@@ -107,6 +108,7 @@ export class MyExpensesPage implements OnInit {
   ROUTER_API_ENDPOINT: any;
   isReportAbleExpensesSelected = false;
   openReports$: Observable<ExtendedReport[]>;
+  homeCurrencySymbol: string;
 
   get HeaderState() {
     return HeaderState;
@@ -351,6 +353,10 @@ export class MyExpensesPage implements OnInit {
     });
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
+
+    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+    })
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
@@ -1270,14 +1276,14 @@ export class MyExpensesPage implements OnInit {
       }
     }
   }
- 
+
   openCreateReportWithSelectedIds(report_type: 'old_report' | 'new_report') {
     this.trackingService.addToReport({Asset: 'Mobile'});
 
     let selectedElements = cloneDeep(this.selectedElements);
 
-    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => expense.isCriticalPolicyViolated);
-    const expensesInDraftState = selectedElements.filter((expense) => expense.isDraft);
+    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
+    const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
 
     const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
         const amount = current.tx_amount || current.tx_user_amount;
@@ -1294,10 +1300,10 @@ export class MyExpensesPage implements OnInit {
       this.homeCurrency$.subscribe(homeCurrency => {
         if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
           title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
+          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
         } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
           title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${homeCurrency} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
+          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
         } else if (noOfExpensesInDraftState > 0) {
           title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
           message = `${noOfExpensesInDraftState} expenses are in draft states.`;
@@ -1454,6 +1460,7 @@ export class MyExpensesPage implements OnInit {
 
     this.isReportAbleExpensesSelected = false;
     this.selectionMode = false;
+    this.headerState = HeaderState.base;
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
@@ -1542,21 +1549,25 @@ export class MyExpensesPage implements OnInit {
         count: this.selectedElements.length
       });
       if (data.status === 'success') {
-        const toastMessage = await this.toastController.create({
-          color: 'success',
-          message: `${this.selectedElements.length} Expenses have been deleted`,
-          duration: 800
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          data: {
+            icon: 'tick-square-filled',
+            message: `${this.selectedElements.length} Expenses have been deleted`,
+            showCloseButton: true
+          },
+          panelClass: ['mat-snack-bar-success'],
+          duration: 3000,
         });
-
-        await toastMessage.present();
       } else {
-        const toastMessage = await this.toastController.create({
-          color: 'danger',
-          message: `We could not delete the expenses. Please try again `,
-          duration: 800
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          data: {
+            icon: 'tick-square-filled',
+            message: `We could not delete the expenses. Please try again `,
+            showCloseButton: true
+          },
+          panelClass: ['mat-snack-bar-error'],
+          duration: 3000,
         });
-
-        await toastMessage.present();
       }
 
       this.doRefresh();
