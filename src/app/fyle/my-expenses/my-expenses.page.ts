@@ -598,8 +598,8 @@ export class MyExpensesPage implements OnInit {
       }
 
       if (filter.date === DateFilters.custom) {
-        const startDate = filter.customDateStart && moment(filter.customDateStart).format('yyyy-MM-DD');
-        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('yyyy-MM-DD');
+        const startDate = filter.customDateStart && moment(filter.customDateStart).format('MMM dd, yyyy');
+        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('MMM dd, yyyy');
 
         if (startDate && endDate) {
           filterPills.push({
@@ -613,7 +613,7 @@ export class MyExpensesPage implements OnInit {
             type: 'date',
             value: `>= ${startDate}`
           });
-        } else if (startDate) {
+        } else if (endDate) {
           filterPills.push({
             label: 'Date',
             type: 'date',
@@ -782,6 +782,8 @@ export class MyExpensesPage implements OnInit {
 
   private generateDateParams(newQueryParams) {
     if (this.filters.date) {
+      this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
+      this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
       if (this.filters.date === DateFilters.thisMonth) {
         newQueryParams.and =
             `(tx_txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
@@ -792,8 +794,13 @@ export class MyExpensesPage implements OnInit {
         newQueryParams.and =
             `(tx_txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
       } else if (this.filters.date === DateFilters.custom) {
-        newQueryParams.and =
-            `(tx_txn_dt.gte.${this.filters.customDateStart.toISOString()},tx_txn_dt.lt.${this.filters.customDateEnd.toISOString()})`;
+        if (this.filters.customDateStart && this.filters.customDateEnd) {
+          newQueryParams.and =`(tx_txn_dt.gte.${this.filters?.customDateStart?.toISOString()},tx_txn_dt.lt.${this.filters?.customDateEnd?.toISOString()})`;
+        } else if (this.filters.customDateStart) {
+          newQueryParams.and =`(tx_txn_dt.gte.${this.filters.customDateStart?.toISOString()})`;
+        } else if (this.filters.customDateEnd) {
+          newQueryParams.and =`(tx_txn_dt.lt.${this.filters.customDateEnd?.toISOString()})`;
+        }
       }
     }
   }
@@ -820,8 +827,8 @@ export class MyExpensesPage implements OnInit {
         name: 'Date',
         value: filter.date,
         associatedData: {
-          from: filter.customDateStart,
-          to: filter.customDateEnd
+          startDate: filter.customDateStart,
+          endDate: filter.customDateEnd
         }
       });
     }
@@ -881,8 +888,8 @@ export class MyExpensesPage implements OnInit {
     const dateFilter = selectedFilters.find(filter => filter.name === 'Date');
     if (dateFilter) {
       generatedFilters.date = dateFilter.value;
-      generatedFilters.customDateStart = dateFilter.associatedData?.from;
-      generatedFilters.customDateStart = dateFilter.associatedData?.to;
+      generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
+      generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
     const receiptAttachedFilter = selectedFilters.find(filter => filter.name === 'Receipts Attached');
