@@ -68,6 +68,9 @@
 
   &--custom-date-filters {
     padding: 16px;
+    .mat-form-field {
+      width: 100%;
+    }
   }
 
   &--footer-toolbar {
