@@ -31,8 +31,17 @@
     width: 100%;
   }
 
-  &--gallery-icon-block {
-    color: #fff
+  &--gallery-icon {
+    height: 52px;
+    width: 52px;
+  }
+
+  &--gallery-icon-text {
+    color: #fff;
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 19px;
+    letter-spacing: -0.3px;
   }
 
   &--capture-icon {
@@ -40,14 +49,26 @@
     width: 68px;
   }
 
-  &--gallery-icon {
-    height: 52px;
-    width: 52px;
+  &--capture-icon-text {
+    color: #fff;
+    margin-top: 22px;
+    font-size: 15px;
+    line-height: 19px;
+    letter-spacing: -0.3px;
+    font-weight: 500;
   }
 
   &--bulk-mode-icon {
     height: 52px;
     width: 52px;
+  }
+
+  &--bulk-icon-text {
+    color: #fff;
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 19px;
+    letter-spacing: -0.3px;
   }
 }
 
