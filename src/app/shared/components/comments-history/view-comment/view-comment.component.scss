@@ -1,6 +1,23 @@
+@import "../../../../../theme/colors.scss";
+
 .view-comment{
   &--toolbar {
     text-align: center;
+  }
+
+  &--btn-history {
+    min-width: 156px;
+  }
+
+  &--btn-close {
+    margin: 0 16px;
+  }
+
+  &--btn-segment {
+    color: $blue-black;
+    font-size: 14px;
+    text-transform: capitalize;
+    font-weight: 400;
   }
 
   &--card {
@@ -92,11 +109,7 @@
   }
 
   &--send-icon {
-    margin-top: 5px;
-    font-size: 35px;
-    margin-left: 5px;
-    color: #4cd964;
-    transform: rotate(-40deg);
+    margin: 10px;
   }
 
   &--add-comment-container {

@@ -8,11 +8,11 @@ import {TrackingService} from '../../../core/services/tracking.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
-  selector: 'app-comments',
-  templateUrl: './comments.component.html',
-  styleUrls: ['./comments.component.scss'],
+  selector: 'app-comments-history',
+  templateUrl: './comments-history.component.html',
+  styleUrls: ['./comments-history.component.scss'],
 })
-export class CommentsComponent implements OnInit {
+export class CommentsHistoryComponent implements OnInit {
 
   @Input() objectType: string;
   @Input() objectId: string;

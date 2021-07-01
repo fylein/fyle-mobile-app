@@ -33,6 +33,7 @@ export class ViewCommentComponent implements OnInit {
   reversalComment: string;
   matchedExpense: Expense;
   expenseNumber: string;
+  isCommentsView: boolean = true;
 
   constructor(
     private statusService: StatusService,
@@ -73,6 +74,11 @@ export class ViewCommentComponent implements OnInit {
       this.trackingService.viewComment({Asset: 'Mobile'});
       this.modalController.dismiss();
     }
+  }
+
+  segmentChanged(ev: any) {
+    console.log('Segment changed', ev);
+    this.isCommentsView = !this.isCommentsView;
   }
 
   ngOnInit() {

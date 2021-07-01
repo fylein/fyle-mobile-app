@@ -125,7 +125,7 @@
     </div>
 
     <div *ngIf="erpt.rp_num_transactions > 0" class="view-reports--card view-reports--card__block-action" matRipple>
-      <app-comments objectType="reports" [objectId]="erpt.rp_id" mode="edit" text="Comments"></app-comments>
+      <app-comments-history objectType="reports" [objectId]="erpt.rp_id" mode="edit" text="Comments"></app-comments-history>
     </div>
 
     <div class="view-reports--card view-reports--card__block-action" *ngIf="canDelete$ | async" (click)="deleteReport()"

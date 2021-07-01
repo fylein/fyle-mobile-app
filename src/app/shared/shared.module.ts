@@ -40,8 +40,8 @@ import {FyLoadingScreenComponent} from './components/fy-loading-screen/fy-loadin
 import {DelegatedAccMessageComponent} from './components/delegated-acc-message/delegated-acc-message.component';
 import {IconModule} from './icon/icon.module';
 import {CurrencyComponent} from './components/currency/currency.component';
-import {CommentsComponent} from './components/comments/comments.component';
-import {ViewCommentComponent} from './components/comments/view-comment/view-comment.component';
+import {CommentsHistoryComponent} from './components/comments-history/comments-history.component';
+import {ViewCommentComponent} from './components/comments-history/view-comment/view-comment.component';
 import {FyApporverComponent} from './components/fy-apporver/fy-apporver.component';
 import {ConfirmationCommentPopoverComponent} from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 
@@ -100,7 +100,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     FyDuplicateDetectionModalComponent,
     DelegatedAccMessageComponent,
     CurrencyComponent,
-    CommentsComponent,
+    CommentsHistoryComponent,
     ViewCommentComponent,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
@@ -168,7 +168,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     DelegatedAccMessageComponent,
     IconModule,
     CurrencyComponent,
-    CommentsComponent,
+    CommentsHistoryComponent,
     FormButtonValidationDirective,
     MatProgressSpinnerModule,
     FyPreviewAttachmentsComponent,

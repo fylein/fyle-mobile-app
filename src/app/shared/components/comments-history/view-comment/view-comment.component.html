@@ -1,19 +1,21 @@
 <ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar class="view-comment--toolbar fy-modal-toolbar">
-    <ion-buttons mode="md" slot="end">
-      <ion-button class="view-comment--close" (click)="closeCommentModal()">
-        Done
-      </ion-button>
+    <ion-buttons mode="md" slot="start">
+      <mat-icon class="fy-icon-close view-comment--btn-close" svgIcon="fy-close"></mat-icon>
     </ion-buttons>
-    <ion-title mode="md" class="view-comment--title">
-      Comments
-      <span>({{totalCommentsCount$|async}})</span>
-    </ion-title>
+    <ion-segment (ionChange)="segmentChanged($event)" value="comments">
+      <ion-segment-button value="comments" class="view-comment--btn-segment">
+        Comments
+      </ion-segment-button>
+      <ion-segment-button value="history" class="view-comment--btn-history view-comment--btn-segment">
+        History
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="view-comment--container">
+<ion-content class="view-comment--container" *ngIf="isCommentsView">
   <div *ngFor="let estatus of estatuses$|async as estatuses">
     <ion-grid class="view-comment--card" *ngIf="!(estatus.isBotComment) || showBotComments"
       [ngClass]="{'view-comment--bot-comment': estatus.isBotComment, 'view-comment--self-comment': estatus.isSelfComment}">
@@ -47,7 +49,7 @@
   </div>
 </ion-content>
 
-<ion-footer class="ion-no-border">
+<ion-footer class="ion-no-border" *ngIf="isCommentsView">
   <div class="view-comment--add-comment-container">
     <ion-toolbar mode="md">
       <div class="view-comment--audit-trails-container">
@@ -60,7 +62,7 @@
       <div class="view-comment--type-comment-block" *ngIf="mode === 'edit'">
         <textarea class="view-comment--text-area" rows="1" matInput placeholder="Type in your comment here..."
           [(ngModel)]="newComment"></textarea>
-        <mat-icon class="view-comment--send-icon" (click)="addComment()">send</mat-icon>
+        <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send"></mat-icon>
       </div>
     </ion-toolbar>
   </div>
