@@ -649,13 +649,13 @@ export class MyExpensesPage implements OnInit {
         filterPills.push({
           label: 'Sort By',
           type: 'sort',
-          value: 'date - new to old'
+          value: 'date - old to new'
         });
       } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
         filterPills.push({
           label: 'Sort By',
           type: 'sort',
-          value: 'date - old to new'
+          value: 'date - new to old'
         });
       } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
         filterPills.push({
@@ -844,12 +844,12 @@ export class MyExpensesPage implements OnInit {
       if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
         generatedFilters.push({
           name: 'Sort By',
-          value: 'dateNewToOld'
+          value: 'dateOldToNew'
         });
       } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
         generatedFilters.push({
           name: 'Sort By',
-          value: 'dateOldToNew'
+          value: 'dateNewToOld'
         });
       } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
         generatedFilters.push({
@@ -909,10 +909,10 @@ export class MyExpensesPage implements OnInit {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
         generatedFilters.sortParam = 'tx_txn_dt';
-        generatedFilters.sortDir = 'asc';
+        generatedFilters.sortDir = 'desc';
       } else if (sortBy.value === 'dateOldToNew') {
         generatedFilters.sortParam = 'tx_txn_dt';
-        generatedFilters.sortDir = 'desc';
+        generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'amountHighToLow') {
         generatedFilters.sortParam = 'tx_amount';
         generatedFilters.sortDir = 'desc';
