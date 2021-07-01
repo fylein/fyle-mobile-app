@@ -598,8 +598,8 @@ export class MyExpensesPage implements OnInit {
       }
 
       if (filter.date === DateFilters.custom) {
-        const startDate = filter.customDateStart && moment(filter.customDateStart).format('MMM dd, yyyy');
-        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('MMM dd, yyyy');
+        const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
+        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
 
         if (startDate && endDate) {
           filterPills.push({
