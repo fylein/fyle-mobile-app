@@ -62,7 +62,7 @@
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
         <div *ngIf="instaFyleCancelled">
-          Instafyle is taking longer than expected due to a bad network, please add the details manually
+          Extracting receipt details is taking longer than expected due to a bad network, please add the details manually
         </div>
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit'  && etxn.tx.policy_flag">
@@ -138,12 +138,6 @@
           </div>
         </div>
 
-        <div *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
-          <div (click)="splitExpense()" class="add-edit-expense--split-expense-container">
-            <mat-icon class="add-edit-expense--split-expense-icon" svgIcon="split-expense"></mat-icon>
-            <div class="add-edit-expense--split-expense-title">Split Expense</div>
-          </div>
-        </div>
         <div class="add-edit-expense--primary-block">
           <ng-container *ngIf="txnFields$|async as txnFields">
             <div *ngIf="txnFields?.txn_dt" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
@@ -345,7 +339,7 @@
                 </div>
                 <input [disabled]="!txnFields.purpose?.canEdit" [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
                        [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
-                       class="add-edit-expense--text-input add-edit-expense--internal-block"
+                       class="add-edit-expense--text-input"
                        formControlName="purpose">
               </div>
               <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-expense--internal-block"
@@ -666,6 +660,16 @@
           </div>
         </ng-container>
       </ng-container>
+
+      <div class="add-edit-expense--split-expense-block" *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
+        <button class="add-edit-expense--split-expense-container" (click)="splitExpense()">
+          <div class="add-edit-expense--split-expense-title">Split Expense</div>
+        </button>
+        <div class="add-edit-expense--split-info-container">
+          <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
+          <div class="add-edit-expense--split-info-message">Fill all the required fields before splitting an expense.</div>
+        </div>
+      </div>
 
       <app-fy-alert *ngIf="isNotReimbursable$|async" [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
                     [type]="'information'">

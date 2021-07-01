@@ -388,6 +388,25 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$
   })
+  deleteBulk(txnIds: string[]) {
+    const chunkSize = 10;
+    const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
+    return range(0, count).pipe(
+        concatMap(page => {
+          const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
+          return this.apiService.post('/transactions/delete/bulk', {
+            txn_ids: filteredtxnIds
+          });
+        }),
+        reduce((acc, curr) => {
+          return acc.concat(curr);
+        }, [] as any[])
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   upsert(transaction) {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];

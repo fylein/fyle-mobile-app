@@ -371,11 +371,10 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getProjectCategoryIds(): Observable<string[]> {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map((categories) => {
 
         const mileageCategories = categories
-          .filter(category => category.enabled)
           .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1)
           .map(category => category.id as string);
 
@@ -385,14 +384,13 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getMileageCategories() {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map((categories) => {
         const orgCategoryName = 'mileage';
 
         const defaultMileageCategory = categories.find(category => category.name.toLowerCase() === orgCategoryName.toLowerCase());
 
         const mileageCategories = categories
-          .filter(category => category.enabled)
           .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1);
 
         return {
@@ -499,13 +497,12 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getSubCategories() {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map(categories => {
         const parentCategoryName = 'mileage';
         return categories
           .filter((orgCategory) => (parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase())
-            && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()))
-          .filter(category => category.enabled);
+            && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()));
       }),
       shareReplay(1)
     );
@@ -522,7 +519,7 @@ export class AddEditMileagePage implements OnInit {
             selectedCategory$ = this.etxn$.pipe(
               switchMap(etxn => {
                 return iif(() => etxn.tx.org_category_id,
-                  this.offlineService.getAllCategories().pipe(
+                  this.offlineService.getAllEnabledCategories().pipe(
                     map(categories => categories
                       .find(innerCategory => innerCategory.id === etxn.tx.org_category_id))), of(null));
               }));
@@ -1205,7 +1202,7 @@ export class AddEditMileagePage implements OnInit {
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap(etxn => {
         return iif(() => etxn.tx.org_category_id,
-          this.offlineService.getAllCategories().pipe(
+          this.offlineService.getAllEnabledCategories().pipe(
             map(subCategories => subCategories
               .filter(subCategory => subCategory.sub_category.toLowerCase() !== subCategory.name.toLowerCase())
               .find(subCategory => subCategory.id === etxn.tx.org_category_id)
@@ -1645,7 +1642,7 @@ export class AddEditMileagePage implements OnInit {
           }
         }
 
-        return this.offlineService.getAllCategories().pipe(
+        return this.offlineService.getAllEnabledCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {

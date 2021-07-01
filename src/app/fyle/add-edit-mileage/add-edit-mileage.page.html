@@ -257,7 +257,7 @@
                   </div>
                   <input [disabled]="!txnFields.purpose?.canEdit" [placeholder]="'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
                          [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
-                         class="add-edit-mileage--text-input add-edit-mileage--internal-block"
+                         class="add-edit-mileage--text-input"
                          formControlName="purpose">
                 </div>
                 <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-mileage--internal-block">
