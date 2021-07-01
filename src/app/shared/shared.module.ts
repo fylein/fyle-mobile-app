@@ -74,6 +74,8 @@ import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
+import { AgmCoreModule } from '@agm/core';
+import { AgmDirectionModule } from 'agm-direction';
 
 @NgModule({
   declarations: [
@@ -148,7 +150,9 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     PdfViewerModule,
     MatRippleModule,
     MatRadioModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    AgmCoreModule,
+    AgmDirectionModule
   ],
   exports: [
     EllipsisPipe,
