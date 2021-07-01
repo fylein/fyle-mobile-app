@@ -1,0 +1,46 @@
+@import '../../../../theme/colors.scss';
+
+.receipt-preview {
+  &--cta-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 16px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: $pure-white;
+    box-shadow: 0 -2px 12px $pink-shadow;
+    z-index: 999;
+  }
+
+  &--cta-button {
+    font-weight: 500;
+  }
+
+  &--secondary-cta {
+    height: auto;
+    background: transparent;
+    color: $black;
+    font-size: 16px;
+    line-height: 20px;
+    min-width: 40%;
+
+    &__disabled {
+      opacity: 0.2;
+    }
+  }
+
+  &--primary-cta {
+    min-height: 52px;
+    background: $pink-gradient-1;
+    color: $pure-white;
+    font-size: 14px;
+    line-height: 18px;
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-width: 50%;
+    &__disabled {
+      opacity: 0.8;
+    }
+  }
+}

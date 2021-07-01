@@ -22,6 +22,19 @@
     width: 42px;
   }
 
+  &--camera-pointer-container {
+    position: fixed;
+    top: 146px;
+    left: 18px;
+  }
+
+  &--camera-pointer-icon {
+    width: 339px;
+    height: 483px;
+  }
+
+
+
   &--single-bulk-gallery-container {
     position: fixed;
     bottom: 53px;
@@ -29,6 +42,10 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
+  }
+
+  &--gallery-icon-block {
+    margin-top: auto;
   }
 
   &--gallery-icon {
@@ -56,6 +73,10 @@
     line-height: 19px;
     letter-spacing: -0.3px;
     font-weight: 500;
+  }
+
+  &--bulk-mode-icon-block{
+    margin-top: auto;
   }
 
   &--bulk-mode-icon {

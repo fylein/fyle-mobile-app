@@ -9,13 +9,17 @@
     </div>
   </div>
 
+  <div class="capture-receipt--camera-pointer-container">
+    <mat-icon class="capture-receipt--camera-pointer-icon" svgIcon="camera-pointer"></mat-icon>
+  </div>
+
   <div class="capture-receipt--single-bulk-gallery-container">
     <div class="capture-receipt--gallery-icon-block text-center">
       <mat-icon class="capture-receipt--gallery-icon" svgIcon="gallery"></mat-icon>
       <div class="text-center capture-receipt--gallery-icon-text">Gallery</div>
     </div>
     <div class="capture-receipt--capture-icon-block text-center">
-      <mat-icon class="capture-receipt--capture-icon" svgIcon="capture"></mat-icon>
+      <mat-icon class="capture-receipt--capture-icon" svgIcon="capture" (click)="onCapture()"></mat-icon>
       <div class="text-center capture-receipt--capture-icon-text">Single Mode</div>
     </div>
     <div class="capture-receipt--bulk-mode-icon-block text-center">

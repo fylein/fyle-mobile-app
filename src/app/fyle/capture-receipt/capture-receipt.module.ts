@@ -8,6 +8,8 @@ import { CaptureReceiptPageRoutingModule } from './capture-receipt-routing.modul
 
 import { CaptureReceiptPage } from './capture-receipt.page';
 import { MatIconModule } from '@angular/material/icon';
+import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
+import { PinchZoomModule } from 'ngx-pinch-zoom';
 
 @NgModule({
   imports: [
@@ -15,8 +17,12 @@ import { MatIconModule } from '@angular/material/icon';
     FormsModule,
     IonicModule,
     CaptureReceiptPageRoutingModule,
-    MatIconModule
+    MatIconModule,
+    PinchZoomModule
   ],
-  declarations: [CaptureReceiptPage]
+  declarations: [
+    CaptureReceiptPage,
+    ReceiptPreviewComponent
+  ]
 })
 export class CaptureReceiptPageModule {}

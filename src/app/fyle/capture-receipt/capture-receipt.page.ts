@@ -3,6 +3,8 @@ import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-comm
 import { Plugins } from '@capacitor/core';
 const {CameraPreview} = Plugins;
 import '@capacitor-community/camera-preview';
+import { ModalController } from '@ionic/angular';
+import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 
 @Component({
   selector: 'app-capture-receipt',
@@ -11,14 +13,24 @@ import '@capacitor-community/camera-preview';
 })
 export class CaptureReceiptPage implements OnInit {
   isCameraShown: boolean;
+  isBulkMode: boolean;
 
-  constructor() { }
+  constructor(
+    private modalController: ModalController
+  ) { }
 
   ngOnInit() {
   }
 
+  async stopCamera() {
+    if (this.isCameraShown === true) {
+      await CameraPreview.stop();
+      this.isCameraShown = false;
+    }
+  }
+
   setUpAndStartCamera() {
-    if (this.isCameraShown === false) {
+    if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
         x: 0,
@@ -37,9 +49,47 @@ export class CaptureReceiptPage implements OnInit {
     }
   }
 
+  async onSingleCapture(base64PictureData) {
+    const modal = await this.modalController.create({
+      component: ReceiptPreviewComponent,
+      componentProps: {
+        base64Images: [base64PictureData],
+        mode: "single"
+      },
+      // mode: 'ios',
+      // presentingElement: await this.modalController.getTop(),
+      // ...this.modalProperties.getModalDefaultProperties()
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      if (data.base64Images.length === 0) {
+        this.setUpAndStartCamera();
+      }
+    }
+  }
+
+  async onCapture() {
+    const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
+      quality: 50
+    };
+
+    const result = await CameraPreview.capture(cameraPreviewPictureOptions);
+    this.stopCamera();
+    const base64PictureData = 'data:image/jpeg;base64,' + result.value;
+    //console.log(base64PictureData);
+    if (!this.isBulkMode) { 
+      this.onSingleCapture(base64PictureData);
+    }
+
+  }
+
 
   ionViewWillEnter() {
-    this.isCameraShown = false
+    this.isCameraShown = false;
+    this.isBulkMode = false;
     this.setUpAndStartCamera();
   }
 
