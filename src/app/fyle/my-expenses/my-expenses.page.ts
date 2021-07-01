@@ -771,11 +771,11 @@ export class MyExpensesPage implements OnInit {
   private generateReceiptAttachedParams(newQueryParams) {
     if (this.filters.receiptsAttached) {
       if (this.filters.receiptsAttached === 'YES') {
-        newQueryParams.tx_receipt_required = 'eq.true';
+        newQueryParams.tx_num_files = 'gt.0';
       }
 
       if (this.filters.receiptsAttached === 'NO') {
-        newQueryParams.tx_receipt_required = 'eq.false';
+        newQueryParams.tx_num_files = 'eq.0';
       }
     }
   }
