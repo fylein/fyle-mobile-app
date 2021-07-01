@@ -76,6 +76,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
 import { AgmCoreModule } from '@agm/core';
 import { AgmDirectionModule } from 'agm-direction';
+import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 
 @NgModule({
   declarations: [
@@ -133,7 +134,8 @@ import { AgmDirectionModule } from 'agm-direction';
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,
-    FyFilterPillsComponent
+    FyFilterPillsComponent,
+    RouteVisualizerComponent
   ],
   imports: [
     CommonModule,
@@ -201,7 +203,8 @@ import { AgmDirectionModule } from 'agm-direction';
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,
-    FyFilterPillsComponent
+    FyFilterPillsComponent,
+    RouteVisualizerComponent
   ],
   providers: [
     DecimalPipe,
