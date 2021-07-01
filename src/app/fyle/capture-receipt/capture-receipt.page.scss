@@ -31,9 +31,23 @@
     width: 100%;
   }
 
+  &--gallery-icon-block {
+    color: #fff
+  }
+
   &--capture-icon {
     height: 68px;
     width: 68px;
+  }
+
+  &--gallery-icon {
+    height: 52px;
+    width: 52px;
+  }
+
+  &--bulk-mode-icon {
+    height: 52px;
+    width: 52px;
   }
 }
 

@@ -18,7 +18,7 @@ export class IconModule {
   path = '../../assets/svg';
 
   svgImageArray = ["add-advance.svg", "add-expense.svg", "add-mileage.svg", "add-per-diem.svg", "add-report.svg", "add-trip.svg", "auto_fyle.svg",
-    "bulk.svg", "bus.svg",
+    "bulk.svg", "bus.svg", "bulk-mode.svg",
     "chevron-right.svg", "create-expense.svg", "create-mileage.svg", "create-per-diem.svg", "curve.svg", "close.svg", "capture.svg",
     "danger.svg",
     "entertainment.svg", "expense.svg", "error.svg",
@@ -37,7 +37,7 @@ export class IconModule {
       "fy-settings.svg", "fy-sort-ascending.svg", "fy-sort-descending.svg", "fy-spinner-circle.svg", "fy-switch-new.svg", "fy-switch.svg", 
       "fy-team-advances-new.svg", "fy-team-reports-new.svg", "fy-team-trips-new.svg", "fy-trips-new.svg", "fy-trips.svg", 
       "fy-wallet.svg","fy-search.svg", "fy-clear.svg",
-    "gas.svg",
+    "gas.svg", "gallery.svg",
     "hotel.svg",
     "insta-fyle.svg", "instafyle.svg", "internet.svg", "ionic-log-out-outline.svg",
     "logo-icon-white.svg", "logo-white.svg",
