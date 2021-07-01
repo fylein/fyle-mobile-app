@@ -1,0 +1,42 @@
+.capture-receipt {
+  &--camera-preview{
+    --background: transparent;
+  }
+
+  &--close-flash-container {
+    position: fixed;
+    top: 53px;
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  &--close-icon {
+    height: 42px;
+    width: 42px;
+  }
+
+  &--flash-icon {
+    height: 42px;
+    width: 42px;
+  }
+
+  &--single-bulk-gallery-container {
+    position: fixed;
+    bottom: 53px;
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  &--capture-icon {
+    height: 68px;
+    width: 68px;
+  }
+}
+
+
+
+  
