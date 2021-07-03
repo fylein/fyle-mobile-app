@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { ViewTeamAdvancePage } from './view-team-advance.page';
@@ -7,7 +7,7 @@ describe('ViewTeamAdvancePage', () => {
   let component: ViewTeamAdvancePage;
   let fixture: ComponentFixture<ViewTeamAdvancePage>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ViewTeamAdvancePage ],
       imports: [IonicModule.forRoot()]
