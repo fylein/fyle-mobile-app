@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FySelectComponent } from './fy-select.component';
+import { SplitExpensePopoverComponent } from './split-expense-popover.component';
 
-describe('FySelectComponent', () => {
-  let component: FySelectComponent;
-  let fixture: ComponentFixture<FySelectComponent>;
+describe('SplitExpensePopoverComponent', () => {
+  let component: SplitExpensePopoverComponent;
+  let fixture: ComponentFixture<SplitExpensePopoverComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ FySelectComponent ],
+      declarations: [ SplitExpensePopoverComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FySelectComponent);
+    fixture = TestBed.createComponent(SplitExpensePopoverComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

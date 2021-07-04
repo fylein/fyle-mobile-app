@@ -79,14 +79,14 @@
           <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === 'custom'">
             <div class="fy-filters--custom-date-filters">
               <mat-form-field>
-                <mat-label>start date</mat-label>
+                <mat-label>Start date</mat-label>
                 <input matInput [(ngModel)]="startDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker1">
                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                 <mat-datepicker #picker1></mat-datepicker>
               </mat-form-field>
 
               <mat-form-field>
-                <mat-label> end date</mat-label>
+                <mat-label>End date</mat-label>
                 <input matInput [(ngModel)]="endDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker2">
                 <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                 <mat-datepicker #picker2></mat-datepicker>
@@ -101,10 +101,10 @@
 <ion-footer>
   <ion-toolbar>
     <div class="fy-filters--footer-toolbar">
-      <ion-button class="fy-filters--cancel" (click)="cancel()" fill="clear">
+      <ion-button class="fy-filters--cancel text-capitalize" (click)="cancel()" fill="clear">
         Cancel
       </ion-button>
-      <ion-button class="fy-filters--save" (click)="save()" expand="block" color="fyle-primary" fill="solid">
+      <ion-button class="fy-filters--save text-capitalize" (click)="save()" expand="block" color="fyle-primary" fill="solid">
         Save
       </ion-button>
     </div>
