@@ -17,8 +17,8 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   @Input() currentSelection: string;
 
-  currencies$: Observable<{ shortCode: string, longName: string }[]>;
-  filteredCurrencies$: Observable<{ shortCode: string, longName: string }[]>;
+  currencies$: Observable<{ shortCode: string; longName: string }[]>;
+  filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
   value;
 
   constructor(
@@ -37,9 +37,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   ngOnInit() {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
-      concatMap(() => {
-        return this.offlineService.getCurrencies();
-      }),
+      concatMap(() => this.offlineService.getCurrencies()),
       map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
@@ -55,8 +53,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.currencies$.pipe(
+      switchMap((searchText) => this.currencies$.pipe(
           map(
             currencies => currencies
               .filter(
@@ -64,8 +61,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
                   || currency.longName.toLowerCase().includes(searchText.toLowerCase())
               )
           )
-        );
-      })
+        ))
     );
   }
 

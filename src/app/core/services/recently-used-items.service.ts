@@ -19,11 +19,11 @@ export class RecentlyUsedItemsService {
     private projectService: ProjectsService
   ) { }
 
-  getRecentlyUsed():Observable<RecentlyUsed> {
+  getRecentlyUsed(): Observable<RecentlyUsed> {
     return this.apiService.get('/recently_used');
   }
 
-  getRecentlyUsedProjects(config: {recentValues: RecentlyUsed, eou: ExtendedOrgUser, categoryIds: string[]}): Observable<ExtendedProject[]> {
+  getRecentlyUsedProjects(config: {recentValues: RecentlyUsed; eou: ExtendedOrgUser; categoryIds: string[]}): Observable<ExtendedProject[]> {
     if (config.recentValues && config.recentValues.recent_project_ids && config.recentValues.recent_project_ids.length > 0 && config.eou) {
 
       return this.projectService.getByParamsUnformatted({
@@ -37,10 +37,10 @@ export class RecentlyUsedItemsService {
         limit: 10
       }).pipe(
         map(project => {
-          var projectsMap = {};
+          const projectsMap = {};
           project.forEach(item => {
             projectsMap[item.project_id] = item;
-          })
+          });
           return config.recentValues.recent_project_ids.map(id => projectsMap[id]).filter(id => id);
         })
       );
@@ -49,12 +49,12 @@ export class RecentlyUsedItemsService {
     }
   }
 
-  getRecentCostCenters(costCenters, recentValue): Observable<{ label: string, value: CostCenter, selected?: boolean }[]> {
+  getRecentCostCenters(costCenters, recentValue): Observable<{ label: string; value: CostCenter; selected?: boolean }[]> {
     if (costCenters && costCenters.length > 0 && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0) {
-      var costCentersMap = {};
+      const costCentersMap = {};
       costCenters.forEach(item => {
         costCentersMap[item.value.id] = item;
-      })
+      });
       const recentCostCenterList = recentValue.recent_cost_center_ids.map(id => costCentersMap[id]).filter(id => id);
       if (recentCostCenterList) {
         return of(recentCostCenterList.map(costCenter => ({ label: costCenter.value.name, value: costCenter.value })));
@@ -68,10 +68,10 @@ export class RecentlyUsedItemsService {
 
   getRecentCategories(filteredCategories: OrgCategoryListItem[], recentValues: RecentlyUsed): Observable<OrgCategoryListItem[]> {
     if (filteredCategories && filteredCategories.length > 0 && recentValues && recentValues.recent_org_category_ids && recentValues.recent_org_category_ids.length > 0) {
-      var categoriesMap = {};
+      const categoriesMap = {};
       filteredCategories.forEach(category => {
         categoriesMap[category.value.id] = category;
-      })
+      });
       return of(recentValues.recent_org_category_ids.map(id => categoriesMap[id]).filter(id => id));
     } else {
       return of(null);

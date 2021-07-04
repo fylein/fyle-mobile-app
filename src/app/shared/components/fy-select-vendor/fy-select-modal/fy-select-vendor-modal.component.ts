@@ -41,13 +41,11 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
 
   getRecentlyUsedVendors() {
     return from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
-      map((options: VendorListItem[]) => {
-        return options
+      map((options: VendorListItem[]) => options
           .map(option => {
           option.selected = isEqual(option.value, this.currentSelection);
           return option;
-        });
-      })
+        }))
     );
   }
 
@@ -85,9 +83,9 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       map((vendors: VendorListItem[]) => {
         if (!vendors.some(vendor => isEqual(vendor.value, this.currentSelection))) {
           vendors = vendors.concat({
-            label: this.currentSelection.display_name, 
+            label: this.currentSelection.display_name,
             value: this.currentSelection
-          })
+          });
         }
 
         return vendors.map(vendor => {
@@ -103,12 +101,10 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.getRecentlyUsedVendors().pipe(
+      switchMap((searchText) => this.getRecentlyUsedVendors().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
           this.utilityService.searchArrayStream(searchText)
-        );
-      }),
+        )),
     );
 
     this.cdr.detectChanges();

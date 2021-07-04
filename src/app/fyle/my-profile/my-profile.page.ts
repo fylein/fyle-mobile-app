@@ -79,12 +79,10 @@ export class MyProfilePage implements OnInit {
       device: this.deviceService.getDeviceInfo(),
       eou: from(this.authService.getEou())
     }).pipe(
-      switchMap(({ device, eou }) => {
-        return this.authService.logout({
+      switchMap(({ device, eou }) => this.authService.logout({
           device_id: device.uuid,
           user_id: eou.us.id
-        });
-      }),
+        })),
       finalize(() => {
         this.userEventService.logout();
         this.storageService.clearAll();
@@ -104,15 +102,13 @@ export class MyProfilePage implements OnInit {
         userSettings: this.orgUserService.postUser(eou.us),
         orgUserSettings: this.orgUserService.postOrgUser(eou.ou)
       }).pipe(
-        concatMap(() => {
-          return this.authService.refreshEou().pipe(
+        concatMap(() => this.authService.refreshEou().pipe(
             tap(() => this.trackingService.activated({Asset: 'Mobile'})),
             map(() => {
               this.presentToast('Profile saved successfully', 1000);
               this.reset();
             })
-          );
-        }),
+          )),
         finalize(() => {
           this.saveProfileLoading = false;
         })
@@ -243,7 +239,7 @@ export class MyProfilePage implements OnInit {
       dimension_1_1: 'tx_source'
     }).pipe(
       map(statsRes => this.setMyExpensesCountBySource(new StatsOneDResponse(statsRes[0])))
-    )
+    );
 
     this.org$ = this.offlineService.getCurrentOrg();
 
@@ -264,13 +260,11 @@ export class MyProfilePage implements OnInit {
     ).subscribe(noop);
 
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return forkJoin({
+      switchMap(() => forkJoin({
           eou: this.eou$,
           orgUserSettings: orgUserSettings$,
           orgSettings: orgSettings$
-        });
-      }),
+        })),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(async (res) => {
       this.orgUserSettings = res.orgUserSettings;

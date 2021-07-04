@@ -13,9 +13,9 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 })
 export class FySelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
+  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
   @Input() currentSelection: any;
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() nullOption = true;
   @Input() cacheName;
@@ -25,7 +25,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   @Input() showSaveButton = false;
   @Input() placeholder = '';
   @Input() defaultLabelProp;
-  @Input() recentlyUsed: { label: string, value: any, selected?: boolean }[];
+  @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -53,16 +53,12 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => {
-          return options
-            .filter(option => {
-              return option.custom || this.options.map(op => op.label).includes(option.label);
-            })
+        map((options: any) => options
+            .filter(option => option.custom || this.options.map(op => op.label).includes(option.label))
             .map(option => {
             option.selected = isEqual(option.value, this.currentSelection);
             return option;
-          });
-        })
+          }))
       );
     }
   }
@@ -111,12 +107,10 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         map((event: any) => event.srcElement.value),
         startWith(''),
         distinctUntilChanged(),
-        switchMap((searchText) => {
-          return this.getRecentlyUsedItems().pipe(
+        switchMap((searchText) => this.getRecentlyUsedItems().pipe(
             // filtering of recently used items wrt searchText is taken care in service method
             this.utilityService.searchArrayStream(searchText)
-          );
-        })
+          ))
       );
     } else {
       const initial = [];

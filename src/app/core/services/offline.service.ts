@@ -93,7 +93,7 @@ export class OfflineService {
       homeCurrency$,
       delegatedAccounts$
     ]);
-    
+
   }
 
   getCurrentUser() {
@@ -426,7 +426,7 @@ export class OfflineService {
               map(
                 data => data as Org[]
               )
-            )
+            );
           }
         }
       )
@@ -514,9 +514,7 @@ export class OfflineService {
             const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids;
 
             if (allPerDiemRates && allPerDiemRates.length > 0) {
-              allowedPerDiems = allPerDiemRates.filter((perDiem) => {
-                return allowedPerDiemIds.indexOf(perDiem.id) > -1;
-              });
+              allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.indexOf(perDiem.id) > -1);
             }
           }
 

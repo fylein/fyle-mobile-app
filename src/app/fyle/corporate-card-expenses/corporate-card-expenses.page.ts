@@ -26,11 +26,11 @@ export class CorporateCardExpensesPage implements OnInit {
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
   loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
   }>>;
   currentPageNumber = 1;
   acc = [];
@@ -153,19 +153,15 @@ export class CorporateCardExpensesPage implements OnInit {
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
         return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.corporateCreditCardExpenseService.getAllv2CardTransactions({
+          switchMap(() => this.corporateCreditCardExpenseService.getAllv2CardTransactions({
               queryParams,
               order: orderByParams
             }).pipe(
-              map(expenses => expenses.filter(expense => {
-                return Object.values(expense)
+              map(expenses => expenses.filter(expense => Object.values(expense)
                   .map(value => value && value.toString().toLowerCase())
                   .filter(value => !!value)
-                  .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
-              }))
-            );
-          }),
+                  .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()))))
+            )),
           finalize(() => from(this.loaderService.hideLoader()))
         );
       })
@@ -174,9 +170,7 @@ export class CorporateCardExpensesPage implements OnInit {
     this.baseState = this.activatedRoute.snapshot.params.pageState || 'unclassified';
 
     this.cardTransactions$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
-      }),
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe)),
       shareReplay(1)
     );
 
@@ -206,18 +200,12 @@ export class CorporateCardExpensesPage implements OnInit {
     });
 
     const paginatedScroll$ = this.cardTransactions$.pipe(
-      switchMap(cardTxns => {
-        return this.count$.pipe(
-          map(count => {
-            return count > cardTxns.length;
-          }));
-      })
+      switchMap(cardTxns => this.count$.pipe(
+          map(count => count > cardTxns.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
-      })
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$))
     );
 
     this.loadData$.subscribe(params => {

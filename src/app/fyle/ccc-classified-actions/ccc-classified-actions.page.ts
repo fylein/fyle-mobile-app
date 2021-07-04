@@ -36,9 +36,7 @@ export class CccClassifiedActionsPage implements OnInit {
 
   ngOnInit() {
     this.cccExpense$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
-      }),
+      switchMap(() => this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -46,14 +44,10 @@ export class CccClassifiedActionsPage implements OnInit {
     this.matchedExpense$ = this.cccExpense$.pipe(map(cccExpense => cccExpense.txn_details));
     this.isCCCMatched$ = this.cccExpense$.pipe(map(cccExpense => !!cccExpense.matched_by));
     this.canUnmatch$ = this.cccExpense$.pipe(
-        switchMap(cccExpense => {
-         return this.matchedExpense$.pipe(map(matchedExpense => {
-           return !!cccExpense.matched_by &&
+        switchMap(cccExpense => this.matchedExpense$.pipe(map(matchedExpense => !!cccExpense.matched_by &&
              cccExpense.state !== 'SETTLED' &&
              cccExpense.state === 'IN_PROGRESS' &&
-             matchedExpense.every((expense) => ['COMPLETE', 'DRAFT'].indexOf(expense.state) > -1);
-         }));
-        })
+             matchedExpense.every((expense) => ['COMPLETE', 'DRAFT'].indexOf(expense.state) > -1))))
     );
     this.canUnmarkPersonal$ = this.cccExpense$.pipe(
       map(cccExpense => !cccExpense.matched_by && cccExpense.state === 'IN_PROGRESS' && cccExpense.personal)

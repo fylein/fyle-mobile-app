@@ -45,19 +45,17 @@ export class UtilityService {
 
 
   /**
-   * 
+   *
    * @param searchText : search query entered by the user
    * Type variable <T> indicates that it is a generic method, this means that the data type which will be specified at the time of a function call,
    * will also be the data type of the arguments and of the return value.
-   * Detailed reference: https://www.tutorialsteacher.com/typescript/typescript-generic 
+   * Detailed reference: https://www.tutorialsteacher.com/typescript/typescript-generic
    */
   searchArrayStream<T>(searchText: string) {
-    return map((recentrecentlyUsedItems: {label: string, value: T} [] ) => {
+    return map((recentrecentlyUsedItems: {label: string; value: T} [] ) => {
       if (searchText && searchText.length > 0) {
         const searchTextLowerCase = searchText.toLowerCase();
-        return recentrecentlyUsedItems.filter(item => {
-          return item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase);
-        });
+        return recentrecentlyUsedItems.filter(item => item && item.label && item.label.length > 0 && item.label.toLocaleLowerCase().includes(searchTextLowerCase));
       }
       return recentrecentlyUsedItems;
     });

@@ -112,28 +112,26 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$
   })
-  getMyadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+  getMyadvanceRequests(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
   }) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/advance_requests', {
+      switchMap(eou => this.apiv2Service.get('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
             areq_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams
           }
-        });
-      }),
+        })),
       map(res => res as {
-        count: number,
-        data: ExtendedAdvanceRequest[],
-        limit: number,
-        offset: number,
-        url: string
+        count: number;
+        data: ExtendedAdvanceRequest[];
+        limit: number;
+        offset: number;
+        url: string;
       }),
       map(res => ({
         ...res,
@@ -170,7 +168,7 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$
   })
-  getTeamadvanceRequests(config: Partial<{ offset: number, limit: number, queryParams: any, filter: any }> = {
+  getTeamadvanceRequests(config: Partial<{ offset: number; limit: number; queryParams: any; filter: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {},
@@ -198,11 +196,11 @@ export class AdvanceRequestService {
         });
       }),
       map(res => res as {
-        count: number,
-        data: ExtendedAdvanceRequest[],
-        limit: number,
-        offset: number,
-        url: string
+        count: number;
+        data: ExtendedAdvanceRequest[];
+        limit: number;
+        offset: number;
+        url: string;
       }),
       map(res => ({
         ...res,
@@ -271,7 +269,7 @@ export class AdvanceRequestService {
     return data;
   }
 
-  getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string, name: string } {
+  getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string; name: string } {
     if (advanceRequest.areq_state === 'DRAFT') {
       if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
         return {
@@ -374,15 +372,11 @@ export class AdvanceRequestService {
             return this.fileService.post(obj);
           });
           return forkJoin(newFileObjs).pipe(
-            map(() => {
-              return res;
-            })
+            map(() => res)
           );
         } else  {
           return of(null).pipe(
-            map(() => {
-              return res;
-            })
+            map(() => res)
           );
         }
       })
@@ -403,15 +397,11 @@ export class AdvanceRequestService {
             return this.fileService.post(obj);
           });
           return forkJoin(newFileObjs).pipe(
-            map(() => {
-              return res;
-            })
+            map(() => res)
           );
         } else  {
           return of(null).pipe(
-            map(() => {
-              return res;
-            })
+            map(() => res)
           );
         }
       })

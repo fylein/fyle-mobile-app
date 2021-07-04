@@ -10,7 +10,7 @@ import {NetworkService} from '../../../core/services/network.service';
 import {concat, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
-import {getCurrencySymbol} from "@angular/common";
+import {getCurrencySymbol} from '@angular/common';
 
 @Component({
   selector: 'app-stats',
@@ -18,10 +18,10 @@ import {getCurrencySymbol} from "@angular/common";
   styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent implements OnInit {
-  draftStats$: Observable<{ count: number, sum: number }>;
-  reportedStats$: Observable<{ count: number, sum: number }>;
-  approvedStats$: Observable<{ count: number, sum: number }>;
-  paymentPendingStats$: Observable<{ count: number, sum: number }>;
+  draftStats$: Observable<{ count: number; sum: number }>;
+  reportedStats$: Observable<{ count: number; sum: number }>;
+  approvedStats$: Observable<{ count: number; sum: number }>;
+  paymentPendingStats$: Observable<{ count: number; sum: number }>;
   homeCurrency$: Observable<string>;
   isConnected$: Observable<boolean>;
   currencySymbol$: Observable<string>;

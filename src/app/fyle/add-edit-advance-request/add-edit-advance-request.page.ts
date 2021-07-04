@@ -155,13 +155,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
       if (data) {
         // this.loaderService.showLoader('Creating Advance Request...');
         return this.saveAndSubmit(event, advanceRequest).pipe(
-          switchMap(res => {
-            return iif(
+          switchMap(res => iif(
               () => data.reason && data.reason !== latestComment,
               this.statusService.post('advance_requests', res.advanceReq.id, {comment: data.reason}, true),
               of(null)
-            );
-          }),
+            )),
           finalize(() => {
             this.fg.reset();
             // this.loaderService.hideLoader();
@@ -263,7 +261,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
                 );
               }
             }),
-          )
+          );
         })
       ).subscribe(noop);
     } else {
@@ -419,11 +417,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   getAttachedReceipts(id) {
     return this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap(fileObjs => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
+      switchMap(fileObjs => from(fileObjs)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
           map(downloadUrl => {
             fileObj.url = downloadUrl;
             const details = this.getReceiptDetails(fileObj);
@@ -431,10 +426,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
           })
-        );
-      }),
+        )),
       reduce((acc, curr) => acc.concat(curr), []),
-    )
+    );
   }
 
   async delete() {
@@ -525,22 +519,18 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     this.extendedAdvanceRequest$ = iif(() => this.activatedRoute.snapshot.params.id, editAdvanceRequestPipe$, newAdvanceRequestPipe$);
     this.isProjectsEnabled$ = orgSettings$.pipe(
-      map(orgSettings => {
-        return orgSettings.projects && orgSettings.projects.enabled;
-      })
+      map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
     this.projects$ = this.offlineService.getProjects();
 
     this.isProjectsVisible$ = this.offlineService.getOrgSettings().pipe(
-      switchMap((orgSettings) => {
-        return iif(
+      switchMap((orgSettings) => iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
           this.offlineService.getOrgUserSettings().pipe(
             map((orgUserSettings: any) => orgUserSettings.project_ids || [])
           ),
           this.projects$
-        );
-      }),
+        )),
       map(projects => projects.length > 0)
     );
 
@@ -569,14 +559,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
           customField.control = customFieldsFormArray.at(i);
 
           if (customField.options) {
-            customField.options = customField.options.map(option => {
-              return { label: option, value: option };
-            });
+            customField.options = customField.options.map(option => ({ label: option, value: option }));
           }
           return customField;
         });
       })
-    )
+    );
 
     this.setupNetworkWatcher();
   }

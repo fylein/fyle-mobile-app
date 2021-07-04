@@ -33,9 +33,7 @@ export class MileageService {
       return of(null);
     } else {
       return from(chunks).pipe(
-        concatMap(chunk => {
-          return this.getDistanceInternal(chunk[0], chunk[1]);
-        }),
+        concatMap(chunk => this.getDistanceInternal(chunk[0], chunk[1])),
         reduce((dist1, dist2) => dist1 + dist2)
       );
     }

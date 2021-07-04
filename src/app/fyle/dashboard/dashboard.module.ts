@@ -13,7 +13,7 @@ import {StatsComponent} from './stats/stats.component';
 import {StatBadgeComponent} from './stat-badge/stat-badge.component';
 import {MatRippleModule} from '@angular/material/core';
 import {MatTabsModule} from '@angular/material/tabs';
-import {TasksComponent} from "./tasks/tasks.component";
+import {TasksComponent} from './tasks/tasks.component';
 
 @NgModule({
   imports: [

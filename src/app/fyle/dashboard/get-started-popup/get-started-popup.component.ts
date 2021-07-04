@@ -10,7 +10,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
   styleUrls: ['./get-started-popup.component.scss'],
 })
 export class GetStartedPopupComponent implements OnInit {
-  gettingStartedImagesAndInfos$: Observable<any>
+  gettingStartedImagesAndInfos$: Observable<any>;
 
   constructor(
     private authService: AuthService,
@@ -18,13 +18,12 @@ export class GetStartedPopupComponent implements OnInit {
   ) { }
 
   close() {
-    this.popoverController.dismiss()
+    this.popoverController.dismiss();
   }
 
   ngOnInit() {
     this.gettingStartedImagesAndInfos$ = from(this.authService.getEou()).pipe(
-      map(eou => {
-        return [{
+      map(eou => [{
           src: '../../../assets/images/get-started-illustration.png',
           heading: 'Hey, '+ eou.us.full_name ,
           info: 'We\'re about to make expense reports a thing of delight for you!'
@@ -36,8 +35,7 @@ export class GetStartedPopupComponent implements OnInit {
           src: '../../../assets/images/gs-illustartion-mobile-02.png',
           heading: 'Fyle inside Gmail & Outlook',
           info: 'One click expense claims inside your inbox.'
-        }];
-      })
+        }])
     );
 
   }

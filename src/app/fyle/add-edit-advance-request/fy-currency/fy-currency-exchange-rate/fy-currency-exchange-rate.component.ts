@@ -41,9 +41,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     });
 
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date());
-      }),
+      switchMap(() => this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date())),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe((exchangeRate) => {
       this.fg.setValue({

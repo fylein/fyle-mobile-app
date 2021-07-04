@@ -44,10 +44,10 @@ export class FyFlagExpenseComponent implements OnInit {
           };
           return this.statusService.post('transactions', this.etxn.tx_id, comment, true);
         }),
-        concatMap(() => {
+        concatMap(() =>
           // eslint-disable-next-line max-len
-          return this.etxn.tx_manual_flag ?  this.transactionService.manualUnflag(this.etxn.tx_id) : this.transactionService.manualFlag(this.etxn.tx_id);
-        }),
+           this.etxn.tx_manual_flag ?  this.transactionService.manualUnflag(this.etxn.tx_id) : this.transactionService.manualFlag(this.etxn.tx_id)
+        ),
         finalize(() => {
           this.notify.emit(true);
           this.loaderService.hideLoader();

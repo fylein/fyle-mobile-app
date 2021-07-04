@@ -16,9 +16,7 @@ export class TransactionFieldConfigurationsService {
 
   getAll() {
     return this.orgSettingsService.get().pipe(
-      map((settings) => {
-        return settings.transaction_field_configurations;
-      })
+      map((settings) => settings.transaction_field_configurations)
     );
   }
 
@@ -44,9 +42,7 @@ export class TransactionFieldConfigurationsService {
 
   findCommonRoles(roles) {
     return this.getUserRoles().pipe(
-      map(userRoles => roles.filter((role) => {
-        return userRoles.indexOf(role) !== -1;
-      }))
+      map(userRoles => roles.filter((role) => userRoles.indexOf(role) !== -1))
     );
   }
 
@@ -94,11 +90,8 @@ export class TransactionFieldConfigurationsService {
       })
         .filter(filteredField => !!filteredField)
       ),
-      switchMap(fields => {
-        return from(fields);
-      }),
-      concatMap(field => {
-        return forkJoin({
+      switchMap(fields => from(fields)),
+      concatMap(field => forkJoin({
           canView: this.canView(field.roles_visible),
           canEdit: this.canEdit(field.roles_editable)
         }).pipe(
@@ -108,8 +101,7 @@ export class TransactionFieldConfigurationsService {
               ...res
             })
           )
-        );
-      }),
+        )),
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;

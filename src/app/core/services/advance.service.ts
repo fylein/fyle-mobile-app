@@ -33,28 +33,26 @@ export class AdvanceService {
   @Cacheable({
     cacheBusterObserver: advancesCacheBuster$
   })
-  getMyadvances(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+  getMyadvances(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
   }) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/advances', {
+      switchMap(eou => this.apiv2Service.get('/advances', {
           params: {
             offset: config.offset,
             limit: config.limit,
             assignee_ou_id: 'eq.' + eou.ou.id,
             ...config.queryParams
           }
-        });
-      }),
+        })),
       map(res => res as {
-        count: number,
-        data: ExtendedAdvance[],
-        limit: number,
-        offset: number,
-        url: string
+        count: number;
+        data: ExtendedAdvance[];
+        limit: number;
+        offset: number;
+        url: string;
       }),
       map(res => ({
         ...res,

@@ -314,9 +314,7 @@ export class OrgUserSettingsService {
         (costCenters) => {
           let allowedCostCenters = [];
           if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
-            allowedCostCenters = costCenters.filter((costCenter) => {
-              return orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1;
-            });
+            allowedCostCenters = costCenters.filter((costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1);
           } else {
             allowedCostCenters = costCenters;
           }

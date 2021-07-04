@@ -32,28 +32,26 @@ export class TripRequestsService {
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+  getMyTrips(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
   }) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/trip_requests', {
+      switchMap(eou => this.apiv2Service.get('/trip_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
             trp_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams
           }
-        });
-      }),
+        })),
       map(res => res as {
-        count: number,
-        data: ExtendedTripRequest[],
-        limit: number,
-        offset: number,
-        url: string
+        count: number;
+        data: ExtendedTripRequest[];
+        limit: number;
+        offset: number;
+        url: string;
       }),
       map(res => ({
         ...res,
@@ -104,15 +102,13 @@ export class TripRequestsService {
   })
   getHotelRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
-      map((reqs) => {
-        return reqs.map(req => {
+      map((reqs) => reqs.map(req => {
           const hotelRequest = this.dataTransformService.unflatten(req);
           this.tripDatesService.fixDates(hotelRequest.hr);
           this.tripDatesService.fixDates(hotelRequest.hb);
           this.tripDatesService.fixDates(hotelRequest.hc);
           return hotelRequest;
-        });
-      })
+        }))
     );
   }
 
@@ -152,14 +148,13 @@ export class TripRequestsService {
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getTeamTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+  getTeamTrips(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
   }) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/trip_requests', {
+      switchMap(eou => this.apiv2Service.get('/trip_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -167,14 +162,13 @@ export class TripRequestsService {
             approvers: 'cs.{' + eou.ou.id + '}',
             ...config.queryParams
           }
-        });
-      }),
+        })),
       map(res => res as {
-        count: number,
-        data: ExtendedTripRequest[],
-        limit: number,
-        offset: number,
-        url: string
+        count: number;
+        data: ExtendedTripRequest[];
+        limit: number;
+        offset: number;
+        url: string;
       }),
       map(res => ({
         ...res,
@@ -263,7 +257,7 @@ export class TripRequestsService {
     );
   }
 
-  getInternalStateAndDisplayName(tripRequest: ExtendedTripRequest): { state: string, name: string } {
+  getInternalStateAndDisplayName(tripRequest: ExtendedTripRequest): { state: string; name: string } {
     if (tripRequest.trp_state === 'DRAFT') {
       if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
         return {
@@ -406,12 +400,8 @@ export class TripRequestsService {
   })
   saveDraft(tripRequest) {
     return from(this.authService.getEou()).pipe(
-      map(eou => {
-        return tripRequest.org_user_id = eou.ou.id;
-      }),
-      concatMap(() => {
-        return this.apiService.post('/trip_requests/save', tripRequest);
-      })
+      map(eou => tripRequest.org_user_id = eou.ou.id),
+      concatMap(() => this.apiService.post('/trip_requests/save', tripRequest))
     );
   }
 
@@ -420,12 +410,8 @@ export class TripRequestsService {
   })
   submit(tripRequest) {
     return from(this.authService.getEou()).pipe(
-      map(eou => {
-        return tripRequest.org_user_id = eou.ou.id;
-      }),
-      concatMap(() => {
-        return this.apiService.post('/trip_requests/submit', tripRequest);
-      })
+      map(eou => tripRequest.org_user_id = eou.ou.id),
+      concatMap(() => this.apiService.post('/trip_requests/submit', tripRequest))
     );
   }
 
@@ -435,7 +421,7 @@ export class TripRequestsService {
   addApproverETripRequests(tripRequestId, approverEmail, comment) {
     const data = {
       approver_email: approverEmail,
-      comment: comment
+      comment
     };
     return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
   }

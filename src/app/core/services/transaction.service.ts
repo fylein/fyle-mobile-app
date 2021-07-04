@@ -50,9 +50,7 @@ export class TransactionService {
   get(txnId) {
     // TODO api v2
     return this.apiService.get('/transactions/' + txnId).pipe(
-      map((transaction) => {
-        return this.dateService.fixDates(transaction);
-      })
+      map((transaction) => this.dateService.fixDates(transaction))
     );
   }
 
@@ -185,26 +183,22 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$
   })
-  getMyETxnc(params: { offset: number, limit: number, tx_org_user_id: string }) {
+  getMyETxnc(params: { offset: number; limit: number; tx_org_user_id: string }) {
     return this.apiV2Service.get('/expenses', {
       params
     }).pipe(
       map(
-        (etxns) => {
-          return etxns.data;
-        }
+        (etxns) => etxns.data
       )
     );
   }
 
-  getETxnc(params: { offset: number, limit: number, params: any }) {
+  getETxnc(params: { offset: number; limit: number; params: any }) {
     return this.apiV2Service.get('/expenses', {
       ...params
     }).pipe(
       map(
-        (etxns) => {
-          return etxns.data;
-        }
+        (etxns) => etxns.data
       )
     );
   }
@@ -226,12 +220,8 @@ export class TransactionService {
         const count = res.count > 50 ? res.count / 50 : 1;
         return range(0, count);
       }),
-      concatMap(page => {
-        return this.getETxnc({ offset: 50 * page, limit: 50, params });
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      })
+      concatMap(page => this.getETxnc({ offset: 50 * page, limit: 50, params })),
+      reduce((acc, curr) => acc.concat(curr))
     );
   }
 
@@ -240,20 +230,14 @@ export class TransactionService {
   })
   getAllMyETxnc() {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.getMyETxncCount('eq.' + eou.ou.id).pipe(
+      switchMap(eou => this.getMyETxncCount('eq.' + eou.ou.id).pipe(
           switchMap(res => {
             const count = res.count > 50 ? res.count / 50 : 1;
             return range(0, count);
           }),
-          concatMap(page => {
-            return this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id });
-          }),
-          reduce((acc, curr) => {
-            return acc.concat(curr);
-          })
-        );
-      })
+          concatMap(page => this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id })),
+          reduce((acc, curr) => acc.concat(curr))
+        ))
     );
   }
 
@@ -278,14 +262,13 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$
   })
-  getMyExpenses(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
+  getMyExpenses(config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
   }) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiV2Service.get('/expenses', {
+      switchMap(eou => this.apiV2Service.get('/expenses', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -293,14 +276,13 @@ export class TransactionService {
             tx_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams
           }
-        });
-      }),
+        })),
       map(res => res as {
-        count: number,
-        data: any[],
-        limit: number,
-        offset: number,
-        url: string
+        count: number;
+        data: any[];
+        limit: number;
+        offset: number;
+        url: string;
       }),
       map(res => ({
         ...res,
@@ -312,19 +294,15 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$
   })
-  getAllExpenses(config: Partial<{ order: string, queryParams: any }>) {
+  getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap(count => {
         count = count > 50 ? count / 50 : 1;
         return range(0, count);
       }),
-      concatMap(page => {
-        return this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
-      }),
+      concatMap(page => this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })),
       map(res => res.data),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as any[])
+      reduce((acc, curr) => acc.concat(curr), [] as any[])
     );
   }
 
@@ -333,15 +311,13 @@ export class TransactionService {
   })
   getTransactionStats(aggregates: string, queryParams = {}) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiV2Service.get('/expenses/stats', {
+      switchMap(eou => this.apiV2Service.get('/expenses/stats', {
           params: {
             aggregates,
             tx_org_user_id: 'eq.' + eou.ou.id,
             ...queryParams
           }
-        });
-      }),
+        })),
       map(res => res.data)
     );
   }
@@ -440,24 +416,16 @@ export class TransactionService {
   })
   createTxnWithFiles(txn, fileUploads$: Observable<any>) {
     return fileUploads$.pipe(
-      switchMap((fileObjs: any[]) => {
-        return this.upsert(txn).pipe(
-          switchMap(transaction => {
-            return from(fileObjs.map(fileObj => {
+      switchMap((fileObjs: any[]) => this.upsert(txn).pipe(
+          switchMap(transaction => from(fileObjs.map(fileObj => {
               fileObj.transaction_id = transaction.id;
               return fileObj;
             })).pipe(
-              concatMap(fileObj => {
-                return this.fileService.post(fileObj);
-              }),
-              reduce((acc, curr) => {
-                return acc.concat([curr]);
-              }, []),
+              concatMap(fileObj => this.fileService.post(fileObj)),
+              reduce((acc, curr) => acc.concat([curr]), []),
               map(() => transaction)
-            );
-          })
-        );
-      }),
+            ))
+        )),
     );
   }
 
@@ -561,9 +529,7 @@ export class TransactionService {
 
         return this.apiService.post('/transactions/remove_report/bulk', data);
       }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as any[])
+      reduce((acc, curr) => acc.concat(curr), [] as any[])
     );
   }
 

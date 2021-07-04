@@ -129,7 +129,7 @@ export class AppComponent implements OnInit {
       this.statusBar.styleDefault();
       CapStatusBar.setStyle({
         style: StatusBarStyle.Dark
-      })
+      });
       this.splashScreen.hide();
 
       // Global cache config
@@ -162,7 +162,7 @@ export class AppComponent implements OnInit {
 
         return this.appVersionService.isSupported(data);
       })
-    ).subscribe(async (res: { message: string, supported: boolean }) => {
+    ).subscribe(async (res: { message: string; supported: boolean }) => {
       if (!res.supported && environment.production) {
         const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
         const eou = await this.authService.getEou();
@@ -191,9 +191,7 @@ export class AppComponent implements OnInit {
     );
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.offlineService.getDelegatedAccounts().pipe(
-      map(res => {
-        return this.orgUserService.excludeByStatus(res, 'DISABLED');
-      })
+      map(res => this.orgUserService.excludeByStatus(res, 'DISABLED'))
     );
     const deviceInfo$ = this.deviceService.getDeviceInfo();
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
@@ -214,8 +212,7 @@ export class AppComponent implements OnInit {
     );
 
     this.isConnected$.pipe(
-      switchMap(isConnected => {
-        return forkJoin({
+      switchMap(isConnected => forkJoin({
           orgs: orgs$,
           currentOrg: currentOrg$,
           orgSettings: orgSettings$,
@@ -226,8 +223,7 @@ export class AppComponent implements OnInit {
           isSwitchedToDelegator: isSwitchedToDelegator$,
           isConnected: of(isConnected),
           eou: this.offlineService.getCurrentUser()
-        });
-      })
+        }))
     ).subscribe((res) => {
       const orgs = res.orgs;
       this.activeOrg = res.currentOrg;

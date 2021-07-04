@@ -44,12 +44,10 @@ export class CccClassifyActionsPage implements OnInit {
 
     this.cccExpense$ = this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
     this.expenseSuggestions$ = this.cccExpense$.pipe(
-      switchMap(cccExpense => {
-        return this.expenseSuggestionsService.getSuggestions({
+      switchMap(cccExpense => this.expenseSuggestionsService.getSuggestions({
           amount: cccExpense.amount,
           txn_dt: cccExpense.txn_dt
-        });
-      })
+        }))
     );
   }
 

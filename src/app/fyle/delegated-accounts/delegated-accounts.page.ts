@@ -53,9 +53,7 @@ export class DelegatedAccountsPage implements OnInit {
 
     if (switchToOwn) {
       from(this.loaderService.showLoader('Switching Account')).pipe(
-        concatMap(() => {
-          return this.orgUserService.switchToDelegatee();
-        }),
+        concatMap(() => this.orgUserService.switchToDelegatee()),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -80,8 +78,7 @@ export class DelegatedAccountsPage implements OnInit {
         map((event: any) => event.srcElement.value),
         startWith(''),
         distinctUntilChanged(),
-        switchMap((searchText) => {
-          return delegatedAccList$.pipe(
+        switchMap((searchText) => delegatedAccList$.pipe(
             map(
               ({delegatedAcc}) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')
             ),
@@ -95,8 +92,7 @@ export class DelegatedAccountsPage implements OnInit {
                     .includes(searchText.toLowerCase()))
               )
             )
-          );
-        })
+          ))
       ).subscribe(delegatees => {
         this.delegatedAccList = delegatees;
       });

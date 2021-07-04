@@ -103,11 +103,9 @@ export class RouterAuthService {
       email,
       password
     }).pipe(
-      switchMap(res => {
-        return from(this.handleSignInResponse(res)).pipe(
+      switchMap(res => from(this.handleSignInResponse(res)).pipe(
           map(() => res)
-        )
-      })
+        ))
     );
   }
 
@@ -115,11 +113,9 @@ export class RouterAuthService {
     return this.routerApiService.post('/auth/google/signin', {
       access_token: accessToken
     }).pipe(
-      switchMap(res => {
-        return from(this.handleSignInResponse(res)).pipe(
+      switchMap(res => from(this.handleSignInResponse(res)).pipe(
           map(() => res)
-        )
-      })
+        ))
     );
   }
 
@@ -133,11 +129,9 @@ export class RouterAuthService {
     return this.routerApiService.post('/auth/email_verify', {
       verification_code: verificationCode
     }).pipe(
-      switchMap(res => {
-        return from(this.handleSignInResponse(res)).pipe(
+      switchMap(res => from(this.handleSignInResponse(res)).pipe(
           map(() => res)
-        );
-      })
+        ))
     );
   }
 
@@ -152,9 +146,7 @@ export class RouterAuthService {
 
   getRegions() {
     return this.routerApiService.get('/regions').pipe(
-      map((data) => {
-        return data.regions;
-      })
+      map((data) => data.regions)
     );
   }
 

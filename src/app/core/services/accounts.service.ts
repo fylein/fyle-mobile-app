@@ -38,10 +38,10 @@ export class AccountsService {
   }
 
   filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled, accountId?) {
-    return accounts.filter((account) => {
+    return accounts.filter((account) =>
       // Personal Account and CCC account are considered to always have sufficient funds
-      return (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) || (['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'].indexOf(account.acc.type) > -1) || accountId === account.acc.id;
-    });
+       (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) || (['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'].indexOf(account.acc.type) > -1) || accountId === account.acc.id
+    );
   }
 
   constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?) {

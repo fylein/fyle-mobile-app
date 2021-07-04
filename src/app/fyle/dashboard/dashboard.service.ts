@@ -35,9 +35,7 @@ export class DashboardService {
       dimension_1_1: 'rp_state',
       aggregates: 'sum(rp_amount),count(rp_id)'
     }).pipe(
-        map(statsResponse => {
-          return this.getReportAggregates(statsResponse);
-        })
+        map(statsResponse => this.getReportAggregates(statsResponse))
     );
   }
 
@@ -59,7 +57,7 @@ export class DashboardService {
         sum: curr.sum
       };
       return acc;
-    }, {} as { [key: string]: { count: number, sum: number } });
+    }, {} as { [key: string]: { count: number; sum: number } });
 
     const draftReportStats = stateWiseAggregatesMap.DRAFT || { sum: 0, count: 0 };
     const reportedReportStats = stateWiseAggregatesMap.APPROVER_PENDING || { sum: 0, count: 0 };

@@ -29,10 +29,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   exchangeRate = 1;
 
   private innerValue: {
-    amount: number,
-    currency: string,
-    orig_amount: number,
-    orig_currency: string
+    amount: number;
+    currency: string;
+    orig_amount: number;
+    orig_currency: string;
   };
 
   private onTouchedCallback: () => void = noop;

@@ -33,7 +33,7 @@ export class MyViewMileagePage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private transactionService: TransactionService,
-    private offlineService : OfflineService,
+    private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
     private navController: NavController,
@@ -65,9 +65,7 @@ export class MyViewMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedMileage$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.transactionService.getExpenseV2(id);
-      }),
+      switchMap(() => this.transactionService.getExpenseV2(id)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -77,30 +75,22 @@ export class MyViewMileagePage implements OnInit {
     );
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap(res => {
-        return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
-      }),
-      map(res => {
-        return res.map(customProperties => {
+      switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
+      map(res => res.map(customProperties => {
           customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
           return customProperties;
-        });
-      })
+        }))
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001;
-      })
+      map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount);
-      })
+      map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
 
   }

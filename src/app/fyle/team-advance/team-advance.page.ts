@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class TeamAdvancePage implements OnInit {
 
   teamAdvancerequests$: Observable<any[]>;
-  loadData$: Subject<{ pageNumber: number, state: string }> = new Subject();
+  loadData$: Subject<{ pageNumber: number; state: string }> = new Subject();
   count$: Observable<number>;
   currentPageNumber = 1;
   isInfiniteScrollRequired$: Observable<boolean>;
@@ -47,19 +47,15 @@ export class TeamAdvancePage implements OnInit {
          };
 
         return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.advanceRequestService.getTeamadvanceRequests({
+          switchMap(() => this.advanceRequestService.getTeamadvanceRequests({
               offset: (pageNumber - 1) * 10,
               limit: 10,
               queryParams: {
                 ...extraParams
               },
               filter: state
-            });
-          }),
-          finalize(() => {
-            return from(this.loaderService.hideLoader());
-          })
+            })),
+          finalize(() => from(this.loaderService.hideLoader()))
         );
       }),
       map(res => res.data),
@@ -95,13 +91,9 @@ export class TeamAdvancePage implements OnInit {
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
-      concatMap(teamAdvancerequests => {
-        return this.count$.pipe(
+      concatMap(teamAdvancerequests => this.count$.pipe(
           take(1),
-          map(count => {
-          return count > teamAdvancerequests.length;
-        }));
-      })
+          map(count => count > teamAdvancerequests.length)))
     );
 
     this.loadData$.subscribe(noop);

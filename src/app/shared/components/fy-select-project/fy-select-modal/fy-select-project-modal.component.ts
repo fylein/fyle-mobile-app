@@ -18,12 +18,12 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
   @Input() currentSelection: any;
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
   @Input() cacheName;
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
-  @Input() recentlyUsed: { label: string, value: ExtendedProject, selected?: boolean }[];
+  @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
   recentrecentlyUsedItems$: Observable<any[]>;
   value;
@@ -59,17 +59,13 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     );
 
     return this.offlineService.getOrgSettings().pipe(
-      switchMap((orgSettings) => {
-        return iif(
+      switchMap((orgSettings) => iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
           this.offlineService.getOrgUserSettings().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
           of(null)
-        );
-      }),
-      concatMap((allowedProjectIds) => {
-        return from(this.authService.getEou()).pipe(
-          switchMap((eou => {
-              return this.projectService.getByParamsUnformatted
+        )),
+      concatMap((allowedProjectIds) => from(this.authService.getEou()).pipe(
+          switchMap((eou => this.projectService.getByParamsUnformatted
               ({
                 orgId: eou.ou.org_id,
                 active: true,
@@ -80,11 +76,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
                 searchNameText,
                 offset: 0,
                 limit: 20
-              });
-            }
+              })
           ))
-        );
-      }),
+        )),
       switchMap(projects => {
         if (this.defaultValue) {
           return defaultProject$.pipe(
@@ -136,13 +130,11 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => {
-          return options
+        map((options: any) => options
             .map(option => {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
-            });
-        })
+            }))
       );
     }
   }
@@ -152,31 +144,25 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.getProjects(searchText);
-      }),
-      map((projects: any[]) => {
-        return projects.map(project => {
+      switchMap((searchText) => this.getProjects(searchText)),
+      map((projects: any[]) => projects.map(project => {
           if (isEqual(project.value, this.currentSelection)) {
             project.selected = true;
           }
           return project;
-        });
-      })
+        }))
     );
 
     this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.getRecentlyUsedItems().pipe(
+      switchMap((searchText) => this.getRecentlyUsedItems().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
           this.utilityService.searchArrayStream(searchText)
-        );
-      })
+        ))
     );
-    
+
     this.cdr.detectChanges();
   }
 

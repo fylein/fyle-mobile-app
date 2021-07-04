@@ -60,15 +60,9 @@ export class CommentsComponent implements OnInit {
   ngOnInit() {
     this.noOfComments$ = this.refreshComments$.pipe(
       startWith(0),
-      switchMap(() => {
-        return this.statusService.find(this.objectType, this.objectId).pipe(
-          map(res => {
-            return res.filter((estatus) => {
-              return estatus.st_org_user_id !== 'SYSTEM';
-            }).length;
-          }),
-        );
-      })
+      switchMap(() => this.statusService.find(this.objectType, this.objectId).pipe(
+          map(res => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length),
+        ))
     );
     this.refreshComments$.next();
   }

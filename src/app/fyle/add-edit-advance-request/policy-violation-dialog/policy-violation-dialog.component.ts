@@ -25,7 +25,7 @@ export class PolicyViolationDialogComponent implements OnInit {
   continueWithPolicyViolation() {
     this.modalController.dismiss({
       reason: this.newComment
-    })
+    });
   }
 
   ngOnInit() {

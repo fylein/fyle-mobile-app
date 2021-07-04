@@ -23,9 +23,7 @@ export class MyViewAdvancePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.advance$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.advanceService.getAdvance(id);
-      }),
+      switchMap(() => this.advanceService.getAdvance(id)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );

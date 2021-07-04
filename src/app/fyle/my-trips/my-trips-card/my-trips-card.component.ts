@@ -13,7 +13,7 @@ export class MyTripsCardComponent implements OnInit {
 
   @Output() tripClick: EventEmitter<ExtendedTripRequest> = new EventEmitter();
 
-  internalState: { name: string, state: string };
+  internalState: { name: string; state: string };
   tripTypesMap = {
     ONE_WAY: 'One Way',
     ROUND: 'Round Trip',

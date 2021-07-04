@@ -20,12 +20,10 @@ export class StatusService {
 
   find(objectType, objectId) {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map((estatuses: ExtendedStatus[]) => {
-        return estatuses.map(estatus => {
+      map((estatuses: ExtendedStatus[]) => estatuses.map(estatus => {
           estatus.st_created_at = new Date(estatus.st_created_at);
           return estatus as ExtendedStatus;
-        });
-      })
+        }))
     );
   }
 
@@ -150,9 +148,7 @@ export class StatusService {
     return this.find(type, id).pipe(
       map((estatuses) => {
         const nonSystemEStatuses = estatuses.filter(eStatus => eStatus.us_full_name);
-        const userComments = nonSystemEStatuses.filter((estatus) => {
-          return estatus.st_org_user_id === orgUserId;
-        });
+        const userComments = nonSystemEStatuses.filter((estatus) => estatus.st_org_user_id === orgUserId);
         const sortedStatus = this.sortStatusByDate(userComments);
         if (sortedStatus.length) {
           return sortedStatus[0].st_comment;

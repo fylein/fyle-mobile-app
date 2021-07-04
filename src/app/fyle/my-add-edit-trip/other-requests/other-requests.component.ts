@@ -120,7 +120,7 @@ export class OtherRequestsComponent implements OnInit {
     customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
     customFields = customFields.map(customField => {
       if (customField.type === 'DATE' && customField.value) {
-        customField.value = moment(customField.value).format('y-MM-DD')
+        customField.value = moment(customField.value).format('y-MM-DD');
       }
       return {id: customField.id, name: customField.name, value: customField.value};
     });
@@ -145,13 +145,11 @@ export class OtherRequestsComponent implements OnInit {
     if (this.otherRequests[2].transportation && requestType === 'transport') {
       this.transportRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
         map((customFields: any[]) => {
-          const customFieldsFormArray = this.transportDetails.controls[index]['controls'].custom_field_values as FormArray;
+          const customFieldsFormArray = this.transportDetails.controls[index].controls.custom_field_values as FormArray;
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-          customFields = customFields.filter(field => {
-            return field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1;
-          });
+          customFields = customFields.filter(field => field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
 
           for (const customField of customFields) {
             let value;
@@ -173,9 +171,7 @@ export class OtherRequestsComponent implements OnInit {
             customField.control = customFieldsFormArray.at(i);
 
             if (customField.input_options) {
-              customField.input_options = customField.input_options.map(option => {
-                return { label: option, value: option };
-              });
+              customField.input_options = customField.input_options.map(option => ({ label: option, value: option }));
             }
             return customField;
           });
@@ -186,13 +182,11 @@ export class OtherRequestsComponent implements OnInit {
     if (this.otherRequests[0].hotel && requestType === 'hotel') {
       this.hotelRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
         map((customFields: any[]) => {
-          const customFieldsFormArray = this.hotelDetails.controls[index]['controls'].custom_field_values as FormArray;
+          const customFieldsFormArray = this.hotelDetails.controls[index].controls.custom_field_values as FormArray;
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-          customFields = customFields.filter(field => {
-            return field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1;
-          });
+          customFields = customFields.filter(field => field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
 
           for (const customField of customFields) {
             let value;
@@ -214,9 +208,7 @@ export class OtherRequestsComponent implements OnInit {
             customField.control = customFieldsFormArray.at(i);
 
             if (customField.options) {
-              customField.options = customField.options.map(option => {
-                return { label: option, value: option };
-              });
+              customField.options = customField.options.map(option => ({ label: option, value: option }));
             }
             return customField;
           });
@@ -227,7 +219,7 @@ export class OtherRequestsComponent implements OnInit {
     if (this.otherRequests[1].advance && requestType === 'advance') {
       this.advanceRequestCustomFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
         map((customFields: any[]) => {
-          const customFieldsFormArray = this.advanceDetails.controls[index]['controls'].custom_field_values as FormArray;
+          const customFieldsFormArray = this.advanceDetails.controls[index].controls.custom_field_values as FormArray;
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
@@ -252,9 +244,7 @@ export class OtherRequestsComponent implements OnInit {
             customField.control = customFieldsFormArray.at(i);
 
             if (customField.options) {
-              customField.options = customField.options.map(option => {
-                return { label: option, value: option };
-              });
+              customField.options = customField.options.map(option => ({ label: option, value: option }));
             }
             return customField;
           });
@@ -342,9 +332,7 @@ export class OtherRequestsComponent implements OnInit {
         };
 
         return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
-          catchError(err => {
-            return of(null);
-          }),
+          catchError(err => of(null)),
           switchMap((policyTest: any) => {
             const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(policyTest);
             if (policyPopupRules.length > 0) {
@@ -386,8 +374,7 @@ export class OtherRequestsComponent implements OnInit {
         if (comment && tripReq.id) {
           if (saveMode === 'SUBMIT') {
             return this.tripRequestsService.submit(tripReq).pipe(
-              switchMap((res) => {
-                return this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+              switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
                   switchMap(result => {
                     if (result !== comment) {
                       return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
@@ -397,13 +384,11 @@ export class OtherRequestsComponent implements OnInit {
                       return of(res);
                     }
                   })
-                );
-              })
+                ))
             );
           } else {
             return this.tripRequestsService.saveDraft(tripReq).pipe(
-              switchMap((res) => {
-                return this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+              switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
                   switchMap(result => {
                     if (result !== comment) {
                       return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
@@ -413,8 +398,7 @@ export class OtherRequestsComponent implements OnInit {
                       return of(res);
                     }
                   })
-                );
-              })
+                ))
             );
           }
         } else {
@@ -448,9 +432,7 @@ export class OtherRequestsComponent implements OnInit {
         trpId = res.id;
         return this.createOtherRequestForm(formValue, trpId, 'SUBMIT');
       }),
-      concatMap(res => {
-        return this.tripRequestsService.triggerPolicyCheck(trpId);
-      }),
+      concatMap(res => this.tripRequestsService.triggerPolicyCheck(trpId)),
       finalize(() => {
         if (mode === 'SUBMIT') {
           this.submitTripLoading = false;
@@ -520,9 +502,7 @@ export class OtherRequestsComponent implements OnInit {
         // this case handels submit advance request, makes sequential submit calls
         of(formValue.advanceDetails).pipe(
           switchMap(advanceDetails => from(advanceDetails)),
-          concatMap((advanceDetail, index) => {
-            return this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode);
-          })
+          concatMap((advanceDetail, index) => this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode))
         ).subscribe(noop);
       }
     }
@@ -536,9 +516,7 @@ export class OtherRequestsComponent implements OnInit {
         // this case handels submit hotel request, makes sequential submit calls
         of(formValue.hotelDetails).pipe(
           switchMap(hotelDetails => from(hotelDetails)),
-          concatMap((hotelDetail, index) => {
-            return this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode);
-          })
+          concatMap((hotelDetail, index) => this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode))
         ).subscribe(noop);
       }
     }
@@ -552,9 +530,7 @@ export class OtherRequestsComponent implements OnInit {
         // this case handels submit transport request, makes sequential submit calls
         of(formValue.transportDetails).pipe(
           switchMap(transportDetails => from(transportDetails)),
-          concatMap((transportDetail, index) => {
-            return this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode);
-          })
+          concatMap((transportDetail, index) => this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode))
         ).subscribe(noop);
       }
     }
@@ -959,21 +935,15 @@ export class OtherRequestsComponent implements OnInit {
     };
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
-      map(res => {
-        return res;
-      })
+      map(res => res)
     );
 
     this.preferredCurrency$ = this.orgUserSettings$.pipe(
-      map(res => {
-        return  res.currency_settings.preferred_currency;
-      })
+      map(res => res.currency_settings.preferred_currency)
     );
 
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
-      concatMap(() => {
-        return this.currencyService.getAll();
-      }),
+      concatMap(() => this.currencyService.getAll()),
       map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({
         value: shortCode,
         label: shortCode,
@@ -997,14 +967,12 @@ export class OtherRequestsComponent implements OnInit {
       this.actions$ = this.tripRequestsService.getActions(this.id);
 
       from(this.loaderService.showLoader('Getting trip details')).pipe(
-        switchMap(() => {
-          return combineLatest([
+        switchMap(() => combineLatest([
             this.hotelRequest$,
             this.transportationRequest$,
             this.advanceRequest$,
             this.actions$
-          ]);
-        }),
+          ])),
         take(1),
       ).subscribe(([hotelRequests, transportationRequests, advanceRequests, actions]) => {
         this.tripActions = actions;

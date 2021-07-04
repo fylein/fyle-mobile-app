@@ -32,11 +32,8 @@ export class HelpPage implements OnInit {
   openContactSupportDialog() {
     this.contactSupportLoading = true;
     from(this.loaderService.showLoader('Please wait', 10000)).pipe(
-      switchMap(() => {
-        return from(this.authService.getEou());
-      }),
-      switchMap(eou => {
-        return this.orgUserService.getEmployeesByParams({
+      switchMap(() => from(this.authService.getEou())),
+      switchMap(eou => this.orgUserService.getEmployeesByParams({
           select: 'us_full_name,us_email',
           ou_org_id: 'eq.' + eou.ou.org_id,
           ou_roles: 'like.%' + 'ADMIN%',
@@ -44,8 +41,7 @@ export class HelpPage implements OnInit {
           ou_id: 'not.eq.' + eou.ou.id,
           order: 'us_full_name.asc,ou_id',
           limit: 5
-        });
-      }),
+        })),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe((orgAdmins) => {
       this.orgAdmins = orgAdmins.data;

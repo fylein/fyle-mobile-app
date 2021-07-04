@@ -76,7 +76,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         this.userEventService.logout();
         this.storageService.clearAll();
         globalCacheBusterNotifier.next();
-        return throwError(error); 
+        return throwError(error);
       }),
       concatMap(
         authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
@@ -109,9 +109,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
             return this.accessTokenSubject.pipe(
               filter(result => result !== null),
               take(1),
-              concatMap(() => {
-                return from(this.tokenService.getAccessToken())
-              })
+              concatMap(() => from(this.tokenService.getAccessToken()))
             );
           }
         } else {

@@ -25,14 +25,12 @@ export class VendorService {
 
   get(searchString: string) {
     return from(this.authService.getEou()).pipe(
-      switchMap((eou) => {
-        return this.httpClient.get<Vendor[]>(this.ROOT_ENDPOINT + '/vendors/all', {
+      switchMap((eou) => this.httpClient.get<Vendor[]>(this.ROOT_ENDPOINT + '/vendors/all', {
           params: {
             org_user_id: eou.ou.id,
             q: searchString
           }
-        });
-      })
+        }))
     );
   }
 }

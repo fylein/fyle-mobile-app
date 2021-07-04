@@ -34,11 +34,11 @@ export class MyExpensesPage implements OnInit {
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
   loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
   }>>;
   currentPageNumber = 1;
   acc = [];
@@ -68,7 +68,7 @@ export class MyExpensesPage implements OnInit {
   openAddExpenseListLoader = false;
   clusterDomain: string;
   isNewUser$: Observable<boolean>;
-  isLoading: boolean = false;
+  isLoading = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
@@ -218,9 +218,7 @@ export class MyExpensesPage implements OnInit {
 
     this.syncing = true;
     from(this.pendingTransactions).pipe(
-      switchMap(() => {
-        return from(this.transactionOutboxService.sync());
-      }),
+      switchMap(() => from(this.transactionOutboxService.sync())),
       tap(() => this.sendFirstExpenseCreatedEvent()),
       finalize(() => this.syncing = false)
     ).subscribe(() => {
@@ -316,37 +314,27 @@ export class MyExpensesPage implements OnInit {
     );
 
     this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(
-      map(res => {
-        return res.count === 0;
-      })
+      map(res => res.count === 0)
     );
 
     const paginatedScroll$ = this.myExpenses$.pipe(
-      switchMap(etxns => {
-        return this.count$.pipe(
-          map(count => {
-            return count > etxns.length;
-          })
-        );
-      })
+      switchMap(etxns => this.count$.pipe(
+          map(count => count > etxns.length)
+        ))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(_ => {
-        return paginatedScroll$;
-      })
+      switchMap(_ => paginatedScroll$)
     );
 
     this.setAllExpensesCountAndAmount();
 
     this.allExpenseCountHeader$ = this.loadData$.pipe(
-      switchMap(() => {
-        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      switchMap(() => this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
           tx_state: 'in.(COMPLETE,DRAFT)',
           tx_report_id: 'is.null'
-        })
-      }),
+        })),
       map(stats => {
         const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
         return count && count.function_value;
@@ -354,13 +342,11 @@ export class MyExpensesPage implements OnInit {
     );
 
     this.draftExpensesCount$ = this.loadData$.pipe(
-      switchMap(() => {
-        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      switchMap(() => this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
           tx_report_id: 'is.null',
           tx_state: 'in.(DRAFT)'
-        })
-      }),
+        })),
       map(stats => {
         const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
         return count && count.function_value;
@@ -429,9 +415,7 @@ export class MyExpensesPage implements OnInit {
     if (this.pendingTransactions.length) {
       this.syncing = true;
       from(this.pendingTransactions).pipe(
-        switchMap(() => {
-          return from(this.transactionOutboxService.sync());
-        }),
+        switchMap(() => from(this.transactionOutboxService.sync())),
         finalize(() => this.syncing = false)
       ).subscribe((a) => {
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
@@ -610,12 +594,10 @@ export class MyExpensesPage implements OnInit {
 
     if (popupResults === 'primary') {
       from(this.loaderService.showLoader('Deleting Expense', 2500)).pipe(
-        switchMap(() => {
-          return iif(() => !etxn.tx_id,
+        switchMap(() => iif(() => !etxn.tx_id,
             of(this.transactionOutboxService.deleteOfflineExpense(index)),
             this.transactionService.delete(etxn.tx_id)
-          )
-        }),
+          )),
         tap(() => this.trackingService.deleteExpense({Asset: 'Mobile'})),
         finalize(async () => {
           await this.loaderService.hideLoader();

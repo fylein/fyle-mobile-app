@@ -176,9 +176,7 @@ export class TransactionsOutboxService {
           fetch(dataUrl).then(res => res.blob()).then(blob => {
             this.uploadData(uploadUrl, blob, contentType)
               .toPromise()
-              .then(resp => {
-                return this.fileService.uploadComplete(fileObj.id);
-              })
+              .then(resp => this.fileService.uploadComplete(fileObj.id))
               .then(() => resolve(fileObj))
               .catch(err => {
                 reject(err);
@@ -214,9 +212,7 @@ export class TransactionsOutboxService {
   }
 
   getPendingTransactions() {
-    return this.queue.map((entry) => {
-      return entry.transaction;
-    });
+    return this.queue.map((entry) => entry.transaction);
   }
 
   getPendingDataExtractions() {
@@ -225,7 +221,7 @@ export class TransactionsOutboxService {
 
   deleteOfflineExpense(index: number) {
     this.queue.splice(index, 1);
-    this.saveQueue()
+    this.saveQueue();
     return null;
   }
 
@@ -237,9 +233,7 @@ export class TransactionsOutboxService {
     if (!entry.receiptsData) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
-          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates).then((fileObj) => {
-            return fileObj;
-          }, (evt) => {
+          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates).then((fileObj) => fileObj, (evt) => {
             const progressPercentage = 100.0 * evt.loaded / evt.total;
           });
 
@@ -349,9 +343,7 @@ export class TransactionsOutboxService {
 
   createTxnAndUploadBase64File(transaction, base64Content) {
     return this.transactionService.upsert(transaction).pipe(
-      switchMap((res) => {
-        return this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null);
-      })
+      switchMap((res) => this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null))
     );
   }
 
@@ -375,22 +367,18 @@ export class TransactionsOutboxService {
         suggested_currency: suggestedCurrency
       }).toPromise()
       .then(res => res as ParsedReceipt);
-    }).catch((err) => {
-      return this.httpClient.post(url, {
+    }).catch((err) => this.httpClient.post(url, {
         files: [{
           name: fileName,
           content: data
         }],
         suggested_currency: suggestedCurrency
       }).toPromise()
-      .then(res => res as ParsedReceipt);
-    });
+      .then(res => res as ParsedReceipt));
   }
 
   isDataExtractionPending(txnId) {
-    const txnIds = this.dataExtractionQueue.map((entry) => {
-      return entry.transaction.id;
-    });
+    const txnIds = this.dataExtractionQueue.map((entry) => entry.transaction.id);
 
     return txnIds.indexOf(txnId) > -1;
   }

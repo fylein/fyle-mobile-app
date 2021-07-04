@@ -145,12 +145,12 @@ export class AddEditExpensePage implements OnInit {
   recentlyUsedCategories$: Observable<OrgCategoryListItem[]>;
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
-  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
   presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
-  recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
+  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
   presetCostCenterId: number;
-  recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
+  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
   presetCurrency: string;
   initialFetch;
   inpageExtractedData;
@@ -294,9 +294,7 @@ export class AddEditExpensePage implements OnInit {
 
   getDuplicates() {
     return this.etxn$.pipe(
-      switchMap(etxn => {
-        return this.duplicateDetectionService.getDuplicates(etxn.tx.id);
-      })
+      switchMap(etxn => this.duplicateDetectionService.getDuplicates(etxn.tx.id))
     );
   }
 
@@ -501,9 +499,7 @@ export class AddEditExpensePage implements OnInit {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
       distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => {
-        return this.getPossibleDuplicates();
-      })
+      switchMap(() => this.getPossibleDuplicates())
     );
 
     this.duplicates$.pipe(
@@ -558,7 +554,7 @@ export class AddEditExpensePage implements OnInit {
       this.actionSheetButtons = [{
         text: 'Category',
         handler: () => {
-          this.openSplitExpenseModal('categories')
+          this.openSplitExpenseModal('categories');
         }
       }];
 
@@ -566,7 +562,7 @@ export class AddEditExpensePage implements OnInit {
         this.actionSheetButtons.push({
           text: 'Project',
           handler: () => {
-            this.openSplitExpenseModal('projects')
+            this.openSplitExpenseModal('projects');
           }
         });
       }
@@ -575,7 +571,7 @@ export class AddEditExpensePage implements OnInit {
         this.actionSheetButtons.push({
           text: 'Cost Center',
           handler: () => {
-            this.openSplitExpenseModal('cost centers')
+            this.openSplitExpenseModal('cost centers');
           }
         });
       }
@@ -617,40 +613,32 @@ export class AddEditExpensePage implements OnInit {
           return of([]);
         }
       }),
-      map(costCenters => {
-        return costCenters.map(costCenter => ({
+      map(costCenters => costCenters.map(costCenter => ({
           label: costCenter.name,
           value: costCenter
-        }));
-      })
+        })))
     );
   }
 
   setupTransactionMandatoryFields() {
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
       filter(isConnected => !!isConnected),
-      switchMap(() => {
-        return this.offlineService.getOrgSettings();
-      }),
+      switchMap(() => this.offlineService.getOrgSettings()),
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
     this.transactionMandatoyFields$.pipe(
       filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
-      switchMap((transactionMandatoyFields) => {
-        return forkJoin({
+      switchMap((transactionMandatoyFields) => forkJoin({
           individualProjectIds: this.individualProjectIds$,
           isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
           orgSettings: this.offlineService.getOrgSettings()
-        }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => {
-          return {
+        }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => ({
             transactionMandatoyFields,
             individualProjectIds,
             isIndividualProjectsEnabled,
             orgSettings
-          };
-        }));
-      })
+          }))))
     )
       .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => {
         if (orgSettings.projects.enabled) {
@@ -694,14 +682,12 @@ export class AddEditExpensePage implements OnInit {
       switchMap((paymentMode) => {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return accounts$.pipe(
-            map(accounts => {
-              return accounts
+            map(accounts => accounts
                 .filter(account => account
                   && account.acc
                   && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'
                   && account.acc.tentative_balance_amount > 0
-                ).length > 0;
-            })
+                ).length > 0)
           );
         }
         return of(false);
@@ -759,14 +745,12 @@ export class AddEditExpensePage implements OnInit {
             parsedResponse: parsedResponse.data,
             auditCallBackUrl: parsedResponse.callback_url
           })),
-          catchError((err) => {
-            return of({
+          catchError((err) => of({
               error: true,
               parsedResponse: {
                 source: 'MOBILE_INSTA'
               }
-            });
-          }),
+            })),
           switchMap((extractedDetails: any) => {
             const instaFyleImageData = {
               thumbnail: this.activatedRoute.snapshot.params.dataUrl,
@@ -787,12 +771,10 @@ export class AddEditExpensePage implements OnInit {
                         new Date()
                     ).pipe(
                       catchError(err => of(null)),
-                      map(exchangeRate => {
-                        return {
+                      map(exchangeRate => ({
                           ...instaFyleImageData,
                           exchangeRate
-                        };
-                      })
+                        }))
                     );
                   } else {
                     return of(instaFyleImageData);
@@ -1020,8 +1002,7 @@ export class AddEditExpensePage implements OnInit {
         }
       }));
 
-    const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.org_category_id,
+    const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => iif(() => etxn.tx.org_category_id,
         allCategories$.pipe(
           map(categories => categories
             .filter(category => {
@@ -1033,18 +1014,14 @@ export class AddEditExpensePage implements OnInit {
             })
             .find(category => category.id === etxn.tx.org_category_id)
           ),
-          ), of(null));
-    }));
-    const selectedReport$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.report_id, this.reports$.pipe(
+          ), of(null))));
+    const selectedReport$ = this.etxn$.pipe(switchMap(etxn => iif(() => etxn.tx.report_id, this.reports$.pipe(
         map(reportOptions => reportOptions
           .map(res => res.value)
           .find(reportOption => reportOption.rp.id === etxn.tx.report_id))),
-        of(null));
-    }));
+        of(null))));
 
-    const selectedPaymentMode$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
+    const selectedPaymentMode$ = this.etxn$.pipe(switchMap(etxn => iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
         map(paymentModes => paymentModes
           .map(res => res.value)
           .find(paymentMode => {
@@ -1054,16 +1031,13 @@ export class AddEditExpensePage implements OnInit {
               return paymentMode.acc.id === etxn.tx.source_account_id;
             }
           }))
-      ), of(null));
-    }));
+      ), of(null))));
 
     this.recentlyUsedCostCenters$ = forkJoin({
       costCenters: this.costCenters$,
       recentValue: this.recentlyUsedValues$
     }).pipe(
-      concatMap(({costCenters, recentValue}) => {
-        return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
-      })
+      concatMap(({costCenters, recentValue}) => this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue))
     );
 
     const defaultPaymentMode$ = forkJoin({
@@ -1141,17 +1115,12 @@ export class AddEditExpensePage implements OnInit {
     );
 
     const selectedCustomInputs$ = this.etxn$.pipe(
-      switchMap(etxn => {
-        return this.offlineService.getCustomInputs().pipe(map(customFields => {
-          return this.customFieldsService
-            .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
-        }));
-      })
+      switchMap(etxn => this.offlineService.getCustomInputs().pipe(map(customFields => this.customFieldsService
+            .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id)))))
     );
 
     from(this.loaderService.showLoader('Loading expense...', 15000)).pipe(
-      switchMap(() => {
-        return forkJoin({
+      switchMap(() => forkJoin({
           etxn: this.etxn$,
           paymentMode: selectedPaymentMode$,
           project: selectedProject$,
@@ -1166,8 +1135,7 @@ export class AddEditExpensePage implements OnInit {
           recentProjects: this.recentlyUsedProjects$,
           recentCostCenters: this.recentlyUsedCostCenters$,
           recentCategories: this.recentlyUsedCategories$
-        });
-      }),
+        })),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCostCenters}) => {
       const customInputValues = customInputs
@@ -1422,32 +1390,25 @@ export class AddEditExpensePage implements OnInit {
     this.customInputs$ = this.fg.controls.category.valueChanges
       .pipe(
         startWith({}),
-        switchMap(category => {
-          return iif(() => this.mode === 'add', this.getCategoryOnAdd(category), this.getCategoryOnEdit(category));
-        }),
+        switchMap(category => iif(() => this.mode === 'add', this.getCategoryOnAdd(category), this.getCategoryOnEdit(category))),
         switchMap((category) => {
           const formValue = this.fg.value;
           return this.offlineService.getCustomInputs().pipe(
-            map(customFields => {
-              return this.customFieldsService
+            map(customFields => this.customFieldsService
                 .standardizeCustomFields(
                   formValue.custom_inputs || [],
                   this.customInputsService.filterByCategory(customFields, category && category.id)
-                );
-            })
+                ))
           );
         }),
-        map(customFields => {
-          return customFields.map(customField => {
+        map(customFields => customFields.map(customField => {
             if (customField.options) {
               customField.options = customField.options.map(option => ({label: option, value: option}));
             }
             return customField;
-          });
-        }),
+          })),
 
-        switchMap((customFields: any[]) => {
-          return this.isConnected$.pipe(
+        switchMap((customFields: any[]) => this.isConnected$.pipe(
             take(1),
             map(isConnected => {
               const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
@@ -1467,8 +1428,7 @@ export class AddEditExpensePage implements OnInit {
               customFieldsFormArray.updateValueAndValidity();
               return customFields.map((customField, i) => ({...customField, control: customFieldsFormArray.at(i)}));
             })
-          );
-        }),
+          )),
         shareReplay(1)
       );
   }
@@ -1476,8 +1436,7 @@ export class AddEditExpensePage implements OnInit {
   setupTfc() {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue) => {
-        return this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
+      switchMap((formValue) => this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
           const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
           return this.expenseFieldsService
           .filterByOrgCategoryId(
@@ -1485,8 +1444,7 @@ export class AddEditExpensePage implements OnInit {
               fields,
               formValue.category
             );
-        }));
-      })
+        })))
     );
 
     this.txnFields$ = txnFieldsMap$.pipe(
@@ -1509,16 +1467,14 @@ export class AddEditExpensePage implements OnInit {
 
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(txnFields => {
-        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings(), costCenters: this.costCenters$}).pipe(
+      switchMap(txnFields => forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings(), costCenters: this.costCenters$}).pipe(
           map(({isConnected, orgSettings, costCenters}) => ({
             isConnected,
             txnFields,
             orgSettings,
             costCenters
           }))
-        );
-      })
+        ))
     ).subscribe(({isConnected, txnFields, orgSettings, costCenters}) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
@@ -1635,16 +1591,12 @@ export class AddEditExpensePage implements OnInit {
          return of(null);
         }
       }),
-      switchMap((initialProject) => {
-        return this.fg.controls.project.valueChanges.pipe(
+      switchMap((initialProject) => this.fg.controls.project.valueChanges.pipe(
           startWith(initialProject),
-          concatMap(project => {
-            return activeCategories$.pipe(
-              map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)));
-          }),
+          concatMap(project => activeCategories$.pipe(
+              map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)))),
           map(categories => categories.map(category => ({label: category.displayName, value: category})))
-        );
-      }),
+        )),
       shareReplay(1)
     );
 
@@ -1852,10 +1804,8 @@ export class AddEditExpensePage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
-    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => {
-      return (orgSettings.advances && orgSettings.advances.enabled) ||
-        (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-    }));
+    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => (orgSettings.advances && orgSettings.advances.enabled) ||
+        (orgSettings.advance_requests && orgSettings.advance_requests.enabled)));
 
     orgSettings$.subscribe(orgSettings => {
       this.isDraftExpenseEnabled = orgSettings.ccc_draft_expense_settings &&
@@ -1920,9 +1870,7 @@ export class AddEditExpensePage implements OnInit {
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
-      map(orgSettings => {
-        return orgSettings.expense_settings.split_expense_settings.enabled;
-      })
+      map(orgSettings => orgSettings.expense_settings.split_expense_settings.enabled)
     );
 
     this.setupBalanceFlag();
@@ -1965,25 +1913,17 @@ export class AddEditExpensePage implements OnInit {
 
     orgSettings$.pipe(
       filter(orgSettings => orgSettings.corporate_credit_card_settings.enabled),
-      switchMap(() => {
-        return this.etxn$;
-      }),
+      switchMap(() => this.etxn$),
       filter(etxn => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
-      switchMap(etxn => {
-        return this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(map(splitExpenses => {
-          return {
+      switchMap(etxn => this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(map(splitExpenses => ({
             etxn,
             splitExpenses
-          };
-        }));
-      })
+          }))))
     ).subscribe(({etxn, splitExpenses}) => {
       if (splitExpenses && splitExpenses.length > 0) {
         this.isSplitExpensesPresent = splitExpenses.length > 1;
         if (this.isSplitExpensesPresent) {
-          this.alreadyApprovedExpenses = splitExpenses.filter((txn) => {
-            return ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1;
-          });
+          this.alreadyApprovedExpenses = splitExpenses.filter((txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1);
 
           this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
         }
@@ -2030,9 +1970,7 @@ export class AddEditExpensePage implements OnInit {
     this.setupTransactionMandatoryFields();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
-      map(txnFields => {
-        return txnFields.flight_journey_travel_class && txnFields.flight_journey_travel_class.options.map(v => ({label: v, value: v}));
-      })
+      map(txnFields => txnFields.flight_journey_travel_class && txnFields.flight_journey_travel_class.options.map(v => ({label: v, value: v})))
     );
 
     this.taxSettings$ = orgSettings$.pipe(
@@ -2052,9 +1990,7 @@ export class AddEditExpensePage implements OnInit {
       filteredCategories: this.filteredCategories$.pipe(take(1)),
       recentValues: this.recentlyUsedValues$
     }).pipe(
-      concatMap(({filteredCategories, recentValues}) => {
-        return this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues);
-      })
+      concatMap(({filteredCategories, recentValues}) => this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues))
     );
 
     this.setupCustomFields();
@@ -2089,11 +2025,8 @@ export class AddEditExpensePage implements OnInit {
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
     const editExpenseAttachments = etxn$.pipe(
       switchMap((etxn: any) => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap((fileObjs: any) => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
+      switchMap((fileObjs: any) => from(fileObjs)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
           map(downloadUrl => {
             fileObj.url = downloadUrl;
             const details = this.getReceiptDetails(fileObj);
@@ -2101,8 +2034,7 @@ export class AddEditExpensePage implements OnInit {
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
           })
-        );
-      }),
+        )),
       reduce((acc, curr) => acc.concat(curr), [])
     );
 
@@ -2247,18 +2179,14 @@ export class AddEditExpensePage implements OnInit {
           })
         );
       }),
-      switchMap((policyETxn) => {
-        return this.transactionService.testPolicy(policyETxn);
-      })
+      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
     );
   }
 
   getCustomFields() {
     return this.customInputs$.pipe(
       take(1),
-      map(customInputs => {
-        return customInputs.map((customInput, i) => {
-          return {
+      map(customInputs => customInputs.map((customInput, i) => ({
             id: customInput.id,
             mandatory: customInput.mandatory,
             name: customInput.name,
@@ -2267,9 +2195,7 @@ export class AddEditExpensePage implements OnInit {
             prefix: customInput.prefix,
             type: customInput.type,
             value: this.fg.value.custom_inputs[i].value
-          };
-        });
-      })
+          })))
     );
   }
 
@@ -2298,9 +2224,7 @@ export class AddEditExpensePage implements OnInit {
   addToNewReport(txnId: string) {
     const that = this;
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.transactionService.getEtxn(txnId);
-      }),
+      switchMap(() => this.transactionService.getEtxn(txnId)),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(etxn => {
       const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
@@ -2473,9 +2397,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.comments$.pipe(
       map(
-        estatuses => estatuses.filter((estatus) => {
-          return estatus.st_org_user_id === 'POLICY';
-        })
+        estatuses => estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY')
       ),
       map(policyViolationComments => policyViolationComments.length > 0)
     ).subscribe(policyViolated => {
@@ -2540,17 +2462,13 @@ export class AddEditExpensePage implements OnInit {
           }
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    switchMap(() => this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
                         map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
-                      );
-                    })
+                      ))
                   );
                 } else {
                   return throwError('unhandledError');
@@ -2559,17 +2477,13 @@ export class AddEditExpensePage implements OnInit {
             );
           } else if (err.type === 'policyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-              }),
+              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    switchMap(() => this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
                         map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                      );
-                    })
+                      ))
                   );
                 } else {
                   return throwError('unhandledError');
@@ -2580,8 +2494,7 @@ export class AddEditExpensePage implements OnInit {
             return throwError(err);
           }
         }),
-        switchMap(({etxn, comment}: any) => {
-          return forkJoin({
+        switchMap(({etxn, comment}: any) => forkJoin({
             eou: from(this.authService.getEou()),
             txnCopy: this.etxn$
           }).pipe(
@@ -2608,9 +2521,7 @@ export class AddEditExpensePage implements OnInit {
 
               // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
               return this.transactionService.upsert(etxn.tx).pipe(
-                switchMap(txn => {
-                  return this.transactionService.getETxn(txn.id);
-                }),
+                switchMap(txn => this.transactionService.getETxn(txn.id)),
                 map(savedEtxn => savedEtxn && savedEtxn.tx),
                 switchMap((tx) => {
                   const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
@@ -2668,8 +2579,7 @@ export class AddEditExpensePage implements OnInit {
                 return of(txn);
               }
             }),
-          );
-        }),
+          )),
         switchMap((transaction) => {
           if (transaction.corporate_credit_card_expense_group_id && this.selectedCCCTransaction && this.selectedCCCTransaction.id) {
             if (transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id) {
@@ -2735,8 +2645,7 @@ export class AddEditExpensePage implements OnInit {
 
     return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(
-        switchMap(etxn => {
-          return this.isConnected$.pipe(
+        switchMap(etxn => this.isConnected$.pipe(
             take(1),
             switchMap(isConnected => {
               if (isConnected) {
@@ -2780,8 +2689,7 @@ export class AddEditExpensePage implements OnInit {
                   map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
                 );
               }
-            }));
-        }),
+            }))),
         catchError(err => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
@@ -2791,17 +2699,13 @@ export class AddEditExpensePage implements OnInit {
 
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    switchMap(() => this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
                         map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
-                      );
-                    })
+                      ))
                   );
                 } else {
                   return throwError('unhandledError');
@@ -2811,18 +2715,14 @@ export class AddEditExpensePage implements OnInit {
           } else if (err.type === 'policyViolations') {
             return from(this.loaderService.hideLoader())
               .pipe(
-                switchMap(() => {
-                  return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-                }),
+                switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
                 switchMap((continueWithTransaction) => {
                   if (continueWithTransaction) {
                     return from(this.loaderService.showLoader())
                       .pipe(
-                        switchMap(() => {
-                          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        switchMap(() => this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
                             map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                          );
-                        })
+                          ))
                       );
                   } else {
                     return throwError('unhandledError');
@@ -2833,8 +2733,7 @@ export class AddEditExpensePage implements OnInit {
             return throwError(err);
           }
         }),
-        switchMap(({etxn, comment}: any) => {
-          return from(this.authService.getEou())
+        switchMap(({etxn, comment}: any) => from(this.authService.getEou())
             .pipe(
               switchMap(eou => {
 
@@ -2913,8 +2812,7 @@ export class AddEditExpensePage implements OnInit {
                   }
                 }
               )
-            );
-        }),
+            )),
         finalize(() => {
           this.saveExpenseLoader = false;
           this.saveAndNewExpenseLoader = false;
@@ -2957,13 +2855,11 @@ export class AddEditExpensePage implements OnInit {
 
     return instaFyleEnabled$.pipe(
       filter(instafyleEnabled => instafyleEnabled),
-      switchMap(() => {
-        return forkJoin({
+      switchMap(() => forkJoin({
           imageData: from(this.getParsedReceipt(base64Image, fileType)),
           filteredCategories: this.filteredCategories$.pipe(take(1)),
           homeCurrency: this.offlineService.getHomeCurrency()
-        })
-      })
+        }))
     ).subscribe(({imageData, filteredCategories, homeCurrency}) => {
       const extractedData = {
         amount: imageData && imageData.data && imageData.data.amount,
@@ -3055,9 +2951,7 @@ export class AddEditExpensePage implements OnInit {
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
           switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-          map(fileObjs => {
-            return (fileObjs && fileObjs.length) || 0;
-          })
+          map(fileObjs => (fileObjs && fileObjs.length) || 0)
         );
 
         this.attachmentUploadInProgress = true;
@@ -3071,9 +2965,7 @@ export class AddEditExpensePage implements OnInit {
             fileObj.transaction_id = this.activatedRoute.snapshot.params.id;
             return this.fileService.post(fileObj);
           }),
-          switchMap(() => {
-            return editExpenseAttachments$;
-          }),
+          switchMap(() => editExpenseAttachments$),
           finalize(() => {
             this.attachmentUploadInProgress = false;
           })
@@ -3120,11 +3012,8 @@ export class AddEditExpensePage implements OnInit {
   viewAttachments() {
     const editExpenseAttachments = this.etxn$.pipe(
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap(fileObjs => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
+      switchMap(fileObjs => from(fileObjs)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
           map(downloadUrl => {
             fileObj.url = downloadUrl;
             const details = this.getReceiptDetails(fileObj);
@@ -3132,8 +3021,7 @@ export class AddEditExpensePage implements OnInit {
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
           })
-        );
-      }),
+        )),
       reduce((acc, curr) => acc.concat(curr), [])
     );
 
@@ -3145,9 +3033,7 @@ export class AddEditExpensePage implements OnInit {
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
 
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return attachements$;
-      }),
+      switchMap(() => attachements$),
       finalize(() => from(this.loaderService.hideLoader()))
     )
       .subscribe(async (attachments) => {
@@ -3174,9 +3060,7 @@ export class AddEditExpensePage implements OnInit {
         } else {
           this.etxn$.pipe(
             switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-            map(fileObjs => {
-              return (fileObjs && fileObjs.length) || 0;
-            })
+            map(fileObjs => (fileObjs && fileObjs.length) || 0)
           ).subscribe((attachedReceipts) => {
             if (this.attachedReceiptsCount === attachedReceipts) {
               this.trackingService.viewAttachment({Asset: 'Mobile'});
@@ -3200,9 +3084,7 @@ export class AddEditExpensePage implements OnInit {
 
     if (popupResult === 'primary') {
       from(this.loaderService.showLoader('Deleting Expense...')).pipe(
-        switchMap(() => {
-          return this.transactionService.delete(id);
-        }),
+        switchMap(() => this.transactionService.delete(id)),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
         if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {

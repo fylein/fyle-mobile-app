@@ -61,16 +61,14 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     that.orgs$.subscribe(() => {
       that.isLoading = false;
       that.cdRef.detectChanges();
-    })
+    });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
 
     if (!choose) {
       from(that.loaderService.showLoader())
         .pipe(
-          switchMap(() => {
-            return from(that.proceed());
-          })
+          switchMap(() => from(that.proceed()))
         )
         .subscribe(noop);
     } else {
@@ -78,9 +76,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
             .pipe(
-              switchMap(() => {
-                return from(that.proceed());
-              })
+              switchMap(() => from(that.proceed()))
             )
             .subscribe(noop);
         }
@@ -159,9 +155,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
 
   async switchToOrg(org: Org) {
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.orgService.switchOrg(org.id);
-      }),
+      switchMap(() => this.orgService.switchOrg(org.id)),
     ).subscribe(() => {
       globalCacheBusterNotifier.next();
       this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
@@ -175,12 +169,10 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
-    return orgs.filter(org => {
-      return Object.values(org)
+    return orgs.filter(org => Object.values(org)
         .map(value => value && value.toString().toLowerCase())
         .filter(value => !!value)
-        .some(value => value.toLowerCase().includes(searchText.toLowerCase()));
-    });
+        .some(value => value.toLowerCase().includes(searchText.toLowerCase())));
   }
 
   ngAfterViewInit(): void {
@@ -190,13 +182,11 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return currentOrgs$.pipe(
+      switchMap((searchText) => currentOrgs$.pipe(
           map(
             orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
           )
-        );
-      })
+        ))
     );
   }
 }

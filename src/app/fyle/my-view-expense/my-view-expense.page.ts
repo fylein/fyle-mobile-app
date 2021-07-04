@@ -111,16 +111,12 @@ export class MyViewExpensePage implements OnInit {
     };
 
     this.etxnWithoutCustomProperties$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.transactionService.getEtxn(txId);
-      }),
+      switchMap(() => this.transactionService.getEtxn(txId)),
       shareReplay(1)
     );
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap(etxn => {
-        return this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true);
-      }),
+      concatMap(etxn => this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)),
       shareReplay(1)
     );
 
@@ -156,11 +152,8 @@ export class MyViewExpensePage implements OnInit {
 
     const editExpenseAttachments = this.etxn$.pipe(
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx_id)),
-      switchMap(fileObjs => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
+      switchMap(fileObjs => from(fileObjs)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
           map(downloadUrl => {
             fileObj.url = downloadUrl;
             const details = this.getReceiptDetails(fileObj);
@@ -168,8 +161,7 @@ export class MyViewExpensePage implements OnInit {
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
           })
-        );
-      }),
+        )),
       reduce((acc, curr) => acc.concat(curr), [])
     );
 
@@ -211,9 +203,7 @@ export class MyViewExpensePage implements OnInit {
 
   viewAttachments() {
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.attachments$;
-      }),
+      switchMap(() => this.attachments$),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(async (attachments) => {
       const attachmentsModal = await this.modalController.create({

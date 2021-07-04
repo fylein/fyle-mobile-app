@@ -122,9 +122,7 @@ export class MyCreateReportPage implements OnInit {
           tap(() => {
             this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount});
           }),
-          switchMap((res) => {
-            return iif(() => txnIds.length > 0, this.reportService.addTransactions(res.id, txnIds), of(null)); 
-          }),
+          switchMap((res) => iif(() => txnIds.length > 0, this.reportService.addTransactions(res.id, txnIds), of(null))),
           finalize(() => {
             this.saveDraftReportLoading = false;
             this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -178,9 +176,7 @@ export class MyCreateReportPage implements OnInit {
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
       return this.reportService.getReportPurpose({ids: txnIds}).pipe(
-        map(res => {
-          return res;
-        })
+        map(res => res)
       ).subscribe(res => {
         this.reportTitle = res;
       });
@@ -194,13 +190,8 @@ export class MyCreateReportPage implements OnInit {
 
   getTripRequests() {
     return this.tripRequestsService.findMyUnreportedRequests().pipe(
-      map(res => {
-        return res.filter(request => {
-          return request.state === 'APPROVED';
-        });
-      }),
-      map((tripRequests: any) => {
-        return tripRequests.sort((tripA, tripB) =>  {
+      map(res => res.filter(request => request.state === 'APPROVED')),
+      map((tripRequests: any) => tripRequests.sort((tripA, tripB) =>  {
           const tripATime = new Date(tripA.created_at).getTime();
           const tripBTime = new Date(tripB.created_at).getTime();
           /**
@@ -211,13 +202,8 @@ export class MyCreateReportPage implements OnInit {
            * we maintain the order in which tripA and tripB are present in the array.
            */
           return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
-        });
-      }),
-      map((tripRequests: any) => {
-        return tripRequests.map(tripRequest => {
-          return {label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest};
-        });
-      })
+        })),
+      map((tripRequests: any) => tripRequests.map(tripRequest => ({label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest})))
     );
   }
 
@@ -250,8 +236,7 @@ export class MyCreateReportPage implements OnInit {
     });
 
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.transactionService.getAllExpenses({ queryParams }).pipe(
+      switchMap(() => this.transactionService.getAllExpenses({ queryParams }).pipe(
           map(etxns => {
             etxns.forEach((etxn, i) => {
               etxn.vendorDetails = this.getVendorDetails(etxn);
@@ -269,8 +254,7 @@ export class MyCreateReportPage implements OnInit {
             });
             return etxns;
           }),
-        );
-      }),
+        )),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     ).subscribe(res => {

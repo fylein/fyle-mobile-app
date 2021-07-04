@@ -2990,7 +2990,7 @@ export class TimezoneService {
   convertAllDatesToProperLocale(object, offset) {
     const that = this;
     const copiedObject = cloneDeep(object);
-    return that.utilityService.traverse(copiedObject, function (prop) {
+    return that.utilityService.traverse(copiedObject, function(prop) {
       if (prop instanceof Date) {
         prop.setHours(12);
         prop.setMinutes(0);

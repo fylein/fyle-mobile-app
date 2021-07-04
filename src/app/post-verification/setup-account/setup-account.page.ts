@@ -117,17 +117,13 @@ export class SetupAccountPage implements OnInit {
     if (this.fg.valid) {
       // do valid shit
       from(this.loaderService.showLoader()).pipe(
-        concatMap(() => {
-          return forkJoin([
+        concatMap(() => forkJoin([
             this.postUser(),
             this.postOrg(),
             this.saveGuessedMileage()
-          ]);
-        }),
+          ])),
         finalize(async () => await this.loaderService.hideLoader()),
-        concatMap(() => {
-          return this.authService.refreshEou();
-        })
+        concatMap(() => this.authService.refreshEou())
       ).subscribe(() => {
         this.trackingService.setupHalf({ Asset: 'Mobile' });
         // // setting up company details in clevertap profile
@@ -174,9 +170,7 @@ export class SetupAccountPage implements OnInit {
     });
 
     this.org$ = this.orgService.setCurrencyBasedOnIp().pipe(
-      concatMap(() => {
-        return this.orgService.getCurrentOrg();
-      }),
+      concatMap(() => this.orgService.getCurrentOrg()),
       shareReplay(1)
     );
 
