@@ -51,12 +51,10 @@ export class CreateNewReportComponent implements OnInit {
   ngOnInit() {
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
     this.selectedElements = this.selectedExpensesToReport;
-    this.offlineService.getHomeCurrency().pipe(
-      map((homeCurrency) => {
-        this.homeCurrency = homeCurrency;
-        this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-      })
-    ).subscribe(noop);
+    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+      this.homeCurrency = homeCurrency;
+      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+    });
   }
 
   ionViewWillEnter() {
