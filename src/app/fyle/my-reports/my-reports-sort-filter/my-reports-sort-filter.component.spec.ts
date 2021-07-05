@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter.component';
@@ -7,7 +7,7 @@ describe('MyReportsSortFilterComponent', () => {
   let component: MyReportsSortFilterComponent;
   let fixture: ComponentFixture<MyReportsSortFilterComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ MyReportsSortFilterComponent ],
       imports: [IonicModule.forRoot()]

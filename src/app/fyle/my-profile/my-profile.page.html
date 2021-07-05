@@ -123,7 +123,7 @@
         <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
           [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
       </div>
-      <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency">
+      <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency" *ngIf="orgUserSettings.currency_settings.enabled">
         <div class="my-profile--card-title my-profile--card-title__lite">
           {{orgUserSettings.currency_settings.preferred_currency  ? 'Currency' : 'Select Currency' }}
         </div>

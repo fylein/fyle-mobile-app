@@ -68,6 +68,12 @@ import {FooterComponent} from './components/footer/footer.component';
 import {FyAlertInfoComponent} from './components/fy-alert-info.component.html/fy-alert-info.component';
 import {MatRippleModule} from '@angular/material/core';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import {FyHeaderComponent} from './components/fy-header/fy-header.component';
+import {FyDeleteDialogComponent} from './components/fy-delete-dialog/fy-delete-dialog.component';
+import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
 
 @NgModule({
   declarations: [
@@ -121,7 +127,11 @@ import { FyCriticalPolicyViolationComponent } from './components/fy-critical-pol
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
-    FyCriticalPolicyViolationComponent
+    FyCriticalPolicyViolationComponent,
+    FyHeaderComponent,
+    FyDeleteDialogComponent,
+    FyFiltersComponent,
+    FyFilterPillsComponent
   ],
   imports: [
     CommonModule,
@@ -136,7 +146,9 @@ import { FyCriticalPolicyViolationComponent } from './components/fy-critical-pol
     ReactiveFormsModule,
     PinchZoomModule,
     PdfViewerModule,
-    MatRippleModule
+    MatRippleModule,
+    MatRadioModule,
+    MatDatepickerModule
   ],
   exports: [
     EllipsisPipe,
@@ -178,11 +190,14 @@ import { FyCriticalPolicyViolationComponent } from './components/fy-critical-pol
     FyHighlightTextComponent,
     FormatDateDirective,
     ExpenseState,
-    FyAlertInfoComponent,
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
-    FyCriticalPolicyViolationComponent
+    FyCriticalPolicyViolationComponent,
+    FyHeaderComponent,
+    FyDeleteDialogComponent,
+    FyFiltersComponent,
+    FyFilterPillsComponent
   ],
   providers: [
     DecimalPipe,

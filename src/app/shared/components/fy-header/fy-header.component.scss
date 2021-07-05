@@ -1,0 +1,16 @@
+@import '../../../../theme/colors';
+
+.fy-header {
+  &--title {
+    line-height: 26px;
+    color: $black;
+    font-weight: 400;
+  }
+
+  &--simple-search-cancel {
+    font-size: 14px;
+    line-height: 18px;
+    color: $black-light;
+    text-transform: capitalize;
+  }
+}

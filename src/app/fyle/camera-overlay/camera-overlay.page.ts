@@ -86,9 +86,23 @@ export class CameraOverlayPage implements OnInit {
     setTimeout(() => {
       this.modeChanged = false;
     }, 1000);
+    
+    if (this.isBulkMode) {
+      this.trackingService.switchedToInstafyleBulkMode({
+        Asset: 'Mobile' 
+      });
+    } else {
+      this.trackingService.switchedToInstafyleSingleMode({
+        Asset: 'Mobile' 
+      }); 
+    }
   }
 
   uploadFiles() {
+    this.trackingService.instafyleGalleryUploadOpened({
+      Asset: 'Mobile'
+    });
+
     this.stopCamera();
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
@@ -243,6 +257,11 @@ export class CameraOverlayPage implements OnInit {
 
     CameraPreview.setFlashMode({flashMode: nextActiveFlashMode});
     this.activeFlashMode = nextActiveFlashMode;
+
+    this.trackingService.flashModeSet({
+      Asset: 'Mobile',
+      FlashMode: this.activeFlashMode 
+    });
   }
 
   getFlashModes() {
@@ -257,6 +276,9 @@ export class CameraOverlayPage implements OnInit {
   disableInstaFyleIntro() {
     this.storageService.set('hideInstaFyleIntroGif', true);
     this.showInstaFyleIntro = false;
+    this.trackingService.instafyleIntroDisabled({
+      Asset: 'Mobile'
+    });
   }
 
   async showInstaFyleIntroImage() {

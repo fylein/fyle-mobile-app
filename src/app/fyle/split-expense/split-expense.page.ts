@@ -234,7 +234,7 @@ export class SplitExpensePage implements OnInit {
       this.showErrorBlock = false;
       if (this.amount && this.amount !== this.totalSplitAmount ) {
         this.showErrorBlock = true;
-        this.errorMessage = 'Total split amount should be ' + this.amount + '.';
+        this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
         setTimeout(() => {
           this.showErrorBlock = false;
         }, 2500);

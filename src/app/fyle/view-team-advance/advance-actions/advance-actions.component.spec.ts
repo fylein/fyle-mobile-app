@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { AdvanceActionsComponent } from './advance-actions.component';
@@ -7,7 +7,7 @@ describe('AdvanceActionsComponent', () => {
   let component: AdvanceActionsComponent;
   let fixture: ComponentFixture<AdvanceActionsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ AdvanceActionsComponent ],
       imports: [IonicModule.forRoot()]
