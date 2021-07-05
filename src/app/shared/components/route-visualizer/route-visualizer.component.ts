@@ -24,24 +24,24 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   renderOptions = {
     draggable: false,
-    suppressMarkers: true,
+    // suppressMarkers: true,
     suppressInfoWindows: true
   }
 
   markerOptions = {
     origin: {
-      icon: null,
-      opacity: 0,
+      // icon: null,
+      // opacity: 0,
       infoWindow: null
     },
     destination: {
-      icon: null,
-      opacity: 0,
+      // icon: null,
+      // opacity: 0,
       infoWindow: null
     },
     waypoints: {
-      icon: null,
-      opacity: 0,
+      // icon: null,
+      // opacity: 0,
       infoWindow: null
     }
   }
@@ -62,11 +62,16 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    try {
-      const transformedLocations = this.mileageLocations.map(mileageLocation => ({
-        lat: mileageLocation.latitude,
-        lng: mileageLocation.longitude
-      }));
+    const transformedLocations = this.mileageLocations.map(mileageLocation => ({
+      lat: mileageLocation.latitude,
+      lng: mileageLocation.longitude
+    }));
+
+    if (transformedLocations.some(location => !location.lat || !location.lng)) {
+      this.origin = null;
+      this.destination = null;
+      this.waypoints = null;
+    } else {
       if (transformedLocations?.length >= 2) {
         this.origin = transformedLocations[0];
         this.destination = transformedLocations[transformedLocations.length - 1];
@@ -79,8 +84,6 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
           this.waypoints = [];
         }
       }
-    } catch (error) {
-
     }
   }
 
