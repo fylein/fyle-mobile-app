@@ -6,7 +6,7 @@
   </div>
   
   <div class="capture-receipt--close-flash-container">
-    <div class="capture-receipt--close-icon-block">
+    <div class="capture-receipt--close-icon-block" (click)="close()">
       <mat-icon class="capture-receipt--close-icon" svgIcon="close"></mat-icon>
     </div>
     <div class="capture-receipt--flash-icon-block">
@@ -28,9 +28,16 @@
       <div class="text-center capture-receipt--capture-icon-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
     </div>
     <div class="capture-receipt--bulk-mode-icon-block text-center" (click)="switchMode()">
-      <mat-icon class="capture-receipt--bulk-mode-icon" svgIcon="{{isBulkMode ? 'single-mode' : 'bulk-mode'}}"></mat-icon>
-      <div class="text-center capture-receipt--bulk-icon-text">{{ !isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
+      <ng-container *ngIf="captureCount == 0">
+        <mat-icon class="capture-receipt--bulk-mode-icon" svgIcon="{{isBulkMode ? 'single-mode' : 'bulk-mode'}}"></mat-icon>
+        <div class="text-center capture-receipt--bulk-icon-text">{{ !isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
+      </ng-container>
+      <ng-container *ngIf="captureCount > 0">
+        <div class="capture-receipt--thumbnail-container" (click)="review()">
+          <ion-img class="capture-receipt--image-thumbnail" [src]="lastImage"></ion-img>
+          <div class="text-center capture-receipt--bulk-icon-text">Review</div>
+        </div>
+      </ng-container>
     </div>
-
   </div>
 </ion-content>

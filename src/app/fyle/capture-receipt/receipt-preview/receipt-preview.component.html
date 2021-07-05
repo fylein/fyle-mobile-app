@@ -15,22 +15,26 @@
 
 
 <ion-content>
-  <!-- <div class="view-attachments--controls" *ngIf="attachments.length > 1">
-    <mat-icon class="view-attachments--go-back" (click)="goToPrevSlide()">
+  <div class="receipt-preview--controls">
+    <mat-icon class="receipt-preview--go-back" (click)="goToPrevSlide()">
       arrow_back_ios
     </mat-icon>
-    <mat-icon class="view-attachments--go-forward" (click)="goToNextSlide()">
+    <mat-icon class="receipt-preview--go-forward" (click)="goToNextSlide()">
       arrow_forward_ios
     </mat-icon>
-  </div> -->
+  </div>
   <ion-slides #slides [options]="sliderOptions" zoom>
     <ng-container *ngFor="let base64Image of base64Images">
       <ion-slide>
-        <div>
-          <pinch-zoom class="view-attachments--container">
+        <!-- <div>
+          <pinch-zoom class="receipt-preview--container">
             <img [src]="base64Image" />
+            <ion-img class="camera-overlay--preview-receipt" [src]="base64Image"></ion-img>
           </pinch-zoom>
 
+        </div> -->
+        <div class="camera-overlay--preview-container">
+          <ion-img class="camera-overlay--preview-receipt" [src]="base64Image"></ion-img>
         </div>
       </ion-slide>
     </ng-container>

@@ -3,9 +3,10 @@ import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-comm
 import { Plugins } from '@capacitor/core';
 const {CameraPreview} = Plugins;
 import '@capacitor-community/camera-preview';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-capture-receipt',
@@ -16,10 +17,16 @@ export class CaptureReceiptPage implements OnInit {
   isCameraShown: boolean;
   isBulkMode: boolean;
   modeChanged = false;
+  captureCount = 0;
+  base64Images: string[];
+  lastImage: string;
+
 
   constructor(
     private modalController: ModalController,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private router: Router,
+    private navController: NavController
   ) { }
 
   ngOnInit() {
@@ -32,6 +39,11 @@ export class CaptureReceiptPage implements OnInit {
     }
   }
 
+  close() {
+    this.stopCamera();
+    this.navController.back();
+  }
+
   setUpAndStartCamera() {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
@@ -40,7 +52,7 @@ export class CaptureReceiptPage implements OnInit {
         y: 0,
         toBack: true,
         width: window.screen.width,
-        height: window.screen.height,
+        height: window.screen.height - 100,
         parent: 'cameraPreview'
       };
 
@@ -70,16 +82,13 @@ export class CaptureReceiptPage implements OnInit {
     }
   }
 
-  async onSingleCapture(base64PictureData) {
+  async onSingleCapture() {
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
-        base64Images: [base64PictureData],
+        base64Images: this.base64Images,
         mode: "single"
       },
-      // mode: 'ios',
-      // presentingElement: await this.modalController.getTop(),
-      // ...this.modalProperties.getModalDefaultProperties()
     });
 
     await modal.present();
@@ -87,30 +96,55 @@ export class CaptureReceiptPage implements OnInit {
     const { data } = await modal.onWillDismiss();
     if (data) {
       if (data.base64Images.length === 0) {
+        this.base64Images = [];
         this.setUpAndStartCamera();
       }
     }
   }
 
+  async review() {
+    const modal = await this.modalController.create({
+      component: ReceiptPreviewComponent,
+      componentProps: {
+        base64Images: this.base64Images,
+        mode: "bulk"
+      },
+    });
+
+    await modal.present();
+  }
+
+  onBulkCapture() {
+    this.captureCount += 1;
+    this.setUpAndStartCamera();
+    // console.log()
+  }
+
   async onCapture() {
     const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-      quality: 50
+      quality: 85,
     };
 
     const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-    this.stopCamera();
+    await this.stopCamera();
     const base64PictureData = 'data:image/jpeg;base64,' + result.value;
+    this.lastImage = base64PictureData;
+    this.base64Images.push(base64PictureData)
     //console.log(base64PictureData);
     if (!this.isBulkMode) { 
-      this.onSingleCapture(base64PictureData);
+      this.onSingleCapture();
+    } else {
+      this.onBulkCapture();
     }
 
   }
 
 
+
   ionViewWillEnter() {
     this.isCameraShown = false;
     this.isBulkMode = false;
+    this.base64Images = [];
     this.setUpAndStartCamera();
   }
 

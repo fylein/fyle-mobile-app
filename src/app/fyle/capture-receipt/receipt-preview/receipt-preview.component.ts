@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -10,6 +10,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @Input() base64Images: string[];
   sliderOptions: { zoom: { maxRatio: number; }; };
+  @ViewChild('slides') imageSlides: any;
 
   constructor(
     private modalController: ModalController
@@ -34,6 +35,14 @@ export class ReceiptPreviewComponent implements OnInit {
     this.modalController.dismiss({
       base64Images: this.base64Images
     })
+  }
+
+  goToNextSlide() {
+    this.imageSlides.slideNext();
+  }
+
+  goToPrevSlide() {
+    this.imageSlides.slidePrev();
   }
 
 }

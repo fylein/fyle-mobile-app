@@ -1,6 +1,45 @@
 @import '../../../../theme/colors.scss';
 
 .receipt-preview {
+
+  &--controls {
+    position: relative;
+    z-index: 99;
+  }
+
+  &--go-back {
+    position: absolute;
+    top: 20vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    border-radius: 50%;
+    font-size: 18px;
+    padding: 12px;
+    height: 40px;
+    width: 40px;
+    color: white;
+  }
+
+  &--go-forward {
+    position: absolute;
+    top: 20vh;
+    left: 80vw;
+    background-color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    border-radius: 50%;
+    font-size: 18px;
+    padding: 12px;
+    height: 40px;
+    width: 40px;
+    color: white;
+  }
+
+  &--container {
+    height: 80vh;
+    width: 90vw;
+  }
+
+
   &--cta-container {
     display: flex;
     justify-content: space-between;
