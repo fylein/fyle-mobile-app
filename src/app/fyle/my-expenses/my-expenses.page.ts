@@ -598,8 +598,8 @@ export class MyExpensesPage implements OnInit {
       }
 
       if (filter.date === DateFilters.custom) {
-        const startDate = filter.customDateStart && moment(filter.customDateStart).format('yyyy-MM-DD');
-        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('yyyy-MM-DD');
+        const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
+        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
 
         if (startDate && endDate) {
           filterPills.push({
@@ -613,7 +613,7 @@ export class MyExpensesPage implements OnInit {
             type: 'date',
             value: `>= ${startDate}`
           });
-        } else if (startDate) {
+        } else if (endDate) {
           filterPills.push({
             label: 'Date',
             type: 'date',
@@ -649,13 +649,13 @@ export class MyExpensesPage implements OnInit {
         filterPills.push({
           label: 'Sort By',
           type: 'sort',
-          value: 'date - new to old'
+          value: 'date - old to new'
         });
       } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
         filterPills.push({
           label: 'Sort By',
           type: 'sort',
-          value: 'date - old to new'
+          value: 'date - new to old'
         });
       } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
         filterPills.push({
@@ -771,17 +771,19 @@ export class MyExpensesPage implements OnInit {
   private generateReceiptAttachedParams(newQueryParams) {
     if (this.filters.receiptsAttached) {
       if (this.filters.receiptsAttached === 'YES') {
-        newQueryParams.tx_receipt_required = 'eq.true';
+        newQueryParams.tx_num_files = 'gt.0';
       }
 
       if (this.filters.receiptsAttached === 'NO') {
-        newQueryParams.tx_receipt_required = 'eq.false';
+        newQueryParams.tx_num_files = 'eq.0';
       }
     }
   }
 
   private generateDateParams(newQueryParams) {
     if (this.filters.date) {
+      this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
+      this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
       if (this.filters.date === DateFilters.thisMonth) {
         newQueryParams.and =
             `(tx_txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
@@ -792,8 +794,13 @@ export class MyExpensesPage implements OnInit {
         newQueryParams.and =
             `(tx_txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
       } else if (this.filters.date === DateFilters.custom) {
-        newQueryParams.and =
-            `(tx_txn_dt.gte.${this.filters.customDateStart.toISOString()},tx_txn_dt.lt.${this.filters.customDateEnd.toISOString()})`;
+        if (this.filters.customDateStart && this.filters.customDateEnd) {
+          newQueryParams.and =`(tx_txn_dt.gte.${this.filters?.customDateStart?.toISOString()},tx_txn_dt.lt.${this.filters?.customDateEnd?.toISOString()})`;
+        } else if (this.filters.customDateStart) {
+          newQueryParams.and =`(tx_txn_dt.gte.${this.filters.customDateStart?.toISOString()})`;
+        } else if (this.filters.customDateEnd) {
+          newQueryParams.and =`(tx_txn_dt.lt.${this.filters.customDateEnd?.toISOString()})`;
+        }
       }
     }
   }
@@ -820,8 +827,8 @@ export class MyExpensesPage implements OnInit {
         name: 'Date',
         value: filter.date,
         associatedData: {
-          from: filter.customDateStart,
-          to: filter.customDateEnd
+          startDate: filter.customDateStart,
+          endDate: filter.customDateEnd
         }
       });
     }
@@ -837,12 +844,12 @@ export class MyExpensesPage implements OnInit {
       if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
         generatedFilters.push({
           name: 'Sort By',
-          value: 'dateNewToOld'
+          value: 'dateOldToNew'
         });
       } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
         generatedFilters.push({
           name: 'Sort By',
-          value: 'dateOldToNew'
+          value: 'dateNewToOld'
         });
       } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
         generatedFilters.push({
@@ -881,8 +888,8 @@ export class MyExpensesPage implements OnInit {
     const dateFilter = selectedFilters.find(filter => filter.name === 'Date');
     if (dateFilter) {
       generatedFilters.date = dateFilter.value;
-      generatedFilters.customDateStart = dateFilter.associatedData?.from;
-      generatedFilters.customDateStart = dateFilter.associatedData?.to;
+      generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
+      generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
     const receiptAttachedFilter = selectedFilters.find(filter => filter.name === 'Receipts Attached');
@@ -902,10 +909,10 @@ export class MyExpensesPage implements OnInit {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
         generatedFilters.sortParam = 'tx_txn_dt';
-        generatedFilters.sortDir = 'asc';
+        generatedFilters.sortDir = 'desc';
       } else if (sortBy.value === 'dateOldToNew') {
         generatedFilters.sortParam = 'tx_txn_dt';
-        generatedFilters.sortDir = 'desc';
+        generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'amountHighToLow') {
         generatedFilters.sortParam = 'tx_amount';
         generatedFilters.sortDir = 'desc';

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { ActionConfirmationPopoverComponent } from './action-confirmation-popover.component';
@@ -7,7 +7,7 @@ describe('ActionConfirmationPopoverComponent', () => {
   let component: ActionConfirmationPopoverComponent;
   let fixture: ComponentFixture<ActionConfirmationPopoverComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ActionConfirmationPopoverComponent ],
       imports: [IonicModule.forRoot()]

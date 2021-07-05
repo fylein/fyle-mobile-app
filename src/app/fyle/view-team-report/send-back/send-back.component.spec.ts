@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { SendBackComponent } from './send-back.component';
@@ -7,7 +7,7 @@ describe('SendBackComponent', () => {
   let component: SendBackComponent;
   let fixture: ComponentFixture<SendBackComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SendBackComponent ],
       imports: [IonicModule.forRoot()]
