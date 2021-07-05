@@ -1601,8 +1601,9 @@ export class AddEditExpensePage implements OnInit {
           if (defaultValueColumn !== 'vendor_id' && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
-            const vendor_id = { display_name: "new vendor 2" };
+            const vendor_id = { display_name: defaultValues[defaultValueColumn]};
             control.patchValue(vendor_id);
+            
           }
         }
       }
