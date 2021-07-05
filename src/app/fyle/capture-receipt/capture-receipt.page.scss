@@ -45,10 +45,12 @@
     left: 30%;
     color: $pure-white;
     font-size: 20px;
-    padding-top: 20px;
+    border-radius: 8px;
   }
 
-
+  &--switch-mode-text {
+    padding: 20px;
+  }
 
   &--single-bulk-gallery-container {
     position: fixed;
@@ -61,6 +63,7 @@
 
   &--gallery-icon-block {
     margin-top: auto;
+    min-width: 82px;
   }
 
   &--gallery-icon {
@@ -74,6 +77,10 @@
     font-size: 15px;
     line-height: 19px;
     letter-spacing: -0.3px;
+  }
+
+  &--capture-icon-block {
+    min-width: 84px;
   }
 
   &--capture-icon {
@@ -92,6 +99,7 @@
 
   &--bulk-mode-icon-block{
     margin-top: auto;
+    min-width: 82px;
   }
 
   &--bulk-mode-icon {

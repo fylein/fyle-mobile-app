@@ -5,6 +5,7 @@ const {CameraPreview} = Plugins;
 import '@capacitor-community/camera-preview';
 import { ModalController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-capture-receipt',
@@ -17,7 +18,8 @@ export class CaptureReceiptPage implements OnInit {
   modeChanged = false;
 
   constructor(
-    private modalController: ModalController
+    private modalController: ModalController,
+    private trackingService: TrackingService
   ) { }
 
   ngOnInit() {
@@ -54,17 +56,17 @@ export class CaptureReceiptPage implements OnInit {
     this.isBulkMode = !this.isBulkMode;
     this.modeChanged = true;
     setTimeout(() => {
-      //this.modeChanged = false;
+      this.modeChanged = false;
     }, 1000);
     
     if (this.isBulkMode) {
-      // this.trackingService.switchedToInstafyleBulkMode({
-      //   Asset: 'Mobile' 
-      // });
+      this.trackingService.switchedToInstafyleBulkMode({
+        Asset: 'Mobile' 
+      });
     } else {
-      // this.trackingService.switchedToInstafyleSingleMode({
-      //   Asset: 'Mobile' 
-      // }); 
+      this.trackingService.switchedToInstafyleSingleMode({
+        Asset: 'Mobile' 
+      }); 
     }
   }
 
