@@ -196,7 +196,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
     ReviewFooterComponent,
-    FyCriticalPolicyViolationComponent
+    FyCriticalPolicyViolationComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,
