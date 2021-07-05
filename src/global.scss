@@ -629,6 +629,14 @@ ref - https://stackoverflow.com/a/31162426
   }
 }
 
+.stack-modal {
+  ion-backdrop {
+    box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
+    opacity: 0.4 !important;
+    pointer-events: all !important;
+  }
+}
+
 .fy-modal-top-bar {
   width: 52px !important;
   height: 4px !important;
