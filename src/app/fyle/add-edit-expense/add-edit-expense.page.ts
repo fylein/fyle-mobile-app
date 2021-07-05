@@ -36,9 +36,8 @@ import {PolicyService} from 'src/app/core/services/policy.service';
 import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
-import {SplitExpensePopoverComponent} from './split-expense-popover/split-expense-popover.component';
-import {ModalController, NavController, PopoverController} from '@ionic/angular';
-import {FyCriticalPolicyViolationComponent} from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import {ActionSheetController, ModalController, NavController, PopoverController} from '@ionic/angular';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {StatusService} from 'src/app/core/services/status.service';
 import {FileService} from 'src/app/core/services/file.service';
@@ -63,6 +62,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { CommentsComponent } from 'src/app/shared/components/comments/comments.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { Currency } from 'src/app/core/models/currency.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -150,14 +150,17 @@ export class AddEditExpensePage implements OnInit {
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  recentCurrencies: Currency[];
   presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedCurrencies$: Observable<Currency[]>;
   recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
   presetCostCenterId: number;
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
   presetCurrency: string;
   initialFetch;
   inpageExtractedData;
+  actionSheetButtons = [];
 
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -198,7 +201,8 @@ export class AddEditExpensePage implements OnInit {
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private tokenService: TokenService,
     private expenseFieldsService: ExpenseFieldsService,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private actionSheetController: ActionSheetController
   ) {
   }
 
@@ -548,31 +552,61 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async splitExpense() {
-    return forkJoin({
-      orgSettings$: this.offlineService.getOrgSettings(),
-      costCenters: this.costCenters$,
-      projects: this.offlineService.getProjects()
-    }).subscribe(async res => {
-      const orgSettings = res.orgSettings$;
-      const areCostCentersAvailable = res.costCenters.length > 0;
-      const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
+    if (this.fg.valid) {
+      return forkJoin({
+        orgSettings$: this.offlineService.getOrgSettings(),
+        costCenters: this.costCenters$,
+        projects: this.offlineService.getProjects()
+      }).subscribe(async res => {
+        const orgSettings = res.orgSettings$;
+        const areCostCentersAvailable = res.costCenters.length > 0;
+        const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
 
-      const splitExpensePopover = await this.popoverController.create({
-        component: SplitExpensePopoverComponent,
-        componentProps: {
-          areProjectsAvailable,
-          areCostCentersAvailable
-        },
-        cssClass: 'dialog-popover'
+        this.actionSheetButtons = [{
+          text: 'Category',
+          handler: () => {
+            this.openSplitExpenseModal('categories')
+          }
+        }];
+
+        if (areProjectsAvailable) {
+          this.actionSheetButtons.push({
+            text: 'Project',
+            handler: () => {
+              this.openSplitExpenseModal('projects')
+            }
+          });
+        }
+
+        if (areCostCentersAvailable) {
+          this.actionSheetButtons.push({
+            text: 'Cost Center',
+            handler: () => {
+              this.openSplitExpenseModal('cost centers')
+            }
+          });
+        }
+
+        const actionSheet = await this.actionSheetController.create({
+          header: 'SPLIT EXPENSE BY',
+          mode: 'md',
+          cssClass: 'fy-action-sheet',
+          buttons: this.actionSheetButtons
+        });
+        await actionSheet.present();
       });
-      await splitExpensePopover.present();
-
-      const {data} = await splitExpensePopover.onWillDismiss();
-
-      if (data && data.type) {
-        this.openSplitExpenseModal(data.type);
+    } else {
+      this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
       }
-    });
+    }
   }
 
   ngOnInit() {
@@ -725,10 +759,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
-      map(catogories => catogories.filter(category => category.enabled === true)),
       map(catogories => this.categoriesService.filterRequired(catogories))
     );
   }
@@ -814,7 +847,7 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
-      categories: this.offlineService.getAllCategories(),
+      categories: this.offlineService.getAllEnabledCategories(),
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$,
@@ -956,8 +989,7 @@ export class AddEditExpensePage implements OnInit {
 
           if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
-            const enabledCategories = categories.filter(category => category.enabled);
-            const category = enabledCategories.find(orgCategory => orgCategory.name === categoryName);
+            const category = categories.find(orgCategory => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
           }
 
@@ -1096,6 +1128,18 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
+    this.recentlyUsedCurrencies$ = forkJoin({
+      recentValues: this.recentlyUsedValues$,
+      currencies: this.offlineService.getCurrencies()
+    }).pipe(
+      switchMap(({recentValues, currencies}) => {
+        return this.recentlyUsedItemsService.getRecentCurrencies(
+          currencies,
+          recentValues
+        );
+      })
+    );
+
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         if (etxn.tx.cost_center_id) {
@@ -1149,12 +1193,13 @@ export class AddEditExpensePage implements OnInit {
           orgUserSettings: this.orgUserSettings$,
           recentValue: this.recentlyUsedValues$,
           recentProjects: this.recentlyUsedProjects$,
+          recentCurrencies: this.recentlyUsedCurrencies$,
           recentCostCenters: this.recentlyUsedCostCenters$,
           recentCategories: this.recentlyUsedCategories$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCostCenters}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1221,6 +1266,8 @@ export class AddEditExpensePage implements OnInit {
       if (recentProjects && recentProjects.length > 0) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
+
+      this.recentCurrencies = recentCurrencies;
 
       /* Autofill project during these cases:
       * 1. Autofills is allowed and enabled
@@ -1354,7 +1401,7 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
-      categories: this.offlineService.getAllCategories()
+      categories: this.offlineService.getAllEnabledCategories()
     }).pipe(
       map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
         const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
@@ -1387,7 +1434,7 @@ export class AddEditExpensePage implements OnInit {
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
-        categories: this.offlineService.getAllCategories()
+        categories: this.offlineService.getAllEnabledCategories()
       }).pipe(
         map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
           const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
@@ -1651,7 +1698,7 @@ export class AddEditExpensePage implements OnInit {
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           return forkJoin({
             instaFyleSettings: instaFyleSettings$,
-            allCategories: this.offlineService.getAllCategories()
+            allCategories: this.offlineService.getAllEnabledCategories()
           }).pipe(
             switchMap(({instaFyleSettings, allCategories}) => {
               const shouldExtractAmount = instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1;
@@ -1833,7 +1880,7 @@ export class AddEditExpensePage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
@@ -2213,7 +2260,7 @@ export class AddEditExpensePage implements OnInit {
 
         policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
-        return this.offlineService.getAllCategories().pipe(
+        return this.offlineService.getAllEnabledCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {

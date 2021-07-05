@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { FyPreviewAttachmentsComponent } from './fy-preview-attachments.component';
@@ -7,7 +7,7 @@ describe('FyPreviewAttachmentsComponent', () => {
   let component: FyPreviewAttachmentsComponent;
   let fixture: ComponentFixture<FyPreviewAttachmentsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ FyPreviewAttachmentsComponent ],
       imports: [IonicModule.forRoot()]

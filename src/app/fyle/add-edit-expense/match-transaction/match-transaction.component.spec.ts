@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { MatchTransactionComponent } from './match-transaction.component';
@@ -7,7 +7,7 @@ describe('MatchTransactionComponent', () => {
   let component: MatchTransactionComponent;
   let fixture: ComponentFixture<MatchTransactionComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ MatchTransactionComponent ],
       imports: [IonicModule.forRoot()]

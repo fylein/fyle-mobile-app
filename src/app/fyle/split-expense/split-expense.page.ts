@@ -234,7 +234,7 @@ export class SplitExpensePage implements OnInit {
       this.showErrorBlock = false;
       if (this.amount && this.amount !== this.totalSplitAmount ) {
         this.showErrorBlock = true;
-        this.errorMessage = 'Total split amount should be ' + this.amount + '.';
+        this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
         setTimeout(() => {
           this.showErrorBlock = false;
         }, 2500);
@@ -305,14 +305,9 @@ export class SplitExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllCategories();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
-      map(catogories => {
-        return catogories.filter(category => {
-          return category.enabled === true;
-        });
-      }),
       map(catogories => {
         return this.categoriesService.filterRequired(catogories);
       })
