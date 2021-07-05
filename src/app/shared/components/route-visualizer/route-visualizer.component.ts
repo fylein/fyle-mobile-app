@@ -63,8 +63,8 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     const transformedLocations = this.mileageLocations.map(mileageLocation => ({
-      lat: mileageLocation.latitude,
-      lng: mileageLocation.longitude
+      lat: mileageLocation?.latitude,
+      lng: mileageLocation?.longitude
     }));
 
     if (transformedLocations.some(location => !location.lat || !location.lng)) {

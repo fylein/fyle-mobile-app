@@ -80,7 +80,9 @@
           </div>
         </ng-container>
 
-        <app-route-visualizer [mileageLocations]="fg.controls.mileage_locations.value"></app-route-visualizer>
+        <ng-container *ngIf="isConnected$|async">
+          <app-route-visualizer [mileageLocations]="fg.controls.mileage_locations.value"></app-route-visualizer>
+        </ng-container>
 
         <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
