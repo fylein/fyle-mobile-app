@@ -35,12 +35,12 @@
     --inner-padding-top: 13px;
     --inner-padding-bottom: 14px;
     --background: #{$white};
-    --ion-item-border-color: #DFDFE2;
-    color: #5A5D72;
+    --ion-item-border-color: $grey;
+    color: $black-light;
 
     &__active {
       --background: #{$pure-white};
-      color: #161528;
+      color: $black;
       font-weight: 500;
     }
   }
@@ -48,7 +48,7 @@
   &--checkbox, &--radio {
     font-size: 20px;
     margin-right: 16px;
-    fill: #161528;
+    fill: $black;
     min-width: 20px;
   }
 
@@ -107,7 +107,7 @@
     padding: 16px 24px;
     font-size: 14px;
     line-height: 18px;
-    --color: #161528;
+    --color: $black;
     text-align: center;
   }
 }
