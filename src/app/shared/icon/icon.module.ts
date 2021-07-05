@@ -17,7 +17,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class IconModule {
   path = '../../assets/svg';
 
-  svgImageArray = ["add-advance.svg", "add-expense.svg", "add-mileage.svg", "add-per-diem.svg", "add-report.svg", "add-trip.svg", "auto_fyle.svg",
+  svgImageArray = ["add-advance.svg", "add-expense.svg", "add-mileage.svg", "add-per-diem.svg", "add-report.svg", "add-trip.svg", "auto_fyle.svg", "add-to-list.svg",
     "bulk.svg", "bus.svg",
     "chevron-right.svg", "create-expense.svg", "create-mileage.svg", "create-per-diem.svg", "curve.svg",
     "danger.svg",
