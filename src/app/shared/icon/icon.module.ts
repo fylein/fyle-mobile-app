@@ -22,7 +22,7 @@ export class IconModule {
     "chevron-right.svg", "create-expense.svg", "create-mileage.svg", "create-per-diem.svg", "curve.svg", "close.svg", "capture.svg", "camera-pointer.svg",
     "danger.svg",
     "entertainment.svg", "expense.svg", "error.svg",
-    "flight.svg", "food.svg", 
+    "flight.svg", "food.svg",  "flash-off.svg",
       "fy-add-new-expense.svg", "fy-advances-new.svg", "fy-arrow-down.svg", "fy-attachment.svg", 
       "fy-bike.svg", "fy-bot.svg", 
       "fy-calendar.svg", "fy-camera.svg", "fy-car-mini.svg", "fy-car.svg", "fy-card.svg", "fy-cards-new.svg", "fy-chat.svg", "fy-classify-ccc.svg", "fy-close.svg", "fy-corporate-card.svg", "fy-cyclist.svg", 

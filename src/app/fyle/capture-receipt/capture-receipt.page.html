@@ -9,8 +9,8 @@
     <div class="capture-receipt--close-icon-block" (click)="close()">
       <mat-icon class="capture-receipt--close-icon" svgIcon="close"></mat-icon>
     </div>
-    <div class="capture-receipt--flash-icon-block">
-      <mat-icon class="capture-receipt--flash-icon" svgIcon="close"></mat-icon>
+    <div class="capture-receipt--flash-icon-block" (click)="toggleFlashMode()">
+      <mat-icon class="capture-receipt--flash-icon" svgIcon="{{(activeFlashMode === 'on') ? 'close' : 'flash-off'}}"></mat-icon>
     </div>
   </div>
 
@@ -27,10 +27,12 @@
       <mat-icon class="capture-receipt--capture-icon" svgIcon="capture" (click)="onCapture()"></mat-icon>
       <div class="text-center capture-receipt--capture-icon-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
     </div>
-    <div class="capture-receipt--bulk-mode-icon-block text-center" (click)="switchMode()">
+    <div class="capture-receipt--bulk-mode-icon-block text-center" >
       <ng-container *ngIf="captureCount == 0">
-        <mat-icon class="capture-receipt--bulk-mode-icon" svgIcon="{{isBulkMode ? 'single-mode' : 'bulk-mode'}}"></mat-icon>
-        <div class="text-center capture-receipt--bulk-icon-text">{{ !isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
+        <div (click)="switchMode()">
+          <mat-icon class="capture-receipt--bulk-mode-icon" svgIcon="{{isBulkMode ? 'single-mode' : 'bulk-mode'}}"></mat-icon>
+          <div class="text-center capture-receipt--bulk-icon-text">{{ !isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
+        </div>
       </ng-container>
       <ng-container *ngIf="captureCount > 0">
         <div class="capture-receipt--thumbnail-container" (click)="review()">

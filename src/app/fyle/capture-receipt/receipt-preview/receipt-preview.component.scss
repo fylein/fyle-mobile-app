@@ -2,15 +2,38 @@
 
 .receipt-preview {
 
+  &--toolbar {
+    border-bottom: 1px solid #dfdfe2;
+    margin-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  &--title {
+    font-size: 20px;
+    line-height: 26px;
+    color: #161528;
+  }
+
+  &--sub-title {
+    font-size: 12px;
+    color: $black-light;
+    line-height: 15px;
+    margin-top: 8px;
+  }
+
   &--controls {
-    position: relative;
+    position: fixed;
     z-index: 99;
+    top: 50%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    width: 100%;
   }
 
   &--go-back {
-    position: absolute;
-    top: 20vh;
-    background-color: rgba(0, 0, 0, 0.5);
+    // position: absolute;
+    // top: 20vh;
     text-align: center;
     border-radius: 50%;
     font-size: 18px;
@@ -21,10 +44,9 @@
   }
 
   &--go-forward {
-    position: absolute;
-    top: 20vh;
-    left: 80vw;
-    background-color: rgba(0, 0, 0, 0.5);
+    // position: absolute;
+    // top: 20vh;
+    // left: 80vw;
     text-align: center;
     border-radius: 50%;
     font-size: 18px;
@@ -37,6 +59,12 @@
   &--container {
     height: 80vh;
     width: 90vw;
+    background: $pure-white !important;
+  }
+
+  &--image {
+    // height: 300px;
+    // width: 300px;
   }
 
 
@@ -54,6 +82,7 @@
 
   &--cta-button {
     font-weight: 500;
+    width: 100%;
   }
 
   &--secondary-cta {
@@ -62,7 +91,7 @@
     color: $black;
     font-size: 16px;
     line-height: 20px;
-    min-width: 40%;
+    // min-width: 40%;
 
     &__disabled {
       opacity: 0.2;
@@ -77,7 +106,7 @@
     line-height: 18px;
     border-radius: 4px;
     padding: 10px 12px;
-    min-width: 50%;
+    // min-width: 50%;
     &__disabled {
       opacity: 0.8;
     }
