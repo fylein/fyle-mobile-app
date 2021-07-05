@@ -4,7 +4,7 @@ New version of Fyle mobile app. This project is under active development and may
 
 # Node version
 
-Please install node 14 or above via nvm
+Please install node v14.17.2 or above via nvm
 
 ## How to run this locally?
 
