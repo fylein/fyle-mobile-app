@@ -1,54 +1,53 @@
+@import '../../../../../theme/colors.scss';
+
 .exchange-rate-modal {
-  margin: 24px;
-  padding: 0 12px;
-  border: 1px solid #e5e5e5;
-  border-radius: 4px;
+  padding: 16px 16px 8px 16px;;
+
   &--label {
-    margin: 0 30px 0 0;
-    font-size: 16px;
-    min-width: 48px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1;
+    font-size: 12px;
+    line-height: 1.5;
+    color: $black-light;
   }
 
   &--input {
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1;
-    height: 24px;
-    border: 0;
+    color: $blue-black;
+    margin: 6px 0;
   }
 
   &--form-control {
-    padding: 16px 0;
-    border-bottom: 1px solid #e5e5e5;
-    display: flex;
-    align-items: center;
-    &:last-child {
-      border-bottom: 0;
-    }
+    margin-bottom: 20px;
+    border-bottom: 1px solid $grey-lighter;
   }
+}
 
-  &--description {
-    margin: 0;
-    color: #ababab;
-    text-align: center;
-    line-height: 1.5;
-    font-size: 16px;
-    padding: 0 16px;
-  }
+.exchange-rate-title {
+  line-height: 26px;
+  font-size: 20px;
+  font-weight: 500;
+  color: $black-2;
+  margin: 0 auto;
+  text-align: center;
+}
 
-  &--cta-container {
-    padding: 16px;
-  }
+.exchange-rate-info {
+  padding: 0 16px;
+}
 
-  &--save {
-    height: 48px;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    width: 100%;
-    --border-radius: 4px !important;
-  }
+.exchange-rate-save {
+  color: $primary;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+  padding-right: 12px;
+  background-color: $pure-white;
+}
+
+.exchange-rate-header-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.exchange-rate-container {
+  --overflow: hidden;
 }

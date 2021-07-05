@@ -1,52 +1,44 @@
 <ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
-    <ion-title mode="md">
-      Currency
-    </ion-title>
     <ion-buttons mode="md" slot="start">
       <ion-button (click)="onDoneClick()">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
+    <div class="exchange-rate-header-block">
+      <div class="exchange-rate-title" mode="md">Currency</div>
+      <button class="exchange-rate-save text-right" [disabled]="!fg.valid" (click)="save()">Save</button>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="exchange-rate-container">
   <div class="exchange-rate-modal">
     <form [formGroup]="fg">
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">
-          {{newCurrency}}
+          Expense amount in {{newCurrency}}
         </div>
-        <input formControlName="newCurrencyAmount" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="e.g. 9.99">
+        <input formControlName="newCurrencyAmount" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="00.00">
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">
-          Rate
+          Exchange rate 1 {{currentCurrency}} = ______ {{newCurrency}}
         </div>
-        <input formControlName="exchangeRate" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="e.g. 9.99">
+        <input formControlName="exchangeRate" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="00.00">
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">
-          {{currentCurrency}}
+          Expense amount in {{currentCurrency}}
         </div>
-        <input formControlName="homeCurrencyAmount" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="e.g. 9.99">
+        <input formControlName="homeCurrencyAmount" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="00.00">
       </div>
     </form>
   </div>
-  <div class="exchange-rate-modal--description">
-    {{newCurrency}} {{fg.controls.newCurrencyAmount.value}} will be converted to {{currentCurrency}}
-    {{fg.controls.homeCurrencyAmount.value}} at {{fg.controls.exchangeRate.value}} {{currentCurrency}} / {{newCurrency}}
+  <div class="exchange-rate-info">
+    <app-fy-alert-info message='{{newCurrency}} {{fg.controls.newCurrencyAmount.value}} was converted to {{currentCurrency}}
+  {{fg.controls.homeCurrencyAmount.value}} at the exchange rate of {{fg.controls.exchangeRate.value}} {{currentCurrency}}/{{newCurrency}}.'
+  [type]="'information'"></app-fy-alert-info>
   </div>
 </ion-content>
-
-<ion-footer>
-  <ion-toolbar mode="md">
-    <div class="exchange-rate-modal--cta-container">
-      <ion-button class="exchange-rate-modal--save" [disabled]="!fg.valid" fill="solid" color="fyle-primary" (click)="save()">
-        Save
-      </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
