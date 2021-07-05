@@ -1,3 +1,5 @@
+@import "../../../theme/colors.scss";
+
 .capture-receipt {
   &--camera-preview{
     --background: transparent;
@@ -31,6 +33,19 @@
   &--camera-pointer-icon {
     width: 339px;
     height: 483px;
+  }
+
+
+  &--switch-mode-info {
+    background: #0000004D;
+    width: 179px;
+    height: 65px;
+    position: absolute;
+    bottom: 50%;
+    left: 30%;
+    color: $pure-white;
+    font-size: 20px;
+    padding-top: 20px;
   }
 
 

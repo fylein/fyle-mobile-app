@@ -1,5 +1,7 @@
 <ion-content class="capture-receipt--camera-preview">
   <div id="cameraPreview"></div>
+  <p *ngIf="modeChanged" class="capture-receipt--switch-mode-info text-center">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</p>
+
   <div class="capture-receipt--close-flash-container">
     <div class="capture-receipt--close-icon-block">
       <mat-icon class="capture-receipt--close-icon" svgIcon="close"></mat-icon>
@@ -22,7 +24,7 @@
       <mat-icon class="capture-receipt--capture-icon" svgIcon="capture" (click)="onCapture()"></mat-icon>
       <div class="text-center capture-receipt--capture-icon-text">Single Mode</div>
     </div>
-    <div class="capture-receipt--bulk-mode-icon-block text-center">
+    <div class="capture-receipt--bulk-mode-icon-block text-center" (click)="switchMode()">
       <mat-icon class="capture-receipt--bulk-mode-icon" svgIcon="bulk-mode"></mat-icon>
       <div class="text-center capture-receipt--bulk-icon-text">Bulk Mode</div>
     </div>

@@ -14,6 +14,7 @@ import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.compo
 export class CaptureReceiptPage implements OnInit {
   isCameraShown: boolean;
   isBulkMode: boolean;
+  modeChanged = false;
 
   constructor(
     private modalController: ModalController
@@ -46,6 +47,24 @@ export class CaptureReceiptPage implements OnInit {
         //this.getFlashModes();
       });
 
+    }
+  }
+
+  switchMode() {
+    this.isBulkMode = !this.isBulkMode;
+    this.modeChanged = true;
+    setTimeout(() => {
+      //this.modeChanged = false;
+    }, 1000);
+    
+    if (this.isBulkMode) {
+      // this.trackingService.switchedToInstafyleBulkMode({
+      //   Asset: 'Mobile' 
+      // });
+    } else {
+      // this.trackingService.switchedToInstafyleSingleMode({
+      //   Asset: 'Mobile' 
+      // }); 
     }
   }
 
