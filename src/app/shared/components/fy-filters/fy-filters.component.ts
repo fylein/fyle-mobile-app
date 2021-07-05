@@ -39,6 +39,17 @@ export class FyFiltersComponent implements OnInit {
       acc[curr.name] = curr.value;
       return acc;
     }, {});
+    this.customDateMap = this.selectedFilterValues.filter(selectedFilters => selectedFilters.name === 'Date' && selectedFilters.value === 'custom').reduce((acc, curr) => {
+      acc[curr.name] = {
+        startDate: curr.associatedData?.startDate,
+        endDate: curr.associatedData?.endDate
+      };
+      return acc;
+    }, {});
+    if (this.activeFilter.name === 'Date') {
+      this.startDate = this.customDateMap[this.activeFilter.name]?.startDate;
+      this.endDate = this.customDateMap[this.activeFilter.name]?.endDate;
+    }
   }
 
   onFilterClick(filterDefinition: FilterOptions<any>) {

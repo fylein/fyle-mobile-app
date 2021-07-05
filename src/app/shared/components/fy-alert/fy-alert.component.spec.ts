@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { FyAlertComponent } from './fy-alert.component';
@@ -7,7 +7,7 @@ describe('FyAlertComponent', () => {
   let component: FyAlertComponent;
   let fixture: ComponentFixture<FyAlertComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ FyAlertComponent ],
       imports: [IonicModule.forRoot()]
