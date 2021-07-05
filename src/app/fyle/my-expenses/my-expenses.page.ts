@@ -106,7 +106,7 @@ export class MyExpensesPage implements OnInit {
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
-  isReportAbleExpensesSelected = false;
+  isReportableExpensesSelected = false;
   openReports$: Observable<ExtendedReport[]>;
   homeCurrencySymbol: string;
 
@@ -1209,7 +1209,7 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.selectedElements.push(expense);
     }
-    this.isReportAbleExpensesSelected = this.transactionService.getReportAbleExpenses(this.selectedElements).length > 0;
+    this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
     // setting Expenses count and amount stats on select
     this.setExpenseStatsOnSelect();
   }
@@ -1328,7 +1328,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async showNewReportModal() {
-    let reportAbleExpenses = this.transactionService.getReportAbleExpenses(this.selectedElements);
+    let reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
@@ -1465,7 +1465,7 @@ export class MyExpensesPage implements OnInit {
       duration: 3000,
     });
 
-    this.isReportAbleExpensesSelected = false;
+    this.isReportableExpensesSelected = false;
     this.selectionMode = false;
     this.headerState = HeaderState.base;
     this.doRefresh();
@@ -1488,7 +1488,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   showOldReportsMatBottomSheet() {
-    let reportAbleExpenses = this.transactionService.getReportAbleExpenses(this.selectedElements);
+    let reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
     let selectedExpensesId = reportAbleExpenses.map(expenses => expenses.tx_id);
 
     this.openReports$.pipe(
@@ -1569,7 +1569,7 @@ export class MyExpensesPage implements OnInit {
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           data: {
             icon: 'tick-square-filled',
-            message: `We could not delete the expenses. Please try again `,
+            message: 'We could not delete the expenses. Please try again ',
             showCloseButton: true
           },
           panelClass: ['mat-snack-bar-error'],
@@ -1597,12 +1597,12 @@ export class MyExpensesPage implements OnInit {
           switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
       ).subscribe(allExpenses => {
         this.selectedElements = allExpenses;
-        this.isReportAbleExpensesSelected = this.transactionService.getReportAbleExpenses(this.selectedElements).length > 0;
+        this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       });
     } else {
       this.selectedElements = [];
-      this.isReportAbleExpensesSelected = this.transactionService.getReportAbleExpenses(this.selectedElements).length > 0;
+      this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
     }
   }

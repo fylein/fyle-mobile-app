@@ -159,14 +159,14 @@
           <ion-row>
             <ion-col size="6" class="ion-no-padding">
               <ng-container *ngIf="openReports$ | async as openReports">
-                <button type="button" [disabled]="!isReportAbleExpensesSelected || (openReports.length === 0)" 
-                class="my-expenses--cta-button my-expenses--secondary-cta text-center" [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportAbleExpensesSelected || (openReports.length === 0)}"
+                <button type="button" [disabled]="!isReportableExpensesSelected || (openReports.length === 0)" 
+                class="my-expenses--cta-button my-expenses--secondary-cta text-center" [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
                 (click)="openCreateReportWithSelectedIds('old_report')">Add to reports</button>
               </ng-container>
             </ion-col>
             <ion-col size="6" class="ion-no-padding">
-              <button type="submit" [disabled]="!isReportAbleExpensesSelected" 
-                class="my-expenses--cta-button my-expenses--primary-cta text-center" [ngClass]="{'my-expenses--primary-cta__disabled': !isReportAbleExpensesSelected}"
+              <button type="submit" [disabled]="!isReportableExpensesSelected" 
+                class="my-expenses--cta-button my-expenses--primary-cta text-center" [ngClass]="{'my-expenses--primary-cta__disabled': !isReportableExpensesSelected}"
                 (click)="openCreateReportWithSelectedIds('new_report')">Create New Report</button>
             </ion-col>
 
