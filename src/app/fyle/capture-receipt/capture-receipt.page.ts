@@ -52,7 +52,7 @@ export class CaptureReceiptPage implements OnInit {
         y: 0,
         toBack: true,
         width: window.screen.width,
-        height: window.screen.height - 100,
+        height: window.screen.height,
         parent: 'cameraPreview'
       };
 
