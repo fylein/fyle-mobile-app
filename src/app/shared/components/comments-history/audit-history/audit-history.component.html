@@ -1,0 +1,31 @@
+<div class=audit-trails-wrapper>
+  <div class="fy-comments-container has-scroll-y" flex>
+    <div class="audit-trails-timeline">
+      <div layout="row" layout-align="space-between start" *ngFor="let estatus of estatuses" class="comment">
+        <div layout="row" layout-align="start" class="initials comment-author-avatar">
+          <!-- <svg-sprite icon="{{estatus.st.icon}}" class="icon-comment-category" ngClass="{'icon-flagged': estatus.st.category === 'Flagged' || estatus.st.category === 'Policy Violation' || estatus.st.category === 'Failed to run policies' || estatus.st.category === 'Expense Issues' || estatus.st.category === 'Duplicate Detected', 'icon-approved': estatus.st.category === 'Expense Approved', 'icon-verifed': estatus.st.category === 'Verified', 'icon-processing': estatus.st.category === 'Processing Payment', 'icon-paid': estatus.st.category === 'Paid'}" ng-if="!estatus.us.full_name"></svg-sprite> -->
+          <div flex layout="column" class="audit-trail-timestamp">
+            <span>{{ estatus.st_created_at }}</span>
+            <!-- <span class="time-stamp" ng-bind="estatus.st_created_at"></span> -->
+          </div>
+        </div>
+
+        <div id={{estatus.st_id}} layout="column" flex class="comment-content" ngClass="{'policy-bg' : estatus.st_category === 'Flagged' || estatus.st_category === 'Policy Violation' || estatus.st_category === 'Failed to run policies' || estatus.st_category === 'Expense Issues' || estatus.st_category === 'Duplicate Detected', 'paid-bg' : estatus.st_category === 'Paid'}">
+          <div layout="row" layout-align="space-between end" class="comment-metadata" ngClass="{'mb-0' : estatus.st_category === 'Expense Issues'}">
+            <span class="text-capitalize audit-trail-category">{{ estatus.st_category }}</span>
+          </div>
+          <span ng-if="estatus.st_category !== 'Expense Reversed' && estatus.st_category !== 'Expense Issues'" class="comment-text">{{ estatus.st_comment }}</span>
+          <!-- <span ng-if="estatus.st_category === 'Expense Reversed'" ng-bind="vm.comment" class="comment-text"></span> -->
+          <!-- <span ng-if="estatus.st_category === 'Expense Reversed'"><a ui-sref="enterprise.view_expense({id: vm.matchedExpense.id})" class="floating-link" ng-bind="vm.expenseNumber" target="_blank"></a></span> -->
+          <!-- <div class="comment-details" ng-if="vm.hasDetails(estatus)">
+            <span ng-if="estatus.st_category !== 'Expense Issues' && estatus.st_category !== 'Failed to run policies' && estatus.st_category !== 'Card Transaction Matched'">Details: </span>
+            <span ng-if="estatus.st_category === 'Card Transaction Matched'">Card Transaction Details: </span>
+            <div ng-repeat="(key, value) in estatus.st.diff">
+              <enterprise-statuses-diff key="key" value="value"></enterprise-statuses-diff>
+            </div> -->
+          <!-- </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

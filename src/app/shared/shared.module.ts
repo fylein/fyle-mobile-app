@@ -42,6 +42,7 @@ import {IconModule} from './icon/icon.module';
 import {CurrencyComponent} from './components/currency/currency.component';
 import {CommentsHistoryComponent} from './components/comments-history/comments-history.component';
 import {ViewCommentComponent} from './components/comments-history/view-comment/view-comment.component';
+import {AuditHistoryComponent} from './components/comments-history/audit-history/audit-history.component';
 import {FyApporverComponent} from './components/fy-apporver/fy-apporver.component';
 import {ConfirmationCommentPopoverComponent} from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 
@@ -102,6 +103,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     CurrencyComponent,
     CommentsHistoryComponent,
     ViewCommentComponent,
+    AuditHistoryComponent,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,
@@ -169,6 +171,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     IconModule,
     CurrencyComponent,
     CommentsHistoryComponent,
+    AuditHistoryComponent,
     FormButtonValidationDirective,
     MatProgressSpinnerModule,
     FyPreviewAttachmentsComponent,

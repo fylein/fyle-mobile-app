@@ -34,6 +34,8 @@ export class ViewCommentComponent implements OnInit {
   matchedExpense: Expense;
   expenseNumber: string;
   isCommentsView: boolean = true;
+  systemComments: ExtendedStatus[];
+  userComments: any;
 
   constructor(
     private statusService: StatusService,
@@ -94,7 +96,7 @@ export class ViewCommentComponent implements OnInit {
       return this.statusService.find(this.objectType, this.objectId).pipe(
           map(res => {
             return res.map(status => {
-              status.isBotComment = status && (status.st_org_user_id === 'SYSTEM');
+              status.isBotComment = status && (['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
               status.isSelfComment = status && eou && eou.ou && (status.st_org_user_id === eou.ou.id);
               status.isOthersComment = status && eou && eou.ou && (status.st_org_user_id !== eou.ou.id);
               return status;
@@ -117,6 +119,14 @@ export class ViewCommentComponent implements OnInit {
     this.estatuses$.subscribe(estatuses => {
       const reversalStatus = estatuses.filter((status) => {
         return (status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1);
+      });
+
+      this.systemComments = estatuses.filter((status) => {
+        return ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
+      });
+
+      this.userComments = estatuses.filter((status) => {
+        return status.us_full_name;
       });
 
       if (reversalStatus && reversalStatus.length > 0 && reversalStatus[0]) {

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 
 @Component({
   selector: 'app-audit-history',
@@ -7,9 +8,12 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class AuditHistoryComponent implements OnInit {
 
+  @Input() estatuses: ExtendedStatus[];
+
   constructor() { }
 
   ngOnInit() {
+    console.log("check estatuses--", this.estatuses);
   }
 
 }
