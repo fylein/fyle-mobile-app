@@ -26,6 +26,8 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
     suppressInfoWindows: true
   }
 
+  showEmptyMap = false;
+
   markerOptions = {
     origin: {
       infoWindow: null
@@ -54,6 +56,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
+    this.showEmptyMap = false;
     const transformedLocations = this.mileageLocations.map(mileageLocation => ({
       lat: mileageLocation?.latitude,
       lng: mileageLocation?.longitude
@@ -63,6 +66,11 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
       this.origin = null;
       this.destination = null;
       this.waypoints = null;
+
+      if (transformedLocations.every(location => !location.lat || !location.lng)) {
+        this.showEmptyMap = true;
+      }
+
     } else {
       if (transformedLocations?.length >= 2) {
         this.origin = transformedLocations[0];
