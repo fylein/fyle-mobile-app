@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { cloneDeep } from 'lodash';
 import { LocationService } from 'src/app/core/services/location.service';
-import { PermissionsService } from 'src/app/core/services/permissions.service';
 import { MileageLocation } from './mileage-locations';
 
 @Component({
@@ -24,24 +23,19 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   renderOptions = {
     draggable: false,
-    // suppressMarkers: true,
     suppressInfoWindows: true
   }
 
+  showEmptyMap = false;
+
   markerOptions = {
     origin: {
-      // icon: null,
-      // opacity: 0,
       infoWindow: null
     },
     destination: {
-      // icon: null,
-      // opacity: 0,
       infoWindow: null
     },
     waypoints: {
-      // icon: null,
-      // opacity: 0,
       infoWindow: null
     }
   }
@@ -62,6 +56,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
+    this.showEmptyMap = false;
     const transformedLocations = this.mileageLocations.map(mileageLocation => ({
       lat: mileageLocation?.latitude,
       lng: mileageLocation?.longitude
@@ -71,6 +66,11 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
       this.origin = null;
       this.destination = null;
       this.waypoints = null;
+
+      if (transformedLocations.every(location => !location.lat || !location.lng)) {
+        this.showEmptyMap = true;
+      }
+
     } else {
       if (transformedLocations?.length >= 2) {
         this.origin = transformedLocations[0];
