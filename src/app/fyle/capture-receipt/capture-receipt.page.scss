@@ -7,7 +7,7 @@
 
   &--close-flash-container {
     position: fixed;
-    top: 53px;
+    top: 9px;
     padding: 0 16px;
     display: flex;
     justify-content: space-between;
@@ -26,7 +26,7 @@
 
   &--camera-pointer-container {
     position: fixed;
-    top: 146px;
+    top: 102px;
     left: 0;
     right: 18px;
     width: 100%;
@@ -123,6 +123,22 @@
     // // width: 52px;
     // border-radius: 8px;
     // background: rgba(0, 0, 0, 0.3);
+  }
+
+  &--image-count {
+    border-radius: 50%;
+    background: $pink-gradient-3;
+    color: $pure-white;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    text-align: center;
+    z-index: 1;
+    font-size: 12px;
+    border: 1px solid $pink-gradient-3;
+    left: 56px;
+    position: relative;
+    top: 20px;
   }
 
   &--image-thumbnail {

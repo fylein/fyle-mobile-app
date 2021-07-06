@@ -36,6 +36,7 @@
       </ng-container>
       <ng-container *ngIf="captureCount > 0">
         <div class="capture-receipt--thumbnail-container" (click)="review()">
+          <div class="capture-receipt--image-count">{{base64Images.length}}</div>
           <ion-img class="capture-receipt--image-thumbnail" [src]="lastImage"></ion-img>
           <div class="text-center capture-receipt--bulk-icon-text">Review</div>
         </div>
