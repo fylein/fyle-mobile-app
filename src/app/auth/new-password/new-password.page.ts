@@ -51,6 +51,7 @@ export class NewPasswordPage implements OnInit {
             Validators.minLength(12),
             Validators.maxLength(32),
             Validators.pattern(/[A-Z]/),
+            Validators.pattern(/[a-z]/),
             Validators.pattern(/[0-9]/),
             Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
         )]
