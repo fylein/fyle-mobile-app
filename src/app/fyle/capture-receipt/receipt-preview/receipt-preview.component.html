@@ -5,7 +5,7 @@
         Receipt Preview
       </div>
       <div class="receipt-preview--sub-title text-center">
-        {{activeIndex + 1}} / {{base64Images.length}} 
+        {{activeIndex + 1}} / {{base64ImagesWithSource.length}} 
       </div>
     </ion-title>
     <ion-buttons class="receipt-preview--ion-buttons" slot="start">
@@ -24,18 +24,18 @@
 
 <ion-content>
   <ion-slides #slides [options]="sliderOptions" zoom (ionSlideDidChange)="ionSlideDidChange()">
-    <ng-container *ngFor="let base64Image of base64Images">
+    <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource">
       <ion-slide>
         <div class="receipt-preview--container">
           <pinch-zoom class="receipt-preview--container">
-            <img class="receipt-preview--image" [src]="base64Image" />
+            <img class="receipt-preview--image" [src]="base64ImageWithSource.base64Image" />
           </pinch-zoom>
         </div>
       </ion-slide>
     </ng-container>
   </ion-slides>
 
-  <div class="receipt-preview--controls" *ngIf="base64Images.length > 1">
+  <div class="receipt-preview--controls" *ngIf="base64ImagesWithSource.length > 1">
     <div (click)="goToPrevSlide()">
       <mat-icon class="receipt-preview--go-back" >
         arrow_back_ios

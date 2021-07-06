@@ -7,7 +7,13 @@ import { ModalController, NavController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
+type Images = Partial<{
+  source: string,
+  base64Image: string
+}>;
 @Component({
   selector: 'app-capture-receipt',
   templateUrl: './capture-receipt.page.html',
@@ -18,19 +24,50 @@ export class CaptureReceiptPage implements OnInit {
   isBulkMode: boolean;
   modeChanged = false;
   captureCount = 0;
-  base64Images: string[];
+  base64ImagesWithSource: Images[];
   lastImage: string;
   activeFlashMode: any;
+  homeCurrency: any;
+  isInstafyleEnabled: boolean;
 
 
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
     private router: Router,
-    private navController: NavController
+    private navController: NavController,
+    private offlineService: OfflineService,
+    private transactionsOutboxService: TransactionsOutboxService
   ) { }
 
   ngOnInit() {
+  }
+
+  addExpenseToQueue(base64ImagesWithSource: Images) {
+    let source = base64ImagesWithSource.source;
+    if (this.isInstafyleEnabled) {
+      source += '_DE'
+    }
+    // TODO: Add _OFFLINE
+    const transaction = {
+      billable: false,
+      skip_reimbursement: false,
+      source,
+      txn_dt: new Date(),
+      amount: null,
+      currency: this.homeCurrency
+    };
+
+    const attachmentUrls = [];
+    const attachment = {
+      thumbnail: base64ImagesWithSource.base64Image,
+      type: 'image',
+      url: base64ImagesWithSource.base64Image
+    };
+
+    attachmentUrls.push(attachment);
+
+    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
   }
 
   async stopCamera() {
@@ -115,7 +152,7 @@ export class CaptureReceiptPage implements OnInit {
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
-        base64Images: this.base64Images,
+        base64ImagesWithSource: this.base64ImagesWithSource,
         mode: "single"
       },
     });
@@ -124,9 +161,13 @@ export class CaptureReceiptPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      if (data.base64Images.length === 0) {
-        this.base64Images = [];
+      if (data.base64ImagesWithSource.length === 0) {
+        this.base64ImagesWithSource = [];
         this.setUpAndStartCamera();
+      } else {
+        // debugger;
+        this.addExpenseToQueue(this.base64ImagesWithSource[0]);
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
   }
@@ -135,7 +176,7 @@ export class CaptureReceiptPage implements OnInit {
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
-        base64Images: this.base64Images,
+        base64ImagesWithSource: this.base64ImagesWithSource,
         mode: "bulk"
       },
     });
@@ -144,11 +185,16 @@ export class CaptureReceiptPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      if (data.base64Images.length === 0) {
-        this.base64Images = [];
+      if (data.base64ImagesWithSource.length === 0) {
+        this.base64ImagesWithSource = [];
         this.captureCount = 0;
         this.lastImage = null;
         this.setUpAndStartCamera();
+      } else {
+        this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
+          this.addExpenseToQueue(base64ImageWithSource);
+        })
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
 
@@ -169,11 +215,19 @@ export class CaptureReceiptPage implements OnInit {
     await this.stopCamera();
     const base64PictureData = 'data:image/jpeg;base64,' + result.value;
     this.lastImage = base64PictureData;
-    this.base64Images.push(base64PictureData)
+    // this.base64Images.push(base64PictureData)
     //console.log(base64PictureData);
     if (!this.isBulkMode) { 
+      this.base64ImagesWithSource.push({
+        source: 'MOBILE_SINGLE',
+        base64Image: base64PictureData
+      })
       this.onSingleCapture();
     } else {
+      this.base64ImagesWithSource.push({
+        source: 'MOBILE_BULK',
+        base64Image: base64PictureData
+      })
       this.onBulkCapture();
     }
 
@@ -184,9 +238,16 @@ export class CaptureReceiptPage implements OnInit {
   ionViewWillEnter() {
     this.isCameraShown = false;
     this.isBulkMode = false;
-    this.base64Images = [];
+    this.base64ImagesWithSource = [];
     this.setUpAndStartCamera();
     this.activeFlashMode = null;
+    this.offlineService.getHomeCurrency().subscribe(res => {
+      this.homeCurrency = res;
+    });
+
+    this.offlineService.getOrgUserSettings().subscribe(orgUserSettings => {
+      this.isInstafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
+    });
   }
 
 

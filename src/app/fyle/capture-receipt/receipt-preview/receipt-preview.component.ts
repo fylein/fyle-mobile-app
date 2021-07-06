@@ -9,7 +9,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 })
 export class ReceiptPreviewComponent implements OnInit {
 
-  @Input() base64Images: string[];
+  @Input() base64ImagesWithSource: string[];
   sliderOptions: any;
   @ViewChild('slides') imageSlides: any;
   activeIndex: any;
@@ -20,7 +20,7 @@ export class ReceiptPreviewComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log(this.base64Images);
+    console.log(this.base64ImagesWithSource);
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,
@@ -29,15 +29,28 @@ export class ReceiptPreviewComponent implements OnInit {
     this.activeIndex = 0;
   }
 
+  async finish() {
+    this.modalController.dismiss({
+      base64ImagesWithSource: this.base64ImagesWithSource
+    })
+  }
+
   async close() {
+    let message;
+    if (this.base64ImagesWithSource.length > 1) {
+      message = `Are you sure you want to discard the ${this.base64ImagesWithSource.length} receipts you just captured?`
+    } else {
+      message = 'Not a good picture? No worries. Discard and click again.'
+    }
     const closePopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
         title: 'Discard Receipt',
-        message: 'Not a good picture? No worries. Discard and click again.',
+        message,
         primaryCta: {
           text: 'Discard',
-          action: 'discard'
+          action: 'discard',
+          type: 'alert'
         },
         secondaryCta: {
           text: 'Cancel',
@@ -84,8 +97,8 @@ export class ReceiptPreviewComponent implements OnInit {
 
     if (data && data.action) {
       if (data.action === 'remove') { 
-        this.base64Images.splice(activeIndex, 1);
-        if (this.base64Images.length === 0) {
+        this.base64ImagesWithSource.splice(activeIndex, 1);
+        if (this.base64ImagesWithSource.length === 0) {
           this.retake()
         } else {
           //const a = await this.imageSlides.isEnd();
@@ -100,9 +113,9 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   retake() {
-    this.base64Images = [];
+    this.base64ImagesWithSource = [];
     this.modalController.dismiss({
-      base64Images: this.base64Images
+      base64Images: this.base64ImagesWithSource
     })
   }
 
