@@ -146,6 +146,8 @@ export class CaptureReceiptPage implements OnInit {
     if (data) {
       if (data.base64Images.length === 0) {
         this.base64Images = [];
+        this.captureCount = 0;
+        this.lastImage = null;
         this.setUpAndStartCamera();
       }
     }

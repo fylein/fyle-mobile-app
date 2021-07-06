@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 @Component({
   selector: 'app-receipt-preview',
@@ -14,7 +15,8 @@ export class ReceiptPreviewComponent implements OnInit {
   activeIndex: any;
 
   constructor(
-    private modalController: ModalController
+    private modalController: ModalController,
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -27,15 +29,74 @@ export class ReceiptPreviewComponent implements OnInit {
     this.activeIndex = 0;
   }
 
-  close() {
-    //Todo: implement alert
-    this.retake();
+  async close() {
+    const closePopOver = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title: 'Discard Receipt',
+        message: 'Not a good picture? No worries. Discard and click again.',
+        primaryCta: {
+          text: 'Discard',
+          action: 'discard'
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel'
+        }
+      },
+      cssClass: 'pop-up-in-center'
+    });
+
+    await closePopOver.present();
+
+    const {data} = await closePopOver.onWillDismiss();
+
+    if (data && data.action) {
+      if (data.action === 'discard') { 
+        this.retake();
+      }
+    }
+    
   }
 
   async delete() {
     const activeIndex = await this.imageSlides.getActiveIndex();
-    console.log(activeIndex);
-    this.base64Images.splice(activeIndex, 1);
+    const deletePopOver = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title: 'Remove Receipt',
+        message: 'Are you sure you want to remove this receipt?',
+        primaryCta: {
+          text: 'Remove',
+          action: 'remove'
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel'
+        }
+      },
+      cssClass: 'pop-up-in-center'
+    });
+
+    await deletePopOver.present();
+
+    const {data} = await deletePopOver.onWillDismiss();
+
+    if (data && data.action) {
+      if (data.action === 'remove') { 
+        this.base64Images.splice(activeIndex, 1);
+        if (this.base64Images.length === 0) {
+          this.retake()
+        } else {
+          //const a = await this.imageSlides.isEnd();
+          //this.goToNextSlide();
+          //this.activeIndex = await this.imageSlides.getActiveIndex();
+          //this.ionSlideDidChange();
+        }
+        
+      }
+    }
+    
   }
 
   retake() {
@@ -55,8 +116,9 @@ export class ReceiptPreviewComponent implements OnInit {
 
   async ionSlideDidChange() {
     const activeIndex = await this.imageSlides.getActiveIndex();
+    const length = await this.imageSlides.length();
     this.activeIndex = activeIndex;
-    console.log(activeIndex);
+    console.log(activeIndex, length);
   }
 
 }

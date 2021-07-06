@@ -74,6 +74,7 @@ import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
+import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
 
 @NgModule({
   declarations: [
@@ -128,6 +129,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
     FyCriticalPolicyViolationComponent,
+    PopupAlertComponentComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,
@@ -194,6 +196,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
     FyCriticalPolicyViolationComponent,
+    PopupAlertComponentComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,

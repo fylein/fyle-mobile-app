@@ -4,7 +4,7 @@
       <div class="text-center receipt-preview--title">
         Receipt Preview
       </div>
-      <div class="receipt-preview--sub-title text-center" *ngIf="true">
+      <div class="receipt-preview--sub-title text-center">
         {{activeIndex + 1}} / {{base64Images.length}} 
       </div>
     </ion-title>
@@ -13,7 +13,7 @@
         <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-buttons class="receipt-preview--ion-buttons" slot="end" *ngIf="base64Images.length > 1">
+    <ion-buttons class="receipt-preview--ion-buttons" slot="end" *ngIf="mode === 'bulk'">
       <ion-button (click)="delete()">
         <mat-icon class="fy-icon-close" svgIcon="fy-delete"></mat-icon>
       </ion-button>
