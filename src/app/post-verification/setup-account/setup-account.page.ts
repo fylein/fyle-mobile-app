@@ -33,6 +33,8 @@ export class SetupAccountPage implements OnInit {
   uppercaseValidationDisplay$: Observable<boolean>;
   numberValidationDisplay$: Observable<boolean>;
   specialCharValidationDisplay$: Observable<boolean>;
+  lowercaseValidationDisplay$: Observable<boolean>;
+  
 
   constructor(
     private networkService: NetworkService,
@@ -199,6 +201,12 @@ export class SetupAccountPage implements OnInit {
     this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
       map(
         password => (/[0-9]/.test(password))
+      )
+    );
+
+    this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+      map(
+        password => (/[a-z]/.test(password))
       )
     );
     this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(

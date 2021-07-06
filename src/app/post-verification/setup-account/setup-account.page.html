@@ -63,6 +63,17 @@
       </div>
       <div>
         <span>
+          <ion-icon *ngIf="lowercaseValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
+            name="checkmark-outline"></ion-icon>
+          <ion-icon *ngIf="!(lowercaseValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
+            name="close-outline"></ion-icon>
+        </span>
+        <span>
+          Contains atleast 1 lowercase character
+        </span>
+      </div>
+      <div>
+        <span>
           <ion-icon *ngIf="numberValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"></ion-icon>
           <ion-icon *ngIf="!(numberValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"

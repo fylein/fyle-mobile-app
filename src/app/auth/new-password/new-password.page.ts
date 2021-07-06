@@ -25,6 +25,7 @@ export class NewPasswordPage implements OnInit {
   uppercaseValidationDisplay$: Observable<boolean>;
   numberValidationDisplay$: Observable<boolean>;
   specialCharValidationDisplay$: Observable<boolean>;
+  lowercaseValidationDisplay$: Observable<boolean>;
   hide = false;
 
 
@@ -75,6 +76,12 @@ export class NewPasswordPage implements OnInit {
     this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
       map(
         password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
+      )
+    );
+
+    this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+      map(
+        password => (/[a-z]/.test(password))
       )
     );
   }
