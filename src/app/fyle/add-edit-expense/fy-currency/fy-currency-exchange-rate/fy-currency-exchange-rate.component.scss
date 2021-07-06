@@ -51,3 +51,7 @@
 .exchange-rate-container {
   --overflow: hidden;
 }
+
+.exchange-rate-value {
+  border-bottom: 1px solid $grey-lighter;
+}

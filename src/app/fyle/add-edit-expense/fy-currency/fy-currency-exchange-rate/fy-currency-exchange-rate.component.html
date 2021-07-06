@@ -24,7 +24,7 @@
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">
-          Exchange rate 1 {{currentCurrency}} = ______ {{newCurrency}}
+          Exchange rate 1 {{newCurrency}} = <span class="exchange-rate-value">{{fg.controls.exchangeRate.value}}</span> {{currentCurrency}}
         </div>
         <input formControlName="exchangeRate" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="00.00">
       </div>
