@@ -31,11 +31,9 @@ export class AddTxnToReportDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.offlineService.getHomeCurrency().pipe(
-      map((homeCurrency) => {
-        this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-      })
-    ).subscribe(noop);
+    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+      this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+    });
   }
 
 }
