@@ -123,8 +123,8 @@
   </div>
 </ion-content>
 
-<ion-footer>
-  <div *ngIf="showErrorBlock" class="split-expense--error-container">
+<ion-footer *ngIf="showErrorBlock" class="split-expense--footer">
+  <div class="split-expense--error-container">
     <div class="split-expense--error-message-block">
       <mat-icon class="split-expense--error-icon" svgIcon="error"></mat-icon>
       <p class="split-expense--error-message">{{errorMessage}}</p>

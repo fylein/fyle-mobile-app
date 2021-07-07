@@ -316,5 +316,9 @@ export class CameraOverlayPage implements OnInit {
 
   }
 
+  ngOnDestroy() {
+    this.stopCamera();
+  }
+
 
 }
