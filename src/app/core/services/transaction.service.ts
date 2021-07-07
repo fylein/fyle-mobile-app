@@ -613,18 +613,23 @@ export class TransactionService {
   }
 
   getVendorDetails(expense: Expense): string {
-    const category = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
-    let vendorName = expense.tx_vendor;
+    const fyleCategory = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
+    let vendorDisplayName = expense.tx_vendor;
 
-    if (category === 'mileage') {
-      vendorName = expense.tx_distance || 0;
-      vendorName += ' ' + expense.tx_distance_unit;
-    } else if (category === 'per diem') {
-      vendorName = expense.tx_num_days;
-      vendorName += ' Days';
+    if (fyleCategory === 'mileage') {
+      vendorDisplayName = expense.tx_distance || 0;
+      vendorDisplayName += ' ' + expense.tx_distance_unit;
+    } else if (fyleCategory === 'per diem') {
+      vendorDisplayName = expense.tx_num_days;
+      if (expense.tx_num_days > 1) {
+        vendorDisplayName += ' Days';
+      } else {
+        vendorDisplayName += ' Day';
+      }
+      
     }
 
-    return vendorName;
+    return vendorDisplayName;
   }
 
   getReportableExpenses(expenses: Expense[]): Expense[] {

@@ -1,5 +1,5 @@
 <div class="report-list--container">
-  <div class="report-list--header">ADD TO REPORT</div>
+  <div class="report-list--header text-uppercase">Add to Reprot</div>
   <div class="report-list--list" *ngFor="let report of data.openReports; index as i">
     <div mat-ripple (click)="addTransactionToReport(report)">
       <div *ngIf="i > 0" class="report-list--divider"></div>
