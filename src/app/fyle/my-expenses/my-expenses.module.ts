@@ -19,8 +19,8 @@ import {AddExpensePopoverComponent} from './add-expense-popover/add-expense-popo
 import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { ReportStates } from '../dashboard/stat-badge/report-states';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
-import {MatCheckboxModule} from '@angular/material/checkbox';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [

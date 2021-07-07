@@ -8,7 +8,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { map } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-expenses-card',
+  selector: 'app-expense-card',
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
 })

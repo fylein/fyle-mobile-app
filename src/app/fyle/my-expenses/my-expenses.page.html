@@ -111,7 +111,7 @@
 
   <div *ngIf="!isLoading">
     <div *ngFor="let pendingTransactions of pendingTransactions as list; let i = index">
-      <app-expenses-card 
+      <app-expense-card 
           [expense]="pendingTransactions"
           [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
@@ -120,14 +120,14 @@
           (onHomeClicked)="onHomeClicked($event)"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
-      </app-expenses-card>
+      </app-expense-card>
 
     </div>
   </div>
 
   <ng-container *ngIf="isConnected$|async; else isNotConnected">
     <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-      <app-expenses-card 
+      <app-expense-card 
           [expense]="expense"
           [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
@@ -137,7 +137,7 @@
           (onHomeClicked)="onHomeClicked($event)"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
-      </app-expenses-card>
+      </app-expense-card>
     </div>
 
     <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="100px">
