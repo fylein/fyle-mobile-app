@@ -515,7 +515,15 @@ export class MyExpensesPage implements OnInit {
 
     const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
 
-    this.openReports$ = this.reportService.getAllExtendedReports({queryParams});
+    this.openReports$ = this.reportService.getAllExtendedReports({queryParams}).pipe(
+      map((openReports) => {
+        return openReports.filter(openReport => {
+          // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
+          // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list 
+          return !openReport.report_approvals || (openReport.report_approvals && !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+        })
+      })
+    );
   }
 
   setupNetworkWatcher() {
