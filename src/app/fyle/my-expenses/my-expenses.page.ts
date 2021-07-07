@@ -1251,7 +1251,7 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
-  async openCriticalPolicyViolationPopOver(config: Partial<{ title: string, message: string, report_type: string}>) {
+  async openCriticalPolicyViolationPopOver(config: { title: string, message: string, report_type: string}) {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
