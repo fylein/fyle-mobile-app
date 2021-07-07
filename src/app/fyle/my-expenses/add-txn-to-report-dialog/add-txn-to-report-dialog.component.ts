@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { MatBottomSheet, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { ExtendedReport } from 'src/app/core/models/report.model';
 
 @Component({
   selector: 'app-add-txn-to-report-dialog',
@@ -17,7 +18,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
 
   constructor(
     private offlineService: OfflineService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {openReports: ExtendedReport[]},
     private matBottomsheet: MatBottomSheet
   ) { }
 
