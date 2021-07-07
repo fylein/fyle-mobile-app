@@ -1462,7 +1462,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showAddToReportSuccessToast(config: Partial<{ message, report}>) {
+  showAddToReportSuccessToast(config: { message: string, report}) {
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
       data: {
         icon: 'tick-square-filled',
