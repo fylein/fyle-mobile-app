@@ -1336,7 +1336,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async showNewReportModal() {
-    let reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
+    const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
