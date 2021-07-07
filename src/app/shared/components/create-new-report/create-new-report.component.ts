@@ -25,7 +25,7 @@ export class CreateNewReportComponent implements OnInit {
   reportTitle: string;
   submitReportLoader = false;
   saveDraftReportLoader = false;
-  homeCurrency: any;
+  homeCurrency: string;
   homeCurrencySymbol: string;
 
   constructor(
