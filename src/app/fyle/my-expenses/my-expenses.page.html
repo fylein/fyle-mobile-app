@@ -141,7 +141,7 @@
     </div>
 
     <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="100px">
-      <ion-infinite-scroll-content loadingSpinner="">
+      <ion-infinite-scroll-content>
         <app-fy-loading-screen class="my-expenses--shimmers"></app-fy-loading-screen>
       </ion-infinite-scroll-content>
     </ion-infinite-scroll>
