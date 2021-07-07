@@ -82,6 +82,7 @@
   &--cta-container {
     justify-content: space-between;
     display: flex;
+    width: 100%;
   }
 
   &--shimmers {
@@ -332,7 +333,7 @@
   }
 
   &--secondary-cta {
-    height: 100%;
+    height: auto;
     background: transparent;
     color: $black;
     font-size: 16px;
