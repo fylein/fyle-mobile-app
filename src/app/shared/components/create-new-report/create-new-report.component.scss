@@ -20,13 +20,13 @@
   }
 
   &--body {
-    background: $white;
+    background-color: $white;
     height: 100%;
   }
 
   &--name {
     padding: 16px;
-    background: $pure-white;
+    background-color: $pure-white;
   }
 
   &--text {
@@ -65,13 +65,13 @@
     color: $grey-light;
     font-size: 14px;
     padding: 16px 16px;
-    background: $white;
+    background-color: $white;
   }
 
   &--select-all-checkbox {
     font-size: 14px;
     padding: 16px 16px; 
-    background: $pure-white;
+    background-color: $pure-white;
   }
 
   &--add-more-container {
@@ -96,7 +96,7 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    background: $pure-white;
+    background-color: $pure-white;
     box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
   }
@@ -107,7 +107,7 @@
 
   &--secondary-cta {
     height: auto;
-    background: transparent;
+    background-color: transparent;
     color: $black;
     font-size: 16px;
     line-height: 20px;
@@ -120,7 +120,7 @@
 
   &--primary-cta {
     min-height: 52px;
-    background: $pink-gradient-1;
+    background-color: $pink-gradient-1;
     color: $pure-white;
     font-size: 14px;
     line-height: 18px;

@@ -30,7 +30,7 @@ $small-screen: 700px;
 
   &--secondary-cta {
     height: auto;
-    background: transparent;
+    background-color: transparent;
     color: $black;
     font-size: 14px;
     line-height: 18px;
@@ -39,7 +39,7 @@ $small-screen: 700px;
 
   &--primary-cta {
     min-height: 35px;
-    background: $pink-gradient-1;
+    background-color: $pink-gradient-1;
     color: $pure-white;
     font-size: 12px;
     line-height: 15px;

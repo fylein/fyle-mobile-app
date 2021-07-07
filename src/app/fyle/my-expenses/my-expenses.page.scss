@@ -308,7 +308,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background: $white;
+    background-color: $white;
   }
 
   &--footer-toolbar {
@@ -322,7 +322,7 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    background: $pure-white;
+    background-color: $pure-white;
     box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
   }
@@ -334,7 +334,7 @@
 
   &--secondary-cta {
     height: auto;
-    background: transparent;
+    background-color: transparent;
     color: $black;
     font-size: 16px;
     line-height: 20px;
@@ -345,7 +345,7 @@
 
   &--primary-cta {
     min-height: 52px;
-    background: $pink-gradient-1;
+    background-color: $pink-gradient-1;
     color: $pure-white;
     font-size: 14px;
     line-height: 17.92px;
