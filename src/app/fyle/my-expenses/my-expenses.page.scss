@@ -318,7 +318,7 @@
   &--footer-conatiner {
     display: flex;
     justify-content: space-around;
-    padding: 14px 35.5px;
+    padding: 14px 36px;
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -345,7 +345,7 @@
 
   &--primary-cta {
     min-height: 52px;
-    background-color: $pink-gradient-1;
+    background: $pink-gradient-1;
     color: $pure-white;
     font-size: 14px;
     line-height: 17.92px;
