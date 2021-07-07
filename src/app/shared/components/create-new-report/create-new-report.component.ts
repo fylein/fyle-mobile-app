@@ -2,7 +2,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { noop, Observable } from 'rxjs';
+import { noop, Observable, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
@@ -96,9 +96,11 @@ export class CreateNewReportComponent implements OnInit {
       return this.reportService.createDraft(report).pipe(
         tap(() => this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount})),
         switchMap((report) => {
-          return this.reportService.addTransactions(report.id, txnIds).pipe(
-            map(() => report)
-          );
+          if (txnIds.length > 0) {
+            return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
+          } else {
+            return of(report);
+          }
         }),
         finalize(() => {
          this.saveDraftReportLoader = false;

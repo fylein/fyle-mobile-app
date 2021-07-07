@@ -54,8 +54,8 @@
 <ion-footer class="create-new-report--footer">
   <div class="create-new-report--cta-container">
     <button type="button" appFormButtonValidation class="create-new-report--cta-button create-new-report--secondary-cta text-center" 
-            [loadingText]="'Saving Report'" [loading]="saveDraftReportLoader" [disabled]="selectedElements.length === 0 || submitReportLoader || saveDraftReportLoader"
-            [ngClass]="{'create-new-report--secondary-cta__disabled': (selectedElements.length === 0 || submitReportLoader || saveDraftReportLoader)}" (click)="ctaClickedEvent('create_draft_report')">
+            [loadingText]="'Saving Report'" [loading]="saveDraftReportLoader" [disabled]="submitReportLoader || saveDraftReportLoader"
+            [ngClass]="{'create-new-report--secondary-cta__disabled': (submitReportLoader || saveDraftReportLoader)}" (click)="ctaClickedEvent('create_draft_report')">
       Save as Draft
     </button>
     <button type="submit" appFormButtonValidation class="create-new-report--cta-button create-new-report--primary-cta text-center" 
