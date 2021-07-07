@@ -26,7 +26,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
     this.matBottomsheet.dismiss();
   }
 
-  addTransactionToReport(report) {
+  addTransactionToReport(report: ExtendedReport) {
     this.matBottomsheet.dismiss({report});
   }
 
