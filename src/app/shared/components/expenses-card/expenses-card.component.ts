@@ -97,7 +97,7 @@ export class ExpensesCardComponent implements OnInit {
 
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
-    if (this.expense.source_account_type === "PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT") {
+    if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
         if (this.expense.tx_corporate_credit_card_expense_group_id) {
           this.paymentModeIcon = 'fy-matched';
         } else {

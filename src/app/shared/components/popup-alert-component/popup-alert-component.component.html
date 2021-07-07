@@ -14,8 +14,7 @@
       <button type="button" class="popup-alert--cta-button popup-alert--secondary-cta text-center" 
           (click)="ctaClickedEvent(secondaryCta.action)">{{secondaryCta.text}}
       </button>
-      <button type="submit" class="popup-alert--cta-button popup-alert--primary-cta text-center" 
-          [ngClass]="{'popup-alert--cta-button__disabled': primaryCta.isDisabled}" [disabled]="primaryCta.isDisabled" 
+      <button type="submit" class="popup-alert--cta-button popup-alert--primary-cta text-center"
           (click)="ctaClickedEvent(primaryCta.action)">{{primaryCta.text}}
       </button>
     </div>

@@ -17,7 +17,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 })
 export class CreateNewReportComponent implements OnInit {
 
-  @Input() selectedExpensesToReport;
+  @Input() selectedExpensesToReport: Expense[];
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
   selectedElements: Expense[];
   selectedTotalAmount = 0;
