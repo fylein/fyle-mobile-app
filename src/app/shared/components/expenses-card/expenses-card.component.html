@@ -1,5 +1,5 @@
 <div *ngIf="showDt" class="expenses-card--date">
-  {{(expense.tx_txn_dt || expense.tx_created_at) | date: 'MMM dd, yyyy'}}
+  {{(expense.tx_txn_dt || expense.tx_created_at) | dateFormat }}
 </div>
 
 <div class="expenses-card--body" [ngClass]="{'expenses-card--body__with-border': !showDt}" (click)="onGoToTransaction()" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">

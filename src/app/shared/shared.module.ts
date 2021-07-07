@@ -78,6 +78,7 @@ import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
+import { DateFormatPipe } from './pipes/date-format.pipe';
 
 
 @NgModule({
@@ -90,6 +91,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     ReportState,
     SnakeCaseToSpaceCase,
     TripState,
+    DateFormatPipe,
     FySelectComponent,
     FySelectModalComponent,
     FySelectVendorComponent,
@@ -163,6 +165,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     EllipsisPipe,
     HumanizeCurrencyPipe,
     ReportState,
+    DateFormatPipe,
     FySelectComponent,
     FySelectVendorComponent,
     FyLocationComponent,
