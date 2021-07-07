@@ -1283,7 +1283,7 @@ export class MyExpensesPage implements OnInit {
 
     if (data && data.action) {
       if (data.action === 'continue') {
-        if (config.report_type === 'old_report') {
+        if (config.report_type === 'oldReport') {
           this.showOldReportsMatBottomSheet();
         } else {
           this.showNewReportModal();
@@ -1292,7 +1292,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  openCreateReportWithSelectedIds(report_type: 'old_report' | 'new_report') {
+  openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
     this.trackingService.addToReport({Asset: 'Mobile'});
 
     let selectedElements = cloneDeep(this.selectedElements);
@@ -1327,7 +1327,7 @@ export class MyExpensesPage implements OnInit {
       });
 
     } else {
-      if (report_type === 'old_report') {
+      if (report_type === 'oldReport') {
         this.showOldReportsMatBottomSheet();
       } else {
         this.showNewReportModal();
