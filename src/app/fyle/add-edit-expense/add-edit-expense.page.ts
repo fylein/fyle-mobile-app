@@ -945,7 +945,6 @@ export class AddEditExpensePage implements OnInit {
         }
         if (imageData && imageData.error) {
           this.instaFyleCancelled = true;
-
         } else if (imageData && imageData.parsedResponse) {
           const extractedData = {
             amount: imageData && imageData.parsedResponse && imageData.parsedResponse.amount,
@@ -1005,6 +1004,7 @@ export class AddEditExpensePage implements OnInit {
             thumbnail: imageData.url
           });
           etxn.tx.num_files = etxn.dataUrls.length;
+          etxn.tx.source = 'MOBILE_INSTA';
         }
 
         return etxn;
