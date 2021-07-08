@@ -764,6 +764,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getInstaFyleImageData() {
+    debugger;
     if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
@@ -820,7 +821,12 @@ export class AddEditExpensePage implements OnInit {
           })
         );
     } else {
-      return of(null);
+      const instaFyleImageData = {
+        thumbnail: this.activatedRoute.snapshot.params.dataUrl,
+        type: 'image',
+        url: this.activatedRoute.snapshot.params.dataUrl,
+      };
+      return of(instaFyleImageData);
     }
   }
 
@@ -903,6 +909,7 @@ export class AddEditExpensePage implements OnInit {
           }
 
           const receiptsData = this.activatedRoute.snapshot.params.receiptsData;
+          debugger;
 
           if (receiptsData) {
             if (receiptsData.amount) {
@@ -938,10 +945,10 @@ export class AddEditExpensePage implements OnInit {
             dataUrls: []
           };
         }
-
         if (imageData && imageData.error) {
           this.instaFyleCancelled = true;
-        } else if (imageData) {
+
+        } else if (imageData && imageData.parsedResponse) {
           const extractedData = {
             amount: imageData && imageData.parsedResponse && imageData.parsedResponse.amount,
             currency: imageData && imageData.parsedResponse && imageData.parsedResponse.currency,
@@ -2927,6 +2934,7 @@ export class AddEditExpensePage implements OnInit {
                    * else (this will be the case of normal expense) we are adding entry but not syncing as it will be
                    *        redirected to expense page at the end and sync will take place
                    */
+                  debugger;
                   if (entry) {
                     return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
                   } else if (this.activatedRoute.snapshot.params.bankTxn) {
