@@ -819,6 +819,13 @@ export class AddEditExpensePage implements OnInit {
             }
           })
         );
+    } else if (this.activatedRoute.snapshot.params.dataUrl) {
+      const instaFyleImageData = {
+        thumbnail: this.activatedRoute.snapshot.params.dataUrl,
+        type: 'image',
+        url: this.activatedRoute.snapshot.params.dataUrl,
+      };
+      return of(instaFyleImageData);
     } else {
       return of(null);
     }
@@ -938,10 +945,9 @@ export class AddEditExpensePage implements OnInit {
             dataUrls: []
           };
         }
-
         if (imageData && imageData.error) {
           this.instaFyleCancelled = true;
-        } else if (imageData) {
+        } else if (imageData && imageData.parsedResponse) {
           const extractedData = {
             amount: imageData && imageData.parsedResponse && imageData.parsedResponse.amount,
             currency: imageData && imageData.parsedResponse && imageData.parsedResponse.currency,
@@ -1000,6 +1006,7 @@ export class AddEditExpensePage implements OnInit {
             thumbnail: imageData.url
           });
           etxn.tx.num_files = etxn.dataUrls.length;
+          etxn.tx.source = 'MOBILE_INSTA';
         }
 
         return etxn;
