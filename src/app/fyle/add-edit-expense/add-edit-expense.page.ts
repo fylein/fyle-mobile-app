@@ -819,13 +819,15 @@ export class AddEditExpensePage implements OnInit {
             }
           })
         );
-    } else {
+    } else if (this.activatedRoute.snapshot.params.dataUrl) {
       const instaFyleImageData = {
         thumbnail: this.activatedRoute.snapshot.params.dataUrl,
         type: 'image',
         url: this.activatedRoute.snapshot.params.dataUrl,
       };
       return of(instaFyleImageData);
+    } else {
+      return of(null);
     }
   }
 
