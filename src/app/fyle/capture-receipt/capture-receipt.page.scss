@@ -7,7 +7,7 @@
 
   &--close-flash-container {
     position: fixed;
-    top: 9px;
+    top: 10px;
     padding: 0 16px;
     display: flex;
     justify-content: space-between;
@@ -26,7 +26,7 @@
 
   &--camera-pointer-container {
     position: fixed;
-    top: 102px;
+    top: 100px;
     left: 0;
     right: 18px;
     width: 100%;
@@ -57,7 +57,7 @@
 
   &--single-bulk-gallery-container {
     position: fixed;
-    bottom: 53px;
+    bottom: 30px;
     padding: 0 16px;
     display: flex;
     justify-content: space-between;

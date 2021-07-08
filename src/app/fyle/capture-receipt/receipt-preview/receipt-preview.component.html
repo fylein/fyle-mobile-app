@@ -13,11 +13,12 @@
         <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-buttons class="receipt-preview--ion-buttons" slot="end" *ngIf="mode === 'bulk'">
-      <ion-button (click)="delete()">
-        <mat-icon class="fy-icon-close" svgIcon="fy-delete"></mat-icon>
+    <ion-buttons class="receipt-preview--ion-buttons" slot="end">
+      <ion-button>
+        <mat-icon *ngIf="mode === 'bulk'" class="fy-icon-close" svgIcon="fy-delete" (click)="delete()"></mat-icon>
       </ion-button>
     </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
