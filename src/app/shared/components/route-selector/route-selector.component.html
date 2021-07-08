@@ -1,118 +1,83 @@
 <div [formGroup]="form">
-  <!-- <ng-container formArrayName="mileage_locations">
-    <ng-container *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
-      <div class="add-edit-mileage--internal-block"
-        [ngClass]="{'add-edit-mileage--internal-block__invalid': control.touched && !control.valid, 'add-edit-mileage--location-block': i >= 2}">
-        <app-fy-location class="add-edit-mileage--location" [formControlName]="i"
-          [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Stop ' + (i) + ' Location'))): (isFirst ? (control.value ? 'Start' : 'From Location'): (control.value ? 'To' :'To Location'))"
-          [mandatory]="mileageConfig.location_mandatory">
-        </app-fy-location>
-        <span *ngIf="i >= 2">
-          <mat-icon (click)="removeMileageLocation(i)" class="add-edit-mileage--remove-stop" svgIcon="fy-delete">
-          </mat-icon>
-        </span>
-      </div>
-      <div *ngIf="control.touched && !control.valid" class="add-edit-mileage--error">
-        Please select location
-      </div>
-    </ng-container>
-  </ng-container>
-  <div class="add-edit-mileage--internal-block" *ngIf="mileage_locations.controls.length < 10">
-    <div (click)="addMileageLocation()" class="add-edit-mileage--add-stop">
-      <mat-icon>
-        add
-      </mat-icon>
-      ADD STOP
-    </div>
-  </div>
-  <app-fy-alert *ngIf="mileage_locations.controls.length === 10" [message]="'You can add a maximum of 10 locations'"
-    [type]="'information'">
-  </app-fy-alert> -->
   <div>
     <ng-container *ngIf="mileage_locations.controls.length > 0;else routeEmptyInput">
       <ng-container>
         <ng-container *ngIf="mileage_locations.controls[0]">
-          <label class="route-selector--label">
-            <div class="route-selector--label-content">
-              Start
-              <span *ngIf="mileageConfig.location_mandatory" class="route-selector--mandatory">
-                *
-              </span>
-            </div>
-            <div class="route-selector--input-container" [ngClass]="{'route-selector--input-invalid': !valid}">
-              <input class="route-selector--input" type="text" [placeholder]="'Enter Route'" [ngModel]="mileage_locations.controls[0].value"
-                (click)="openModal()" [ngClass]="{'route-selector--input-disabled': disabled}" [disabled]="disabled">
-            </div>
-          </label>
+          <div class="route-selector--internal-block">
+            <app-fy-location class="route-selector--input" [formControl]="mileage_locations.controls[0]"
+              (click)="openModal()" [disabled]="true"></app-fy-location>
+          </div>
         </ng-container>
-        <div>
-          {{mileage_locations.controls.length}} Stop
+        <div *ngIf="mileage_locations.controls.length > 2">
+          {{mileage_locations.controls.length - 2}} Stop
         </div>
-        <ng-container *ngIf="mileage_locations.controls.length > 1 && mileage_locations.controls[mileage_locations.controls.length - 1]">
-          <label class="route-selector--label">
-            <div class="route-selector--label-content">
-              End
-              <span *ngIf="mileageConfig.location_mandatory" class="route-selector--mandatory">
-                *
-              </span>
-            </div>
-            <div class="route-selector--input-container" [ngClass]="{'route-selector--input-invalid': !valid}">
-              <input class="route-selector--input" type="text" [placeholder]="'Enter Route'" [ngModel]="mileage_locations.controls[mileage_locations.controls.length - 1].value"
-                (click)="openModal()" [ngClass]="{'route-selector--input-disabled': disabled}" [disabled]="disabled">
-            </div>
-          </label>
+        <ng-container
+          *ngIf="mileage_locations.controls.length > 1 && mileage_locations.controls[mileage_locations.controls.length - 1]">
+          <div class="route-selector--internal-block">
+            <app-fy-location class="route-selector--input"
+              [formControl]="mileage_locations.controls[mileage_locations.controls.length - 1]" (click)="openModal()"
+              [disabled]="true"></app-fy-location>
+          </div>
         </ng-container>
       </ng-container>
     </ng-container>
     <ng-template #routeEmptyInput>
-      <label class="route-selector--label">
-        <div class="route-selector--label-content">
-          Route
-          <span *ngIf="mileageConfig.location_mandatory" class="route-selector--mandatory">
-            *
-          </span>
-        </div>
-        <div class="route-selector--input-container" [ngClass]="{'route-selector--input-invalid': !valid}">
-          <input class="route-selector--input" type="text" [placeholder]="'Enter Route'" [ngModel]="displayValue"
-            (click)="openModal()" [ngClass]="{'route-selector--input-disabled': disabled}" [disabled]="disabled">
-          <mat-icon class="route-selector--icon" [ngClass]="{'route-selector--input-disabled': disabled}"
-            svgIcon="fy-arrow-down">
-          </mat-icon>
-        </div>
-      </label>
+      <div class="route-selector--internal-block">
+        <label class="route-selector--label">
+          <div class="route-selector--label-content">
+            Route
+            <span *ngIf="mileageConfig.location_mandatory" class="route-selector--mandatory">
+              *
+            </span>
+          </div>
+          <div class="route-selector--input-container"
+            [ngClass]="{'route-selector--input-invalid': !form.controls.mileage_locations.valid}">
+            <input class="route-selector--input" type="text" [placeholder]="'Enter Route'" (click)="openModal()"
+              [ngClass]="{'route-selector--input-disabled': form.controls.mileage_locations.disabled}"
+              [disabled]="form.controls.mileage_locations.disabled">
+            <mat-icon class="route-selector--icon"
+              [ngClass]="{'route-selector--input-disabled': form.controls.mileage_locations.disabled}"
+              svgIcon="fy-arrow-down">
+            </mat-icon>
+          </div>
+        </label>
+      </div>
+      <div *ngIf="form.controls.mileage_locations.touched && !form.controls.mileage_locations.valid"
+        class="route-selector--error">
+        Please select location
+      </div>
     </ng-template>
   </div>
 
-  <div class="add-edit-mileage--internal-block" *ngIf="mileage_locations.controls.length < 3">
+  <div class="route-selector--internal-block" *ngIf="mileage_locations.controls.length < 3">
     <mat-checkbox [disabled]="isAmountDisabled || !form.controls.distance" formControlName="round_trip">
-      <span class="add-edit-mileage--checkbox">
+      <span class="route-selector--checkbox">
         Round Trip
       </span>
     </mat-checkbox>
   </div>
 
   <ng-container *ngIf="txnFields?.distance">
-    <div class="add-edit-mileage--text add-edit-mileage--internal-block"
-      [ngClass]="{'add-edit-mileage--text__invalid': form.controls.distance.touched && !form.controls.distance.valid}">
-      <div class="add-edit-mileage--text-label">Distance
+    <div class="route-selector--text route-selector--internal-block"
+      [ngClass]="{'route-selector--text__invalid': form.controls.distance.touched && !form.controls.distance.valid}">
+      <div class="route-selector--text-label">Distance
         <ng-container *ngIf="unit; else defaultDistanceUnit">
-          <span class="add-edit-mileage--text-label__unit"> ({{ unit }})</span>
+          <span class="route-selector--text-label__unit"> ({{ unit }})</span>
         </ng-container>
 
         <ng-template #defaultDistanceUnit>
 
-          <span class="add-edit-mileage--text-label__unit"> ({{ mileageConfig.unit }})</span>
+          <span class="route-selector--text-label__unit"> ({{ mileageConfig.unit }})</span>
         </ng-template>
-        <div class="add-edit-mileage--mandatory" *ngIf="isDistanceMandatory">
+        <div class="route-selector--mandatory" *ngIf="isDistanceMandatory">
           *
         </div>
       </div>
-      <input [disabled]="isAmountDisabled || !txnFields?.distance.canEdit" [min]="0"
-        class="add-edit-mileage--text-input" formControlName="distance" inputmode="decimal" type="number"
-        placeholder="Enter Distance">
+      <input [disabled]="isAmountDisabled || !txnFields?.distance.canEdit" [min]="0" class="route-selector--text-input"
+        formControlName="distance" inputmode="decimal" type="number" placeholder="Enter Distance">
     </div>
     <div *ngIf="form.controls.distance.touched && !form.controls.distance.valid"
-      class="add-edit-mileage--error add-edit-mileage--text-error">
+      class="route-selector--error route-selector--text-error">
       Please enter the distance
     </div>
   </ng-container>

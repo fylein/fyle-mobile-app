@@ -19,6 +19,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   loader = false;
   value = '';
   lookupFailed = false;
+  @Input() fullscreenMode = false;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 

@@ -1,3 +1,62 @@
-<p>
-  route-selector-modal works!
-</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title mode="md">
+      Route
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="save()">
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div class="route-selector-modal--body" [formGroup]="form">
+    <h4>
+      Total Distance: {{distance || '-'}} {{unit}}
+    </h4>
+    <ng-container formArrayName="mileage_locations">
+      <ng-container *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
+        <div class="route-selector-modal--internal-block"
+          [ngClass]="{'route-selector-modal--internal-block__invalid': control.touched && !control.valid, 'route-selector-modal--location-block': i >= 2}">
+          <app-fy-location 
+            class="route-selector-modal--location" 
+            [formControlName]="i"
+            [label]="(isFirst ? 'Start' : (isLast ? 'End' : (control.value ? 'Stop ' + (i) : 'Stop ' + (i) + ' Location')))"
+            [fullscreenMode]="true"
+            [mandatory]="mileageConfig.location_mandatory">
+          </app-fy-location>
+          <span *ngIf="i >= 1 && (i !== mileage_locations.controls.length - 1 || mileage_locations.controls.length === 10)">
+            <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop" svgIcon="fy-delete">
+            </mat-icon>
+          </span>
+          <span *ngIf="i === mileage_locations.controls.length - 1 && mileage_locations.controls.length !== 10">
+            <mat-icon (click)="addMileageLocation()" class="route-selector-modal--add-stop">
+              add
+            </mat-icon>
+          </span>
+        </div>
+        <div *ngIf="control.touched && !control.valid" class="route-selector-modal--error">
+          Please select location
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <app-fy-alert *ngIf="mileage_locations.controls.length === 10" [message]="'You can add a maximum of 10 locations'"
+      [type]="'information'">
+    </app-fy-alert>
+
+    <div class="route-selector-modal--internal-block" *ngIf="mileage_locations.controls.length < 3">
+      <mat-checkbox [disabled]="isAmountDisabled" formControlName="round_trip">
+        <span class="route-selector-modal--checkbox">
+          Round Trip
+        </span>
+      </mat-checkbox>
+    </div>
+  </div>
+</ion-content>

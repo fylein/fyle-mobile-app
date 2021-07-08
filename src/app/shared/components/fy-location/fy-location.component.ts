@@ -25,6 +25,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() mandatory = false;
   @Input() disabled = false;
   @Input() allowCustom = false;
+  @Input() fullscreenMode = false;
 
   private innerValue;
   displayValue;
@@ -69,23 +70,37 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   }
 
   async openModal() {
-    const selectionModal = await this.modalController.create({
-      component: FyLocationModalComponent,
-      componentProps: {
-        currentSelection: this.value,
-        allowCustom: this.allowCustom
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
-    });
+    if (!this.disabled) {
+      let renderConfig = {};
 
-    await selectionModal.present();
+      if (!this.fullscreenMode) {
+        renderConfig = {
+          mode: 'ios',
+          presentingElement: await this.modalController.getTop(),
+          ...this.modalProperties.getModalDefaultProperties()
+        };
+      } else {
+        renderConfig = {
+          fullscreenMode: true
+        };
+      }
 
-    const { data } = await selectionModal.onWillDismiss();
+      const selectionModal = await this.modalController.create({
+        component: FyLocationModalComponent,
+        componentProps: {
+          currentSelection: this.value,
+          allowCustom: this.allowCustom
+        },
+        ...renderConfig
+      });
 
-    if (data) {
-      this.value = data.selection;
+      await selectionModal.present();
+
+      const { data } = await selectionModal.onWillDismiss();
+
+      if (data) {
+        this.value = data.selection;
+      }
     }
   }
 

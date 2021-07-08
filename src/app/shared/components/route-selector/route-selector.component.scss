@@ -51,4 +51,68 @@
   &--input-disabled {
     opacity: 0.5;
   }
+
+  &--internal-block {
+    padding: 8px 0;
+    background: #fff;
+    line-height: 1;
+    margin-bottom: 12px;
+
+    &__invalid {
+      border-color: $red;
+    }
+  }
+
+  &--text {
+    border-bottom: 1px solid $grey-lighter;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
+  }
+
+  &--text-label {
+    margin: 0 8px 0 0;
+    max-width: 90%;
+    min-width: 120px;
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
+
+    &__unit {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+
+  &--text-input {
+    border: 0;
+    font-size: 14px;
+    font-weight: 400;
+    height: 18px;
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    padding: 0;
+    margin: 6px 0;
+  }
+
+  &--checkbox {
+    font-size: 14px;
+    color: $blue-black;
+    font-weight: 400;
+  }
+
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  &--text-error {
+    margin-top: -8px;
+  }
 }

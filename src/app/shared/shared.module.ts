@@ -77,6 +77,8 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
 import { AgmCoreModule } from '@agm/core';
 import { AgmDirectionModule } from 'agm-direction';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
+import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
+import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 
 @NgModule({
   declarations: [
@@ -135,7 +137,9 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyDeleteDialogComponent,
     FyFiltersComponent,
     FyFilterPillsComponent,
-    RouteVisualizerComponent
+    RouteVisualizerComponent,
+    RouteSelectorComponent,
+    RouteSelectorModalComponent
   ],
   imports: [
     CommonModule,
@@ -204,7 +208,8 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyDeleteDialogComponent,
     FyFiltersComponent,
     FyFilterPillsComponent,
-    RouteVisualizerComponent
+    RouteVisualizerComponent,
+    RouteSelectorComponent
   ],
   providers: [
     DecimalPipe,
