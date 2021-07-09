@@ -29,8 +29,7 @@
 
     <div class="create-new-report--heading">EXPENSES</div>
     <div class="create-new-report--select-all-checkbox">
-      <mat-checkbox *ngIf="selectedElements.length === selectedExpensesToReport.length" [checked]="true" class="create-new-report--checkbox" (click)="toggleSelectAll(false)">Unselect all</mat-checkbox>
-      <mat-checkbox *ngIf="selectedElements.length !== selectedExpensesToReport.length" [checked]="false" class="create-new-report--checkbox" (click)="toggleSelectAll(true)">Select all</mat-checkbox>
+      <mat-checkbox class="create-new-report--checkbox" [(ngModel)]="isSelectedAll" (ngModelChange)="toggleSelectAll($event)">Select all</mat-checkbox>
     </div>
 
     <div *ngFor="let expense of selectedExpensesToReport; let i = index">

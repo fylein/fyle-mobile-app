@@ -27,6 +27,7 @@ export class CreateNewReportComponent implements OnInit {
   saveDraftReportLoader: boolean;
   homeCurrency: string;
   homeCurrencySymbol: string;
+  isSelectedAll: boolean;
 
   constructor(
     private offlineService: OfflineService,
@@ -52,6 +53,7 @@ export class CreateNewReportComponent implements OnInit {
     this.selectedTotalAmount = 0;
     this.submitReportLoader = false;
     this.saveDraftReportLoader = false;
+    this.isSelectedAll = true;
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
     this.selectedElements = this.selectedExpensesToReport;
     this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
@@ -72,9 +74,10 @@ export class CreateNewReportComponent implements OnInit {
       this.selectedElements.push(expense);
     }
     this.getReportTitle();
+    this.isSelectedAll = this.selectedElements.length ===  this.selectedExpensesToReport.length;
   }
 
-  toggleSelectAll(value) {
+  toggleSelectAll(value: boolean) {
     if (value) {
       this.selectedElements =  this.selectedExpensesToReport;
     } else {
