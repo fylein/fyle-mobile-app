@@ -26,6 +26,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   private ngControl: NgControl;
   @Input() txnDt: Date;
   @Input() homeCurrency: string;
+  @Input() recentlyUsed: { label: string, value: string }[];
   exchangeRate = 1;
 
   private innerValue: {
@@ -189,7 +190,14 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         newCurrency: shortCode || this.fg.controls.currency.value,
         txnDt: this.txnDt,
         exchangeRate: (this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) ? (this.fg.value.homeCurrencyAmount / this.fg.value.amount) : null
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      cssClass: 'fy-modal stack-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      backdropDismiss: true,
+      animated: true,
     });
     await exchangeRateModal.present();
     const { data } = await exchangeRateModal.onWillDismiss();
@@ -223,7 +231,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     const currencyModal = await this.modalController.create({
       component: FyCurrencyChooseCurrencyComponent,
       componentProps: {
-        currentSelection: this.fg.controls.currency.value
+        currentSelection: this.fg.controls.currency.value,
+        recentlyUsed: this.recentlyUsed
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),

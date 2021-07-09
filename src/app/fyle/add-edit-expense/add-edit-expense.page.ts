@@ -60,6 +60,7 @@ import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { Currency } from 'src/app/core/models/currency.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -146,8 +147,10 @@ export class AddEditExpensePage implements OnInit {
   clusterDomain: string;
   orgUserSettings$: Observable<OrgUserSettings>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+  recentCurrencies: Currency[];
   presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedCurrencies$: Observable<Currency[]>;
   recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
   presetCostCenterId: number;
   recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
@@ -816,6 +819,13 @@ export class AddEditExpensePage implements OnInit {
             }
           })
         );
+    } else if (this.activatedRoute.snapshot.params.dataUrl) {
+      const instaFyleImageData = {
+        thumbnail: this.activatedRoute.snapshot.params.dataUrl,
+        type: 'image',
+        url: this.activatedRoute.snapshot.params.dataUrl,
+      };
+      return of(instaFyleImageData);
     } else {
       return of(null);
     }
@@ -935,10 +945,9 @@ export class AddEditExpensePage implements OnInit {
             dataUrls: []
           };
         }
-
         if (imageData && imageData.error) {
           this.instaFyleCancelled = true;
-        } else if (imageData) {
+        } else if (imageData && imageData.parsedResponse) {
           const extractedData = {
             amount: imageData && imageData.parsedResponse && imageData.parsedResponse.amount,
             currency: imageData && imageData.parsedResponse && imageData.parsedResponse.currency,
@@ -997,6 +1006,7 @@ export class AddEditExpensePage implements OnInit {
             thumbnail: imageData.url
           });
           etxn.tx.num_files = etxn.dataUrls.length;
+          etxn.tx.source = 'MOBILE_INSTA';
         }
 
         return etxn;
@@ -1122,6 +1132,18 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
+    this.recentlyUsedCurrencies$ = forkJoin({
+      recentValues: this.recentlyUsedValues$,
+      currencies: this.offlineService.getCurrencies()
+    }).pipe(
+      switchMap(({recentValues, currencies}) => {
+        return this.recentlyUsedItemsService.getRecentCurrencies(
+          currencies,
+          recentValues
+        );
+      })
+    );
+
     const selectedCostCenter$ = this.etxn$.pipe(
       switchMap(etxn => {
         if (etxn.tx.cost_center_id) {
@@ -1175,12 +1197,13 @@ export class AddEditExpensePage implements OnInit {
           orgUserSettings: this.orgUserSettings$,
           recentValue: this.recentlyUsedValues$,
           recentProjects: this.recentlyUsedProjects$,
+          recentCurrencies: this.recentlyUsedCurrencies$,
           recentCostCenters: this.recentlyUsedCostCenters$,
           recentCategories: this.recentlyUsedCategories$
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCostCenters}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1247,6 +1270,8 @@ export class AddEditExpensePage implements OnInit {
       if (recentProjects && recentProjects.length > 0) {
         this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
       }
+
+      this.recentCurrencies = recentCurrencies;
 
       /* Autofill project during these cases:
       * 1. Autofills is allowed and enabled
@@ -1630,7 +1655,9 @@ export class AddEditExpensePage implements OnInit {
           if (defaultValueColumn !== 'vendor_id' && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
-            control.patchValue(defaultValues[defaultValueColumn]);
+            control.patchValue({
+              display_name: defaultValues[defaultValueColumn]
+            });
           }
         }
       }

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { AuditHistoryComponent } from './audit-history.component';
@@ -7,7 +7,7 @@ describe('AuditHistoryComponent', () => {
   let component: AuditHistoryComponent;
   let fixture: ComponentFixture<AuditHistoryComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ AuditHistoryComponent ],
       imports: [IonicModule.forRoot()]
