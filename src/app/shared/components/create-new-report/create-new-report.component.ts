@@ -20,11 +20,11 @@ export class CreateNewReportComponent implements OnInit {
   @Input() selectedExpensesToReport: Expense[];
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
   selectedElements: Expense[];
-  selectedTotalAmount = 0;
+  selectedTotalAmount: number;
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
   reportTitle: string;
-  submitReportLoader = false;
-  saveDraftReportLoader = false;
+  submitReportLoader: boolean;
+  saveDraftReportLoader: boolean;
   homeCurrency: string;
   homeCurrencySymbol: string;
 
@@ -49,6 +49,9 @@ export class CreateNewReportComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.selectedTotalAmount = 0;
+    this.submitReportLoader = false;
+    this.saveDraftReportLoader = false;
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
     this.selectedElements = this.selectedExpensesToReport;
     this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
