@@ -19,7 +19,7 @@ export class IconModule {
 
   svgImageArray = ["add-advance.svg", "add-expense.svg", "add-mileage.svg", "add-per-diem.svg", "add-report.svg", "add-trip.svg", "auto_fyle.svg", "add-to-list.svg",
     "bulk.svg", "bus.svg",
-    "chevron-right.svg", "create-expense.svg", "create-mileage.svg", "create-per-diem.svg", "curve.svg", "comments-zero-state",
+    "chevron-right.svg", "create-expense.svg", "create-mileage.svg", "create-per-diem.svg", "curve.svg", "comments-zero-state", "circle.svg",
     "danger.svg",
     "entertainment.svg", "expense.svg", "error.svg",
     "flight.svg", "food.svg", 

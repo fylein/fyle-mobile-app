@@ -36,6 +36,8 @@ export class ViewCommentComponent implements OnInit {
   isCommentsView: boolean = true;
   systemComments: ExtendedStatus[];
   userComments: any;
+  type: string;
+  systemEstatuses: ExtendedStatus[];
 
   constructor(
     private statusService: StatusService,
@@ -124,6 +126,10 @@ export class ViewCommentComponent implements OnInit {
       this.systemComments = estatuses.filter((status) => {
         return ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
       });
+
+      this.type = this.objectType.toLowerCase() === 'transactions' ? 'Expense' : this.objectType.substring(0, this.objectType.length - 1);
+
+      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
 
       this.userComments = estatuses.filter((status) => {
         return status.us_full_name;
