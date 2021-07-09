@@ -23,6 +23,7 @@ import { DeviceService } from './device.service';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
+import { OrgUserSettings } from '../models/org_user_settings.model';
 
 @Injectable({
   providedIn: 'root'
@@ -54,6 +55,7 @@ export class OfflineService {
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const allCategories$ = this.getAllCategories();
+    const allEnabledCategories$ = this.getAllEnabledCategories();
     const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
     const perDiemRates$ = this.getPerDiemRates();
@@ -76,6 +78,7 @@ export class OfflineService {
       orgSettings$,
       orgUserSettings$,
       allCategories$,
+      allEnabledCategories$,
       costCenters$,
       projects$,
       perDiemRates$,
@@ -167,7 +170,7 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getOrgUserSettings() {
+  getOrgUserSettings(): Observable<OrgUserSettings>{
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
@@ -273,6 +276,13 @@ export class OfflineService {
           }
         }
       )
+    );
+  }
+
+  @Cacheable()
+  getAllEnabledCategories() {
+    return this.getAllCategories().pipe(
+      map((categories)=> categories.filter(category => category.enabled === true))
     );
   }
 

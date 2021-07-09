@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { DraftAdvanceSummaryComponent } from './draft-advance-summary.component';
@@ -7,7 +7,7 @@ describe('DraftAdvanceSummaryComponent', () => {
   let component: DraftAdvanceSummaryComponent;
   let fixture: ComponentFixture<DraftAdvanceSummaryComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DraftAdvanceSummaryComponent ],
       imports: [IonicModule.forRoot()]

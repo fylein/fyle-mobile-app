@@ -1,6 +1,6 @@
 export class StatsOneDResponse {
 
-  constructor (statObj: any) {
+  constructor(statObj: any) {
     this.dimensions = statObj.dimensions;
     this.name = statObj.name;
     this.value = statObj.value;
@@ -22,7 +22,7 @@ export class StatsOneDResponse {
     return this.value.map(stat =>  {
       return {
         value: stat.aggregates.length && stat.aggregates[index].function_value,
-        key: stat.key.length && stat.key[index].column_value  
+        key: stat.key.length && stat.key[index].column_value
       }
     });
   }

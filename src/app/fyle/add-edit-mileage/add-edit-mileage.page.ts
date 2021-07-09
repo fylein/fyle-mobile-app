@@ -33,8 +33,8 @@ import {TransactionsOutboxService} from 'src/app/core/services/transactions-outb
 import {PolicyService} from 'src/app/core/services/policy.service';
 import {StatusService} from 'src/app/core/services/status.service';
 import {DataTransformService} from 'src/app/core/services/data-transform.service';
-import {ModalController, NavController} from '@ionic/angular';
-import {CriticalPolicyViolationComponent} from './critical-policy-violation/critical-policy-violation.component';
+import {ModalController, NavController, PopoverController} from '@ionic/angular';
+import {FyCriticalPolicyViolationComponent} from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
 import {NetworkService} from 'src/app/core/services/network.service';
@@ -50,6 +50,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -150,7 +151,9 @@ export class AddEditMileagePage implements OnInit {
     private tokenService: TokenService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private locationService: LocationService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private popoverController: PopoverController,
+    private modalProperties: ModalPropertiesService
   ) { }
 
   ngOnInit() {
@@ -336,11 +339,10 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getProjectCategoryIds(): Observable<string[]> {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map((categories) => {
 
         const mileageCategories = categories
-          .filter(category => category.enabled)
           .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1)
           .map(category => category.id as string);
 
@@ -350,14 +352,13 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getMileageCategories() {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map((categories) => {
         const orgCategoryName = 'mileage';
 
         const defaultMileageCategory = categories.find(category => category.name.toLowerCase() === orgCategoryName.toLowerCase());
 
         const mileageCategories = categories
-          .filter(category => category.enabled)
           .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1);
 
         return {
@@ -464,13 +465,12 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getSubCategories() {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map(categories => {
         const parentCategoryName = 'mileage';
         return categories
           .filter((orgCategory) => (parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase())
-            && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()))
-          .filter(category => category.enabled);
+            && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()));
       }),
       shareReplay(1)
     );
@@ -487,7 +487,7 @@ export class AddEditMileagePage implements OnInit {
             selectedCategory$ = this.etxn$.pipe(
               switchMap(etxn => {
                 return iif(() => etxn.tx.org_category_id,
-                  this.offlineService.getAllCategories().pipe(
+                  this.offlineService.getAllEnabledCategories().pipe(
                     map(categories => categories
                       .find(innerCategory => innerCategory.id === etxn.tx.org_category_id))), of(null));
               }));
@@ -576,8 +576,8 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(
         ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageOptions }) => {
-          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
-                                             && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;                  
+          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
+                                             && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
           if (isRecentVehicleTypePresent) {
             vehicleType = recentValue.recent_vehicle_types[0];
             this.presetVehicleType = recentValue.recent_vehicle_types[0];
@@ -620,7 +620,7 @@ export class AddEditMileagePage implements OnInit {
       recentValue: this.recentlyUsedValues$
     }).pipe(
       map(({ eou, currentLocation, orgUserSettings, recentValue }) => {
-        const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+        const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
                                         && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
         if (isRecentLocationPresent) {
           const autocompleteLocationInfo = {
@@ -1009,7 +1009,7 @@ export class AddEditMileagePage implements OnInit {
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
 
-        if (txnFields[txnFieldKey].mandatory) {
+        if (txnFields[txnFieldKey].is_mandatory) {
           if (txnFieldKey === 'txn_dt') {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
           } else if (txnFieldKey === 'distance') {
@@ -1170,7 +1170,7 @@ export class AddEditMileagePage implements OnInit {
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap(etxn => {
         return iif(() => etxn.tx.org_category_id,
-          this.offlineService.getAllCategories().pipe(
+          this.offlineService.getAllEnabledCategories().pipe(
             map(subCategories => subCategories
               .filter(subCategory => subCategory.sub_category.toLowerCase() !== subCategory.name.toLowerCase())
               .find(subCategory => subCategory.id === etxn.tx.org_category_id)
@@ -1317,7 +1317,7 @@ export class AddEditMileagePage implements OnInit {
       }
 
       // Check if recent location exists
-      const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled 
+      const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
                                       && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
       if (isRecentLocationPresent) {
         this.presetLocation = recentValue.recent_start_locations[0];
@@ -1387,7 +1387,11 @@ export class AddEditMileagePage implements OnInit {
       if (this.activatedRoute.snapshot.params.id) {
         this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Mileage'});
       }
-      this.close();
+      if (this.navigateBack) {
+        this.navController.back();
+      } else {
+        this.close();
+      }
     }
   }
 
@@ -1606,7 +1610,7 @@ export class AddEditMileagePage implements OnInit {
           }
         }
 
-        return this.offlineService.getAllCategories().pipe(
+        return this.offlineService.getAllEnabledCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {
@@ -1632,16 +1636,17 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const currencyModal = await this.modalController.create({
-      component: CriticalPolicyViolationComponent,
+    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
+      component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
-      }
+      },
+      cssClass: 'pop-up-in-center'
     });
 
-    await currencyModal.present();
+    await fyCriticalPolicyViolationPopOver.present();
 
-    const { data } = await currencyModal.onWillDismiss();
+    const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
     return !!data;
   }
 
@@ -1651,7 +1656,10 @@ export class AddEditMileagePage implements OnInit {
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();
@@ -1706,7 +1714,7 @@ export class AddEditMileagePage implements OnInit {
             orig_currency: null,
             orig_amount: null,
             mileage_calculated_distance: calculatedDistance,
-            mileage_calculated_amount: (etxn.tx.mileage_rate || (res.mileageConfig[formValue.mileage_vehicle_type])) * calculatedDistance,
+            mileage_calculated_amount: ((rate || etxn.tx.mileage_rate) || (res.mileageConfig[formValue.mileage_vehicle_type])) * calculatedDistance,
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
@@ -1881,7 +1889,7 @@ export class AddEditMileagePage implements OnInit {
                   Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
                   Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
                   Used_Autofilled_VehicleType: (etxn.tx.mileage_vehicle_type && this.presetVehicleType && (etxn.tx.mileage_vehicle_type === this.presetVehicleType)),
-                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && (etxn.tx.locations[0].display === this.presetLocation))
+                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && etxn.tx.locations[0] && (etxn.tx.locations[0].display === this.presetLocation))
                 });
               } else {
                 // tracking expense closed without editing
@@ -2109,7 +2117,7 @@ export class AddEditMileagePage implements OnInit {
                   Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
                   Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
                   Used_Autofilled_VehicleType: (etxn.tx.mileage_vehicle_type && this.presetVehicleType && (etxn.tx.mileage_vehicle_type === this.presetVehicleType)),
-                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && (etxn.tx.locations[0].display === this.presetLocation))
+                  Used_Autofilled_StartLocation: (etxn.tx.locations && etxn.tx.locations.length > 0 && this.presetLocation && etxn.tx.locations[0] && (etxn.tx.locations[0].display === this.presetLocation))
                 });
 
                 if (comment) {

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { SplitExpensePage } from './split-expense.page';
@@ -7,7 +7,7 @@ describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SplitExpensePage ],
       imports: [IonicModule.forRoot()]

@@ -1,5 +1,5 @@
 import {APP_INITIALIZER, ErrorHandler, NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {BrowserModule, HammerModule} from '@angular/platform-browser';
 import {RouteReuseStrategy} from '@angular/router';
 import {IonicModule, IonicRouteStrategy} from '@ionic/angular';
 import {SplashScreen} from '@ionic-native/splash-screen/ngx';
@@ -21,6 +21,14 @@ import {ConfigService} from './core/services/config.service';
 import {RouterAuthService} from './core/services/router-auth.service';
 import {TokenService} from './core/services/token.service';
 import {StorageService} from './core/services/storage.service';
+import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
+
+export class MyHammerConfig extends HammerGestureConfig {
+  overrides = <any>{
+    'pinch': { enable: false },
+    'rotate': { enable: false }
+  }
+};
 
 @NgModule({
   declarations: [
@@ -36,7 +44,8 @@ import {StorageService} from './core/services/storage.service';
     AgmCoreModule.forRoot({
       apiKey: environment.GOOGLE_MAPS_API_KEY
     }),
-    SharedModule
+    SharedModule,
+    HammerModule
   ],
   providers: [
     StatusBar,
@@ -44,6 +53,9 @@ import {StorageService} from './core/services/storage.service';
     GooglePlus,
     InAppBrowser,
     ScreenOrientation,
+    {
+      provide: HAMMER_GESTURE_CONFIG, useClass: MyHammerConfig
+    },
     {
       provide: RouteReuseStrategy, useClass: IonicRouteStrategy
     },

@@ -2,6 +2,10 @@
 
 New version of Fyle mobile app. This project is under active development and may be unstable for a while.
 
+# Node version
+
+Please install node v14.17.2 or above via nvm
+
 ## How to run this locally?
 
  - [Install ionic cli](https://ionicframework.com/docs/cli)

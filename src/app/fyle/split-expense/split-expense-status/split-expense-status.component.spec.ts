@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { SplitExpenseStatusComponent } from './split-expense-status.component';
@@ -7,7 +7,7 @@ describe('SplitExpenseStatusComponent', () => {
   let component: SplitExpenseStatusComponent;
   let fixture: ComponentFixture<SplitExpenseStatusComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SplitExpenseStatusComponent ],
       imports: [IonicModule.forRoot()]

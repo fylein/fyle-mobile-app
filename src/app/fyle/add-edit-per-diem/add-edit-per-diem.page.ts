@@ -32,8 +32,8 @@ import {LoaderService} from 'src/app/core/services/loader.service';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {PolicyService} from 'src/app/core/services/policy.service';
 import {DataTransformService} from 'src/app/core/services/data-transform.service';
-import {CriticalPolicyViolationComponent} from './critical-policy-violation/critical-policy-violation.component';
-import {ModalController, NavController} from '@ionic/angular';
+import {FyCriticalPolicyViolationComponent} from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import {ModalController, NavController, PopoverController} from '@ionic/angular';
 import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
 import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
 import {StatusService} from 'src/app/core/services/status.service';
@@ -48,6 +48,7 @@ import {RecentlyUsed} from 'src/app/core/models/v1/recently_used.model';
 import {ExtendedProject} from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -115,7 +116,7 @@ export class AddEditPerDiemPage implements OnInit {
     {label: 'Different expense', value: 'Different expense'},
     {label: 'Other', value: 'Other'}
   ];
-  
+
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -145,7 +146,9 @@ export class AddEditPerDiemPage implements OnInit {
     private currencyPipe: CurrencyPipe,
     private tokenService: TokenService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private popoverController: PopoverController,
+    private modalProperties: ModalPropertiesService
   ) {
   }
 
@@ -179,7 +182,11 @@ export class AddEditPerDiemPage implements OnInit {
       if (this.activatedRoute.snapshot.params.id) {
         this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Per Diem'});
       }
-      this.goBack();
+      if (this.navigateBack) {
+        this.navController.back();
+      } else {
+        this.goBack();
+      }
     }
   }
 
@@ -449,24 +456,22 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getSubCategories() {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map(categories => {
         const parentCategoryName = 'per diem';
         return categories
           .filter((orgCategory) => (parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase())
-            && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()))
-          .filter(category => category.enabled);
+            && (parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()));
       }),
       shareReplay(1)
     );
   }
 
   getProjectCategoryIds() {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map(categories => {
 
         const perDiemCategories = categories
-          .filter(category => category.enabled)
           .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
           .map(category => category.id as string);
 
@@ -476,13 +481,12 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPerDiemCategories() {
-    return this.offlineService.getAllCategories().pipe(
+    return this.offlineService.getAllEnabledCategories().pipe(
       map(categories => {
         const orgCategoryName = 'per diem';
         const defaultPerDiemCategory = categories.find(category => category.name.toLowerCase() === orgCategoryName.toLowerCase());
 
         const perDiemCategories = categories
-          .filter(category => category.enabled)
           .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1);
 
         return {
@@ -571,7 +575,7 @@ export class AddEditPerDiemPage implements OnInit {
           if (this.initialFetch) {
             return this.etxn$.pipe(switchMap(etxn => {
               return iif(() => etxn.tx.org_category_id,
-                this.offlineService.getAllCategories().pipe(
+                this.offlineService.getAllEnabledCategories().pipe(
                   map(categories => categories
                     .find(category => category.id === etxn.tx.org_category_id))), this.getPerDiemCategories().pipe(
                       map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
@@ -916,7 +920,7 @@ export class AddEditPerDiemPage implements OnInit {
       for (const txnFieldKey of Object.keys(txnFields)) {
         const control = keyToControlMap[txnFieldKey];
 
-        if (txnFields[txnFieldKey].mandatory) {
+        if (txnFields[txnFieldKey].is_mandatory) {
           if (txnFieldKey === 'num_days') {
             control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
           } else if (txnFieldKey === 'to_dt') {
@@ -1407,7 +1411,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
 
-        return this.offlineService.getAllCategories().pipe(
+        return this.offlineService.getAllEnabledCategories().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {
@@ -1433,16 +1437,17 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const currencyModal = await this.modalController.create({
-      component: CriticalPolicyViolationComponent,
+    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
+      component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations
-      }
+      },
+      cssClass: 'pop-up-in-center'
     });
 
-    await currencyModal.present();
+    await fyCriticalPolicyViolationPopOver.present();
 
-    const {data} = await currencyModal.onWillDismiss();
+    const {data} = await fyCriticalPolicyViolationPopOver.onWillDismiss();
     return !!data;
   }
 
@@ -1452,7 +1457,10 @@ export class AddEditPerDiemPage implements OnInit {
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await currencyModal.present();

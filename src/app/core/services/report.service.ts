@@ -13,6 +13,7 @@ import {isEqual} from 'lodash';
 import {DataTransformService} from './data-transform.service';
 import {Cacheable, CacheBuster} from 'ts-cacheable';
 import {TransactionService} from './transaction.service';
+import {StatsResponse} from "../models/v2/stats-response.model";
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -570,5 +571,19 @@ export class ReportService {
     }
 
     return this.apiService.get('/erpts/' + rptId + '/etxns', data);
+  }
+
+  getReportStats(params) {
+    return from(this.authService.getEou()).pipe(
+        switchMap(eou => {
+          return this.apiv2Service.get('/reports/stats', {
+            params: {
+              rp_org_user_id: `eq.${eou.ou.id}`,
+              ...params
+            }
+          });
+        }),
+        map(rawStatsResponse => new StatsResponse(rawStatsResponse))
+    );
   }
 }

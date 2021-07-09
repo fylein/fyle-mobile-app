@@ -15,7 +15,6 @@ import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
-import {ReportService} from './report.service';
 
 const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({
@@ -387,6 +386,25 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$
   })
+  deleteBulk(txnIds: string[]) {
+    const chunkSize = 10;
+    const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
+    return range(0, count).pipe(
+        concatMap(page => {
+          const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
+          return this.apiService.post('/transactions/delete/bulk', {
+            txn_ids: filteredtxnIds
+          });
+        }),
+        reduce((acc, curr) => {
+          return acc.concat(curr);
+        }, [] as any[])
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   upsert(transaction) {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
@@ -401,9 +419,9 @@ export class TransactionService {
 
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
-
         const offset = orgUserSettings.locale.offset;
 
+        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset);
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (transaction.txn_dt) {
           transaction.txn_dt.setHours(12);

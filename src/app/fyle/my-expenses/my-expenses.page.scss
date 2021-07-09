@@ -1,6 +1,25 @@
+@import '../../../theme/colors';
+
 .my-expenses {
   &--toolbar-header {
     border-bottom: 1px solid #e6e6e6;
+  }
+
+  &--header-btn {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+  }
+
+  &--filter-pills {
+    position: fixed;
+    width: 100%;
+    background-color: #fafafab0;
+    z-index: 99;
+  }
+
+  &--filter-pills-container {
+    display: block;
+    min-height: 52px;
   }
 
   &--toolbar {
@@ -15,6 +34,15 @@
     font-weight: 700;
     padding-left: 0px;
     line-height: 2;
+  }
+
+  &--content {
+    --background: #{$white};
+    --padding-bottom: 82px;
+  }
+
+  &--select-all-container {
+    --border-style: none;
   }
 
   &--state-toolbar {
@@ -56,6 +84,10 @@
     display: flex;
   }
 
+  &--shimmers {
+    overflow-y: scroll;
+  }
+
   &--state-pill {
     width: 47%;
     border: 1px solid #0077ee;
@@ -77,15 +109,25 @@
     }
   }
 
+  &--simple-search-container {
+    padding-left: 18px;
+    padding-right: 4px;
+    mat-form-field {
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
+      }
+    }
+  }
+
   &--simple-search {
     width: 100%;
     font-size: 14px;
 
     &-icon {
-      width: 14px;
       font-size: 18px;
-      margin-right: 6px;
-      color: #aaa;
+      margin-right: 8px;
+      color: $black-light;
+      height: auto;
     }
 
     &-close {
@@ -166,27 +208,10 @@
   }
 
   &--syncing {
-    display: flex;
-    color: #f36;
-    margin: 0 0 8px;
+    margin: 10px;
     padding: 0 12px;
   }
 
-  &--syncing-image {
-
-    width: 36px;
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 8px;
-
-  }
-
-  &--syncing-icon {
-    height: 8px;
-    top: 7px;
-    position: relative;
-    left: 4px;
-  }
 
   &--zero-state {
     display: flex;
@@ -196,17 +221,23 @@
     text-align: center;
 
     &-img {
-      margin: 32px;
+      margin: 20px;
     }
 
     &-header {
       margin: 12px;
-      font-size: 16px;
+      font-size: 18px;
       display: block;
       margin-bottom: 16px;
-      color: #4a4a4a;
+      color: #1C1F36;
       line-height: 1.5;
-      font-weight: 500;
+      font-weight: normal;
+    }
+
+    &-content {
+      color: #2C304E;
+      font-size: 14px;
+      font-weight: normal;
     }
 
     &-subheader {

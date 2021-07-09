@@ -26,6 +26,7 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 @import "assets/fonts/font.css";
+@import "theme/colors";
 
 $header-input-interior: #eeeeee;
 $black: #000;
@@ -56,6 +57,10 @@ body {
 
 input:focus, textarea:focus{
   outline: none !important;
+}
+
+.footer-safe-area {
+  --ion-safe-area-bottom: 0;
 }
 
 .error-popover {
@@ -116,6 +121,16 @@ input:focus, textarea:focus{
       width: 280px;
       background: #fff;
     }
+  }
+}
+
+.pop-up-in-center {
+  background: rgba(22, 21, 40, 0.5);
+  .popover-content {
+    border-radius: 16px;
+    --max-height: 80%;
+    --width: 80%;
+    left: 10%;
   }
 }
 
@@ -249,6 +264,11 @@ input:focus, textarea:focus{
   font-size: 28px !important;
 }
 
+.ios .stats--background {
+  min-height: calc(360px + constant(safe-area-inset-top)) !important;
+  min-height: calc(360px + env(safe-area-inset-top)) !important;
+}
+
 @mixin loader {
   border-radius: 50%;
   width: 14px;
@@ -287,11 +307,28 @@ input:focus, textarea:focus{
   100% { transform: rotate(360deg); }
 }
 .page-title {
-  font-weight: 700;
-  line-height: 1.3;
+  line-height: 26px;
+  color: #161528;
+  font-weight: 400;
+}
+
+.mat-checkbox-checked.mat-accent {
+  .mat-checkbox-background {
+    background-color: $blue-black !important;
+  }
+}
+
+.mat-checkbox-checkmark {
+  padding: 2px;
 }
 
 mat-checkbox {
+  .mat-checkbox-background, .mat-checkbox-frame {
+    border-radius: 4px !important;
+    border-color: $black-2 !important;
+    border-width: 1.5px !important;
+  }
+
   .mat-checkbox-layout {
     .mat-checkbox-inner-container {
       padding: 8px !important;
@@ -342,7 +379,9 @@ textarea, input {
 
 .selection-modal--form-field {
   .mat-form-field-wrapper {
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
+    border: 1px solid $grey-lighter;
+    border-radius: 4px;
+    height: 40px;
   }
 }
 
@@ -439,6 +478,10 @@ input[type="date"]::after {
   width: auto !important;
 }
 
+input::placeholder {
+  color: $grey-light !important;
+}
+
 #fc_frame {
   display: none;
   padding-top: constant(safe-area-inset-top); /*for iOS 11.2 and above*/
@@ -452,7 +495,7 @@ input[type="date"]::after {
 }
 /*
 using this class for all input type of date, the input value will be showin in format dd/mm/yyy by default
-and hiding the default value and showing the desired formatted value set by format-date.directive - 
+and hiding the default value and showing the desired formatted value set by format-date.directive -
 value set to date-date attribute.
 ref - https://stackoverflow.com/a/31162426
 */
@@ -463,23 +506,160 @@ ref - https://stackoverflow.com/a/31162426
 
     &::before {
       position: absolute;
-      left: 4px;
       content: attr(data-date);
       display: inline-block;
-      color: $black;
+      color: $blue-black;
     }
 
     &::after {
-      color: $black;
+      color: $grey-light;
     }
-  
+
     &::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button {
       display: none;
     }
-  
+
     &::-webkit-calendar-picker-indicator {
       position: absolute;
       right: 12px;
     }
   }
+
+  &__placeholder {
+    &::before {
+      color: $grey-light;
+    }
+  }
+}
+
+.fy-action-sheet {
+  --background: none;
+  .action-sheet-button {
+    background: $white;
+    min-height: 73px;
+    margin-inline-end: 16px;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin-right: 16px;
+  }
+
+  .action-sheet-icon {
+    fill: $grey-light;
+    margin-inline-end: 16px;
+  }
+
+  .capture-receipt {
+    stroke: $grey-light;
+  }
+
+  .action-sheet-title {
+    background: $white;
+    border-radius: 16px 16px 0 0;
+    height: 40px;
+    padding: 24px 16px 16px 24px;
+    font-size: 12px;
+    --color: #{$grey-light};
+    color: $grey-light;
+    font-weight: 500;
+  }
+
+  .action-sheet-button-inner {
+    border-bottom: 1px solid $translucent-grey;
+  }
+}
+
+.dashboard {
+  &--tabs {
+    .mat-tab-header {
+      display: none;
+    }
+  }
+  &--refresher {
+    .refresher-refreshing-icon {
+      margin-top: 200px !important;
+      .spinner-circular {
+        --ion-color-primary: #{$primary};
+      }
+    }
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(162.38deg, #FF3366 3.01%, #FE5196 111.5%);
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  line-height: 18px;
+  color: $pure-white;
+  font-weight: 400 !important;
+  height: 52px !important;
+  text-transform: inherit;
+  width: 100%;
+  letter-spacing: 0px !important;
+}
+
+.btn-secondary {
+  color: $black-2;
+  font-size: 16px !important;
+  line-height: 20px;
+  font-weight: 400 !important;
+  height: 52px !important;
+  text-transform: inherit;
+  width: 100%;
+  letter-spacing: 0px !important;
+}
+
+.cta-footer {
+  box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
+}
+
+.footer-ios ion-toolbar:first-of-type {
+  --border-width: 0 !important;
+}
+
+.footer-md::before {
+  background-image: none !important;
+}
+
+.fy-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    max-height: 90%;
+    position: absolute;
+    top: 10%;
+  }
+
+  .modal-shadow{
+    display: none;
+  }
+}
+
+.stack-modal {
+  ion-backdrop {
+    box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
+    opacity: 0.4 !important;
+    pointer-events: all !important;
+  }
+}
+
+.fy-modal-top-bar {
+  width: 52px !important;
+  height: 4px !important;
+  display: flex !important;
+  margin: 16px auto 0 auto;
+}
+
+.fy-icon-close {
+  height: 20px !important;
+  width: 20px !important;
+}
+
+.fy-modal-toolbar {
+  border-bottom: 1px solid $grey-lighter;
+  margin-bottom: 8px;
+  padding-top: 0 !important;
+}
+
+.delete-dialog {
+  --width: 296px;
+  --height: 204px;
 }

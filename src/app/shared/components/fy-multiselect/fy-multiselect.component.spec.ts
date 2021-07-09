@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { FyMultiselectComponent } from './fy-multiselect.component';
@@ -7,7 +7,7 @@ describe('FyMultiselectComponent', () => {
   let component: FyMultiselectComponent;
   let fixture: ComponentFixture<FyMultiselectComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ FyMultiselectComponent ],
       imports: [IonicModule.forRoot()]

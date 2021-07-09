@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
@@ -7,7 +7,7 @@ describe('AddEditAdvanceRequestPage', () => {
   let component: AddEditAdvanceRequestPage;
   let fixture: ComponentFixture<AddEditAdvanceRequestPage>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ AddEditAdvanceRequestPage ],
       imports: [IonicModule.forRoot()]

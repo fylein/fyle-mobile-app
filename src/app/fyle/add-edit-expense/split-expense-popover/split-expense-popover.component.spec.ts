@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { SplitExpensePopoverComponent } from './split-expense-popover.component';
@@ -7,7 +7,7 @@ describe('SplitExpensePopoverComponent', () => {
   let component: SplitExpensePopoverComponent;
   let fixture: ComponentFixture<SplitExpensePopoverComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SplitExpensePopoverComponent ],
       imports: [IonicModule.forRoot()]

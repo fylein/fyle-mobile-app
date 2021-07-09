@@ -1,0 +1,21 @@
+$message: #2C304E;
+$container-border: #DFDFE2;
+
+.alert-info-container {
+  border: 1px solid $container-border;
+  border-radius: 8px;
+  padding: 12px 8px;
+  display: flex;
+
+  &--icon {
+    height: 20px;
+    width: 20px;
+    margin-right: 8px;
+  }
+
+  &--message {
+    color: $message;
+    font-weight: 400;
+    width: 100%;
+  }
+}

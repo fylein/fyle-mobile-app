@@ -1,7 +1,7 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="my-profile--toolbar">
     <ion-buttons slot="start">
-      <ion-menu-button class="my-profile--menubutton" auto-hide="false"></ion-menu-button>
+      <app-fy-menu-icon class="my-profile--menubutton" auto-hide="false"></app-fy-menu-icon>
     </ion-buttons>
     <ion-title mode="md" class="page-title">My Settings</ion-title>
   </ion-toolbar>
@@ -78,7 +78,7 @@
     <!-- Instafyle card start -->
     <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.insta_fyle_settings?.allowed">
       <div class="my-profile--card-title">
-        Instafyle
+        Extract receipt details
       </div>
 
       <div class="my-profile--cards-content my-profile--toggle-container">
@@ -123,7 +123,7 @@
         <ion-toggle mode="ios" class="my-profile--toggle-value" color="success"
           [(ngModel)]="orgUserSettings.currency_settings.enabled" (ionChange)="toggleCurrencySettings()"></ion-toggle>
       </div>
-      <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency">
+      <div (click)="openCurrenySelectionModal()" class="my-profile--select-currency" *ngIf="orgUserSettings.currency_settings.enabled">
         <div class="my-profile--card-title my-profile--card-title__lite">
           {{orgUserSettings.currency_settings.preferred_currency  ? 'Currency' : 'Select Currency' }}
         </div>

@@ -19,6 +19,9 @@ import * as moment from 'moment';
 import { TokenService } from '../services/token.service';
 import { RouterAuthService } from '../services/router-auth.service';
 import { DeviceService } from '../services/device.service';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { UserEventService } from '../services/user-event.service';
+import { StorageService } from '../services/storage.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
@@ -29,19 +32,22 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
     private routerAuthService: RouterAuthService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private userEventService: UserEventService,
+    private storageService: StorageService
   ) { }
 
   secureUrl(url) {
     if (
-      url.indexOf('.fyle.in') >= 0 ||
       url.indexOf('localhost') >= 0 ||
       url.indexOf('.fylehq.com') >= 0 ||
-      url.indexOf('.fyle.tech') >= 0 ||
-      url.indexOf('.fylehq.ninja') >= 0) {
+      url.indexOf('.fyle.tech') >= 0) {
       if (
         url.indexOf('/api/auth/') >= 0 ||
         url.indexOf('routerapi/auth/') >= 0) {
+          if (url.indexOf('api/auth/logout') >= 0) {
+            return true;
+          }
         return false;
       }
       return true;
@@ -66,6 +72,12 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       concatMap(
         refreshToken => this.routerAuthService.fetchAccessToken(refreshToken)
       ),
+      catchError(error => {
+        this.userEventService.logout();
+        this.storageService.clearAll();
+        globalCacheBusterNotifier.next();
+        return throwError(error); 
+      }),
       concatMap(
         authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
       ),

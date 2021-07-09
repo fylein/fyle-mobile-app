@@ -1,28 +1,50 @@
+@import "../../../../theme/colors.scss";
+
 .fy-select {
-  border: none;
-  width: 100%;
-  background-color: inherit;
-  font-weight: 500;
-  font-size: 16px;
+  &--label {
+    width: 100%;
+    background-color: inherit;
+    font-weight: 400;
+  }
+
   &--label-content {
     margin: 0 8px 0 0;
+    max-width: 90%;
     min-width: 120px;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
     white-space: nowrap;
-    &__invalid {
-      color: red;
-    }
+  }
+
+  &--input-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid $grey-lighter;
+  }
+
+  &--input {
+    font-size: 14px;
+    line-height: 18px;
+    color: $blue-black;
+    border: none;
+    width: 100%;
+    padding: 0;
+  }
+
+  &--input-invalid {
+    border-bottom: 1px solid $red;
+  }
+
+  &--mandatory {
+    color: $primary;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--icon {
-    color: #ababab;
-  }
-
-  &--label {
-    display: flex;
-    align-items: center;
+    color: $grey-light;
   }
 }
