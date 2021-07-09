@@ -21,11 +21,7 @@
   }
 
   &--card {
-    margin: 10px;
-    margin-right: 24px;
-    border-radius: 5px;
-    background-color: #E7F2F5;
-    color: #666;
+    border-radius: 16px;
   }
 
   &--title {
@@ -34,72 +30,40 @@
     font-weight: bold;
   }
 
-  &--bot-comment {
-    background-color: #ffedf1;
-  }
-
   &--self-comment {
-    background-color: #93A8AC;
+    background-color: #F7F7FB;
     margin-left: 24px;
     margin-right: 10px;
-    color: #fff;
   }
 
-  &--profile {
-    position: absolute;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    border: 1px solid #aaa;
-    padding: 6px;
-    font-size: 20px;
-    text-align: center;
-    line-height: 1.6;
-
-    &__user-profile {
-      border-color: #fff;
-      font-size: 18px;
-    }
+  &--others-comment {
+    background-color: #FBF7F9;
+    margin-right: 24px;
+    margin-left: 10px;
   }
 
-  &--name-time-container{
+  &--name-container{
     left: 5px;
+    font-size: 14px;
+    line-height: 18px;
+    color: $black-light;
+    margin-top: 8px;
   }
 
   &--comment-timestamp {
     font-size: 12px;
-  }
-
-  &--audit-trails-container {
-    padding: 16px;
-  }
-
-  &--showbot-container {
-    display: flex;
-  }
-
-  &--commenter-name {
-    color: black;
-  }
-
-  &--showbot-checkbox {
-    --border-color: #ec3c64;
-    height: 30px;
-    width: 30px;
-  }
-
-  &--showbot-text {
-    font-size: 16px;
-    margin: 6px 10px;
+    line-height: 20px;
+    color: $grey-light;
   }
 
   &--type-comment-block {
     height: 55px;
     display: flex;
     background-color: #fff;
-    border: 1px solid #9E9E9E;
+    border: 1px solid $black-light;
     border-radius: 4px;
-    padding: 5px;
+    padding: 6px;
+    color: $black-2;
   }
 
   &--text-area {
@@ -118,5 +82,46 @@
 
   &--close {
     text-transform: none !important;
+  }
+
+  &--profile {
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    box-shadow: 0px -2px 8px rgba(215, 215, 215, 0.25);
+  }
+
+  &--self-profile {
+    background: linear-gradient(0deg, #F7F7FB, #F7F7FB);
+    margin-right: 8px;
+  }
+
+  &--others-profile {
+    background: #FBF7F9;
+    margin-left: 8px;
+  }
+
+  &--profile-icon {
+    margin: 10px;
+    padding: 2px;
+  }
+
+  &--block {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 6px;
+  }
+
+  &--date {
+    font-size: 12px;
+    line-height: 20px;
+    color: $grey-light;
+    margin-top: 16px;
+  }
+
+  &--comment-detail {
+    font-size: 16px;
+    line-height: 20px;
+    color: #1C1F36;
   }
 }

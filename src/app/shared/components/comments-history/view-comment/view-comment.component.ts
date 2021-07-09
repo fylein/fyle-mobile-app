@@ -26,7 +26,6 @@ export class ViewCommentComponent implements OnInit {
 
   estatuses$: Observable<ExtendedStatus[]>;
   totalCommentsCount$: Observable<number>;
-  showBotComments: boolean;
   newComment: string;
   refreshEstatuses$: Subject<void> = new Subject();
   isCommentAdded: boolean;
@@ -47,10 +46,6 @@ export class ViewCommentComponent implements OnInit {
     private router: Router,
     private trackingService: TrackingService
   ) { }
-
-  changeBotComments() {
-    this.showBotComments = !this.showBotComments;
-  }
 
   addComment() {
 
@@ -86,7 +81,6 @@ export class ViewCommentComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.showBotComments = false;
     const eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(

@@ -43,7 +43,7 @@ export class IconModule {
     "logo-icon-white.svg", "logo-white.svg",
     "mail.svg", "mileage.svg",
     "office-supplies.svg",
-    "parking.svg", "per_diem.svg", "phone.svg", "professional-service.svg", "plus.svg",
+    "parking.svg", "per_diem.svg", "phone.svg", "professional-service.svg", "plus.svg", "profile.svg",
     "search.svg", "settings.svg", "single.svg", "snacks.svg", "software.svg", "split-expense.svg", "send.svg",
     "tax.svg", "taxi.svg", "toll-charge.svg", "train.svg", "training.svg",
     "utility.svg",

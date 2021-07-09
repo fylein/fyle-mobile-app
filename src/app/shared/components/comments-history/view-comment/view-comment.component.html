@@ -17,35 +17,63 @@
 
 <ion-content class="view-comment--container" *ngIf="isCommentsView">
   <div *ngFor="let estatus of userComments">
-    <ion-grid class="view-comment--card" 
-      [ngClass]="{'view-comment--bot-comment': estatus.isBotComment, 'view-comment--self-comment': estatus.isSelfComment}">
-      <ion-row>
-        <ion-col size="2">
-          <span class="view-comment--profile" *ngIf="estatus.us_full_name" [ngClass]="{'view-comment--profile__user-profile': estatus.us_full_name && estatus.isSelfComment}">
-            {{estatus.us_full_name | uppercase | initials}}
-          </span>
-          <span class="view-comment--profile" *ngIf="!estatus.us_full_name">
-            <mat-icon svgIcon="fy-bot"></mat-icon>
-          </span>
-        </ion-col>
-        <ion-col size="10">
-          <div class="view-comment--name-time-container">
-            <span [ngClass]="{'view-comment--commenter-name': estatus.isOthersComment}">{{ estatus.us_full_name ? estatus.us_full_name: 'Fyle Bot'}}</span>
-            <p class="view-comment--comment-timestamp">{{estatus.st_created_at | date:'MMM d @ h:mm a' }}</p>
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="12">
-          <p *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-            class="view-comment--comment-detail">{{ estatus.st_comment }}</p>
-          <p *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-            class="view-comment--comment-detail">{{ estatus.st_comment }}</p>
-          <a *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-            (click)="openViewExpense()">{{ this.expenseNumber }} </a>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+    <div>
+      <div class="view-comment--date text-center">{{estatus.st_created_at | date:'MMM d, yyyy' }}</div>
+    </div>
+    <div class="view-comment--block" *ngIf="estatus.isSelfComment">
+      <ion-grid class="view-comment--card view-comment--self-comment text-right">
+        <ion-row>
+          <ion-col size="12">
+            <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="12">
+            <div *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+              class="view-comment--comment-detail">{{ estatus.st_comment }}</div>
+            <div *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+              class="view-comment--comment-detail">{{ estatus.st_comment }}</div>
+            <a *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+              (click)="openViewExpense()">{{ this.expenseNumber }} </a>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="12">
+            <div class="view-comment--comment-timestamp">{{estatus.st_created_at | date:'h:mm a' }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <div class="view-comment--profile view-comment--self-profile">
+        <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+      </div>
+    </div>
+    <div class="view-comment--block" *ngIf="!estatus.isSelfComment">
+      <div class="view-comment--profile view-comment--others-profile">
+        <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+      </div>
+      <ion-grid class="view-comment--card view-comment--others-comment text-left">
+        <ion-row>
+          <ion-col size="12">
+            <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="12">
+            <div *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+              class="view-comment--comment-detail">{{ estatus.st_comment }}</div>
+            <div *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+              class="view-comment--comment-detail">{{ estatus.st_comment }}</div>
+            <a *ngIf="(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+              (click)="openViewExpense()">{{ this.expenseNumber }} </a>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="12">
+            <div class="view-comment--comment-timestamp">{{estatus.st_created_at | date:'h:mm a' }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
   </div>
 </ion-content>
 
@@ -56,13 +84,6 @@
 <ion-footer class="ion-no-border" *ngIf="isCommentsView">
   <div class="view-comment--add-comment-container">
     <ion-toolbar mode="md">
-      <div class="view-comment--audit-trails-container">
-        <label class="view-comment--showbot-container" (click)="changeBotComments()">
-          <ion-checkbox mode="ios" class="view-comment--showbot-checkbox" color="danger" checked="{{showBotComments}}"></ion-checkbox>
-          <ion-label class="view-comment--showbot-text">Check Audit Trail</ion-label>
-      </label>
-      </div>
-
       <div class="view-comment--type-comment-block" *ngIf="mode === 'edit'">
         <textarea class="view-comment--text-area" rows="1" matInput placeholder="Type in your comment here..."
           [(ngModel)]="newComment"></textarea>
