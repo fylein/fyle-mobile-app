@@ -61,6 +61,7 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -111,6 +112,7 @@ export class AddEditExpensePage implements OnInit {
   attachedReceiptsCount = 0;
   instaFyleCancelled = false;
   newExpenseDataUrls = [];
+  editExpenseAttachments = [];
   focusState = false;
   isConnected$: Observable<boolean>;
   invalidPaymentMode = false;
@@ -199,7 +201,9 @@ export class AddEditExpensePage implements OnInit {
     private tokenService: TokenService,
     private expenseFieldsService: ExpenseFieldsService,
     private modalProperties: ModalPropertiesService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private sanitizer: DomSanitizer
+
   ) {
   }
 
@@ -1943,7 +1947,7 @@ export class AddEditExpensePage implements OnInit {
     this.title = 'Add Expense';
     this.title = this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
     this.duplicateBoxOpen = false;
-
+    
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
@@ -1993,6 +1997,10 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
     );
+
+    if (this.mode == 'edit') {
+      this.getAttachments();
+    }
 
     orgSettings$.pipe(
       filter(orgSettings => orgSettings.corporate_credit_card_settings.enabled),
@@ -3073,8 +3081,12 @@ export class AddEditExpensePage implements OnInit {
           url: data.dataUrl,
           thumbnail: data.dataUrl
         };
-
         this.newExpenseDataUrls.push(fileInfo);
+        this.sanitizer.bypassSecurityTrustUrl(fileInfo.url);
+        of(this.newExpenseDataUrls.map(fileObj => {
+          fileObj.type = (fileObj.type === 'application/pdf' || fileObj.type === 'pdf') ? 'pdf' : 'image';
+          return fileObj;
+        }));
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(
           take(1)
@@ -3106,6 +3118,7 @@ export class AddEditExpensePage implements OnInit {
             return editExpenseAttachments$;
           }),
           finalize(() => {
+            this.getAttachments();
             this.attachmentUploadInProgress = false;
           })
         ).subscribe((attachments) => {
@@ -3146,6 +3159,31 @@ export class AddEditExpensePage implements OnInit {
     }
 
     return res;
+  }
+  
+  getAttachments() {
+    const editExpenseAttachments = this.etxn$.pipe(
+      switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
+      switchMap(fileObjs => {
+        return from(fileObjs);
+      }),
+      concatMap((fileObj: any) => {
+        return this.fileService.downloadUrl(fileObj.id).pipe(
+          map(downloadUrl => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        );
+      }),
+      reduce((acc, curr) => acc.concat(curr), [])
+    );
+
+    editExpenseAttachments.subscribe(async (attachments) => {
+      this.editExpenseAttachments = attachments;
+    });
   }
 
   viewAttachments() {
@@ -3209,6 +3247,7 @@ export class AddEditExpensePage implements OnInit {
               return (fileObjs && fileObjs.length) || 0;
             })
           ).subscribe((attachedReceipts) => {
+            this.getAttachments();
             if (this.attachedReceiptsCount === attachedReceipts) {
               this.trackingService.viewAttachment({Asset: 'Mobile'});
             }
