@@ -1947,7 +1947,7 @@ export class AddEditExpensePage implements OnInit {
     this.title = 'Add Expense';
     this.title = this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
     this.duplicateBoxOpen = false;
-    
+
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
@@ -3160,7 +3160,7 @@ export class AddEditExpensePage implements OnInit {
 
     return res;
   }
-  
+
   getAttachments() {
     const editExpenseAttachments = this.etxn$.pipe(
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
