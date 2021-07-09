@@ -60,7 +60,7 @@
     height: 55px;
     display: flex;
     background-color: #fff;
-    border: 1px solid $black-light;
+    border: 1px solid #EAEAEB;
     border-radius: 4px;
     padding: 6px;
     color: $black-2;
@@ -123,5 +123,18 @@
     font-size: 16px;
     line-height: 20px;
     color: #1C1F36;
+  }
+
+  &--zero-state-block {
+    --overflow: hidden;
+  }
+
+  &--zero-state-content {
+    color: $black-light;
+  }
+
+  &--zero-state {
+    margin: 32% 0 0 38%;
+    height: 80px;
   }
 }
