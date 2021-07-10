@@ -16,7 +16,6 @@ export class CommentsHistoryComponent implements OnInit {
 
   @Input() objectType: string;
   @Input() objectId: string;
-  @Input() mode: string;
   @Input() hideIcon: boolean;
   @Input() text: string;
   @Input() showCommentsCount?: boolean;
@@ -37,10 +36,8 @@ export class CommentsHistoryComponent implements OnInit {
       component: ViewCommentComponent,
       componentProps: {
         objectType: this.objectType,
-        objectId: this.objectId,
-        mode: this.mode
+        objectId: this.objectId
       },
-      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties()
     });

@@ -20,7 +20,6 @@ export class ViewCommentComponent implements OnInit {
 
   @Input() objectType: string;
   @Input() objectId: any;
-  @Input() mode: string;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
