@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { ToastMessageComponent } from './toast-message.component';
@@ -7,7 +7,7 @@ describe('ToastMessageComponent', () => {
   let component: ToastMessageComponent;
   let fixture: ComponentFixture<ToastMessageComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ToastMessageComponent ],
       imports: [IonicModule.forRoot()]
