@@ -10,6 +10,7 @@ import { timer } from 'rxjs';
 export class FyReceiptPreviewThumbnailComponent implements OnInit {
 
   @Input() attachments: any = [];
+  @Input()  isUploading: boolean;
 
   @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
   @Output() viewAttachments: EventEmitter<void> = new EventEmitter();
@@ -17,6 +18,7 @@ export class FyReceiptPreviewThumbnailComponent implements OnInit {
   sliderOptions: any;
   activeIndex: number = 0;
   previousCount: number;
+
 
   @ViewChild('slides') imageSlides: any;
 

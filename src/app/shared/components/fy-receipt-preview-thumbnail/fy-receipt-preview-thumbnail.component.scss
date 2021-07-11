@@ -2,7 +2,7 @@
 
 .receipt-preview-thumbnail {
     &--actions {
-        width:100%;
+        width: 100%;
         margin-top: 20px;
         display: flex;
         justify-content: space-between;
@@ -65,6 +65,10 @@
         color: $black;
     }
 
+    &--slider-container {
+        position: relative;
+    }
+
     &--go-forward {
         position: absolute;
         top: 15vh;
@@ -72,6 +76,35 @@
         font-size: 18px;
         padding: 12px;
         color: $black;
+    }
+
+    &--spinner-overlay {
+        background-color: $translucent-white-2;
+        position: absolute;
+        height: 240px;
+        width: 100%;
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &--spinner-container {
+        width: 80%;
+        position: relative;
+        text-align: center;
+    }
+
+    &--spinner {
+        zoom: 3;
+        color: $brand-primary-light;
+        width: 100%;
+    }
+
+    &--spinner-text {
+        margin: 3px;
+        font-size: 14px;
+        color: $blue-black;
     }
 
 }

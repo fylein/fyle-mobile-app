@@ -1196,7 +1196,8 @@ export class AddEditExpensePage implements OnInit {
           recentProjects: this.recentlyUsedProjects$,
           recentCurrencies: this.recentlyUsedCurrencies$,
           recentCostCenters: this.recentlyUsedCostCenters$,
-          recentCategories: this.recentlyUsedCategories$
+          recentCategories: this.recentlyUsedCategories$,
+          attachments: this.getAttachments()
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
@@ -1997,10 +1998,6 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
     );
-
-    if (this.mode == 'edit') {
-      this.getAttachments();
-    }
 
     orgSettings$.pipe(
       filter(orgSettings => orgSettings.corporate_credit_card_settings.enabled),

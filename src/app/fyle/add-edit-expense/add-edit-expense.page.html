@@ -92,7 +92,7 @@
         </ng-container>
 
         <div class="add-edit-expense--receipt-currency-container">
-          <ng-container *ngIf="attachedReceiptsCount === 0">
+          <ng-container *ngIf="editExpenseAttachments.length < 1 && newExpenseDataUrls.length < 1">
           <div *ngIf="!reviewList?.length || canAttachReceipts" class="add-edit-expense--receipt" >
             <div *ngIf="attachmentUploadInProgress" class="add-edit-expense--receipt-image">
               <ion-spinner class="add-edit-expense--spinner-icon" icon="circles"></ion-spinner>
@@ -137,12 +137,15 @@
         </div>
         
         <app-fy-receipt-preview-thumbnail *ngIf="newExpenseDataUrls.length > 0" [attachments]="newExpenseDataUrls"
-          (addMoreAttachments)="addAttachments($event)" (viewAttachments)="viewAttachments($event)">
+          (addMoreAttachments)="addAttachments($event)" 
+          (viewAttachments)="viewAttachments($event)">
         </app-fy-receipt-preview-thumbnail>
 
         <app-fy-receipt-preview-thumbnail *ngIf="editExpenseAttachments.length > 0"
-            [attachments]="editExpenseAttachments" (addMoreAttachments)="addAttachments($event)"
-            (viewAttachments)="viewAttachments($event)"> 
+            [attachments]="editExpenseAttachments" 
+            (addMoreAttachments)="addAttachments($event)"
+            (viewAttachments)="viewAttachments($event)"
+            [isUploading]="attachmentUploadInProgress"> 
         </app-fy-receipt-preview-thumbnail>
 
         <div class="add-edit-expense--primary-block">
