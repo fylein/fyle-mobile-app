@@ -1,15 +1,15 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="route-selector-modal--toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="close()">
         <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md">
+    <ion-title class="route-selector-modal--title" mode="ios">
       Route
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button class="text-capitalize" (click)="save()">
+      <ion-button color="fy-primary" class="text-capitalize route-selector-modal--save" (click)="save()">
         Save
       </ion-button>
     </ion-buttons>
@@ -17,11 +17,11 @@
 </ion-header>
 <ion-content>
   <div class="route-selector-modal--body" [formGroup]="form">
-    <h4>
+    <div class="route-selector-modal--distance-details">
       Total Distance: {{distance || '-'}} {{unit | titlecase}}
-    </h4>
+    </div>
 
-    <div class="timeline--timeline">
+    <div class="timeline--timeline route-selector-modal--timeline">
       <ng-container formArrayName="mileage_locations">
         <ng-container *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
           <div class="timeline--timeline-item"
@@ -29,8 +29,8 @@
             <div class="timeline--timeline-item-internal"
               [ngClass]="{'timeline--timeline-item-internal__first': isFirst, 'timeline--timeline-item-internal__last': isLast}">
               <app-fy-location class="route-selector-modal--location" [formControlName]="i"
-                [label]="(isFirst ? 'Start' : (isLast ? 'End' : (control.value ? 'Stop ' + (i) : 'Stop ' + (i) + ' Location')))"
-                [fullscreenMode]="true" [mandatory]="mileageConfig.location_mandatory">
+                [label]="(isFirst ? 'Start' : (isLast ? 'Destination' : (control.value ? 'Stop ' + (i) : 'Stop ' + (i))))"
+                [fullscreenMode]="true" [mandatory]="mileageConfig.location_mandatory" [hideSuffix]="true">
               </app-fy-location>
               <span
                 *ngIf="i >= 1 && (i !== mileage_locations.controls.length - 1 || mileage_locations.controls.length === 10)">

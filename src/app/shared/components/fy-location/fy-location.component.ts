@@ -26,6 +26,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() disabled = false;
   @Input() allowCustom = false;
   @Input() fullscreenMode = false;
+  @Input() hideSuffix = false;
 
   private innerValue;
   displayValue;

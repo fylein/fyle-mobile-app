@@ -15,9 +15,12 @@
             <div class="timeline--timeline-item timeline--timeline-item__first"
               [ngClass]="{'timeline--timeline-item__invalid': mileage_locations.controls[0].touched && !mileage_locations.controls[0].valid}">
               <div class="timeline--timeline-item-internal timeline--timeline-item-internal__first">
-                <app-fy-location class="route-selector--input" [formControl]="mileage_locations.controls[0]"
-                  [mandatory]="mileageConfig.location_mandatory" (click)="openModal()" [disabled]="true">
+                <app-fy-location [label]="'Start'" class="route-selector--input" [formControl]="mileage_locations.controls[0]"
+                  [mandatory]="mileageConfig.location_mandatory" (click)="openModal()" [disabled]="true" [hideSuffix]="true">
                 </app-fy-location>
+                <div *ngIf="mileage_locations.controls[0].touched && !mileage_locations.controls[0].valid" class="timeline--error timeline--error__first">
+                  Please select location
+                </div>
               </div>
             </div>
           </ng-container>
@@ -32,19 +35,17 @@
             <div class="timeline--timeline-item timeline--timeline-item__last"
               [ngClass]="{'timeline--timeline-item__invalid': mileage_locations.controls[mileage_locations.controls.length - 1].touched && !mileage_locations.controls[mileage_locations.controls.length - 1].valid }">
               <div class="timeline--timeline-item-internal timeline--timeline-item-internal__last">
-                <app-fy-location class="route-selector--input"
+                <app-fy-location [label]="'Stop'" class="route-selector--input"
                   [formControl]="mileage_locations.controls[mileage_locations.controls.length - 1]"
-                  (click)="openModal()" [mandatory]="mileageConfig.location_mandatory" [disabled]="true">
+                  (click)="openModal()" [mandatory]="mileageConfig.location_mandatory" [disabled]="true" [hideSuffix]="true">
                 </app-fy-location>
+              </div>
+              <div *ngIf="mileage_locations.controls[mileage_locations.controls.length - 1].touched && !mileage_locations.controls[mileage_locations.controls.length - 1].valid" class="timeline--error timeline--error__last">
+                Please select location
               </div>
             </div>
           </ng-container>
         </ng-container>
-        <div *ngIf="form.controls.mileage_locations.touched && !form.controls.mileage_locations.valid"
-          class="route-selector--error route-selector--error__location">
-          Please select location
-        </div>
-
       </div>
     </ng-container>
 
