@@ -159,7 +159,7 @@
           class="my-expenses--cta-button my-expenses--secondary-cta text-center" [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
           (click)="openCreateReportWithSelectedIds('oldReport')">Add to reports</button>
   
-        <button type="submit" [disabled]="!isReportableExpensesSelected" 
+        <button type="submit"
           class="my-expenses--cta-button my-expenses--primary-cta text-center" [ngClass]="{'my-expenses--primary-cta__disabled': !isReportableExpensesSelected}"
           (click)="openCreateReportWithSelectedIds('newReport')">Create New Report</button>
       </div>

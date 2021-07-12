@@ -1293,7 +1293,18 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
+  async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
+    if (!this.isReportableExpensesSelected) {
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        data: {
+          message: 'You can not add draft expenses and Critical policy violated expenses to a report',
+          showCloseButton: true
+        },
+        panelClass: ['mat-snack-bar-info']
+      });
+      return;
+    }
+
     this.trackingService.addToReport({Asset: 'Mobile'});
 
     let selectedElements = cloneDeep(this.selectedElements);
