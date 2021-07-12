@@ -9,7 +9,7 @@
       Route
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="save()">
+      <ion-button class="text-capitalize" (click)="save()">
         Save
       </ion-button>
     </ion-buttons>
@@ -18,34 +18,41 @@
 <ion-content>
   <div class="route-selector-modal--body" [formGroup]="form">
     <h4>
-      Total Distance: {{distance || '-'}} {{unit}}
+      Total Distance: {{distance || '-'}} {{unit | titlecase}}
     </h4>
-    <ng-container formArrayName="mileage_locations">
-      <ng-container *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
-        <div class="route-selector-modal--internal-block"
-          [ngClass]="{'route-selector-modal--internal-block__invalid': control.touched && !control.valid, 'route-selector-modal--location-block': i >= 2}">
-          <app-fy-location 
-            class="route-selector-modal--location" 
-            [formControlName]="i"
-            [label]="(isFirst ? 'Start' : (isLast ? 'End' : (control.value ? 'Stop ' + (i) : 'Stop ' + (i) + ' Location')))"
-            [fullscreenMode]="true"
-            [mandatory]="mileageConfig.location_mandatory">
-          </app-fy-location>
-          <span *ngIf="i >= 1 && (i !== mileage_locations.controls.length - 1 || mileage_locations.controls.length === 10)">
-            <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop" svgIcon="fy-delete">
-            </mat-icon>
-          </span>
-          <span *ngIf="i === mileage_locations.controls.length - 1 && mileage_locations.controls.length !== 10">
-            <mat-icon (click)="addMileageLocation()" class="route-selector-modal--add-stop">
-              add
-            </mat-icon>
-          </span>
-        </div>
-        <div *ngIf="control.touched && !control.valid" class="route-selector-modal--error">
-          Please select location
-        </div>
+
+    <div class="timeline--timeline">
+      <ng-container formArrayName="mileage_locations">
+        <ng-container *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
+          <div class="timeline--timeline-item"
+            [ngClass]="{'timeline--timeline-item__invalid': control.touched && !control.valid, 'timeline--timeline-item__internal-item': i > 1 && !isLast, 'timeline--timeline-item__first': isFirst, 'timeline--timeline-item__last': isLast, 'timeline--timeline-item__middle': !(isFirst || isLast)}">
+            <div class="timeline--timeline-item-internal"
+              [ngClass]="{'timeline--timeline-item-internal__first': isFirst, 'timeline--timeline-item-internal__last': isLast}">
+              <app-fy-location class="route-selector-modal--location" [formControlName]="i"
+                [label]="(isFirst ? 'Start' : (isLast ? 'End' : (control.value ? 'Stop ' + (i) : 'Stop ' + (i) + ' Location')))"
+                [fullscreenMode]="true" [mandatory]="mileageConfig.location_mandatory">
+              </app-fy-location>
+              <span
+                *ngIf="i >= 1 && (i !== mileage_locations.controls.length - 1 || mileage_locations.controls.length === 10)">
+                <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop"
+                  svgIcon="fy-delete">
+                </mat-icon>
+              </span>
+              <span *ngIf="i === mileage_locations.controls.length - 1 && mileage_locations.controls.length !== 10">
+                <mat-icon svgIcon="fy-plus" (click)="addMileageLocation()" class="route-selector-modal--add-stop">
+                </mat-icon>
+              </span>
+
+            </div>
+
+            <div *ngIf="control.touched && !control.valid" class="route-selector-modal--error"
+            [ngClass]="{'route-selector-modal--error__first': isFirst, 'route-selector-modal--error__last': isLast}">
+              Please select location
+            </div>
+          </div>
+        </ng-container>
       </ng-container>
-    </ng-container>
+    </div>
 
     <app-fy-alert *ngIf="mileage_locations.controls.length === 10" [message]="'You can add a maximum of 10 locations'"
       [type]="'information'">

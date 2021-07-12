@@ -171,8 +171,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       component: RouteSelectorModalComponent,
       componentProps: {
         unit: this.unit,
-        mileageConfig: this.txnFields,
-        isDistanceMandatory: this.txnFields,
+        mileageConfig: this.mileageConfig,
+        isDistanceMandatory: this.isDistanceMandatory,
         isAmountDisabled: this.isAmountDisabled,
         txnFields: this.txnFields,
         value: this.form.value

@@ -1,4 +1,5 @@
 @import "../../../../../theme/colors.scss";
+@import "../../../../../theme/timeline.scss";
 
 .route-selector-modal {
   &--body {
@@ -72,6 +73,76 @@
       border-color: $red;
     }
   }
+  
+
+  // &--timeline {
+  //   padding: 16px 0 60px 0;
+  // }
+
+  // &--timeline-item {
+  //   border-left: 1px solid;
+  //   padding-left: 12px;
+  //   min-height: 70px;
+  //   max-height: 70px;
+
+  //   &__invalid {
+  //     border-color: $red;
+  //   }
+
+  //   &__internal-item {
+  //   }
+
+  //   &__last {
+  //     // padding-top: 8px;
+  //     max-height: 45px;
+  //     min-height: 45px;
+  //   }
+
+  //   &__first > &-internal {
+  //     &::before {
+  //       content: '●';
+  //       position: relative;
+  //       left: -19px;
+  //       font-size: 24px;
+  //     }
+  //   }
+
+  //   &__middle > &-internal {
+  //     &::before {
+  //       content: '□';
+  //       position: relative;
+  //       left: -19px;
+  //       font-size: 24px;
+  //       line-height: 6px;
+  //       height: 10px;
+  //       background-color: white;
+  //     }
+  //   }
+
+  //   &__last > &-internal{
+  //     &::before {
+  //       content: '■';
+  //       position: relative;
+  //       left: -19px;
+  //       font-size: 24px;
+  //     }
+  //   }
+
+  //   &-internal {
+  //     display: flex;
+  //     align-items: center;
+  //     &__first {
+  //       position: relative;
+  //       top: -24px;  
+  //     }
+
+  //     &__last {
+  //       position: relative;
+  //       top: 14px;
+  //     }
+  //   }
+  // }
+
 
   &--text {
     border-bottom: 1px solid $grey-lighter;
@@ -126,11 +197,37 @@
     margin-top: -8px;
   }
 
+  &--remove-stop {
+    display: block;
+    width: 32px;
+    padding-left: 8px;
+    stroke: #161528;
+  }
+
   &--add-stop {
-    color: #f36;
-    display: flex;
-    align-items: center;
     font-size: 12px;
     font-weight: 600;
+    display: block;
+    width: 32px;
+    padding-left: 8px;
+    color: #161528;
+  }
+
+  &--error {
+    color: $red;
+    line-height: 16px;
+    font-size: 12px;
+    left: 14px;
+    position: relative;
+
+    &__first {
+      position: relative;
+      top: -24px;
+    }
+
+    &__last {
+      position: relative;
+      top: 18px;
+    }
   }
 }

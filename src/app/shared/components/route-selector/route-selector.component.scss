@@ -1,4 +1,5 @@
 @import "../../../../theme/colors.scss";
+@import "../../../../theme/timeline.scss";
 
 .route-selector {
   &--label {
@@ -46,6 +47,8 @@
 
   &--icon {
     color: $grey-light;
+    height: 12px;
+    width: 12px;
   }
 
   &--input-disabled {
@@ -114,5 +117,15 @@
 
   &--text-error {
     margin-top: -8px;
+  }
+
+  &--error {
+    color: $red;
+    line-height: 16px;
+    margin-top: -8px;
+    font-size: 12px;
+    &__location {
+      margin-top: -16px;
+    }
   }
 }
