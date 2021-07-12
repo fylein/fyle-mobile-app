@@ -1,5 +1,5 @@
-<div *ngIf="isValueList">
-  <div layout="row" class="expense-issues-sub-heading">
+<div *ngIf="isValueList" class="statuses-diff">
+  <div class="statuses-diff--expense-issues">
       <span *ngIf="key === 'Please contact your admin to configure the following'">{{ key | snakeCaseToSpaceCase }} </span>
       <span *ngIf="key != 'Please contact your admin to configure the following'" class="text-capitalize">{{ key | snakeCaseToSpaceCase }}</span>
   </div>

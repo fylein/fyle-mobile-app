@@ -75,20 +75,19 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  segmentChanged(ev: any) {
-    console.log('Segment changed', ev);
+  segmentChanged(event) {
     this.isCommentsView = !this.isCommentsView;
   }
 
-  swipeRightToHistory(e) {
-    if (e.direction === 2) {
+  swipeRightToHistory(event) {
+    if (event && event.direction === 2) {
       let historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[1];
       historyBtn.click();
     }
   }
 
-  swipeLeftToComments(e) {
-    if (e.direction === 4) {
+  swipeLeftToComments(event) {
+    if (event && event.direction === 4) {
       let commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[0];
       commentsBtn.click();
     }
