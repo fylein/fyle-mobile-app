@@ -41,9 +41,9 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   onChangeSub: Subscription;
 
   form: FormGroup = this.fb.group({
-    mileage_locations: new FormArray([]),
+    mileageLocations: new FormArray([]),
     distance: [, Validators.required],
-    round_trip: [],
+    roundTrip: [],
   })
 
   constructor(
@@ -52,8 +52,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     private injector: Injector
   ) { }
   
-  get mileage_locations() {
-    return this.form.controls.mileage_locations as FormArray;
+  get mileageLocations() {
+    return this.form.controls.mileageLocations as FormArray;
   }
 
   ngDoCheck() {
@@ -76,17 +76,17 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['mileageConfig']&& !isEqual(changes['mileageConfig'].previousValue, changes['mileageConfig'].currentValue)) {
-      this.form.controls.mileage_locations.clearValidators();
-      this.form.controls.mileage_locations.updateValueAndValidity(); 
+    if (changes.mileageConfig && !isEqual(changes.mileageConfig.previousValue, changes.mileageConfig.currentValue)) {
+      this.form.controls.mileageLocations.clearValidators();
+      this.form.controls.mileageLocations.updateValueAndValidity(); 
       if (this.mileageConfig.location_mandatory) {
-        this.form.controls.mileage_locations.setValidators(Validators.required);
+        this.form.controls.mileageLocations.setValidators(Validators.required);
       }
-      this.form.controls.mileage_locations.updateValueAndValidity(); 
+      this.form.controls.mileageLocations.updateValueAndValidity(); 
       this.form.updateValueAndValidity();
     }
 
-    if (changes['txnFields'] && !isEqual(changes['txnFields'].previousValue, changes['txnFields'].currentValue)) {
+    if (changes.txnFields && !isEqual(changes.txnFields.previousValue, changes.txnFields.currentValue)) {
       const keyToControlMap: { [id: string]: AbstractControl; } = {
         distance: this.form.controls.distance
       };
@@ -113,18 +113,18 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   writeValue(value): void {
     if (value) {
-      if (value.mileage_locations) {
-        value.mileage_locations.forEach(location => {
-          this.mileage_locations.push(new FormControl(location, this.mileageConfig.location_mandatory && Validators.required));
+      if (value.mileageLocations) {
+        value.mileageLocations.forEach(location => {
+          this.mileageLocations.push(new FormControl(location, this.mileageConfig.location_mandatory && Validators.required));
         });
-        if (value.mileage_locations.length === 1) {
-          this.mileage_locations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required)); 
+        if (value.mileageLocations.length === 1) {
+          this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required)); 
         }
       }
 
       this.form.patchValue({
         distance: value.distance,
-        round_trip: value.round_trip
+        roundTrip: value.roundTrip
       });
     }
   }
@@ -149,7 +149,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
 
-    this.form.controls.round_trip.valueChanges.subscribe(roundTrip => {
+    this.form.controls.roundTrip.valueChanges.subscribe(roundTrip => {
       if (!this.skipRoundTripUpdate) {
         if (this.formInitialized) {
           if (this.form.value.distance) {
@@ -185,17 +185,17 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
     if (data) {
       this.skipRoundTripUpdate = true;
-      this.mileage_locations.clear({
+      this.mileageLocations.clear({
         emitEvent: false
       });
 
-      data.mileage_locations.forEach(mileageLocation => {
-        this.mileage_locations.push(new FormControl(mileageLocation, this.mileageConfig.location_mandatory && Validators.required))
+      data.mileageLocations.forEach(mileageLocation => {
+        this.mileageLocations.push(new FormControl(mileageLocation, this.mileageConfig.location_mandatory && Validators.required))
       });
 
       this.form.patchValue({
         distance: parseFloat(data.distance),
-        round_trip: data.round_trip
+        roundTrip: data.roundTrip
       });
     }
   }
@@ -203,7 +203,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   validate(fc: FormControl) {
     if (!this.form.valid) {
       return {
-        ...this.form.controls.mileage_locations.errors,
+        ...this.form.controls.mileageLocations.errors,
         ...this.form.controls.distance.errors
       };
     }

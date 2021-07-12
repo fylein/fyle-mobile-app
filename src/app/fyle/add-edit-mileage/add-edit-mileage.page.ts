@@ -51,6 +51,7 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -115,6 +116,8 @@ export class AddEditMileagePage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
   @ViewChild('comments') commentsContainer: ElementRef;
+  
+  @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
 
   formInitializedFlag = false;
   invalidPaymentMode = false;
@@ -237,7 +240,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getCalculateDistance() {
-    return this.mileageService.getDistance(this.fg.controls.route.value?.mileage_locations).pipe(
+    return this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
       switchMap((distance) => {
         return this.etxn$.pipe(map(etxn => {
           const distanceInKm = distance / 1000;
@@ -246,7 +249,7 @@ export class AddEditMileagePage implements OnInit {
         }));
       }),
       map(finalDistance => {
-        if (this.fg.value.route.round_trip) {
+        if (this.fg.value.route.roundTrip) {
           return (finalDistance * 2).toFixed(2);
         } else {
           return (finalDistance).toFixed(2);
@@ -262,7 +265,7 @@ export class AddEditMileagePage implements OnInit {
         const isAmountCurrencyTxnDtPresent =
           this.fg.value.distance &&
           !!this.fg.value.dateOfSpend &&
-          (this.fg.value.route && this.fg.value.route?.mileage_locations.filter(l => !!l).length);
+          (this.fg.value.route && this.fg.value.route?.mileageLocations.filter(l => !!l).length);
         return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
       })
     );
@@ -1291,9 +1294,9 @@ export class AddEditMileagePage implements OnInit {
         paymentMode: paymentMode || defaultPaymentMode,
         purpose: etxn.tx.purpose,
         route: {
-          mileage_locations: etxn.tx.locations,
+          mileageLocations: etxn.tx.locations,
           distance: etxn.tx.distance,
-          round_trip: etxn.tx.mileage_is_round_trip
+          roundTrip: etxn.tx.mileage_is_round_trip
         },
         project,
         billable: etxn.tx.billable,
@@ -1641,7 +1644,7 @@ export class AddEditMileagePage implements OnInit {
           tx: {
             ...etxn.tx,
             mileage_vehicle_type: formValue.mileage_vehicle_type,
-            mileage_is_round_trip: formValue.route.round_trip,
+            mileage_is_round_trip: formValue.route.roundTrip,
             mileage_rate: rate || etxn.tx.mileage_rate,
             source_account_id: formValue.paymentMode.acc.id,
             billable: formValue.billable,
@@ -1651,7 +1654,7 @@ export class AddEditMileagePage implements OnInit {
             skip_reimbursement: skipReimbursement,
             source: 'MOBILE',
             currency: res.homeCurrency,
-            locations: formValue.route?.mileage_locations,
+            locations: formValue.route?.mileageLocations,
             amount,
             orig_currency: null,
             orig_amount: null,
@@ -1710,7 +1713,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.trackPolicyCorrections();
 
-    const calculatedDistance$ = this.mileageService.getDistance(this.fg.controls.route.value?.mileage_locations).pipe(
+    const calculatedDistance$ = this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
       switchMap((distance) => {
         return this.etxn$.pipe(map(etxn => {
           const distanceInKm = distance / 1000;
@@ -1719,7 +1722,7 @@ export class AddEditMileagePage implements OnInit {
         }));
       }),
       map(finalDistance => {
-        if (this.fg.value.route.round_trip) {
+        if (this.fg.value.route.roundTrip) {
           return (finalDistance * 2).toFixed(2);
         } else {
           return (finalDistance).toFixed(2);
@@ -1924,7 +1927,7 @@ export class AddEditMileagePage implements OnInit {
         take(1),
         switchMap((isConnected) => {
           if (isConnected) {
-            return this.mileageService.getDistance(this.fg.controls.route.value?.mileage_locations).pipe(
+            return this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
               switchMap((distance) => {
                 if (distance) {
                   return this.etxn$.pipe(map(etxn => {
@@ -1938,7 +1941,7 @@ export class AddEditMileagePage implements OnInit {
               }),
               map(finalDistance => {
                 if (finalDistance) {
-                  if (this.fg.value.route.round_trip) {
+                  if (this.fg.value.route.roundTrip) {
                     return (finalDistance * 2).toFixed(2);
                   } else {
                     return (finalDistance).toFixed(2);
@@ -2144,5 +2147,9 @@ export class AddEditMileagePage implements OnInit {
         });
       }
     }
+  }
+
+  async onRouteVisualizerClick() {
+    await this.routeSelector.openModal();
   }
 }

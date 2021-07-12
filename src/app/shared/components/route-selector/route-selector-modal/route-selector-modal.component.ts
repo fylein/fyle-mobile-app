@@ -25,8 +25,8 @@ export class RouteSelectorModalComponent implements OnInit {
   distance: string;
 
   form: FormGroup = this.fb.group({
-    mileage_locations: new FormArray([]),
-    round_trip: [],
+    mileageLocations: new FormArray([]),
+    roundTrip: [],
   })
 
   constructor(
@@ -35,18 +35,18 @@ export class RouteSelectorModalComponent implements OnInit {
     private mileageService: MileageService
   ) { }
 
-  get mileage_locations() {
-    return this.form.controls.mileage_locations as FormArray;
+  get mileageLocations() {
+    return this.form.controls.mileageLocations as FormArray;
   }
 
   addMileageLocation() {
-    this.mileage_locations.push(
+    this.mileageLocations.push(
       new FormControl(null, this.mileageConfig.location_mandatory && Validators.required)
     );
   }
 
   removeMileageLocation(index: number) {
-    this.mileage_locations.removeAt(index);
+    this.mileageLocations.removeAt(index);
   }
 
   customDistanceValidator(control: AbstractControl) {
@@ -60,21 +60,21 @@ export class RouteSelectorModalComponent implements OnInit {
 
   ngOnInit() {
     this.distance = this.value.distance;
-    if (this.value?.mileage_locations?.length > 0) {
-      this.value.mileage_locations.forEach(location => {
-        this.mileage_locations.push(new FormControl(location, this.mileageConfig.location_mandatory && Validators.required));
+    if (this.value?.mileageLocations?.length > 0) {
+      this.value.mileageLocations.forEach(location => {
+        this.mileageLocations.push(new FormControl(location, this.mileageConfig.location_mandatory && Validators.required));
       });
     } else {
-      this.mileage_locations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
-      this.mileage_locations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
+      this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
+      this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
     }
 
     this.form.patchValue({
-      round_trip: this.value.round_trip
+      roundTrip: this.value.roundTrip
     });
 
 
-    this.form.controls.round_trip.valueChanges.subscribe(roundTrip => {
+    this.form.controls.roundTrip.valueChanges.subscribe(roundTrip => {
       if (this.distance) {
         if (roundTrip) {
           this.distance = ((+this.distance * 2).toFixed(2));
@@ -84,9 +84,9 @@ export class RouteSelectorModalComponent implements OnInit {
       }
     });
 
-    this.form.controls.mileage_locations.valueChanges.pipe(
-      switchMap((mileage_locations) => {
-        return this.mileageService.getDistance(mileage_locations);
+    this.form.controls.mileageLocations.valueChanges.pipe(
+      switchMap((mileageLocations) => {
+        return this.mileageService.getDistance(mileageLocations);
       })
     ).subscribe(distance => {
       if (distance === null) {
@@ -97,7 +97,7 @@ export class RouteSelectorModalComponent implements OnInit {
         if (finalDistance === 0) {
           this.distance = '0';
         } else {
-          if (this.form.controls.round_trip.value) {
+          if (this.form.controls.roundTrip.value) {
             this.distance = ((finalDistance * 2).toFixed(2));
           } else {
             this.distance = (finalDistance.toFixed(2));

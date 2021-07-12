@@ -22,8 +22,8 @@
     </div>
 
     <div class="timeline--timeline route-selector-modal--timeline">
-      <ng-container formArrayName="mileage_locations">
-        <ng-container *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
+      <ng-container formArrayName="mileageLocations">
+        <ng-container *ngFor="let control of mileageLocations.controls; index as i; first as isFirst;last as isLast">
           <div class="timeline--timeline-item"
             [ngClass]="{'timeline--timeline-item__invalid': control.touched && !control.valid, 'timeline--timeline-item__internal-item': i > 1 && !isLast, 'timeline--timeline-item__first': isFirst, 'timeline--timeline-item__last': isLast, 'timeline--timeline-item__middle': !(isFirst || isLast)}">
             <div class="timeline--timeline-item-internal"
@@ -33,12 +33,12 @@
                 [fullscreenMode]="true" [mandatory]="mileageConfig.location_mandatory" [hideSuffix]="true">
               </app-fy-location>
               <span
-                *ngIf="i >= 1 && (i !== mileage_locations.controls.length - 1 || mileage_locations.controls.length === 10)">
+                *ngIf="i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10)">
                 <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop"
                   svgIcon="fy-delete">
                 </mat-icon>
               </span>
-              <span *ngIf="i === mileage_locations.controls.length - 1 && mileage_locations.controls.length !== 10">
+              <span *ngIf="i === mileageLocations.controls.length - 1 && mileageLocations.controls.length !== 10">
                 <mat-icon svgIcon="fy-plus" (click)="addMileageLocation()" class="route-selector-modal--add-stop">
                 </mat-icon>
               </span>
@@ -54,12 +54,12 @@
       </ng-container>
     </div>
 
-    <app-fy-alert *ngIf="mileage_locations.controls.length === 10" [message]="'You can add a maximum of 10 locations'"
+    <app-fy-alert *ngIf="mileageLocations.controls.length === 10" [message]="'You can add a maximum of 10 locations'"
       [type]="'information'">
     </app-fy-alert>
 
-    <div class="route-selector-modal--internal-block" *ngIf="mileage_locations.controls.length < 3">
-      <mat-checkbox [disabled]="isAmountDisabled" formControlName="round_trip">
+    <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
+      <mat-checkbox [disabled]="isAmountDisabled" formControlName="roundTrip">
         <span class="route-selector-modal--checkbox">
           Round Trip
         </span>
