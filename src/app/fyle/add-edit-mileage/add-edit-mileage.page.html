@@ -82,7 +82,7 @@
 
         <ng-container *ngIf="isConnected$|async">
           <div class="add-edit-mileage--map">
-            <app-route-visualizer [mileageLocations]="fg.controls.mileage_locations.value"></app-route-visualizer>
+            <app-route-visualizer [mileageLocations]="fg.controls.mileage_locations.value || []"></app-route-visualizer>
           </div>
         </ng-container>
 
