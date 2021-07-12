@@ -103,7 +103,7 @@ export class ReceiptPreviewComponent implements OnInit {
         } else {
           //const a = await this.imageSlides.isEnd();
           //this.goToNextSlide();
-          //this.activeIndex = await this.imageSlides.getActiveIndex();
+          this.activeIndex = await this.imageSlides.getActiveIndex();
           //this.ionSlideDidChange();
         }
         

@@ -10,6 +10,7 @@ import { CaptureReceiptPage } from './capture-receipt.page';
 import { MatIconModule } from '@angular/material/icon';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
 
 @NgModule({
   imports: [
@@ -23,6 +24,9 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
   declarations: [
     CaptureReceiptPage,
     ReceiptPreviewComponent
+  ],
+  providers: [
+    ImagePicker
   ]
 })
 export class CaptureReceiptPageModule {}

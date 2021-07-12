@@ -9,6 +9,8 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { from } from 'rxjs';
 
 type Images = Partial<{
   source: string,
@@ -37,7 +39,8 @@ export class CaptureReceiptPage implements OnInit {
     private router: Router,
     private navController: NavController,
     private offlineService: OfflineService,
-    private transactionsOutboxService: TransactionsOutboxService
+    private transactionsOutboxService: TransactionsOutboxService,
+    private imagePicker: ImagePicker
   ) { }
 
   ngOnInit() {
@@ -231,6 +234,68 @@ export class CaptureReceiptPage implements OnInit {
       this.onBulkCapture();
     }
 
+  }
+
+  galleryUpload() {
+    this.trackingService.instafyleGalleryUploadOpened({
+      Asset: 'Mobile'
+    });
+
+    this.stopCamera();
+    this.imagePicker.hasReadPermission().then((permission) => {
+      if (permission) {
+        const options = {
+          maximumImagesCount: 10,
+          outputType: 1,
+          quality: 50
+        };
+        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
+        from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
+
+          if (imageBase64Strings.length > 0) {
+            imageBase64Strings.forEach((base64String, key) => {
+              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
+              this.base64ImagesWithSource.push({
+                source: 'MOBILE_GALLERY',
+                base64Image: base64PictureData
+              })
+
+            });
+            
+            const modal = await this.modalController.create({
+              component: ReceiptPreviewComponent,
+              componentProps: {
+                base64ImagesWithSource: this.base64ImagesWithSource,
+                mode: "bulk"
+              },
+            });
+            await modal.present();
+
+            const { data } = await modal.onWillDismiss();
+            if (data) {
+              if (data.base64ImagesWithSource.length === 0) {
+                this.base64ImagesWithSource = [];
+                this.setUpAndStartCamera();
+              } else {
+                debugger;
+                this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
+                  this.addExpenseToQueue(base64ImageWithSource);
+                })
+                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+              }
+            }
+
+          } else {
+            this.setUpAndStartCamera();
+          }
+
+        });
+
+      } else {
+        this.imagePicker.requestReadPermission();
+        this.galleryUpload();
+      }
+    });
   }
 
 
