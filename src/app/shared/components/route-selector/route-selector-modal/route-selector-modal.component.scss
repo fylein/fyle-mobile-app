@@ -152,7 +152,7 @@
     display: block;
     width: 32px;
     padding-left: 8px;
-    stroke: #161528;
+    stroke: $black;
   }
 
   &--add-stop {
@@ -161,7 +161,7 @@
     display: block;
     width: 32px;
     padding-left: 8px;
-    color: #161528;
+    color: $black;
   }
 
   &--error {
@@ -183,6 +183,6 @@
   }
 
   &--toolbar {
-    border-bottom: 1px solid #dfdfe2cc;
+    border-bottom: 1px solid $translucent-grey;
   }
 }
