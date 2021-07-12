@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { IonContent, ModalController } from '@ionic/angular';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
@@ -43,7 +43,8 @@ export class ViewCommentComponent implements OnInit {
     private modalController: ModalController,
     private transactionService: TransactionService,
     private router: Router,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private elementRef: ElementRef
   ) { }
 
   addComment() {
@@ -77,6 +78,20 @@ export class ViewCommentComponent implements OnInit {
   segmentChanged(ev: any) {
     console.log('Segment changed', ev);
     this.isCommentsView = !this.isCommentsView;
+  }
+
+  swipeRightToHistory(e) {
+    if (e.direction === 2) {
+      let historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[1];
+      historyBtn.click();
+    }
+  }
+
+  swipeLeftToComments(e) {
+    if (e.direction === 4) {
+      let commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[0];
+      commentsBtn.click();
+    }
   }
 
   ngOnInit() {

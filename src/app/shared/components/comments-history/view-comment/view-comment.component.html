@@ -15,7 +15,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="view-comment--container" *ngIf="isCommentsView && userComments && userComments.length > 0">
+<ion-content (swipe)="swipeRightToHistory($event)" class="view-comment--container" *ngIf="isCommentsView && userComments && userComments.length > 0">
   <div *ngFor="let estatus of userComments">
     <div>
       <div class="view-comment--date text-center">{{estatus.st_created_at | date:'MMM d, yyyy' }}</div>
@@ -93,7 +93,7 @@
   </ion-grid>
 </ion-content>
 
-<ion-content *ngIf="!isCommentsView">
+<ion-content *ngIf="!isCommentsView" (swipe)="swipeLeftToComments($event)">
   <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
 </ion-content>
 
