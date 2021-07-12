@@ -44,6 +44,7 @@
     "@sentry/tracing": "^6.7.2",
     "@types/googlemaps": "3.39.12",
     "@types/hammerjs": "^2.0.39",
+    "agm-direction": "^0.8.9",
     "cordova-plugin-googleplus": "^8.5.0",
     "cordova-plugin-inappbrowser": "^4.0.0",
     "cordova-plugin-screen-orientation": "^3.0.2",
