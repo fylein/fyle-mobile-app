@@ -180,7 +180,8 @@ export class MyReportsPage implements OnInit {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
-        queryParams
+        queryParams,
+        replaceUrl : true
       });
     });
 

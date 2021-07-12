@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { Observable, from, noop, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ModalController } from '@ionic/angular';
@@ -18,6 +18,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   @Input() currentSelection: string;
   @Input() recentlyUsed: { label: string, value: string }[];
+  @Input() selectionElement: TemplateRef<ElementRef>;
 
   currencies$: Observable<{ shortCode: string, longName: string }[]>;
   filteredCurrencies$: Observable<{ shortCode: string, longName: string }[]>;

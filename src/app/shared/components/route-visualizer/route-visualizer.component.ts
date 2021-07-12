@@ -3,6 +3,11 @@ import { cloneDeep } from 'lodash';
 import { LocationService } from 'src/app/core/services/location.service';
 import { MileageLocation } from './mileage-locations';
 
+type AgmDirectionLocation = {
+  lat: number,
+  lng: number
+};
+
 @Component({
   selector: 'app-route-visualizer',
   templateUrl: './route-visualizer.component.html',
@@ -12,14 +17,11 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   @Input() mileageLocations: MileageLocation[];
 
-  currentLocation: {
-    lat: number,
-    lng: number
-  };
+  currentLocation: AgmDirectionLocation;
 
-  origin: { lat: number, lng: number };
-  destination: { lat: number, lng: number };
-  waypoints: { location: { lat: number, lng: number } }[];
+  origin: AgmDirectionLocation;
+  destination: AgmDirectionLocation;
+  waypoints: { location: AgmDirectionLocation }[];
 
   renderOptions = {
     draggable: false,
@@ -48,8 +50,8 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
     this.locationService.getCurrentLocation().subscribe(geoLocationPosition => {
       if (geoLocationPosition) {
         this.currentLocation = {
-          lat: geoLocationPosition?.coords?.latitude,
-          lng: geoLocationPosition?.coords?.longitude
+          lat: geoLocationPosition.coords?.latitude,
+          lng: geoLocationPosition.coords?.longitude
         };
       }
     });
