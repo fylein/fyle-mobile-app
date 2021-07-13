@@ -2439,7 +2439,7 @@ export class AddEditExpensePage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
+        that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
           if (+this.activeIndex === 0) {
             that.closeAddEditExpenses();
           } else {
@@ -2448,7 +2448,7 @@ export class AddEditExpensePage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
+        that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
           if (+this.activeIndex === 0) {
             that.closeAddEditExpenses();
           } else {
