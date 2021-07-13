@@ -38,14 +38,10 @@
 
   <div class="receipt-preview--controls" *ngIf="base64ImagesWithSource.length > 1">
     <div (click)="goToPrevSlide()">
-      <mat-icon class="receipt-preview--go-back" >
-        arrow_back_ios
-      </mat-icon>
+      <mat-icon class="receipt-preview--go-back" svgIcon="arrow-prev"></mat-icon>
     </div>
     <div (click)="goToNextSlide()">
-      <mat-icon class="receipt-preview--go-forward" >
-        arrow_forward_ios
-      </mat-icon>
+      <mat-icon class="receipt-preview--go-forward" svgIcon="arrow-next"></mat-icon>
     </div>
   </div>
 </ion-content>
