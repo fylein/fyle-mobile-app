@@ -669,3 +669,31 @@ ref - https://stackoverflow.com/a/31162426
     display: none;
   }
 }
+
+.segment-button-checked {
+  --color-checked: #2c304e;
+  font-size: 16px !important;
+}
+
+.ios .segment-button-checked {
+  --indicator-color: #2c304e;
+  font-size: 16px !important;
+  color: $pure-white !important;
+  margin: 2px;
+  padding: 0 8px;
+}
+
+.ios .segment-block {
+  height: 40px;
+  padding: 2px;
+  margin: 12px 0 12px 12%;
+  background: $pure-white;
+  border: 2px solid $pure-white;
+  box-sizing: border-box;
+  box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.5);
+  border-radius: 8px;
+}
+
+.md .btn-history {
+  min-width: 156px;
+}

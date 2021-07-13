@@ -8,15 +8,14 @@ import {TrackingService} from '../../../core/services/tracking.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
-  selector: 'app-comments',
-  templateUrl: './comments.component.html',
-  styleUrls: ['./comments.component.scss'],
+  selector: 'app-comments-history',
+  templateUrl: './comments-history.component.html',
+  styleUrls: ['./comments-history.component.scss'],
 })
-export class CommentsComponent implements OnInit {
+export class CommentsHistoryComponent implements OnInit {
 
   @Input() objectType: string;
   @Input() objectId: string;
-  @Input() mode: string;
   @Input() hideIcon: boolean;
   @Input() text: string;
   @Input() showCommentsCount?: boolean;
@@ -37,10 +36,8 @@ export class CommentsComponent implements OnInit {
       component: ViewCommentComponent,
       componentProps: {
         objectType: this.objectType,
-        objectId: this.objectId,
-        mode: this.mode
+        objectId: this.objectId
       },
-      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties()
     });

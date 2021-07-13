@@ -1,0 +1,136 @@
+@import "../../../../../theme/colors.scss";
+
+.view-comment{
+  &--toolbar {
+    text-align: center;
+  }
+
+  &--btn-close {
+    margin: 0 16px;
+  }
+
+  &--btn-segment {
+    color: $blue-black;
+    font-size: 14px;
+    text-transform: capitalize;
+    font-weight: 400;
+  }
+
+  &--card {
+    border-radius: 16px;
+  }
+
+  &--title {
+    letter-spacing: 0 !important;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  &--self-comment {
+    background-color: $light-blue;
+    margin-left: 24px;
+    margin-right: 10px;
+  }
+
+  &--others-comment {
+    background-color: $light-purple;
+    margin-right: 24px;
+    margin-left: 10px;
+  }
+
+  &--name-container{
+    left: 5px;
+    font-size: 14px;
+    line-height: 18px;
+    color: $black-light;
+    margin-top: 8px;
+  }
+
+  &--comment-timestamp {
+    font-size: 12px;
+    line-height: 20px;
+    color: $grey-light;
+  }
+
+  &--type-comment-block {
+    height: 55px;
+    display: flex;
+    background-color: $pure-white;
+    border: 1px solid $outline-grey;
+    border-radius: 4px;
+    padding: 6px;
+    color: $black-2;
+  }
+
+  &--text-area {
+    width: calc(100% - 40px);
+    height: 40px;
+    border: none;
+  }
+
+  &--send-icon {
+    margin: 10px;
+  }
+
+  &--add-comment-container {
+    padding: 10px;
+  }
+
+  &--close {
+    text-transform: none !important;
+  }
+
+  &--profile {
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    box-shadow: 0px -2px 8px rgba(215, 215, 215, 0.25);
+  }
+
+  &--self-profile {
+    background: linear-gradient(0deg, $light-blue, $light-blue);
+    margin-right: 8px;
+  }
+
+  &--others-profile {
+    background: $light-purple;
+    margin-left: 8px;
+  }
+
+  &--profile-icon {
+    margin: 10px;
+    padding: 2px;
+  }
+
+  &--block {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 6px;
+  }
+
+  &--date {
+    font-size: 12px;
+    line-height: 20px;
+    color: $grey-light;
+    margin-top: 16px;
+  }
+
+  &--comment-detail {
+    font-size: 16px;
+    line-height: 20px;
+    color: $dark-blue;
+  }
+
+  &--zero-state-block {
+    --overflow: hidden;
+  }
+
+  &--zero-state-content {
+    color: $black-light;
+  }
+
+  &--zero-state {
+    margin: 32% 0 0 38%;
+    height: 80px;
+  }
+}

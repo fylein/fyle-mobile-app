@@ -1,0 +1,42 @@
+@import '../../../../../theme/colors.scss';
+
+.audit-history {
+  padding: 0 22px 12px 22px;
+
+  &--container {
+    border-left: 2px solid $lighter-grey;
+  };
+
+  &--block {
+    margin-bottom: 24px;
+  }
+
+  &--circle {
+    height: 10px;
+    width: 10px;
+    margin: 0 20px 0 -6px;
+  }
+
+  &--timestamp {
+    margin: 0 0 8px 20px;
+    color: rgba(44, 48, 78, 0.7);
+  }
+
+  &--comment-block {
+    margin-left: 20px;
+    line-height: 18px;
+  }
+
+  &--category {
+    font-weight: 500;
+    margin-left: -4px;
+  }
+
+  &--details {
+    margin-top: 14px;
+  }
+
+  &--diff {
+    margin-left: 12px;
+  }
+}
