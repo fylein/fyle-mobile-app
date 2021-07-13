@@ -571,8 +571,6 @@
     [reviewList]="reviewList" 
     [saveAndPrevLoader]="saveAndPrevPerDiemLoader" 
     [saveAndNextLoader]="saveAndNextPerDiemLoader"
-    (goToPrev)="goToPrev()"
-    (goToNext)="goToNext()"
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
@@ -584,14 +582,6 @@
           Save
         </ion-button>
       </ion-buttons>
-<<<<<<< HEAD
-=======
-      <ion-buttons *ngIf="reviewList">
-        <ion-button (click)="saveExpenseAndGotoNext()" class="btn-primary add-edit-per-diem--primary-cta" appFormButtonValidation [loading]="saveAndNextPerDiemLoader" [loadingText]="'Saving'">
-          {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
-        </ion-button>
-      </ion-buttons>
->>>>>>> d67ecc4f6dc07087e7b78751438dc4497de53438
     </ion-toolbar>
   </ion-footer>
 </ng-container>

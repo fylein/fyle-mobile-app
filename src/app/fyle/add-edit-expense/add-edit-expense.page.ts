@@ -25,7 +25,6 @@ import {CategoriesService} from 'src/app/core/services/categories.service';
 import {ProjectsService} from 'src/app/core/services/projects.service';
 import {DateService} from 'src/app/core/services/date.service';
 import * as moment from 'moment';
-import {TransactionFieldConfigurationsService} from 'src/app/core/services/transaction-field-configurations.service';
 import {ReportService} from 'src/app/core/services/report.service';
 import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
 import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
@@ -176,7 +175,6 @@ export class AddEditExpensePage implements OnInit {
     private dateService: DateService,
     private projectService: ProjectsService,
     private reportService: ReportService,
-    private transactionFieldConfigurationService: TransactionFieldConfigurationsService,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private transactionService: TransactionService,
@@ -822,6 +820,13 @@ export class AddEditExpensePage implements OnInit {
             }
           })
         );
+    } else if (this.activatedRoute.snapshot.params.dataUrl) {
+      const instaFyleImageData = {
+        thumbnail: this.activatedRoute.snapshot.params.dataUrl,
+        type: 'image',
+        url: this.activatedRoute.snapshot.params.dataUrl,
+      };
+      return of(instaFyleImageData);
     } else {
       return of(null);
     }
@@ -941,10 +946,9 @@ export class AddEditExpensePage implements OnInit {
             dataUrls: []
           };
         }
-
         if (imageData && imageData.error) {
           this.instaFyleCancelled = true;
-        } else if (imageData) {
+        } else if (imageData && imageData.parsedResponse) {
           const extractedData = {
             amount: imageData && imageData.parsedResponse && imageData.parsedResponse.amount,
             currency: imageData && imageData.parsedResponse && imageData.parsedResponse.currency,
@@ -1003,6 +1007,7 @@ export class AddEditExpensePage implements OnInit {
             thumbnail: imageData.url
           });
           etxn.tx.num_files = etxn.dataUrls.length;
+          etxn.tx.source = 'MOBILE_INSTA';
         }
 
         return etxn;
@@ -1651,7 +1656,9 @@ export class AddEditExpensePage implements OnInit {
           if (defaultValueColumn !== 'vendor_id' && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
-            control.patchValue(defaultValues[defaultValueColumn]);
+            control.patchValue({
+              display_name: defaultValues[defaultValueColumn]
+            });
           }
         }
       }

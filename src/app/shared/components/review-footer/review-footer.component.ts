@@ -12,23 +12,13 @@ export class ReviewFooterComponent implements OnInit {
   @Input() reviewList: Array<Expense>;
   @Input() saveAndPrevLoader: boolean;
   @Input() saveAndNextLoader: boolean;
-
-  @Output() goToPrev = new EventEmitter();
-  @Output() goToNext = new EventEmitter();
+  
   @Output() saveAndGoToPrev = new EventEmitter();
   @Output() saveAndGoToNext = new EventEmitter();
   
   constructor() { }
 
   ngOnInit() {}
-
-  onGoToPrev() {
-    this.goToPrev.emit();
-  }
-
-  onGoToNext() {
-    this.goToNext.emit();
-  }
 
   onSaveAndGoToNext() {
     this.saveAndGoToNext.emit();

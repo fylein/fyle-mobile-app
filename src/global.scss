@@ -59,6 +59,10 @@ input:focus, textarea:focus{
   outline: none !important;
 }
 
+.footer-safe-area {
+  --ion-safe-area-bottom: 0;
+}
+
 .error-popover {
   .popover-wrapper {
     .popover-content {
@@ -629,6 +633,14 @@ ref - https://stackoverflow.com/a/31162426
   }
 }
 
+.stack-modal {
+  ion-backdrop {
+    box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
+    opacity: 0.4 !important;
+    pointer-events: all !important;
+  }
+}
+
 .fy-modal-top-bar {
   width: 52px !important;
   height: 4px !important;
@@ -650,4 +662,10 @@ ref - https://stackoverflow.com/a/31162426
 .delete-dialog {
   --width: 296px;
   --height: 204px;
+}
+
+.route-visualizer--map {
+  .gm-style .gm-style-iw-a {
+    display: none;
+  }
 }
