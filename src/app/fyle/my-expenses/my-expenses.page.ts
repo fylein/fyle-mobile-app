@@ -110,6 +110,7 @@ export class MyExpensesPage implements OnInit {
   openReports$: Observable<ExtendedReport[]>;
   homeCurrencySymbol: string;
   isLoadingDataInInfiniteScroll: boolean;
+  allExpensesCount: number;
 
   get HeaderState() {
     return HeaderState;
@@ -1223,6 +1224,11 @@ export class MyExpensesPage implements OnInit {
     }
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
     // setting Expenses count and amount stats on select
+    if (this.allExpensesCount === this.selectedElements.length) {
+      this.selectAll = true;
+    } else {
+      this.selectAll = false;
+    }
     this.setExpenseStatsOnSelect();
   }
 
@@ -1620,6 +1626,7 @@ export class MyExpensesPage implements OnInit {
           switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
       ).subscribe(allExpenses => {
         this.selectedElements = allExpenses;
+        this.allExpensesCount = allExpenses.length;
         this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       });
