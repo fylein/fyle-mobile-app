@@ -74,7 +74,7 @@ import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
-import {FyReceiptPreviewThumbnailComponent} from './components/fy-receipt-preview-thumbnail/fy-receipt-preview-thumbnail.component';
+import {ReceiptPreviewThumbnailComponent} from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 
 @NgModule({
   declarations: [
@@ -133,7 +133,7 @@ import {FyReceiptPreviewThumbnailComponent} from './components/fy-receipt-previe
     FyDeleteDialogComponent,
     FyFiltersComponent,
     FyFilterPillsComponent,
-    FyReceiptPreviewThumbnailComponent
+    ReceiptPreviewThumbnailComponent
   ],
   imports: [
     CommonModule,
@@ -200,7 +200,7 @@ import {FyReceiptPreviewThumbnailComponent} from './components/fy-receipt-previe
     FyDeleteDialogComponent,
     FyFiltersComponent,
     FyFilterPillsComponent,
-    FyReceiptPreviewThumbnailComponent
+    ReceiptPreviewThumbnailComponent
   ],
   providers: [
     DecimalPipe,

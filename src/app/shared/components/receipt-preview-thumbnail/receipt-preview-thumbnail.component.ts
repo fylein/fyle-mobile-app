@@ -1,26 +1,27 @@
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
 import { timer } from 'rxjs';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 
 @Component({
-  selector: 'app-fy-receipt-preview-thumbnail',
-  templateUrl: './fy-receipt-preview-thumbnail.component.html',
-  styleUrls: ['./fy-receipt-preview-thumbnail.component.scss'],
+  selector: 'app-receipt-preview-thumbnail',
+  templateUrl: './receipt-preview-thumbnail.component.html',
+  styleUrls: ['./receipt-preview-thumbnail.component.scss'],
 
 })
-export class FyReceiptPreviewThumbnailComponent implements OnInit {
+export class ReceiptPreviewThumbnailComponent implements OnInit {
 
-  @Input() attachments: any = [];
+  @Input() attachments: FileObject[];
   @Input()  isUploading: boolean;
 
   @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
   @Output() viewAttachments: EventEmitter<void> = new EventEmitter();
 
-  sliderOptions: any;
+  sliderOptions;
   activeIndex: number = 0;
   previousCount: number;
 
 
-  @ViewChild('slides') imageSlides: any;
+  @ViewChild('slides') imageSlides;
 
   constructor() { }
 
@@ -40,8 +41,8 @@ export class FyReceiptPreviewThumbnailComponent implements OnInit {
     this.imageSlides.slidePrev();
   }
 
-  addAttachments($event) {
-    this.addMoreAttachments.emit($event);
+  addAttachments(event) {
+    this.addMoreAttachments.emit(event);
   }
 
   previewAttachments() {

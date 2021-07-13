@@ -14,7 +14,7 @@
     Receipt <ng-container *ngIf="attachments.length > 1">{{activeIndex + 1}}/{{attachments.length}} </ng-container>
   </div>
   <div (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
-    <ion-icon slot="icon-only" class="receipt-preview-thumbnail--icon" src="assets/svg/fy-plus.svg"></ion-icon>
+    <mat-icon class="receipt-preview-thumbnail--icon" svgIcon="fy-plus"></mat-icon>
     Add More
   </div>
 </div>
@@ -36,7 +36,7 @@
             <img class="receipt-preview-thumbnail--image" [src]="attachment?.url" />
           </pinch-zoom>
           <div class="receipt-preview-thumbnail--image" *ngIf="attachment?.type === 'pdf'">
-            <pinch-zoom class="pinch-zoom" *ngIf="attachment?.type == 'pdf'" backgroundColor="white">
+            <pinch-zoom class="pinch-zoom" *ngIf="attachment?.type == 'pdf'" disableZoomControl="disable" backgroundColor="white">
               <pdf-viewer class="receipt-preview-thumbnail--pdf-viewer" [page]="1" [src]="attachment?.url"
                 [original-size]="false" [render-text]='true' [show-all]="false" [fit-to-page]="true"></pdf-viewer>
             </pinch-zoom>

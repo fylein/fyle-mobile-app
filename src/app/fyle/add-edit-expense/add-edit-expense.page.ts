@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import {combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, throwError} from 'rxjs';
+import {combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, Subject, throwError} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   catchError,
@@ -61,7 +61,8 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
-import {DomSanitizer} from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -112,7 +113,8 @@ export class AddEditExpensePage implements OnInit {
   attachedReceiptsCount = 0;
   instaFyleCancelled = false;
   newExpenseDataUrls = [];
-  editExpenseAttachments = [];
+  loadAttachments$ = new Subject();
+  attachments$: Observable<FileObject[]>;
   focusState = false;
   isConnected$: Observable<boolean>;
   invalidPaymentMode = false;
@@ -1197,7 +1199,6 @@ export class AddEditExpensePage implements OnInit {
           recentCurrencies: this.recentlyUsedCurrencies$,
           recentCostCenters: this.recentlyUsedCostCenters$,
           recentCategories: this.recentlyUsedCategories$,
-          attachments: this.getAttachments()
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
@@ -1345,8 +1346,9 @@ export class AddEditExpensePage implements OnInit {
         });
 
         this.fg.controls.custom_inputs.patchValue(customInputValues);
+        this.loadAttachments$.next();
       }, 600);
-
+      
       this.attachedReceiptsCount = etxn.tx.num_files;
       this.canAttachReceipts = this.attachedReceiptsCount === 0;
 
@@ -1994,6 +1996,29 @@ export class AddEditExpensePage implements OnInit {
     const newExpensePipe$ = this.getNewExpenseObservable();
 
     const editExpensePipe$ = this.getEditExpenseObservable();
+
+    this.attachments$ = this.loadAttachments$.pipe(
+      switchMap(() => {
+        return this.etxn$.pipe(
+          switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
+          switchMap(fileObjs => {
+            return from(fileObjs);
+          }),
+          concatMap((fileObj: any) => {
+            return this.fileService.downloadUrl(fileObj.id).pipe(
+              map(downloadUrl => {
+                fileObj.url = downloadUrl;
+                const details = this.getReceiptDetails(fileObj);
+                fileObj.type = details.type;
+                fileObj.thumbnail = details.thumbnail;
+                return fileObj;
+              })
+            );
+          }),
+          reduce((acc, curr) => acc.concat(curr), [])
+        );
+      })
+    )
 
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
@@ -3080,10 +3105,10 @@ export class AddEditExpensePage implements OnInit {
         };
         this.newExpenseDataUrls.push(fileInfo);
         this.sanitizer.bypassSecurityTrustUrl(fileInfo.url);
-        of(this.newExpenseDataUrls.map(fileObj => {
+        this.newExpenseDataUrls.forEach(fileObj => {
           fileObj.type = (fileObj.type === 'application/pdf' || fileObj.type === 'pdf') ? 'pdf' : 'image';
           return fileObj;
-        }));
+        });
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(
           take(1)
@@ -3115,7 +3140,7 @@ export class AddEditExpensePage implements OnInit {
             return editExpenseAttachments$;
           }),
           finalize(() => {
-            this.getAttachments();
+            this.loadAttachments$.next();
             this.attachmentUploadInProgress = false;
           })
         ).subscribe((attachments) => {
@@ -3157,32 +3182,7 @@ export class AddEditExpensePage implements OnInit {
 
     return res;
   }
-
-  getAttachments() {
-    const editExpenseAttachments = this.etxn$.pipe(
-      switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap(fileObjs => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
-          map(downloadUrl => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        );
-      }),
-      reduce((acc, curr) => acc.concat(curr), [])
-    );
-
-    editExpenseAttachments.subscribe(async (attachments) => {
-      this.editExpenseAttachments = attachments;
-    });
-  }
-
+  
   viewAttachments() {
     const editExpenseAttachments = this.etxn$.pipe(
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
@@ -3244,7 +3244,7 @@ export class AddEditExpensePage implements OnInit {
               return (fileObjs && fileObjs.length) || 0;
             })
           ).subscribe((attachedReceipts) => {
-            this.getAttachments();
+            this.loadAttachments$.next();
             if (this.attachedReceiptsCount === attachedReceipts) {
               this.trackingService.viewAttachment({Asset: 'Mobile'});
             }
