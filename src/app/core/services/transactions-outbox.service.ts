@@ -122,7 +122,7 @@ export class TransactionsOutboxService {
               currency: parsedResponse.currency,
               category: parsedResponse.category,
               date: parsedResponse.date ? new Date(parsedResponse.date) : null,
-              vendor: parsedResponse.vendor
+              vendor: parsedResponse.vendor_name
             };
 
             entry.transaction.extracted_data = extractedData;
