@@ -109,6 +109,7 @@ export class MyExpensesPage implements OnInit {
   isReportableExpensesSelected = false;
   openReports$: Observable<ExtendedReport[]>;
   homeCurrencySymbol: string;
+  isLoadingDataInInfiniteScroll: boolean;
 
   get HeaderState() {
     return HeaderState;
@@ -380,6 +381,7 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        this.isLoadingDataInInfiniteScroll = true;
         return this.transactionService.getMyExpensesCount(queryParams).pipe(
           switchMap((count) => {
             if (count > ((params.pageNumber - 1) * 10)) {
@@ -398,6 +400,7 @@ export class MyExpensesPage implements OnInit {
         );
       }),
       map(res => {
+        this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
