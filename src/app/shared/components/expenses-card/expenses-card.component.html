@@ -31,24 +31,20 @@
 
         <ng-container *ngIf="!isScanInProgress">
           <div class="expenses-card--category-vendor-project-container">
-            <ion-row>
-              <div class="display-flex expenses-card--category-icon-container">
-                <div class="expenses-card--category" [ngClass]="{'expenses-card--category__small': isSelectionModeEnabled}">
-                  {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
-                </div>
-                <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
+            <div class="display-flex expenses-card--category-icon-container">
+              <div class="expenses-card--category" [ngClass]="{'expenses-card--category__small': isSelectionModeEnabled}">
+                {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
               </div>
-            </ion-row>
-            <ion-row>
-              <div class="expenses-card--vendor">
-                {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
-              </div>
-            </ion-row>
-            <ion-row>
-              <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project">
-                {{expense.tx_project_name ? 'Project: ' +  expense.tx_project_name : 'Project not filled'}}
-              </div>
-            </ion-row>
+              <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
+            </div>
+
+            <div class="expenses-card--vendor">
+              {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
+            </div>
+
+            <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project">
+              {{expense.tx_project_name ? 'Project: ' +  expense.tx_project_name : 'Project not filled'}}
+            </div>
           </div>
         </ng-container>
       </div>
