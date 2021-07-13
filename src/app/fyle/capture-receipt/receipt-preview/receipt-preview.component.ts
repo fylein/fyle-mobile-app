@@ -99,11 +99,11 @@ export class ReceiptPreviewComponent implements OnInit {
       if (data.action === 'remove') { 
         this.base64ImagesWithSource.splice(activeIndex, 1);
         if (this.base64ImagesWithSource.length === 0) {
-          this.retake()
+          this.retake();
         } else {
           //const a = await this.imageSlides.isEnd();
           //this.goToNextSlide();
-          this.activeIndex = await this.imageSlides.getActiveIndex();
+          // this.activeIndex = await this.imageSlides.getActiveIndex();
           //this.ionSlideDidChange();
         }
         
