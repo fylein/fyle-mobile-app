@@ -37,7 +37,10 @@ export class ViewCommentComponent implements OnInit {
   userComments: any;
   type: string;
   systemEstatuses: ExtendedStatus[];
+<<<<<<< HEAD:src/app/shared/components/comments-history/view-comment/view-comment.component.ts
   showDt: boolean;
+=======
+>>>>>>> master:src/app/shared/components/comments-history/view-comment/view-comment.component.ts
 
   constructor(
     private statusService: StatusService,
