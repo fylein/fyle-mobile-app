@@ -2,7 +2,6 @@ import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -74,10 +73,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
       componentProps: {
         currentSelection: this.value,
         allowCustom: this.allowCustom
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      }
     });
 
     await selectionModal.present();

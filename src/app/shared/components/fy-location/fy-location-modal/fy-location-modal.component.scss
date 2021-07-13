@@ -1,4 +1,5 @@
-@import '../../../../../assets/styles/fy_select';
+@import "../../../../../assets/styles/fy_select";
+@import "../../../../../theme/colors.scss";
 
 .selection-modal {
   color: black;
@@ -14,12 +15,41 @@
     }
   }
 
-  &--error-lookup {
-    color: #4a4a4a;
-    font-size: 16px;
-    line-height: 1.5;
-    padding: 16px;
-    border-bottom: 1px solid #ddd;
+  &--simple-search-container {
+    padding-left: 18px;
+    padding-right: 4px;
+    mat-form-field {
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
+      }
+    }
+  }
+
+  &--current-location-getter, &--error-lookup {
+    margin: 16px;
+  }
+
+  &--simple-search {
+    width: 100%;
+    font-size: 12px;
+    padding-right: 12px;
+
+    &-icon {
+      font-size: 18px;
+      margin-right: 8px;
+      color: $black-light;
+      height: auto;
+    }
+
+    &-close {
+      margin: -10px;
+      font-size: 18px;
+    }
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
   }
 
   &--list-element-icon {
@@ -45,12 +75,31 @@
     }
   }
 
+  &--location-main-text {
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 500;
+    color: $black;
+  }
+
+  &--location-description {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 400;
+    color: $grey-light;
+    white-space: nowrap;
+    max-width: 288px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
   &--search-icon {
     font-size: 14px;
   }
 
   &--form-field-container {
     text-align: center;
+    margin-bottom: 0;
   }
 
   &--spinner {
@@ -74,5 +123,7 @@
 
   &--autocomplete-loader {
     @extend %autocomplete-loader;
+    margin-right: 16px;
+    margin-top: 2px;
   }
 }
