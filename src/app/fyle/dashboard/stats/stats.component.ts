@@ -1,13 +1,13 @@
-import {Component, EventEmitter, HostListener, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {DashboardService} from '../dashboard.service';
 import {Observable} from 'rxjs/internal/Observable';
 import {shareReplay} from 'rxjs/internal/operators/shareReplay';
-import {delay, map, startWith, switchMap, tap} from 'rxjs/operators';
+import {delay, map, startWith, tap} from 'rxjs/operators';
 import {CurrencyService} from '../../../core/services/currency.service';
 import {Params, Router} from '@angular/router';
-import {ActionSheetController, IonSlides} from '@ionic/angular';
+import {ActionSheetController} from '@ionic/angular';
 import {NetworkService} from '../../../core/services/network.service';
-import {concat, iif, of, Subject} from 'rxjs';
+import {concat, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
 import {getCurrencySymbol} from "@angular/common";
@@ -28,7 +28,6 @@ export class StatsComponent implements OnInit {
   homeCurrency$: Observable<string>;
   isConnected$: Observable<boolean>;
   currencySymbol$: Observable<string>;
-  assignedCCCCount$: Observable<number>;
 
   unreportedExpensesCount$: Observable<{ count: number }>;
   unreportedExpensesAmount$: Observable<{ amount: number }>;

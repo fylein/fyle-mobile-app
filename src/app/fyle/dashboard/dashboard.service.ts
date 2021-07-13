@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import {ReportService} from '../../core/services/report.service';
-import { map, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import {StatsResponse} from '../../core/models/v2/stats-response.model';
 import {TransactionService} from '../../core/services/transaction.service';
-import { from, Observable } from 'rxjs';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { AuthService } from 'src/app/core/services/auth.service';
+import { Observable } from 'rxjs';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 
