@@ -47,7 +47,7 @@
         <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
       </div>
     </div>
-    <div class="view-comment--block" *ngIf="!estatus.isSelfComment">
+    <div class="view-comment--block" *ngIf="!estatus.isSelfComment" [ngClass]="{'view-comment--no-date': !(estatus.show_dt)}">
       <div class="view-comment--profile view-comment--others-profile">
         <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
       </div>
