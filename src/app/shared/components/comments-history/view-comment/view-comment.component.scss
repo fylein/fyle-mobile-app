@@ -108,6 +108,18 @@
     margin-top: 6px;
   }
 
+  &--no-date {
+    margin-top: 12px;
+  }
+
+  &--spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+
   &--date {
     font-size: 12px;
     line-height: 20px;

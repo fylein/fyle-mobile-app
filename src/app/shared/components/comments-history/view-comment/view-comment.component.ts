@@ -36,6 +36,7 @@ export class ViewCommentComponent implements OnInit {
   userComments: any;
   type: string;
   systemEstatuses: ExtendedStatus[];
+  showDt: boolean;
 
   constructor(
     private statusService: StatusService,
@@ -141,6 +142,16 @@ export class ViewCommentComponent implements OnInit {
       this.userComments = estatuses.filter((status) => {
         return status.us_full_name;
       });
+
+      for(let i = 0; i < this.userComments.length; i++) {
+        let prevCommentDt = (new Date(this.userComments[i-1] && this.userComments[i-1].st_created_at)).toDateString();
+        let currenctCommentDt = (new Date(this.userComments[i] && this.userComments[i].st_created_at)).toDateString();
+        if (prevCommentDt !== currenctCommentDt) {
+          this.userComments[i].show_dt = true;
+        } else {
+          this.userComments[i].show_dt = false;
+        }
+      }
 
       if (reversalStatus && reversalStatus.length > 0 && reversalStatus[0]) {
         const comment = reversalStatus[0].st_comment;
