@@ -664,6 +664,12 @@ ref - https://stackoverflow.com/a/31162426
   --height: 204px;
 }
 
+.route-visualizer--map {
+  .gm-style .gm-style-iw-a {
+    display: none;
+  }
+}
+
 .segment-button-checked {
   --color-checked: #2c304e;
   font-size: 16px !important;

@@ -17,7 +17,7 @@ export class MileageService {
     return this.locationService.getDistance(fromLocation, toLocation);
   }
 
-  getDistance(locations: any[]) {
+  getDistance(locations: any[] = []) {
     const chunks = [];
 
     for (let index = 0, len = locations.length - 1; index < len; index++) {
