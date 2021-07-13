@@ -39,6 +39,7 @@
   &--content {
     --background: #{$white};
     --padding-bottom: 82px;
+    border-top: 1px solid $grey;
   }
 
   &--select-all-container {
