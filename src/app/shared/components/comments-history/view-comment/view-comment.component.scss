@@ -27,13 +27,13 @@
   }
 
   &--self-comment {
-    background-color: #F7F7FB;
+    background-color: $light-blue;
     margin-left: 24px;
     margin-right: 10px;
   }
 
   &--others-comment {
-    background-color: #FBF7F9;
+    background-color: $light-purple;
     margin-right: 24px;
     margin-left: 10px;
   }
@@ -55,8 +55,8 @@
   &--type-comment-block {
     height: 55px;
     display: flex;
-    background-color: #fff;
-    border: 1px solid #EAEAEB;
+    background-color: $pure-white;
+    border: 1px solid $outline-grey;
     border-radius: 4px;
     padding: 6px;
     color: $black-2;
@@ -88,12 +88,12 @@
   }
 
   &--self-profile {
-    background: linear-gradient(0deg, #F7F7FB, #F7F7FB);
+    background: linear-gradient(0deg, $light-blue, $light-blue);
     margin-right: 8px;
   }
 
   &--others-profile {
-    background: #FBF7F9;
+    background: $light-purple;
     margin-left: 8px;
   }
 
@@ -118,7 +118,7 @@
   &--comment-detail {
     font-size: 16px;
     line-height: 20px;
-    color: #1C1F36;
+    color: $dark-blue;
   }
 
   &--zero-state-block {

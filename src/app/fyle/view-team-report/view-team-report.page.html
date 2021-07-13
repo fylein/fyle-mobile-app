@@ -137,7 +137,7 @@
     </div>
 
     <div class="view-reports--card view-reports--card__block-action  view-reports--card__no-shadow" matRipple>
-      <app-comments-history objectType="reports" [objectId]="erpt.rp_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments-history>
+      <app-comments-history objectType="reports" [objectId]="erpt.rp_id" text="Comments" [showCommentsCount]="true"></app-comments-history>
     </div>
 
     <div class="view-reports--card view-reports--card__block-action" *ngIf="canDelete$ | async" (click)="deleteReport()"

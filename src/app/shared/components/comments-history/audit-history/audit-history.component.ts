@@ -8,17 +8,22 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 })
 export class AuditHistoryComponent implements OnInit {
 
-  @Input() estatuses: ExtendedStatus[];
+  @Input() estatuses;
 
   constructor() { }
 
-  hasDetails(estatus: ExtendedStatus) {
-    return (estatus.st_diff !== null && Object.keys(estatus.st_diff).length > 0);
+  hasDetails() {
+    this.estatuses = this.estatuses.map(function (estatus) {
+      if (estatus) {
+        estatus.has_details = (estatus.st_diff !== null && Object.keys(estatus.st_diff).length > 0);
+      }
+      return estatus;
+    });
   };
 
   setReimbursable() {
     this.estatuses = this.estatuses.map(function (status) {
-      if (status.st_diff && status.st_diff.hasOwnProperty('non-reimbursable')) {
+      if (status && status.st_diff && status.st_diff.hasOwnProperty('non-reimbursable')) {
         status.st_diff.reimbursable = status.st_diff['non-reimbursable'] ? 'No' : 'Yes';
         delete status.st_diff['non-reimbursable'];
       }
@@ -27,6 +32,7 @@ export class AuditHistoryComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.hasDetails();
     this.setReimbursable();
   }
 }

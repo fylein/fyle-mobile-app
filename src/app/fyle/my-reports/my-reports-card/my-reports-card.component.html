@@ -44,7 +44,7 @@
   </div>
   <div class="reports-card-menu--buttons">
     <div matRipple class="reports-card-menu--action reports-card-menu--action__comments">
-      <app-comments-history objectType="reports" [objectId]="erpt.rp_id" mode="{{(['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) ? 'view' : 'edit'}}" text="View Comments" [hideIcon]="true">
+      <app-comments-history objectType="reports" [objectId]="erpt.rp_id" text="View Comments" [hideIcon]="true">
       </app-comments-history>
     </div>
 

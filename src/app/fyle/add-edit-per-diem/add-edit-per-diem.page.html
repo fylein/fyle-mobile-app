@@ -530,7 +530,7 @@
 
             <ng-container *ngIf="etxn$|async as etxn">
               <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-per-diem--comment">
-                <app-comments-history [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments">
+                <app-comments-history [objectId]="etxn.tx.id" objectType="transactions" text="Comments">
                 </app-comments-history>
               </div>
 

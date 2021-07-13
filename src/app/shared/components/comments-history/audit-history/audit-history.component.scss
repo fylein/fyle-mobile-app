@@ -4,7 +4,7 @@
   padding: 0 22px 12px 22px;
 
   &--container {
-    border-left: 2px solid #ECECEC;
+    border-left: 2px solid $lighter-grey;
   };
 
   &--block {
@@ -29,6 +29,7 @@
 
   &--category {
     font-weight: 500;
+    margin-left: -4px;
   }
 
   &--details {

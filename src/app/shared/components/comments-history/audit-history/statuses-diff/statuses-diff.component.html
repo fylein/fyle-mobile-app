@@ -3,8 +3,8 @@
       <span *ngIf="key === 'Please contact your admin to configure the following'">{{ key | snakeCaseToSpaceCase }} </span>
       <span *ngIf="key != 'Please contact your admin to configure the following'" class="text-capitalize">{{ key | snakeCaseToSpaceCase }}</span>
   </div>
-  <div *ngFor="let value1 of value">
-      <li class="text-capitalize">{{ value1 }}</li>
+  <div *ngFor="let detail of value">
+      <li class="text-capitalize">{{ detail }}</li>
   </div>
 </div>
 <div *ngIf="!isValueList">
