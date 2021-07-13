@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { FyPolicyViolationInfoComponent } from './fy-policy-violation-info.component';
@@ -7,7 +7,7 @@ describe('FyPolicyViolationInfoComponent', () => {
   let component: FyPolicyViolationInfoComponent;
   let fixture: ComponentFixture<FyPolicyViolationInfoComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ FyPolicyViolationInfoComponent ],
       imports: [IonicModule.forRoot()]

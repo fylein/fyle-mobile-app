@@ -11,6 +11,7 @@ import {concat, iif, of, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
 import {getCurrencySymbol} from "@angular/common";
+import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 
 @Component({
@@ -48,7 +49,8 @@ export class StatsComponent implements OnInit {
       private router: Router,
       private actionSheetController: ActionSheetController,
       private offlineService: OfflineService,
-      private networkService: NetworkService
+      private networkService: NetworkService,
+      private trackingService: TrackingService
   ) {
   }
 
@@ -140,6 +142,10 @@ export class StatsComponent implements OnInit {
       icon: 'assets/svg/fy-camera.svg',
       cssClass: 'capture-receipt',
       handler: () => {
+        that.trackingService.dashboardActionSheetButtonClicked({
+          Asset: 'Mobile',
+          Action: 'Capture Receipt'
+        });
         that.router.navigate(['/', 'enterprise', 'camera_overlay', {
           navigate_back: true
         }]);
@@ -148,6 +154,10 @@ export class StatsComponent implements OnInit {
       text: 'Add Manually',
       icon: 'assets/svg/fy-expense.svg',
       handler: () => {
+        that.trackingService.dashboardActionSheetButtonClicked({
+          Asset: 'Mobile',
+          Action: 'Add Manually'
+        });
         that.router.navigate(['/', 'enterprise', 'add_edit_expense',{
           navigate_back: true
         }]);
@@ -159,6 +169,10 @@ export class StatsComponent implements OnInit {
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         handler: () => {
+          that.trackingService.dashboardActionSheetButtonClicked({
+            Asset: 'Mobile',
+            Action: 'Add Mileage'
+          });
           that.router.navigate(['/', 'enterprise', 'add_edit_mileage',{
             navigate_back: true
           }]);
@@ -171,6 +185,10 @@ export class StatsComponent implements OnInit {
         text: 'Add Per Diem',
         icon: 'assets/svg/fy-calendar.svg',
         handler: () => {
+          that.trackingService.dashboardActionSheetButtonClicked({
+            Asset: 'Mobile',
+            Action: 'Add Per Diem'
+          });
           that.router.navigate(['/', 'enterprise', 'add_edit_per_diem',{
             navigate_back: true
           }]);
@@ -191,12 +209,21 @@ export class StatsComponent implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_reports'], {
       queryParams
     });
+
+    this.trackingService.dashboardOnReportPillClick({
+      Asset: 'Mobile',
+      State: state.toString()
+    });
   }
 
   goToExpensesPage() {
-    const queryParams: Params = {filters: JSON.stringify({state: 'READY_TO_REPORT'})};
+    const queryParams: Params = {filters: JSON.stringify({state: ['READY_TO_REPORT']})};
     this.router.navigate(['/', 'enterprise', 'my_expenses'], {
       queryParams
+    });
+
+    this.trackingService.dashboardOnUnreportedExpensesClick({
+      Asset: 'Mobile'
     });
   }
 
@@ -206,6 +233,9 @@ export class StatsComponent implements OnInit {
 
   async openAddExpenseActionSheet() {
     const that = this;
+    that.trackingService.dashboardActionSheetOpened({
+      Asset: 'Mobile'
+    });
     const actionSheet = await this.actionSheetController.create({
       header: 'ADD EXPENSE',
       mode: 'md',

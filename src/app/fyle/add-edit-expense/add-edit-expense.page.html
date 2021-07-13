@@ -102,12 +102,7 @@
 
             <div (click)="addAttachments($event)" *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)"
                  class="add-edit-expense--receipt-image">
-              <div class="add-edit-expense--receipt-text">
-                Add Receipt
-              </div>
-              <mat-icon class="add-edit-expense--receipt-image-icon">
-                add_circle
-              </mat-icon>
+              <mat-icon class="add-edit-expense--receipt-image-icon" svgIcon="add-to-list"></mat-icon>
             </div>
 
             <div (click)="viewAttachments()" *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress"
@@ -116,7 +111,7 @@
               <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
                 {{attachedReceiptsCount}}
               </div>
-              <mat-icon (click)="addAttachments($event)" class="add-edit-expense--receipt-image-icon">
+              <mat-icon (click)="addAttachments($event)" class="add-edit-expense--receipt-image-icon add-edit-expense--receipt-add-more-icon">
                 add_circle
               </mat-icon>
             </div>
@@ -127,10 +122,11 @@
                 <app-fy-currency
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
+                  [recentlyUsed]="recentCurrencies"
                   [txnDt]="etxn?.tx?.txn_dt">
                 </app-fy-currency>
                 <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
-                     class="add-edit-expense--amount-error">
+                     class="add-edit-expense--amount-error" [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls.currencyObj.value.orig_currency}">
                   Please enter the amount.
                 </div>
               </ng-container>
@@ -138,12 +134,6 @@
           </div>
         </div>
 
-        <div *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
-          <div (click)="splitExpense()" class="add-edit-expense--split-expense-container">
-            <mat-icon class="add-edit-expense--split-expense-icon" svgIcon="split-expense"></mat-icon>
-            <div class="add-edit-expense--split-expense-title">Split Expense</div>
-          </div>
-        </div>
         <div class="add-edit-expense--primary-block">
           <ng-container *ngIf="txnFields$|async as txnFields">
             <div *ngIf="txnFields?.txn_dt" [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
@@ -666,6 +656,16 @@
           </div>
         </ng-container>
       </ng-container>
+
+      <div class="add-edit-expense--split-expense-block" *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
+        <button class="add-edit-expense--split-expense-container" (click)="splitExpense()">
+          <div class="add-edit-expense--split-expense-title">Split Expense</div>
+        </button>
+        <div class="add-edit-expense--split-info-container">
+          <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
+          <div class="add-edit-expense--split-info-message">Fill all the required fields before splitting an expense.</div>
+        </div>
+      </div>
 
       <app-fy-alert *ngIf="isNotReimbursable$|async" [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
                     [type]="'information'">

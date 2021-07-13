@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { DelegatedAccMessageComponent } from './delegated-acc-message.component';
@@ -7,7 +7,7 @@ describe('DelegatedAccMessageComponent', () => {
   let component: DelegatedAccMessageComponent;
   let fixture: ComponentFixture<DelegatedAccMessageComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DelegatedAccMessageComponent ],
       imports: [IonicModule.forRoot()]

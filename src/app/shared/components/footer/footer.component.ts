@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 import {FooterState} from './footer-state';
 
 @Component({
@@ -18,19 +20,40 @@ export class FooterComponent implements OnInit {
     return FooterState;
   }
 
-  constructor() { }
+  constructor(
+    private trackingService: TrackingService,
+    private router: Router
+  ) { }
 
   ngOnInit() {}
 
   goToHome() {
+    this.trackingService.footerButtonClicked({
+      Asset: 'Mobile',
+      Action: 'Home',
+      Url: this.router.url
+    });
+
     this.homeClicked.emit();
   }
 
   goToCameraMode() {
+    this.trackingService.footerButtonClicked({
+      Asset: 'Mobile',
+      Action: 'Camera',
+      Url: this.router.url
+    });
+
     this.cameraClicked.emit();
   }
 
   goToTasks() {
+    this.trackingService.footerButtonClicked({
+      Asset: 'Mobile',
+      Action: 'Tasks',
+      Url: this.router.url
+    });
+
     this.taskClicked.emit();
   }
 }

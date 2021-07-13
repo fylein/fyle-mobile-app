@@ -13,18 +13,39 @@ $background-color: #fff;
     // }
 
     &-closebutton{
-      height: 65px;
+      height: 60px;
+    }
+
+    &-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
     }
 
     &-title {
-      color: #4a4a4a;
+      color: $black-2;
       font-size: 20px;
-      font-weight: 700;
+      font-weight: 500;
+      margin: 0 auto;
     }
+
+    &-save {
+      color: $primary;
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 500;
+      padding-right: 12px;
+    }
+  }
+
+  &--top-bar {
+    background-color: $pure-white;
+    padding: 16px 16px 0 16px;
   }
 
   &--container {
     padding: 0 16px 16px;
+    margin-top: -12px;
   }
 
   &--main-block {
@@ -34,24 +55,18 @@ $background-color: #fff;
   }
 
   &--internal-block {
-    padding: 16px 0;
-    background: #fff;
+    padding: 14px 0;
+    background: $pure-white;
     border: 0;
     line-height: 1;
-    width: 50%;
+    width: 48%;
+    height: 80px;
   }
 
-  &--message {
-    font-size: 16px;
-    color: #ababab;
-  }
-
-  &--warning {
-    margin-top: 16px;
-    border-radius: 4px;
-    padding: 8px 16px;
-    background-color: #fff9e9;
-    color: #7b7b7b;
+  &--error {
+    color: $red;
+    line-height: 16px;
+    font-size: 12px;
   }
 
   &--card {
@@ -68,18 +83,21 @@ $background-color: #fff;
   }
 
   &--index {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
-    color: #4a4a4a;
+    color: $grey-light;
+    margin: 0 auto 12px;
+    line-height: 18px;
   }
 
-  &--remove-card-button {
-    transition: opacity 0.1s;
-    padding: 0 6px;
-    min-width: initial;
-    border-color: transparent;
+  &--remove {
+    margin-left: 43%;
+  }
+
+  &--remove-icon {
     background: none;
-    color: #444;
+    height: 18px;
+    width: 18px;
   }
 
   &--amount-percentage {
@@ -95,7 +113,7 @@ $background-color: #fff;
   &--item {
     width: 100%;
     padding: 6px 0;
-    background: #fff;
+    background: $pure-white;
     border: 0;
     border-bottom: 1px solid $grey-lighter;
     line-height: 16px;
@@ -108,7 +126,7 @@ $background-color: #fff;
     line-height: 16px;
     font-weight: 400;
     line-height: 1.5;
-    color: #5A5D72;
+    color: $black-light;
   }
 
   &--invalid {
@@ -133,25 +151,26 @@ $background-color: #fff;
   }
 
   &--date {
-    width: 50%;
-    padding: 2px 0;
-    margin-left: 16px;
+    width: 100%;
+    padding-top: 0;
   }
 
   &--date-label {
     width: 100%;
-    margin-bottom: 4px;
+    margin: 0 8px 0 0;
     display: contents;
   }
 
   &--date-input {
-    width: 100%;
-    height: 30px;
+    border: 0;
     font-size: 14px;
     font-weight: 400;
-    line-height: 1.5;
-    border: 0;
+    line-height: 18px;
+    border: none;
+    width: 100%;
     padding: 0;
+    height: 18px;
+    margin: 6px 0;
   }
 
   &--date-invalid {
@@ -169,34 +188,20 @@ $background-color: #fff;
   }
 
   &--add-more {
-    justify-content: center;
-    margin-top: 16px;
-    border-radius: 6px;
-    box-shadow: 0 5px 28px -15px #838fa1 !important;
     display: flex;
-    flex-direction: column;
-  }
-
-  &--add-more-button {
-    padding: 0 6px 10px 6px;
-    min-width: inherit;
-    border-color: transparent;
-    background: none;
-    color: $primary;
-    &:focus {
-      outline: 0;
-    }
+    align-items: center;
+    margin: 36px 0;
   }
 
   &--add-more-icon {
-    font-size: 30px;
-    font-weight: 600;
+    margin-right: 8px;
   }
 
   &--add-more-label {
-    color: #3a94f6;
-    font-size: 16px;
-    text-align: center !important;
+    color: $black-light;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 500;
   }
 
   &--primary-cta {
@@ -205,49 +210,57 @@ $background-color: #fff;
     --border-width: 1px;
   }
 
-  &--sub-footer {
+  &--amount-block {
     display: flex;
-    padding-top: 10px;
-    padding-bottom: 5px;
-    box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1) !important;
-    border-top: 1px solid #e8e8e8;
-    &__total {
-      width: 47%;
-      margin-left: 15px;
-      color: #4a4a4a;
-      font-weight: 500;
-    }
+    border-bottom: 1px solid $grey-lighter;
+    padding: 22px 0 20px 0;
 
-    &__remaining {
-      text-align: right;
-      width: 45%;
-      color: #4a4a4a;
-      font-weight: 500;
+    &__label {
+      font-size: 12px;
+      line-height: 16px;
+      color: $black-light;
+      font-weight: 400;
+      width: 50%;
     }
   }
 
   &--split-amount {
-    color: #ababab;
-    font-weight: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 26px;
+    color: $blue-black;
   }
 
-  &--cta-container {
-    border-top: 1px solid #e8e8e8;
-    background-color: #fff;
-    box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1) !important;
+  &--limit {
+    padding: 16px;
+    margin-bottom: 16px;
   }
 
   &--error-message-block {
     width: 100%;
-    bottom: 80px;
-    left: 0;
-    background: rgba(221, 0, 0, 0.7);
-    color: #fff;
+    color: $pure-white;
     padding: 16px;
+    display: flex;
+    align-items: center;
+    height: 44px;
   }
 
   &--error-message {
-    font-size: 16px;
     margin: 0 !important;
+  }
+
+  &--error-container {
+    display: flex;
+    background-color: $red;
+    margin: 16px;
+    border-radius: 8px;
+  }
+
+  &--error-icon {
+    margin-right: 10px;
+  }
+
+  &--footer {
+    background-color: $pure-white;
   }
 }
