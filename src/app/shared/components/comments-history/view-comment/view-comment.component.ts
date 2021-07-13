@@ -145,8 +145,8 @@ export class ViewCommentComponent implements OnInit {
       });
 
       for(let i = 0; i < this.userComments.length; i++) {
-        let prevCommentDt = moment(new Date(this.userComments[i-1] && this.userComments[i-1].st_created_at));
-        let currentCommentDt =  moment(new Date(this.userComments[i] && this.userComments[i].st_created_at));
+        let prevCommentDt = moment(this.userComments[i-1] && this.userComments[i-1].st_created_at);
+        let currentCommentDt =  moment(this.userComments[i] && this.userComments[i].st_created_at);
         if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
