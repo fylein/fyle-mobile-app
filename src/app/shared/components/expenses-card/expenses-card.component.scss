@@ -44,8 +44,7 @@
   &--scaning-receipt {
 
     &__container {
-      padding-left: 11px;
-      padding-right: 11px;
+      padding: 3px 11px 0 11px;
       overflow: hidden;
     }
     
@@ -86,8 +85,7 @@
   }
 
   &--category-vendor-project-container {
-    padding-left: 11px;
-    padding-right: 23px;
+    padding: 3px 23px 0 11px;
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
