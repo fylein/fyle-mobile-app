@@ -696,3 +696,9 @@ ref - https://stackoverflow.com/a/31162426
   --width: 296px;
   --height: 204px;
 }
+
+.route-visualizer--map {
+  .gm-style .gm-style-iw-a {
+    display: none;
+  }
+}
