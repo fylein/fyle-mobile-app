@@ -123,213 +123,126 @@
     </ion-grid>
   </div>
 
-  <div *ngIf="isConnected$|async" class="stats--ccc-cards-section">
-    <ng-container *ngIf="assignedCCCCount$ | async as assignedCCCCount">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="7">
-            <div class="stats--header">
-              CARD TRANSACTIONS ({{ assignedCCCCount }})
+  <div *ngIf="(isConnected$|async)" class="stats--ccc-cards-section">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <div class="stats--header"> CARD TRANSACTIONS </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <ng-container *ngIf="cardTransactionsAndDetails$ | async as cardTransactionsAndDetails; else cccStatsLoading">
+      <div class="stats--ccc-card-details">
+        <div class="stats--ccc-bank-name">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6">
+                <div>
+                  {{ cardTransactionsAndDetails.ba_bank_name }}
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="stats--ccc-card-info"> Corporate Card </div>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                <div>
+                  {{ 'xxxx x' + cardTransactionsAndDetails.ba_mask }}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+        <div class="stats--ccc-sync-detail"> Last synced at {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y, h:mm a' }}
+        </div>
+      </div>
+      <div class="stats--ccc-stats">
+        <div class="stats--ccc-created_dt"> Showing all transactions from {{ cardTransactionsAndDetails.ba_created_at | date: 'MMM d, y' }}
+        </div>
+        <div>
+          <div matRipple (click)="goToCCCPage('classified')">
+            <div class="stats--ccc-classified-stats">
+              <div class="stats--ccc-classified-count">
+                {{ cardTransactionsAndDetails.total_classified_count }}
+              </div>
+              <div class="stats--ccc-classified-amount">
+                <span class="stats--expenses-amount-currency">
+                  {{currencySymbol$|async}}
+                </span> {{ cardTransactionsAndDetails.total_classified_amount | humanizeCurrency: (homeCurrency$|async): 2: true}}
+              </div>
             </div>
-          </ion-col>
-          <ion-col size="5">
-            <div>
-              <span class="stats--pager-dots"></span>
-              <span class="stats--pager-dots stats--pager-dots__active"></span>
-              <span class="stats--pager-dots"></span>
-              <span class="stats--pager-dots"></span>
+            <div class="stats--ccc-stats-title"> Classified Transactions </div>
+          </div>
+          <hr class="stats--ccc-stats-divider">
+          <div matRipple (click)="goToCCCPage('unclassified')">
+            <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
+              <div class="stats--ccc-classified-count">
+                {{ cardTransactionsAndDetails.total_unclassified_count }}
+              </div>
+              <div class="stats--ccc-classified-amount">
+                <span class="stats--expenses-amount-currency">
+                  {{currencySymbol$|async}}
+                </span> {{ cardTransactionsAndDetails.total_unclassified_amount | humanizeCurrency: (homeCurrency$|async): 2: true}}
+              </div>
             </div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+            <div class="stats--ccc-stats-title"> Unclassified Transactions </div>
+          </div>
+        </div>
+      </div>
     </ng-container>
-
-    <ion-slides [options]="slideOpts">
-      <ion-slide>
-        <div class="stats--card-section">
-          <div class="stats--bank">
-              <ion-grid>
-              <ion-row>
-                  <ion-col size="6">
-                  <div class="stats--bank-name">
-                      HDFC Bank
-                  </div>
-                  </ion-col>
-                  <ion-col size="6">
-                  <div class="stats--card-info">
-                      Corporate Card
-                  </div>
-                  </ion-col>
-              </ion-row>
-              <ion-row>
-                  <ion-col>
-                  <div class="stats--card-number">
-                      xxxx x123
-                  </div>
-                  </ion-col>
-              </ion-row>
-              </ion-grid>
-          </div>
-          <div class="stats--sync-detail">
-              Last synced at 24 Jan 2021, 12.45 pm
-          </div>
-          </div>
-          
-          <div class="stats--stats">
-          <div class="stats--start-info">
-              Showing all transactions from Jan15, 2021
-          </div>
-          <div>
-              <div class="stats--classified-stats">
-              <div class="stats--classified-count">
-                  123
-              </div>
-              <div class="stats--classified-amount">
-                  $120003
-              </div>
-              </div>
-              <div class="stats--stats-title">
-              Classified Transactions
-              </div>
-              <hr class="stats--border-bottom">
-              <div class="stats--classified-stats stats--classified-stats__margin-top">
-              <div class="stats--classified-count">
-                  13
-              </div>
-              <div class="stats--classified-amount">
-                  $1000
-              </div>
-              </div>
-              <div class="stats--stats-title">
-              Unclassified Transactions
-              </div>
-          </div>
-          </div>
-      </ion-slide>
-      <ion-slide>
-        <div class="stats--card-section">
-          <div class="stats--bank">
-              <ion-grid>
-              <ion-row>
-                  <ion-col size="6">
-                  <div class="stats--bank-name">
-                      HDFC Bank
-                  </div>
-                  </ion-col>
-                  <ion-col size="6">
-                  <div class="stats--card-info">
-                      Corporate Card
-                  </div>
-                  </ion-col>
-              </ion-row>
-              <ion-row>
-                  <ion-col>
-                  <div class="stats--card-number">
-                      xxxx x123
-                  </div>
-                  </ion-col>
-              </ion-row>
-              </ion-grid>
-          </div>
-          <div class="stats--sync-detail">
-              Last synced at 24 Jan 2021, 12.45 pm
-          </div>
-          </div>
-          
-          <div class="stats--stats">
-          <div class="stats--start-info">
-              Showing all transactions from Jan15, 2021
-          </div>
-          <div>
-              <div class="stats--classified-stats">
-              <div class="stats--classified-count">
-                  123
-              </div>
-              <div class="stats--classified-amount">
-                  $120003
-              </div>
-              </div>
-              <div class="stats--stats-title">
-              Classified Transactions
-              </div>
-              <hr class="stats--border-bottom">
-              <div class="stats--classified-stats stats--classified-stats__margin-top">
-              <div class="stats--classified-count">
-                  13
-              </div>
-              <div class="stats--classified-amount">
-                  $1000
-              </div>
-              </div>
-              <div class="stats--stats-title">
-              Unclassified Transactions
-              </div>
-          </div>
-          </div>
-      </ion-slide>
-      <ion-slide>
-        <div class="stats--card-section">
-          <div class="stats--bank">
-              <ion-grid>
-              <ion-row>
-                  <ion-col size="6">
-                  <div class="stats--bank-name">
-                      HDFC Bank
-                  </div>
-                  </ion-col>
-                  <ion-col size="6">
-                  <div class="stats--card-info">
-                      Corporate Card
-                  </div>
-                  </ion-col>
-              </ion-row>
-              <ion-row>
-                  <ion-col>
-                  <div class="stats--card-number">
-                      xxxx x123
-                  </div>
-                  </ion-col>
-              </ion-row>
-              </ion-grid>
-          </div>
-          <div class="stats--sync-detail">
-              Last synced at 24 Jan 2021, 12.45 pm
-          </div>
-          </div>      
-          <div class="stats--stats">
-          <div class="stats--start-info">
-              Showing all transactions from Jan15, 2021
-          </div>
-          <div>
-              <div class="stats--classified-stats">
-              <div class="stats--classified-count">
-                  123
-              </div>
-              <div class="stats--classified-amount">
-                  $120003
-              </div>
-              </div>
-              <div class="stats--stats-title">
-              Classified Transactions
-              </div>
-              <hr class="stats--border-bottom">
-              <div class="stats--classified-stats stats--classified-stats__margin-top">
-              <div class="stats--classified-count">
-                  13
-              </div>
-              <div class="stats--classified-amount">
-                  $1000
-              </div>
-              </div>
-              <div class="stats--stats-title">
-              Unclassified Transactions
-              </div>
-          </div>
-          </div>
-      </ion-slide>
-    </ion-slides>
+    <ng-template #cccStatsLoading>
+      <div class="stats--ccc-card-details">
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-skeleton-text class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small" animated></ion-skeleton-text>
+              <ion-skeleton-text class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small" animated></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <ion-skeleton-text class="stats--ccc-skeleton-text stats--ccc-skeleton-text__width-large" animated></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+      <div class="stats--ccc-stats">
+        <div>
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-skeleton-text class="stats--expenses-skeleton-text stats--ccc-skeleton-text__width-large" animated></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small" animated></ion-skeleton-text>
+                <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium" animated></ion-skeleton-text>
+              </ion-col>
+              <ion-col>
+                <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium" animated></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+        <hr class="stats--ccc-stats-divider">
+        <div>
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small" animated></ion-skeleton-text>
+                <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium" animated></ion-skeleton-text>
+              </ion-col>
+              <ion-col>
+                <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium" animated></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </div>
+    </ng-template>
   </div>
-  
 
   <ng-template #offlineMessage>
     <div class="stats--zero-state">
@@ -339,4 +252,6 @@
     </div>
   </ng-template>
 </div>
+
+
 

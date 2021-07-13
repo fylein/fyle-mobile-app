@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, HostListener, OnInit, Output, ViewChild} from '@angular/core';
 import {DashboardService} from '../dashboard.service';
 import {Observable} from 'rxjs/internal/Observable';
 import {shareReplay} from 'rxjs/internal/operators/shareReplay';
@@ -11,6 +11,7 @@ import {concat, iif, of, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
 import {getCurrencySymbol} from "@angular/common";
+import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 
 @Component({
   selector: 'app-stats',
@@ -18,12 +19,7 @@ import {getCurrencySymbol} from "@angular/common";
   styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent implements OnInit {
-  @ViewChild('slides', {static: true}) slides: IonSlides;
 
-  slideOpts = {
-    initialSlide: 1,
-    slidesPerView: 1.1
-  };
   draftStats$: Observable<{ count: number, sum: number }>;
   reportedStats$: Observable<{ count: number, sum: number }>;
   approvedStats$: Observable<{ count: number, sum: number }>;
@@ -40,6 +36,7 @@ export class StatsComponent implements OnInit {
   reportStatsLoading = true;
 
   loadData$ = new Subject();
+  cardTransactionsAndDetails$: Observable<BankAccountsAssigned>;
 
   get ReportStates() {
     return ReportStates;
@@ -85,8 +82,7 @@ export class StatsComponent implements OnInit {
     );
 
     this.paymentPendingStats$ = reportStats$.pipe(
-        map(stats => stats.paymentPending),
-        tap(console.log)
+        map(stats => stats.paymentPending)
     );
   }
 
@@ -105,14 +101,10 @@ export class StatsComponent implements OnInit {
   }
 
   initializeCCCStats() {
-    const assignedCCCDetails$ = this.dashboardService.getCCCDetails().pipe(
-      shareReplay(1)
-  );
-
-    this.assignedCCCCount$ = assignedCCCDetails$.pipe(
-      map(res => res.count),
-      tap(console.log)
-    );
+    this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
+      shareReplay(1),
+      map(res => res[0])
+    )
   }
 
   /*
@@ -206,6 +198,10 @@ export class StatsComponent implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses'], {
       queryParams
     });
+  }
+
+  goToCCCPage(state: string) {
+    this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', { pageState: state }]);
   }
 
   async openAddExpenseActionSheet() {

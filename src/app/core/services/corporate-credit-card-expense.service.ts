@@ -8,6 +8,7 @@ import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
+import { BankAccountsAssigned } from '../models/v2/bank-accounts-assigned.model';
 
 @Injectable({
   providedIn: 'root'
@@ -122,13 +123,7 @@ export class CorporateCreditCardExpenseService {
           }
         });
       }),
-      map(res => res as {
-        count: number,
-        data: any[],
-        limit: number,
-        offset: number,
-        url: string
-      })
+      map(res => res.data as BankAccountsAssigned[])
     )
   }
 }

@@ -1,5 +1,7 @@
 @import '../../../../theme/colors';
 
+$ccc-bank-name: #C4CAE8;
+
 .stats {
   &--menu-button {
     padding: 8px;
@@ -158,73 +160,42 @@
   &--ccc-cards-section {
     position: relative;
     top: -48px;
+    margin-bottom: 24px;
   }
 
-  &--header {
-    font-size: 14px;
-    line-height: 18px;
-    color: $grey-light;
-  }
-
-  &--pager-dots{
+  &--ccc-card-details {
     position: relative;
-    top: 6px;
-    float: right;
-    width: 6px;
-    height: 6px;
-    border-radius: 6px;
-    box-shadow: 0 0 1px 1px #A9ACBC;;
-    margin-right: 8px;
-    cursor: pointer;
-
-    &__active {
-      width: 16px;
-      border-radius: 4px;
-      background-color: #A9ACBC;
-    }
-  }
-
-  &--card-section {
-    position: relative;
-    left: 43%;
+    left: 50%;
     padding: 8px;
     transform: translate(-50%, 0);
     min-height: 105px;
-    width: 86%;
-    background: #414562;
+    width: calc(100% - 64px);
+    background: $grey-dark;
     box-shadow: 0px 2px 8px rgba(215, 215, 215, 0.5);
     border-radius: 10px;
     z-index: 999;
-
-    &__bubble-icon {
-      position: relative;
-      left: 80%;
-      width: 80px;
-      height: 100%;
-      bottom: 0;
-    }
   }
 
-  &--bank {
-    color: #C4CAE8;
+  &--ccc-bank-name {
+    color: $ccc-bank-name;
     font-size: 14px;
     line-height: 18px;
     letter-spacing: 0.08em;
   }
 
-  &--stats {
+  &--ccc-stats {
     min-height: 280px;
     padding: 66px 32px 32px 32px;
-    background: #FFFFFF;
+    background: $pure-white;
     border-radius: 16px;
-    width: 92%;
+    width: calc(100% - 32px);
     position: relative;
-    left: 46%;
+    left: 50%;
     transform: translate(-50%, 0px);
     bottom: 54px;
   }
 
-  &--card-info {
+  &--ccc-card-info {
     background: rgba(255, 255, 255, 0.12);
     width: 110px;
     height: 20px;
@@ -232,23 +203,23 @@
     border-radius: 4px;
     padding: 0 4px;
     float: right;
-    color: #C4CAE8;
+    color: $ccc-bank-name;
   }
 
-  &--sync-detail {
-    color: #FFFFFF;
+  &--ccc-sync-detail {
+    color: $pure-white;
     font-size: 16px;
     letter-spacing: -0.005em;
     line-height: 20px;
     padding: 0 8px 8px;
   }
 
-  &--start-info {
-    color: #A9ACBC;
+  &--ccc-created_dt {
+    color: $grey-light;
     font-size: 12px;
   }
 
-  &--classified-stats {
+  &--ccc-classified-stats {
     margin-top: 16px;
     display: flex;
     justify-content: space-between;
@@ -258,28 +229,45 @@
     }
   }
 
-  &--classified-count, &--classified-amount {
+  &--ccc-classified-count, &--ccc-classified-amount {
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
     color: $black;
   }
 
-  &--stats-title {
+  &--ccc-stats-title {
     font-size: 16px;
     line-height: 20px;
-    --color: $black-2;
+    color: $black-2;
   }
 
-  &--border-bottom {
-    border-bottom: 1px solid #DFDFE2;
+  &--ccc-stats-divider {
+    border-bottom: 1px solid $grey-lighter;
     margin-top: 24px;
   }
 
-  ion-slide {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  &--ccc-skeleton-text {
+    height: 18px;
+    background-color: $grey-light;
+    &__height-small {
+      height: 12px;
+    }
+    &__width-small {
+      width: 33%;
+    }
+
+    &__width-medium {
+      width: 66%;
+    }
+
+    &__width-large {
+      width: 80%;
+    }
+
+    &__align-right {
+      margin-left: auto;
+    }
   }
 
 }
