@@ -125,6 +125,42 @@ export class StatusService {
           icon: 'circle'
         };
         break;
+      case (lowerCaseComment.indexOf('policies ran successfully') > -1):
+        statusCategory = {
+          category: 'Policies Ran Successfully',
+          icon: 'circle'
+        };
+        break;
+      case (lowerCaseComment.indexOf('auto-matched by') > -1):
+        statusCategory = {
+          category: 'Card Transaction Matched',
+          icon: 'circle'
+        };
+        break;
+      case (lowerCaseComment.indexOf('unmatched by') > -1):
+        statusCategory = {
+          category: 'Expense Unmatched',
+          icon: 'circle'
+        };
+        break;
+      case (lowerCaseComment.indexOf('matched by') > -1):
+        statusCategory = {
+          category: 'Expense Matched',
+          icon: 'circle'
+        };
+        break;
+      case lowerCaseComment.indexOf('expense is a possible duplicate') > -1:
+        statusCategory = {
+          category: 'Duplicate Detected',
+          icon: 'circle'
+        };
+        break;
+      case (lowerCaseComment.indexOf('duplicate expense(s) with similar details') > -1):
+        statusCategory = {
+          category: 'Duplicate(s) issue resolved',
+          icon: 'circle'
+        };
+        break;
       default:
         statusCategory = {
           category: 'Others',

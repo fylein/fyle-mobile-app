@@ -61,7 +61,7 @@ export class CommentsHistoryComponent implements OnInit {
         return this.statusService.find(this.objectType, this.objectId).pipe(
           map(res => {
             return res.filter((estatus) => {
-              return estatus.st_org_user_id !== 'SYSTEM';
+              return estatus.us_full_name;
             }).length;
           }),
         );

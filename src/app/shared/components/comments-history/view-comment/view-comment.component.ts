@@ -9,6 +9,7 @@ import {Expense} from '../../../../core/models/expense.model';
 import {TransactionService} from '../../../../core/services/transaction.service';
 import {Router} from '@angular/router';
 import {TrackingService} from '../../../../core/services/tracking.service';
+import * as moment from 'moment';
 
 
 @Component({
@@ -36,6 +37,10 @@ export class ViewCommentComponent implements OnInit {
   userComments: any;
   type: string;
   systemEstatuses: ExtendedStatus[];
+<<<<<<< HEAD:src/app/shared/components/comments-history/view-comment/view-comment.component.ts
+  showDt: boolean;
+=======
+>>>>>>> master:src/app/shared/components/comments-history/view-comment/view-comment.component.ts
 
   constructor(
     private statusService: StatusService,
@@ -141,6 +146,16 @@ export class ViewCommentComponent implements OnInit {
       this.userComments = estatuses.filter((status) => {
         return status.us_full_name;
       });
+
+      for(let i = 0; i < this.userComments.length; i++) {
+        let prevCommentDt = moment(this.userComments[i-1] && this.userComments[i-1].st_created_at);
+        let currentCommentDt =  moment(this.userComments[i] && this.userComments[i].st_created_at);
+        if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
+          this.userComments[i].show_dt = false;
+        } else {
+          this.userComments[i].show_dt = true;
+        }
+      }
 
       if (reversalStatus && reversalStatus.length > 0 && reversalStatus[0]) {
         const comment = reversalStatus[0].st_comment;
