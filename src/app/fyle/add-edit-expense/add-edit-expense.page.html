@@ -102,12 +102,7 @@
 
             <div (click)="addAttachments($event)" *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)"
                  class="add-edit-expense--receipt-image">
-              <div class="add-edit-expense--receipt-text">
-                Add Receipt
-              </div>
-              <mat-icon class="add-edit-expense--receipt-image-icon">
-                add_circle
-              </mat-icon>
+              <mat-icon class="add-edit-expense--receipt-image-icon" svgIcon="add-to-list"></mat-icon>
             </div>
 
             <div (click)="viewAttachments()" *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress"
@@ -116,7 +111,7 @@
               <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
                 {{attachedReceiptsCount}}
               </div>
-              <mat-icon (click)="addAttachments($event)" class="add-edit-expense--receipt-image-icon">
+              <mat-icon (click)="addAttachments($event)" class="add-edit-expense--receipt-image-icon add-edit-expense--receipt-add-more-icon">
                 add_circle
               </mat-icon>
             </div>
@@ -131,7 +126,7 @@
                   [txnDt]="etxn?.tx?.txn_dt">
                 </app-fy-currency>
                 <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
-                     class="add-edit-expense--amount-error">
+                     class="add-edit-expense--amount-error" [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls.currencyObj.value.orig_currency}">
                   Please enter the amount.
                 </div>
               </ng-container>

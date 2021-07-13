@@ -49,11 +49,15 @@
     margin: 12px 4px 12px 0;
   }
 
+  &--map {
+    padding-bottom: 12px;
+  }
+
   &--currency {
     margin: 18px 0;
   }
 
-  &--form {
+  &--form, &--violations {
     padding: 0 16px 16px 16px;
   }
 
