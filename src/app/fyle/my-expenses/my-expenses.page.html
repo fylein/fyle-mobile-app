@@ -40,9 +40,13 @@
     </div>
   </ng-container>
   <ng-container multiselect>
-    <ion-title class="page-title">
-      {{selectedElements?.length}} expenses selected
-    </ion-title>
+    <ng-container *ngIf="homeCurrency$ | async as homeCurrency">
+      <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
+        <ion-title class="page-title">
+          {{selectedElements?.length}} expenses worth {{homeCurrencySymbol}} {{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency: 2: true }}
+        </ion-title>
+      </ng-container>
+    </ng-container>
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="deleteSelectedExpenses()">
         <ion-icon src="../../../assets/svg/fy-delete.svg"></ion-icon>
