@@ -89,8 +89,15 @@
         <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
             <div class="add-edit-mileage--amount-box">
+              <div class="add-edit-mileage--distance">
+                <div>{{ etxn.tx.distance ? etxn.tx.distance : 0 }}</div>
+                <span class="add-edit-mileage--distance-unit">
+                  <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
+                    <span class="text-capitalize">{{ etxn.tx.distance_unit }}</span>
+                  </ng-container>
+                </span>
+              </div>
               <div class="add-edit-mileage--amount">
-                <p class="mb-0">Amount</p>
                 <p class="add-edit-mileage--amount-value mb-0">
                   {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
                 </p>
