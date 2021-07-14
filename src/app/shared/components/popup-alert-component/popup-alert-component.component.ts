@@ -12,7 +12,6 @@ export class PopupAlertComponentComponent implements OnInit {
     private popoverController: PopoverController
   ) { }
 
-  // @Input() deleteMethod: () => Observable<any>;
   @Input() title: string;
   @Input() message: string;
   @Input() primaryCta: { text: string; action: string }
