@@ -1,15 +1,17 @@
-<div class="fy-footer">
-  <div class="fy-footer--buttons">
-    <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.HOME}" expand="full" (click)="goToHome()">
-      <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.HOME?'fy-home-solid':'fy-home'"></mat-icon>
-      Home
-    </div>
-    <div class="fy-footer--primary-button-container" matRipple (click)="goToCameraMode()">
-      <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="fy-camera"></mat-icon>
-    </div>
-    <div class="fy-footer--button" [ngClass]="{'fy-footer--button__disabled': activeState !== FooterState.TASKS}" expand="full" (click)="goToTasks()">
-      <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.TASKS?'fy-notification-solid': 'fy-notification'"></mat-icon>
-      Tasks
+<ng-container *ngIf="connectionState$|async as connectionState">
+  <div class="fy-footer">
+    <div class="fy-footer--buttons" [ngClass]="{'fy-footer--buttons__message-gap': connectionState === ConnectionMessageStatus.onlineMessageShown ||  connectionState === ConnectionMessageStatus.disconnected}">
+      <div class="fy-footer--button" [ngClass]="{'fy-footer--button__inactive': activeState !== FooterState.HOME}" expand="full" (click)="goToHome()">
+        <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.HOME?'fy-home-solid':'fy-home'"></mat-icon>
+        Home
+      </div>
+      <div class="fy-footer--primary-button-container" matRipple (click)="goToCameraMode()">
+        <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="fy-camera"></mat-icon>
+      </div>
+      <div class="fy-footer--button" [ngClass]="{'fy-footer--button__inactive': activeState !== FooterState.TASKS, 'fy-footer--button__disabled': connectionState === ConnectionMessageStatus.disconnected}" expand="full" (click)="goToTasks(connectionState)">
+        <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.TASKS?'fy-notification-solid': 'fy-notification'"></mat-icon>
+        Tasks
+      </div>
     </div>
   </div>
-</div>
+</ng-container>
