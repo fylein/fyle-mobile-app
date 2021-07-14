@@ -94,6 +94,8 @@
 
   &--category-icon-container {
     width: 100%;
+    height: 23px;
+    overflow-y: hidden;
   }
 
   &--category {
@@ -120,6 +122,8 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
+    height: 17px;
+    overflow-y: hidden;
   }
 
   &--project {
@@ -129,6 +133,8 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
+    height: 18px;
+    overflow-y: hidden;
   }
 
   &--currency-amount-container {
