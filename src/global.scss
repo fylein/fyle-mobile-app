@@ -380,9 +380,15 @@ mat-checkbox {
 
 .custom-mat-checkbox {
   .mat-checkbox-inner-container {
+    margin-right: 16px !important;
     .mat-checkbox-background, .mat-checkbox-frame{
       border-radius: 6px !important;
     }
+  }
+
+  .mat-checkbox-label {
+    font-size: 14px;
+    color: $black;
   }
 }
 
