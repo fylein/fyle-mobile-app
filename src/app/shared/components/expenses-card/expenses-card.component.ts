@@ -21,7 +21,6 @@ export class ExpensesCardComponent implements OnInit {
   @Input() selectedElements: Expense[];
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
-  @Output() onHomeClicked: EventEmitter<Expense> = new EventEmitter();
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 

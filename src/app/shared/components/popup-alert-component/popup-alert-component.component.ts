@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -11,6 +11,12 @@ export class PopupAlertComponentComponent implements OnInit {
   constructor(
     private popoverController: PopoverController
   ) { }
+
+  // @Input() deleteMethod: () => Observable<any>;
+  @Input() title: string;
+  @Input() message: string;
+  @Input() primaryCta: { text: string; action: string }
+  @Input() secondaryCta: { text: string; action: string }
 
   ngOnInit() {}
 

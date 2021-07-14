@@ -121,7 +121,6 @@
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
-          (onHomeClicked)="onHomeClicked($event)"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
       </app-expense-card>
@@ -129,7 +128,7 @@
     </div>
   </div>
 
-  <ng-container *ngIf="isConnected$|async; else isNotConnected">
+  <ng-container *ngIf="isConnected$|async">
     <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
       <app-expense-card 
           [expense]="expense"
@@ -138,7 +137,6 @@
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
           (goToTransaction)="goToTransaction($event)"
-          (onHomeClicked)="onHomeClicked($event)"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
       </app-expense-card>
