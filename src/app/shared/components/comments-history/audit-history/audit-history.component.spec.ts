@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { CommentsComponent } from './comments.component';
+import { AuditHistoryComponent } from './audit-history.component';
 
-describe('CommentsComponent', () => {
-  let component: CommentsComponent;
-  let fixture: ComponentFixture<CommentsComponent>;
+describe('AuditHistoryComponent', () => {
+  let component: AuditHistoryComponent;
+  let fixture: ComponentFixture<AuditHistoryComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CommentsComponent ],
+      declarations: [ AuditHistoryComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CommentsComponent);
+    fixture = TestBed.createComponent(AuditHistoryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
