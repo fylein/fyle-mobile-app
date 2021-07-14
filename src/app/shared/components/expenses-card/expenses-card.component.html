@@ -10,7 +10,7 @@
         <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
           <!-- When selection mode is enabled click on this mat check box will trigger (press) method twice, 
           To block any event trigger from mat check box click we need to disable mat check box -->
-          <mat-checkbox class="expenses-card--checkbox" [checked]="isSelected" disabled></mat-checkbox>
+          <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled></mat-checkbox>
         </div>
         <div class="expenses-card--receipt-container">
           <ion-img class="expenses-card--receipt-icon" [src]="receipt"></ion-img>
