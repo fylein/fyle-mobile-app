@@ -11,12 +11,13 @@
 
   &--title {
     font-size: 20px;
-    line-height: 1.3;
+    line-height: 1.28;
   }
 
   &--sub-title {
     font-size: 14px;
-    line-height: 1.3;
+    line-height: 1.28;
+    margin-top: 4px;
   }
 
   &--body {
@@ -29,11 +30,15 @@
     background-color: $pure-white;
   }
 
+  &--mandatory {
+    color: $primary;
+  }
+
   &--text {
     border-bottom: 1px solid $grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid $red-2;
     }
   }
 
@@ -58,6 +63,11 @@
     width: 100%;
     margin: 6px 0;
     padding: 0;
+  }
+
+  &--error-message {
+    margin-top: 2px;
+    color: $red;
   }
 
 
@@ -87,6 +97,9 @@
   
   &--add-more-text {
     margin-left: 5px;
+    color: $black-light;
+    font-weight: 500;
+    font-size: 14px;
   }
 
   &--cta-container {

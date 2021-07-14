@@ -109,6 +109,8 @@ export class MyExpensesPage implements OnInit {
   isReportableExpensesSelected = false;
   openReports$: Observable<ExtendedReport[]>;
   homeCurrencySymbol: string;
+  isLoadingDataInInfiniteScroll: boolean;
+  allExpensesCount: number;
 
   get HeaderState() {
     return HeaderState;
@@ -380,6 +382,7 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        this.isLoadingDataInInfiniteScroll = true;
         return this.transactionService.getMyExpensesCount(queryParams).pipe(
           switchMap((count) => {
             if (count > ((params.pageNumber - 1) * 10)) {
@@ -394,10 +397,11 @@ export class MyExpensesPage implements OnInit {
                data: []
              });
             }
-        })
+          })
         );
       }),
       map(res => {
+        this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -1220,6 +1224,11 @@ export class MyExpensesPage implements OnInit {
     }
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
     // setting Expenses count and amount stats on select
+    if (this.allExpensesCount === this.selectedElements.length) {
+      this.selectAll = true;
+    } else {
+      this.selectAll = false;
+    }
     this.setExpenseStatsOnSelect();
   }
 
@@ -1293,7 +1302,18 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
+  async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
+    if (!this.isReportableExpensesSelected) {
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        data: {
+          message: 'You can not add draft expenses and Critical policy violated expenses to a report',
+          showCloseButton: true
+        },
+        panelClass: ['mat-snack-bar-info']
+      });
+      return;
+    }
+
     this.trackingService.addToReport({Asset: 'Mobile'});
 
     let selectedElements = cloneDeep(this.selectedElements);
@@ -1606,6 +1626,7 @@ export class MyExpensesPage implements OnInit {
           switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
       ).subscribe(allExpenses => {
         this.selectedElements = allExpenses;
+        this.allExpensesCount = allExpenses.length;
         this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       });

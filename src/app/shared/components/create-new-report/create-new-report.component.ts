@@ -28,6 +28,7 @@ export class CreateNewReportComponent implements OnInit {
   homeCurrency: string;
   homeCurrencySymbol: string;
   isSelectedAll: boolean;
+  showReportNameError: boolean;
 
   constructor(
     private offlineService: OfflineService,
@@ -91,6 +92,12 @@ export class CreateNewReportComponent implements OnInit {
   }
 
   ctaClickedEvent(reportActionType) {
+    this.showReportNameError = false;
+    if (this.reportTitle.trim().length <= 0) {
+      this.showReportNameError = true;
+      return;
+    }
+    
     const report = {
       purpose: this.reportTitle,
       source: 'MOBILE',

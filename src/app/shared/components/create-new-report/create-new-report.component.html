@@ -1,4 +1,5 @@
 <ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="create-new-report--title-container text-center">
@@ -18,18 +19,21 @@
 <ion-content>
   <div class="create-new-report--body">
     <div class="create-new-report--name">
-      <div class="create-new-report--text">
+      <div class="create-new-report--text" [ngClass]="{'create-new-report--text__invalid': showReportNameError}">
         <div class="create-new-report--text-label">
           Report Name
           <span class="create-new-report--mandatory">*</span>
         </div>
         <input class="create-new-report--text-input create-new-report--internal-block" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required #reportTitleInput="ngModel">
       </div>
+      <div class="create-new-report--error-message" *ngIf="showReportNameError">
+        Please enter report name.
+      </div>
     </div>
 
     <div class="create-new-report--heading">EXPENSES</div>
     <div class="create-new-report--select-all-checkbox">
-      <mat-checkbox class="create-new-report--checkbox" [(ngModel)]="isSelectedAll" (ngModelChange)="toggleSelectAll($event)">Select all</mat-checkbox>
+      <mat-checkbox class="custom-mat-checkbox create-new-report--checkbox" [(ngModel)]="isSelectedAll" (ngModelChange)="toggleSelectAll($event)">Select all</mat-checkbox>
     </div>
 
     <div *ngFor="let expense of selectedExpensesToReport; let i = index">
