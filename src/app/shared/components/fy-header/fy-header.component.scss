@@ -1,10 +1,18 @@
 @import '../../../../theme/colors';
 
 .fy-header {
+  background-color: $pure-white;
   &--title {
     line-height: 26px;
     color: $black;
     font-weight: 500;
+  }
+
+  &--toolbar {
+    border-bottom: 1px solid $grey-2;
+    &__hide {
+      border-bottom: none;
+    }
   }
 
   &--simple-search-cancel {
