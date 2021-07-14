@@ -230,7 +230,6 @@
     font-weight: 500;
     font-size: 16px;
     line-height: 20px;
-    color: $black-2;
     margin-left: 12px;
   }
 
@@ -247,24 +246,13 @@
     border: 1px solid $grey-lighter;
     align-items: center;
     justify-content: space-between;
-  }
-
-  &--amount {
-    width: calc(100% - 100px);
-    padding: 0 0 4px;
-    border-right: 1px solid $grey-lighter;
-    color: #ababab;
-  }
-
-  &--rate {
-    text-align: end;
-    width: 100px;
-    padding: 0 0 4px;
-    color: #ababab;
+    font-weight: 500;
+    text-transform: lowercase;
+    color: $black-2;
   }
 
   &--add-stop {
-    color: #f36;
+    color: $primary;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -272,17 +260,12 @@
   }
 
   &--amount-value {
-    font-size: 24px;
-    color: #4a4a4a;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 22px;
   }
 
   &--rate-value {
     font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    margin-right: 12px;
   }
 
   &--remove-stop {
