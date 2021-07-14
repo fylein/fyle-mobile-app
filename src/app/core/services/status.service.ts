@@ -113,7 +113,7 @@ export class StatusService {
           icon: 'fy-recently-used'
         };
         break;
-      case (lowerCaseComment.indexOf('paid') > -1):
+      case (lowerCaseComment.indexOf('to paid') > -1):
         statusCategory = {
           category: 'Paid',
           icon: 'success-tick'
