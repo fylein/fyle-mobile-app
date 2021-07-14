@@ -397,7 +397,7 @@ export class MyExpensesPage implements OnInit {
                data: []
              });
             }
-        })
+          })
         );
       }),
       map(res => {

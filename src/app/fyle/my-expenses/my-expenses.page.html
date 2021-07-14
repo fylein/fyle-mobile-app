@@ -105,7 +105,7 @@
       <div class="my-expenses--zero-state-content">No expenses were found for the selected filter.</div>
     </div>
   </div>
-  <ng-container *ngIf="syncing">
+  <ng-container *ngIf="!(isConnected$|async)">
     <ng-container *ngIf="pendingTransactions.length > 0">
       <div class="my-expenses--syncing">
         <app-fy-alert-info [type]="'information'" [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
@@ -144,8 +144,10 @@
       </app-expense-card>
     </div>
   </ng-container>
-  <ng-container *ngIf="isLoadingDataInInfiniteScroll">
-    <app-fy-loading-screen class="my-expenses--shimmers"></app-fy-loading-screen>
+  <ng-container *ngIf="isConnected$|async">
+    <ng-container *ngIf="isLoadingDataInInfiniteScroll">
+      <app-fy-loading-screen class="my-expenses--shimmers"></app-fy-loading-screen>
+    </ng-container>
   </ng-container>
   </div>
 
