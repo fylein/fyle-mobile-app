@@ -29,13 +29,15 @@ export class IconModule {
       "fy-dashboard-new.svg", "fy-delegate-switch.svg", "fy-delete.svg", "fy-dismiss.svg", "fy-done.svg", 
       "fy-electric-car.svg", "fy-email.svg", "fy-expense.svg", "fy-expenses-new.svg", 
       "fy-filter.svg", "fy-help-new.svg", "fy-home-solid.svg", "fy-home.svg", 
+
       "fy-individual.svg", "fy-iphone.svg", "fy-info.svg",
-      "fy-matched-no.svg", "fy-matched-yes.svg", "fy-mileage.svg", 
-      "fy-notification-solid.svg", "fy-notification.svg", 
-      "fy-plus.svg", "fy-info.svg",
-      "fy-receipt-attached.svg", "fy-receipt-not-attached.svg", "fy-receipt.svg", "fy-receipts-new.svg", "fy-receipts.svg", "fy-recently-used.svg", "fy-rectangle.svg", "fy-reports-new.svg", "fy-reports.svg", 
+      "fy-matched-no.svg", "fy-matched-yes.svg", "fy-mileage.svg", "fy-matched.svg",
+      "fy-notification-solid.svg", "fy-notification.svg", "fy-non-reimbursable.svg",
+      "fy-plus.svg", "fy-info.svg", 
+      "fy-receipt-attached.svg", "fy-receipt-not-attached.svg", "fy-receipt.svg", "fy-receipts-new.svg", "fy-receipts.svg", "fy-recently-used.svg", "fy-rectangle.svg", "fy-reports-new.svg", "fy-reports.svg", "fy-reimbursable.svg",
       "fy-settings.svg", "fy-sort-ascending.svg", "fy-sort-descending.svg", "fy-spinner-circle.svg", "fy-switch-new.svg", "fy-switch.svg", 
       "fy-team-advances-new.svg", "fy-team-reports-new.svg", "fy-team-trips-new.svg", "fy-trips-new.svg", "fy-trips.svg", 
+      "fy-unmatched.svg",
       "fy-wallet.svg","fy-search.svg", "fy-clear.svg",
     "gas.svg",
     "hotel.svg",
@@ -45,7 +47,7 @@ export class IconModule {
     "office-supplies.svg",
     "parking.svg", "per_diem.svg", "phone.svg", "professional-service.svg", "plus.svg", "profile.svg",
     "search.svg", "settings.svg", "single.svg", "snacks.svg", "software.svg", "split-expense.svg", "send.svg",
-    "tax.svg", "taxi.svg", "toll-charge.svg", "train.svg", "training.svg",
+    "tax.svg", "taxi.svg", "toll-charge.svg", "train.svg", "training.svg", "tick-square-filled.svg",
     "utility.svg",
     "warning-inverted.svg", "warning.svg"
   ];
