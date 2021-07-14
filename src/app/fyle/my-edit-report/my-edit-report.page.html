@@ -26,7 +26,7 @@
     <div class="my-edit-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)  && extendedReport.rp_state === 'DRAFT'">
       <span>Select a trip to associate with report:</span>
       <div class="my-edit-report--select-trip">
-        <app-fy-select [label]="selectedTripRequest? 'Trip' : 'Select a Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest">
+        <app-fy-select [label]="'Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest">
         </app-fy-select>
       </div>
     </div>

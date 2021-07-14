@@ -39,14 +39,15 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
   secureUrl(url) {
     if (
-      url.indexOf('.fyle.in') >= 0 ||
       url.indexOf('localhost') >= 0 ||
       url.indexOf('.fylehq.com') >= 0 ||
-      url.indexOf('.fyle.tech') >= 0 ||
-      url.indexOf('.fylehq.ninja') >= 0) {
+      url.indexOf('.fyle.tech') >= 0) {
       if (
         url.indexOf('/api/auth/') >= 0 ||
         url.indexOf('routerapi/auth/') >= 0) {
+          if (url.indexOf('api/auth/logout') >= 0) {
+            return true;
+          }
         return false;
       }
       return true;

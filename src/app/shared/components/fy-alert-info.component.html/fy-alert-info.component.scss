@@ -4,8 +4,7 @@ $container-border: #DFDFE2;
 .alert-info-container {
   border: 1px solid $container-border;
   border-radius: 8px;
-  padding: 8px 12px;
-  margin: 10px;
+  padding: 12px 8px;
   display: flex;
 
   &--icon {
@@ -17,5 +16,6 @@ $container-border: #DFDFE2;
   &--message {
     color: $message;
     font-weight: 400;
+    width: 100%;
   }
 }

@@ -2,7 +2,7 @@
 
 .dashboard {
   &--toolbar {
-    --background: none !important;
+    border-bottom: 1px solid $grey-lightest;
   }
 
   &--body {

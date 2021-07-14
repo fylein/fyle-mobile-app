@@ -37,11 +37,11 @@
                   <div><strong>{{ feature.value.textLabel }}</strong></div>
                 </ion-col>
                 <ion-col size="2" *ngIf="$first && (orgUserSettings$|async)?.notification_settings?.push.enabled">
-                  <mat-checkbox [checked]="isAllSelected.pushEvents" (change)="toggleAllSelected('push')" color="primary"></mat-checkbox>
+                  <mat-checkbox [checked]="isAllSelected.pushEvents" (change)="toggleAllSelected('push')"></mat-checkbox>
                   <mat-icon svgIcon="fy-iphone" class="notifications--notif-type-icon"></mat-icon>
                 </ion-col>
                 <ion-col size="2" *ngIf="$first">
-                  <mat-checkbox color="primary" [checked]="isAllSelected.emailEvents" (change)="toggleAllSelected('email')"></mat-checkbox>
+                  <mat-checkbox [checked]="isAllSelected.emailEvents" (change)="toggleAllSelected('email')"></mat-checkbox>
                   <mat-icon svgIcon="fy-email" class="notifications--notif-type-icon"></mat-icon>
                 </ion-col>
               </ion-row>
@@ -55,12 +55,12 @@
                   </ion-col>
                   <ion-col size="2" *ngIf="(orgUserSettings$|async)?.notification_settings?.push.enabled">
                     <div formArrayName="pushEvents">
-                      <mat-checkbox color="primary" formControlName="{{i}}"></mat-checkbox>
+                      <mat-checkbox formControlName="{{i}}"></mat-checkbox>
                     </div>
                   </ion-col>
                   <ion-col size="2">
                     <div formArrayName="emailEvents">
-                      <mat-checkbox formControlName="{{i}}" color="primary"></mat-checkbox>
+                      <mat-checkbox formControlName="{{i}}"></mat-checkbox>
                     </div>
                   </ion-col>
                 </ion-row>
@@ -70,9 +70,9 @@
         </div>
       </div>
       <div>
-        <ion-button type="submit" class="notifications--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
+        <ion-button type="submit" class="notifications--primary-cta flat-button" expand="block" fill="solid" color="fyle-primary" 
         appFormButtonValidation [loading]="saveNotifLoading" [loadingText]="'SAVING'">
-          save
+          Save
         </ion-button>
       </div>
     </form>

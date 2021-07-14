@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { ShareReportComponent } from './share-report.component';
@@ -7,7 +7,7 @@ describe('ShareReportComponent', () => {
   let component: ShareReportComponent;
   let fixture: ComponentFixture<ShareReportComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ShareReportComponent ],
       imports: [IonicModule.forRoot()]

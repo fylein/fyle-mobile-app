@@ -10,7 +10,6 @@ import {PerDiemService} from './per-diem.service';
 import {CustomInputsService} from './custom-inputs.service';
 import {OrgService} from './org.service';
 import {AccountsService} from './accounts.service';
-import {TransactionFieldConfigurationsService} from './transaction-field-configurations.service';
 import {StorageService} from './storage.service';
 import {CurrencyService} from './currency.service';
 import {catchError, concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
@@ -43,7 +42,6 @@ export class OfflineService {
     private customInputsService: CustomInputsService,
     private orgService: OrgService,
     private accountsService: AccountsService,
-    private transactionFieldConfigurationsService: TransactionFieldConfigurationsService,
     private currencyService: CurrencyService,
     private storageService: StorageService,
     private permissionsService: PermissionsService,
@@ -57,6 +55,7 @@ export class OfflineService {
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const allCategories$ = this.getAllCategories();
+    const allEnabledCategories$ = this.getAllEnabledCategories();
     const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
     const perDiemRates$ = this.getPerDiemRates();
@@ -65,7 +64,6 @@ export class OfflineService {
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
-    const transactionFieldConfigurationsMap$ = this.getTransactionFieldConfigurationsMap();
     const currencies$ = this.getCurrencies();
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
@@ -80,6 +78,7 @@ export class OfflineService {
       orgSettings$,
       orgUserSettings$,
       allCategories$,
+      allEnabledCategories$,
       costCenters$,
       projects$,
       perDiemRates$,
@@ -87,7 +86,6 @@ export class OfflineService {
       currentOrg$,
       orgs$,
       accounts$,
-      transactionFieldConfigurationsMap$,
       expenseFieldsMap$,
       currencies$,
       homeCurrency$,
@@ -282,6 +280,13 @@ export class OfflineService {
   }
 
   @Cacheable()
+  getAllEnabledCategories() {
+    return this.getAllCategories().pipe(
+      map((categories)=> categories.filter(category => category.enabled === true))
+    );
+  }
+
+  @Cacheable()
   getAccounts() {
     return this.networkService.isOnline().pipe(
       switchMap(
@@ -451,25 +456,6 @@ export class OfflineService {
             );
           } else {
             return from(this.storageService.get('cachedReportActions'));
-          }
-        }
-      )
-    );
-  }
-
-  @Cacheable()
-  getTransactionFieldConfigurationsMap() {
-    return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.transactionFieldConfigurationsService.getAllMap().pipe(
-              tap((tfcMap) => {
-                this.storageService.set('cachedTransactionFieldConfigurationsMap', tfcMap);
-              })
-            );
-          } else {
-            return from(this.storageService.get('cachedTransactionFieldConfigurationsMap'));
           }
         }
       )

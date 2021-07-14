@@ -1,6 +1,25 @@
+@import '../../../theme/colors';
+
 .my-expenses {
   &--toolbar-header {
     border-bottom: 1px solid #e6e6e6;
+  }
+
+  &--header-btn {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+  }
+
+  &--filter-pills {
+    position: fixed;
+    width: 100%;
+    background-color: #fafafab0;
+    z-index: 99;
+  }
+
+  &--filter-pills-container {
+    display: block;
+    min-height: 52px;
   }
 
   &--toolbar {
@@ -15,6 +34,15 @@
     font-weight: 700;
     padding-left: 0px;
     line-height: 2;
+  }
+
+  &--content {
+    --background: #{$white};
+    --padding-bottom: 82px;
+  }
+
+  &--select-all-container {
+    --border-style: none;
   }
 
   &--state-toolbar {
@@ -81,15 +109,25 @@
     }
   }
 
+  &--simple-search-container {
+    padding-left: 18px;
+    padding-right: 4px;
+    mat-form-field {
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
+      }
+    }
+  }
+
   &--simple-search {
     width: 100%;
     font-size: 14px;
 
     &-icon {
-      width: 14px;
       font-size: 18px;
-      margin-right: 6px;
-      color: #aaa;
+      margin-right: 8px;
+      color: $black-light;
+      height: auto;
     }
 
     &-close {
@@ -170,7 +208,7 @@
   }
 
   &--syncing {
-    margin: 0 0 8px;
+    margin: 10px;
     padding: 0 12px;
   }
 

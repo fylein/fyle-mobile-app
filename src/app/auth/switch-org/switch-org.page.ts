@@ -111,6 +111,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
           orgSettings,
           orgUserSettings,
           allCategories,
+          allEnabledCategories,
           costCenters,
           projects,
           perDiemRates,
@@ -118,7 +119,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
           currentOrg,
           orgs,
           accounts,
-          transactionFieldConfigurationsMap,
           currencies,
           homeCurrency
         ],

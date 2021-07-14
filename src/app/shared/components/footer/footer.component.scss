@@ -9,6 +9,10 @@
     min-height: 100%;
     justify-content: center;
     &__inactive {
+    color: $black;
+    }
+    
+    &__disabled {
       opacity: .4;
     }
 
@@ -28,6 +32,7 @@
     width: 100%;
     background: $pure-white;
     box-shadow: 0 -2px 12px $pink-shadow;
+    z-index: 999;
     &__message-gap {
       margin-bottom: 36px;
     }

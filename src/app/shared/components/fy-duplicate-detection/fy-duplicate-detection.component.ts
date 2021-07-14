@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { FyDuplicateDetectionModalComponent } from './fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
 import { isEqual } from 'lodash';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-duplicate-detection',
@@ -34,6 +35,7 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private duplicateDetectionService: DuplicateDetectionService
   ) { }
 
@@ -65,7 +67,10 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
       componentProps: {
         options: this.options,
         currentSelection: this.value
-      }
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await selectionModal.present();
