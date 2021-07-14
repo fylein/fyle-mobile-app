@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { IonContent, ModalController } from '@ionic/angular';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
@@ -9,6 +9,7 @@ import {Expense} from '../../../../core/models/expense.model';
 import {TransactionService} from '../../../../core/services/transaction.service';
 import {Router} from '@angular/router';
 import {TrackingService} from '../../../../core/services/tracking.service';
+import * as moment from 'moment';
 
 
 @Component({
@@ -20,19 +21,23 @@ export class ViewCommentComponent implements OnInit {
 
   @Input() objectType: string;
   @Input() objectId: any;
-  @Input() mode: string;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
   estatuses$: Observable<ExtendedStatus[]>;
   totalCommentsCount$: Observable<number>;
-  showBotComments: boolean;
   newComment: string;
   refreshEstatuses$: Subject<void> = new Subject();
   isCommentAdded: boolean;
   reversalComment: string;
   matchedExpense: Expense;
   expenseNumber: string;
+  isCommentsView: boolean = true;
+  systemComments: ExtendedStatus[];
+  userComments: any;
+  type: string;
+  systemEstatuses: ExtendedStatus[];
+  showDt: boolean;
 
   constructor(
     private statusService: StatusService,
@@ -40,12 +45,9 @@ export class ViewCommentComponent implements OnInit {
     private modalController: ModalController,
     private transactionService: TransactionService,
     private router: Router,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private elementRef: ElementRef
   ) { }
-
-  changeBotComments() {
-    this.showBotComments = !this.showBotComments;
-  }
 
   addComment() {
 
@@ -75,8 +77,25 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
+  segmentChanged(event) {
+    this.isCommentsView = !this.isCommentsView;
+  }
+
+  swipeRightToHistory(event) {
+    if (event && event.direction === 2) {
+      let historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[1];
+      historyBtn.click();
+    }
+  }
+
+  swipeLeftToComments(event) {
+    if (event && event.direction === 4) {
+      let commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[0];
+      commentsBtn.click();
+    }
+  }
+
   ngOnInit() {
-    this.showBotComments = false;
     const eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
@@ -88,7 +107,7 @@ export class ViewCommentComponent implements OnInit {
       return this.statusService.find(this.objectType, this.objectId).pipe(
           map(res => {
             return res.map(status => {
-              status.isBotComment = status && (status.st_org_user_id === 'SYSTEM');
+              status.isBotComment = status && (['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
               status.isSelfComment = status && eou && eou.ou && (status.st_org_user_id === eou.ou.id);
               status.isOthersComment = status && eou && eou.ou && (status.st_org_user_id !== eou.ou.id);
               return status;
@@ -112,6 +131,28 @@ export class ViewCommentComponent implements OnInit {
       const reversalStatus = estatuses.filter((status) => {
         return (status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1);
       });
+
+      this.systemComments = estatuses.filter((status) => {
+        return ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
+      });
+
+      this.type = this.objectType.toLowerCase() === 'transactions' ? 'Expense' : this.objectType.substring(0, this.objectType.length - 1);
+
+      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
+
+      this.userComments = estatuses.filter((status) => {
+        return status.us_full_name;
+      });
+
+      for(let i = 0; i < this.userComments.length; i++) {
+        let prevCommentDt = moment(this.userComments[i-1] && this.userComments[i-1].st_created_at);
+        let currentCommentDt =  moment(this.userComments[i] && this.userComments[i].st_created_at);
+        if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
+          this.userComments[i].show_dt = false;
+        } else {
+          this.userComments[i].show_dt = true;
+        }
+      }
 
       if (reversalStatus && reversalStatus.length > 0 && reversalStatus[0]) {
         const comment = reversalStatus[0].st_comment;

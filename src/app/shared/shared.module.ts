@@ -40,8 +40,10 @@ import {FyLoadingScreenComponent} from './components/fy-loading-screen/fy-loadin
 import {DelegatedAccMessageComponent} from './components/delegated-acc-message/delegated-acc-message.component';
 import {IconModule} from './icon/icon.module';
 import {CurrencyComponent} from './components/currency/currency.component';
-import {CommentsComponent} from './components/comments/comments.component';
-import {ViewCommentComponent} from './components/comments/view-comment/view-comment.component';
+import {CommentsHistoryComponent} from './components/comments-history/comments-history.component';
+import {ViewCommentComponent} from './components/comments-history/view-comment/view-comment.component';
+import {AuditHistoryComponent} from './components/comments-history/audit-history/audit-history.component';
+import {StatusesDiffComponent} from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import {FyApporverComponent} from './components/fy-apporver/fy-apporver.component';
 import {ConfirmationCommentPopoverComponent} from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 
@@ -104,8 +106,10 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyDuplicateDetectionModalComponent,
     DelegatedAccMessageComponent,
     CurrencyComponent,
-    CommentsComponent,
+    CommentsHistoryComponent,
     ViewCommentComponent,
+    AuditHistoryComponent,
+    StatusesDiffComponent,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,
@@ -176,7 +180,9 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     DelegatedAccMessageComponent,
     IconModule,
     CurrencyComponent,
-    CommentsComponent,
+    CommentsHistoryComponent,
+    AuditHistoryComponent,
+    StatusesDiffComponent,
     FormButtonValidationDirective,
     MatProgressSpinnerModule,
     FyPreviewAttachmentsComponent,
