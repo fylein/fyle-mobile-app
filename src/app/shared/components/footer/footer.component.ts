@@ -59,12 +59,6 @@ export class FooterComponent implements OnInit {
     this.cameraClicked.emit();
   }
 
-<<<<<<< HEAD
-  goToTasks(connectionState) {
-    if (connectionState !== ConnectionMessageStatus.disconnected) {
-      this.taskClicked.emit();
-    }
-=======
   goToTasks() {
     this.trackingService.footerButtonClicked({
       Asset: 'Mobile',
@@ -73,6 +67,5 @@ export class FooterComponent implements OnInit {
     });
 
     this.taskClicked.emit();
->>>>>>> master
   }
 }
