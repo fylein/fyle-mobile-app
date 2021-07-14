@@ -33,7 +33,7 @@
           <div class="expenses-card--category-vendor-project-container">
             <div class="display-flex expenses-card--category-icon-container">
               <div class="expenses-card--category" [ngClass]="{'expenses-card--category__small': isSelectionModeEnabled}">
-                {{expense.tx_org_category === 'Unspecified' && expense?.tx_extracted_data?.category ? expense?.tx_extracted_data?.category : expense.tx_org_category}}
+                {{expense?.tx_org_category || 'Unspecified'}}
               </div>
               <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
             </div>
