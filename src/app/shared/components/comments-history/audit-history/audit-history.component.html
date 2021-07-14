@@ -1,8 +1,8 @@
 <div class="audit-history">
-  <div class="audit-history--container">
+  <div>
     <div *ngFor="let estatus of estatuses" class="audit-history--block">
       <div>
-        <mat-icon class="audit-history--circle" svgIcon="circle" *ngIf="!estatus.us_full_name"></mat-icon>
+        <mat-icon class="audit-history--icon" [svgIcon]="estatus.st.icon" *ngIf="!estatus.us_full_name" [ngClass]="{'audit-history--circle': estatus.st.icon === 'circle'}"></mat-icon>
         <span class="text-capitalize audit-history--category">{{ estatus.st.category }}</span>
         <div class="audit-history--timestamp">
           <span>{{ estatus.st_created_at | date:'MMM d, yyyy h:mm a'}}</span>

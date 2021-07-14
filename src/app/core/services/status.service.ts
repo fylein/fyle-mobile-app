@@ -62,103 +62,103 @@ export class StatusService {
       case lowerCaseComment.indexOf('updated') > -1:
         statusCategory = {
           category: type + ' Edited',
-          icon: 'circle'
+          icon: 'edit'
         };
         break;
       case lowerCaseComment.indexOf('attachment') > -1:
         statusCategory = {
           category: 'Receipt Attached',
-          icon: 'circle'
+          icon: 'attachment'
         };
         break;
       case lowerCaseComment.indexOf('report') > -1:
         statusCategory = {
           category: 'Report',
-          icon: 'circle'
+          icon: 'list'
         };
         break;
       case lowerCaseComment.indexOf('flagged') > -1:
         statusCategory = {
           category: 'Flagged',
-          icon: 'circle'
+          icon: 'flag'
         };
         break;
       case lowerCaseComment.indexOf('the following action(s) will be taken') > -1:
         statusCategory = {
           category: 'Policy Violation',
-          icon: 'circle'
+          icon: 'danger'
         };
         break;
       case lowerCaseComment.indexOf('additional approvers are not present') > -1:
         statusCategory = {
           category: 'Failed to run policies',
-          icon: 'circle'
+          icon: 'error-filled'
         };
         break;
       case lowerCaseComment.indexOf('verified') > -1:
         statusCategory = {
           category: 'Verified',
-          icon: 'circle'
+          icon: 'success-tick'
         };
         break;
       case lowerCaseComment.indexOf('approved') > -1:
         statusCategory = {
           category: type + ' Approved',
-          icon: 'circle'
+          icon: 'success-tick'
         };
         break;
       case lowerCaseComment.indexOf('payment_processing') > -1:
         statusCategory = {
           category: 'Processing Payment',
-          icon: 'circle'
+          icon: 'fy-recently-used'
         };
         break;
       case (lowerCaseComment.indexOf('paid') > -1):
         statusCategory = {
           category: 'Paid',
-          icon: 'circle'
+          icon: 'success-tick'
         };
         break;
       case (lowerCaseComment.indexOf('expense issues') > -1):
         statusCategory = {
           category: 'Expense Issues',
-          icon: 'circle'
+          icon: 'error-filled'
         };
         break;
       case (lowerCaseComment.indexOf('policies ran successfully') > -1):
         statusCategory = {
           category: 'Policies Ran Successfully',
-          icon: 'circle'
+          icon: 'success-tick'
         };
         break;
       case (lowerCaseComment.indexOf('auto-matched by') > -1):
         statusCategory = {
           category: 'Card Transaction Matched',
-          icon: 'circle'
+          icon: 'card-filled'
         };
         break;
       case (lowerCaseComment.indexOf('unmatched by') > -1):
         statusCategory = {
           category: 'Expense Unmatched',
-          icon: 'circle'
+          icon: 'fy-corporate-card'
         };
         break;
       case (lowerCaseComment.indexOf('matched by') > -1):
         statusCategory = {
           category: 'Expense Matched',
-          icon: 'circle'
+          icon: 'card-filled'
         };
         break;
       case lowerCaseComment.indexOf('expense is a possible duplicate') > -1:
         statusCategory = {
           category: 'Duplicate Detected',
-          icon: 'circle'
+          icon: 'duplicate'
         };
         break;
       case (lowerCaseComment.indexOf('duplicate expense(s) with similar details') > -1):
         statusCategory = {
           category: 'Duplicate(s) issue resolved',
-          icon: 'circle'
+          icon: 'duplicate'
         };
         break;
       default:

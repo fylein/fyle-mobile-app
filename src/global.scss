@@ -672,12 +672,10 @@ ref - https://stackoverflow.com/a/31162426
 
 .segment-button-checked {
   --color-checked: #2c304e;
-  font-size: 16px !important;
 }
 
 .ios .segment-button-checked {
   --indicator-color: #2c304e;
-  font-size: 16px !important;
   color: $pure-white !important;
   margin: 2px;
   padding: 0 8px;
