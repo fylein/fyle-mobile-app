@@ -30,6 +30,10 @@
     background-color: $pure-white;
   }
 
+  &--mandatory {
+    color: $primary;
+  }
+
   &--text {
     border-bottom: 1px solid $grey-lighter;
 
