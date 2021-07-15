@@ -1,128 +1,128 @@
 @import '../../../../theme/colors';
 
 .receipt-preview-thumbnail {
-  &--actions {
-      width: 100%;
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-between;
-      color: $black-light;
-  }
+    &--actions {
+        width: 100%;
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        color: $black-light;
+    }
 
-  &--add-more {
-      display: flex;
-      align-items: center;
-  }
+    &--add-more {
+        display: flex;
+        align-items: center;
+    }
 
-  &--icon {
-      margin: 5px;
-      font-size: 16px;
-      display: block;
-      color: $primary;
-      font-weight: normal;
-  }
+    &--icon {
+        margin: 5px;
+        font-size: 16px;
+        display: block;
+        color: $primary;
+        font-weight: normal;
+    }
 
-  &--add-more-text {
-      margin-top: 2px;
-      font-size: 14px;
-      font-weight: 400;
-  }
+    &--add-more-text {
+        margin-top: 2px;
+        font-size: 14px;
+        font-weight: 400;
+    }
 
-  &--receipt-index {
-      font-size: 12px;
-      color: $black-light;
-      margin-top: 10px;
-  }
+    &--receipt-index {
+        font-size: 12px;
+        color: $black-light;
+        margin-top: 10px;
+    }
 
-  &--container {
-      height: 220px;
-      width: 100%;
-      padding: 0px;
-      border-radius: 4px;
-  }
+    &--container {
+        height: 220px;
+        width: 100%;
+        padding: 0px;
+        border-radius: 4px;
+    }
 
-  &--slide {
-      width: auto !important;
-  }
+    &--slide {
+        width: auto !important;
+    }
 
-  &--image {
-      height: 220px;
-  }
+    &--image {
+        height: 220px;
+    }
 
-  &--pdf-viewer {
-      display: block;
-      height: 220px;
-  }
+    &--pdf-viewer {
+        display: block;
+        height: 220px;
+    }
 
-  &--slider-container {
-      position: relative;
-      border: 1px solid $translucent-black;
-      height: 100%;
-      width: 100%;
-  }
+    &--slider-container {
+        position: relative;
+        border: 1px solid $translucent-black;
+        height: 100%;
+        width: 100%;
+    }
 
-  &--controls {
-      position: absolute;
-      z-index: 99;
-      height: 100%;
-      width: 100%;
-  }
+    &--controls {
+        position: absolute;
+        z-index: 99;
+        height: 100%;
+        width: 100%;
+    }
 
-  &--go-back {
-    position: absolute;
-    top: 39%;
-    left: 3%;
-    background-color: $translucent-black;
-    text-align: center;
-    border-radius: 50%;
-    font-size: 18px;
-    padding: 12px;
-    height: 40px;
-    width: 40px;
-    color: white;
-  }
+    &--go-back {
+        position: absolute;
+        top: 39%;
+        left: 3%;
+        background-color: $translucent-black;
+        text-align: center;
+        border-radius: 50%;
+        font-size: 18px;
+        padding: 12px;
+        height: 40px;
+        width: 40px;
+        color: white;
+    }
 
-  &--go-forward {
-    position: absolute;
-    top: 39%;
-    right: 3%;
-    background-color: $translucent-black;
-    text-align: center;
-    border-radius: 50%;
-    font-size: 18px;
-    padding: 12px;
-    height: 40px;
-    width: 40px;
-    color: white;
-  }
-  
-  &--spinner-overlay {
-      background-color: $translucent-white-2;
-      position: absolute;
-      height: 240px;
-      width: 100%;
-      z-index: 100;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-  }
+    &--go-forward {
+        position: absolute;
+        top: 39%;
+        right: 3%;
+        background-color: $translucent-black;
+        text-align: center;
+        border-radius: 50%;
+        font-size: 18px;
+        padding: 12px;
+        height: 40px;
+        width: 40px;
+        color: white;
+    }
 
-  &--spinner-container {
-      width: 80%;
-      position: relative;
-      text-align: center;
-  }
+    &--spinner-overlay {
+        background-color: $translucent-white-2;
+        position: absolute;
+        height: 240px;
+        width: 100%;
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-  &--spinner {
-      zoom: 3;
-      color: $brand-primary-light;
-      width: 100%;
-  }
+    &--spinner-container {
+        width: 80%;
+        position: relative;
+        text-align: center;
+    }
 
-  &--spinner-text {
-      margin: 3px;
-      font-size: 14px;
-      color: $blue-black;
-  }
+    &--spinner {
+        zoom: 3;
+        color: $brand-primary-light;
+        width: 100%;
+    }
 
-  }
+    &--spinner-text {
+        margin: 3px;
+        font-size: 14px;
+        color: $blue-black;
+    }
+
+}
