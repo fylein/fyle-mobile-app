@@ -111,8 +111,26 @@
                         [nullOption]="false"
                         [options]="allowedPerDiemRateOptions"
                         [selectModalHeader]="'Select Per Diem Type'"
+                        [selectionElement]="perDiemType"
                         formControlName="per_diem_rate">
                       </app-fy-select>
+                    <ng-template #perDiemType let-label="label" let-perDiemType="value" let-selected="selected">
+                      <div>
+                        <div class="add-edit-per-diem--type-name">
+                          {{label}}
+                        </div>
+                        <ng-container *ngIf="perDiemType">
+                          <ng-container>
+                            <div class="add-edit-per-diem--type-rate">
+                              {{perDiemType.readableRate}}
+                            </div>
+                          </ng-container>
+                        </ng-container>
+                      </div>
+                      <mat-icon *ngIf="selected">
+                        check
+                      </mat-icon>
+                    </ng-template>
                     </div>
                     <div *ngIf="fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid"
                          class="add-edit-per-diem--error">
