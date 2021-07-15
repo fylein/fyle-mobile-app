@@ -28,6 +28,14 @@ import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-
 import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { cloneDeep } from 'lodash';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import {TokenService} from 'src/app/core/services/token.service';
 import {ApiV2Service} from 'src/app/core/services/api-v2.service';
 import {environment} from 'src/environments/environment';
@@ -40,6 +48,7 @@ import {DateFilters} from '../../shared/components/fy-filters/date-filters.enum'
 import {SelectedFilters} from '../../shared/components/fy-filters/selected-filters.interface';
 import {FilterPill} from '../../shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
+import { getCurrencySymbol } from '@angular/common';
 
 type Filters = Partial<{
   state: string[],
@@ -97,6 +106,11 @@ export class MyExpensesPage implements OnInit {
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
+  isReportableExpensesSelected = false;
+  openReports$: Observable<ExtendedReport[]>;
+  homeCurrencySymbol: string;
+  isLoadingDataInInfiniteScroll: boolean;
+  allExpensesCount: number;
 
   get HeaderState() {
     return HeaderState;
@@ -120,6 +134,9 @@ export class MyExpensesPage implements OnInit {
     private tokenService: TokenService,
     private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
+    private reportService: ReportService,
+    private matBottomSheet: MatBottomSheet,
+    private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
     private toastController: ToastController
   ) { }
@@ -339,6 +356,10 @@ export class MyExpensesPage implements OnInit {
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
+    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+    });
+
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
@@ -361,6 +382,7 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        this.isLoadingDataInInfiniteScroll = true;
         return this.transactionService.getMyExpensesCount(queryParams).pipe(
           switchMap((count) => {
             if (count > ((params.pageNumber - 1) * 10)) {
@@ -375,10 +397,11 @@ export class MyExpensesPage implements OnInit {
                data: []
              });
             }
-        })
+          })
         );
       }),
       map(res => {
+        this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -494,6 +517,18 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       this.isLoading = false;
     }, 500);
+
+    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
+
+    this.openReports$ = this.reportService.getAllExtendedReports({queryParams}).pipe(
+      map((openReports) => {
+        return openReports.filter(openReport => {
+          // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
+          // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list 
+          return !openReport.report_approvals || (openReport.report_approvals && !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+        })
+      })
+    );
   }
 
   setupNetworkWatcher() {
@@ -1187,7 +1222,13 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.selectedElements.push(expense);
     }
+    this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
     // setting Expenses count and amount stats on select
+    if (this.allExpensesCount === this.selectedElements.length) {
+      this.selectAll = true;
+    } else {
+      this.selectAll = false;
+    }
     this.setExpenseStatsOnSelect();
   }
 
@@ -1228,10 +1269,111 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
-  openCreateReportWithSelectedIds() {
+  async openCriticalPolicyViolationPopOver(config: { title: string, message: string, report_type: string}) {
+    const criticalPolicyViolationPopOver = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title: config.title,
+        message: config.message,
+        primaryCta: {
+          text: 'Exclude and Continue',
+          action: 'continue'
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel'
+        }
+      },
+      cssClass: 'pop-up-in-center'
+    });
+
+    await criticalPolicyViolationPopOver.present();
+
+    const {data} = await criticalPolicyViolationPopOver.onWillDismiss();
+
+    if (data && data.action) {
+      if (data.action === 'continue') {
+        if (config.report_type === 'oldReport') {
+          this.showOldReportsMatBottomSheet();
+        } else {
+          this.showNewReportModal();
+        }
+      }
+    }
+  }
+
+  async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
+    if (!this.isReportableExpensesSelected) {
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        data: {
+          message: 'You can not add draft expenses and Critical policy violated expenses to a report',
+          showCloseButton: true
+        },
+        panelClass: ['mat-snack-bar-info']
+      });
+      return;
+    }
+
     this.trackingService.addToReport({Asset: 'Mobile'});
-    const txnIds = this.selectedElements.map(expense => expense.tx_id);
-    this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify(txnIds) }]);
+
+    let selectedElements = cloneDeep(this.selectedElements);
+
+    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
+    const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
+
+    const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
+        const amount = current.tx_amount || current.tx_user_amount;
+        return prev + amount;
+    }, 0);
+
+    const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
+    const noOfExpensesInDraftState = expensesInDraftState.length;
+    let title = '';
+    let message = '';
+
+    if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfExpensesInDraftState > 0)) {
+
+      this.homeCurrency$.subscribe(homeCurrency => {
+        if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
+          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
+        } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
+          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
+          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
+        } else if (noOfExpensesInDraftState > 0) {
+          title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+          message = `${noOfExpensesInDraftState} expenses are in draft states.`;
+        }
+        this.openCriticalPolicyViolationPopOver({title, message, report_type});
+      });
+
+    } else {
+      if (report_type === 'oldReport') {
+        this.showOldReportsMatBottomSheet();
+      } else {
+        this.showNewReportModal();
+      } 
+    }
+  }
+
+  async showNewReportModal() {
+    const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
+    const addExpenseToNewReportModal = await this.modalController.create({
+      component: CreateNewReportComponent,
+      componentProps: {
+        selectedExpensesToReport: reportAbleExpenses
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
+    });
+    await addExpenseToNewReportModal.present();
+
+    const { data } = await addExpenseToNewReportModal.onDidDismiss();
+
+    if (data && data.report) {
+      this.showAddToReportSuccessToast({report: data.report, message: data.message});
+    }
   }
 
   openCreateReport() {
@@ -1340,6 +1482,73 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  showAddToReportSuccessToast(config: { message: string, report}) {
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      data: {
+        icon: 'tick-square-filled',
+        message: config.message,
+        redirectionText: 'View Report',
+        showCloseButton: true
+      },
+      panelClass: ['mat-snack-bar-success'],
+      duration: 3000,
+    });
+
+    this.isReportableExpensesSelected = false;
+    this.selectionMode = false;
+    this.headerState = HeaderState.base;
+    this.doRefresh();
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id || config.report.id, navigateBack: true }]);
+    });
+    
+  }
+
+  addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
+    return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
+      switchMap(() => {
+        return this.reportService.addTransactions(report.rp_id, selectedExpensesId).pipe(
+          map(() => report)
+        )
+      }),
+      finalize(() => this.loaderService.hideLoader())
+    ) 
+  }
+
+  showOldReportsMatBottomSheet() {
+    let reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
+    let selectedExpensesId = reportAbleExpenses.map(expenses => expenses.tx_id);
+
+    this.openReports$.pipe(
+      switchMap((openReports) => {
+        const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
+          data: { openReports },
+          panelClass: ['mat-bottom-sheet-1']
+        });
+        return addTxnToReportDialog.afterDismissed();
+      }),
+      switchMap((data) => {
+        if (data && data.report) {
+          return this.addTransactionsToReport(data.report, selectedExpensesId);
+        } else {
+          return of(null);
+        }
+      }),
+    ).subscribe((report: ExtendedReport) => {
+      if (report) {
+        let message = '';
+        if (report.rp_state.toLowerCase() === 'draft') {
+          message = 'Expenses added to an existing draft report';
+        } else {
+          message = 'Expenses added to report successfully';
+        }
+        this.showAddToReportSuccessToast({message, report});
+      }
+    })
+
+  }
+
   async openActionSheet() {
     const that = this;
     const actionSheet = await this.actionSheetController.create({
@@ -1376,21 +1585,25 @@ export class MyExpensesPage implements OnInit {
         count: this.selectedElements.length
       });
       if (data.status === 'success') {
-        const toastMessage = await this.toastController.create({
-          color: 'success',
-          message: `${this.selectedElements.length} Expenses have been deleted`,
-          duration: 800
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          data: {
+            icon: 'tick-square-filled',
+            message: `${this.selectedElements.length} Expenses have been deleted`,
+            showCloseButton: true
+          },
+          panelClass: ['mat-snack-bar-success'],
+          duration: 3000,
         });
-
-        await toastMessage.present();
       } else {
-        const toastMessage = await this.toastController.create({
-          color: 'danger',
-          message: `We could not delete the expenses. Please try again `,
-          duration: 800
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          data: {
+            icon: 'tick-square-filled',
+            message: 'We could not delete the expenses. Please try again ',
+            showCloseButton: true
+          },
+          panelClass: ['mat-snack-bar-error'],
+          duration: 3000,
         });
-
-        await toastMessage.present();
       }
 
       this.doRefresh();
@@ -1413,10 +1626,13 @@ export class MyExpensesPage implements OnInit {
           switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
       ).subscribe(allExpenses => {
         this.selectedElements = allExpenses;
+        this.allExpensesCount = allExpenses.length;
+        this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       });
     } else {
       this.selectedElements = [];
+      this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
     }
   }
@@ -1457,7 +1673,9 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams
     });
+
   }
+
 
   onTaskClicked() {
     const queryParams: Params = { state: 'tasks' };
@@ -1471,4 +1689,5 @@ export class MyExpensesPage implements OnInit {
       navigate_back: true
     }]);
   }
+  
 }
