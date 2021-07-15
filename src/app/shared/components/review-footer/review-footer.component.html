@@ -2,11 +2,11 @@
   <ion-toolbar mode="md" class="review-footer--footer-toolbar__shadow review-footer--footer-toolbar__spacing">
     <ion-buttons>
       <ion-button *ngIf="activeIndex !== 0 && reviewList?.length > 0" (click)="onSaveAndGoToPrev()"
-        [loadingText]="'SAVING'" [loading]="saveAndPrevLoader" appFormButtonValidation
+        [loadingText]="'Saving'" [loading]="saveAndPrevLoader" appFormButtonValidation
         class="review-footer--secondary-cta text-capitalize" fill="clear">
         Save and Previous
       </ion-button>
-      <ion-button (click)="onSaveAndGoToNext()" [loadingText]="'SAVING'" [loading]="saveAndNextLoader"
+      <ion-button (click)="onSaveAndGoToNext()" [loadingText]="'Saving'" [loading]="saveAndNextLoader"
         appFormButtonValidation class="review-footer--primary-cta text-capitalize" color="fyle-primary" fill="solid">
         {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
       </ion-button>

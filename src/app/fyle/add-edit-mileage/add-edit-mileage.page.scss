@@ -8,6 +8,12 @@
     }
   }
 
+  &--header-button {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+    width: auto !important;
+  }
+
   &--sub-header {
     color: #ababab;
     font-size: 14px;
