@@ -224,6 +224,7 @@ export class TransactionsOutboxService {
   }
 
   deleteOfflineExpense(index: number) {
+    console.log("---------------", index);
     this.queue.splice(index, 1);
     this.saveQueue()
     return null;

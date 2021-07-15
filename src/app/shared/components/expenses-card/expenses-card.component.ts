@@ -6,6 +6,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import {getCurrencySymbol} from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { map } from 'rxjs/operators';
+import { isEqual } from 'lodash';
 
 @Component({
   selector: 'app-expense-card',
@@ -49,11 +50,10 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   get isSelected() {
-    debugger;
     if (this.expense.tx_id) {
       return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
     } else {
-      return this.selectedElements.some(txn => new Date(this.expense.tx_created_at) === new Date(txn.tx_created_at));
+      return this.selectedElements.some(txn => isEqual(this.expense, txn));
     }
   }
 

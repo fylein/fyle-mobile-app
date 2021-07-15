@@ -40,8 +40,11 @@
     </div>
   </ng-container>
   <ng-container multiselect>
+    a
     <ng-container *ngIf="homeCurrency$ | async as homeCurrency">
+      b
       <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
+        c
         <ion-title class="my-expenses--multiselect-title page-title">
           {{selectedElements?.length}} {{(selectedElements?.length > 1) ? 'expenses' : 'expense'}} worth {{homeCurrencySymbol}} {{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency: 2: true }}
         </ion-title>

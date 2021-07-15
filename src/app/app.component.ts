@@ -367,8 +367,7 @@ export class AppComponent implements OnInit {
             title: 'Expenses',
             isVisible: true,
             icon: 'fy-expenses-new',
-            route: ['/', 'enterprise', 'my_expenses'],
-            disabled: true
+            route: ['/', 'enterprise', 'my_expenses']
           },
           {
             title: 'Cards',
