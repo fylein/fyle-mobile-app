@@ -1727,7 +1727,7 @@ export class AddEditExpensePage implements OnInit {
                 etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
               }
 
-              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && etxn.tx.vendor) {
+              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
                 etxn.tx.vendor = etxn.tx.extracted_data.vendor;
               }
 
