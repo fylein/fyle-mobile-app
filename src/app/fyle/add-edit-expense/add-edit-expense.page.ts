@@ -58,10 +58,9 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { CommentsComponent } from 'src/app/shared/components/comments/comments.component';
-import { ViewCommentComponent } from 'src/app/shared/components/comments/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -3296,7 +3295,7 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  async openCommensModal() {
+  async openCommentsModal() {
     const etxn = await this.etxn$.toPromise();
 
     const modal = await this.modalController.create({
