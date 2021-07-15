@@ -614,7 +614,6 @@ export class TransactionService {
     });
   }
 
-<<<<<<< HEAD
   compareExpense(currentExpenseObject, originalExpenseObject) {
     const duplicateFieldsToBeCompared = ['amount', 'fyle_category', 'currency', 'txn_dt', 'to_dt', 'from_dt', 'locations'];
     for (const fieldName of duplicateFieldsToBeCompared) {
@@ -634,7 +633,6 @@ export class TransactionService {
     return false;
   }
 
-=======
   getVendorDetails(expense: Expense): string {
     const fyleCategory = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
     let vendorDisplayName = expense.tx_vendor;
@@ -666,5 +664,4 @@ export class TransactionService {
   getIsDraft(expense: Expense): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
->>>>>>> master
 }
