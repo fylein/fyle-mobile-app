@@ -4,7 +4,8 @@
   </div>
   <div (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
     <mat-icon class="receipt-preview-thumbnail--icon" svgIcon="fy-plus"></mat-icon>
-    Add More
+    <span class="receipt-preview-thumbnail--add-more-text">Add More</span>
+    
   </div>
 </div>
 
@@ -15,7 +16,7 @@
       <span class="receipt-preview-thumbnail--spinner-text">Uploading receipt</span>
     </div>
   </div>
-  
+
   <ng-container *ngIf="attachments.length > 1">
     <div class="receipt-preview-thumbnail--controls">
       <mat-icon class="receipt-preview-thumbnail--go-back" (click)="goToPrevSlide()">

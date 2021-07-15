@@ -12,8 +12,6 @@
   &--add-more {
       display: flex;
       align-items: center;
-      font-size: 14px;
-      font-weight: 400;
   }
 
   &--icon {
@@ -22,6 +20,12 @@
       display: block;
       color: $primary;
       font-weight: normal;
+  }
+
+  &--add-more-text {
+      margin-top: 2px;
+      font-size: 14px;
+      font-weight: 400;
   }
 
   &--receipt-index {
