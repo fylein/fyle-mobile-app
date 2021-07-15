@@ -162,7 +162,7 @@
 <ion-footer>
   <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
   <ng-container *ngIf="openReports$ | async as openReports">
-    <ng-container *ngIf="selectionMode">
+    <ng-container *ngIf="selectionMode && !reviewMode">
       <div class="my-expenses--footer-conatiner">
         <button type="button" *ngIf="openReports.length > 0"
           class="my-expenses--cta-button my-expenses--secondary-cta text-center" [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
@@ -173,7 +173,12 @@
           (click)="openCreateReportWithSelectedIds('newReport')">Create New Report</button>
       </div>
     </ng-container>
+    <ng-container *ngIf="selectionMode && reviewMode">
+      <div class="my-expenses--footer-conatiner">
+        <button type="submit"
+          class="my-expenses--cta-button my-expenses--primary-cta text-center" (click)="openReviewExpenses()">Start Review</button>
+      </div>
+    </ng-container>
   </ng-container>
-  
 </ion-footer>
 
