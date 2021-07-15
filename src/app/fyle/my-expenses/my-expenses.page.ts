@@ -1636,6 +1636,13 @@ export class MyExpensesPage implements OnInit {
 
   onSelectAll(checked: boolean) {
     if (checked) {
+      if (this.pendingTransactions.length > 0) {
+        this.selectedElements = this.pendingTransactions;
+        this.allExpensesCount = this.selectedElements.length;
+        this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+        this.setExpenseStatsOnSelect();
+      }
+
       this.loadData$.pipe(
           take(1),
           map(params => {
@@ -1648,8 +1655,8 @@ export class MyExpensesPage implements OnInit {
           }),
           switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
       ).subscribe(allExpenses => {
-        this.selectedElements = allExpenses;
-        this.allExpensesCount = allExpenses.length;
+        this.selectedElements = this.selectedElements.concat(allExpenses);
+        this.allExpensesCount = this.selectedElements.length;
         this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       });
