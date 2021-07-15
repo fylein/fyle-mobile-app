@@ -245,23 +245,7 @@ export class AddEditPerDiemPage implements OnInit {
   getPossibleDuplicates() {
     const duplicateFieldsToBeCompared = ['amount', 'fyle_category', 'currency', 'txn_dt', 'to_dt', 'from_dt', 'locations'];
 
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map(customInputs => {
-        return customInputs.map((customInput, i) => {
-          return {
-            id: customInput.id,
-            mandatory: customInput.mandatory,
-            name: customInput.name,
-            options: customInput.options,
-            placeholder: customInput.placeholder,
-            prefix: customInput.prefix,
-            type: customInput.type,
-            value: this.fg.value.custom_inputs[i].value
-          };
-        });
-      })
-    );
+    const customFields$ = this.getCustomFields()
 
     let currentExpenseObject$ = this.generateEtxnFromFg(this.etxn$, customFields$);
 
@@ -1527,23 +1511,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
     this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
 
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map(customInputs => {
-        return customInputs.map((customInput, i) => {
-          return {
-            id: customInput.id,
-            mandatory: customInput.mandatory,
-            name: customInput.name,
-            options: customInput.options,
-            placeholder: customInput.placeholder,
-            prefix: customInput.prefix,
-            type: customInput.type,
-            value: this.fg.value.custom_inputs[i].value
-          };
-        });
-      })
-    );
+    const customFields$ = this.getCustomFields();
 
     return from(this.generateEtxnFromFg(this.etxn$, customFields$))
       .pipe(
@@ -1711,23 +1679,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.trackPolicyCorrections();
 
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map(customInputs => {
-        return customInputs.map((customInput, i) => {
-          return {
-            id: customInput.id,
-            mandatory: customInput.mandatory,
-            name: customInput.name,
-            options: customInput.options,
-            placeholder: customInput.placeholder,
-            prefix: customInput.prefix,
-            type: customInput.type,
-            value: this.fg.value.custom_inputs[i].value
-          };
-        });
-      })
-    );
+    const customFields$ = this.getCustomFields()
 
     return from(this.generateEtxnFromFg(this.etxn$, customFields$))
       .pipe(
