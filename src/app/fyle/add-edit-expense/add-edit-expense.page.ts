@@ -491,7 +491,7 @@ export class AddEditExpensePage implements OnInit {
     const duplicateFieldsToBeCompared = ['amount', 'fyle_category', 'currency', 'txn_dt', 'to_dt', 'from_dt', 'locations'];
 
     const customFields$ = this.getCustomFields();
-    let currentExpenseObject$ = this.generateEtxnFromFg(this.etxn$, customFields$);
+    const currentExpenseObject$ = this.generateEtxnFromFg(this.etxn$, customFields$);
 
     return forkJoin(
       {

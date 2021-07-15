@@ -247,7 +247,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     const customFields$ = this.getCustomFields()
 
-    let currentExpenseObject$ = this.generateEtxnFromFg(this.etxn$, customFields$);
+    const currentExpenseObject$ = this.generateEtxnFromFg(this.etxn$, customFields$);
 
     return forkJoin(
       {
