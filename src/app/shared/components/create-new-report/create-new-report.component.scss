@@ -21,8 +21,8 @@
   }
 
   &--body {
-    background-color: $white;
-    height: 100%;
+    background-color: $grey-4;
+    padding-bottom: 200px;
   }
 
   &--name {
@@ -76,6 +76,7 @@
     font-size: 14px;
     padding: 16px 16px;
     background-color: $white;
+    font-weight: 500;
   }
 
   &--select-all-checkbox {
@@ -87,6 +88,7 @@
   &--add-more-container {
     padding: 16px;
     display: flex;
+    background-color: $grey-4;
   }
 
   &--add-more-icon {
