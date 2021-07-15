@@ -510,10 +510,10 @@ export class AddEditExpensePage implements OnInit {
     )
   }
 
-  checkFieldsForChange(a, b) {
-    const duplicateFieldsToBeCompared = ['currencyObj','dateOfSpend', 'location_1', 'location_2', 'from_dt', 'to_dt', 'custom_inputs', 'category'];
+  checkFieldsForChange(oldExpenseObject, newExpenseObject) {
+    const duplicateFieldsToBeCompared = ['currencyObj', 'dateOfSpend', 'location_1', 'location_2', 'from_dt', 'to_dt', 'custom_inputs', 'category'];
     for (const fieldName of duplicateFieldsToBeCompared) {
-      if (!isEqual(a[fieldName], b[fieldName])) {
+      if (!isEqual(oldExpenseObject[fieldName], newExpenseObject[fieldName])) {
         return false;
       }
     }
