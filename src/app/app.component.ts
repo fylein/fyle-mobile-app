@@ -361,14 +361,14 @@ export class AppComponent implements OnInit {
             title: 'Dashboard',
             isVisible: true,
             icon: 'fy-dashboard-new',
-            route: ['/', 'enterprise', 'my_dashboard'],
-            disabled: true
+            route: ['/', 'enterprise', 'my_dashboard']
           },
           {
             title: 'Expenses',
             isVisible: true,
             icon: 'fy-expenses-new',
-            route: ['/', 'enterprise', 'my_expenses']
+            route: ['/', 'enterprise', 'my_expenses'],
+            disabled: true
           },
           {
             title: 'Cards',
