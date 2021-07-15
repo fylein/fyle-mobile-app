@@ -793,7 +793,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
       map(allowedPerDiemRates => allowedPerDiemRates.map(rate => {
-          rate.readableRate = this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + 'per day';
+          rate.readableRate = this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + ' per day';
           return ({label: rate.name, value: rate});
         })
       )
