@@ -5,7 +5,7 @@ $list-element-color: #333;
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 10px 0;
+    padding: 6px 0;
     margin: 16px 0px 0px 16px;
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
