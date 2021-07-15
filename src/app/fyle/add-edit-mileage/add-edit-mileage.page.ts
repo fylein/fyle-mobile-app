@@ -2247,15 +2247,25 @@ export class AddEditMileagePage implements OnInit {
 
   async openCommensModal() {
     const etxn = await this.etxn$.toPromise();
+
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
         objectType: 'transactions',
         objectId: etxn.tx.id,
-        mode: 'edit'
-      }
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment({Asset: 'Mobile'});
+    } else {
+      this.trackingService.viewComment({Asset: 'Mobile'});
+    }
   }
 }

@@ -63,8 +63,7 @@
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit'  && etxn.tx.policy_flag">
             <ng-container *ngIf="comments$|async as comments">
-              <app-fy-policy-violation-info (click)="scrollCommentsIntoView()"
-                                            [estatuses]="comments"></app-fy-policy-violation-info>
+              <app-fy-policy-violation-info [estatuses]="comments"></app-fy-policy-violation-info>
             </ng-container>
           </ng-container>
 
@@ -720,11 +719,10 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="!reviewList?.length">
-        <ng-container *ngIf="etxn$|async as etxn">
-          <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-expense--comment">
-            <app-comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments"></app-comments>
-          </div>
+      <ng-container *ngIf="etxn$|async as etxn">
+        <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-expense--comment">
+          <app-comments-history [objectId]="etxn.tx.id" objectType="transactions" text="Comments"></app-comments-history>
+        </div>
 
           <div (click)="deleteExpense()"
               *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete" class="add-edit-expense--delete" matRipple>

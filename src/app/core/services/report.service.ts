@@ -480,7 +480,9 @@ export class ReportService {
       switchMap(newReport => {
         return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe(
           switchMap(res => {
-            return this.submit(newReport.id);
+            return this.submit(newReport.id).pipe(
+              map(() => newReport)
+            )
           })
         );
       })

@@ -611,4 +611,36 @@ export class TransactionService {
       }
     });
   }
+
+  getVendorDetails(expense: Expense): string {
+    const fyleCategory = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
+    let vendorDisplayName = expense.tx_vendor;
+
+    if (fyleCategory === 'mileage') {
+      vendorDisplayName = expense.tx_distance || 0;
+      vendorDisplayName += ' ' + expense.tx_distance_unit;
+    } else if (fyleCategory === 'per diem') {
+      vendorDisplayName = expense.tx_num_days;
+      if (expense.tx_num_days > 1) {
+        vendorDisplayName += ' Days';
+      } else {
+        vendorDisplayName += ' Day';
+      }
+      
+    }
+
+    return vendorDisplayName;
+  }
+
+  getReportableExpenses(expenses: Expense[]): Expense[] {
+    return expenses.filter(expense => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense))
+  }
+
+  getIsCriticalPolicyViolated(expense: Expense): boolean{
+    return (typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001);
+  }
+
+  getIsDraft(expense: Expense): boolean {
+    return expense.tx_state && expense.tx_state === 'DRAFT';
+  }
 }
