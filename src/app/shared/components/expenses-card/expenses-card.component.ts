@@ -49,7 +49,12 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   get isSelected() {
-    return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+    debugger;
+    if (this.expense.tx_id) {
+      return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+    } else {
+      return this.selectedElements.some(txn => new Date(this.expense.tx_created_at) === new Date(txn.tx_created_at));
+    }
   }
 
   getReceipt() {

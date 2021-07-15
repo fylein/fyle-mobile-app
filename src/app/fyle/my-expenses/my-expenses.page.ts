@@ -1568,6 +1568,8 @@ export class MyExpensesPage implements OnInit {
         header: 'Delete Expense',
         body: `Are you sure you want to delete the ${this.selectedElements.length} expenses?`,
         deleteMethod: () => {
+          console.log("-----------------")
+          debugger;
           return this.transactionService.deleteBulk(
               this.selectedElements.map(selectedExpense => selectedExpense.tx_id)
           );
