@@ -115,7 +115,7 @@
   &--vendor  {
     color: $blue-black;
     font-size: 14px;
-    line-height: 1.3;
+    line-height: 1.2;
     margin-top: 1px;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -129,6 +129,8 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
+    line-height: 1.2;
+
   }
 
   &--currency-amount-container {
