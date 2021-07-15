@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { MatchExpensePopoverComponent } from './match-expense-popover.component';
@@ -7,7 +7,7 @@ describe('MatchExpensePopoverComponent', () => {
   let component: MatchExpensePopoverComponent;
   let fixture: ComponentFixture<MatchExpensePopoverComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ MatchExpensePopoverComponent ],
       imports: [IonicModule.forRoot()]

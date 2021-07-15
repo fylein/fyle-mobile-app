@@ -9,6 +9,7 @@
     line-height: 26px;
     color: $black;
     font-weight: 400;
+    padding-left: 12px;
   }
 
   &--clear-all {
@@ -34,15 +35,21 @@
     --inner-padding-top: 13px;
     --inner-padding-bottom: 14px;
     --background: #{$white};
+    --ion-item-border-color: $grey;
+    color: $black-light;
 
     &__active {
       --background: #{$pure-white};
+      color: $black;
+      font-weight: 500;
     }
   }
 
   &--checkbox, &--radio {
-    font-size: 16px;
+    font-size: 20px;
     margin-right: 16px;
+    fill: $black;
+    min-width: 20px;
   }
 
   &--filter-option {
@@ -50,6 +57,7 @@
     --inner-padding-bottom: 24px;
     --background: #{$pure-white};
     font-size: 14px;
+    --border-style: none;
     line-height: 18px;
     color: $blue-black;
   }
@@ -59,7 +67,6 @@
     justify-content: space-between;
     font-size: 14px;
     line-height: 18px;
-    color: $black;
   }
 
   &--filter-col {
@@ -68,6 +75,9 @@
 
   &--custom-date-filters {
     padding: 16px;
+    .mat-form-field {
+      width: 100%;
+    }
   }
 
   &--footer-toolbar {
@@ -97,7 +107,7 @@
     padding: 16px 24px;
     font-size: 14px;
     line-height: 18px;
-    --color: #161528;
+    --color: $black;
     text-align: center;
   }
 }

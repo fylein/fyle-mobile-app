@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { FyLoadingScreenComponent } from './fy-loading-screen.component';
@@ -7,7 +7,7 @@ describe('FyLoadingScreenComponent', () => {
   let component: FyLoadingScreenComponent;
   let fixture: ComponentFixture<FyLoadingScreenComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ FyLoadingScreenComponent ],
       imports: [IonicModule.forRoot()]

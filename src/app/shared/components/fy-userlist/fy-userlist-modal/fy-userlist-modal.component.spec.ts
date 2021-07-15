@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { FyUserlistModalComponent } from './fy-userlist-modal.component';
@@ -7,7 +7,7 @@ describe('FyUserlistModalComponent', () => {
   let component: FyUserlistModalComponent;
   let fixture: ComponentFixture<FyUserlistModalComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ FyUserlistModalComponent ],
       imports: [IonicModule.forRoot()]

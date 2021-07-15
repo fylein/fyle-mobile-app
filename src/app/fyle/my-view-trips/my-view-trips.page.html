@@ -192,7 +192,7 @@
 
       <div class="view-trip--card">
         <div class="view-trip--card-action">
-          <app-comments objectType="trip_requests" [objectId]="tripRequest.trp_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
+          <app-comments-history objectType="trip_requests" [objectId]="tripRequest.trp_id" text="Comments" [showCommentsCount]="true"></app-comments-history>
         </div>
       </div>
       <div class="view-trip--card" *ngIf="canDelete$|async" (click)="deleteTrip()">

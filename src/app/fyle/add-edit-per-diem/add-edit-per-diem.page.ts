@@ -298,7 +298,7 @@ export class AddEditPerDiemPage implements OnInit {
       distinctUntilChanged((a, b) => this.checkFieldsForChange(a, b)),
       switchMap(() => this.getPossibleDuplicates()),
       switchMap((isPossibleDuplicate) => {
-        if(isPossibleDuplicate) {
+        if (isPossibleDuplicate) {
           return this.checkForDuplicates();
         } else {
           return this.getDuplicates();

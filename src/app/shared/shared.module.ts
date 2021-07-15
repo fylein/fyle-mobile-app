@@ -40,8 +40,10 @@ import {FyLoadingScreenComponent} from './components/fy-loading-screen/fy-loadin
 import {DelegatedAccMessageComponent} from './components/delegated-acc-message/delegated-acc-message.component';
 import {IconModule} from './icon/icon.module';
 import {CurrencyComponent} from './components/currency/currency.component';
-import {CommentsComponent} from './components/comments/comments.component';
-import {ViewCommentComponent} from './components/comments/view-comment/view-comment.component';
+import {CommentsHistoryComponent} from './components/comments-history/comments-history.component';
+import {ViewCommentComponent} from './components/comments-history/view-comment/view-comment.component';
+import {AuditHistoryComponent} from './components/comments-history/audit-history/audit-history.component';
+import {StatusesDiffComponent} from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import {FyApporverComponent} from './components/fy-apporver/fy-apporver.component';
 import {ConfirmationCommentPopoverComponent} from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 
@@ -67,13 +69,22 @@ import {ExpenseState} from './pipes/expense-state.pipe';
 import {FooterComponent} from './components/footer/footer.component';
 import {FyAlertInfoComponent} from './components/fy-alert-info.component.html/fy-alert-info.component';
 import {MatRippleModule} from '@angular/material/core';
+import {FyConnectionComponent} from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
+import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
+import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
+import { ToastMessageComponent } from './components/toast-message/toast-message.component';
 import {FyHeaderComponent} from './components/fy-header/fy-header.component';
 import {FyDeleteDialogComponent} from './components/fy-delete-dialog/fy-delete-dialog.component';
 import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
+import { DateFormatPipe } from './pipes/date-format.pipe';
+import { AgmCoreModule } from '@agm/core';
+import { AgmDirectionModule } from 'agm-direction';
+import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 
 @NgModule({
   declarations: [
@@ -85,6 +96,7 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     ReportState,
     SnakeCaseToSpaceCase,
     TripState,
+    DateFormatPipe,
     FySelectComponent,
     FySelectModalComponent,
     FySelectVendorComponent,
@@ -100,8 +112,10 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     FyDuplicateDetectionModalComponent,
     DelegatedAccMessageComponent,
     CurrencyComponent,
-    CommentsComponent,
+    CommentsHistoryComponent,
     ViewCommentComponent,
+    AuditHistoryComponent,
+    StatusesDiffComponent,
     FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,
@@ -127,11 +141,17 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
+    FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
+    PopupAlertComponentComponent,
+    CreateNewReportComponent,
+    ExpensesCardComponent,
+    ToastMessageComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,
-    FyFilterPillsComponent
+    FyFilterPillsComponent,
+    RouteVisualizerComponent
   ],
   imports: [
     CommonModule,
@@ -148,12 +168,15 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     PdfViewerModule,
     MatRippleModule,
     MatRadioModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    AgmCoreModule,
+    AgmDirectionModule
   ],
   exports: [
     EllipsisPipe,
     HumanizeCurrencyPipe,
     ReportState,
+    DateFormatPipe,
     FySelectComponent,
     FySelectVendorComponent,
     FyLocationComponent,
@@ -168,7 +191,9 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     DelegatedAccMessageComponent,
     IconModule,
     CurrencyComponent,
-    CommentsComponent,
+    CommentsHistoryComponent,
+    AuditHistoryComponent,
+    StatusesDiffComponent,
     FormButtonValidationDirective,
     MatProgressSpinnerModule,
     FyPreviewAttachmentsComponent,
@@ -193,11 +218,17 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
+    FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
+    PopupAlertComponentComponent,
+    CreateNewReportComponent,
+    ExpensesCardComponent,
+    ToastMessageComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,
-    FyFilterPillsComponent
+    FyFilterPillsComponent,
+    RouteVisualizerComponent
   ],
   providers: [
     DecimalPipe,

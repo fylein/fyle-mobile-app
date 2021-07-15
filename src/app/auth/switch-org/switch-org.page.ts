@@ -119,7 +119,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
           currentOrg,
           orgs,
           accounts,
-          transactionFieldConfigurationsMap,
           currencies,
           homeCurrency
         ],

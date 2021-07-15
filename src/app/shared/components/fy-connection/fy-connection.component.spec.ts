@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { CommentsComponent } from './comments.component';
+import { FyConnectionComponent } from './fy-connection.component';
 
-describe('CommentsComponent', () => {
-  let component: CommentsComponent;
-  let fixture: ComponentFixture<CommentsComponent>;
+describe('FyConnectionComponent', () => {
+  let component: FyConnectionComponent;
+  let fixture: ComponentFixture<FyConnectionComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CommentsComponent ],
+      declarations: [ FyConnectionComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CommentsComponent);
+    fixture = TestBed.createComponent(FyConnectionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
