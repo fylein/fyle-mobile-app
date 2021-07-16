@@ -86,28 +86,37 @@
         <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
             <div class="add-edit-mileage--amount-box">
-              <div class="add-edit-mileage--amount">
-                <p class="mb-0">Amount</p>
-                <p class="add-edit-mileage--amount-value mb-0">
-                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
-                </p>
-              </div>
-              <div class="add-edit-mileage--rate">
-                <p class="mb-0">
-                  Rate /
+              <div class="add-edit-mileage--distance">
+                <div>{{ fg.controls.distance.value ? fg.controls.distance.value : 0 }}</div>
+                <span class="add-edit-mileage--distance-unit">
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                    <span class="text-capitalize">{{ etxn.tx.distance_unit }}</span>
+                    <span>{{ etxn.tx.distance_unit }}</span>
+                  </ng-container>
+                  <ng-template #defaultDistanceUnit>
+                    <ng-container *ngIf="mileageConfig$|async as mileageConfig">
+                      <span>{{ mileageConfig.unit }}</span>
+                    </ng-container>
+                  </ng-template>
+                </span>
+              </div>
+              <div>
+                <div class="add-edit-mileage--amount-value mb-0">
+                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
+                </div>
+              </div>
+              <div>
+                <div class="add-edit-mileage--rate-value mb-0 text-right">
+                  {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} / 
+                  <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
+                    <span>{{ etxn.tx.distance_unit }}</span>
                   </ng-container>
 
                   <ng-template #defaultDistanceUnit>
                     <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span class="text-capitalize">{{ mileageConfig.unit }}</span>
+                      <span>{{ mileageConfig.unit }}</span>
                     </ng-container>
                   </ng-template>
-                </p>
-                <p class="add-edit-mileage--rate-value mb-0 text-right">
-                  {{rate$|async | currency: homeCurrency: 'symbol-narrow'}}
-                </p>
+                </div>
               </div>
             </div>
           </ng-container>
