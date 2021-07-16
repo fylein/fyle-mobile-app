@@ -106,19 +106,18 @@
     </div>
   </div>
   <ng-container *ngIf="!(isConnected$|async)">
+    <ng-container *ngIf="pendingTransactions.length > 0">
+      <div class="my-expenses--syncing">
+        <app-fy-alert-info [type]="'information'" [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
+      </div>
+    </ng-container>
+
    <ng-container *ngIf="pendingTransactions.length === 0">
      <div>
       <app-fy-zero-state class="stats--zero-state" image="../../../../assets/images/no-internet.svg"
       header="You're Offline!" message="Fear not, you can still add expenses offline."
       [unscaledImage]="true" [useNewStyling]="true"></app-fy-zero-state>
      </div>
-    
-    </ng-container>
-
-    <ng-container *ngIf="pendingTransactions.length > 0">
-      <div class="my-expenses--syncing">
-        <app-fy-alert-info [type]="'information'" [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
-      </div>
     </ng-container>
   </ng-container>
 
