@@ -225,31 +225,34 @@
     margin-top: 8px;
   }
 
+  &--distance {
+    display: flex;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 20px;
+    margin-left: 12px;
+  }
+
+  &--distance-unit {
+    margin-left: 2px;
+  }
+
   &--amount-box {
-    background: #f2f2f2;
-    border-radius: 4px;
-    padding: 16px;
+    background: $pure-white;
+    border-radius: 16px;
     margin: 8px 0;
     display: flex;
-    min-height: 45px;
-  }
-
-  &--amount {
-    width: calc(100% - 100px);
-    padding: 0 0 4px;
-    border-right: 1px solid $grey-lighter;
-    color: #ababab;
-  }
-
-  &--rate {
-    text-align: end;
-    width: 100px;
-    padding: 0 0 4px;
-    color: #ababab;
+    height: 52px;
+    border: 1px solid $grey-lighter;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+    text-transform: lowercase;
+    color: $black-2;
   }
 
   &--add-stop {
-    color: #f36;
+    color: $primary;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -257,17 +260,12 @@
   }
 
   &--amount-value {
-    font-size: 24px;
-    color: #4a4a4a;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 22px;
   }
 
   &--rate-value {
     font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    margin-right: 12px;
   }
 
   &--remove-stop {
