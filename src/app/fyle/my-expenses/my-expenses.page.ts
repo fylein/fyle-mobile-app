@@ -1629,6 +1629,10 @@ export class MyExpensesPage implements OnInit {
         });
       }
 
+      this.isReportableExpensesSelected = false;
+      this.selectionMode = false;
+      this.headerState = HeaderState.base;
+
       this.doRefresh();
     }
 
@@ -1636,6 +1640,7 @@ export class MyExpensesPage implements OnInit {
 
   onSelectAll(checked: boolean) {
     if (checked) {
+      this.selectedElements = [];
       if (this.pendingTransactions.length > 0) {
         this.selectedElements = this.pendingTransactions;
         this.allExpensesCount = this.selectedElements.length;

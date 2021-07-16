@@ -20,6 +20,7 @@ export class ExpensesCardComponent implements OnInit {
   @Input() previousExpenseCreatedAt;
   @Input() isSelectionModeEnabled: boolean;
   @Input() selectedElements: Expense[];
+  @Input() isFirstOfflineExpense: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
@@ -91,7 +92,9 @@ export class ExpensesCardComponent implements OnInit {
       })
     );
 
-    if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
+    if (this.isFirstOfflineExpense) {
+      this.showDt = true;
+    } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
       this.showDt = currentDate !== previousDate;
