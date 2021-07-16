@@ -411,8 +411,8 @@
 
           <ng-container *ngIf="etxn$|async as etxn">
             <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-mileage--comment">
-              <app-comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments">
-              </app-comments>
+              <app-comments-history [objectId]="etxn.tx.id" objectType="transactions" text="Comments">
+              </app-comments-history>
             </div>
 
 

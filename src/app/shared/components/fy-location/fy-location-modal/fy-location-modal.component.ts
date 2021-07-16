@@ -6,7 +6,9 @@ import { Observable, fromEvent, of, from, forkJoin, noop, throwError} from 'rxjs
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { PermissionType, Plugins } from '@capacitor/core';
 
+const { Permissions, Geolocation } = Plugins;
 @Component({
   selector: 'app-fy-location-modal',
   templateUrl: './fy-location-modal.component.html',
@@ -25,6 +27,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   filteredList$: Observable<any[]>;
 
+  currentGeolocationPermissionGranted = false;
+
   constructor(
     private agmGeocode: AgmGeocoder,
     private modalController: ModalController,
@@ -35,6 +39,20 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    this.checkPermissionStatus();
+  }
+
+  async checkPermissionStatus() {
+    const permissionResult = await Permissions.query({
+      name: PermissionType.Geolocation
+    });
+
+    this.currentGeolocationPermissionGranted = permissionResult.state === 'granted';
+  }
+
+  async askForCurrentLocationPermission() {
+    await Geolocation.requestPermissions();
+    await this.checkPermissionStatus();
   }
 
   clearValue() {
@@ -68,6 +86,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             eou: that.authService.getEou(),
             currentLocation: that.locationService.getCurrentLocation({enableHighAccuracy: false})
           }).pipe(
+            tap(()=> this.checkPermissionStatus()),
             switchMap(({eou, currentLocation }) => {
               if (currentLocation) {
                 return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
@@ -75,6 +94,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                 return that.locationService.getAutocompletePredictions(searchText, eou.us.id);
               }
             }),
+            tap(console.log),
             map((res) => {
               that.loader = false;
               return res;

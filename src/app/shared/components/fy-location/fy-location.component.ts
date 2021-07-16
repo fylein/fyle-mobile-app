@@ -2,7 +2,6 @@ import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -25,7 +24,6 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() mandatory = false;
   @Input() disabled = false;
   @Input() allowCustom = false;
-  @Input() fullscreenMode = false;
   @Input() hideSuffix = false;
 
   private innerValue;
@@ -71,37 +69,20 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   }
 
   async openModal() {
-    if (!this.disabled) {
-      let renderConfig = {};
-
-      if (!this.fullscreenMode) {
-        renderConfig = {
-          mode: 'ios',
-          presentingElement: await this.modalController.getTop(),
-          ...this.modalProperties.getModalDefaultProperties()
-        };
-      } else {
-        renderConfig = {
-          fullscreenMode: true
-        };
+    const selectionModal = await this.modalController.create({
+      component: FyLocationModalComponent,
+      componentProps: {
+        currentSelection: this.value,
+        allowCustom: this.allowCustom
       }
+    });
 
-      const selectionModal = await this.modalController.create({
-        component: FyLocationModalComponent,
-        componentProps: {
-          currentSelection: this.value,
-          allowCustom: this.allowCustom
-        },
-        ...renderConfig
-      });
+    await selectionModal.present();
 
-      await selectionModal.present();
+    const { data } = await selectionModal.onWillDismiss();
 
-      const { data } = await selectionModal.onWillDismiss();
-
-      if (data) {
-        this.value = data.selection;
-      }
+    if (data) {
+      this.value = data.selection;
     }
   }
 

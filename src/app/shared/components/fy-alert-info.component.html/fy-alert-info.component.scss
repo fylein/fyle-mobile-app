@@ -1,3 +1,5 @@
+@import '../../../../theme/colors.scss';
+
 $message: #2C304E;
 $container-border: #DFDFE2;
 
@@ -17,5 +19,13 @@ $container-border: #DFDFE2;
     color: $message;
     font-weight: 400;
     width: 100%;
+  }
+
+  &--button {
+    font-size: 12px;
+    line-height: 15px;
+    color: $primary;
+    --padding-top: 0;
+    height: auto;
   }
 }
