@@ -68,6 +68,7 @@ export class AddEditMileagePage implements OnInit {
   fg: FormGroup;
   txnFields$: Observable<any>;
   paymentModes$: Observable<any>;
+  vehicleTypeOptions$: Observable<any>;
   homeCurrency$: Observable<any>;
   subCategories$: Observable<any>;
   filteredCategories$: Observable<any>;
@@ -464,6 +465,46 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  getVehicleTypeOptions() {
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings()
+    }).pipe(
+      map(({ orgSettings, orgUserMileageSettings }) => {
+        const mileageConfig = orgSettings.mileage;
+        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
+        if (orgUserMileageSettings.length > 0) {
+          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
+
+          orgUserMileageSettings.forEach((mileageLabel) => {
+            const i = allVehicleTypes.indexOf(mileageLabel);
+            if (i > -1) {
+              allVehicleTypes.splice(i, 1);
+            }
+          });
+
+          allVehicleTypes.forEach((vehicleType) => {
+            delete mileageConfig[vehicleType];
+          });
+        }
+
+        let vehicleTypeOptions = [];
+        if (mileageConfig.two_wheeler) {
+          vehicleTypeOptions.push({ label: 'Two Wheeler', value: 'two_wheeler' });
+        }
+        if (mileageConfig.four_wheeler) {
+          vehicleTypeOptions.push({ label: 'Four Wheeler', value: 'four_wheeler' });
+        }
+        if (mileageConfig.four_wheeler1) {
+          vehicleTypeOptions.push({ label: 'Four Wheeler 1', value: 'four_wheeler1' });
+        }
+
+        return vehicleTypeOptions;
+      }),
+      shareReplay(1)
+    );
+  }
+
   getSubCategories() {
     return this.offlineService.getAllEnabledCategories().pipe(
       map(categories => {
@@ -837,6 +878,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.txnFields$ = this.getTransactionFields();
     this.paymentModes$ = this.getPaymentModes();
+    this.vehicleTypeOptions$ = this.getVehicleTypeOptions();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
