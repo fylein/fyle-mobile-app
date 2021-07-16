@@ -1,46 +1,41 @@
 <ion-header mode="md">
-  <ion-toolbar class="add-edit-per-diem--toolbar">
+  <ion-toolbar class="add-edit-per-diem--toolbar" [ngClass]="{'add-edit-per-diem--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="mode" class="page-title" mode="md">
+    <ion-buttons mode="md" slot="start" *ngIf="!navigateBack">
+      <ion-button (click)="goBack()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title *ngIf="mode" class="page-title" mode="md" [ngClass]="{'add-edit-per-diem--title__review': reviewList?.length}">
       <div *ngIf="mode === 'add'">
         Add Per Diem
       </div>
       <div *ngIf="mode === 'edit'">
-        <div>
-          {{title}} Per Diem
+        <div *ngIf="reviewList?.length; else EditPerDiem">
+          Review Per Diem
         </div>
+        <ng-template #EditPerDiem>
+          Edit Per Diem
+        </ng-template>
         <div *ngIf="reviewList?.length" class="add-edit-per-diem--sub-header">
           {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
         </div>
       </div>
     </ion-title>
-    <ion-buttons *ngIf="!navigateBack" slot="end">
-      <ion-button (click)="closePopup()" mode="md">
-        <mat-icon slot="icon-only">close</mat-icon>
+    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" slot="end">
+      <ion-button class="add-edit-per-diem--header-button" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button class="add-edit-per-diem--header-button" (click)="deleteExpense()">
+        <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div *ngIf="reviewList?.length" class="add-edit-per-diem--review-nav">
-    <button (click)="goToPrev()" [disabled]="+activeIndex === 0"
-            [ngClass]="{'add-edit-per-diem--review-go-left__disabled': +activeIndex === 0}"
-            class="add-edit-per-diem--review-go-left">
-      <mat-icon>
-        keyboard_arrow_left
-      </mat-icon>
-    </button>
-    <button (click)="goToNext()" [disabled]="+activeIndex === reviewList?.length - 1"
-            [ngClass]="{'add-edit-per-diem--review-go-right__disabled': +activeIndex === reviewList?.length - 1}"
-            class="add-edit-per-diem--review-go-right">
-      <mat-icon>
-        keyboard_arrow_right
-      </mat-icon>
-    </button>
-  </div>
   <div>
     <div class="add-edit-per-diem--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-per-diem--duplicate-pointer">
@@ -528,24 +523,6 @@
               </ng-container>
             </ng-container>
 
-            <ng-container *ngIf="etxn$|async as etxn">
-              <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-per-diem--comment">
-                <app-comments-history [objectId]="etxn.tx.id" objectType="transactions" text="Comments">
-                </app-comments-history>
-              </div>
-
-              <div (click)="deleteExpense()"
-                   *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
-                   class="add-edit-per-diem--delete" matRipple>
-                <mat-icon class="add-edit-per-diem--delete-icon">
-                  delete
-                </mat-icon>
-                <div class="add-edit-per-diem--delete-msg">
-                  Delete Expense
-                </div>
-              </div>
-            </ng-container>
-
           </ng-container>
           <ng-template #AdminKoBoloPerDiemAssignKare>
             <div class="add-edit-per-diem--zero-state">
@@ -583,17 +560,21 @@
 </ion-content>
 
 <ng-container *ngIf="fg">
-  <ion-footer class="cta-footer" *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0">
+  <app-review-footer 
+    *ngIf="reviewList?.length"
+    [activeIndex]="+activeIndex" 
+    [reviewList]="reviewList" 
+    [saveAndPrevLoader]="saveAndPrevPerDiemLoader" 
+    [saveAndNextLoader]="saveAndNextPerDiemLoader"
+    (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
+    (saveAndGoToNext)="saveExpenseAndGotoNext()"
+  ></app-review-footer>
+  <ion-footer *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0 && !reviewList?.length">
     <ion-toolbar mode="md">
       <ion-buttons *ngIf="!reviewList">
         <ion-button (click)="savePerDiem()" class="btn-primary add-edit-per-diem--primary-cta" 
           appFormButtonValidation [loading]="savePerDiemLoader" [loadingText]="'Saving'">
           Save
-        </ion-button>
-      </ion-buttons>
-      <ion-buttons *ngIf="reviewList">
-        <ion-button (click)="saveExpenseAndGotoNext()" class="btn-primary add-edit-per-diem--primary-cta" appFormButtonValidation [loading]="saveAndNextPerDiemLoader" [loadingText]="'Saving'">
-          {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
         </ion-button>
       </ion-buttons>
     </ion-toolbar>

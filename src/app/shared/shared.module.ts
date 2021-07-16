@@ -69,6 +69,7 @@ import {ExpenseState} from './pipes/expense-state.pipe';
 import {FooterComponent} from './components/footer/footer.component';
 import {FyAlertInfoComponent} from './components/fy-alert-info.component.html/fy-alert-info.component';
 import {MatRippleModule} from '@angular/material/core';
+import { ReviewFooterComponent } from './components/review-footer/review-footer.component';
 import {FyConnectionComponent} from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
@@ -141,6 +142,7 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
+    ReviewFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
@@ -218,6 +220,7 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
+    ReviewFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
