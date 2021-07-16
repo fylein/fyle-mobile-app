@@ -29,8 +29,9 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep, findIndex, indexOf, isEqual } from 'lodash';
+import { cloneDeep, indexOf, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExtendedReport } from 'src/app/core/models/report.model';
@@ -48,7 +49,6 @@ import {SelectedFilters} from '../../shared/components/fy-filters/selected-filte
 import {FilterPill} from '../../shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 type Filters = Partial<{
   state: string[],
