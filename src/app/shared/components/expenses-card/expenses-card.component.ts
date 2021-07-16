@@ -92,8 +92,8 @@ export class ExpensesCardComponent implements OnInit {
       })
     );
 
-    if (this.isFirstOfflineExpense) {
-      this.showDt = true;
+    if (!this.expense.tx_id) {
+      this.showDt = this.isFirstOfflineExpense ? true : false;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
