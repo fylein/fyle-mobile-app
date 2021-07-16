@@ -1,24 +1,37 @@
 <ion-header mode="md">
-  <ion-toolbar class="add-edit-mileage--toolbar">
+  <ion-toolbar class="add-edit-mileage--toolbar" [ngClass]="{'add-edit-mileage--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="mode" class="page-title" mode="md">
+    <ion-buttons mode="md" slot="start" *ngIf="!navigateBack">
+      <ion-button (click)="goBack()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title *ngIf="mode" class="page-title" mode="md" [ngClass]="{'add-edit-mileage--title__review': reviewList?.length}">
       <div *ngIf="mode === 'add'">
         Add Mileage
       </div>
       <div *ngIf="mode === 'edit'">
-        <div>
-          {{title}} Mileage
-        </div>
-        <div *ngIf="reviewList?.length" class="add-edit-mileage--sub-header">
-          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
-        </div>
+        <ng-container *ngIf="reviewList?.length;else editMode">
+          Review Mileage
+          <div class="add-edit-mileage--sub-header">
+            {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+          </div>
+        </ng-container>
+        <ng-template #editMode>
+          <div>
+            Edit Mileage
+          </div>
+        </ng-template>
       </div>
     </ion-title>
-    <ion-buttons *ngIf="!navigateBack" slot="end">
-      <ion-button (click)="goBack()" mode="md">
-        <mat-icon slot="icon-only">close</mat-icon>
+    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" slot="end">
+      <ion-button class="add-edit-mileage--header-button" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button class="add-edit-mileage--header-button" (click)="deleteExpense()">
+        <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -26,22 +39,6 @@
 
 <ion-content>
   <div>
-    <div *ngIf="reviewList?.length" class="add-edit-mileage--review-nav">
-      <button (click)="goToPrev()" [disabled]="+activeIndex === 0"
-        [ngClass]="{'add-edit-mileage--review-go-left__disabled': +activeIndex === 0}"
-        class="add-edit-mileage--review-go-left">
-        <mat-icon>
-          keyboard_arrow_left
-        </mat-icon>
-      </button>
-      <button (click)="goToNext()" [disabled]="+activeIndex === reviewList?.length - 1"
-        [ngClass]="{'add-edit-mileage--review-go-right__disabled': +activeIndex === reviewList?.length - 1}"
-        class="add-edit-mileage--review-go-right">
-        <mat-icon>
-          keyboard_arrow_right
-        </mat-icon>
-      </button>
-    </div>
     <div class="add-edit-mileage--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-mileage--duplicate-pointer">
         <div class="add-edit-mileage--duplicate-pointer-text">
@@ -89,28 +86,37 @@
         <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
             <div class="add-edit-mileage--amount-box">
-              <div class="add-edit-mileage--amount">
-                <p class="mb-0">Amount</p>
-                <p class="add-edit-mileage--amount-value mb-0">
-                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
-                </p>
-              </div>
-              <div class="add-edit-mileage--rate">
-                <p class="mb-0">
-                  Rate /
+              <div class="add-edit-mileage--distance">
+                <div>{{ fg.controls.distance.value ? fg.controls.distance.value : 0 }}</div>
+                <span class="add-edit-mileage--distance-unit">
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                    <span class="text-capitalize">{{ etxn.tx.distance_unit }}</span>
+                    <span>{{ etxn.tx.distance_unit }}</span>
+                  </ng-container>
+                  <ng-template #defaultDistanceUnit>
+                    <ng-container *ngIf="mileageConfig$|async as mileageConfig">
+                      <span>{{ mileageConfig.unit }}</span>
+                    </ng-container>
+                  </ng-template>
+                </span>
+              </div>
+              <div>
+                <div class="add-edit-mileage--amount-value mb-0">
+                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
+                </div>
+              </div>
+              <div>
+                <div class="add-edit-mileage--rate-value mb-0 text-right">
+                  {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} / 
+                  <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
+                    <span>{{ etxn.tx.distance_unit }}</span>
                   </ng-container>
 
                   <ng-template #defaultDistanceUnit>
                     <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span class="text-capitalize">{{ mileageConfig.unit }}</span>
+                      <span>{{ mileageConfig.unit }}</span>
                     </ng-container>
                   </ng-template>
-                </p>
-                <p class="add-edit-mileage--rate-value mb-0 text-right">
-                  {{rate$|async | currency: homeCurrency: 'symbol-narrow'}}
-                </p>
+                </div>
               </div>
             </div>
           </ng-container>
@@ -409,27 +415,6 @@
             </ng-container>
           </div>
 
-          <ng-container *ngIf="etxn$|async as etxn">
-            <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-mileage--comment">
-              <app-comments-history [objectId]="etxn.tx.id" objectType="transactions" text="Comments">
-              </app-comments-history>
-            </div>
-
-
-            <ng-container *ngIf="etxn$|async as etxn">
-              <div (click)="deleteExpense()"
-                *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
-                class="add-edit-mileage--delete" matRipple>
-                <mat-icon class="add-edit-mileage--delete-icon">
-                  delete
-                </mat-icon>
-                <div class="add-edit-mileage--delete-msg">
-                  Delete Expense
-                </div>
-              </div>
-            </ng-container>
-          </ng-container>
-
           <ng-container *ngIf="isConnected$">
             <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
               <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
@@ -455,27 +440,39 @@
   </div>
 </ion-content>
 <ng-container *ngIf="fg">
-  <ion-footer class="cta-footer">
+  <app-review-footer 
+    *ngIf="reviewList?.length"
+    [activeIndex]="+activeIndex" 
+    [reviewList]="reviewList" 
+    [saveAndPrevLoader]="saveAndPrevMileageLoader" 
+    [saveAndNextLoader]="saveAndNextMileageLoader"
+    (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
+    (saveAndGoToNext)="saveExpenseAndGotoNext()"
+  ></app-review-footer>
+  <ion-footer *ngIf="!reviewList?.length">
     <ion-toolbar mode="md">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
-          <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'"
+          <ion-button 
+            (click)="saveExpense()" 
+            class="add-edit-mileage--primary-cta" 
+            color="fyle-primary" fill="solid"
+            appFormButtonValidation 
+            [loading]="saveMileageLoader" 
+            [loadingText]="'Saving'"
+            [disabled]="saveMileageLoader || saveAndNewMileageLoader">
+            Save
+          </ion-button>
+          <ion-button 
+            (click)="saveAndNewExpense()" 
+            *ngIf="mode === 'add'" 
             [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
-            class="btn-secondary" appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'Saving'">
-            Save and new
-          </ion-button>
-          <ion-button (click)="saveExpense()" class="btn-primary" appFormButtonValidation [loading]="saveMileageLoader"
-            [loadingText]="'Saving'" [disabled]="saveMileageLoader || saveAndNewMileageLoader">
-            Save Expense
-          </ion-button>
-        </ion-buttons>
-      </div>
-
-      <div *ngIf="reviewList" class="add-edit-mileage--cta-container">
-        <ion-buttons>
-          <ion-button (click)="saveExpenseAndGotoNext()" class="btn-primary" appFormButtonValidation
-            [loading]="saveAndNextMileageLoader" [loadingText]="'Saving'">
-            {{ reviewList.length > 0 && !showSaveAndNext ? 'Save and Next' : 'Save' }}
+            class="add-edit-mileage--primary-cta" 
+            color="fyle-primary" fill="solid"
+            appFormButtonValidation 
+            [loading]="saveAndNewMileageLoader" 
+            [loadingText]="'Saving'">
+            Save & New
           </ion-button>
         </ion-buttons>
       </div>

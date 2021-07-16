@@ -69,14 +69,20 @@ import {ExpenseState} from './pipes/expense-state.pipe';
 import {FooterComponent} from './components/footer/footer.component';
 import {FyAlertInfoComponent} from './components/fy-alert-info.component.html/fy-alert-info.component';
 import {MatRippleModule} from '@angular/material/core';
+import { ReviewFooterComponent } from './components/review-footer/review-footer.component';
 import {FyConnectionComponent} from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
+import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
+import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
+import { ToastMessageComponent } from './components/toast-message/toast-message.component';
 import {FyHeaderComponent} from './components/fy-header/fy-header.component';
 import {FyDeleteDialogComponent} from './components/fy-delete-dialog/fy-delete-dialog.component';
 import {FyFiltersComponent} from './components/fy-filters/fy-filters.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pills.component';
+import { DateFormatPipe } from './pipes/date-format.pipe';
 import { AgmCoreModule } from '@agm/core';
 import { AgmDirectionModule } from 'agm-direction';
 import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
@@ -93,6 +99,7 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     ReportState,
     SnakeCaseToSpaceCase,
     TripState,
+    DateFormatPipe,
     FySelectComponent,
     FySelectModalComponent,
     FySelectVendorComponent,
@@ -137,8 +144,13 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
+    ReviewFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
+    PopupAlertComponentComponent,
+    CreateNewReportComponent,
+    ExpensesCardComponent,
+    ToastMessageComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,
@@ -170,6 +182,7 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     EllipsisPipe,
     HumanizeCurrencyPipe,
     ReportState,
+    DateFormatPipe,
     FySelectComponent,
     FySelectVendorComponent,
     FyLocationComponent,
@@ -211,8 +224,13 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FooterComponent,
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
+    ReviewFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
+    PopupAlertComponentComponent,
+    CreateNewReportComponent,
+    ExpensesCardComponent,
+    ToastMessageComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
     FyFiltersComponent,

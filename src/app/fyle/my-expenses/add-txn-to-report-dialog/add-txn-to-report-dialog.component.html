@@ -1,31 +1,25 @@
-<ion-header mode="md">
-  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
-  <ion-toolbar mode="md" class="fy-modal-toolbar">
-    <ion-buttons slot="end">
-      <ion-button (click)="closeAddToReportModal()">
-        <mat-icon>close</mat-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>
-      <span class="report-list--header">
-        Select Report
-      </span>
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content>
-  <div class="report-list--container">
-    <div class="report-list--title">All Open Reports</div>
-
-    <div class="report-list--list" *ngFor="let report of approverPendingReports$|async as approverPendingReports">
-      <div class="report-list--report-tile" mat-ripple (click)="addTransactionToReport(report.rp_id)">
-        <div class="report-list--date-amount-block">
-          <div class="report-list--date-amount-block-date">{{ report.rp_created_at|date: 'MMM dd, yyyy' }}</div>
-          <div class="report-list--date-amount-block-amount">{{ report.rp_amount | currency: report.rp_currency: 'symbol-narrow' }}</div>
-        </div>
-        <div class="report-list--purpose">{{report.rp_purpose}} ({{report.rp_state | snakeCaseToSpaceCase | titlecase}})</div>
-      </div>
+<div class="report-list--container">
+  <div class="report-list--header text-uppercase">Add to Reprot</div>
+  <div class="report-list--list" *ngFor="let report of data.openReports; index as i">
+    <div mat-ripple (click)="addTransactionToReport(report)">
+      <div *ngIf="i > 0" class="report-list--divider"></div>
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col size="8.5" class="ion-no-padding">
+            <div class="report-list--purpose">{{report.rp_purpose}}</div>
+            <div class="report-list--count">{{report.rp_num_transactions}} Expenses</div>
+          </ion-col>
+          <ion-col size="3.5" class="ion-no-padding ion-text-right">
+            <div class="report-list--currency-amount-container">
+              <span class="report-list--currency">{{reportCurrencySymbol}}</span>
+              <span class="report-list--amount">{{(report.rp_amount || 0) | humanizeCurrency: report.rp_currency: 2: true }}</span>
+            </div>
+            <div class="ion-text-right">
+              <div class="text-center report-list--state report-list--state__{{report.rp_state | reportState}}">{{report.rp_state | reportState | titlecase}}</div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
   </div>
-</ion-content>
+</div>
