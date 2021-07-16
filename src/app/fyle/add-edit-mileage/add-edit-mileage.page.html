@@ -87,7 +87,7 @@
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
             <div class="add-edit-mileage--amount-box">
               <div class="add-edit-mileage--distance">
-                <div>{{ fg.controls.distance.value ? fg.controls.distance.value : 0 }}</div>
+                <div>{{ fg.controls.route.value?.distance || 0 }}</div>
                 <span class="add-edit-mileage--distance-unit">
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
                     <span>{{ etxn.tx.distance_unit }}</span>

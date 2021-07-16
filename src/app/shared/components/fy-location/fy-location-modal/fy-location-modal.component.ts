@@ -21,7 +21,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   loader = false;
   value = '';
   lookupFailed = false;
-  @Input() fullscreenMode = false;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
@@ -129,6 +128,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss({
       selection: value
     });
+  }
+
+  close() {
+    this.modalController.dismiss();
   }
 
   onElementSelect(location) {

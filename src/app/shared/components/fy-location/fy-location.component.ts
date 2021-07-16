@@ -69,20 +69,22 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   }
 
   async openModal() {
-    const selectionModal = await this.modalController.create({
-      component: FyLocationModalComponent,
-      componentProps: {
-        currentSelection: this.value,
-        allowCustom: this.allowCustom
+    if (!this.disabled) {
+      const selectionModal = await this.modalController.create({
+        component: FyLocationModalComponent,
+        componentProps: {
+          currentSelection: this.value,
+          allowCustom: this.allowCustom
+        }
+      });
+
+      await selectionModal.present();
+
+      const { data } = await selectionModal.onWillDismiss();
+
+      if (data) {
+        this.value = data.selection;
       }
-    });
-
-    await selectionModal.present();
-
-    const { data } = await selectionModal.onWillDismiss();
-
-    if (data) {
-      this.value = data.selection;
     }
   }
 

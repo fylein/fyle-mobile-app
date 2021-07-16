@@ -71,7 +71,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
       this.destination = null;
       this.waypoints = null;
 
-      if (transformedLocations.every(location => !location.lat || !location.lng)) {
+      if (transformedLocations.every(location => !location.lat || !location.lng) || transformedLocations.length === 0) {
         this.showEmptyMap = true;
       }
 
