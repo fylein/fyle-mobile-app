@@ -60,6 +60,7 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -133,6 +134,7 @@ export class AddEditExpensePage implements OnInit {
   saveExpenseLoader = false;
   saveAndNewExpenseLoader = false;
   saveAndNextExpenseLoader = false;
+  saveAndPrevExpenseLoader = false;
   canAttachReceipts: boolean;
   duplicateDetectionReasons = [];
   tfcDefaultValues$: Observable<any>;
@@ -2459,6 +2461,41 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  saveExpenseAndGotoPrev() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.closeAddEditExpenses();
+          } else {
+            that.goToPrev();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.closeAddEditExpenses();
+          } else {
+            that.goToPrev();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }
+
   saveExpenseAndGotoNext() {
     const that = this;
     if (that.fg.valid) {
@@ -2552,6 +2589,7 @@ export class AddEditExpensePage implements OnInit {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
+    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE'; 
 
     this.trackPolicyCorrections();
 
@@ -2758,6 +2796,7 @@ export class AddEditExpensePage implements OnInit {
           this.saveExpenseLoader = false;
           this.saveAndNewExpenseLoader = false;
           this.saveAndNextExpenseLoader = false;
+          this.saveAndPrevExpenseLoader = false;
         })
       );
   }
@@ -2792,6 +2831,8 @@ export class AddEditExpensePage implements OnInit {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
+    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+    
     const customFields$ = this.getCustomFields();
 
     this.trackAddExpense();
@@ -2982,6 +3023,7 @@ export class AddEditExpensePage implements OnInit {
           this.saveExpenseLoader = false;
           this.saveAndNewExpenseLoader = false;
           this.saveAndNextExpenseLoader = false;
+          this.saveAndPrevExpenseLoader = false;
         })
       );
   }
@@ -3280,16 +3322,27 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  scrollCommentsIntoView() {
-    if (this.commentsContainer) {
-      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
-      if (commentsContainer) {
-        commentsContainer.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'start'
-        });
-      }
+  async openCommentsModal() {
+    const etxn = await this.etxn$.toPromise();
+
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx.id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment({Asset: 'Mobile'});
+    } else {
+      this.trackingService.viewComment({Asset: 'Mobile'});
     }
   }
 }
