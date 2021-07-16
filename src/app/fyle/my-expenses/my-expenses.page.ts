@@ -29,7 +29,7 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep, indexOf, isEqual } from 'lodash';
+import { cloneDeep, findIndex, indexOf, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -1579,13 +1579,12 @@ export class MyExpensesPage implements OnInit {
         header: 'Delete Expense',
         body: `Are you sure you want to delete the ${this.selectedElements.length} expenses?`,
         deleteMethod: () => {
-          console.log("-----------------");
           offlineExpenses = this.selectedElements.filter(exp => !exp.tx_id);
-          offlineExpenses.forEach((offlineExpense) => {
-            let index = indexOf(this.pendingTransactions, offlineExpense);
-            debugger;
-            this.transactionOutboxService.deleteOfflineExpense(index)
-          })
+
+          let indexes = offlineExpenses.map((offlineExpense) => {
+            return indexOf(this.pendingTransactions, offlineExpense);
+          });
+          this.transactionOutboxService.deleteBulkOfflineExpenses(indexes);
           this.selectedElements = this.selectedElements.filter(exp => exp.tx_id);
           if (this.selectedElements.length > 0) {
             return this.transactionService.deleteBulk(

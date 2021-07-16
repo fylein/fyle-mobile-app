@@ -226,8 +226,16 @@ export class TransactionsOutboxService {
   deleteOfflineExpense(index: number) {
     console.log("---------------", index);
     this.queue.splice(index, 1);
-    this.saveQueue()
+    this.saveQueue();
     return null;
+  }
+
+  deleteBulkOfflineExpenses(indexes: number[]) {
+    // We need to delete last element of this list first
+    indexes.sort((a, b) => b - a);
+    indexes.forEach(index => {
+      this.deleteOfflineExpense(index);
+    })
   }
 
   syncEntry(entry) {
