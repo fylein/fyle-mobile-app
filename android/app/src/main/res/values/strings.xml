@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Fyle Staging</string>
+    <string name="title_activity_main">Fyle Staging</string>
+    <string name="package_name">com.ionicframework.fyle595781.staging</string>
+    <string name="custom_url_scheme">com.ionicframework.fyle595781.staging</string>
+</resources>
