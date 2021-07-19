@@ -30,7 +30,7 @@
               [ngClass]="{'timeline--timeline-item-internal__first': isFirst, 'timeline--timeline-item-internal__last': isLast}">
               <app-fy-location class="route-selector-modal--location" [formControlName]="i"
                 [label]="(isFirst ? 'Start' : (isLast ? 'Destination' : (control.value ? 'Stop ' + (i) : 'Stop ' + (i))))"
-                [mandatory]="mileageConfig.location_mandatory" [hideSuffix]="true">
+                [mandatory]="mileageConfig.location_mandatory" [hideSuffix]="true" [cacheName]="isFirst?'routeFirstElement':'routeOtherElements'" [recentLocations]="isFirst?recentlyUsedMileageLocations?.recent_start_locations:recentlyUsedMileageLocations?.recent_locations">
               </app-fy-location>
               <span
                 *ngIf="i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10)">

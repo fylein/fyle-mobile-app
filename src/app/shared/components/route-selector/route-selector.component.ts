@@ -34,6 +34,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   @Input() txnFields;
   @Input() formInitialized;
   @Input() isConnected;
+  @Input() recentlyUsedMileageLocations: {
+    recent_start_locations?: string[];
+    recent_locations?: string[];
+  };
   skipRoundTripUpdate = false;
 
   onTouched = () => { };
@@ -147,6 +151,9 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   ngOnInit() {
+
+    console.log(this.recentlyUsedMileageLocations);
+
     this.ngControl = this.injector.get(NgControl);
 
     this.form.controls.roundTrip.valueChanges.subscribe(roundTrip => {
@@ -175,7 +182,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
         isDistanceMandatory: this.isDistanceMandatory,
         isAmountDisabled: this.isAmountDisabled,
         txnFields: this.txnFields,
-        value: this.form.value
+        value: this.form.value,
+        recentlyUsedMileageLocations: this.recentlyUsedMileageLocations
       },
     });
 

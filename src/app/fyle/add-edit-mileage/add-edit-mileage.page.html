@@ -151,7 +151,9 @@
               <ng-container *ngIf="etxn$|async as etxn">
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                    <app-route-selector formControlName="route" [isConnected]="connectionStatus.connected" [formInitialized]="formInitializedFlag" [txnFields]="txnFields" [isAmountDisabled]="(isAmountDisabled$|async) || (txnFields?.distance?(!txnFields?.distance?.canEdit):false)" [isDistanceMandatory]="txnFields?.distance?.is_mandatory" [mileageConfig]="mileageConfig" [unit]="etxn.tx.distance_unit || mileageConfig.unit"></app-route-selector>
+                    <ng-container *ngIf="recentlyUsedMileageLocations$|async as recentlyUsedMileageLocations">
+                      <app-route-selector formControlName="route" [isConnected]="connectionStatus.connected" [recentlyUsedMileageLocations]="recentlyUsedMileageLocations" [formInitialized]="formInitializedFlag" [txnFields]="txnFields" [isAmountDisabled]="(isAmountDisabled$|async) || (txnFields?.distance?(!txnFields?.distance?.canEdit):false)" [isDistanceMandatory]="txnFields?.distance?.is_mandatory" [mileageConfig]="mileageConfig" [unit]="etxn.tx.distance_unit || mileageConfig.unit"></app-route-selector>
+                    </ng-container>
                   </ng-container>
                 </ng-container>
               </ng-container>

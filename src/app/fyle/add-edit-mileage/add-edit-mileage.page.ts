@@ -104,6 +104,10 @@ export class AddEditMileagePage implements OnInit {
   saveAndPrevMileageLoader = false;
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
+  recentlyUsedMileageLocations$: Observable<{
+    recent_start_locations?: string[];
+    recent_locations?: string[];
+  }>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
   presetProjectId: number;
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
@@ -828,6 +832,15 @@ export class AddEditMileagePage implements OnInit {
           return of(null);
         }
       })
+    );
+
+    this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
+      map(recentlyUsedValues => {
+        return {
+          recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
+          recent_locations: recentlyUsedValues?.recent_locations || []
+        };
+      }),
     );
 
     this.txnFields$ = this.getTransactionFields();

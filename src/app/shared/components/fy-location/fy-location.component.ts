@@ -25,6 +25,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() disabled = false;
   @Input() allowCustom = false;
   @Input() hideSuffix = false;
+  @Input() recentLocations: string[] = [];
+  @Input() cacheName;
 
   private innerValue;
   displayValue;
@@ -48,6 +50,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
+    console.log(this.recentLocations);
   }
 
   get value(): any {
@@ -74,7 +77,9 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
         component: FyLocationModalComponent,
         componentProps: {
           currentSelection: this.value,
-          allowCustom: this.allowCustom
+          allowCustom: this.allowCustom,
+          recentLocations: this.recentLocations,
+          cacheName: this.cacheName
         }
       });
 

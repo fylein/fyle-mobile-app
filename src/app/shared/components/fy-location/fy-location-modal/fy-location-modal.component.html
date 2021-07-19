@@ -42,6 +42,18 @@
       <ion-spinner name="crescent"></ion-spinner>
     </div>
   </ng-container>
+  <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of recentItemsFilteredList$ | async as list" (click)="onRecentItemSelect(filteredListItem.display)">
+    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-recently-used">
+    </mat-icon>
+    <div>
+      <div class="selection-modal--location-main-text">
+        {{filteredListItem.display}}
+      </div>
+      <div class="selection-modal--location-description">
+        {{filteredListItem.display}}
+      </div>
+    </div>
+  </div>
   <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredList$ | async as list"
     (click)="onElementSelect(filteredListItem)">
     <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-location">
