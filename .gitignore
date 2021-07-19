@@ -38,3 +38,4 @@ ios
 ios/App/App/GoogleService-Info.plist
 package-lock.json
 setup.sh
+.env

@@ -1,8 +1,8 @@
 const fs = require('fs');
 const util = require('util');
-const path = require('path');
 const stat = util.promisify(fs.stat);
-
+const dotenv = require('dotenv');
+dotenv.config();
 module.exports = function (ctx) {
   console.log(process.env);
     const stagingEnviroinent = `
