@@ -1339,6 +1339,8 @@ export class MyExpensesPage implements OnInit {
     this.trackingService.addToReport({Asset: 'Mobile'});
 
     let selectedElements = cloneDeep(this.selectedElements);
+    // Removing offline expenses from the list
+    selectedElements = selectedElements.filter(exp => exp.tx_id);
 
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
     const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
@@ -1593,10 +1595,8 @@ export class MyExpensesPage implements OnInit {
         deleteMethod: () => {
           offlineExpenses = this.selectedElements.filter(exp => !exp.tx_id);
 
-          let indexes = offlineExpenses.map((offlineExpense) => {
-            return indexOf(this.pendingTransactions, offlineExpense);
-          });
-          this.transactionOutboxService.deleteBulkOfflineExpenses(indexes);
+          this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+
           this.selectedElements = this.selectedElements.filter(exp => exp.tx_id);
           if (this.selectedElements.length > 0) {
             return this.transactionService.deleteBulk(

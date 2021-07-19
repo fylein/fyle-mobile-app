@@ -117,7 +117,7 @@
     </ng-container>
   </ng-container>
 
-  <div *ngIf="!isLoading">
+  <div *ngIf="!(filters?.state || filters?.date || simpleSearchText) && !isLoading">
     <div *ngFor="let pendingTransactions of pendingTransactions as list; let i = index">
       <app-expense-card 
           [expense]="pendingTransactions"

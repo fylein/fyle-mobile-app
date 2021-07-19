@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
-import { from, empty, EMPTY, forkJoin, noop, concat } from 'rxjs';
+import { from, empty, EMPTY, forkJoin, noop, concat, of } from 'rxjs';
 import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { OfflineService } from './offline.service';
@@ -9,11 +9,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
 import { StatusService } from './status.service';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, indexOf } from 'lodash';
 import { ReceiptService } from './receipt.service';
 import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import {TrackingService} from './tracking.service';
+import { Expense } from '../models/expense.model';
 
 @Injectable({
   providedIn: 'root'
@@ -229,7 +230,10 @@ export class TransactionsOutboxService {
     return null;
   }
 
-  deleteBulkOfflineExpenses(indexes: number[]) {
+  deleteBulkOfflineExpenses(pendingTransactions: Expense[], deleteExpenses: Expense[]) {
+    let indexes = deleteExpenses.map((offlineExpense) => {
+      return indexOf(pendingTransactions, offlineExpense);
+    });
     // We need to delete last element of this list first
     indexes.sort((a, b) => b - a);
     indexes.forEach(index => {
