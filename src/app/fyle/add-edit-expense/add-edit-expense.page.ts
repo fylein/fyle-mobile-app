@@ -15,7 +15,8 @@ import {
   switchMap,
   take,
   tap,
-  timeout
+  timeout,
+  withLatestFrom
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -28,7 +29,7 @@ import * as moment from 'moment';
 import {ReportService} from 'src/app/core/services/report.service';
 import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
 import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
-import {cloneDeep, isEqual, isNumber} from 'lodash';
+import {cloneDeep, isEqual, isNull, isNumber, mergeWith} from 'lodash';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {DataTransformService} from 'src/app/core/services/data-transform.service';
 import {PolicyService} from 'src/app/core/services/policy.service';
@@ -3005,28 +3006,6 @@ export class AddEditExpensePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  mergeExtractedData = function (extractedData, newExtractedData) {
-    if (!extractedData.amount) {
-      extractedData.amount = newExtractedData.amount;
-    }
-    if (!extractedData.category) {
-      extractedData.category = newExtractedData.category;
-    }
-    if (!extractedData.currency) {
-      extractedData.currency = newExtractedData.currency;
-    }
-    if (!extractedData.date) {
-      extractedData.date = newExtractedData.date;
-    }
-    if (!extractedData.location) {
-      extractedData.location = newExtractedData.location;
-    }
-    if (!extractedData.vendor_name) {
-      extractedData.vendor_name = newExtractedData.vendor_name;
-    }
-    return extractedData;
-  }
-
   async getParsedReceipt(base64Image, fileType) {
     const parsedData: any = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
     const homeCurrency = await this.offlineService.getHomeCurrency().toPromise();
@@ -3077,7 +3056,7 @@ export class AddEditExpensePage implements OnInit {
       if (!this.inpageExtractedData) {
         this.inpageExtractedData = imageData.data;
       } else {
-        this.inpageExtractedData = this.mergeExtractedData(this.inpageExtractedData, imageData.data);
+        this.inpageExtractedData = mergeWith({}, this.inpageExtractedData, imageData.data, (o, s) => isNull(o) ? s : o) 
       }
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
@@ -3175,20 +3154,22 @@ export class AddEditExpensePage implements OnInit {
             return this.fileService.post(fileObj);
           }),
           switchMap(() => {
-            return editExpenseAttachments$;
+            return editExpenseAttachments$.pipe(
+              withLatestFrom(this.isConnected$),
+              map(([attachments, isConnected]) => ({
+                attachments,
+                isConnected
+              }))
+            );
           }),
           finalize(() => {
             this.attachmentUploadInProgress = false;
-            this.isConnected$.pipe(
-              take(1)
-            ).subscribe((isConnected) => {
-              if (isConnected && this.attachedReceiptsCount === 1) {
-                this.parseFile(fileInfo);
-              }
-            });
           })
-        ).subscribe((attachments) => {
+        ).subscribe(({attachments, isConnected}) => {
           this.attachedReceiptsCount = attachments;
+          if (isConnected && this.attachedReceiptsCount === 1) {
+            this.parseFile(fileInfo);
+          }
         });
       }
     }
