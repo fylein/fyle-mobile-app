@@ -3005,6 +3005,28 @@ export class AddEditExpensePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
+  mergeExtractedData = function (extractedData, newExtractedData) {
+    if (!extractedData.amount) {
+      extractedData.amount = newExtractedData.amount;
+    }
+    if (!extractedData.category) {
+      extractedData.category = newExtractedData.category;
+    }
+    if (!extractedData.currency) {
+      extractedData.currency = newExtractedData.currency;
+    }
+    if (!extractedData.date) {
+      extractedData.date = newExtractedData.date;
+    }
+    if (!extractedData.location) {
+      extractedData.location = newExtractedData.location;
+    }
+    if (!extractedData.vendor_name) {
+      extractedData.vendor_name = newExtractedData.vendor_name;
+    }
+    return extractedData;
+  }
+
   async getParsedReceipt(base64Image, fileType) {
     const parsedData: any = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
     const homeCurrency = await this.offlineService.getHomeCurrency().toPromise();
@@ -3052,7 +3074,11 @@ export class AddEditExpensePage implements OnInit {
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
 
-      this.inpageExtractedData = imageData.data;
+      if (!this.inpageExtractedData) {
+        this.inpageExtractedData = imageData.data;
+      } else {
+        this.inpageExtractedData = this.mergeExtractedData(this.inpageExtractedData, imageData.data);
+      }
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
@@ -3114,13 +3140,12 @@ export class AddEditExpensePage implements OnInit {
     const {data} = await popup.onWillDismiss();
 
     if (data) {
+      const fileInfo = {
+        type: data.type,
+        url: data.dataUrl,
+        thumbnail: data.dataUrl
+      };
       if (this.mode === 'add') {
-        const fileInfo = {
-          type: data.type,
-          url: data.dataUrl,
-          thumbnail: data.dataUrl
-        };
-
         this.newExpenseDataUrls.push(fileInfo);
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(
@@ -3154,6 +3179,13 @@ export class AddEditExpensePage implements OnInit {
           }),
           finalize(() => {
             this.attachmentUploadInProgress = false;
+            this.isConnected$.pipe(
+              take(1)
+            ).subscribe((isConnected) => {
+              if (isConnected && this.attachedReceiptsCount === 1) {
+                this.parseFile(fileInfo);
+              }
+            });
           })
         ).subscribe((attachments) => {
           this.attachedReceiptsCount = attachments;
