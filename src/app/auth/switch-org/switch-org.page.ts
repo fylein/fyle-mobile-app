@@ -146,11 +146,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
           this.router.navigate(['/', 'post_verification', 'invited_user']);
         }
       } else if (eou.ou.status === 'ACTIVE') {
-        if (!isOnline) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-        }
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       } else if (eou.ou.status === 'DISABLED') {
         this.router.navigate(['/', 'auth', 'disabled']);
       }
