@@ -101,12 +101,8 @@ export class ReceiptPreviewComponent implements OnInit {
         if (this.base64ImagesWithSource.length === 0) {
           this.retake();
         } else {
-          debugger;
-          //const a = await this.imageSlides.isEnd();
-          //this.goToNextSlide();
+          await this.imageSlides.update();
           this.activeIndex = await this.imageSlides.getActiveIndex();
-          debugger;
-          //this.ionSlideDidChange();
         }
         
       }
