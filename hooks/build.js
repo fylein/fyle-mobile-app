@@ -4,7 +4,6 @@ const path = require('path');
 const stat = util.promisify(fs.stat);
 
 module.exports = function (ctx) {
-    console.log(ctx);
     if (!ctx.build.platform == 'android') return;
     const platformRoot = path.join(ctx.project.dir, 'android');
     FILE_PATHS = {

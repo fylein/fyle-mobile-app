@@ -4,7 +4,6 @@ const stat = util.promisify(fs.stat);
 const dotenv = require('dotenv');
 dotenv.config();
 module.exports = function (ctx) {
-  console.log(process.env);
     const stagingEnviroinent = `
     export const environment = {
         production: false,
