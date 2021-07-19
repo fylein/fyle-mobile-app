@@ -201,7 +201,6 @@
     padding: 0 12px;
   }
 
-
   &--zero-state {
     display: flex;
     flex-direction: column;
@@ -265,6 +264,9 @@
   &--body {
     padding-bottom: 20px;
     background-color: $white;
+  }
+
+  &--zero-states-body {
     height: 100%;
   }
 

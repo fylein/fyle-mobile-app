@@ -63,7 +63,7 @@
 </app-fy-header>
 
 <ion-content class="my-expenses--content">
-  <div class="my-expenses--body">
+  <div class="my-expenses--body" [ngClass]="{'my-expenses--zero-states-body': ((count$ | async) === 0) && isConnected$|async}">
   <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
