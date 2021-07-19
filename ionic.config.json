@@ -3,5 +3,10 @@
   "integrations": {
     "capacitor": {}
   },
-  "type": "angular"
+  "type": "angular",
+  "hooks": {
+    "serve:before": "./hooks/preserve.js",
+    "build:before": "./hooks/prebuild.js",
+    "capacitor:sync:after": "./hooks/build.js"
+  }
 }
