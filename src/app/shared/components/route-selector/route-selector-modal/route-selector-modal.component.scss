@@ -76,6 +76,7 @@
     --color: #f36;
     font-size: 16px;
     line-height: 20px;
+    letter-spacing: normal;
   }
 
   &--internal-block {
@@ -152,7 +153,7 @@
     display: block;
     width: 32px;
     padding-left: 8px;
-    stroke: $black;
+    stroke: $black-light;
   }
 
   &--add-stop {
@@ -161,7 +162,7 @@
     display: block;
     width: 32px;
     padding-left: 8px;
-    color: $black;
+    color: $black-light;
   }
 
   &--error {

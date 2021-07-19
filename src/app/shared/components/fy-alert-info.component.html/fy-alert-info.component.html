@@ -4,7 +4,7 @@
   <div class="alert-info-container--message"> {{ message }} </div>
   <div *ngIf="showActionButton">
     <ion-button class="text-capitalize alert-info-container--button" mode="md" fill="clear" color="fy-primary" (click)="onActionClick()">
-      Action
+      {{actionButtonContent}} 
     </ion-button>
   </div>
 </div>
