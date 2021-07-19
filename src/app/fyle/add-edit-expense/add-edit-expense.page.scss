@@ -3,6 +3,28 @@
 .add-edit-expense {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    &__review {
+      min-height: 80px;
+    }
+  }
+
+  &--header-button {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+    width: auto !important;
+  }
+
+  &--title {
+    &__review {
+      text-align: center;
+      padding-inline-end: 0;
+      position: relative;
+      line-height: 26px;
+      color: $black;
+      font-weight: 400;
+      top: 12px;
+      height: 64px;
+    }
   }
 
   &--sub-header {
@@ -16,11 +38,20 @@
     justify-content: space-around;
   }
 
-  &--footer-toolbar {
-    padding: 14px 16px 14px 16px;
+  &--footer-container {
+    &::before {
+      content: none;
+    }
   }
 
-  &--primary-cta {
+  &--footer-toolbar {
+    padding: 14px 16px 14px 16px;
+    &__shadow {
+      box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    }
+  }
+
+  &--primary-cta, &--secondary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: inherit;
@@ -36,6 +67,28 @@
 
     &:last-child {
       margin-left: 4px;
+    }
+  }
+
+  &--secondary-cta {
+    margin: 0;
+    border-radius: 0;
+    &__border {
+      border-right: 1px solid $grey;
+    }
+  }
+
+  &--secondary-cta-text {
+    min-width: 80px;
+  }
+
+  &--secondary-cta-icon {
+    &__left {
+      margin-right: 18px;
+    }
+
+    &__right {
+      margin-left: 18px; 
     }
   }
 

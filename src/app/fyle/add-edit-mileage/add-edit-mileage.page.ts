@@ -51,6 +51,7 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -98,6 +99,7 @@ export class AddEditMileagePage implements OnInit {
   saveMileageLoader = false;
   saveAndNewMileageLoader = false;
   saveAndNextMileageLoader = false;
+  saveAndPrevMileageLoader = false;
   clusterDomain: string;
   recentlyUsedValues$: Observable<RecentlyUsed>;
   recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
@@ -1531,6 +1533,41 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
+  saveExpenseAndGotoPrev() {
+    const that = this;
+    if (that.fg.valid) {
+      if (that.mode === 'add') {
+        that.addExpense('SAVE_AND_PREV_MILEAGE').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.close();
+          } else {
+            that.goToPrev();
+          }
+        });
+      } else {
+        // to do edit
+        that.editExpense('SAVE_AND_PREV_MILEAGE').subscribe(() => {
+          if (+this.activeIndex === 0) {
+            that.close();
+          } else {
+            that.goToPrev();
+          }
+        });
+      }
+    } else {
+      that.fg.markAllAsTouched();
+      const formContainer = that.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      }
+    } 
+  }
+
   saveExpenseAndGotoNext() {
     const that = this;
     if (that.fg.valid) {
@@ -1763,6 +1800,7 @@ export class AddEditMileagePage implements OnInit {
     this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
     this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
     this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+    this.saveAndPrevMileageLoader = redirectedFrom === 'SAVE_AND_PREV_MILEAGE';
 
     const customFields$ = this.getCustomFields();
 
@@ -1966,6 +2004,7 @@ export class AddEditMileagePage implements OnInit {
           this.saveMileageLoader = false;
           this.saveAndNewMileageLoader = false;
           this.saveAndNextMileageLoader = false;
+          this.saveAndPrevMileageLoader = false;
         })
       );
   }
@@ -1974,6 +2013,7 @@ export class AddEditMileagePage implements OnInit {
     this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
     this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
     this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+    this.saveAndPrevMileageLoader = redirectedFrom === 'SAVE_AND_PREV_MILEAGE';
 
     const customFields$ = this.getCustomFields();
 
@@ -2154,6 +2194,7 @@ export class AddEditMileagePage implements OnInit {
           this.saveMileageLoader = false;
           this.saveAndNewMileageLoader = false;
           this.saveAndNextMileageLoader = false;
+          this.saveAndPrevMileageLoader = false;
         })
       );
   }
@@ -2201,6 +2242,30 @@ export class AddEditMileagePage implements OnInit {
           inline: 'start'
         });
       }
+    }
+  }
+
+  async openCommentsModal() {
+    const etxn = await this.etxn$.toPromise();
+
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx.id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment({Asset: 'Mobile'});
+    } else {
+      this.trackingService.viewComment({Asset: 'Mobile'});
     }
   }
 }
