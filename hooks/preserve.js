@@ -4,7 +4,6 @@ const path = require('path');
 const stat = util.promisify(fs.stat);
 
 module.exports = function (ctx) {
-
     const stagingEnviroinent = `
     export const environment = {
         production: false,
