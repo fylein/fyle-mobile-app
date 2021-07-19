@@ -1182,6 +1182,13 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
+    const txnReceiptsCount$ = this.etxn$.pipe(
+      switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
+      map(fileObjs => {
+        return (fileObjs && fileObjs.length) || 0;
+      })
+    );
+
     from(this.loaderService.showLoader('Loading expense...', 15000)).pipe(
       switchMap(() => {
         return forkJoin({
@@ -1192,6 +1199,7 @@ export class AddEditExpensePage implements OnInit {
           report: selectedReport$,
           costCenter: selectedCostCenter$,
           customInputs: selectedCustomInputs$,
+          txnReceiptsCount: txnReceiptsCount$,
           homeCurrency: this.offlineService.getHomeCurrency(),
           defaultPaymentMode: defaultPaymentMode$,
           orgUserSettings: this.orgUserSettings$,
@@ -1203,7 +1211,7 @@ export class AddEditExpensePage implements OnInit {
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, txnReceiptsCount, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1349,7 +1357,7 @@ export class AddEditExpensePage implements OnInit {
         this.fg.controls.custom_inputs.patchValue(customInputValues);
       }, 600);
 
-      this.attachedReceiptsCount = etxn.tx.num_files;
+      this.attachedReceiptsCount = txnReceiptsCount;
       this.canAttachReceipts = this.attachedReceiptsCount === 0;
 
       if (etxn.dataUrls && etxn.dataUrls.length) {
