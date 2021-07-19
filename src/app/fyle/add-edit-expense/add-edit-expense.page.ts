@@ -3056,7 +3056,7 @@ export class AddEditExpensePage implements OnInit {
       if (!this.inpageExtractedData) {
         this.inpageExtractedData = imageData.data;
       } else {
-        this.inpageExtractedData = mergeWith({}, this.inpageExtractedData, imageData.data, (o, s) => isNull(o) ? s : o) 
+        this.inpageExtractedData = mergeWith({}, this.inpageExtractedData, imageData.data, (currentValue, newValue) => isNull(currentValue) ? newValue : currentValue) 
       }
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
