@@ -33,7 +33,7 @@ src/environments/environment.prod.ts
 src/environments/environment.staging.ts
 
 .gradle
-android
+android/app/google-services.json
 ios
 ios/App/App/GoogleService-Info.plist
 package-lock.json
