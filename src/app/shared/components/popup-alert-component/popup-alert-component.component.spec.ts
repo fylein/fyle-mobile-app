@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { PopupAlertComponentComponent } from './popup-alert-component.component';
@@ -7,7 +7,7 @@ describe('PopupAlertComponentComponent', () => {
   let component: PopupAlertComponentComponent;
   let fixture: ComponentFixture<PopupAlertComponentComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ PopupAlertComponentComponent ],
       imports: [IonicModule.forRoot()]

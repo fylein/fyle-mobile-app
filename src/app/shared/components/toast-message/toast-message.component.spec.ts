@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { CommentsComponent } from './comments.component';
+import { ToastMessageComponent } from './toast-message.component';
 
-describe('CommentsComponent', () => {
-  let component: CommentsComponent;
-  let fixture: ComponentFixture<CommentsComponent>;
+describe('ToastMessageComponent', () => {
+  let component: ToastMessageComponent;
+  let fixture: ComponentFixture<ToastMessageComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CommentsComponent ],
+      declarations: [ ToastMessageComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CommentsComponent);
+    fixture = TestBed.createComponent(ToastMessageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
