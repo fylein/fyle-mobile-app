@@ -6,6 +6,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import {getCurrencySymbol} from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { map } from 'rxjs/operators';
+import { isEqual } from 'lodash';
 
 @Component({
   selector: 'app-expense-card',
@@ -19,6 +20,7 @@ export class ExpensesCardComponent implements OnInit {
   @Input() previousExpenseCreatedAt;
   @Input() isSelectionModeEnabled: boolean;
   @Input() selectedElements: Expense[];
+  @Input() isFirstOfflineExpense: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
@@ -49,7 +51,11 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   get isSelected() {
-    return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+    if (this.expense.tx_id) {
+      return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+    } else {
+      return this.selectedElements.some(txn => isEqual(this.expense, txn));
+    }
   }
 
   getReceipt() {
@@ -86,7 +92,9 @@ export class ExpensesCardComponent implements OnInit {
       })
     );
 
-    if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
+    if (!this.expense.tx_id) {
+      this.showDt = !!this.isFirstOfflineExpense;
+    } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
       this.showDt = currentDate !== previousDate;
