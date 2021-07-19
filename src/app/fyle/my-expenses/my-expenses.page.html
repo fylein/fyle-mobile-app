@@ -63,7 +63,7 @@
 </app-fy-header>
 
 <ion-content class="my-expenses--content">
-  <div class="my-expenses--body">
+  <div class="my-expenses--body" [ngClass]="{'my-expenses--zero-states-body': ((count$ | async) === 0) && isConnected$|async}">
   <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -94,10 +94,6 @@
           <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
         </div>
       </ng-template>
-    </div>
-
-    <div *ngIf="!(filters?.state || filters?.date || simpleSearchText) && isNewUser$|async" class="my-expenses--zero-state-action-button-container">
-      <div class="my-expenses--zero-state-action-button">Create your first expense</div>
     </div>
 
     <div *ngIf="(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-header">
@@ -162,7 +158,7 @@
 <ion-footer>
   <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
   <ng-container *ngIf="openReports$ | async as openReports">
-    <ng-container *ngIf="selectionMode">
+    <ng-container *ngIf="selectionMode && !reviewMode">
       <div class="my-expenses--footer-conatiner">
         <button type="button" *ngIf="openReports.length > 0"
           class="my-expenses--cta-button my-expenses--secondary-cta text-center" [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
@@ -173,7 +169,12 @@
           (click)="openCreateReportWithSelectedIds('newReport')">Create New Report</button>
       </div>
     </ng-container>
+    <ng-container *ngIf="selectionMode && reviewMode">
+      <div class="my-expenses--footer-conatiner">
+        <button type="submit"
+          class="my-expenses--cta-button my-expenses--primary-cta text-center" (click)="openReviewExpenses()">Start Review</button>
+      </div>
+    </ng-container>
   </ng-container>
-  
 </ion-footer>
 

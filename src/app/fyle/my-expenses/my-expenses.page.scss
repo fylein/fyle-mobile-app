@@ -201,16 +201,15 @@
     padding: 0 12px;
   }
 
-
   &--zero-state {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    align-items: center;
+    height: 90%;
+    justify-content: center;
     text-align: center;
 
     &-img {
-      margin: 20px;
+      margin: 0 20px 20px 20px;
     }
 
     &-header {
@@ -218,24 +217,23 @@
       font-size: 18px;
       display: block;
       margin-bottom: 16px;
-      color: #1C1F36;
+      color: $dark-blue;
       line-height: 1.5;
       font-weight: normal;
     }
 
     &-content {
-      color: #2C304E;
+      color: $blue-black;
       font-size: 14px;
       font-weight: normal;
     }
 
     &-subheader {
-      color: #ababab;
+      color: $gray-3;
       display: block;
       font-size: 16px;
       font-weight: 300;
       line-height: 1.5;
-      margin-bottom: 24px;
       padding: 0 8px;
 
       &__title {
@@ -244,47 +242,6 @@
       }
     }
 
-    &-action-button-container {
-      margin-top: auto;
-    }
-
-    &-action-button {
-      padding: 24px 16px;
-      border-radius: 6px;
-      color: #f36;
-      font-size: 18px;
-      font-weight: 500;
-      width: 275px;
-      margin: 0 auto 20px;
-      position: relative;
-      background: white;
-      border: 1px solid #f36;
-
-      &:after,
-      &:before {
-        top: 100%;
-        left: 50%;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
-        position: absolute;
-        pointer-events: none;
-      }
-
-      &:after {
-        border-color: rgba(255, 255, 255, 0);
-        border-top-color: white;
-        border-width: 20px;
-        margin-left: -20px;
-      }
-      &:before {
-        border-color: rgba(255, 51, 102, 0);
-        border-top-color: #f36;
-        border-width: 21px;
-        margin-left: -21px;
-      }
-    }
   }
 
   &--needs-receipt {
@@ -307,6 +264,10 @@
   &--body {
     padding-bottom: 20px;
     background-color: $white;
+  }
+
+  &--zero-states-body {
+    height: 100%;
   }
 
   &--footer-toolbar {
