@@ -48,9 +48,6 @@ export class CaptureReceiptPage implements OnInit {
 
   addExpenseToQueue(base64ImagesWithSource: Images) {
     let source = base64ImagesWithSource.source;
-    if (this.isInstafyleEnabled) {
-      source += '_DE'
-    }
     // TODO: Add _OFFLINE
     const transaction = {
       billable: false,
@@ -117,13 +114,12 @@ export class CaptureReceiptPage implements OnInit {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
-        x: 0,
-        y: 0,
         toBack: true,
-        height: window.screen.height,
-        width: window.screen.width,
-        parent: 'cameraPreview'
+        width: window.innerWidth,
+        height: window.innerHeight,
+        parent: 'cameraPreview',
       };
+      console.log(cameraPreviewOptions)
 
       CameraPreview.start(cameraPreviewOptions).then(res => {
         this.isCameraShown = true;

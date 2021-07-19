@@ -117,12 +117,14 @@ export class ReceiptPreviewComponent implements OnInit {
     })
   }
 
-  goToNextSlide() {
-    this.imageSlides.slideNext();
+  async goToNextSlide() {
+    await this.imageSlides.slideNext();
+    await this.imageSlides.update();
   }
 
-  goToPrevSlide() {
-    this.imageSlides.slidePrev();
+  async goToPrevSlide() {
+    await this.imageSlides.slidePrev();
+    await this.imageSlides.update();
   }
 
   async ionSlideDidChange() {

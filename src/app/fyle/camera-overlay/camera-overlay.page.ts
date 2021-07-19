@@ -61,7 +61,7 @@ export class CameraOverlayPage implements OnInit {
         y: 0,
         toBack: true,
         width: window.screen.width,
-        height: window.screen.height,
+        height: window.innerHeight,
         parent: 'cameraPreview'
       };
 
