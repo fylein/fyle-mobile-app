@@ -63,7 +63,7 @@
 </app-fy-header>
 
 <ion-content class="my-expenses--content">
-  <div class="my-expenses--body" [ngClass]="{'my-expenses--zero-states-body': ((count$ | async) === 0) && isConnected$|async}">
+  <div class="my-expenses--body" [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}">
   <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -109,7 +109,7 @@
     </ng-container>
 
    <ng-container *ngIf="pendingTransactions.length === 0">
-     <div>
+     <div class="my-expenses--zero-state">
       <app-fy-zero-state class="stats--zero-state" image="../../../../assets/images/no-internet.svg"
       header="You're Offline!" message="Fear not, you can still add expenses offline."
       [unscaledImage]="true" [useNewStyling]="true"></app-fy-zero-state>
