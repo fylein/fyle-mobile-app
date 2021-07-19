@@ -63,7 +63,7 @@
 </app-fy-header>
 
 <ion-content class="my-expenses--content">
-  <div class="my-expenses--body">
+  <div class="my-expenses--body" [ngClass]="{'my-expenses--zero-states-body': ((count$ | async) === 0) && isConnected$|async}">
   <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -94,10 +94,6 @@
           <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
         </div>
       </ng-template>
-    </div>
-
-    <div *ngIf="!(filters?.state || filters?.date || simpleSearchText) && isNewUser$|async" class="my-expenses--zero-state-action-button-container">
-      <div class="my-expenses--zero-state-action-button">Create your first expense</div>
     </div>
 
     <div *ngIf="(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-header">
