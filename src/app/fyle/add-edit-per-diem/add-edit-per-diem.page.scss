@@ -3,6 +3,15 @@
 .add-edit-per-diem {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    &__review {
+      min-height: 80px;
+    }
+  }
+
+  &--header-button {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+    width: auto !important;
   }
 
   &--sub-header {
@@ -11,13 +20,32 @@
     font-weight: 400;
   }
 
+  &--title {
+    &__review {
+      text-align: center;
+      padding-inline-end: 0;
+      position: relative;
+      line-height: 26px;
+      color: $black;
+      font-weight: 400;
+      top: 12px;
+      height: 64px;
+    }
+  }
+
   &--footer {
     display: flex;
     justify-content: space-around;
   }
 
-  &--primary-cta {
+  &--primary-cta, &--secondary-cta {
+    height: 48px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    --border-radius: 4px !important;
     margin: 14px !important;
+    width: 100%;
   }
 
   &--receipt-currency {

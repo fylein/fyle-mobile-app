@@ -103,6 +103,7 @@ export class MyExpensesPage implements OnInit {
   actionSheetButtons = [];
   selectAll = false;
   filterPills = [];
+  reviewMode = false;
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
@@ -318,6 +319,7 @@ export class MyExpensesPage implements OnInit {
     this.headerState = HeaderState.base;
 
     this.isLoading = true;
+    this.reviewMode = false;
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
@@ -747,6 +749,16 @@ export class MyExpensesPage implements OnInit {
     }
 
     currentParams.queryParams = newQueryParams;
+
+    const onlyDraftStateFilterApplied = this.filters.state && this.filters.state.length === 1 && this.filters.state.includes('DRAFT');
+    const onlyCriticalPolicyFilterApplied = this.filters.state && this.filters.state.length === 1 && this.filters.state.includes('CANNOT_REPORT');
+    const draftAndCriticalPolicyFilterApplied = this.filters.state && this.filters.state.length === 2 && this.filters.state.includes('DRAFT') && this.filters.state.includes('CANNOT_REPORT');
+
+    this.reviewMode = false;
+    if (onlyDraftStateFilterApplied || onlyCriticalPolicyFilterApplied || draftAndCriticalPolicyFilterApplied) {
+      this.reviewMode = true;
+    }
+
     return currentParams;
   }
 
