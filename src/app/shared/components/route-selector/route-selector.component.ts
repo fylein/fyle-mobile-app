@@ -151,9 +151,6 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   ngOnInit() {
-
-    console.log(this.recentlyUsedMileageLocations);
-
     this.ngControl = this.injector.get(NgControl);
 
     this.form.controls.roundTrip.valueChanges.subscribe(roundTrip => {

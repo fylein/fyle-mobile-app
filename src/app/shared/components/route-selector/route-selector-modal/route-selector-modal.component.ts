@@ -63,7 +63,6 @@ export class RouteSelectorModalComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('inside modal', this.recentlyUsedMileageLocations);
     this.distance = this.value.distance;
     if (this.value?.mileageLocations?.length > 0) {
       this.value.mileageLocations.forEach(location => {

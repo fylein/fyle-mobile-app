@@ -54,7 +54,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       return of(this.recentLocations.map(recentLocation => ({ display: recentLocation })));
     } else if (this.cacheName) {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => {
+        map((options: string[]) => {
           return options.map(option => {
             return {
               display: option
@@ -120,9 +120,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-
-    this.recentItemsFilteredList$.subscribe(recentFilteredList => console.log({ recentFilteredList }));
-
     that.filteredList$ = fromEvent(that.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       debounceTime(300),
@@ -187,7 +184,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onRecentItemSelect(location) {
+  onRecentItemSelect(location: string) {
     from(this.loaderService.showLoader('Loading location...', 5000))
       .pipe(
         switchMap(() => {
