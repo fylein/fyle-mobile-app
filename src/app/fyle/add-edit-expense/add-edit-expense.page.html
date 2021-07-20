@@ -719,22 +719,6 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="etxn$|async as etxn">
-        <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-expense--comment">
-          <app-comments-history [objectId]="etxn.tx.id" objectType="transactions" text="Comments"></app-comments-history>
-        </div>
-
-          <div (click)="deleteExpense()"
-              *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete" class="add-edit-expense--delete" matRipple>
-            <mat-icon class="add-edit-expense--delete-icon" svgIcon="">
-              delete
-            </mat-icon>
-            <div class="add-edit-expense--delete-msg">
-              Delete Expense
-            </div>
-          </div>
-        </ng-container>
-
       <ng-container *ngIf="isConnected$">
         <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
           <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
