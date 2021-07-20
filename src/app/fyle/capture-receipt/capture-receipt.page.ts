@@ -30,8 +30,8 @@ export class CaptureReceiptPage implements OnInit {
   captureCount = 0;
   base64ImagesWithSource: Images[];
   lastImage: string;
-  activeFlashMode: any;
-  homeCurrency: any;
+  activeFlashMode: string;
+  homeCurrency: string;
   isInstafyleEnabled: boolean;
 
 
@@ -46,8 +46,7 @@ export class CaptureReceiptPage implements OnInit {
     private networkService: NetworkService
   ) { }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   addExpenseToQueue(base64ImagesWithSource: Images) {
     let source = base64ImagesWithSource.source;
@@ -129,13 +128,11 @@ export class CaptureReceiptPage implements OnInit {
         height: window.innerHeight,
         parent: 'cameraPreview',
       };
-      console.log(cameraPreviewOptions)
 
       CameraPreview.start(cameraPreviewOptions).then(res => {
         this.isCameraShown = true;
         this.getFlashModes();
       });
-
     }
   }
 
@@ -174,7 +171,6 @@ export class CaptureReceiptPage implements OnInit {
         this.base64ImagesWithSource = [];
         this.setUpAndStartCamera();
       } else {
-        // debugger;
         this.addExpenseToQueue(this.base64ImagesWithSource[0]);
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
@@ -212,7 +208,6 @@ export class CaptureReceiptPage implements OnInit {
   onBulkCapture() {
     this.captureCount += 1;
     this.setUpAndStartCamera();
-    // console.log()
   }
 
   async onCapture() {
@@ -224,8 +219,6 @@ export class CaptureReceiptPage implements OnInit {
     await this.stopCamera();
     const base64PictureData = 'data:image/jpeg;base64,' + result.value;
     this.lastImage = base64PictureData;
-    // this.base64Images.push(base64PictureData)
-    //console.log(base64PictureData);
     if (!this.isBulkMode) { 
       this.base64ImagesWithSource.push({
         source: 'MOBILE_SINGLE',
@@ -239,7 +232,6 @@ export class CaptureReceiptPage implements OnInit {
       })
       this.onBulkCapture();
     }
-
   }
 
   galleryUpload() {
@@ -283,20 +275,16 @@ export class CaptureReceiptPage implements OnInit {
                 this.base64ImagesWithSource = [];
                 this.setUpAndStartCamera();
               } else {
-                debugger;
                 this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
                   this.addExpenseToQueue(base64ImageWithSource);
                 })
                 this.router.navigate(['/', 'enterprise', 'my_expenses']);
               }
             }
-
           } else {
             this.setUpAndStartCamera();
           }
-
         });
-
       } else {
         this.imagePicker.requestReadPermission();
         this.galleryUpload();
@@ -320,8 +308,4 @@ export class CaptureReceiptPage implements OnInit {
       this.isInstafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
   }
-
-
-
-
 }
