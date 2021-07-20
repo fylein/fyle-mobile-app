@@ -76,6 +76,10 @@
     line-height: 20px;
     font-weight: 500;
     color: $black;
+    white-space: nowrap;
+    max-width: 288px;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
   &--location-description {
@@ -83,10 +87,6 @@
     line-height: 18px;
     font-weight: 400;
     color: $grey-light;
-    white-space: nowrap;
-    max-width: 288px;
-    text-overflow: ellipsis;
-    overflow: hidden;
   }
 
   &--search-icon {
