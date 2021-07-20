@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
-import { Capacitor, Device, Plugins } from '@capacitor/core';
+import { Capacitor, Plugins } from '@capacitor/core';
 const {CameraPreview} = Plugins;
 import '@capacitor-community/camera-preview';
 import { ModalController, NavController } from '@ionic/angular';
@@ -10,7 +10,9 @@ import { Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { from } from 'rxjs';
+import { from, noop } from 'rxjs';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { map } from 'rxjs/operators';
 
 type Images = Partial<{
   source: string,
@@ -40,7 +42,8 @@ export class CaptureReceiptPage implements OnInit {
     private navController: NavController,
     private offlineService: OfflineService,
     private transactionsOutboxService: TransactionsOutboxService,
-    private imagePicker: ImagePicker
+    private imagePicker: ImagePicker,
+    private networkService: NetworkService
   ) { }
 
   ngOnInit() {
@@ -48,26 +51,33 @@ export class CaptureReceiptPage implements OnInit {
 
   addExpenseToQueue(base64ImagesWithSource: Images) {
     let source = base64ImagesWithSource.source;
-    // TODO: Add _OFFLINE
-    const transaction = {
-      billable: false,
-      skip_reimbursement: false,
-      source,
-      txn_dt: new Date(),
-      amount: null,
-      currency: this.homeCurrency
-    };
 
-    const attachmentUrls = [];
-    const attachment = {
-      thumbnail: base64ImagesWithSource.base64Image,
-      type: 'image',
-      url: base64ImagesWithSource.base64Image
-    };
+    return this.networkService.isOnline().pipe(
+      map((isConnected) => {
+        if (!isConnected) {
+          source += '_OFFLINE';
+        }
+        const transaction = {
+          billable: false,
+          skip_reimbursement: false,
+          source,
+          txn_dt: new Date(),
+          amount: null,
+          currency: this.homeCurrency
+        };
 
-    attachmentUrls.push(attachment);
+        const attachmentUrls = [];
+        const attachment = {
+          thumbnail: base64ImagesWithSource.base64Image,
+          type: 'image',
+          url: base64ImagesWithSource.base64Image
+        };
 
-    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
+        attachmentUrls.push(attachment);
+
+        this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
+      })
+    ).subscribe(noop);
   }
 
   async stopCamera() {
