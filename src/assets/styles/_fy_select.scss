@@ -78,3 +78,19 @@ $sub-title: #ababab;
   width: 94%;
   padding: 4px;
 }
+
+%fy-select-cta {
+  --background: white;
+  --color: #ff3366;
+  --box-shadow: none;
+  text-transform: capitalize;
+  margin-left: -16%;
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+%fy-select-search-icon {
+  height: 16px;
+  width: 16px;
+  margin-left: 10px;
+}

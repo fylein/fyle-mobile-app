@@ -1,4 +1,5 @@
 @import '../../../../../assets/styles/fy_select';
+@import '../../../../../theme/colors.scss';
 
 .selection-modal {
   color: black;
@@ -31,11 +32,7 @@
   }
 
   &--search-icon {
-    font-size: 14px;
-  }
-
-  &--form-field-container {
-    text-align: center;
+    @extend %fy-select-search-icon;
   }
 
   &--container {
@@ -55,12 +52,7 @@
     border-bottom: 1px solid #ddd;
   }
 
-  &--cta-container {
-    padding: 16px;
-  }
-
   &--cta {
-    height: 48px;
-    width: 100%;
+    @extend %fy-select-cta;
   }
 }
