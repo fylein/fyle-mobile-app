@@ -162,7 +162,7 @@ export class CaptureReceiptPage implements OnInit {
       component: ReceiptPreviewComponent,
       componentProps: {
         base64ImagesWithSource: this.base64ImagesWithSource,
-        mode: "single"
+        mode: 'single'
       },
     });
 
@@ -186,7 +186,7 @@ export class CaptureReceiptPage implements OnInit {
       component: ReceiptPreviewComponent,
       componentProps: {
         base64ImagesWithSource: this.base64ImagesWithSource,
-        mode: "bulk"
+        mode: 'bulk'
       },
     });
 
@@ -272,7 +272,7 @@ export class CaptureReceiptPage implements OnInit {
               component: ReceiptPreviewComponent,
               componentProps: {
                 base64ImagesWithSource: this.base64ImagesWithSource,
-                mode: "bulk"
+                mode: 'bulk'
               },
             });
             await modal.present();
