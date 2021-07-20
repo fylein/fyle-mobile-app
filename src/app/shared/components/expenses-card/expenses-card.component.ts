@@ -1,12 +1,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { noop, Observable } from 'rxjs';
+import { from, noop, Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import {getCurrencySymbol} from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { map } from 'rxjs/operators';
+import { finalize, map, switchMap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
+import { FileService } from 'src/app/core/services/file.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { PopoverController } from '@ionic/angular';
+import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 
 @Component({
   selector: 'app-expense-card',
@@ -21,6 +25,7 @@ export class ExpensesCardComponent implements OnInit {
   @Input() isSelectionModeEnabled: boolean;
   @Input() selectedElements: Expense[];
   @Input() isFirstOfflineExpense: boolean;
+  @Input() attachments;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
@@ -37,10 +42,15 @@ export class ExpensesCardComponent implements OnInit {
   paymentModeIcon: string;
   isScanInProgress: boolean;
   isProjectMandatory$: Observable<boolean>;
+  attachmentUploadInProgress = false;
+  attachedReceiptsCount = 0;
 
   constructor(
     private transactionService: TransactionService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private fileService: FileService,
+    private transactionOutboxService: TransactionsOutboxService,
+    private popoverController: PopoverController
   ) { }
 
 
@@ -65,7 +75,11 @@ export class ExpensesCardComponent implements OnInit {
       this.receipt = 'assets/svg/fy-calendar.svg';
     } else {
       // Todo: Get thumbnail of image in V2
-      this.receipt = 'assets/svg/fy-expense.svg';
+      if (!this.expense.tx_file_ids) {
+        this.receipt = 'assets/svg/fy-add-receipt.svg';
+      } else {
+        this.receipt = 'assets/svg/fy-expense.svg';
+      }
     }
   }
 
@@ -101,7 +115,6 @@ export class ExpensesCardComponent implements OnInit {
     }
 
     this.getReceipt();
-
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
     if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
@@ -142,6 +155,39 @@ export class ExpensesCardComponent implements OnInit {
   onTapTransaction() {
     if (this.isSelectionModeEnabled) {
       this.cardClickedForSelection.emit(this.expense);
+    }
+  }
+  
+  async addAttachments(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const popup = await this.popoverController.create({
+      component: CameraOptionsPopupComponent,
+      cssClass: 'camera-options-popover'
+    });
+
+    await popup.present();
+
+    const { data } = await popup.onWillDismiss();
+    if (data) {
+      this.attachmentUploadInProgress = true;
+      let attachmentType = 'image';
+
+      if (data.type === 'application/pdf' || data.type === 'pdf') {
+        attachmentType = 'pdf';
+      }
+      from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType)).pipe(
+        switchMap((fileObj: any) => {
+          fileObj.transaction_id = this.expense.tx_id;
+          return this.fileService.post(fileObj);
+        }),
+        finalize(() => {
+          this.attachmentUploadInProgress = false;
+        })
+      ).subscribe((attachments) => {
+        this.attachedReceiptsCount = attachments;
+      });
     }
   }
 

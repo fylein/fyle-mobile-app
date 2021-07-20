@@ -196,5 +196,18 @@
     border-radius: 16px;
     padding: 4px 29px;
   }
+  
+  &--spinner-icon {
+    color: #f36;
+  }
+
+  &--spinner-subheader {
+    font-size: 8px;
+  }
+
+  &--spinner-placeholder {
+    text-align: center;
+    margin-top: -5px;
+  }
 }
 
