@@ -33,6 +33,12 @@
     }
   }
 
+  &--footer-toolbar {
+    &__offline {
+      padding-bottom: 36px;
+    }
+  }
+
   &--footer {
     display: flex;
     justify-content: space-around;
