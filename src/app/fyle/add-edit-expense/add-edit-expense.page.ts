@@ -1819,7 +1819,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.isExpandedView = false;
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
@@ -1945,6 +1944,8 @@ export class AddEditExpensePage implements OnInit {
     this.setupCostCenters();
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
+
+    this.isExpandedView = this.mode === 'add';
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
