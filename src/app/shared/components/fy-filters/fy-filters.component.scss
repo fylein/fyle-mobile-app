@@ -1,0 +1,113 @@
+@import '../../../../theme/colors';
+
+.fy-filters {
+  &--header {
+    border-bottom: 1px solid $grey-2;
+  }
+
+  &--title {
+    line-height: 26px;
+    color: $black;
+    font-weight: 400;
+    padding-left: 12px;
+  }
+
+  &--clear-all {
+    text-transform: capitalize;
+    color: $primary;
+    font-size: 16px;
+    line-height: 20px;
+  }
+
+  &--grid {
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
+    height: 100%;
+  }
+
+  &--row {
+    height: 100%;
+  }
+
+  &--filter-item {
+    --padding-start: 0;
+    --inner-padding-start: 16px;
+    --inner-padding-top: 13px;
+    --inner-padding-bottom: 14px;
+    --background: #{$white};
+    --ion-item-border-color: #{$grey};
+    color: $black-light;
+
+    &__active {
+      --background: #{$pure-white};
+      color: $black;
+      font-weight: 500;
+    }
+  }
+
+  &--checkbox, &--radio {
+    font-size: 20px;
+    margin-right: 16px;
+    fill: $black;
+    min-width: 20px;
+  }
+
+  &--filter-option {
+    --inner-padding-top: 25px;
+    --inner-padding-bottom: 24px;
+    --background: #{$pure-white};
+    font-size: 14px;
+    --border-style: none;
+    line-height: 18px;
+    color: $blue-black;
+  }
+
+  &--filter-item-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  &--filter-col {
+    background-color: $white;
+  }
+
+  &--custom-date-filters {
+    padding: 16px;
+    .mat-form-field {
+      width: 100%;
+    }
+  }
+
+  &--footer-toolbar {
+    display: flex;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  &--save {
+    width: 160px;
+    height: 60px;
+    background: $pink-gradient-2;
+    border-radius: 4px;
+    padding: 16px 24px;
+    font-size: 14px;
+    line-height: 18px;
+    color: $pure-white;
+    text-align: center;
+    --ion-color-base: none;
+    --box-shadow: none;
+  }
+
+  &--cancel {
+    width: 160px;
+    height: 60px;
+    border-radius: 4px;
+    padding: 16px 24px;
+    font-size: 14px;
+    line-height: 18px;
+    --color: $black;
+    text-align: center;
+  }
+}

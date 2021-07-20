@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { RejectAdvanceComponent } from './reject-advance.component';
@@ -7,7 +7,7 @@ describe('RejectAdvanceComponent', () => {
   let component: RejectAdvanceComponent;
   let fixture: ComponentFixture<RejectAdvanceComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ RejectAdvanceComponent ],
       imports: [IonicModule.forRoot()]

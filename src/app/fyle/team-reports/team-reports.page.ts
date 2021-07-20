@@ -162,7 +162,8 @@ export class TeamReportsPage implements OnInit {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
-        queryParams
+        queryParams,
+        replaceUrl : true
       });
     });
 
@@ -191,7 +192,7 @@ export class TeamReportsPage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
   }

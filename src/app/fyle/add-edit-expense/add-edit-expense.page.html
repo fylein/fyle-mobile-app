@@ -1,51 +1,46 @@
 <ion-header mode="md">
-  <ion-toolbar class="add-edit-expense--toolbar">
+  <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="mode" class="page-title" mode="md">
+    <ion-buttons mode="md" slot="start" *ngIf="!navigateBack">
+      <ion-button (click)="showClosePopup()" mode="md">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title *ngIf="mode" class="page-title" mode="md" [ngClass]="{'add-edit-expense--title__review': reviewList?.length}">
       <div *ngIf="mode === 'add'">
         Add Expense
       </div>
       <div *ngIf="mode === 'edit'">
-        <div>
-          {{title}} Expense
-        </div>
-        <div *ngIf="reviewList?.length" class="add-edit-expense--sub-header">
-          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
-        </div>
+        <ng-container *ngIf="reviewList?.length;else editMode">
+          Review Expense
+          <div class="add-edit-expense--sub-header">
+            {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+          </div>
+        </ng-container>
+        <ng-template #editMode>
+          <div>
+            Edit Expense
+          </div>
+        </ng-template>
       </div>
     </ion-title>
 
-    <ion-buttons *ngIf="!navigateBack" slot="end">
-      <ion-button (click)="showClosePopup()" mode="md">
-        <mat-icon slot="icon-only">close</mat-icon>
+    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" slot="end">
+      <ion-button class="add-edit-expense--header-button" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button class="add-edit-expense--header-button" (click)="deleteExpense()">
+        <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div *ngIf="reviewList?.length && !focusState" class="add-edit-expense--review-nav">
-    <div>
-      <button (click)="goToPrev()" [disabled]="+activeIndex === 0"
-        [ngClass]="{'add-edit-expense--review-go-left__disabled': +activeIndex === 0}"
-        class="add-edit-expense--review-go-left">
-        <mat-icon>
-          keyboard_arrow_left
-        </mat-icon>
-      </button>
-    </div>
-    <div>
-      <button (click)="goToNext()" [disabled]="+activeIndex === reviewList?.length - 1"
-        [ngClass]="{'add-edit-expense--review-go-right__disabled': +activeIndex === reviewList?.length - 1}"
-        class="add-edit-expense--review-go-right">
-        <mat-icon>
-          keyboard_arrow_right
-        </mat-icon>
-      </button>
-    </div>
-  </div>
+  
   <ng-container *ngIf="fg">
     <div class="add-edit-expense--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-expense--duplicate-pointer">
@@ -69,8 +64,7 @@
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit'  && etxn.tx.policy_flag">
             <ng-container *ngIf="comments$|async as comments">
-              <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments">
-              </app-fy-policy-violation-info>
+              <app-fy-policy-violation-info [estatuses]="comments"></app-fy-policy-violation-info>
             </ng-container>
           </ng-container>
 
@@ -103,13 +97,8 @@
             </div>
 
             <div (click)="addAttachments($event)" *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)"
-              class="add-edit-expense--receipt-image">
-              <div class="add-edit-expense--receipt-text">
-                Add Receipt
-              </div>
-              <mat-icon class="add-edit-expense--receipt-image-icon">
-                add_circle
-              </mat-icon>
+                 class="add-edit-expense--receipt-image">
+              <mat-icon class="add-edit-expense--receipt-image-icon" svgIcon="add-to-list"></mat-icon>
             </div>
 
             <div (click)="viewAttachments()" *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress"
@@ -118,7 +107,7 @@
               <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
                 {{attachedReceiptsCount}}
               </div>
-              <mat-icon (click)="addAttachments($event)" class="add-edit-expense--receipt-image-icon">
+              <mat-icon (click)="addAttachments($event)" class="add-edit-expense--receipt-image-icon add-edit-expense--receipt-add-more-icon">
                 add_circle
               </mat-icon>
             </div>
@@ -126,11 +115,14 @@
           <div>
             <div *ngIf="etxn$|async as etxn" class="add-edit-expense--currency">
               <ng-container *ngIf="homeCurrency$|async as homeCurrency">
-                <app-fy-currency [formControl]="fg?.controls?.currencyObj" [homeCurrency]="homeCurrency"
+                <app-fy-currency
+                  [formControl]="fg?.controls?.currencyObj"
+                  [homeCurrency]="homeCurrency"
+                  [recentlyUsed]="recentCurrencies"
                   [txnDt]="etxn?.tx?.txn_dt">
                 </app-fy-currency>
                 <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
-                  class="add-edit-expense--amount-error">
+                     class="add-edit-expense--amount-error" [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls.currencyObj.value.orig_currency}">
                   Please enter the amount.
                 </div>
               </ng-container>
@@ -138,12 +130,6 @@
           </div>
         </div>
 
-        <div *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
-          <div (click)="splitExpense()" class="add-edit-expense--split-expense-container">
-            <mat-icon class="add-edit-expense--split-expense-icon" svgIcon="split-expense"></mat-icon>
-            <div class="add-edit-expense--split-expense-title">Split Expense</div>
-          </div>
-        </div>
         <div class="add-edit-expense--primary-block">
           <ion-grid class="add-edit-expense--grid">
             <ion-row>
@@ -724,9 +710,18 @@
         </ng-template>
       </div>
 
-      <app-fy-alert *ngIf="isNotReimbursable$|async"
-        [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
-        [type]="'information'">
+      <div class="add-edit-expense--split-expense-block" *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
+        <button class="add-edit-expense--split-expense-container" (click)="splitExpense()">
+          <div class="add-edit-expense--split-expense-title">Split Expense</div>
+        </button>
+        <div class="add-edit-expense--split-info-container">
+          <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
+          <div class="add-edit-expense--split-info-message">Fill all the required fields before splitting an expense.</div>
+        </div>
+      </div>
+
+      <app-fy-alert *ngIf="isNotReimbursable$|async" [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
+                    [type]="'information'">
       </app-fy-alert>
 
       <ng-container *ngIf="etxn$|async as etxn">
@@ -778,22 +773,6 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="etxn$|async as etxn">
-        <div #comments *ngIf="etxn && mode === 'edit'" class="add-edit-expense--comment">
-          <app-comments [objectId]="etxn.tx.id" mode="edit" objectType="transactions" text="Comments"></app-comments>
-        </div>
-
-        <div (click)="deleteExpense()" *ngIf="etxn && !etxn.tx.report_id && mode === 'edit' && etxn.tx.user_can_delete"
-          class="add-edit-expense--delete" matRipple>
-          <mat-icon class="add-edit-expense--delete-icon" svgIcon="">
-            delete
-          </mat-icon>
-          <div class="add-edit-expense--delete-msg">
-            Delete Expense
-          </div>
-        </div>
-      </ng-container>
-
       <ng-container *ngIf="isConnected$">
         <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
           <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
@@ -835,8 +814,17 @@
 </ion-content>
 
 <ng-container *ngIf="fg">
-  <ion-footer class="cta-footer">
-    <ion-toolbar mode="md">
+  <app-review-footer 
+    *ngIf="reviewList?.length"
+    [activeIndex]="+activeIndex" 
+    [reviewList]="reviewList" 
+    [saveAndPrevLoader]="saveAndPrevExpenseLoader" 
+    [saveAndNextLoader]="saveAndNextExpenseLoader"
+    (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
+    (saveAndGoToNext)="saveExpenseAndGotoNext()"
+  ></app-review-footer>
+  <ion-footer class="add-edit-expense--footer-container" *ngIf="!reviewList?.length">
+    <ion-toolbar  mode="md" class="add-edit-expense--footer-toolbar__shadow">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">
           <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add' && !navigateBack"
@@ -847,12 +835,6 @@
           <ion-button (click)="saveExpense()" [disabled]="saveExpenseLoader || saveAndNewExpenseLoader"
             [loadingText]="'Saving'" [loading]="saveExpenseLoader" appFormButtonValidation class="btn-primary">
             Save Expense
-          </ion-button>
-        </ion-buttons>
-        <ion-buttons *ngIf="reviewList">
-          <ion-button (click)="saveExpenseAndGotoNext()" [loadingText]="'Saving'" [loading]="saveAndNextExpenseLoader"
-            appFormButtonValidation class="btn-primary">
-            {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
           </ion-button>
         </ion-buttons>
       </div>

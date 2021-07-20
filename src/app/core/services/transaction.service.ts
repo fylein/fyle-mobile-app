@@ -386,6 +386,25 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$
   })
+  deleteBulk(txnIds: string[]) {
+    const chunkSize = 10;
+    const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
+    return range(0, count).pipe(
+        concatMap(page => {
+          const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
+          return this.apiService.post('/transactions/delete/bulk', {
+            txn_ids: filteredtxnIds
+          });
+        }),
+        reduce((acc, curr) => {
+          return acc.concat(curr);
+        }, [] as any[])
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
   upsert(transaction) {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
@@ -591,5 +610,37 @@ export class TransactionService {
         expense_number: expenseNumber
       }
     });
+  }
+
+  getVendorDetails(expense: Expense): string {
+    const fyleCategory = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
+    let vendorDisplayName = expense.tx_vendor;
+
+    if (fyleCategory === 'mileage') {
+      vendorDisplayName = expense.tx_distance || 0;
+      vendorDisplayName += ' ' + expense.tx_distance_unit;
+    } else if (fyleCategory === 'per diem') {
+      vendorDisplayName = expense.tx_num_days;
+      if (expense.tx_num_days > 1) {
+        vendorDisplayName += ' Days';
+      } else {
+        vendorDisplayName += ' Day';
+      }
+      
+    }
+
+    return vendorDisplayName;
+  }
+
+  getReportableExpenses(expenses: Expense[]): Expense[] {
+    return expenses.filter(expense => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id)
+  }
+
+  getIsCriticalPolicyViolated(expense: Expense): boolean{
+    return (typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001);
+  }
+
+  getIsDraft(expense: Expense): boolean {
+    return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 }

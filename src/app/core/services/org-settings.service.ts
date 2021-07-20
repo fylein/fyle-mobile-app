@@ -243,7 +243,6 @@ export class OrgSettingsService {
         id: 'XE',
         name: 'XE'
       },
-      transaction_field_configurations: incoming.transaction_field_configurations,
       gmail_addon_settings: incoming.gmail_addon_settings,
       duplicate_detection_settings: {
         allowed: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.allowed,
@@ -445,7 +444,6 @@ export class OrgSettingsService {
       verification_settings: outgoing.verification,
       bank_payment_file_settings: outgoing.bank_payment_file_settings,
       expense_settings: outgoing.expense_settings,
-      transaction_field_configurations: outgoing.transaction_field_configurations,
       gmail_addon_settings: outgoing.gmail_addon_settings,
       duplicate_detection_settings: outgoing.duplicate_detection_settings,
       custom_category_settings: outgoing.custom_category_settings,

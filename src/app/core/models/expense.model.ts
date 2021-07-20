@@ -1,4 +1,7 @@
 export interface Expense {
+  isCriticalPolicyViolated: boolean;
+  isPolicyViolated: boolean;
+  isDraft: boolean;
   isSelected?: boolean;
   isHidden?: boolean;
   showDt?: boolean;

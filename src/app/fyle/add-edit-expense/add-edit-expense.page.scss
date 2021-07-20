@@ -4,6 +4,28 @@
 .add-edit-expense {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    &__review {
+      min-height: 80px;
+    }
+  }
+
+  &--header-button {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+    width: auto !important;
+  }
+
+  &--title {
+    &__review {
+      text-align: center;
+      padding-inline-end: 0;
+      position: relative;
+      line-height: 26px;
+      color: $black;
+      font-weight: 400;
+      top: 12px;
+      height: 64px;
+    }
   }
 
   &--sub-header {
@@ -17,11 +39,20 @@
     justify-content: space-around;
   }
 
-  &--footer-toolbar {
-    padding: 14px 16px 14px 16px;
+  &--footer-container {
+    &::before {
+      content: none;
+    }
   }
 
-  &--primary-cta {
+  &--footer-toolbar {
+    padding: 14px 16px 14px 16px;
+    &__shadow {
+      box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    }
+  }
+
+  &--primary-cta, &--secondary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: inherit;
@@ -37,6 +68,28 @@
 
     &:last-child {
       margin-left: 4px;
+    }
+  }
+
+  &--secondary-cta {
+    margin: 0;
+    border-radius: 0;
+    &__border {
+      border-right: 1px solid $grey;
+    }
+  }
+
+  &--secondary-cta-text {
+    min-width: 80px;
+  }
+
+  &--secondary-cta-icon {
+    &__left {
+      margin-right: 18px;
+    }
+
+    &__right {
+      margin-left: 18px; 
     }
   }
 
@@ -56,50 +109,56 @@
     margin-left: 0;
     margin-top: 12px;
     margin-right: 12px;
+    height: 64px;
   }
 
   &--receipt-image {
-    background-color: #d8d8d8;
+    background-color: $light-grey;
     min-width: 64px;
-    min-height: 76px;
+    min-height: 64px;
     max-width: 64px;
     max-height: 88px;
-    border-radius: 4px;
+    border-radius: 16px;
     position: relative;
   }
 
   &--receipt-background {
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 24%;
+    left: 16px;
     font-size: 64px;
-    height: auto;
-    width: auto;
-    background-color: rgba(34, 0, 51, 0.4);
-    color: black;
-    padding: 7px 0px 16px 0px;
-    border-radius: 4px;
+    height: 36px;
+    width: 34px;
+    background-color: $light-grey;
+    border-radius: 16px;
   }
 
   &--receipt-text {
     position: relative;
-    padding-top: 20px;
+    padding-top: 10px;
     padding-bottom: 6px;
     &__count {
-      color: #fff;
-      font-size: 42px;
+      color: $blue-black;
+      font-size: 24px;
       font-weight: 400;
       text-align: center;
-      padding-top: 32px;
-      padding-bottom: 10px;
+      padding-top: 24px;;
     }
   }
 
   &--receipt-image-icon {
-    color: #f36;
-    font-size: 40px;
+    color: $primary;
+    height: 36px;
+    width: 34px;
     position: relative;
-    left: -8px;
+    top: 24%;
+    left: 5px;
+  }
+
+  &--receipt-add-more-icon {
+    top: 2%;
+    left: 4%;
+    font-size: 24px;
   }
 
   &--spinner-icon {
@@ -222,22 +281,43 @@
 
   &--split-expense-container {
     display: flex;
-    justify-content: flex-end;
     flex-direction: row;
-    margin-top: 12px;
-  }
-
-  &--split-expense-icon {
-    height: 20px;
-    width: 20px;
-    margin: 0 8px;
+    background-color: $pure-white;
   }
 
   &--split-expense-title {
-    font-size: 20px;
+    font-size: 12px;
     font-weight: 500;
-    color: #3a94f6;
-    margin: 0 0 10px;
+    color: $black-2;
+    margin-bottom: 20px;
+    border: 1px solid $grey-light;
+    border-radius: 4px;
+    padding: 10px 20px;
+    width: max-content;
+  }
+
+  &--split-expense-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  &--split-info-container {
+    display: flex;
+    margin-left: 20px;
+  }
+
+  &--split-info-icon {
+    margin-right: 10px;
+  }
+
+  &--split-info-message {
+    width: 100%;
+    color: $blue-black;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: .16px;
   }
 
   &--comment {
@@ -529,6 +609,11 @@
   &--amount-error {
     color: $red;
     font-size: 12px;
+    margin: -8px 0 0 44%;
+  }
+
+  &--orig-amount-error {
+    margin: -26% 12px;
   }
 
   &--mandatory {

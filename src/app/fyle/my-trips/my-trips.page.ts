@@ -100,7 +100,7 @@ export class MyTripsPage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
   }
