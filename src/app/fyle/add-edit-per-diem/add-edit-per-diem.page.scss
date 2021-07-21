@@ -233,33 +233,35 @@
   }
 
   &--conversion {
-    border: 1px solid #e0e0e0;
-    background-color: #f2f2f2;
-    border-radius: 4px;
+    border: 1px solid $grey-lighter;
+    display: flex;
+    border-radius: 8px;
+    color: $blue-black;
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  &--conversion-icon {
+    height: 18px;
+    width: 18px;
+    margin-right: 6px;
   }
 
   &--conversion-amount {
-    line-height: 1.5;
-    font-size: 16px;
     font-weight: 500;
-    color: #4a4a4a;
-    width: calc(100% - 60px);
-    display: inline-block;
-    vertical-align: middle;
-    height: 100%;
-    padding: 8px 8px 0 16px;
+    margin-right: 4px;
   }
 
-  &--conversion-rate {
-    color: #ababab;
-    line-height: 1.5;
+  &--amount-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 52px;
+    border: 1px solid $grey-lighter;
+    border-radius: 16px;
     font-size: 16px;
     font-weight: 500;
-    width: calc(100% - 60px);
-    display: inline-block;
-    vertical-align: middle;
-    height: 100%;
-    padding: 0 8px 8px 16px;
+    padding: 10px;
   }
 
   &--error {
