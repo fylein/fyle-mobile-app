@@ -7,7 +7,7 @@ import { from } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class TripRequestPolicyService {
 
@@ -18,43 +18,39 @@ export class TripRequestPolicyService {
     private httpClient: HttpClient,
     private authService: AuthService
   ) {
-    this.ROOT_ENDPOINT = environment.ROOT_URL;
+      this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
   setRoot(rootUrl: string) {
-    this.ROOT_ENDPOINT = rootUrl;
+      this.ROOT_ENDPOINT = rootUrl;
   }
 
   get(url: string, config = {}) {
-    return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/v2' + url, config);
+      return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/v2' + url, config);
   }
 
   postCall(url, data, config?) {
-    return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/trip_requests' + url, data, config);
+      return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/trip_requests' + url, data, config);
   }
 
   testTripRequest(tripRequestObject) {
-    return from(this.authService.getEou()).pipe(
-      map(eou => {
-        return tripRequestObject.trip_request.org_user_id = eou.ou.id;
-      }),
-      concatMap(() => {
-        return this.postCall('/policy_check/test', tripRequestObject, {timeout: 5000});
-      })
-    );
+      return from(this.authService.getEou()).pipe(
+          map(eou => tripRequestObject.trip_request.org_user_id = eou.ou.id),
+          concatMap(() => this.postCall('/policy_check/test', tripRequestObject, {timeout: 5000}))
+      );
   }
 
   getPolicyPopupRules(result) {
-    const popupRules = [];
+      const popupRules = [];
 
-    if (result) {
-      result.trip_request_policy_rule_desired_states.forEach(desiredState => {
-        if (desiredState.popup) {
-          popupRules.push(desiredState.description);
-        }
-      });
-    }
+      if (result) {
+          result.trip_request_policy_rule_desired_states.forEach(desiredState => {
+              if (desiredState.popup) {
+                  popupRules.push(desiredState.description);
+              }
+          });
+      }
 
-    return popupRules;
+      return popupRules;
   }
 }

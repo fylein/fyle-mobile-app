@@ -12,19 +12,19 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import {GalleryUploadSuccessPopupComponent} from './gallery-upload-success-popup/gallery-upload-success-popup.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    CameraOverlayPageRoutingModule,
-    MatIconModule
-  ],
-  declarations: [
-    CameraOverlayPage,
-    GalleryUploadSuccessPopupComponent
-  ],
-  providers: [
-    ImagePicker
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        CameraOverlayPageRoutingModule,
+        MatIconModule
+    ],
+    declarations: [
+        CameraOverlayPage,
+        GalleryUploadSuccessPopupComponent
+    ],
+    providers: [
+        ImagePicker
+    ]
 })
 export class CameraOverlayPageModule {}

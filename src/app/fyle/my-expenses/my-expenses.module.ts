@@ -23,35 +23,35 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyExpensesPageRoutingModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    MatRadioModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatRippleModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatBottomSheetModule,
-    MatSnackBarModule,
-    SharedModule,
-    MatCheckboxModule
-  ],
-  declarations: [
-    MyExpensesPage,
-    MyExpensesCardComponent,
-    MyExpensesSearchFilterComponent,
-    MyExpensesSortFilterComponent,
-    AddExpensePopoverComponent,
-    AddTxnToReportDialogComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        MyExpensesPageRoutingModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        MatRadioModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatRippleModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatIconModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatBottomSheetModule,
+        MatSnackBarModule,
+        SharedModule,
+        MatCheckboxModule
+    ],
+    declarations: [
+        MyExpensesPage,
+        MyExpensesCardComponent,
+        MyExpensesSearchFilterComponent,
+        MyExpensesSortFilterComponent,
+        AddExpensePopoverComponent,
+        AddTxnToReportDialogComponent
+    ]
 })
 export class MyExpensesPageModule { }

@@ -7,9 +7,9 @@ import { MatBottomSheet, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-
 import { ExtendedReport } from 'src/app/core/models/report.model';
 
 @Component({
-  selector: 'app-add-txn-to-report-dialog',
-  templateUrl: './add-txn-to-report-dialog.component.html',
-  styleUrls: ['./add-txn-to-report-dialog.component.scss'],
+    selector: 'app-add-txn-to-report-dialog',
+    templateUrl: './add-txn-to-report-dialog.component.html',
+    styleUrls: ['./add-txn-to-report-dialog.component.scss'],
 })
 export class AddTxnToReportDialogComponent implements OnInit {
 
@@ -23,17 +23,17 @@ export class AddTxnToReportDialogComponent implements OnInit {
   ) { }
 
   closeAddToReportModal() {
-    this.matBottomsheet.dismiss();
+      this.matBottomsheet.dismiss();
   }
 
   addTransactionToReport(report: ExtendedReport) {
-    this.matBottomsheet.dismiss({report});
+      this.matBottomsheet.dismiss({report});
   }
 
   ngOnInit() {
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
-      this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-    });
+      this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+          this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+      });
   }
 
 }

@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { SetupAccountPreferencesPage } from './setup-account-preferences.page';
 
 describe('SetupAccountPreferencesPage', () => {
-  let component: SetupAccountPreferencesPage;
-  let fixture: ComponentFixture<SetupAccountPreferencesPage>;
+    let component: SetupAccountPreferencesPage;
+    let fixture: ComponentFixture<SetupAccountPreferencesPage>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ SetupAccountPreferencesPage ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [ SetupAccountPreferencesPage ],
+            imports: [IonicModule.forRoot()]
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(SetupAccountPreferencesPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(SetupAccountPreferencesPage);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

@@ -4,9 +4,9 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-advance-requests',
-  templateUrl: './advance-requests.component.html',
-  styleUrls: ['./advance-requests.component.scss'],
+    selector: 'app-advance-requests',
+    templateUrl: './advance-requests.component.html',
+    styleUrls: ['./advance-requests.component.scss'],
 })
 export class AdvanceRequestsComponent implements OnInit {
 
@@ -19,11 +19,11 @@ export class AdvanceRequestsComponent implements OnInit {
   ) { }
 
   closeModal() {
-    this.modalController.dismiss();
+      this.modalController.dismiss();
   }
 
   ngOnInit() {
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+      this.homeCurrency$ = this.offlineService.getHomeCurrency();
   }
 
 }

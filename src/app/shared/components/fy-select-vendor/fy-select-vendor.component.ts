@@ -6,16 +6,16 @@ import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
-  selector: 'app-fy-select-vendor',
-  templateUrl: './fy-select-vendor.component.html',
-  styleUrls: ['./fy-select-vendor.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FySelectVendorComponent),
-      multi: true
-    }
-  ]
+    selector: 'app-fy-select-vendor',
+    templateUrl: './fy-select-vendor.component.html',
+    styleUrls: ['./fy-select-vendor.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FySelectVendorComponent),
+            multi: true
+        }
+    ]
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
   private ngControl: NgControl;
@@ -27,11 +27,11 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
   displayValue;
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
+      if (this.ngControl.touched) {
+          return this.ngControl.valid;
+      } else {
+          return true;
+      }
   }
 
   private onTouchedCallback: () => void = noop;
@@ -44,71 +44,71 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+      this.ngControl = this.injector.get(NgControl);
   }
 
   ngOnDestroy() {
   }
 
   get value(): any {
-    return this.innerValue;
+      return this.innerValue;
   }
 
   set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      const selectedOption = this.innerValue;
-      if (selectedOption) {
-        this.displayValue = selectedOption.display_name;
-      } else {
-        this.displayValue = '';
-      }
+      if (v !== this.innerValue) {
+          this.innerValue = v;
+          const selectedOption = this.innerValue;
+          if (selectedOption) {
+              this.displayValue = selectedOption.display_name;
+          } else {
+              this.displayValue = '';
+          }
 
-      this.onChangeCallback(v);
-    }
+          this.onChangeCallback(v);
+      }
   }
 
   async openModal() {
-    const currencyModal = await this.modalController.create({
-      component: FySelectVendorModalComponent,
-      componentProps: {
-        currentSelection: this.value
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
-    });
+      const currencyModal = await this.modalController.create({
+          component: FySelectVendorModalComponent,
+          componentProps: {
+              currentSelection: this.value
+          },
+          mode: 'ios',
+          presentingElement: await this.modalController.getTop(),
+          ...this.modalProperties.getModalDefaultProperties()
+      });
 
-    await currencyModal.present();
+      await currencyModal.present();
 
-    const { data } = await currencyModal.onWillDismiss();
-    if (data) {
-      this.value = data.value;
-    }
+      const { data } = await currencyModal.onWillDismiss();
+      if (data) {
+          this.value = data.value;
+      }
   }
 
   onBlur() {
-    this.onTouchedCallback();
+      this.onTouchedCallback();
   }
 
   writeValue(value: any): void {
-    if (value !== this.innerValue) {
-      this.innerValue = value;
-      const selectedOption = this.innerValue;
-      if (selectedOption) {
-        this.displayValue = selectedOption.display_name;
-      } else {
-        this.displayValue = '';
+      if (value !== this.innerValue) {
+          this.innerValue = value;
+          const selectedOption = this.innerValue;
+          if (selectedOption) {
+              this.displayValue = selectedOption.display_name;
+          } else {
+              this.displayValue = '';
+          }
       }
-    }
   }
 
 
   registerOnChange(fn: any) {
-    this.onChangeCallback = fn;
+      this.onChangeCallback = fn;
   }
 
   registerOnTouched(fn: any) {
-    this.onTouchedCallback = fn;
+      this.onTouchedCallback = fn;
   }
 }

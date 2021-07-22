@@ -6,16 +6,16 @@ import {Observable} from 'rxjs/internal/Observable';
 import { ConnectionMessageStatus } from './connection-status.enum';
 
 @Component({
-  selector: 'app-fy-connection',
-  templateUrl: './fy-connection.component.html',
-  styleUrls: ['./fy-connection.component.scss'],
+    selector: 'app-fy-connection',
+    templateUrl: './fy-connection.component.html',
+    styleUrls: ['./fy-connection.component.scss'],
 })
 export class FyConnectionComponent implements OnInit {
   isConnected$: Observable<boolean>;
   state$: Observable<ConnectionMessageStatus>;
 
   get ConnectionMessageStatus() {
-    return ConnectionMessageStatus;
+      return ConnectionMessageStatus;
   }
 
   constructor(
@@ -23,14 +23,14 @@ export class FyConnectionComponent implements OnInit {
   ) { }
 
   setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
+      const networkWatcherEmitter = new EventEmitter<boolean>();
+      this.networkService.connectivityWatcher(networkWatcherEmitter);
+      this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
   }
 
   ngOnInit() {
-    this.setupNetworkWatcher();
-    this.state$ = this.networkService.getConnectionStatus();
+      this.setupNetworkWatcher();
+      this.state$ = this.networkService.getConnectionStatus();
   }
 
 }

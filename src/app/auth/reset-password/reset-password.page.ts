@@ -13,9 +13,9 @@ enum ResetPasswordPageState {
 }
 
 @Component({
-  selector: 'app-reset-password',
-  templateUrl: './reset-password.page.html',
-  styleUrls: ['./reset-password.page.scss'],
+    selector: 'app-reset-password',
+    templateUrl: './reset-password.page.html',
+    styleUrls: ['./reset-password.page.scss'],
 })
 export class ResetPasswordPage implements OnInit {
 
@@ -25,7 +25,7 @@ export class ResetPasswordPage implements OnInit {
   resetLinkLoader = false;
 
   get pageStates() {
-    return ResetPasswordPageState;
+      return ResetPasswordPageState;
   }
 
   constructor(
@@ -37,34 +37,34 @@ export class ResetPasswordPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    const email = this.activatedRoute.snapshot.params.email || '';
-    this.fg = this.fb.group({
-      email: [email, Validators.required]
-    });
+      const email = this.activatedRoute.snapshot.params.email || '';
+      this.fg = this.fb.group({
+          email: [email, Validators.required]
+      });
   }
 
   sendResetLink() {
-    if (this.fg.controls.email.valid) {
-      this.resetLinkLoader = true;
+      if (this.fg.controls.email.valid) {
+          this.resetLinkLoader = true;
 
-      this.routerAuthService.sendResetPassword(this.fg.controls.email.value).pipe(
-        finalize(async () => {
-          this.resetLinkLoader = false;
-        }),
-        catchError((err) => {
-          if (err.status === 422) {
-            this.router.navigate(['/', 'auth', 'disabled']);
-          } else {
-            this.currentPageState = this.pageStates.failure;
-          }
-          return throwError(err);
-        })
-      ).subscribe(() => {
-        this.currentPageState = this.pageStates.success;
-      });
-    } else {
-      this.fg.controls.email.markAsTouched();
-    }
+          this.routerAuthService.sendResetPassword(this.fg.controls.email.value).pipe(
+              finalize(async () => {
+                  this.resetLinkLoader = false;
+              }),
+              catchError((err) => {
+                  if (err.status === 422) {
+                      this.router.navigate(['/', 'auth', 'disabled']);
+                  } else {
+                      this.currentPageState = this.pageStates.failure;
+                  }
+                  return throwError(err);
+              })
+          ).subscribe(() => {
+              this.currentPageState = this.pageStates.success;
+          });
+      } else {
+          this.fg.controls.email.markAsTouched();
+      }
   }
 
 }

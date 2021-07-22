@@ -3,9 +3,9 @@ import { ReportStates } from './report-states';
 import {getCurrencySymbol} from '@angular/common';
 
 @Component({
-  selector: 'app-stat-badge',
-  templateUrl: './stat-badge.component.html',
-  styleUrls: ['./stat-badge.component.scss'],
+    selector: 'app-stat-badge',
+    templateUrl: './stat-badge.component.html',
+    styleUrls: ['./stat-badge.component.scss'],
 })
 export class StatBadgeComponent implements OnInit {
 
@@ -23,10 +23,10 @@ export class StatBadgeComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.currencySymbol = getCurrencySymbol(this.currency, 'wide');
+      this.currencySymbol = getCurrencySymbol(this.currency, 'wide');
   }
 
   onBadgeClicked() {
-    this.badgeClicked.emit(this.reportState);
+      this.badgeClicked.emit(this.reportState);
   }
 }

@@ -2,9 +2,9 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-transportation-request',
-  templateUrl: './transportation-request.component.html',
-  styleUrls: ['./transportation-request.component.scss'],
+    selector: 'app-transportation-request',
+    templateUrl: './transportation-request.component.html',
+    styleUrls: ['./transportation-request.component.scss'],
 })
 export class TransportationRequestComponent implements OnInit {
 
@@ -15,7 +15,7 @@ export class TransportationRequestComponent implements OnInit {
   ) { }
 
   closeModal() {
-    this.modalController.dismiss();
+      this.modalController.dismiss();
   }
 
   ngOnInit() {

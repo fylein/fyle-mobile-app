@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { FyPolicyViolationInfoComponent } from './fy-policy-violation-info.component';
 
 describe('FyPolicyViolationInfoComponent', () => {
-  let component: FyPolicyViolationInfoComponent;
-  let fixture: ComponentFixture<FyPolicyViolationInfoComponent>;
+    let component: FyPolicyViolationInfoComponent;
+    let fixture: ComponentFixture<FyPolicyViolationInfoComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ FyPolicyViolationInfoComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [ FyPolicyViolationInfoComponent ],
+            imports: [IonicModule.forRoot()]
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(FyPolicyViolationInfoComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(FyPolicyViolationInfoComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

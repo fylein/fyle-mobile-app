@@ -6,13 +6,13 @@ import {from} from 'rxjs';
 const { Device } = Plugins;
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class DeviceService {
 
-  constructor() { }
+    constructor() { }
 
-  getDeviceInfo() {
-    return from(Device.getInfo());
-  }
+    getDeviceInfo() {
+        return from(Device.getInfo());
+    }
 }

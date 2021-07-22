@@ -8,30 +8,28 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class ExpenseFieldsService {
 
-  constructor(
+    constructor(
     private apiService: ApiService,
     private authService: AuthService
-  ) { }
+    ) { }
 
-  getAllEnabled(): Observable<ExpenseField[]> {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiService.get('/expense_fields', {
-          params: {
-            org_id: eou.ou.org_id,
-            is_enabled: true,
-            is_custom: false
-          }
-        });
-      })
-    )
-  }
+    getAllEnabled(): Observable<ExpenseField[]> {
+        return from(this.authService.getEou()).pipe(
+            switchMap(eou => this.apiService.get('/expense_fields', {
+                params: {
+                    org_id: eou.ou.org_id,
+                    is_enabled: true,
+                    is_custom: false
+                }
+            }))
+        );
+    }
 
-  /* getAllMap() method returns a mapping of column_names and their respective mapped fields
+    /* getAllMap() method returns a mapping of column_names and their respective mapped fields
    * Object key: Column name
    * Object value: List of fields mapped to that particular column
    * Example: {
@@ -43,108 +41,102 @@ export class ExpenseFieldsService {
       distance: (2) [{…}, {…}]
       ... }
    */
-  getAllMap(): Observable<Partial<ExpenseFieldsMap>> {
-    return this.getAllEnabled().pipe(
-      map(
-        expenseFields => {
-          const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
+    getAllMap(): Observable<Partial<ExpenseFieldsMap>> {
+        return this.getAllEnabled().pipe(
+            map(
+                expenseFields => {
+                    const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
 
-          expenseFields.forEach(expenseField => {
-            let expenseFieldsList = [];
+                    expenseFields.forEach(expenseField => {
+                        let expenseFieldsList = [];
 
-            if (expenseFieldMap[expenseField.column_name]) {
-              expenseFieldsList = expenseFieldMap[expenseField.column_name];
-            }
+                        if (expenseFieldMap[expenseField.column_name]) {
+                            expenseFieldsList = expenseFieldMap[expenseField.column_name];
+                        }
 
-            expenseFieldsList.push(expenseField);
-            expenseFieldMap[expenseField.column_name] = expenseFieldsList;
-          });
-          return expenseFieldMap;
-        }
-      )
-    );
-  }
-
-  getUserRoles(): Observable<string[]> {
-    return from(this.authService.getRoles());
-  }
-
-  findCommonRoles(roles): Observable<string[]> {
-    return this.getUserRoles().pipe(
-      map(userRoles => roles.filter(role => {
-        return userRoles.indexOf(role) > -1;
-      }))
-    );
-  }
-
-  canEdit(roles): Observable<boolean> {
-    return this.findCommonRoles(roles).pipe(
-      map(commonRoles => (commonRoles.length > 0))
-    );
-  }
-
-  filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<Partial<ExpenseFieldsMap>> {
-    const orgCategoryId = orgCategory && orgCategory.id;
-    return of(fields).pipe(
-      map(fields => fields.map(field => {
-        let configurations = tfcMap[field];
-        let filteredField;
-
-        if (configurations && configurations.length > 0) {
-          configurations.some((configuration) => {
-            if (orgCategoryId) {
-              if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
-                filteredField = configuration;
-
-                return true;
-              }
-            } else if (['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'].indexOf(field) > -1) {
-              filteredField = configuration;
-
-              return true;
-            }
-          });
-        }
-
-        if (filteredField) {
-          filteredField.field = field;
-        }
-        return filteredField;
-      })
-        .filter(filteredField => !!filteredField)
-      ),
-      switchMap(fields => {
-        return from(fields);
-      }),
-      concatMap(field => {
-        return forkJoin({
-          canEdit: this.canEdit(field.roles_editable)
-        }).pipe(
-          map(
-            (res) => ({
-              ...field,
-              ...res
-            })
-          )
+                        expenseFieldsList.push(expenseField);
+                        expenseFieldMap[expenseField.column_name] = expenseFieldsList;
+                    });
+                    return expenseFieldMap;
+                }
+            )
         );
-      }),
-      reduce((acc, curr) => {
-        acc[curr.field] = curr;
-        return acc;
-      }, {})
-    );
-  }
-
-  getDefaultTxnFieldValues(txnFields): DefaultTxnFieldValues {
-    const defaultValues = {};
-    for (const configurationColumn in txnFields) {
-      if (txnFields.hasOwnProperty(configurationColumn)) {
-        if (txnFields[configurationColumn].default_value) {
-          defaultValues[configurationColumn] = txnFields[configurationColumn].default_value;
-        }
-      }
     }
 
-    return defaultValues;
-  }
+    getUserRoles(): Observable<string[]> {
+        return from(this.authService.getRoles());
+    }
+
+    findCommonRoles(roles): Observable<string[]> {
+        return this.getUserRoles().pipe(
+            map(userRoles => roles.filter(role => userRoles.indexOf(role) > -1))
+        );
+    }
+
+    canEdit(roles): Observable<boolean> {
+        return this.findCommonRoles(roles).pipe(
+            map(commonRoles => (commonRoles.length > 0))
+        );
+    }
+
+    filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<Partial<ExpenseFieldsMap>> {
+        const orgCategoryId = orgCategory && orgCategory.id;
+        return of(fields).pipe(
+            map(fields => fields.map(field => {
+                const configurations = tfcMap[field];
+                let filteredField;
+
+                if (configurations && configurations.length > 0) {
+                    configurations.some((configuration) => {
+                        if (orgCategoryId) {
+                            if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
+                                filteredField = configuration;
+
+                                return true;
+                            }
+                        } else if (['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'].indexOf(field) > -1) {
+                            filteredField = configuration;
+
+                            return true;
+                        }
+                    });
+                }
+
+                if (filteredField) {
+                    filteredField.field = field;
+                }
+                return filteredField;
+            })
+                .filter(filteredField => !!filteredField)
+            ),
+            switchMap(fields => from(fields)),
+            concatMap(field => forkJoin({
+                canEdit: this.canEdit(field.roles_editable)
+            }).pipe(
+                map(
+                    (res) => ({
+                        ...field,
+                        ...res
+                    })
+                )
+            )),
+            reduce((acc, curr) => {
+                acc[curr.field] = curr;
+                return acc;
+            }, {})
+        );
+    }
+
+    getDefaultTxnFieldValues(txnFields): DefaultTxnFieldValues {
+        const defaultValues = {};
+        for (const configurationColumn in txnFields) {
+            if (txnFields.hasOwnProperty(configurationColumn)) {
+                if (txnFields[configurationColumn].default_value) {
+                    defaultValues[configurationColumn] = txnFields[configurationColumn].default_value;
+                }
+            }
+        }
+
+        return defaultValues;
+    }
 }

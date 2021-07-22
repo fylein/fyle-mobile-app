@@ -20,28 +20,28 @@ import {CorporateCardExpensesSearchFilterComponent} from './corporate-card-expen
 import {CorporateCardExpensesSortFilterComponent} from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    CorporateCardExpensesPageRoutingModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    MatRadioModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatRippleModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatIconModule,
-    SharedModule
-  ],
-  declarations: [
-    CorporateCardExpensesPage,
-    CorporateCardExpenseCardComponent,
-    CorporateCardExpensesSearchFilterComponent,
-    CorporateCardExpensesSortFilterComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        CorporateCardExpensesPageRoutingModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        MatRadioModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatRippleModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatIconModule,
+        SharedModule
+    ],
+    declarations: [
+        CorporateCardExpensesPage,
+        CorporateCardExpenseCardComponent,
+        CorporateCardExpensesSearchFilterComponent,
+        CorporateCardExpensesSortFilterComponent
+    ]
 })
 export class CorporateCardExpensesPageModule {}

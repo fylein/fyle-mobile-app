@@ -14,22 +14,22 @@ import { ApproveAdvanceComponent } from './approve-advance/approve-advance.compo
 import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ViewTeamAdvancePageRoutingModule,
-    MatIconModule,
-    MatButtonModule,
-    MatRippleModule,
-    SharedModule
-  ],
-  declarations: [
-    ViewTeamAdvancePage,
-    AdvanceActionsComponent,
-    ApproveAdvanceComponent,
-    RejectAdvanceComponent,
-    SendBackAdvanceComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        ViewTeamAdvancePageRoutingModule,
+        MatIconModule,
+        MatButtonModule,
+        MatRippleModule,
+        SharedModule
+    ],
+    declarations: [
+        ViewTeamAdvancePage,
+        AdvanceActionsComponent,
+        ApproveAdvanceComponent,
+        RejectAdvanceComponent,
+        SendBackAdvanceComponent
+    ]
 })
 export class ViewTeamAdvancePageModule {}

@@ -2,9 +2,9 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-hotel-requests',
-  templateUrl: './hotel-requests.component.html',
-  styleUrls: ['./hotel-requests.component.scss'],
+    selector: 'app-hotel-requests',
+    templateUrl: './hotel-requests.component.html',
+    styleUrls: ['./hotel-requests.component.scss'],
 })
 export class HotelRequestsComponent implements OnInit {
 
@@ -15,7 +15,7 @@ export class HotelRequestsComponent implements OnInit {
   ) { }
 
   closeModal() {
-    this.modalController.dismiss();
+      this.modalController.dismiss();
   }
 
   ngOnInit() {

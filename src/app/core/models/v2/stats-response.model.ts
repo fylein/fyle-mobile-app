@@ -24,11 +24,11 @@ export class StatsResponse {
   url: string;
 
   constructor({data, url}) {
-    this.data = data;
-    this.url = url;
+      this.data = data;
+      this.url = url;
   }
 
   getDatum(index: number) {
-    return this.data && this.data.length > 0 && this.data[index];
+      return this.data && this.data.length > 0 && this.data[index];
   }
 }

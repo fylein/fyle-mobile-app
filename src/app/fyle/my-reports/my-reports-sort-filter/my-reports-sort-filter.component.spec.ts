@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter.component';
 
 describe('MyReportsSortFilterComponent', () => {
-  let component: MyReportsSortFilterComponent;
-  let fixture: ComponentFixture<MyReportsSortFilterComponent>;
+    let component: MyReportsSortFilterComponent;
+    let fixture: ComponentFixture<MyReportsSortFilterComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ MyReportsSortFilterComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [ MyReportsSortFilterComponent ],
+            imports: [IonicModule.forRoot()]
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(MyReportsSortFilterComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(MyReportsSortFilterComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

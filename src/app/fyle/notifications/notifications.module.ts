@@ -11,16 +11,16 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    IonicModule,
-    NotificationsPageRoutingModule,
-    MatSelectModule,
-    SharedModule,
-    MatCheckboxModule
-  ],
-  declarations: [NotificationsPage]
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        IonicModule,
+        NotificationsPageRoutingModule,
+        MatSelectModule,
+        SharedModule,
+        MatCheckboxModule
+    ],
+    declarations: [NotificationsPage]
 })
 export class NotificationsPageModule {}

@@ -8,9 +8,9 @@ import { from, of } from 'rxjs';
 import { switchMap, finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-fy-view-attachment',
-  templateUrl: './fy-view-attachment.component.html',
-  styleUrls: ['./fy-view-attachment.component.scss'],
+    selector: 'app-fy-view-attachment',
+    templateUrl: './fy-view-attachment.component.html',
+    styleUrls: ['./fy-view-attachment.component.scss'],
 })
 export class FyViewAttachmentComponent implements OnInit {
 
@@ -31,77 +31,77 @@ export class FyViewAttachmentComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.zoomScale = 0.5;
-    this.sliderOptions = {
-      zoom: {
-        maxRatio: 1,
-      },
-    };
+      this.zoomScale = 0.5;
+      this.sliderOptions = {
+          zoom: {
+              maxRatio: 1,
+          },
+      };
 
-    this.attachments.forEach(attachment => {
-      if (attachment.type === 'pdf') {
-        this.sanitizer.bypassSecurityTrustUrl(attachment.url);
-      }
-    });
+      this.attachments.forEach(attachment => {
+          if (attachment.type === 'pdf') {
+              this.sanitizer.bypassSecurityTrustUrl(attachment.url);
+          }
+      });
   }
 
   zoomIn() {
-    this.zoomScale += 0.25;
+      this.zoomScale += 0.25;
   }
 
   zoomOut() {
-    this.zoomScale -= 0.25;
+      this.zoomScale -= 0.25;
   }
 
   resetZoom() {
-    this.zoomScale = 0.5;
+      this.zoomScale = 0.5;
   }
 
   onDoneClick() {
-    this.modalController.dismiss({ attachments: this.attachments });
+      this.modalController.dismiss({ attachments: this.attachments });
   }
 
   goToNextSlide() {
-    this.imageSlides.slideNext();
+      this.imageSlides.slideNext();
   }
 
   goToPrevSlide() {
-    this.imageSlides.slidePrev();
+      this.imageSlides.slidePrev();
   }
 
   async deleteAttachment() {
-    const activeIndex = await this.imageSlides.getActiveIndex();
-    const popupResult = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this attachment?',
-      primaryCta: {
-        text: 'DELETE'
-      }
-    });
-
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          if (this.attachments[activeIndex].id) {
-            return this.fileService.delete(this.attachments[activeIndex].id);
-          } else {
-            return of(null);
+      const activeIndex = await this.imageSlides.getActiveIndex();
+      const popupResult = await this.popupService.showPopup({
+          header: 'Confirm',
+          message: 'Are you sure you want to delete this attachment?',
+          primaryCta: {
+              text: 'DELETE'
           }
-        }),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        this.attachments.splice(activeIndex, 1);
-        if (this.attachments.length === 0) {
-          this.modalController.dismiss({ attachments: this.attachments });
-        } else {
-          if (activeIndex > 0) {
-            this.goToPrevSlide();
-          } else {
-            this.goToNextSlide();
-          }
-        }
       });
-    }
+
+      if (popupResult === 'primary') {
+          from(this.loaderService.showLoader()).pipe(
+              switchMap(() => {
+                  if (this.attachments[activeIndex].id) {
+                      return this.fileService.delete(this.attachments[activeIndex].id);
+                  } else {
+                      return of(null);
+                  }
+              }),
+              finalize(() => from(this.loaderService.hideLoader()))
+          ).subscribe(() => {
+              this.attachments.splice(activeIndex, 1);
+              if (this.attachments.length === 0) {
+                  this.modalController.dismiss({ attachments: this.attachments });
+              } else {
+                  if (activeIndex > 0) {
+                      this.goToPrevSlide();
+                  } else {
+                      this.goToNextSlide();
+                  }
+              }
+          });
+      }
   }
 
 }

@@ -4,14 +4,14 @@ import {RouterModule, Routes} from '@angular/router';
 import {SwitchOrgPage} from './switch-org.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: SwitchOrgPage
-  }
+    {
+        path: '',
+        component: SwitchOrgPage
+    }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
 })
 export class SwitchOrgPageRoutingModule {}

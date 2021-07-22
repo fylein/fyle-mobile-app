@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { ViewTeamAdvancePage } from './view-team-advance.page';
 
 describe('ViewTeamAdvancePage', () => {
-  let component: ViewTeamAdvancePage;
-  let fixture: ComponentFixture<ViewTeamAdvancePage>;
+    let component: ViewTeamAdvancePage;
+    let fixture: ComponentFixture<ViewTeamAdvancePage>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ ViewTeamAdvancePage ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [ ViewTeamAdvancePage ],
+            imports: [IonicModule.forRoot()]
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(ViewTeamAdvancePage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(ViewTeamAdvancePage);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

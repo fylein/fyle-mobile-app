@@ -7,16 +7,16 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
-  selector: 'app-fy-select-project',
-  templateUrl: './fy-select-project.component.html',
-  styleUrls: ['./fy-select-project.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FySelectProjectComponent),
-      multi: true
-    }
-  ]
+    selector: 'app-fy-select-project',
+    templateUrl: './fy-select-project.component.html',
+    styleUrls: ['./fy-select-project.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FySelectProjectComponent),
+            multi: true
+        }
+    ]
 })
 export class FySelectProjectComponent implements OnInit, ControlValueAccessor, OnDestroy {
   private ngControl: NgControl;
@@ -27,17 +27,17 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() categoryIds: string[];
   @Input() defaultValue = false;
-  @Input() recentlyUsed: { label: string, value: ExtendedProject, selected?: boolean }[];
+  @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
   private innerValue;
   displayValue;
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
+      if (this.ngControl.touched) {
+          return this.ngControl.valid;
+      } else {
+          return true;
+      }
   }
 
   private onTouchedCallback: () => void = noop;
@@ -50,69 +50,69 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   ) { }
 
   ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+      this.ngControl = this.injector.get(NgControl);
   }
 
   ngOnDestroy(): void {
   }
 
   get value(): any {
-    return this.innerValue;
+      return this.innerValue;
   }
 
   set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      const selectedOption = this.innerValue;
-      if (selectedOption) {
-        this.displayValue = selectedOption.project_name;
-      } else {
-        this.displayValue = '';
-      }
+      if (v !== this.innerValue) {
+          this.innerValue = v;
+          const selectedOption = this.innerValue;
+          if (selectedOption) {
+              this.displayValue = selectedOption.project_name;
+          } else {
+              this.displayValue = '';
+          }
 
-      this.onChangeCallback(v);
-    }
+          this.onChangeCallback(v);
+      }
   }
 
   async openModal() {
-    const projectModal = await this.modalController.create({
-      component: FyProjectSelectModalComponent,
-      componentProps: {
-        currentSelection: this.value,
-        cacheName: this.cacheName,
-        selectionElement: this.selectionElement,
-        categoryIds: this.categoryIds,
-        defaultValue: this.defaultValue,
-        recentlyUsed: this.recentlyUsed
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
-    });
+      const projectModal = await this.modalController.create({
+          component: FyProjectSelectModalComponent,
+          componentProps: {
+              currentSelection: this.value,
+              cacheName: this.cacheName,
+              selectionElement: this.selectionElement,
+              categoryIds: this.categoryIds,
+              defaultValue: this.defaultValue,
+              recentlyUsed: this.recentlyUsed
+          },
+          mode: 'ios',
+          presentingElement: await this.modalController.getTop(),
+          ...this.modalProperties.getModalDefaultProperties()
+      });
 
-    await projectModal.present();
+      await projectModal.present();
 
-    const { data } = await projectModal.onWillDismiss();
+      const { data } = await projectModal.onWillDismiss();
 
-    if (data) {
-      this.value = data.value;
-    }
+      if (data) {
+          this.value = data.value;
+      }
   }
 
   onBlur() {
-    this.onTouchedCallback();
+      this.onTouchedCallback();
   }
 
   writeValue(value: any): void {
-    if (value !== this.innerValue) {
-      this.innerValue = value;
-      const selectedOption = this.innerValue;
-      if (selectedOption) {
-        this.displayValue = selectedOption.project_name;
-      } else {
-        this.displayValue = '';
+      if (value !== this.innerValue) {
+          this.innerValue = value;
+          const selectedOption = this.innerValue;
+          if (selectedOption) {
+              this.displayValue = selectedOption.project_name;
+          } else {
+              this.displayValue = '';
+          }
       }
-    }
   }
 
   // validate(fc: FormControl) {
@@ -124,10 +124,10 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   // }
 
   registerOnChange(fn: any) {
-    this.onChangeCallback = fn;
+      this.onChangeCallback = fn;
   }
 
   registerOnTouched(fn: any) {
-    this.onTouchedCallback = fn;
+      this.onTouchedCallback = fn;
   }
 }

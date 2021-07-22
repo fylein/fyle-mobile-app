@@ -16,9 +16,9 @@ import {NetworkService} from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
-  selector: 'app-view-team-mileage',
-  templateUrl: './view-team-mileage.page.html',
-  styleUrls: ['./view-team-mileage.page.scss'],
+    selector: 'app-view-team-mileage',
+    templateUrl: './view-team-mileage.page.html',
+    styleUrls: ['./view-team-mileage.page.scss'],
 })
 export class ViewTeamMileagePage implements OnInit {
 
@@ -53,140 +53,124 @@ export class ViewTeamMileagePage implements OnInit {
   ) { }
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+      this.onPageExit.next();
   }
 
   setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit),
-      shareReplay(1)
-    );
+      const networkWatcherEmitter = new EventEmitter<boolean>();
+      this.networkService.connectivityWatcher(networkWatcherEmitter);
+      this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+          takeUntil(this.onPageExit),
+          shareReplay(1)
+      );
 
-    this.isConnected$.subscribe((isOnline) => {
-      if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-      }
-    });
+      this.isConnected$.subscribe((isOnline) => {
+          if (!isOnline) {
+              this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+          }
+      });
   }
 
   isNumber(val) {
-    return typeof val === 'number';
+      return typeof val === 'number';
   }
 
   scrollCommentsIntoView() {
-    if (this.commentsContainer) {
-      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
-      if (commentsContainer) {
-        commentsContainer.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'start'
-        });
+      if (this.commentsContainer) {
+          const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+          if (commentsContainer) {
+              commentsContainer.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'nearest',
+                  inline: 'start'
+              });
+          }
       }
-    }
   }
 
   goBack() {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
   }
 
   onUpdateFlag(event) {
-    if (event) {
-      this.updateFlag$.next();
-    }
+      if (event) {
+          this.updateFlag$.next();
+      }
   }
 
   async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-    const popover = await this.popoverController.create({
-      component: RemoveExpenseReportComponent,
-      componentProps: {
-        etxn
-      },
-      cssClass: 'dialog-popover'
-    });
+      const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+      const popover = await this.popoverController.create({
+          component: RemoveExpenseReportComponent,
+          componentProps: {
+              etxn
+          },
+          cssClass: 'dialog-popover'
+      });
 
-    await popover.present();
+      await popover.present();
 
-    const { data } = await popover.onWillDismiss();
+      const { data } = await popover.onWillDismiss();
 
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id}]);
-    }
+      if (data && data.goBack) {
+          this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id}]);
+      }
   }
 
   ionViewWillEnter() {
-    this.setupNetworkWatcher();
-    const id = this.activatedRoute.snapshot.params.id;
+      this.setupNetworkWatcher();
+      const id = this.activatedRoute.snapshot.params.id;
 
-    this.extendedMileage$ = this.updateFlag$.pipe(
-      switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getExpenseV2(id);
+      this.extendedMileage$ = this.updateFlag$.pipe(
+          switchMap(() => from(this.loaderService.showLoader()).pipe(
+              switchMap(() => this.transactionService.getExpenseV2(id))
+          )),
+          finalize(() => from(this.loaderService.hideLoader())),
+          shareReplay(1)
+      );
+
+      this.extendedMileage$.subscribe(res => {
+          this.reportId = res.tx_report_id;
+      });
+
+      this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
+          shareReplay(1)
+      );
+
+      this.mileageCustomFields$ = this.extendedMileage$.pipe(
+          switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
+          map(res => res.map(customProperties => {
+              customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+              return customProperties;
+          }))
+      );
+
+      this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
+          map(etxn => ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1)
+      );
+
+      this.canDelete$ = this.extendedMileage$.pipe(
+          concatMap(etxn => this.reportService.getTeamReport(etxn.tx_report_id)),
+          map(report => {
+              if (report.rp_num_transactions === 1) {
+                  return false;
+              }
+              return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(report.tx_state) < 0;
           })
-        );
-      }),
-      finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
-    );
+      );
 
-    this.extendedMileage$.subscribe(res => {
-      this.reportId = res.tx_report_id;
-    });
+      this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+      this.comments$ = this.statusService.find('transactions', id);
 
-    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay(1)
-    );
+      this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
+          map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+      );
 
-    this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap(res => {
-        return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
-      }),
-      map(res => {
-        return res.map(customProperties => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
-        });
-      })
-    );
+      this.isAmountCapped$ = this.extendedMileage$.pipe(
+          map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+      );
 
-    this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
-      map(etxn => {
-        return ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1;
-      })
-    );
-
-    this.canDelete$ = this.extendedMileage$.pipe(
-      concatMap(etxn => {
-        return this.reportService.getTeamReport(etxn.tx_report_id);
-      }),
-      map(report => {
-        if (report.rp_num_transactions === 1) {
-          return false;
-        }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(report.tx_state) < 0;
-      })
-    );
-
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
-    this.comments$ = this.statusService.find('transactions', id);
-
-    this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001;
-      })
-    );
-
-    this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount);
-      })
-    );
-
-    this.updateFlag$.next();
+      this.updateFlag$.next();
   }
 
 

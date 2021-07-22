@@ -12,9 +12,9 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
-  selector: 'app-invited-user',
-  templateUrl: './invited-user.page.html',
-  styleUrls: ['./invited-user.page.scss'],
+    selector: 'app-invited-user',
+    templateUrl: './invited-user.page.html',
+    styleUrls: ['./invited-user.page.scss'],
 })
 export class InvitedUserPage implements OnInit {
 
@@ -40,97 +40,91 @@ export class InvitedUserPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
-    this.isConnected$.subscribe(noop);
+      const networkWatcherEmitter = new EventEmitter<boolean>();
+      this.networkService.connectivityWatcher(networkWatcherEmitter);
+      this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+      this.isConnected$.subscribe(noop);
 
-    this.fg = this.fb.group({
-      fullName: ['', Validators.required],
-      password: ['',
-        Validators.compose(
-          [
-            Validators.required,
-            Validators.minLength(12),
-            Validators.maxLength(32),
-            Validators.pattern(/[A-Z]/),
-            Validators.pattern(/[a-z]/),
-            Validators.pattern(/[0-9]/),
-            Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
-        )]
-    });
+      this.fg = this.fb.group({
+          fullName: ['', Validators.required],
+          password: ['',
+              Validators.compose(
+                  [
+                      Validators.required,
+                      Validators.minLength(12),
+                      Validators.maxLength(32),
+                      Validators.pattern(/[A-Z]/),
+                      Validators.pattern(/[a-z]/),
+                      Validators.pattern(/[0-9]/),
+                      Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
+              )]
+      });
 
-    this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => password && password.length >= 12 && password.length <= 32
-      )
-    );
+      this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => password && password.length >= 12 && password.length <= 32
+          )
+      );
 
-    this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[A-Z]/.test(password))
-      )
-    );
+      this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => (/[A-Z]/.test(password))
+          )
+      );
 
-    this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[0-9]/.test(password))
-      )
-    );
-    this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
-      )
-    );
+      this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => (/[0-9]/.test(password))
+          )
+      );
+      this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
+          )
+      );
 
-    this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[a-z]/.test(password))
-      )
-    );
+      this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => (/[a-z]/.test(password))
+          )
+      );
 
-    this.eou$ = from(this.authService.getEou());
+      this.eou$ = from(this.authService.getEou());
 
-    this.eou$.subscribe((eou) => {
-      this.fg.controls.fullName.setValue(eou.us.full_name);
-    });
+      this.eou$.subscribe((eou) => {
+          this.fg.controls.fullName.setValue(eou.us.full_name);
+      });
   }
 
   async saveData() {
-    this.fg.markAllAsTouched();
-    if (this.fg.valid) {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.eou$;
-        }),
-        switchMap((eou) => {
-          const user = eou.us;
-          user.full_name = this.fg.controls.fullName.value;
-          user.password = this.fg.controls.password.value;
-          return this.orgUserService.postUser(user);
-        }),
-        tap(() => this.trackingService.setupComplete({Asset: 'Mobile'})),
-        switchMap(() => {
-          return this.authService.refreshEou();
-        }),
-        switchMap(() => {
-          return this.orgUserService.markActive();
-        }),
-        tap(() => this.trackingService.activated({Asset: 'Mobile'})),
-        finalize(async () => await this.loaderService.hideLoader())
-      ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-        // return $state.go('enterprise.my_dashboard');
-      });
-    } else {
-      const toast = await this.toastController.create({
-        message: 'Please fill all required fields to proceed',
-        color: 'danger',
-        duration: 1200
-      });
+      this.fg.markAllAsTouched();
+      if (this.fg.valid) {
+          from(this.loaderService.showLoader()).pipe(
+              switchMap(() => this.eou$),
+              switchMap((eou) => {
+                  const user = eou.us;
+                  user.full_name = this.fg.controls.fullName.value;
+                  user.password = this.fg.controls.password.value;
+                  return this.orgUserService.postUser(user);
+              }),
+              tap(() => this.trackingService.setupComplete({Asset: 'Mobile'})),
+              switchMap(() => this.authService.refreshEou()),
+              switchMap(() => this.orgUserService.markActive()),
+              tap(() => this.trackingService.activated({Asset: 'Mobile'})),
+              finalize(async () => await this.loaderService.hideLoader())
+          ).subscribe(() => {
+              this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+              // return $state.go('enterprise.my_dashboard');
+          });
+      } else {
+          const toast = await this.toastController.create({
+              message: 'Please fill all required fields to proceed',
+              color: 'danger',
+              duration: 1200
+          });
 
-      await toast.present();
-    }
+          await toast.present();
+      }
   }
 
 }

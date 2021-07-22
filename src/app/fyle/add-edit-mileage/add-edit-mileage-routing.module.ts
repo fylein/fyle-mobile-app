@@ -4,14 +4,14 @@ import { Routes, RouterModule } from '@angular/router';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: AddEditMileagePage
-  }
+    {
+        path: '',
+        component: AddEditMileagePage
+    }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
 })
 export class AddEditMileagePageRoutingModule {}

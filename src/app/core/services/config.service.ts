@@ -6,17 +6,17 @@ import {TokenService} from './token.service';
 @Injectable()
 export class ConfigService {
 
-  constructor(
+    constructor(
     private routerAuthService: RouterAuthService,
     private tokenService: TokenService
-  ) { }
+    ) { }
 
-  async loadConfigurationData() {
-    const clusterDomain = await this.tokenService.getClusterDomain();
+    async loadConfigurationData() {
+        const clusterDomain = await this.tokenService.getClusterDomain();
 
-    if (clusterDomain) {
-      // if clusterdomain is present use that
-      await this.routerAuthService.setClusterDomain(clusterDomain);
+        if (clusterDomain) {
+            // if clusterdomain is present use that
+            await this.routerAuthService.setClusterDomain(clusterDomain);
+        }
     }
-  }
 }

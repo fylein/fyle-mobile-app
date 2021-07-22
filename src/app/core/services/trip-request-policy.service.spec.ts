@@ -3,14 +3,14 @@ import { TestBed } from '@angular/core/testing';
 import { TripRequestPolicyService } from './trip-request-policy.service';
 
 describe('TripRequestPolicyService', () => {
-  let service: TripRequestPolicyService;
+    let service: TripRequestPolicyService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(TripRequestPolicyService);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(TripRequestPolicyService);
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });

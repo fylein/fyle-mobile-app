@@ -5,16 +5,16 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
-  selector: 'app-add-expenses-to-report',
-  templateUrl: './add-expenses-to-report.component.html',
-  styleUrls: ['./add-expenses-to-report.component.scss'],
+    selector: 'app-add-expenses-to-report',
+    templateUrl: './add-expenses-to-report.component.html',
+    styleUrls: ['./add-expenses-to-report.component.scss'],
 })
 export class AddExpensesToReportComponent implements OnInit {
 
   @Input() unReportedEtxns: Expense[];
   homeCurrency$: Observable<string>;
-  selectedTotalAmount: number = 0;
-  selectedTotalTxns: number = 0;
+  selectedTotalAmount = 0;
+  selectedTotalTxns = 0;
   selectedTxnIds: string[];
 
   constructor(
@@ -23,34 +23,34 @@ export class AddExpensesToReportComponent implements OnInit {
   ) { }
 
   close() {
-    this.modalController.dismiss();
+      this.modalController.dismiss();
   }
 
   addExpensestoReport() {
-    this.modalController.dismiss({
-      selectedTxnIds: this.selectedTxnIds,
-      selectedTotalAmount: this.selectedTotalAmount,
-      selectedTotalTxns: this.selectedTotalTxns
-    });
+      this.modalController.dismiss({
+          selectedTxnIds: this.selectedTxnIds,
+          selectedTotalAmount: this.selectedTotalAmount,
+          selectedTotalTxns: this.selectedTotalTxns
+      });
   }
 
-  toggleTransaction (etxn) {
-    etxn.isSelected = !etxn.isSelected;
-    let etxns = this.unReportedEtxns.filter(etxn => etxn.isSelected);
-    this.selectedTxnIds = etxns.map(etxn => etxn.tx_id);
-    this.selectedTotalAmount = etxns.reduce((acc, obj) => 
-    {
-      if (!obj.tx_skip_reimbursement) {
-        return acc + obj.tx_amount; 
-      } else {
-        return acc;
-      }
-    }, 0);
-    this.selectedTotalTxns = this.selectedTxnIds.length;
-  };
+  toggleTransaction(etxn) {
+      etxn.isSelected = !etxn.isSelected;
+      const etxns = this.unReportedEtxns.filter(etxn => etxn.isSelected);
+      this.selectedTxnIds = etxns.map(etxn => etxn.tx_id);
+      this.selectedTotalAmount = etxns.reduce((acc, obj) =>
+      {
+          if (!obj.tx_skip_reimbursement) {
+              return acc + obj.tx_amount;
+          } else {
+              return acc;
+          }
+      }, 0);
+      this.selectedTotalTxns = this.selectedTxnIds.length;
+  }
 
   ionViewWillEnter() {
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+      this.homeCurrency$ = this.currencyService.getHomeCurrency();
   }
 
   ngOnInit() {

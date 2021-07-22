@@ -3,9 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {ModalController, PopoverController} from '@ionic/angular';
 
 @Component({
-  selector: 'app-my-reports-sort-filter',
-  templateUrl: './my-reports-sort-filter.component.html',
-  styleUrls: ['./my-reports-sort-filter.component.scss'],
+    selector: 'app-my-reports-sort-filter',
+    templateUrl: './my-reports-sort-filter.component.html',
+    styleUrls: ['./my-reports-sort-filter.component.scss'],
 })
 export class MyReportsSortFilterComponent implements OnInit {
 
@@ -26,34 +26,34 @@ export class MyReportsSortFilterComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.fg = this.fb.group({
-      sortParam: [
-        this.filters && this.filters.sortParam || 'rp_created_at', Validators.required
-      ],
-      sortDir: [
-        this.filters && this.filters.sortDir || 'desc', Validators.required
-      ]
-    });
+      this.fg = this.fb.group({
+          sortParam: [
+              this.filters && this.filters.sortParam || 'rp_created_at', Validators.required
+          ],
+          sortDir: [
+              this.filters && this.filters.sortDir || 'desc', Validators.required
+          ]
+      });
   }
 
   reset() {
-    this.fg.setValue({
-      sortParam: 'rp_created_at',
-      sortDir: 'desc'
-    });
+      this.fg.setValue({
+          sortParam: 'rp_created_at',
+          sortDir: 'desc'
+      });
   }
 
   save() {
-    this.popoverController.dismiss({
-      sortOptions: this.fg.value
-    });
+      this.popoverController.dismiss({
+          sortOptions: this.fg.value
+      });
   }
 
   cancel() {
-    this.popoverController.dismiss();
+      this.popoverController.dismiss();
   }
 
   clearAll() {
-    this.fg.reset();
+      this.fg.reset();
   }
 }

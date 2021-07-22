@@ -4,27 +4,27 @@ import {FyPopupComponent} from 'src/app/shared/components/fy-popup/fy-popup.comp
 import {PopupConfig} from 'src/app/shared/components/fy-popup/popup.model';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class PopupService {
-  constructor(
+    constructor(
     private popoverController: PopoverController
-  ) { }
+    ) { }
 
-  async showPopup(popupConfig: PopupConfig) {
-    const popup = await this.popoverController.create({
-      componentProps: {
-        config: popupConfig
-      },
-      component: FyPopupComponent,
-      cssClass: 'dialog-popover'
-    });
+    async showPopup(popupConfig: PopupConfig) {
+        const popup = await this.popoverController.create({
+            componentProps: {
+                config: popupConfig
+            },
+            component: FyPopupComponent,
+            cssClass: 'dialog-popover'
+        });
 
-    await popup.present();
+        await popup.present();
 
-    const { data } = await popup.onWillDismiss();
+        const { data } = await popup.onWillDismiss();
 
-    return data && data.action;
-  }
+        return data && data.action;
+    }
 
 }

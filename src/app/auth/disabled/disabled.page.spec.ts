@@ -4,21 +4,21 @@ import {IonicModule} from '@ionic/angular';
 import {DisabledPage} from './disabled.page';
 
 describe('DisabledPage', () => {
-  let component: DisabledPage;
-  let fixture: ComponentFixture<DisabledPage>;
+    let component: DisabledPage;
+    let fixture: ComponentFixture<DisabledPage>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ DisabledPage ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [ DisabledPage ],
+            imports: [IonicModule.forRoot()]
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(DisabledPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(DisabledPage);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

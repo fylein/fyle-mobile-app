@@ -13,9 +13,9 @@ import {MatchExpensePopoverComponent} from './match-expense-popover/match-expens
 import {LoaderService} from '../../core/services/loader.service';
 
 @Component({
-  selector: 'app-ccc-classify-actions',
-  templateUrl: './ccc-classify-actions.page.html',
-  styleUrls: ['./ccc-classify-actions.page.scss'],
+    selector: 'app-ccc-classify-actions',
+    templateUrl: './ccc-classify-actions.page.html',
+    styleUrls: ['./ccc-classify-actions.page.scss'],
 })
 export class CccClassifyActionsPage implements OnInit {
 
@@ -38,89 +38,87 @@ export class CccClassifyActionsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    if (this.activatedRoute.snapshot.params.pageState) {
-      this.pageState = this.activatedRoute.snapshot.params.pageState;
-    }
+      if (this.activatedRoute.snapshot.params.pageState) {
+          this.pageState = this.activatedRoute.snapshot.params.pageState;
+      }
 
-    this.cccExpense$ = this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
-    this.expenseSuggestions$ = this.cccExpense$.pipe(
-      switchMap(cccExpense => {
-        return this.expenseSuggestionsService.getSuggestions({
-          amount: cccExpense.amount,
-          txn_dt: cccExpense.txn_dt
-        });
-      })
-    );
+      this.cccExpense$ = this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
+      this.expenseSuggestions$ = this.cccExpense$.pipe(
+          switchMap(cccExpense => this.expenseSuggestionsService.getSuggestions({
+              amount: cccExpense.amount,
+              txn_dt: cccExpense.txn_dt
+          }))
+      );
   }
 
   addExpenseManually(cccTxn: CorporateCardExpense) {
-    const bankTxn = {
-      ccce: cccTxn,
-      flow: 'newCCCFlow'
-    };
+      const bankTxn = {
+          ccce: cccTxn,
+          flow: 'newCCCFlow'
+      };
 
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { bankTxn: JSON.stringify(bankTxn), navigate_back: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { bankTxn: JSON.stringify(bankTxn), navigate_back: true }]);
   }
 
   async openDismissalPopover(cccTxn: CorporateCardExpense) {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Confirm Dismissal',
-      message: 'Usually credit card payments are dismissed as they are paid by your company. Do you wish to dismiss this transaction?',
-      primaryCta: {
-        text: 'Yes, Dismiss'
-      },
-      secondaryCta: {
-        text: 'Cancel'
-      },
-      cssClass: 'ccc-popup',
-      showCancelButton: false
-    });
+      const popupResult = await this.popupService.showPopup({
+          header: 'Confirm Dismissal',
+          message: 'Usually credit card payments are dismissed as they are paid by your company. Do you wish to dismiss this transaction?',
+          primaryCta: {
+              text: 'Yes, Dismiss'
+          },
+          secondaryCta: {
+              text: 'Cancel'
+          },
+          cssClass: 'ccc-popup',
+          showCancelButton: false
+      });
 
-    if (popupResult === 'primary') {
-      await this.loaderService.showLoader();
-      await this.corporateCreditCardExpenseService.dismissCreditTransaction(cccTxn.id).toPromise();
-      await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
-    }
+      if (popupResult === 'primary') {
+          await this.loaderService.showLoader();
+          await this.corporateCreditCardExpenseService.dismissCreditTransaction(cccTxn.id).toPromise();
+          await this.loaderService.hideLoader();
+          this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      }
   }
 
   async openMarkPersonalPopover(cccTxn: CorporateCardExpense) {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Confirm Marking Personal',
-      message: 'A personal transaction made on the corporate card will not be paid by your company. Your finance team\n' +
+      const popupResult = await this.popupService.showPopup({
+          header: 'Confirm Marking Personal',
+          message: 'A personal transaction made on the corporate card will not be paid by your company. Your finance team\n' +
         '        will collect this amount from you based on your company\'s policy. Do you wish to classify this as a\n' +
         '        personal transaction?',
-      primaryCta: {
-        text: 'Classify as Personal'
-      },
-      secondaryCta: {
-        text: 'Cancel'
-      },
-      cssClass: 'ccc-popup',
-      showCancelButton: false
-    });
+          primaryCta: {
+              text: 'Classify as Personal'
+          },
+          secondaryCta: {
+              text: 'Cancel'
+          },
+          cssClass: 'ccc-popup',
+          showCancelButton: false
+      });
 
 
-    if (popupResult === 'primary') {
-      await this.loaderService.showLoader();
-      await this.corporateCreditCardExpenseService.markPersonal(cccTxn.id).toPromise();
-      await this.loaderService.hideLoader();
-      this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
-    }
+      if (popupResult === 'primary') {
+          await this.loaderService.showLoader();
+          await this.corporateCreditCardExpenseService.markPersonal(cccTxn.id).toPromise();
+          await this.loaderService.hideLoader();
+          this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      }
   }
 
   async openMatchExpensePopover(expense: ExpenseSuggestion) {
-    const cccExpense = await this.cccExpense$.toPromise();
-    const popover = await this.popoverController.create({
-      component: MatchExpensePopoverComponent,
-      cssClass: 'dialog-popover',
-      componentProps: {
-        expenseId: expense.id,
-        CCCEId: cccExpense.id,
-        splitGroupId: expense.split_group_id
-      }
-    });
+      const cccExpense = await this.cccExpense$.toPromise();
+      const popover = await this.popoverController.create({
+          component: MatchExpensePopoverComponent,
+          cssClass: 'dialog-popover',
+          componentProps: {
+              expenseId: expense.id,
+              CCCEId: cccExpense.id,
+              splitGroupId: expense.split_group_id
+          }
+      });
 
-    await popover.present();
+      await popover.present();
   }
 }

@@ -3,9 +3,9 @@ import {PopoverController} from '@ionic/angular';
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-error',
-  templateUrl: './error.component.html',
-  styleUrls: ['./error.component.scss'],
+    selector: 'app-error',
+    templateUrl: './error.component.html',
+    styleUrls: ['./error.component.scss'],
 })
 export class ErrorComponent implements OnInit {
 
@@ -20,12 +20,12 @@ export class ErrorComponent implements OnInit {
   ngOnInit() {}
 
   async tryAgainClicked() {
-    await this.popoverController.dismiss();
+      await this.popoverController.dismiss();
   }
 
   async routeTo(route: string[]){
-    this.router.navigate(route);
-    await this.popoverController.dismiss();
+      this.router.navigate(route);
+      await this.popoverController.dismiss();
   }
 
 }

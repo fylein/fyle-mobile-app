@@ -3,16 +3,16 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/for
 import { noop } from 'rxjs';
 
 @Component({
-  selector: 'app-fy-select-vehicle',
-  templateUrl: './fy-select-vehicle.component.html',
-  styleUrls: ['./fy-select-vehicle.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FySelectVehicleComponent),
-      multi: true
-    }
-  ]
+    selector: 'app-fy-select-vehicle',
+    templateUrl: './fy-select-vehicle.component.html',
+    styleUrls: ['./fy-select-vehicle.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FySelectVehicleComponent),
+            multi: true
+        }
+    ]
 })
 export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
   private ngControl: NgControl;
@@ -25,11 +25,11 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
   private innerValue;
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
+      if (this.ngControl.touched) {
+          return this.ngControl.valid;
+      } else {
+          return true;
+      }
   }
 
   private onTouchedCallback: () => void = noop;
@@ -40,42 +40,42 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
   ) { }
 
   ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+      this.ngControl = this.injector.get(NgControl);
   }
 
   get value(): any {
-    return this.innerValue;
+      return this.innerValue;
   }
 
   set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
+      if (v !== this.innerValue) {
+          this.innerValue = v;
 
 
-      this.onChangeCallback(v);
-    }
+          this.onChangeCallback(v);
+      }
   }
 
   onBlur() {
-    this.onTouchedCallback();
+      this.onTouchedCallback();
   }
 
   writeValue(value: any): void {
-    if (value !== this.innerValue) {
-      this.innerValue = value;
-    }
+      if (value !== this.innerValue) {
+          this.innerValue = value;
+      }
   }
 
   selectType(value: string) {
-    this.value = value;
+      this.value = value;
   }
 
 
   registerOnChange(fn: any) {
-    this.onChangeCallback = fn;
+      this.onChangeCallback = fn;
   }
 
   registerOnTouched(fn: any) {
-    this.onTouchedCallback = fn;
+      this.onTouchedCallback = fn;
   }
 }

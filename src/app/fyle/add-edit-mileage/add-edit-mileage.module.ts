@@ -20,25 +20,25 @@ import { MatButtonModule } from '@angular/material/button';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    AddEditMileagePageRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatCheckboxModule,
-    SharedModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule
-  ],
-  declarations: [
-    AddEditMileagePage,
-    FySelectVehicleComponent,
-    PolicyViolationComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        AddEditMileagePageRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatCheckboxModule,
+        SharedModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule
+    ],
+    declarations: [
+        AddEditMileagePage,
+        FySelectVehicleComponent,
+        PolicyViolationComponent
+    ]
 })
 export class AddEditMileagePageModule { }

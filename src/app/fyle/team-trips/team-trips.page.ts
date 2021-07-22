@@ -9,9 +9,9 @@ import { Router } from '@angular/router';
 import { ViewWillEnter } from '@ionic/angular';
 
 @Component({
-  selector: 'app-team-trips',
-  templateUrl: './team-trips.page.html',
-  styleUrls: ['./team-trips.page.scss'],
+    selector: 'app-team-trips',
+    templateUrl: './team-trips.page.html',
+    styleUrls: ['./team-trips.page.scss'],
 })
 export class TeamTripsPage implements OnInit, ViewWillEnter {
 
@@ -19,7 +19,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
   teamTripRequests$: Observable<ExtendedTripRequest[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
-  loadData$: Subject<{pageNumber: number, state: string}> = new Subject();
+  loadData$: Subject<{pageNumber: number; state: string}> = new Subject();
   currentPageNumber = 1;
   state = 'PENDING';
   onPageExit = new Subject();
@@ -35,127 +35,119 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
   }
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+      this.onPageExit.next();
   }
 
   ionViewWillEnter() {
-    this.currentPageNumber = 1;
-    this.teamTripRequests$ = this.loadData$.pipe(
-      concatMap(({ pageNumber, state }) => {
+      this.currentPageNumber = 1;
+      this.teamTripRequests$ = this.loadData$.pipe(
+          concatMap(({ pageNumber, state }) => {
 
-        const extraParams = state === 'PENDING' ? {
-          trp_approval_state: ['in.(APPROVAL_PENDING)'],
-          trp_state: 'eq.APPROVAL_PENDING'
-        } : {
-          or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
-          trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
-        };
+              const extraParams = state === 'PENDING' ? {
+                  trp_approval_state: ['in.(APPROVAL_PENDING)'],
+                  trp_state: 'eq.APPROVAL_PENDING'
+              } : {
+                  or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
+                  trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
+              };
 
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.tripRequestsService.getTeamTrips({
-              offset: (pageNumber - 1) * 10,
-              limit: 10,
-              queryParams: {
-                ...extraParams
-              }
-            });
+              return from(this.loaderService.showLoader()).pipe(
+                  switchMap(() => this.tripRequestsService.getTeamTrips({
+                      offset: (pageNumber - 1) * 10,
+                      limit: 10,
+                      queryParams: {
+                          ...extraParams
+                      }
+                  })),
+                  finalize(() => from(this.loaderService.hideLoader()))
+              );
           }),
-          finalize(() => {
-            return from(this.loaderService.hideLoader());
-          })
-        );
-      }),
-      map(res => res.data),
-      scan((acc, curr) => {
-        if (this.currentPageNumber === 1) {
-          return curr;
-        }
-        return acc.concat(curr);
-      }, [] as ExtendedTripRequest[]),
-      shareReplay(1)
-    );
+          map(res => res.data),
+          scan((acc, curr) => {
+              if (this.currentPageNumber === 1) {
+                  return curr;
+              }
+              return acc.concat(curr);
+          }, [] as ExtendedTripRequest[]),
+          shareReplay(1)
+      );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap(({ state }) => {
-        const extraParams = state === 'PENDING' ? {
-          trp_approval_state: ['in.(APPROVAL_PENDING)'],
-          trp_state: 'eq.APPROVAL_PENDING'
-        } : {
-          or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
-          trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
-        };
+      this.count$ = this.loadData$.pipe(
+          switchMap(({ state }) => {
+              const extraParams = state === 'PENDING' ? {
+                  trp_approval_state: ['in.(APPROVAL_PENDING)'],
+                  trp_state: 'eq.APPROVAL_PENDING'
+              } : {
+                  or: ['(trp_is_pulled_back.is.false,trp_is_pulled_back.is.null)'],
+                  trp_approval_state: ['in.(APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED)']
+              };
 
-        return this.tripRequestsService.getTeamTripsCount(
-          {
-            ...extraParams
-          }
-        );
-      }),
-      shareReplay(1)
-    );
+              return this.tripRequestsService.getTeamTripsCount(
+                  {
+                      ...extraParams
+                  }
+              );
+          }),
+          shareReplay(1)
+      );
 
-    // this.tripRequestsService.getTeamTripsCount({
-    //   trp_approval_state: ['in.(APPROVAL_PENDING)'],
-    //   trp_state: 'eq.APPROVAL_PENDING'
-    // }).pipe(
-    //   shareReplay()
-    // );
+      // this.tripRequestsService.getTeamTripsCount({
+      //   trp_approval_state: ['in.(APPROVAL_PENDING)'],
+      //   trp_state: 'eq.APPROVAL_PENDING'
+      // }).pipe(
+      //   shareReplay()
+      // );
 
-    this.isInfiniteScrollRequired$ = this.teamTripRequests$.pipe(
-      concatMap(teamTrips => {
-        return this.count$.pipe(
-          take(1),
-          map(count => {
-          return count > teamTrips.length;
-        }));
-      })
-    );
+      this.isInfiniteScrollRequired$ = this.teamTripRequests$.pipe(
+          concatMap(teamTrips => this.count$.pipe(
+              take(1),
+              map(count => count > teamTrips.length)))
+      );
 
-    this.loadData$.subscribe(noop);
-    this.teamTripRequests$.subscribe(noop);
-    this.count$.subscribe(noop);
-    this.isInfiniteScrollRequired$.subscribe(noop);
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
+      this.loadData$.subscribe(noop);
+      this.teamTripRequests$.subscribe(noop);
+      this.count$.subscribe(noop);
+      this.isInfiniteScrollRequired$.subscribe(noop);
+      this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
 
-    this.setupNetworkWatcher();
+      this.setupNetworkWatcher();
   }
 
   doRefresh(event) {
-    this.currentPageNumber = 1;
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
-    event.target.complete();
+      this.currentPageNumber = 1;
+      this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
+      event.target.complete();
   }
 
   loadData(event) {
-    this.currentPageNumber = this.currentPageNumber + 1;
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
-    event.target.complete();
+      this.currentPageNumber = this.currentPageNumber + 1;
+      this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
+      event.target.complete();
   }
 
   setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit),
-      shareReplay(1)
-    );
+      const networkWatcherEmitter = new EventEmitter<boolean>();
+      this.networkService.connectivityWatcher(networkWatcherEmitter);
+      this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+          takeUntil(this.onPageExit),
+          shareReplay(1)
+      );
 
-    this.isConnected$.subscribe((isOnline) => {
-      if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-      }
-    });
+      this.isConnected$.subscribe((isOnline) => {
+          if (!isOnline) {
+              this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+          }
+      });
   }
 
   onTripClick(clickedTrip: ExtendedTripRequest) {
-    this.router.navigate(['/', 'enterprise', 'view_team_trips', { id: clickedTrip.trp_id }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_trips', { id: clickedTrip.trp_id }]);
   }
 
   changeState(state) {
-    this.currentPageNumber = 1;
-    this.state = state;
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
+      this.currentPageNumber = 1;
+      this.state = state;
+      this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state});
   }
 
 }

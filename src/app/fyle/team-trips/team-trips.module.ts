@@ -10,18 +10,18 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    TeamTripsPageRoutingModule,
-    SharedModule,
-    MatMenuModule,
-    MatButtonModule
-  ],
-  declarations: [
-    TeamTripsPage,
-    TeamTripCardComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        TeamTripsPageRoutingModule,
+        SharedModule,
+        MatMenuModule,
+        MatButtonModule
+    ],
+    declarations: [
+        TeamTripsPage,
+        TeamTripCardComponent
+    ]
 })
 export class TeamTripsPageModule {}

@@ -18,27 +18,27 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    TeamReportsPageRoutingModule,
-    SharedModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatRadioModule,
-    ReactiveFormsModule,
-    MatRippleModule,
-    MatNativeDateModule,
-    MatDatepickerModule
-  ],
-  declarations: [
-    TeamReportsPage,
-    TeamReportCardComponent,
-    TeamReportsSortFilterComponent,
-    TeamReportsSearchFilterComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        TeamReportsPageRoutingModule,
+        SharedModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatRadioModule,
+        ReactiveFormsModule,
+        MatRippleModule,
+        MatNativeDateModule,
+        MatDatepickerModule
+    ],
+    declarations: [
+        TeamReportsPage,
+        TeamReportCardComponent,
+        TeamReportsSortFilterComponent,
+        TeamReportsSearchFilterComponent
+    ]
 })
 export class TeamReportsPageModule {}

@@ -13,18 +13,18 @@ import {MatchExpensePopoverComponent} from './match-expense-popover/match-expens
 import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    CccClassifyActionsPageRoutingModule,
-    SharedModule,
-    MatRippleModule,
-    MatButtonModule
-  ],
-  declarations: [
-    CccClassifyActionsPage,
-    MatchExpensePopoverComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        CccClassifyActionsPageRoutingModule,
+        SharedModule,
+        MatRippleModule,
+        MatButtonModule
+    ],
+    declarations: [
+        CccClassifyActionsPage,
+        MatchExpensePopoverComponent
+    ]
 })
 export class CccClassifyActionsPageModule {}

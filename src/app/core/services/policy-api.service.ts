@@ -4,7 +4,7 @@ import {environment} from 'src/environments/environment';
 import {map} from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class PolicyApiService {
   ROOT_ENDPOINT: string;
@@ -12,18 +12,18 @@ export class PolicyApiService {
   constructor(
     private httpClient: HttpClient
   ) {
-    this.ROOT_ENDPOINT = environment.ROOT_URL;
+      this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
   setRoot(rootUrl: string) {
-    this.ROOT_ENDPOINT = rootUrl;
+      this.ROOT_ENDPOINT = rootUrl;
   }
 
   get(url, config) {
-    return this.httpClient.get(this.ROOT_ENDPOINT + '/policy/expenses' + url, config);
+      return this.httpClient.get(this.ROOT_ENDPOINT + '/policy/expenses' + url, config);
   }
 
   post(url, data) {
-    return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/expenses' + url, data);
+      return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/expenses' + url, data);
   }
 }

@@ -16,27 +16,27 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    AddEditPerDiemPageRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRippleModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatCheckboxModule,
-    SharedModule
-  ],
-  declarations: [
-    AddEditPerDiemPage,
-    FyCurrencyComponent,
-    FyCurrencyChooseCurrencyComponent,
-    FyCurrencyExchangeRateComponent,
-    PolicyViolationComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        AddEditPerDiemPageRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatCheckboxModule,
+        SharedModule
+    ],
+    declarations: [
+        AddEditPerDiemPage,
+        FyCurrencyComponent,
+        FyCurrencyChooseCurrencyComponent,
+        FyCurrencyExchangeRateComponent,
+        PolicyViolationComponent
+    ]
 })
 export class AddEditPerDiemPageModule {}

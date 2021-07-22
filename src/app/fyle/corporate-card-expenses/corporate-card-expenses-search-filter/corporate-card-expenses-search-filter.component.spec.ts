@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-expenses-search-filter.component';
 
 describe('CorporateCardExpensesSearchFilterComponent', () => {
-  let component: CorporateCardExpensesSearchFilterComponent;
-  let fixture: ComponentFixture<CorporateCardExpensesSearchFilterComponent>;
+    let component: CorporateCardExpensesSearchFilterComponent;
+    let fixture: ComponentFixture<CorporateCardExpensesSearchFilterComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ CorporateCardExpensesSearchFilterComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [ CorporateCardExpensesSearchFilterComponent ],
+            imports: [IonicModule.forRoot()]
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(CorporateCardExpensesSearchFilterComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(CorporateCardExpensesSearchFilterComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

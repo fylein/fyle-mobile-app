@@ -10,19 +10,19 @@ import {NetworkService} from '../../../core/services/network.service';
 import {concat, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {OfflineService} from '../../../core/services/offline.service';
-import {getCurrencySymbol} from "@angular/common";
+import {getCurrencySymbol} from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
-  selector: 'app-stats',
-  templateUrl: './stats.component.html',
-  styleUrls: ['./stats.component.scss'],
+    selector: 'app-stats',
+    templateUrl: './stats.component.html',
+    styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent implements OnInit {
-  draftStats$: Observable<{ count: number, sum: number }>;
-  reportedStats$: Observable<{ count: number, sum: number }>;
-  approvedStats$: Observable<{ count: number, sum: number }>;
-  paymentPendingStats$: Observable<{ count: number, sum: number }>;
+  draftStats$: Observable<{ count: number; sum: number }>;
+  reportedStats$: Observable<{ count: number; sum: number }>;
+  approvedStats$: Observable<{ count: number; sum: number }>;
+  paymentPendingStats$: Observable<{ count: number; sum: number }>;
   homeCurrency$: Observable<string>;
   isConnected$: Observable<boolean>;
   currencySymbol$: Observable<string>;
@@ -36,7 +36,7 @@ export class StatsComponent implements OnInit {
   loadData$ = new Subject();
 
   get ReportStates() {
-    return ReportStates;
+      return ReportStates;
   }
 
   constructor(
@@ -51,51 +51,51 @@ export class StatsComponent implements OnInit {
   }
 
   setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-        shareReplay(1)
-    );
+      const networkWatcherEmitter = new EventEmitter<boolean>();
+      this.networkService.connectivityWatcher(networkWatcherEmitter);
+      this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+          shareReplay(1)
+      );
   }
 
   initializeReportStats() {
-    this.reportStatsLoading = true;
-    const reportStats$ = this.dashboardService.getReportsStats().pipe(
-        tap(() => {
-          this.reportStatsLoading = false;
-        }),
-        shareReplay(1)
-    );
+      this.reportStatsLoading = true;
+      const reportStats$ = this.dashboardService.getReportsStats().pipe(
+          tap(() => {
+              this.reportStatsLoading = false;
+          }),
+          shareReplay(1)
+      );
 
-    this.draftStats$ = reportStats$.pipe(
-        map(stats => stats.draft)
-    );
+      this.draftStats$ = reportStats$.pipe(
+          map(stats => stats.draft)
+      );
 
-    this.reportedStats$ = reportStats$.pipe(
-        map(stats => stats.report)
-    );
+      this.reportedStats$ = reportStats$.pipe(
+          map(stats => stats.report)
+      );
 
-    this.approvedStats$ = reportStats$.pipe(
-        map(stats => stats.approved)
-    );
+      this.approvedStats$ = reportStats$.pipe(
+          map(stats => stats.approved)
+      );
 
-    this.paymentPendingStats$ = reportStats$.pipe(
-        map(stats => stats.paymentPending)
-    );
+      this.paymentPendingStats$ = reportStats$.pipe(
+          map(stats => stats.paymentPending)
+      );
   }
 
   initializeExpensesStats() {
-    const unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(
-        shareReplay(1)
-    );
+      const unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(
+          shareReplay(1)
+      );
 
-    this.unreportedExpensesCount$ = unreportedExpensesStats$.pipe(
-        map(stats => ({ count: stats.totalCount }))
-    );
+      this.unreportedExpensesCount$ = unreportedExpensesStats$.pipe(
+          map(stats => ({ count: stats.totalCount }))
+      );
 
-    this.unreportedExpensesAmount$ = unreportedExpensesStats$.pipe(
-        map(stats => ({ amount: stats.totalAmount }))
-    );
+      this.unreportedExpensesAmount$ = unreportedExpensesStats$.pipe(
+          map(stats => ({ amount: stats.totalAmount }))
+      );
   }
 
   /*
@@ -104,126 +104,126 @@ export class StatsComponent implements OnInit {
   * Here, I am setting up the initialize method to be called from the parent's ionViewWillEnter method.
   * **/
   init() {
-    const that = this;
-    that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(
-        shareReplay(1)
-    );
-    that.currencySymbol$ = that.homeCurrency$.pipe(
-        map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
-    );
+      const that = this;
+      that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(
+          shareReplay(1)
+      );
+      that.currencySymbol$ = that.homeCurrency$.pipe(
+          map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
+      );
 
-    that.initializeReportStats();
-    that.initializeExpensesStats();
-    that.offlineService.getOrgSettings().subscribe(orgSettings => {
-      this.setupActionSheet(orgSettings);
-    });
+      that.initializeReportStats();
+      that.initializeExpensesStats();
+      that.offlineService.getOrgSettings().subscribe(orgSettings => {
+          this.setupActionSheet(orgSettings);
+      });
   }
 
   setupActionSheet(orgSettings) {
-    const that = this;
-    const mileageEnabled = orgSettings.mileage.enabled;
-    const isPerDiemEnabled = orgSettings.per_diem.enabled;
-    that.actionSheetButtons = [{
-      text: 'Capture Receipt',
-      icon: 'assets/svg/fy-camera.svg',
-      cssClass: 'capture-receipt',
-      handler: () => {
-        that.trackingService.dashboardActionSheetButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Capture Receipt'
-        });
-        that.router.navigate(['/', 'enterprise', 'camera_overlay', {
-          navigate_back: true
-        }]);
-      }
-    }, {
-      text: 'Add Manually',
-      icon: 'assets/svg/fy-expense.svg',
-      handler: () => {
-        that.trackingService.dashboardActionSheetButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Add Manually'
-        });
-        that.router.navigate(['/', 'enterprise', 'add_edit_expense',{
-          navigate_back: true
-        }]);
-      }
-    }];
+      const that = this;
+      const mileageEnabled = orgSettings.mileage.enabled;
+      const isPerDiemEnabled = orgSettings.per_diem.enabled;
+      that.actionSheetButtons = [{
+          text: 'Capture Receipt',
+          icon: 'assets/svg/fy-camera.svg',
+          cssClass: 'capture-receipt',
+          handler: () => {
+              that.trackingService.dashboardActionSheetButtonClicked({
+                  Asset: 'Mobile',
+                  Action: 'Capture Receipt'
+              });
+              that.router.navigate(['/', 'enterprise', 'camera_overlay', {
+                  navigate_back: true
+              }]);
+          }
+      }, {
+          text: 'Add Manually',
+          icon: 'assets/svg/fy-expense.svg',
+          handler: () => {
+              that.trackingService.dashboardActionSheetButtonClicked({
+                  Asset: 'Mobile',
+                  Action: 'Add Manually'
+              });
+              that.router.navigate(['/', 'enterprise', 'add_edit_expense',{
+                  navigate_back: true
+              }]);
+          }
+      }];
 
-    if (mileageEnabled) {
-      this.actionSheetButtons.push({
-        text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
-        handler: () => {
-          that.trackingService.dashboardActionSheetButtonClicked({
-            Asset: 'Mobile',
-            Action: 'Add Mileage'
+      if (mileageEnabled) {
+          this.actionSheetButtons.push({
+              text: 'Add Mileage',
+              icon: 'assets/svg/fy-mileage.svg',
+              handler: () => {
+                  that.trackingService.dashboardActionSheetButtonClicked({
+                      Asset: 'Mobile',
+                      Action: 'Add Mileage'
+                  });
+                  that.router.navigate(['/', 'enterprise', 'add_edit_mileage',{
+                      navigate_back: true
+                  }]);
+              }
           });
-          that.router.navigate(['/', 'enterprise', 'add_edit_mileage',{
-            navigate_back: true
-          }]);
-        }
-      });
-    }
+      }
 
-    if (isPerDiemEnabled) {
-      that.actionSheetButtons.push({
-        text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
-        handler: () => {
-          that.trackingService.dashboardActionSheetButtonClicked({
-            Asset: 'Mobile',
-            Action: 'Add Per Diem'
+      if (isPerDiemEnabled) {
+          that.actionSheetButtons.push({
+              text: 'Add Per Diem',
+              icon: 'assets/svg/fy-calendar.svg',
+              handler: () => {
+                  that.trackingService.dashboardActionSheetButtonClicked({
+                      Asset: 'Mobile',
+                      Action: 'Add Per Diem'
+                  });
+                  that.router.navigate(['/', 'enterprise', 'add_edit_per_diem',{
+                      navigate_back: true
+                  }]);
+              }
           });
-          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem',{
-            navigate_back: true
-          }]);
-        }
-      });
-    }
+      }
   }
 
   ngOnInit() {
-    this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
-        shareReplay(1)
-    );
-    this.setupNetworkWatcher();
+      this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
+          shareReplay(1)
+      );
+      this.setupNetworkWatcher();
   }
 
   goToReportsPage(state: ReportStates) {
-    const queryParams: Params = {filters: JSON.stringify({state: state.toString()})};
-    this.router.navigate(['/', 'enterprise', 'my_reports'], {
-      queryParams
-    });
+      const queryParams: Params = {filters: JSON.stringify({state: state.toString()})};
+      this.router.navigate(['/', 'enterprise', 'my_reports'], {
+          queryParams
+      });
 
-    this.trackingService.dashboardOnReportPillClick({
-      Asset: 'Mobile',
-      State: state.toString()
-    });
+      this.trackingService.dashboardOnReportPillClick({
+          Asset: 'Mobile',
+          State: state.toString()
+      });
   }
 
   goToExpensesPage() {
-    const queryParams: Params = {filters: JSON.stringify({state: ['READY_TO_REPORT']})};
-    this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-      queryParams
-    });
+      const queryParams: Params = {filters: JSON.stringify({state: ['READY_TO_REPORT']})};
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+          queryParams
+      });
 
-    this.trackingService.dashboardOnUnreportedExpensesClick({
-      Asset: 'Mobile'
-    });
+      this.trackingService.dashboardOnUnreportedExpensesClick({
+          Asset: 'Mobile'
+      });
   }
 
   async openAddExpenseActionSheet() {
-    const that = this;
-    that.trackingService.dashboardActionSheetOpened({
-      Asset: 'Mobile'
-    });
-    const actionSheet = await this.actionSheetController.create({
-      header: 'ADD EXPENSE',
-      mode: 'md',
-      cssClass: 'fy-action-sheet',
-      buttons: that.actionSheetButtons
-    });
-    await actionSheet.present();
+      const that = this;
+      that.trackingService.dashboardActionSheetOpened({
+          Asset: 'Mobile'
+      });
+      const actionSheet = await this.actionSheetController.create({
+          header: 'ADD EXPENSE',
+          mode: 'md',
+          cssClass: 'fy-action-sheet',
+          buttons: that.actionSheetButtons
+      });
+      await actionSheet.present();
   }
 }

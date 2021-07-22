@@ -1,14 +1,14 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/internal/Observable';
 import {PopoverController} from '@ionic/angular';
-import {catchError, finalize, map} from "rxjs/operators";
-import {of} from "rxjs";
-import {LoaderPosition} from "../../directive/loader-position.enum";
+import {catchError, finalize, map} from 'rxjs/operators';
+import {of} from 'rxjs';
+import {LoaderPosition} from '../../directive/loader-position.enum';
 
 @Component({
-  selector: 'app-fy-delete-dialog',
-  templateUrl: './fy-delete-dialog.component.html',
-  styleUrls: ['./fy-delete-dialog.component.scss'],
+    selector: 'app-fy-delete-dialog',
+    templateUrl: './fy-delete-dialog.component.html',
+    styleUrls: ['./fy-delete-dialog.component.scss'],
 })
 export class FyDeleteDialogComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class FyDeleteDialogComponent implements OnInit {
   deleteCallInProgress = false;
 
   get LoaderPosition() {
-    return LoaderPosition;
+      return LoaderPosition;
   }
 
   constructor(
@@ -31,22 +31,20 @@ export class FyDeleteDialogComponent implements OnInit {
   }
 
   cancel() {
-    this.popoverController.dismiss();
+      this.popoverController.dismiss();
   }
 
   delete() {
-    this.deleteCallInProgress = true;
-    this.deleteMethod().pipe(
-        map(res => ({ status: 'success' })),
-        catchError(() => {
-          return of({
-            status: 'error'
-          });
-        }),
-        finalize(() => this.deleteCallInProgress = false)
-    ).subscribe(res => {
-      this.popoverController.dismiss(res);
-    });
+      this.deleteCallInProgress = true;
+      this.deleteMethod().pipe(
+          map(res => ({ status: 'success' })),
+          catchError(() => of({
+              status: 'error'
+          })),
+          finalize(() => this.deleteCallInProgress = false)
+      ).subscribe(res => {
+          this.popoverController.dismiss(res);
+      });
   }
 
 }

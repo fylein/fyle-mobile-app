@@ -13,9 +13,9 @@ import {DeviceService} from '../../core/services/device.service';
 import {LoginInfoService} from '../../core/services/login-info.service';
 
 @Component({
-  selector: 'app-new-password',
-  templateUrl: './new-password.page.html',
-  styleUrls: ['./new-password.page.scss'],
+    selector: 'app-new-password',
+    templateUrl: './new-password.page.html',
+    styleUrls: ['./new-password.page.scss'],
 })
 export class NewPasswordPage implements OnInit {
 
@@ -43,98 +43,94 @@ export class NewPasswordPage implements OnInit {
   }
 
   ngOnInit() {
-    this.fg = this.fb.group({
-      password: ['',
-        Validators.compose(
-          [
-            Validators.required,
-            Validators.minLength(12),
-            Validators.maxLength(32),
-            Validators.pattern(/[A-Z]/),
-            Validators.pattern(/[a-z]/),
-            Validators.pattern(/[0-9]/),
-            Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
-        )]
-    });
+      this.fg = this.fb.group({
+          password: ['',
+              Validators.compose(
+                  [
+                      Validators.required,
+                      Validators.minLength(12),
+                      Validators.maxLength(32),
+                      Validators.pattern(/[A-Z]/),
+                      Validators.pattern(/[a-z]/),
+                      Validators.pattern(/[0-9]/),
+                      Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
+              )]
+      });
 
-    this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => password && password.length >= 12 && password.length <= 32
-      )
-    );
+      this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => password && password.length >= 12 && password.length <= 32
+          )
+      );
 
-    this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[A-Z]/.test(password))
-      )
-    );
+      this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => (/[A-Z]/.test(password))
+          )
+      );
 
-    this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[0-9]/.test(password))
-      )
-    );
-    this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
-      )
-    );
+      this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => (/[0-9]/.test(password))
+          )
+      );
+      this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
+          )
+      );
 
-    this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[a-z]/.test(password))
-      )
-    );
+      this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+          map(
+              password => (/[a-z]/.test(password))
+          )
+      );
   }
 
   changePassword() {
-    const refreshToken = this.activatedRoute.snapshot.params.refreshToken;
+      const refreshToken = this.activatedRoute.snapshot.params.refreshToken;
 
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value);
-      }),
-      switchMap(res => {
-        return this.authService.newRefreshToken(res.refresh_token);
-      }),
-      tap(async (eou) => {
-        const email = eou.us.email;
-        this.trackingService.onSignin(email, {Asset: 'Mobile'});
-        this.trackingService.resetPassword({Asset: 'Mobile'});
-        await this.trackLoginInfo();
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(
-      async () => {
-        const popup = await this.popoverController.create({
-          component: PopupComponent,
-          componentProps: {
-            header: 'Password changed successfully',
-            route: ['/', 'auth', 'switch_org']
+      from(this.loaderService.showLoader()).pipe(
+          switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value)),
+          switchMap(res => this.authService.newRefreshToken(res.refresh_token)),
+          tap(async (eou) => {
+              const email = eou.us.email;
+              this.trackingService.onSignin(email, {Asset: 'Mobile'});
+              this.trackingService.resetPassword({Asset: 'Mobile'});
+              await this.trackLoginInfo();
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+      ).subscribe(
+          async () => {
+              const popup = await this.popoverController.create({
+                  component: PopupComponent,
+                  componentProps: {
+                      header: 'Password changed successfully',
+                      route: ['/', 'auth', 'switch_org']
+                  },
+                  cssClass: 'dialog-popover'
+              });
+
+              await popup.present();
           },
-          cssClass: 'dialog-popover'
-        });
+          async () => {
+              const popup = await this.popoverController.create({
+                  component: PopupComponent,
+                  componentProps: {
+                      header: 'Setting new password failed. Please try again later.',
+                      route: ['/', 'auth', 'sign_in']
+                  },
+                  cssClass: 'dialog-popover'
+              });
 
-        await popup.present();
-      },
-      async () => {
-        const popup = await this.popoverController.create({
-          component: PopupComponent,
-          componentProps: {
-            header: 'Setting new password failed. Please try again later.',
-            route: ['/', 'auth', 'sign_in']
-          },
-          cssClass: 'dialog-popover'
-        });
-
-        await popup.present();
-      });
+              await popup.present();
+          });
   }
 
   async trackLoginInfo() {
-    const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-    this.trackingService.eventTrack('Added Login Info', {Asset: 'Mobile', label: deviceInfo.appVersion});
-    await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
+      const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
+      this.trackingService.eventTrack('Added Login Info', {Asset: 'Mobile', label: deviceInfo.appVersion});
+      await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
 }

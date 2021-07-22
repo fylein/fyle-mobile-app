@@ -4,9 +4,9 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { ReportService } from 'src/app/core/services/report.service';
 
 @Component({
-  selector: 'app-remove-expense-report',
-  templateUrl: './remove-expense-report.component.html',
-  styleUrls: ['./remove-expense-report.component.scss'],
+    selector: 'app-remove-expense-report',
+    templateUrl: './remove-expense-report.component.html',
+    styleUrls: ['./remove-expense-report.component.scss'],
 })
 export class RemoveExpenseReportComponent implements OnInit {
   removalReason = '';
@@ -21,14 +21,14 @@ export class RemoveExpenseReportComponent implements OnInit {
   ngOnInit() { }
 
   cancel() {
-    this.popoverController.dismiss();
+      this.popoverController.dismiss();
   }
 
   remove(event) {
-    this.reportService.removeTransaction(this.etxn.tx_report_id, this.etxn.tx_id, this.removalReason).subscribe(_ => {
-      this.popoverController.dismiss({
-        goBack: true
+      this.reportService.removeTransaction(this.etxn.tx_report_id, this.etxn.tx_id, this.removalReason).subscribe(_ => {
+          this.popoverController.dismiss({
+              goBack: true
+          });
       });
-    });
   }
 }

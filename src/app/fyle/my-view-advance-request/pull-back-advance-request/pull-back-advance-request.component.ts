@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-pull-back-advance-request',
-  templateUrl: './pull-back-advance-request.component.html',
-  styleUrls: ['./pull-back-advance-request.component.scss'],
+    selector: 'app-pull-back-advance-request',
+    templateUrl: './pull-back-advance-request.component.html',
+    styleUrls: ['./pull-back-advance-request.component.scss'],
 })
 export class PullBackAdvanceRequestComponent implements OnInit {
   reason = '';
@@ -14,13 +14,13 @@ export class PullBackAdvanceRequestComponent implements OnInit {
   ) { }
 
   async cancel() {
-    await this.popoverController.dismiss();
+      await this.popoverController.dismiss();
   }
 
   pullBackAdvanceRequest() {
-    this.popoverController.dismiss({
-      reason: this.reason
-    });
+      this.popoverController.dismiss({
+          reason: this.reason
+      });
   }
 
   ngOnInit() {}

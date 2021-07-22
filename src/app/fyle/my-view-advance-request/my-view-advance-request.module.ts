@@ -17,22 +17,22 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyViewAdvanceRequestPageRoutingModule,
-    MatIconModule,
-    SharedModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    PinchZoomModule,
-    PdfViewerModule
-  ],
-  declarations: [
-    MyViewAdvanceRequestPage,
-    PullBackAdvanceRequestComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        MyViewAdvanceRequestPageRoutingModule,
+        MatIconModule,
+        SharedModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        PinchZoomModule,
+        PdfViewerModule
+    ],
+    declarations: [
+        MyViewAdvanceRequestPage,
+        PullBackAdvanceRequestComponent
+    ]
 })
 export class MyViewAdvanceRequestPageModule { }

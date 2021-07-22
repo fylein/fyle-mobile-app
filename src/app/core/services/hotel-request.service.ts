@@ -3,16 +3,16 @@ import { ApiService } from './api.service';
 import { TripDatesService } from './trip-dates.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class HotelRequestService {
 
-  constructor(
+    constructor(
     private apiService: ApiService,
     private tripDatesService: TripDatesService
-  ) { }
+    ) { }
 
-  upsert(hotelRequest) {
-    return this.apiService.post('/hotel_requests', hotelRequest);
-  }
+    upsert(hotelRequest) {
+        return this.apiService.post('/hotel_requests', hotelRequest);
+    }
 }

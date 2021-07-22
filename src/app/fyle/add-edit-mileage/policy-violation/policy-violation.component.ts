@@ -2,9 +2,9 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-policy-violation',
-  templateUrl: './policy-violation.component.html',
-  styleUrls: ['./policy-violation.component.scss'],
+    selector: 'app-policy-violation',
+    templateUrl: './policy-violation.component.html',
+    styleUrls: ['./policy-violation.component.scss'],
 })
 export class PolicyViolationComponent implements OnInit {
 
@@ -19,12 +19,12 @@ export class PolicyViolationComponent implements OnInit {
   ngOnInit() {}
 
   cancel() {
-    this.modalController.dismiss();
+      this.modalController.dismiss();
   }
 
   continue() {
-    this.modalController.dismiss({
-      comment: this.comment
-    });
+      this.modalController.dismiss({
+          comment: this.comment
+      });
   }
 }

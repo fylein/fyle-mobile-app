@@ -13,9 +13,9 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
-  selector: 'app-my-view-mileage',
-  templateUrl: './my-view-mileage.page.html',
-  styleUrls: ['./my-view-mileage.page.scss'],
+    selector: 'app-my-view-mileage',
+    templateUrl: './my-view-mileage.page.html',
+    styleUrls: ['./my-view-mileage.page.scss'],
 })
 export class MyViewMileagePage implements OnInit {
 
@@ -33,7 +33,7 @@ export class MyViewMileagePage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private transactionService: TransactionService,
-    private offlineService : OfflineService,
+    private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
     private navController: NavController,
@@ -41,67 +41,57 @@ export class MyViewMileagePage implements OnInit {
   ) { }
 
   isNumber(val) {
-    return typeof val === 'number';
+      return typeof val === 'number';
   }
 
   goBack() {
-    this.navController.back();
+      this.navController.back();
   }
 
   scrollCommentsIntoView() {
-    if (this.commentsContainer) {
-      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
-      if (commentsContainer) {
-        commentsContainer.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'start'
-        });
+      if (this.commentsContainer) {
+          const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+          if (commentsContainer) {
+              commentsContainer.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'nearest',
+                  inline: 'start'
+              });
+          }
       }
-    }
   }
 
   ionViewWillEnter() {
-    const id = this.activatedRoute.snapshot.params.id;
+      const id = this.activatedRoute.snapshot.params.id;
 
-    this.extendedMileage$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.transactionService.getExpenseV2(id);
-      }),
-      finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
-    );
+      this.extendedMileage$ = from(this.loaderService.showLoader()).pipe(
+          switchMap(() => this.transactionService.getExpenseV2(id)),
+          finalize(() => from(this.loaderService.hideLoader())),
+          shareReplay(1)
+      );
 
-    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay(1)
-    );
+      this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
+          shareReplay(1)
+      );
 
-    this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap(res => {
-        return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
-      }),
-      map(res => {
-        return res.map(customProperties => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
-        });
-      })
-    );
+      this.mileageCustomFields$ = this.extendedMileage$.pipe(
+          switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
+          map(res => res.map(customProperties => {
+              customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+              return customProperties;
+          }))
+      );
 
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
-    this.comments$ = this.statusService.find('transactions', id);
+      this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+      this.comments$ = this.statusService.find('transactions', id);
 
-    this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001;
-      })
-    );
+      this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
+          map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+      );
 
-    this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount);
-      })
-    );
+      this.isAmountCapped$ = this.extendedMileage$.pipe(
+          map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+      );
 
   }
 

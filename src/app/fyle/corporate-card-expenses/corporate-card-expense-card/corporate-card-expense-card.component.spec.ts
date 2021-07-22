@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { CorporateCardExpenseCardComponent } from './corporate-card-expense-card.component';
 
 describe('CorporateCardExpenseCardComponent', () => {
-  let component: CorporateCardExpenseCardComponent;
-  let fixture: ComponentFixture<CorporateCardExpenseCardComponent>;
+    let component: CorporateCardExpenseCardComponent;
+    let fixture: ComponentFixture<CorporateCardExpenseCardComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ CorporateCardExpenseCardComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [ CorporateCardExpenseCardComponent ],
+            imports: [IonicModule.forRoot()]
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(CorporateCardExpenseCardComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(CorporateCardExpenseCardComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

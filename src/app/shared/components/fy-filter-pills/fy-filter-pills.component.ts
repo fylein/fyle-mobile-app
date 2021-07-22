@@ -2,9 +2,9 @@ import {Component, Input, OnInit, EventEmitter, Output} from '@angular/core';
 import {FilterPill} from './filter-pill.interface';
 
 @Component({
-  selector: 'app-fy-filter-pills',
-  templateUrl: './fy-filter-pills.component.html',
-  styleUrls: ['./fy-filter-pills.component.scss'],
+    selector: 'app-fy-filter-pills',
+    templateUrl: './fy-filter-pills.component.html',
+    styleUrls: ['./fy-filter-pills.component.scss'],
 })
 export class FyFilterPillsComponent implements OnInit {
 
@@ -19,15 +19,15 @@ export class FyFilterPillsComponent implements OnInit {
   ngOnInit() {}
 
   onClearAll() {
-    this.clearAll.emit();
+      this.clearAll.emit();
   }
 
   onFilterClick(filterPill: FilterPill) {
-    this.filterClicked.emit(filterPill.type);
+      this.filterClicked.emit(filterPill.type);
   }
 
   onFilterClose(event: Event, filterPill: FilterPill) {
-    event.stopPropagation();
-    this.filterClose.emit(filterPill.type);
+      event.stopPropagation();
+      this.filterClose.emit(filterPill.type);
   }
 }

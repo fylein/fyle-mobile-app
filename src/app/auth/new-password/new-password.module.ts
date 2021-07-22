@@ -19,21 +19,21 @@ import {MatButtonModule} from '@angular/material/button';
 import {PopupComponent} from './popup/popup.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    NewPasswordPageRoutingModule,
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatButtonModule
-  ],
-  declarations: [
-    NewPasswordPage,
-    PopupComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        NewPasswordPageRoutingModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatButtonModule
+    ],
+    declarations: [
+        NewPasswordPage,
+        PopupComponent
+    ]
 })
 export class NewPasswordPageModule { }

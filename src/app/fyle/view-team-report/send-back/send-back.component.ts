@@ -5,9 +5,9 @@ import {finalize} from 'rxjs/operators';
 import {NgModel} from '@angular/forms';
 
 @Component({
-  selector: 'app-send-back',
-  templateUrl: './send-back.component.html',
-  styleUrls: ['./send-back.component.scss'],
+    selector: 'app-send-back',
+    templateUrl: './send-back.component.html',
+    styleUrls: ['./send-back.component.scss'],
 })
 export class SendBackComponent implements OnInit {
   sendBackReason = '';
@@ -24,53 +24,53 @@ export class SendBackComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.numIssues = this.getNumIssues(this.etxns);
+      this.numIssues = this.getNumIssues(this.etxns);
   }
 
   cancel() {
-    this.popoverController.dismiss();
+      this.popoverController.dismiss();
   }
 
   getNumIssues(etxns) {
-    let count = 0;
+      let count = 0;
 
-    for (const etxn of etxns) {
-      if (etxn.tx_policy_flag) {
-        count = count + 1;
+      for (const etxn of etxns) {
+          if (etxn.tx_policy_flag) {
+              count = count + 1;
+          }
       }
-    }
 
-    for (const etxn of etxns) {
-      if (etxn.tx_manual_flag) {
-        count = count + 1;
+      for (const etxn of etxns) {
+          if (etxn.tx_manual_flag) {
+              count = count + 1;
+          }
       }
-    }
 
-    return count;
+      return count;
   }
 
 
   sendBack(ngmodel: NgModel) {
-    if (ngmodel.valid) {
-      this.sendBackLoading = true;
-      const status = {
-        comment: this.sendBackReason
-      };
+      if (ngmodel.valid) {
+          this.sendBackLoading = true;
+          const status = {
+              comment: this.sendBackReason
+          };
 
-      const statusPayload = {
-        status,
-        notify: false
-      };
+          const statusPayload = {
+              status,
+              notify: false
+          };
 
-      this.reportService.inquire(this.erpt.rp_id, statusPayload).pipe(
-        finalize(() => this.sendBackLoading = false)
-      ).subscribe(() => {
-        this.popoverController.dismiss({
-          goBack: true
-        });
-      });
-    } else {
-      ngmodel.control.markAsTouched();
-    }
+          this.reportService.inquire(this.erpt.rp_id, statusPayload).pipe(
+              finalize(() => this.sendBackLoading = false)
+          ).subscribe(() => {
+              this.popoverController.dismiss({
+                  goBack: true
+              });
+          });
+      } else {
+          ngmodel.control.markAsTouched();
+      }
   }
 }

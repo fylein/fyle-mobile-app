@@ -10,18 +10,18 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyViewExpensePageRoutingModule,
-    MatIconModule,
-    SharedModule,
-    PinchZoomModule,
-    PdfViewerModule
-  ],
-  declarations: [
-    MyViewExpensePage
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        MyViewExpensePageRoutingModule,
+        MatIconModule,
+        SharedModule,
+        PinchZoomModule,
+        PdfViewerModule
+    ],
+    declarations: [
+        MyViewExpensePage
+    ]
 })
 export class MyViewExpensePageModule {}

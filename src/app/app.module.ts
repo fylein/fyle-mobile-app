@@ -25,64 +25,64 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-br
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
-    'pinch': { enable: false },
-    'rotate': { enable: false }
-  }
-};
+      pinch: { enable: false },
+      rotate: { enable: false }
+  };
+}
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
-  entryComponents: [],
-  imports: [
-    BrowserModule,
-    IonicModule.forRoot(),
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    HttpClientModule,
-    AgmCoreModule.forRoot({
-      apiKey: environment.GOOGLE_MAPS_API_KEY
-    }),
-    SharedModule,
-    HammerModule
-  ],
-  providers: [
-    StatusBar,
-    SplashScreen,
-    GooglePlus,
-    InAppBrowser,
-    ScreenOrientation,
-    {
-      provide: HAMMER_GESTURE_CONFIG, useClass: MyHammerConfig
-    },
-    {
-      provide: RouteReuseStrategy, useClass: IonicRouteStrategy
-    },
-    {
-      provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true
-    },
-    {
-      provide: ErrorHandler, useValue: Sentry.createErrorHandler({
-        showDialog: false,
-      })
-    },
-    CurrencyPipe,
-    ConfigService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (configService: ConfigService) =>
-        () => configService.loadConfigurationData(),
-      deps: [
+    declarations: [
+        AppComponent
+    ],
+    entryComponents: [],
+    imports: [
+        BrowserModule,
+        IonicModule.forRoot(),
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        HttpClientModule,
+        AgmCoreModule.forRoot({
+            apiKey: environment.GOOGLE_MAPS_API_KEY
+        }),
+        SharedModule,
+        HammerModule
+    ],
+    providers: [
+        StatusBar,
+        SplashScreen,
+        GooglePlus,
+        InAppBrowser,
+        ScreenOrientation,
+        {
+            provide: HAMMER_GESTURE_CONFIG, useClass: MyHammerConfig
+        },
+        {
+            provide: RouteReuseStrategy, useClass: IonicRouteStrategy
+        },
+        {
+            provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true
+        },
+        {
+            provide: ErrorHandler, useValue: Sentry.createErrorHandler({
+                showDialog: false,
+            })
+        },
+        CurrencyPipe,
         ConfigService,
-        RouterAuthService,
-        TokenService,
-        StorageService
-      ],
-      multi: true
-    }
-  ],
-  bootstrap: [AppComponent]
+        {
+            provide: APP_INITIALIZER,
+            useFactory: (configService: ConfigService) =>
+                () => configService.loadConfigurationData(),
+            deps: [
+                ConfigService,
+                RouterAuthService,
+                TokenService,
+                StorageService
+            ],
+            multi: true
+        }
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
 }

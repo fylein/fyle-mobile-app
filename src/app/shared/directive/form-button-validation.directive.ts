@@ -2,14 +2,14 @@ import {Directive, ElementRef, Input, OnChanges, OnInit, SimpleChanges} from '@a
 import {LoaderPosition} from './loader-position.enum';
 
 @Directive({
-  selector: '[appFormButtonValidation]'
+    selector: '[appFormButtonValidation]'
 })
 
 export class FormButtonValidationDirective implements OnInit, OnChanges{
 
-  constructor(
+    constructor(
     private elementRef: ElementRef
-  ) { }
+    ) { }
 
   defaultText;
   @Input() loadingText: string;
@@ -19,80 +19,80 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
   loaderAdded = false;
 
   loadingTextMap = {
-    Save: 'Saving',
-    Confirm: 'Confirming',
-    Update: 'Updating',
-    Add: 'Adding',
-    Delete: 'Deleting',
-    Create: 'Creating',
-    Approve: 'Approving',
-    Reject: 'Rejecting',
-    'Pull Back': 'Pulling Back',
-    'Send Back': 'Sending Back',
-    Flag: 'Flagging',
-    Verify: 'Verifying',
-    Share: 'Sharing',
-    Email: 'Sending Email',
-    Continue: 'Continuing',
-    'Set Exchange Rate': 'Setting Exchange Rate',
-    'Sign In': 'Signing In',
-    'Sign Up': 'Signing Up',
-    'Get Started': 'Getting Started'
+      Save: 'Saving',
+      Confirm: 'Confirming',
+      Update: 'Updating',
+      Add: 'Adding',
+      Delete: 'Deleting',
+      Create: 'Creating',
+      Approve: 'Approving',
+      Reject: 'Rejecting',
+      'Pull Back': 'Pulling Back',
+      'Send Back': 'Sending Back',
+      Flag: 'Flagging',
+      Verify: 'Verifying',
+      Share: 'Sharing',
+      Email: 'Sending Email',
+      Continue: 'Continuing',
+      'Set Exchange Rate': 'Setting Exchange Rate',
+      'Sign In': 'Signing In',
+      'Sign Up': 'Signing Up',
+      'Get Started': 'Getting Started'
   };
 
   ngOnChanges(changes: SimpleChanges) {
-    this.onLoading(this.loading);
+      this.onLoading(this.loading);
   }
 
   disableButton() {
-    this.elementRef.nativeElement.disabled = true;
+      this.elementRef.nativeElement.disabled = true;
   }
 
   getButtonText() {
-    this.defaultText = this.elementRef.nativeElement.innerHTML;
+      this.defaultText = this.elementRef.nativeElement.innerHTML;
   }
 
   changeLoadingText() {
-    if (this.loadingText) {
-      this.elementRef.nativeElement.innerHTML = `${this.loadingText}`;
-    } else if (this.defaultText && this.loadingTextMap[this.defaultText]) {
-      this.elementRef.nativeElement.innerHTML = `${this.loadingTextMap[this.defaultText]}`;
-    } else {
-      this.elementRef.nativeElement.innerHTML = this.defaultText;
-    }
+      if (this.loadingText) {
+          this.elementRef.nativeElement.innerHTML = `${this.loadingText}`;
+      } else if (this.defaultText && this.loadingTextMap[this.defaultText]) {
+          this.elementRef.nativeElement.innerHTML = `${this.loadingTextMap[this.defaultText]}`;
+      } else {
+          this.elementRef.nativeElement.innerHTML = this.defaultText;
+      }
   }
 
   addLoader() {
-    let cssClass = '';
-    cssClass = this.buttonType && this.buttonType === 'secondary' ? 'secondary-loader' : 'primary-loader';
-    this.elementRef.nativeElement.classList.add('disabled');
-    if (this.loaderPosition === LoaderPosition.postfix) {
-      this.elementRef.nativeElement.innerHTML = (`${this.elementRef.nativeElement.innerHTML} <div class="${cssClass}"></div>`);
-    } else {
-      this.elementRef.nativeElement.innerHTML = (`<div class="${cssClass}"></div>${this.elementRef.nativeElement.innerHTML}`);
-    }
+      let cssClass = '';
+      cssClass = this.buttonType && this.buttonType === 'secondary' ? 'secondary-loader' : 'primary-loader';
+      this.elementRef.nativeElement.classList.add('disabled');
+      if (this.loaderPosition === LoaderPosition.postfix) {
+          this.elementRef.nativeElement.innerHTML = (`${this.elementRef.nativeElement.innerHTML} <div class="${cssClass}"></div>`);
+      } else {
+          this.elementRef.nativeElement.innerHTML = (`<div class="${cssClass}"></div>${this.elementRef.nativeElement.innerHTML}`);
+      }
 
-    this.loaderAdded = true;
+      this.loaderAdded = true;
   }
 
   resetButton() {
-    if (this.loaderAdded) {
-      this.elementRef.nativeElement.classList.remove('disabled');
-      this.elementRef.nativeElement.disabled = false;
-      this.elementRef.nativeElement.innerHTML = this.defaultText;
-    }
+      if (this.loaderAdded) {
+          this.elementRef.nativeElement.classList.remove('disabled');
+          this.elementRef.nativeElement.disabled = false;
+          this.elementRef.nativeElement.innerHTML = this.defaultText;
+      }
   }
 
   onLoading(loading) {
 
-    if (loading) {
-      this.disableButton();
-      this.getButtonText();
-      this.changeLoadingText();
-      this.addLoader();
-    } else {
-      this.resetButton();
-    }
+      if (loading) {
+          this.disableButton();
+          this.getButtonText();
+          this.changeLoadingText();
+          this.addLoader();
+      } else {
+          this.resetButton();
+      }
   }
 
   ngOnInit() {}

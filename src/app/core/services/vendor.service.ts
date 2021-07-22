@@ -7,7 +7,7 @@ import {switchMap} from 'rxjs/operators';
 import {Vendor} from '../models/vendor.model';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class VendorService {
   ROOT_ENDPOINT: string;
@@ -16,23 +16,21 @@ export class VendorService {
     private httpClient: HttpClient,
     private authService: AuthService
   ) {
-    this.ROOT_ENDPOINT = environment.ROOT_URL;
+      this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
   setRoot(rootUrl: string) {
-    this.ROOT_ENDPOINT = rootUrl;
+      this.ROOT_ENDPOINT = rootUrl;
   }
 
   get(searchString: string) {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) => {
-        return this.httpClient.get<Vendor[]>(this.ROOT_ENDPOINT + '/vendors/all', {
-          params: {
-            org_user_id: eou.ou.id,
-            q: searchString
-          }
-        });
-      })
-    );
+      return from(this.authService.getEou()).pipe(
+          switchMap((eou) => this.httpClient.get<Vendor[]>(this.ROOT_ENDPOINT + '/vendors/all', {
+              params: {
+                  org_user_id: eou.ou.id,
+                  q: searchString
+              }
+          }))
+      );
   }
 }

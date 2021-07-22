@@ -17,11 +17,11 @@ import { TripRequestPolicyService } from './trip-request-policy.service';
 import { PushNotificationService } from './push-notification.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class RouterAuthService {
 
-  constructor(
+    constructor(
     private routerApiService: RouterApiService,
     private storageService: StorageService,
     private tokenService: TokenService,
@@ -35,127 +35,119 @@ export class RouterAuthService {
     private vendorService: VendorService,
     private tripRequestPolicyService: TripRequestPolicyService,
     private pushNotificationService: PushNotificationService
-  ) { }
+    ) { }
 
-  checkEmailExists(email) {
-    return this.routerApiService.post('/auth/basic/email_exists', {
-      email
-    });
-  }
+    checkEmailExists(email) {
+        return this.routerApiService.post('/auth/basic/email_exists', {
+            email
+        });
+    }
 
-  async isLoggedIn(): Promise<boolean> {
-    return !!(await this.tokenService.getAccessToken()) && !!(await this.tokenService.getRefreshToken());
-  }
+    async isLoggedIn(): Promise<boolean> {
+        return !!(await this.tokenService.getAccessToken()) && !!(await this.tokenService.getRefreshToken());
+    }
 
-  async newRefreshToken(refreshToken) {
-    await this.storageService.delete('user');
-    await this.storageService.delete('role');
-    await this.tokenService.setRefreshToken(refreshToken);
-  }
+    async newRefreshToken(refreshToken) {
+        await this.storageService.delete('user');
+        await this.storageService.delete('role');
+        await this.tokenService.setRefreshToken(refreshToken);
+    }
 
-  async setClusterDomain(domain) {
+    async setClusterDomain(domain) {
 
-    this.apiService.setRoot(domain);
-    this.advanceRequestPolicyService.setRoot(domain);
-    this.apiv2Service.setRoot(domain);
-    this.tripRequestPolicyService.setRoot(domain);
-    this.duplicateDetectionService.setRoot(domain);
-    this.locationService.setRoot(domain);
-    this.policyApiService.setRoot(domain);
-    this.transactionOutboxService.setRoot(domain);
-    this.vendorService.setRoot(domain);
-    this.pushNotificationService.setRoot(domain);
+        this.apiService.setRoot(domain);
+        this.advanceRequestPolicyService.setRoot(domain);
+        this.apiv2Service.setRoot(domain);
+        this.tripRequestPolicyService.setRoot(domain);
+        this.duplicateDetectionService.setRoot(domain);
+        this.locationService.setRoot(domain);
+        this.policyApiService.setRoot(domain);
+        this.transactionOutboxService.setRoot(domain);
+        this.vendorService.setRoot(domain);
+        this.pushNotificationService.setRoot(domain);
 
-    await this.tokenService.setClusterDomain(domain);
-  }
+        await this.tokenService.setClusterDomain(domain);
+    }
 
-  async newAccessToken(accessToken) {
-    await this.tokenService.setAccessToken(accessToken);
-  }
+    async newAccessToken(accessToken) {
+        await this.tokenService.setAccessToken(accessToken);
+    }
 
-  async fetchAccessToken(refreshToken): Promise<AuthResponse> {
+    async fetchAccessToken(refreshToken): Promise<AuthResponse> {
     // this function is called from multiple places, token should be returned and not saved from here
-    return await this.routerApiService.post('/auth/access_token', {
-      refresh_token: refreshToken
-    }).toPromise();
-  }
+        return await this.routerApiService.post('/auth/access_token', {
+            refresh_token: refreshToken
+        }).toPromise();
+    }
 
-  sendResetPassword(email: string) {
-    return this.routerApiService.post('/auth/send_reset_password', {
-      email
-    });
-  }
+    sendResetPassword(email: string) {
+        return this.routerApiService.post('/auth/send_reset_password', {
+            email
+        });
+    }
 
-  async handleSignInResponse(data) {
+    async handleSignInResponse(data) {
     // if (environment.NAME === 'dev') {
     //   data.cluster_domain = environment.CLUSTER_DOMAIN;
     //   data.redirect_url = data.redirect_url.replace('https://staging.fyle.in', data.cluster_domain);
     // }
-    await this.newRefreshToken(data.refresh_token);
-    await this.setClusterDomain(data.cluster_domain);
-    const resp = await this.fetchAccessToken(data.refresh_token);
-    await this.newAccessToken(resp.access_token);
-    return data;
-  }
+        await this.newRefreshToken(data.refresh_token);
+        await this.setClusterDomain(data.cluster_domain);
+        const resp = await this.fetchAccessToken(data.refresh_token);
+        await this.newAccessToken(resp.access_token);
+        return data;
+    }
 
-  basicSignin(email, password): Observable<AuthResponse> {
-    return this.routerApiService.post('/auth/basic/signin', {
-      email,
-      password
-    }).pipe(
-      switchMap(res => {
-        return from(this.handleSignInResponse(res)).pipe(
-          map(() => res)
-        )
-      })
-    );
-  }
-
-  googleSignin(accessToken): Observable<AuthResponse> {
-    return this.routerApiService.post('/auth/google/signin', {
-      access_token: accessToken
-    }).pipe(
-      switchMap(res => {
-        return from(this.handleSignInResponse(res)).pipe(
-          map(() => res)
-        )
-      })
-    );
-  }
-
-  checkIfFreeDomain(email: string) {
-    const domainList = ['hotmail.com', 'rediffmail.com', 'yahoo.com', 'outlook.com'];
-    const domain = email.split('@')[1];
-    return domainList.indexOf(domain.toLowerCase()) > -1;
-  }
-
-  emailVerify(verificationCode: string) {
-    return this.routerApiService.post('/auth/email_verify', {
-      verification_code: verificationCode
-    }).pipe(
-      switchMap(res => {
-        return from(this.handleSignInResponse(res)).pipe(
-          map(() => res)
+    basicSignin(email, password): Observable<AuthResponse> {
+        return this.routerApiService.post('/auth/basic/signin', {
+            email,
+            password
+        }).pipe(
+            switchMap(res => from(this.handleSignInResponse(res)).pipe(
+                map(() => res)
+            ))
         );
-      })
-    );
-  }
+    }
 
-  resetPassword(refreshToken: string, newPassword: string) {
-    return this.routerApiService.post('/auth/reset_password', {
-      refresh_token: refreshToken,
-      password: newPassword
-    }).pipe(
-      switchMap(data => this.handleSignInResponse(data))
-    );
-  }
+    googleSignin(accessToken): Observable<AuthResponse> {
+        return this.routerApiService.post('/auth/google/signin', {
+            access_token: accessToken
+        }).pipe(
+            switchMap(res => from(this.handleSignInResponse(res)).pipe(
+                map(() => res)
+            ))
+        );
+    }
 
-  getRegions() {
-    return this.routerApiService.get('/regions').pipe(
-      map((data) => {
-        return data.regions;
-      })
-    );
-  }
+    checkIfFreeDomain(email: string) {
+        const domainList = ['hotmail.com', 'rediffmail.com', 'yahoo.com', 'outlook.com'];
+        const domain = email.split('@')[1];
+        return domainList.indexOf(domain.toLowerCase()) > -1;
+    }
+
+    emailVerify(verificationCode: string) {
+        return this.routerApiService.post('/auth/email_verify', {
+            verification_code: verificationCode
+        }).pipe(
+            switchMap(res => from(this.handleSignInResponse(res)).pipe(
+                map(() => res)
+            ))
+        );
+    }
+
+    resetPassword(refreshToken: string, newPassword: string) {
+        return this.routerApiService.post('/auth/reset_password', {
+            refresh_token: refreshToken,
+            password: newPassword
+        }).pipe(
+            switchMap(data => this.handleSignInResponse(data))
+        );
+    }
+
+    getRegions() {
+        return this.routerApiService.get('/regions').pipe(
+            map((data) => data.regions)
+        );
+    }
 
 }

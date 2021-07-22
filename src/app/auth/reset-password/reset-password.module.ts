@@ -10,20 +10,20 @@ import {MatButtonModule} from '@angular/material/button';
 import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ResetPasswordPageRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    SharedModule
-  ],
-  declarations: [
-    ResetPasswordPage
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        ResetPasswordPageRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        SharedModule
+    ],
+    declarations: [
+        ResetPasswordPage
+    ]
 })
 export class ResetPasswordPageModule { }

@@ -8,9 +8,9 @@ import {TrackingService} from '../../../core/services/tracking.service';
 const {Camera} = Plugins;
 
 @Component({
-  selector: 'app-add-expense-popover',
-  templateUrl: './add-expense-popover.component.html',
-  styleUrls: ['./add-expense-popover.component.scss'],
+    selector: 'app-add-expense-popover',
+    templateUrl: './add-expense-popover.component.html',
+    styleUrls: ['./add-expense-popover.component.scss'],
 })
 export class AddExpensePopoverComponent implements OnInit {
 
@@ -31,33 +31,33 @@ export class AddExpensePopoverComponent implements OnInit {
   }
 
   async instafyle(event) {
-    await this.popoverController.dismiss();
-    await this.router.navigate(['/', 'enterprise', 'camera_overlay', {
-      from: 'my_expenses'
-    }]);
+      await this.popoverController.dismiss();
+      await this.router.navigate(['/', 'enterprise', 'camera_overlay', {
+          from: 'my_expenses'
+      }]);
   }
 
   async createExpense(event) {
-    await this.popoverController.dismiss();
-    this.trackingService.eventTrack('Click Add Expense', {Asset: 'Mobile'});
-    await this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
-      persist_filters: true
-    }]);
+      await this.popoverController.dismiss();
+      this.trackingService.eventTrack('Click Add Expense', {Asset: 'Mobile'});
+      await this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
+          persist_filters: true
+      }]);
   }
 
   async createMileage(event) {
-    this.trackingService.eventTrack('Click Add Mileage', {Asset: 'Mobile'});
-    await this.popoverController.dismiss();
-    await this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
-      persist_filters: true
-    }]);
+      this.trackingService.eventTrack('Click Add Mileage', {Asset: 'Mobile'});
+      await this.popoverController.dismiss();
+      await this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
+          persist_filters: true
+      }]);
   }
 
   async createPerDiem(event) {
-    await this.popoverController.dismiss();
-    await this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
-      persist_filters: true
-    }]);
+      await this.popoverController.dismiss();
+      await this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
+          persist_filters: true
+      }]);
   }
 
 }

@@ -4,14 +4,14 @@ import { Routes, RouterModule } from '@angular/router';
 import { CccClassifyActionsPage } from './ccc-classify-actions.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: CccClassifyActionsPage
-  }
+    {
+        path: '',
+        component: CccClassifyActionsPage
+    }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
 })
 export class CccClassifyActionsPageRoutingModule {}
