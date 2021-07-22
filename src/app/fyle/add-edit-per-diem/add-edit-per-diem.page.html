@@ -455,7 +455,7 @@
                     </ng-container>
                   </ng-container>
 
-                  <div>
+                  <div *ngIf="mode === 'add'">
                     <ng-container *ngIf="isExpandedView;else expandViewContent">
                       <div class="add-edit-per-diem--expansion-btn" fill="clear" (click)="isExpandedView=false">
                         Hide more fields
