@@ -18,20 +18,24 @@
           <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled></mat-checkbox>
         </div>
         <div class="expenses-card--receipt-container" *ngIf="!receiptThumbnail" (click)="addAttachments($event)">
-          <ion-img *ngIf="!attachmentUploadInProgress && !receiptThumbnail" class="expenses-card--receipt-icon" [src]="receipt"></ion-img>
+          <ion-img *ngIf="!attachmentUploadInProgress && !receiptThumbnail" class="expenses-card--receipt-icon"
+            [src]="receipt"></ion-img>
           <div *ngIf="attachmentUploadInProgress" class="expenses-card--spinner-placeholder">
             <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
             <div class="expenses-card--spinner-subheader">
               Uploading
             </div>
+          </div>
+          <ion-img *ngIf="receiptThumbnail" class="expenses-card--receipt-icon" [src]="receiptThumbnail.url"> </ion-img>
         </div>
-        <ion-img *ngIf="receiptThumbnail"  class="expenses-card--receipt-icon" [src]="receiptThumbnail.url"> </ion-img>
-        </div>
-
         <div class="expenses-card--receipt-thumbnail-container" *ngIf="receiptThumbnail">
-        <ion-img *ngIf="receiptThumbnail"  class="expenses-card--receipt-thumbnail" [src]="receiptThumbnail.url"> </ion-img>
+          <pdf-viewer *ngIf="receiptThumbnail.type == 'pdf'" class="expenses-card--receipt-thumbnail" [page]="1"
+            [src]="receiptThumbnail.url" [original-size]="true" [render-text]='true' [show-all]="false"
+            [fit-to-page]="true"></pdf-viewer>
+          <ion-img *ngIf="receiptThumbnail.type == 'image'" class="expenses-card--receipt-thumbnail"
+            [src]="receiptThumbnail.url"> </ion-img>
         </div>
-      </div>
+        </div>
 
       <div class="display-flex expenses-card--deatils-block">
         <ng-container *ngIf="isScanInProgress">

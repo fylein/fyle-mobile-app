@@ -124,9 +124,8 @@ export class ExpensesCardComponent implements OnInit {
           this.receiptThumbnail.url = downloadUrl;
           const details = this.getReceiptDetails(this.receiptThumbnail);
           this.receiptThumbnail.type = details.type;
-          console.log(this.receiptThumbnail);
         })
-      ).subscribe();
+      ).subscribe(noop);
     }
 
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
