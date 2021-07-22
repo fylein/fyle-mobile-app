@@ -68,7 +68,6 @@ export class ReceiptPreviewComponent implements OnInit {
         this.retake();
       }
     }
-    
   }
 
   async delete() {
@@ -103,17 +102,15 @@ export class ReceiptPreviewComponent implements OnInit {
           await this.imageSlides.update();
           this.activeIndex = await this.imageSlides.getActiveIndex();
         }
-        
       }
     }
-    
   }
 
   retake() {
     this.base64ImagesWithSource = [];
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource
-    })
+    });
   }
 
   async goToNextSlide() {
