@@ -17,14 +17,19 @@
           To block any event trigger from mat check box click we need to disable mat check box -->
           <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled></mat-checkbox>
         </div>
-        <div class="expenses-card--receipt-container" (click)="addAttachments($event)">
-          <ion-img *ngIf="!attachmentUploadInProgress" class="expenses-card--receipt-icon" [src]="receipt"></ion-img>
+        <div class="expenses-card--receipt-container" *ngIf="!receiptThumbnail" (click)="addAttachments($event)">
+          <ion-img *ngIf="!attachmentUploadInProgress && !receiptThumbnail" class="expenses-card--receipt-icon" [src]="receipt"></ion-img>
           <div *ngIf="attachmentUploadInProgress" class="expenses-card--spinner-placeholder">
             <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
             <div class="expenses-card--spinner-subheader">
               Uploading
             </div>
         </div>
+        <ion-img *ngIf="receiptThumbnail"  class="expenses-card--receipt-icon" [src]="receiptThumbnail.url"> </ion-img>
+        </div>
+
+        <div class="expenses-card--receipt-thumbnail-container" *ngIf="receiptThumbnail">
+        <ion-img *ngIf="receiptThumbnail"  class="expenses-card--receipt-thumbnail" [src]="receiptThumbnail.url"> </ion-img>
         </div>
       </div>
 

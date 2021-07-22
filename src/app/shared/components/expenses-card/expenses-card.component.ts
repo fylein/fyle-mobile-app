@@ -5,8 +5,8 @@ import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.mode
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import {getCurrencySymbol} from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { finalize, map, switchMap } from 'rxjs/operators';
-import { isEqual } from 'lodash';
+import { concatMap, finalize, map, switchMap } from 'rxjs/operators';
+import { isEqual, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { PopoverController } from '@ionic/angular';
@@ -44,6 +44,7 @@ export class ExpensesCardComponent implements OnInit {
   isProjectMandatory$: Observable<boolean>;
   attachmentUploadInProgress = false;
   attachedReceiptsCount = 0;
+  receiptThumbnail = null;
 
   constructor(
     private transactionService: TransactionService,
@@ -115,6 +116,19 @@ export class ExpensesCardComponent implements OnInit {
     }
 
     this.getReceipt();
+
+    if (this.expense.tx_file_ids) {
+      this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
+        map(downloadUrl => {
+          this.receiptThumbnail = {};
+          this.receiptThumbnail.url = downloadUrl;
+          const details = this.getReceiptDetails(this.receiptThumbnail);
+          this.receiptThumbnail.type = details.type;
+          console.log(this.receiptThumbnail);
+        })
+      ).subscribe();
+    }
+
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
     if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
@@ -189,6 +203,37 @@ export class ExpensesCardComponent implements OnInit {
         this.attachedReceiptsCount = attachments;
       });
     }
+  }
+
+  getReceiptDetails(file) {
+    const ext = this.getReceiptExtension(file.url);
+    const res = {
+      type: '',
+    };
+
+    if (ext && (['pdf'].indexOf(ext) > -1)) {
+      res.type = 'pdf';
+    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+      res.type = 'image';
+    }
+
+    return res;
+  }
+
+
+  getReceiptExtension(url) {
+    let res = null;
+    const name = url.split('?')[0];
+    if (name) {
+      const filename = name.toLowerCase();
+      const idx = filename.lastIndexOf('.');
+
+      if (idx > -1) {
+        res = filename.substring(idx + 1, filename.length);
+      }
+    }
+
+    return res;
   }
 
 }

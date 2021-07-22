@@ -78,11 +78,24 @@
     border-radius: 8px;
     height: 74px;
     padding: 20px;
+  } 
+  
+  &--receipt-thumbnail-container {
+    background-color: $light-grey;
+    border-radius: 8px;
+    height: 74px;
+    width: 74px;
   }
 
   &--receipt-icon {
     height: 35px;
     width: 35px;
+  } 
+
+  &--receipt-thumbnail {
+    height: 74px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   &--category-vendor-project-container {
