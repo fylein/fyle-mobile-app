@@ -20,7 +20,6 @@ export class ReceiptPreviewComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log(this.base64ImagesWithSource);
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,
@@ -131,7 +130,6 @@ export class ReceiptPreviewComponent implements OnInit {
     const activeIndex = await this.imageSlides.getActiveIndex();
     const length = await this.imageSlides.length();
     this.activeIndex = activeIndex;
-    console.log(activeIndex, length);
   }
 
 }
