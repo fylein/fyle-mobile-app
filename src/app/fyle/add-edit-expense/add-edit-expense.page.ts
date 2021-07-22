@@ -901,7 +901,7 @@ export class AddEditExpensePage implements OnInit {
             if (orgUserSettings.currency_settings.preferred_currency) {
               etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
             }
-          } else if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
+          } else if (orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
                      && recentValue && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
             etxn.tx.currency = recentValue.recent_currencies[0];
             this.presetCurrency = recentValue.recent_currencies[0];
@@ -1193,6 +1193,7 @@ export class AddEditExpensePage implements OnInit {
           costCenter: selectedCostCenter$,
           customInputs: selectedCustomInputs$,
           homeCurrency: this.offlineService.getHomeCurrency(),
+          orgSettings: this.offlineService.getOrgSettings(),
           defaultPaymentMode: defaultPaymentMode$,
           orgUserSettings: this.orgUserSettings$,
           recentValue: this.recentlyUsedValues$,
@@ -1203,7 +1204,7 @@ export class AddEditExpensePage implements OnInit {
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, orgSettings, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1259,7 +1260,7 @@ export class AddEditExpensePage implements OnInit {
       }
 
       // Check if auto-fills is enabled
-      const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      const isAutofillsEnabled = orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
 
       // Check if recent categories exist
       category = this.getAutofillCategory(isAutofillsEnabled, recentValue, recentCategories, etxn, category);
@@ -1402,13 +1403,14 @@ export class AddEditExpensePage implements OnInit {
   getCategoryOnEdit(category) {
     return forkJoin ({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgSettings: this.offlineService.getOrgSettings(),
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
       categories: this.offlineService.getAllEnabledCategories()
     }).pipe(
-      map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
-        const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      map(({orgUserSettings, orgSettings, recentValues, recentCategories, etxn, categories}) => {
+        const isAutofillsEnabled = orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
         const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
         if (this.initialFetch) {
           if (etxn.tx.org_category_id) {
@@ -1435,13 +1437,14 @@ export class AddEditExpensePage implements OnInit {
     } else {
       return forkJoin({
         orgUserSettings: this.offlineService.getOrgUserSettings(),
+        orgSettings: this.offlineService.getOrgSettings(),
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
         categories: this.offlineService.getAllEnabledCategories()
       }).pipe(
-        map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
-          const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+        map(({orgUserSettings, orgSettings, recentValues, recentCategories, etxn, categories}) => {
+          const isAutofillsEnabled = orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (!isCategoryExtracted && (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
             return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, categories);
