@@ -80,8 +80,8 @@ $sub-title: #ababab;
 }
 
 %fy-select-cta {
-  --background: white;
-  --color: #ff3366;
+  --background: #{$pure-white};
+  --color: #{$primary};
   --box-shadow: none;
   text-transform: capitalize;
   margin-left: -16%;
