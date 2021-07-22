@@ -50,7 +50,7 @@
   }
 
   &--switch-mode-info {
-    background: $black-3;
+    background-color: $black-3;
     width: 179px;
     position: absolute;
     bottom: 50%;
@@ -160,7 +160,7 @@
     padding: 3px 12px;
     height: 52px;
     width: 52px;
-    background:rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.3);
     border-radius: 8px;
     margin-left: auto;
     margin-right: auto;

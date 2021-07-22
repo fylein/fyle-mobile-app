@@ -74,12 +74,6 @@
     color: white;
   }
 
-  &--container {
-    height: 80vh;
-    width: 90vw;
-    background: $pure-white !important;
-  }
-
   &--image {
     max-width: 100% !important;
     max-height: 100% !important;
@@ -92,7 +86,7 @@
     // position: fixed;
     bottom: 0;
     width: 100%;
-    background: $pure-white;
+    background-color: $pure-white;
     box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
   }
@@ -104,11 +98,10 @@
 
   &--secondary-cta {
     height: auto;
-    background: transparent;
+    background-color: transparent;
     color: $black;
     font-size: 16px;
     line-height: 1.25;
-    // min-width: 40%;
 
     &__disabled {
       opacity: 0.2;
@@ -123,7 +116,6 @@
     line-height: 1.28;
     border-radius: 4px;
     padding: 10px 12px;
-    // min-width: 50%;
     &__disabled {
       opacity: 0.8;
     }
