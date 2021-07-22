@@ -652,7 +652,6 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.isExpandedView = false;
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     const today = new Date();
@@ -691,6 +690,8 @@ export class AddEditPerDiemPage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       this.mode = 'edit';
     }
+
+    this.isExpandedView = !(this.mode === 'add');
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const perDiemRates$ = this.offlineService.getPerDiemRates();

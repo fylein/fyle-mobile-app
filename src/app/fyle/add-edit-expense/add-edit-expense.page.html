@@ -254,8 +254,7 @@
           </app-fy-alert>
 
           <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-            <div class="add-edit-expense--project-container"
-              *ngIf="transactionMandatoyFields.project">
+            <div class="add-edit-expense--project-container">
               <ng-container *ngIf="isConnected$|async">
                 <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                   <ng-container *ngIf="isProjectsVisible$|async">
@@ -285,24 +284,22 @@
           </ng-container>
 
           <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
-            <ng-container *ngIf="transactionMandatoyFields.category">
-              <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
-                <ng-container *ngIf="filteredCategories$|async as categories">
-                  <ng-container *ngIf="categories.length">
-                    <div
-                      [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
-                      class="add-edit-expense--internal-block">
-                      <app-fy-select [cacheName]="'recentCategoryList'" [defaultLabelProp]="'displayName'"
-                        [label]="'Category'" [mandatory]="transactionMandatoyFields.category" [options]="categories"
-                        [selectModalHeader]="'Select Category'" [recentlyUsed]="recentCategories"
-                        formControlName="category">
-                      </app-fy-select>
-                    </div>
-                    <div *ngIf="fg.controls.category.touched && !fg.controls.category.valid"
-                      class="add-edit-expense--error">
-                      Please select a category.
-                    </div>
-                  </ng-container>
+            <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
+              <ng-container *ngIf="filteredCategories$|async as categories">
+                <ng-container *ngIf="categories.length">
+                  <div
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
+                    class="add-edit-expense--internal-block">
+                    <app-fy-select [cacheName]="'recentCategoryList'" [defaultLabelProp]="'displayName'"
+                      [label]="'Category'" [mandatory]="transactionMandatoyFields.category" [options]="categories"
+                      [selectModalHeader]="'Select Category'" [recentlyUsed]="recentCategories"
+                      formControlName="category">
+                    </app-fy-select>
+                  </div>
+                  <div *ngIf="fg.controls.category.touched && !fg.controls.category.valid"
+                    class="add-edit-expense--error">
+                    Please select a category.
+                  </div>
                 </ng-container>
               </ng-container>
             </ng-container>
@@ -695,7 +692,7 @@
         </ng-container>
       </ng-container>
 
-      <div>
+      <div *ngIf="mode === 'add'">
         <ng-container *ngIf="isExpandedView;else expandViewContent">
           <div class="add-edit-expense--expansion-btn" fill="clear" (click)="isExpandedView=false">
             Hide more fields

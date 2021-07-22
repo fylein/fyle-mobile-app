@@ -1945,7 +1945,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
-    this.isExpandedView = this.mode === 'add';
+    this.isExpandedView = !(this.mode === 'add');
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
