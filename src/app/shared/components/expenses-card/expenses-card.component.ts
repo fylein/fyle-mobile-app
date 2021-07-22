@@ -11,6 +11,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { PopoverController } from '@ionic/angular';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 
 @Component({
   selector: 'app-expense-card',
@@ -172,15 +173,14 @@ export class ExpensesCardComponent implements OnInit {
   }
   
   async addAttachments(event) {
-    event.stopPropagation();
-    event.preventDefault();
 
-    if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
-      return;
-    } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem') {
-      return;
-    } else {
+    const isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
+    const isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
 
+    if (!(isMileageExpense||isPerDiem)) {
+      event.stopPropagation();
+      event.preventDefault();
+  
       const popup = await this.popoverController.create({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover'
@@ -191,19 +191,13 @@ export class ExpensesCardComponent implements OnInit {
       const { data } = await popup.onWillDismiss();
       if (data) {
         this.attachmentUploadInProgress = true;
-        let attachmentType = 'image';
+        let attachmentType = this.getAttachmentType(data);
 
-        if (data.type === 'application/pdf' || data.type === 'pdf') {
-          attachmentType = 'pdf';
-        }
         from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType)).pipe(
-          switchMap((fileObj: any) => {
+          switchMap((fileObj: FileObject) => {
             fileObj.transaction_id = this.expense.tx_id;
             this.expense.tx_file_ids = [];
             this.expense.tx_file_ids.push(fileObj.id);
-            return this.fileService.post(fileObj);
-          }),
-          finalize(() => {
             if (this.expense.tx_file_ids) {
               this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
                 map(downloadUrl => {
@@ -214,6 +208,9 @@ export class ExpensesCardComponent implements OnInit {
                 })
               ).subscribe(noop);
             }
+            return this.fileService.post(fileObj);
+          }),
+          finalize(() => {
             this.attachmentUploadInProgress = false;
           })
         ).subscribe((attachments) => {
@@ -221,6 +218,14 @@ export class ExpensesCardComponent implements OnInit {
         });
       }
     }
+  }
+
+  getAttachmentType(data) {
+    let attachmentType = 'image';
+    if (data.type === 'application/pdf' || data.type === 'pdf') {
+      attachmentType = 'pdf';
+    }
+    return attachmentType;
   }
 
   getReceiptDetails(file) {
