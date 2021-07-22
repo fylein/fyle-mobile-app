@@ -178,6 +178,7 @@ export class CaptureReceiptPage implements OnInit {
   }
 
   async review() {
+    await this.stopCamera();
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
