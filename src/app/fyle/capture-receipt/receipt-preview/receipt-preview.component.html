@@ -14,8 +14,8 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons class="receipt-preview--ion-buttons" slot="end">
-      <ion-button>
-        <mat-icon *ngIf="mode === 'bulk'" class="fy-icon-close" svgIcon="fy-delete" (click)="delete()"></mat-icon>
+      <ion-button *ngIf="base64ImagesWithSource.length > 1" (click)="delete()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-delete" ></mat-icon>
       </ion-button>
     </ion-buttons>
 

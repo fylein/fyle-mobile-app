@@ -28,6 +28,7 @@
 
   &--ion-buttons {
     margin-bottom: auto;
+    min-width: 40px;
   }
 
   &--content {
@@ -36,6 +37,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: $grey-5;
     //border: 1px solid red; // Comment out this line after testing
   }
 
