@@ -14,12 +14,7 @@
     width: 100%;
   }
 
-  &--close-icon {
-    height: 42px;
-    width: 42px;
-  }
-
-  &--flash-icon {
+  &--close-icon, &--flash-icon {
     height: 42px;
     width: 42px;
   }
@@ -75,12 +70,12 @@
     min-width: 82px;
   }
 
-  &--gallery-icon {
+  &--gallery-icon, &--bulk-mode-icon  {
     height: 52px;
     width: 52px;
   }
 
-  &--gallery-icon-text {
+  &--gallery-icon-text, &--bulk-icon-text  {
     color: $pure-white;
     margin-top: 8px;
     font-size: 15px;
@@ -112,20 +107,6 @@
     min-width: 82px;
   }
 
-  &--bulk-mode-icon {
-    height: 52px;
-    width: 52px;
-  }
-
-  &--bulk-icon-text {
-    color: $pure-white;
-    margin-top: 8px;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.26;
-    letter-spacing: -0.3px;
-  }
-
   &--image-count {
     border-radius: 50%;
     background: $pink-gradient-3;
@@ -133,7 +114,6 @@
     width: 22px;
     height: 22px;
     margin: 0;
-    text-align: center;
     z-index: 1;
     font-size: 12px;
     border: 1px solid $pink-gradient-3;
