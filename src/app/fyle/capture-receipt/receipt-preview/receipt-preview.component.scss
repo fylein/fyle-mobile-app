@@ -1,5 +1,10 @@
 @import '../../../../theme/colors.scss';
 
+.ion-slides {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
 .receipt-preview {
 
   &--toolbar {
@@ -23,6 +28,15 @@
 
   &--ion-buttons {
     margin-bottom: auto;
+  }
+
+  &--content {
+    height: 100%;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    //border: 1px solid red; // Comment out this line after testing
   }
 
   &--controls {
@@ -65,15 +79,15 @@
   }
 
   &--image {
-    // height: 300px;
-    // width: 300px;
+    max-width: 100% !important;
+    max-height: 100% !important;
   }
 
   &--cta-container {
     display: flex;
     justify-content: space-between;
     padding: 14px 16px;
-    position: fixed;
+    // position: fixed;
     bottom: 0;
     width: 100%;
     background: $pure-white;
@@ -111,5 +125,9 @@
     &__disabled {
       opacity: 0.8;
     }
+  }
+
+  &--footer {
+    padding-bottom: 0;
   }
 }
