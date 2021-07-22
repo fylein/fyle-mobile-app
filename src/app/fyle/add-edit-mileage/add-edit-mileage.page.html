@@ -512,7 +512,7 @@
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
   <ion-footer *ngIf="!reviewList?.length">
-    <ion-toolbar mode="md">
+    <ion-toolbar mode="md" class="add-edit-mileage--footer-toolbar" [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
           <ion-button 

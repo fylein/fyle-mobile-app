@@ -38,6 +38,12 @@
     justify-content: space-around;
   }
 
+  &--footer-toolbar {
+    &__offline {
+      padding-bottom: 36px;
+    }
+  }
+
   &--primary-cta, &--secondary-cta {
     height: 48px;
     font-size: 14px;
