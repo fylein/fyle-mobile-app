@@ -5,9 +5,9 @@ import { SendBackAdvanceComponent } from '../send-back-advance/send-back-advance
 import { RejectAdvanceComponent } from '../reject-advance/reject-advance.component';
 
 @Component({
-    selector: 'app-advance-actions',
-    templateUrl: './advance-actions.component.html',
-    styleUrls: ['./advance-actions.component.scss'],
+  selector: 'app-advance-actions',
+  templateUrl: './advance-actions.component.html',
+  styleUrls: ['./advance-actions.component.scss'],
 })
 export class AdvanceActionsComponent implements OnInit {
 
@@ -22,8 +22,8 @@ export class AdvanceActionsComponent implements OnInit {
   }
 
   openAnotherPopover(command) {
-      this.popoverController.dismiss({
-          command
-      });
+    this.popoverController.dismiss({
+      command
+    });
   }
 }

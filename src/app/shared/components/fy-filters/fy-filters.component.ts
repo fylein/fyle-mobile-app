@@ -5,9 +5,9 @@ import {FilterOptionType} from './filter-option-type.enum';
 import {ModalController} from '@ionic/angular';
 
 @Component({
-    selector: 'app-fy-filters',
-    templateUrl: './fy-filters.component.html',
-    styleUrls: ['./fy-filters.component.scss'],
+  selector: 'app-fy-filters',
+  templateUrl: './fy-filters.component.html',
+  styleUrls: ['./fy-filters.component.scss'],
 })
 export class FyFiltersComponent implements OnInit {
   @Input() filterOptions: FilterOptions<any>[];
@@ -25,7 +25,7 @@ export class FyFiltersComponent implements OnInit {
   endDate: Date;
 
   get FilterOptionType() {
-      return FilterOptionType;
+    return FilterOptionType;
   }
 
   constructor(
@@ -33,99 +33,99 @@ export class FyFiltersComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      const activeFilterInitialIndex = (this.activeFilterInitialName && this.filterOptions.findIndex(option => option.name === this.activeFilterInitialName)) || 0;
-      this.activeFilter =  this.filterOptions[activeFilterInitialIndex];
-      this.currentFilterValueMap = this.selectedFilterValues.reduce((acc, curr) => {
-          acc[curr.name] = curr.value;
-          return acc;
-      }, {});
-      this.customDateMap = this.selectedFilterValues.filter(selectedFilters => selectedFilters.name === 'Date' && selectedFilters.value === 'custom').reduce((acc, curr) => {
-          acc[curr.name] = {
-              startDate: curr.associatedData?.startDate,
-              endDate: curr.associatedData?.endDate
-          };
-          return acc;
-      }, {});
-      if (this.activeFilter.name === 'Date') {
-          this.startDate = this.customDateMap[this.activeFilter.name]?.startDate;
-          this.endDate = this.customDateMap[this.activeFilter.name]?.endDate;
-      }
+    const activeFilterInitialIndex = (this.activeFilterInitialName && this.filterOptions.findIndex(option => option.name === this.activeFilterInitialName)) || 0;
+    this.activeFilter =  this.filterOptions[activeFilterInitialIndex];
+    this.currentFilterValueMap = this.selectedFilterValues.reduce((acc, curr) => {
+      acc[curr.name] = curr.value;
+      return acc;
+    }, {});
+    this.customDateMap = this.selectedFilterValues.filter(selectedFilters => selectedFilters.name === 'Date' && selectedFilters.value === 'custom').reduce((acc, curr) => {
+      acc[curr.name] = {
+        startDate: curr.associatedData?.startDate,
+        endDate: curr.associatedData?.endDate
+      };
+      return acc;
+    }, {});
+    if (this.activeFilter.name === 'Date') {
+      this.startDate = this.customDateMap[this.activeFilter.name]?.startDate;
+      this.endDate = this.customDateMap[this.activeFilter.name]?.endDate;
+    }
   }
 
   onFilterClick(filterDefinition: FilterOptions<any>) {
-      this.activeFilter = filterDefinition;
-      if (this.activeFilter.optionType === FilterOptionType.date) {
-          const customDate =  this.customDateMap[this.activeFilter.name];
-          if (customDate) {
-              this.startDate = customDate.startDate;
-              this.endDate = customDate.endDate;
-          }
+    this.activeFilter = filterDefinition;
+    if (this.activeFilter.optionType === FilterOptionType.date) {
+      const customDate =  this.customDateMap[this.activeFilter.name];
+      if (customDate) {
+        this.startDate = customDate.startDate;
+        this.endDate = customDate.endDate;
       }
+    }
   }
 
   cancel() {
-      this.modalController.dismiss();
+    this.modalController.dismiss();
   }
 
   clearAll() {
-      this.currentFilterValueMap = {};
-      this.customDateMap = {};
-      this.startDate = null;
-      this.endDate = null;
+    this.currentFilterValueMap = {};
+    this.customDateMap = {};
+    this.startDate = null;
+    this.endDate = null;
   }
 
   onDateChange() {
-      this.customDateMap[this.activeFilter.name] = {
-          startDate: this.startDate,
-          endDate: this.endDate
-      };
+    this.customDateMap[this.activeFilter.name] = {
+      startDate: this.startDate,
+      endDate: this.endDate
+    };
   }
 
   switchFilter(currentFilter: FilterOptions<any>, option: { label: string; value: any }) {
-      const filter = this.currentFilterValueMap[currentFilter.name];
+    const filter = this.currentFilterValueMap[currentFilter.name];
 
-      if (currentFilter.optionType === FilterOptionType.singleselect) {
-          if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
-              this.currentFilterValueMap[currentFilter.name] = null;
-          } else {
-              this.currentFilterValueMap[currentFilter.name] = option.value;
-          }
+    if (currentFilter.optionType === FilterOptionType.singleselect) {
+      if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
+        this.currentFilterValueMap[currentFilter.name] = null;
+      } else {
+        this.currentFilterValueMap[currentFilter.name] = option.value;
       }
+    }
 
-      if (currentFilter.optionType === FilterOptionType.multiselect) {
-          if (filter) {
-              const doesValueExistInFilter = filter.some(value => value === option.value);
-              if (doesValueExistInFilter) {
-                  this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name]
-                      .filter(value => value !== option.value);
-              } else {
-                  this.currentFilterValueMap[currentFilter.name].push(option.value);
-              }
-          } else {
-              this.currentFilterValueMap[currentFilter.name] = [option.value];
-          }
+    if (currentFilter.optionType === FilterOptionType.multiselect) {
+      if (filter) {
+        const doesValueExistInFilter = filter.some(value => value === option.value);
+        if (doesValueExistInFilter) {
+          this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name]
+            .filter(value => value !== option.value);
+        } else {
+          this.currentFilterValueMap[currentFilter.name].push(option.value);
+        }
+      } else {
+        this.currentFilterValueMap[currentFilter.name] = [option.value];
       }
+    }
 
-      if (currentFilter.optionType === FilterOptionType.date) {
-          if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
-              this.currentFilterValueMap[currentFilter.name] = null;
-          } else {
-              this.currentFilterValueMap[currentFilter.name] = option.value;
-              if (option.value !== 'custom') {
-                  this.customDateMap[currentFilter.name] = null;
-                  this.startDate = null;
-                  this.endDate = null;
-              }
-          }
+    if (currentFilter.optionType === FilterOptionType.date) {
+      if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
+        this.currentFilterValueMap[currentFilter.name] = null;
+      } else {
+        this.currentFilterValueMap[currentFilter.name] = option.value;
+        if (option.value !== 'custom') {
+          this.customDateMap[currentFilter.name] = null;
+          this.startDate = null;
+          this.endDate = null;
+        }
       }
+    }
   }
 
   save() {
-      const filters = Object.keys(this.currentFilterValueMap).reduce((acc, key) => acc.concat({
-          name: key,
-          value: this.currentFilterValueMap[key],
-          associatedData: this.customDateMap[key]
-      } as SelectedFilters<any>), []);
-      this.modalController.dismiss(filters);
+    const filters = Object.keys(this.currentFilterValueMap).reduce((acc, key) => acc.concat({
+      name: key,
+      value: this.currentFilterValueMap[key],
+      associatedData: this.customDateMap[key]
+    } as SelectedFilters<any>), []);
+    this.modalController.dismiss(filters);
   }
 }

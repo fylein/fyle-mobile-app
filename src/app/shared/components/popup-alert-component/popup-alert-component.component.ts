@@ -2,15 +2,15 @@ import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
-    selector: 'app-popup-alert-component',
-    templateUrl: './popup-alert-component.component.html',
-    styleUrls: ['./popup-alert-component.component.scss'],
+  selector: 'app-popup-alert-component',
+  templateUrl: './popup-alert-component.component.html',
+  styleUrls: ['./popup-alert-component.component.scss'],
 })
 export class PopupAlertComponentComponent implements OnInit {
 
-    constructor(
+  constructor(
     private popoverController: PopoverController
-    ) { }
+  ) { }
 
   @Input() title: string;
   @Input() message: string;
@@ -20,8 +20,8 @@ export class PopupAlertComponentComponent implements OnInit {
   ngOnInit() {}
 
   ctaClickedEvent(action) {
-      this.popoverController.dismiss({
-          action
-      });
+    this.popoverController.dismiss({
+      action
+    });
   }
 }

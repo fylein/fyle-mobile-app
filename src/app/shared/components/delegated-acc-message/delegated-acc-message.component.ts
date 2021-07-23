@@ -3,9 +3,9 @@ import { AuthService } from '../../../core/services/auth.service';
 import { from } from 'rxjs';
 
 @Component({
-    selector: 'app-delegated-acc-message',
-    templateUrl: './delegated-acc-message.component.html',
-    styleUrls: ['./delegated-acc-message.component.scss'],
+  selector: 'app-delegated-acc-message',
+  templateUrl: './delegated-acc-message.component.html',
+  styleUrls: ['./delegated-acc-message.component.scss'],
 })
 export class DelegatedAccMessageComponent implements OnInit {
 
@@ -16,9 +16,9 @@ export class DelegatedAccMessageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      from(this.authService.getEou()).subscribe(res => {
-          this.delegateeName = res.us.full_name;
-      });
+    from(this.authService.getEou()).subscribe(res => {
+      this.delegateeName = res.us.full_name;
+    });
   }
 
 }

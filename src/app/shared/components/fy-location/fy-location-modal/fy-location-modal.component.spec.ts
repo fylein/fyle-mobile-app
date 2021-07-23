@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { FyLocationModalComponent } from './fy-location-modal.component';
 
 describe('FyLocationModalComponent', () => {
-    let component: FyLocationModalComponent;
-    let fixture: ComponentFixture<FyLocationModalComponent>;
+  let component: FyLocationModalComponent;
+  let fixture: ComponentFixture<FyLocationModalComponent>;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            declarations: [ FyLocationModalComponent ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ FyLocationModalComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(FyLocationModalComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(FyLocationModalComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

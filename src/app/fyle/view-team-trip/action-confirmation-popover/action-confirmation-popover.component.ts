@@ -2,9 +2,9 @@ import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
-    selector: 'app-action-confirmation-popover',
-    templateUrl: './action-confirmation-popover.component.html',
-    styleUrls: ['./action-confirmation-popover.component.scss'],
+  selector: 'app-action-confirmation-popover',
+  templateUrl: './action-confirmation-popover.component.html',
+  styleUrls: ['./action-confirmation-popover.component.scss'],
 })
 export class ActionConfirmationPopoverComponent implements OnInit {
 
@@ -16,17 +16,17 @@ export class ActionConfirmationPopoverComponent implements OnInit {
   ) { }
 
   action() {
-      if (this.type === 'SEND_BACK' && this.message.replace(/\s/g, '').length > 0) {
-          this.popoverController.dismiss({message: this.message});
-      }
+    if (this.type === 'SEND_BACK' && this.message.replace(/\s/g, '').length > 0) {
+      this.popoverController.dismiss({message: this.message});
+    }
 
-      if (this.type === 'REJECT' && this.message.replace(/\s/g, '').length > 0) {
-          this.popoverController.dismiss({message: this.message});
-      }
+    if (this.type === 'REJECT' && this.message.replace(/\s/g, '').length > 0) {
+      this.popoverController.dismiss({message: this.message});
+    }
   }
 
   close() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   ngOnInit() {

@@ -16,23 +16,23 @@ import { ActionConfirmationPopoverComponent } from './action-confirmation-popove
 
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        ViewTeamTripPageRoutingModule,
-        MatIconModule,
-        MatButtonModule,
-        SharedModule,
-        MatRippleModule
-    ],
-    declarations: [
-        ViewTeamTripPage,
-        TransportationRequestComponent,
-        AdvanceRequestComponent,
-        HotelRequestComponent,
-        ActionPopoverComponent,
-        ActionConfirmationPopoverComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    ViewTeamTripPageRoutingModule,
+    MatIconModule,
+    MatButtonModule,
+    SharedModule,
+    MatRippleModule
+  ],
+  declarations: [
+    ViewTeamTripPage,
+    TransportationRequestComponent,
+    AdvanceRequestComponent,
+    HotelRequestComponent,
+    ActionPopoverComponent,
+    ActionConfirmationPopoverComponent
+  ]
 })
 export class ViewTeamTripPageModule {}

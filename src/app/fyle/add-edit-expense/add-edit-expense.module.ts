@@ -25,33 +25,33 @@ import { MatchTransactionComponent } from './match-transaction/match-transaction
 import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        MatIconModule,
-        AddEditExpensePageRoutingModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatRippleModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatCheckboxModule,
-        SharedModule,
-        PinchZoomModule,
-        PdfViewerModule,
-        MatButtonModule
-    ],
-    declarations: [
-        AddEditExpensePage,
-        FyCurrencyComponent,
-        FyCurrencyChooseCurrencyComponent,
-        FyCurrencyExchangeRateComponent,
-        PolicyViolationComponent,
-        CameraOptionsPopupComponent,
-        MatchTransactionComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MatIconModule,
+    AddEditExpensePageRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatRippleModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatCheckboxModule,
+    SharedModule,
+    PinchZoomModule,
+    PdfViewerModule,
+    MatButtonModule
+  ],
+  declarations: [
+    AddEditExpensePage,
+    FyCurrencyComponent,
+    FyCurrencyChooseCurrencyComponent,
+    FyCurrencyExchangeRateComponent,
+    PolicyViolationComponent,
+    CameraOptionsPopupComponent,
+    MatchTransactionComponent
+  ]
 })
 export class AddEditExpensePageModule { }

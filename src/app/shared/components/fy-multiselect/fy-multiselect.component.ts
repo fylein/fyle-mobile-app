@@ -8,16 +8,16 @@ import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multisele
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
-    selector: 'app-fy-multiselect',
-    templateUrl: './fy-multiselect.component.html',
-    styleUrls: ['./fy-multiselect.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FyMultiselectComponent),
-            multi: true
-        }
-    ]
+  selector: 'app-fy-multiselect',
+  templateUrl: './fy-multiselect.component.html',
+  styleUrls: ['./fy-multiselect.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FyMultiselectComponent),
+      multi: true
+    }
+  ]
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   private ngControl: NgControl;
@@ -29,11 +29,11 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   @Input() subheader = 'All Items';
 
   get valid() {
-      if (this.ngControl.touched) {
-          return this.ngControl.valid;
-      } else {
-          return true;
-      }
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
 
   private innerValue;
@@ -49,75 +49,75 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   ) { }
 
   ngOnInit() {
-      this.ngControl = this.injector.get(NgControl);
+    this.ngControl = this.injector.get(NgControl);
   }
 
   get value(): any {
-      return this.innerValue;
+    return this.innerValue;
   }
 
   set value(v: any) {
-      if (v !== this.innerValue) {
-          this.innerValue = v;
-          if (this.innerValue && this.innerValue.length > 0) {
-              this.displayValue = this.innerValue
-                  .map(selectedValue => this.options.find(option => isEqual(option.value, selectedValue)))
-                  .map(option => option && option.label)
-                  .join(',');
-          } else {
-              this.displayValue = '';
-          }
-
-          this.onChangeCallback(v);
+    if (v !== this.innerValue) {
+      this.innerValue = v;
+      if (this.innerValue && this.innerValue.length > 0) {
+        this.displayValue = this.innerValue
+          .map(selectedValue => this.options.find(option => isEqual(option.value, selectedValue)))
+          .map(option => option && option.label)
+          .join(',');
+      } else {
+        this.displayValue = '';
       }
+
+      this.onChangeCallback(v);
+    }
   }
 
   async openModal() {
-      const selectionModal = await this.modalController.create({
-          component: FyMultiselectModalComponent,
-          componentProps: {
-              options: this.options,
-              currentSelections: this.value,
-              selectModalHeader: this.selectModalHeader,
-              subheader: this.subheader
-          },
-          mode: 'ios',
-          presentingElement: await this.modalController.getTop(),
-          ...this.modalProperties.getModalDefaultProperties()
-      });
+    const selectionModal = await this.modalController.create({
+      component: FyMultiselectModalComponent,
+      componentProps: {
+        options: this.options,
+        currentSelections: this.value,
+        selectModalHeader: this.selectModalHeader,
+        subheader: this.subheader
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
+    });
 
-      await selectionModal.present();
+    await selectionModal.present();
 
-      const { data } = await selectionModal.onWillDismiss();
+    const { data } = await selectionModal.onWillDismiss();
 
-      if (data) {
-          this.value = data.selected.map(selection => selection.value);
-      }
+    if (data) {
+      this.value = data.selected.map(selection => selection.value);
+    }
   }
 
   onBlur() {
-      this.onTouchedCallback();
+    this.onTouchedCallback();
   }
 
   writeValue(value: any): void {
-      if (value !== this.innerValue) {
-          this.innerValue = value;
-          if (this.innerValue && this.innerValue.length > 0) {
-              this.displayValue = this.innerValue
-                  .map(selectedValue => this.options.find(option => isEqual(option.value, selectedValue)))
-                  .map(option => option && option.label)
-                  .join(',');
-          } else {
-              this.displayValue = '';
-          }
+    if (value !== this.innerValue) {
+      this.innerValue = value;
+      if (this.innerValue && this.innerValue.length > 0) {
+        this.displayValue = this.innerValue
+          .map(selectedValue => this.options.find(option => isEqual(option.value, selectedValue)))
+          .map(option => option && option.label)
+          .join(',');
+      } else {
+        this.displayValue = '';
       }
+    }
   }
 
   registerOnChange(fn: any) {
-      this.onChangeCallback = fn;
+    this.onChangeCallback = fn;
   }
 
   registerOnTouched(fn: any) {
-      this.onTouchedCallback = fn;
+    this.onTouchedCallback = fn;
   }
 }

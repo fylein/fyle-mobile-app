@@ -19,21 +19,21 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        SetupAccountPageRoutingModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatRippleModule,
-        MatButtonModule
-    ],
-    declarations: [
-        SetupAccountPage,
-        SelectCurrencyComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    SetupAccountPageRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatRippleModule,
+    MatButtonModule
+  ],
+  declarations: [
+    SetupAccountPage,
+    SelectCurrencyComponent
+  ]
 })
 export class SetupAccountPageModule { }

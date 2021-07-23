@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { TeamReportCardComponent } from './team-report-card.component';
 
 describe('TeamReportCardComponent', () => {
-    let component: TeamReportCardComponent;
-    let fixture: ComponentFixture<TeamReportCardComponent>;
+  let component: TeamReportCardComponent;
+  let fixture: ComponentFixture<TeamReportCardComponent>;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            declarations: [ TeamReportCardComponent ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ TeamReportCardComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(TeamReportCardComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(TeamReportCardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

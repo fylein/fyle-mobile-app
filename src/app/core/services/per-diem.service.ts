@@ -6,22 +6,22 @@ import {Subject} from 'rxjs';
 const perDiemsCacheBuster$ = new Subject<void>();
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class PerDiemService {
 
-    constructor(
+  constructor(
     private apiService: ApiService
-    ) { }
+  ) { }
 
   @Cacheable({
-      cacheBusterObserver: perDiemsCacheBuster$
+    cacheBusterObserver: perDiemsCacheBuster$
   })
-    getRates() {
-        return this.apiService.get('/per_diem_rates');
-    }
+  getRates() {
+    return this.apiService.get('/per_diem_rates');
+  }
 
   getRate(id: number) {
-      return this.apiService.get('/per_diem_rates/' + id);
+    return this.apiService.get('/per_diem_rates/' + id);
   }
 }

@@ -6,9 +6,9 @@ import {map} from 'rxjs/operators';
 import {CorporateCardExpense} from '../../../core/models/v2/corporate-card-expense.model';
 
 @Component({
-    selector: 'app-corporate-card-expense-card',
-    templateUrl: './corporate-card-expense-card.component.html',
-    styleUrls: ['./corporate-card-expense-card.component.scss'],
+  selector: 'app-corporate-card-expense-card',
+  templateUrl: './corporate-card-expense-card.component.html',
+  styleUrls: ['./corporate-card-expense-card.component.scss'],
 })
 export class CorporateCardExpenseCardComponent implements OnInit {
   @Input() corporateCardExpense: CorporateCardExpense;
@@ -25,15 +25,15 @@ export class CorporateCardExpenseCardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      if (this.prevExpense && this.dateComparatorProp) {
-          const currentDate = (this.corporateCardExpense && (new Date(this.corporateCardExpense[this.dateComparatorProp])).toDateString());
-          const previousDate = (this.prevExpense && (new Date(this.prevExpense[this.dateComparatorProp])).toDateString());
-          this.showDt = currentDate !== previousDate;
-      }
+    if (this.prevExpense && this.dateComparatorProp) {
+      const currentDate = (this.corporateCardExpense && (new Date(this.corporateCardExpense[this.dateComparatorProp])).toDateString());
+      const previousDate = (this.prevExpense && (new Date(this.prevExpense[this.dateComparatorProp])).toDateString());
+      this.showDt = currentDate !== previousDate;
+    }
   }
 
   onGoToTransaction() {
-      this.goToTransaction.emit(this.corporateCardExpense);
+    this.goToTransaction.emit(this.corporateCardExpense);
   }
 
 }

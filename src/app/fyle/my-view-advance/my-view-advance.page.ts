@@ -6,9 +6,9 @@ import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
-    selector: 'app-my-view-advance',
-    templateUrl: './my-view-advance.page.html',
-    styleUrls: ['./my-view-advance.page.scss'],
+  selector: 'app-my-view-advance',
+  templateUrl: './my-view-advance.page.html',
+  styleUrls: ['./my-view-advance.page.scss'],
 })
 export class MyViewAdvancePage implements OnInit {
   advance$: Observable<any>;
@@ -20,13 +20,13 @@ export class MyViewAdvancePage implements OnInit {
   ) { }
 
   ionViewWillEnter() {
-      const id = this.activatedRoute.snapshot.params.id;
+    const id = this.activatedRoute.snapshot.params.id;
 
-      this.advance$ = from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.advanceService.getAdvance(id)),
-          finalize(() => from(this.loaderService.hideLoader())),
-          shareReplay(1)
-      );
+    this.advance$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.advanceService.getAdvance(id)),
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
+    );
   }
   ngOnInit() {
 

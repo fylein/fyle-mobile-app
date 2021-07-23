@@ -16,9 +16,9 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
-    selector: 'app-swicth-org',
-    templateUrl: './switch-org.page.html',
-    styleUrls: ['./switch-org.page.scss'],
+  selector: 'app-swicth-org',
+  templateUrl: './switch-org.page.html',
+  styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef;
@@ -47,142 +47,142 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   ngAfterViewChecked() {
-      this.cdRef.detectChanges();
+    this.cdRef.detectChanges();
   }
 
   ionViewWillEnter() {
-      const that = this;
-      that.searchInput = '';
-      that.isLoading = true;
-      that.orgs$ = that.offlineService.getOrgs().pipe(
-          shareReplay(1),
-      );
+    const that = this;
+    that.searchInput = '';
+    that.isLoading = true;
+    that.orgs$ = that.offlineService.getOrgs().pipe(
+      shareReplay(1),
+    );
 
-      that.orgs$.subscribe(() => {
-          that.isLoading = false;
-          that.cdRef.detectChanges();
-      });
+    that.orgs$.subscribe(() => {
+      that.isLoading = false;
+      that.cdRef.detectChanges();
+    });
 
-      const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
+    const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
 
-      if (!choose) {
+    if (!choose) {
+      from(that.loaderService.showLoader())
+        .pipe(
+          switchMap(() => from(that.proceed()))
+        )
+        .subscribe(noop);
+    } else {
+      that.orgs$.subscribe((orgs) => {
+        if (orgs.length === 1) {
           from(that.loaderService.showLoader())
-              .pipe(
-                  switchMap(() => from(that.proceed()))
-              )
-              .subscribe(noop);
-      } else {
-          that.orgs$.subscribe((orgs) => {
-              if (orgs.length === 1) {
-                  from(that.loaderService.showLoader())
-                      .pipe(
-                          switchMap(() => from(that.proceed()))
-                      )
-                      .subscribe(noop);
-              }
-          });
-      }
+            .pipe(
+              switchMap(() => from(that.proceed()))
+            )
+            .subscribe(noop);
+        }
+      });
+    }
   }
 
   async proceed() {
-      const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
-      const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
-      const eou$ = from(this.authService.getEou());
-      const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
-      const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
+    const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+    const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
+    const eou$ = from(this.authService.getEou());
+    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
+    const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
 
-      forkJoin(
-          [
-              offlineData$,
-              pendingDetails$,
-              eou$,
-              roles$,
-              isOnline$
-          ]
-      ).pipe(
-          finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(aggregatedResults => {
-          const [
-              [
-                  orgSettings,
-                  orgUserSettings,
-                  allCategories,
-                  allEnabledCategories,
-                  costCenters,
-                  projects,
-                  perDiemRates,
-                  customInputs,
-                  currentOrg,
-                  orgs,
-                  accounts,
-                  currencies,
-                  homeCurrency
-              ],
-              isPendingDetails,
-              eou,
-              roles,
-              isOnline
-          ] = aggregatedResults;
+    forkJoin(
+      [
+        offlineData$,
+        pendingDetails$,
+        eou$,
+        roles$,
+        isOnline$
+      ]
+    ).pipe(
+      finalize(() => from(this.loaderService.hideLoader()))
+    ).subscribe(aggregatedResults => {
+      const [
+        [
+          orgSettings,
+          orgUserSettings,
+          allCategories,
+          allEnabledCategories,
+          costCenters,
+          projects,
+          perDiemRates,
+          customInputs,
+          currentOrg,
+          orgs,
+          accounts,
+          currencies,
+          homeCurrency
+        ],
+        isPendingDetails,
+        eou,
+        roles,
+        isOnline
+      ] = aggregatedResults;
 
 
-          const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
+      const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
 
-          if (eou) {
-              Sentry.setUser({
-                  id: eou.us.email + ' - ' + eou.ou.id,
-                  email: eou.us.email,
-                  orgUserId: eou.ou.id
-              });
-          }
+      if (eou) {
+        Sentry.setUser({
+          id: eou.us.email + ' - ' + eou.ou.id,
+          email: eou.us.email,
+          orgUserId: eou.ou.id
+        });
+      }
 
-          if (pendingDetails) {
-              if (roles.indexOf('OWNER') > -1) {
-                  this.router.navigate(['/', 'post_verification', 'setup_account']);
-              } else {
-                  this.router.navigate(['/', 'post_verification', 'invited_user']);
-              }
-          } else if (eou.ou.status === 'ACTIVE') {
-              this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-          } else if (eou.ou.status === 'DISABLED') {
-              this.router.navigate(['/', 'auth', 'disabled']);
-          }
-      });
+      if (pendingDetails) {
+        if (roles.indexOf('OWNER') > -1) {
+          this.router.navigate(['/', 'post_verification', 'setup_account']);
+        } else {
+          this.router.navigate(['/', 'post_verification', 'invited_user']);
+        }
+      } else if (eou.ou.status === 'ACTIVE') {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      } else if (eou.ou.status === 'DISABLED') {
+        this.router.navigate(['/', 'auth', 'disabled']);
+      }
+    });
   }
 
   async switchToOrg(org: Org) {
-      from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.orgService.switchOrg(org.id)),
-      ).subscribe(() => {
-          globalCacheBusterNotifier.next();
-          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          from(this.proceed()).subscribe(noop);
-      }, async (err) => {
-          await this.storageService.clearAll();
-          this.userEventService.logout();
-          globalCacheBusterNotifier.next();
-          await this.loaderService.hideLoader();
-      });
+    from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.orgService.switchOrg(org.id)),
+    ).subscribe(() => {
+      globalCacheBusterNotifier.next();
+      this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+      from(this.proceed()).subscribe(noop);
+    }, async (err) => {
+      await this.storageService.clearAll();
+      this.userEventService.logout();
+      globalCacheBusterNotifier.next();
+      await this.loaderService.hideLoader();
+    });
   }
 
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
-      return orgs.filter(org => Object.values(org)
-          .map(value => value && value.toString().toLowerCase())
-          .filter(value => !!value)
-          .some(value => value.toLowerCase().includes(searchText.toLowerCase())));
+    return orgs.filter(org => Object.values(org)
+      .map(value => value && value.toString().toLowerCase())
+      .filter(value => !!value)
+      .some(value => value.toLowerCase().includes(searchText.toLowerCase())));
   }
 
   ngAfterViewInit(): void {
-      const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay(1));
+    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay(1));
 
-      this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
-          map((event: any) => event.srcElement.value),
-          startWith(''),
-          distinctUntilChanged(),
-          switchMap((searchText) => currentOrgs$.pipe(
-              map(
-                  orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
-              )
-          ))
-      );
+    this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText) => currentOrgs$.pipe(
+        map(
+          orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
+        )
+      ))
+    );
   }
 }

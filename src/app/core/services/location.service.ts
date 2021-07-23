@@ -10,7 +10,7 @@ const { Geolocation } = Plugins;
 const currentLocationCacheBuster$ = new Subject<void>();
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class LocationService {
 
@@ -19,61 +19,61 @@ export class LocationService {
   constructor(
     private httpClient: HttpClient
   ) {
-      this.ROOT_ENDPOINT = environment.ROOT_URL;
+    this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
   setRoot(rootUrl: string) {
-      this.ROOT_ENDPOINT = rootUrl;
+    this.ROOT_ENDPOINT = rootUrl;
   }
 
   get(url, config = {}) {
-      return this.httpClient.get(this.ROOT_ENDPOINT + '/location' + url, config);
+    return this.httpClient.get(this.ROOT_ENDPOINT + '/location' + url, config);
   }
 
   getAutocompletePredictions(text, userId, currentLocation?, types?) {
-      const data: any = {
-          params: {
-              text,
-              user_id: userId
-          }
-      };
-
-      if (currentLocation) {
-          data.params.location = currentLocation;
+    const data: any = {
+      params: {
+        text,
+        user_id: userId
       }
-      if (types) {
-          data.params.types = types;
-      }
+    };
 
-      return this.get('/autocomplete', data).pipe(
-          map((res: any) => res.predictions)
-      );
+    if (currentLocation) {
+      data.params.location = currentLocation;
+    }
+    if (types) {
+      data.params.types = types;
+    }
+
+    return this.get('/autocomplete', data).pipe(
+      map((res: any) => res.predictions)
+    );
   }
 
   getDistance(fromLocation, toLocation): Observable<number> {
-      const data = {
-          params: {
-              origin_lat: fromLocation.latitude,
-              origin_long: fromLocation.longitude,
-              destination_lat: toLocation.latitude,
-              destination_long: toLocation.longitude,
-              mode: 'driving'
-          }
-      };
+    const data = {
+      params: {
+        origin_lat: fromLocation.latitude,
+        origin_long: fromLocation.longitude,
+        destination_lat: toLocation.latitude,
+        destination_long: toLocation.longitude,
+        mode: 'driving'
+      }
+    };
 
-      return this.get('/distance', data).pipe(
-          map(res => res as number)
-      );
+    return this.get('/distance', data).pipe(
+      map(res => res as number)
+    );
   }
 
   getPlace(placeId) {
-      const data = {
-          params: {
-              place_id: placeId
-          }
-      };
+    const data = {
+      params: {
+        place_id: placeId
+      }
+    };
 
-      return this.get('/place_details', data);
+    return this.get('/place_details', data);
   }
 
   /**
@@ -88,27 +88,27 @@ export class LocationService {
    * "formatted_address": "Thane, Maharashtra, India", "latitude": 19.2183307, "longitude": 72.9780897}
    */
   getGeocode(placeId, displayName) {
-      return this.get('/geocode/' + placeId).pipe(
-          map((locationDetails: any) => {
-              // locationDetails does not contain the `display` key
-              if (displayName) {
-                  locationDetails.display = displayName;
-              }
-              return locationDetails;
-          })
-      );
+    return this.get('/geocode/' + placeId).pipe(
+      map((locationDetails: any) => {
+        // locationDetails does not contain the `display` key
+        if (displayName) {
+          locationDetails.display = displayName;
+        }
+        return locationDetails;
+      })
+    );
   }
 
   @Cacheable({
-      cacheBusterObserver: currentLocationCacheBuster$,
-      maxAge: 10 * 60 * 1000 // 10 minutes
+    cacheBusterObserver: currentLocationCacheBuster$,
+    maxAge: 10 * 60 * 1000 // 10 minutes
   })
   getCurrentLocation(config: {enableHighAccuracy: boolean} = {enableHighAccuracy: false}): Observable<GeolocationPosition>{
-      return from(Geolocation.getCurrentPosition({
-          timeout: 5000,
-          enableHighAccuracy: config.enableHighAccuracy
-      })).pipe(
-          catchError(() => of(null))
-      );
+    return from(Geolocation.getCurrentPosition({
+      timeout: 5000,
+      enableHighAccuracy: config.enableHighAccuracy
+    })).pipe(
+      catchError(() => of(null))
+    );
   }
 }

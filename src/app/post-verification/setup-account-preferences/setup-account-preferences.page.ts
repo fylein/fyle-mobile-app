@@ -14,9 +14,9 @@ import { Router } from '@angular/router';
 import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
-    selector: 'app-setup-account-preferences',
-    templateUrl: './setup-account-preferences.page.html',
-    styleUrls: ['./setup-account-preferences.page.scss'],
+  selector: 'app-setup-account-preferences',
+  templateUrl: './setup-account-preferences.page.html',
+  styleUrls: ['./setup-account-preferences.page.scss'],
 })
 export class SetupAccountPreferencesPage implements OnInit {
 
@@ -40,69 +40,69 @@ export class SetupAccountPreferencesPage implements OnInit {
   ) { }
 
   ngOnInit() {
-      const networkWatcherEmitter = new EventEmitter<boolean>();
-      this.networkService.connectivityWatcher(networkWatcherEmitter);
-      this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
-      this.isConnected$.subscribe(noop);
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$.subscribe(noop);
 
-      this.eou$ = from(this.authService.getEou());
-      this.org$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
-      this.companyName$ = this.org$.pipe(
-          map(org => org.name)
-      );
+    this.eou$ = from(this.authService.getEou());
+    this.org$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
+    this.companyName$ = this.org$.pipe(
+      map(org => org.name)
+    );
 
-      this.orgSettings$ = this.orgSettingsService.get();
+    this.orgSettings$ = this.orgSettingsService.get();
 
-      this.fg = this.fb.group({
-          mileage: [true],
-          per_diem: [false],
-          ccc: [true],
-          trip: [false],
-          advances: [true]
-      });
+    this.fg = this.fb.group({
+      mileage: [true],
+      per_diem: [false],
+      ccc: [true],
+      trip: [false],
+      advances: [true]
+    });
   }
 
   continueEnterprise() {
-      this.orgSettings$.pipe(
-          switchMap((orgSettings) => {
-              orgSettings.mileage.enabled = this.fg.controls.mileage.value;
-              orgSettings.per_diem.enabled = this.fg.controls.per_diem.value;
-              orgSettings.corporate_credit_card_settings.enabled = this.fg.controls.ccc.value;
-              orgSettings.trip_requests.enabled = this.fg.controls.trip.value;
-              orgSettings.advance_requests.enabled = this.fg.controls.advances.value;
+    this.orgSettings$.pipe(
+      switchMap((orgSettings) => {
+        orgSettings.mileage.enabled = this.fg.controls.mileage.value;
+        orgSettings.per_diem.enabled = this.fg.controls.per_diem.value;
+        orgSettings.corporate_credit_card_settings.enabled = this.fg.controls.ccc.value;
+        orgSettings.trip_requests.enabled = this.fg.controls.trip.value;
+        orgSettings.advance_requests.enabled = this.fg.controls.advances.value;
 
-              return this.orgSettingsService.post(orgSettings).pipe(
-                  tap(() => {
-                      // setting up company details in clevertap profile
+        return this.orgSettingsService.post(orgSettings).pipe(
+          tap(() => {
+            // setting up company details in clevertap profile
 
-                      this.trackingService.updateSegmentProfile({
-                          'Enable Mileage': this.fg.controls.mileage.value,
-                          'Enable Per Diem': this.fg.controls.per_diem.value,
-                          'Enable Corporate Cards': this.fg.controls.ccc.value,
-                          'Enable Advances': this.fg.controls.advances.value,
-                          'Enable Trips': this.fg.controls.trip.value
-                      });
-                  })
-              );
+            this.trackingService.updateSegmentProfile({
+              'Enable Mileage': this.fg.controls.mileage.value,
+              'Enable Per Diem': this.fg.controls.per_diem.value,
+              'Enable Corporate Cards': this.fg.controls.ccc.value,
+              'Enable Advances': this.fg.controls.advances.value,
+              'Enable Trips': this.fg.controls.trip.value
+            });
           })
-      ).subscribe(() => {
-          this.markActiveAndRedirect();
-      });
+        );
+      })
+    ).subscribe(() => {
+      this.markActiveAndRedirect();
+    });
   }
 
   markActiveAndRedirect() {
-      from(this.loadingService.showLoader()).pipe(
-          tap(() => {
-              this.trackingService.setupComplete({ Asset: 'Mobile' });
-          }),
-          switchMap(() => this.orgUserService.markActive()),
-          tap(() => {
-              this.trackingService.activated({ Asset: 'Mobile' });
-          }),
-          finalize(async () => this.loadingService.hideLoader())
-      ).subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-      });
+    from(this.loadingService.showLoader()).pipe(
+      tap(() => {
+        this.trackingService.setupComplete({ Asset: 'Mobile' });
+      }),
+      switchMap(() => this.orgUserService.markActive()),
+      tap(() => {
+        this.trackingService.activated({ Asset: 'Mobile' });
+      }),
+      finalize(async () => this.loadingService.hideLoader())
+    ).subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    });
   }
 
 }

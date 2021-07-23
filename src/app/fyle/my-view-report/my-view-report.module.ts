@@ -19,24 +19,24 @@ import { SubmitReportPopoverComponent } from './submit-report-popover/submit-rep
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        MyViewReportPageRoutingModule,
-        SharedModule,
-        MatIconModule,
-        MatButtonModule,
-        MatRippleModule,
-        MatInputModule,
-        MatFormFieldModule
-    ],
-    declarations: [
-        MyViewReportPage,
-        MyViewReportEtxnCardComponent,
-        ShareReportComponent,
-        SubmitReportPopoverComponent,
-        ResubmitReportPopoverComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyViewReportPageRoutingModule,
+    SharedModule,
+    MatIconModule,
+    MatButtonModule,
+    MatRippleModule,
+    MatInputModule,
+    MatFormFieldModule
+  ],
+  declarations: [
+    MyViewReportPage,
+    MyViewReportEtxnCardComponent,
+    ShareReportComponent,
+    SubmitReportPopoverComponent,
+    ResubmitReportPopoverComponent
+  ]
 })
 export class MyViewReportPageModule { }

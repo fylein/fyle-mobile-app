@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { FyHeaderComponent } from './fy-header.component';
 
 describe('FyHeaderComponent', () => {
-    let component: FyHeaderComponent;
-    let fixture: ComponentFixture<FyHeaderComponent>;
+  let component: FyHeaderComponent;
+  let fixture: ComponentFixture<FyHeaderComponent>;
 
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [ FyHeaderComponent ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ FyHeaderComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(FyHeaderComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(FyHeaderComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

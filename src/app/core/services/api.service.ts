@@ -3,7 +3,7 @@ import {environment} from 'src/environments/environment';
 import {HttpClient} from '@angular/common/http';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class ApiService {
 
@@ -12,26 +12,26 @@ export class ApiService {
   constructor(
     private httpClient: HttpClient
   ) {
-      this.ROOT_ENDPOINT = environment.ROOT_URL;
+    this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
   setRoot(rootUrl: string) {
-      this.ROOT_ENDPOINT = rootUrl;
+    this.ROOT_ENDPOINT = rootUrl;
   }
 
   post(url: string, data = {}) {
-      return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data);
+    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data);
   }
 
   postWithConfig(url: string, data = {}, config?: Object) {
-      return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data, config);
+    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data, config);
   }
 
   delete(url: string, data = {}) {
-      return this.httpClient.delete<any>(this.ROOT_ENDPOINT + '/api' + url, data);
+    return this.httpClient.delete<any>(this.ROOT_ENDPOINT + '/api' + url, data);
   }
 
   get(url: string, config: { params?: any } = {}) {
-      return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/api' + url, config);
+    return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/api' + url, config);
   }
 }

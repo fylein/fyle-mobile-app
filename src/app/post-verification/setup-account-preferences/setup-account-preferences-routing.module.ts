@@ -4,14 +4,14 @@ import { Routes, RouterModule } from '@angular/router';
 import { SetupAccountPreferencesPage } from './setup-account-preferences.page';
 
 const routes: Routes = [
-    {
-        path: '',
-        component: SetupAccountPreferencesPage
-    }
+  {
+    path: '',
+    component: SetupAccountPreferencesPage
+  }
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class SetupAccountPreferencesPageRoutingModule {}

@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { NotificationsPage } from './notifications.page';
 
 describe('NotificationsPage', () => {
-    let component: NotificationsPage;
-    let fixture: ComponentFixture<NotificationsPage>;
+  let component: NotificationsPage;
+  let fixture: ComponentFixture<NotificationsPage>;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            declarations: [ NotificationsPage ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ NotificationsPage ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(NotificationsPage);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(NotificationsPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

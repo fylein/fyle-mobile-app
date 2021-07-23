@@ -20,24 +20,24 @@ import {MatButtonModule} from '@angular/material/button';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        MyViewTripsPageRoutingModule,
-        MatIconModule,
-        MatRippleModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        SharedModule
-    ],
-    declarations: [
-        MyViewTripsPage,
-        TransportationRequestsComponent,
-        HotelRequestsComponent,
-        AdvanceRequestsComponent,
-        PullBackTripComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyViewTripsPageRoutingModule,
+    MatIconModule,
+    MatRippleModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    SharedModule
+  ],
+  declarations: [
+    MyViewTripsPage,
+    TransportationRequestsComponent,
+    HotelRequestsComponent,
+    AdvanceRequestsComponent,
+    PullBackTripComponent
+  ]
 })
 export class MyViewTripsPageModule { }

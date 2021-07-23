@@ -5,13 +5,13 @@ import { PopoverController } from '@ionic/angular';
 import { AppDateAdapter, APP_DATE_FORMATS } from 'src/app/shared/format-datepicker/format-datepicker';
 
 @Component({
-    selector: 'app-my-expenses-search-filter',
-    templateUrl: './my-expenses-search-filter.component.html',
-    styleUrls: ['./my-expenses-search-filter.component.scss'],
-    providers: [
-        {provide: DateAdapter, useClass: AppDateAdapter},
-        {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
-    ]
+  selector: 'app-my-expenses-search-filter',
+  templateUrl: './my-expenses-search-filter.component.html',
+  styleUrls: ['./my-expenses-search-filter.component.scss'],
+  providers: [
+    {provide: DateAdapter, useClass: AppDateAdapter},
+    {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
+  ]
 })
 
 export class MyExpensesSearchFilterComponent implements OnInit {
@@ -34,43 +34,43 @@ export class MyExpensesSearchFilterComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      this.fg = this.fb.group({
-          state: [this.filters && this.filters.state],
-          date: [this.filters && this.filters.date],
-          customDateStart: [this.filters && this.filters.customDateStart],
-          customDateEnd: [this.filters && this.filters.customDateEnd]
-      });
+    this.fg = this.fb.group({
+      state: [this.filters && this.filters.state],
+      date: [this.filters && this.filters.date],
+      customDateStart: [this.filters && this.filters.customDateStart],
+      customDateEnd: [this.filters && this.filters.customDateEnd]
+    });
 
-      this.fg.validator = this.customDatevalidator;
+    this.fg.validator = this.customDatevalidator;
   }
 
   customDatevalidator(formGroup: FormGroup) {
-      if (formGroup.value.date &&
+    if (formGroup.value.date &&
       formGroup.value.date === 'CUSTOMDATE' &&
       (formGroup.controls.customDateStart.value === null ||
         formGroup.controls.customDateEnd.value === null)) {
-          return {
-              error: 'custom date input is required when custom dates are selected'
-          };
-      }
+      return {
+        error: 'custom date input is required when custom dates are selected'
+      };
+    }
   }
 
   save() {
-      if (this.fg.value.date !== 'CUSTOMDATE') {
-          this.fg.controls.customDateStart.reset();
-          this.fg.controls.customDateEnd.reset();
-      }
+    if (this.fg.value.date !== 'CUSTOMDATE') {
+      this.fg.controls.customDateStart.reset();
+      this.fg.controls.customDateEnd.reset();
+    }
 
-      this.popoverController.dismiss({
-          filters: this.fg.value
-      });
+    this.popoverController.dismiss({
+      filters: this.fg.value
+    });
   }
 
   cancel() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   clearAll() {
-      this.fg.reset();
+    this.fg.reset();
   }
 }

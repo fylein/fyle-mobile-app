@@ -11,17 +11,17 @@ import {SharedModule} from 'src/app/shared/shared.module';
 import {MatRippleModule} from '@angular/material/core';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        SwitchOrgPageRoutingModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatListModule,
-        MatRippleModule,
-        SharedModule
-    ],
-    declarations: [SwitchOrgPage]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    SwitchOrgPageRoutingModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatListModule,
+    MatRippleModule,
+    SharedModule
+  ],
+  declarations: [SwitchOrgPage]
 })
 export class SwitchOrgPageModule { }

@@ -5,10 +5,10 @@ import { PostVerificationRoutingModule } from './post-verification-routing.modul
 
 
 @NgModule({
-    declarations: [],
-    imports: [
-        CommonModule,
-        PostVerificationRoutingModule
-    ]
+  declarations: [],
+  imports: [
+    CommonModule,
+    PostVerificationRoutingModule
+  ]
 })
 export class PostVerificationModule { }

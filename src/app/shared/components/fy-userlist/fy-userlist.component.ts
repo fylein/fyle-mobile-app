@@ -9,16 +9,16 @@ import { cloneDeep } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
-    selector: 'app-fy-userlist',
-    templateUrl: './fy-userlist.component.html',
-    styleUrls: ['./fy-userlist.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FyUserlistComponent),
-            multi: true
-        }
-    ]
+  selector: 'app-fy-userlist',
+  templateUrl: './fy-userlist.component.html',
+  styleUrls: ['./fy-userlist.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FyUserlistComponent),
+      multi: true
+    }
+  ]
 })
 export class FyUserlistComponent implements OnInit {
   private ngControl: NgControl;
@@ -34,11 +34,11 @@ export class FyUserlistComponent implements OnInit {
   displayValue;
 
   get valid() {
-      if (this.ngControl.touched) {
-          return this.ngControl.valid;
-      } else {
-          return true;
-      }
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
 
   private onTouchedCallback: () => void = noop;
@@ -51,67 +51,67 @@ export class FyUserlistComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      this.ngControl = this.injector.get(NgControl);
+    this.ngControl = this.injector.get(NgControl);
   }
 
   get value(): any {
-      return this.innerValue;
+    return this.innerValue;
   }
 
   set value(v: any) {
-      if (v !== this.innerValue) {
-          this.innerValue = v;
-          if (this.innerValue && this.innerValue.length > 0) {
-              this.displayValue = this.innerValue.join(',');
-          } else {
-              this.displayValue = '';
-          }
-
-          this.onChangeCallback(v);
+    if (v !== this.innerValue) {
+      this.innerValue = v;
+      if (this.innerValue && this.innerValue.length > 0) {
+        this.displayValue = this.innerValue.join(',');
+      } else {
+        this.displayValue = '';
       }
+
+      this.onChangeCallback(v);
+    }
   }
 
   async openModal() {
-      const currencyModal = await this.modalController.create({
-          component: FyUserlistModalComponent,
-          componentProps: {
-              currentSelections: cloneDeep(this.value) || [],
-              allowCustomValues: this.allowCustomValues
-          },
-          mode: 'ios',
-          presentingElement: await this.modalController.getTop(),
-          ...this.modalProperties.getModalDefaultProperties()
-      });
+    const currencyModal = await this.modalController.create({
+      component: FyUserlistModalComponent,
+      componentProps: {
+        currentSelections: cloneDeep(this.value) || [],
+        allowCustomValues: this.allowCustomValues
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
+    });
 
-      await currencyModal.present();
+    await currencyModal.present();
 
-      const { data } = await currencyModal.onWillDismiss();
+    const { data } = await currencyModal.onWillDismiss();
 
-      if (data) {
-          this.value = data.selected;
-      }
+    if (data) {
+      this.value = data.selected;
+    }
   }
 
   onBlur() {
-      this.onTouchedCallback();
+    this.onTouchedCallback();
   }
 
   writeValue(value: any): void {
-      if (value !== this.innerValue) {
-          this.innerValue = value;
-          if (this.innerValue && this.innerValue.length > 0) {
-              this.displayValue = this.innerValue.join(',');
-          } else {
-              this.displayValue = '';
-          }
+    if (value !== this.innerValue) {
+      this.innerValue = value;
+      if (this.innerValue && this.innerValue.length > 0) {
+        this.displayValue = this.innerValue.join(',');
+      } else {
+        this.displayValue = '';
       }
+    }
   }
 
   registerOnChange(fn: any) {
-      this.onChangeCallback = fn;
+    this.onChangeCallback = fn;
   }
 
   registerOnTouched(fn: any) {
-      this.onTouchedCallback = fn;
+    this.onTouchedCallback = fn;
   }
 }

@@ -10,13 +10,13 @@ import { MyViewMileagePage } from './my-view-mileage.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        MyViewMileagePageRoutingModule,
-        SharedModule
-    ],
-    declarations: [MyViewMileagePage]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyViewMileagePageRoutingModule,
+    SharedModule
+  ],
+  declarations: [MyViewMileagePage]
 })
 export class MyViewMileagePageModule {}

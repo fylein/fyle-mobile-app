@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { MyAddEditTripPage } from './my-add-edit-trip.page';
 
 describe('MyAddEditTripPage', () => {
-    let component: MyAddEditTripPage;
-    let fixture: ComponentFixture<MyAddEditTripPage>;
+  let component: MyAddEditTripPage;
+  let fixture: ComponentFixture<MyAddEditTripPage>;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            declarations: [ MyAddEditTripPage ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ MyAddEditTripPage ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(MyAddEditTripPage);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(MyAddEditTripPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

@@ -19,28 +19,28 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        MyReportsPageRoutingModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatButtonModule,
-        MatRadioModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatRippleModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatIconModule,
-        SharedModule
-    ],
-    declarations: [
-        MyReportsPage,
-        MyReportsCardComponent,
-        MyReportsSearchFilterComponent,
-        MyReportsSortFilterComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyReportsPageRoutingModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatRadioModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatRippleModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatIconModule,
+    SharedModule
+  ],
+  declarations: [
+    MyReportsPage,
+    MyReportsCardComponent,
+    MyReportsSearchFilterComponent,
+    MyReportsSortFilterComponent
+  ]
 })
 export class MyReportsPageModule { }

@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { ReportSummaryComponent } from './report-summary.component';
 
 describe('ReportSummaryComponent', () => {
-    let component: ReportSummaryComponent;
-    let fixture: ComponentFixture<ReportSummaryComponent>;
+  let component: ReportSummaryComponent;
+  let fixture: ComponentFixture<ReportSummaryComponent>;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            declarations: [ ReportSummaryComponent ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ ReportSummaryComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(ReportSummaryComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(ReportSummaryComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

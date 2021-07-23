@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { RouteVisualizerComponent } from './route-visualizer.component';
 
 describe('RouteVisualizerComponent', () => {
-    let component: RouteVisualizerComponent;
-    let fixture: ComponentFixture<RouteVisualizerComponent>;
+  let component: RouteVisualizerComponent;
+  let fixture: ComponentFixture<RouteVisualizerComponent>;
 
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [ RouteVisualizerComponent ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ RouteVisualizerComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(RouteVisualizerComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(RouteVisualizerComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

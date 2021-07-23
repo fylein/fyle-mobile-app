@@ -11,19 +11,19 @@ import { SelectCurrencyComponent } from './select-currency/select-currency.compo
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        MyProfilePageRoutingModule,
-        MatFormFieldModule,
-        MatInputModule,
-        SharedModule,
-        MatButtonModule
-    ],
-    declarations: [
-        MyProfilePage,
-        SelectCurrencyComponent,
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyProfilePageRoutingModule,
+    MatFormFieldModule,
+    MatInputModule,
+    SharedModule,
+    MatButtonModule
+  ],
+  declarations: [
+    MyProfilePage,
+    SelectCurrencyComponent,
+  ]
 })
 export class MyProfilePageModule {}

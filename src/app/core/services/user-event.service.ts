@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class UserEventService {
   destroySubject = new Subject();
@@ -15,42 +15,42 @@ export class UserEventService {
   constructor() { }
 
   onLogout(callback) {
-      return this.logoutSubject.subscribe(callback);
+    return this.logoutSubject.subscribe(callback);
   }
 
   logout() {
-      return this.logoutSubject.next();
+    return this.logoutSubject.next();
   }
 
   onSetToken(callback) {
-      return this.tokenSubject.subscribe(callback);
+    return this.tokenSubject.subscribe(callback);
   }
 
   setToken() {
-      return this.tokenSubject.next();
+    return this.tokenSubject.next();
   }
 
   onInternalError(callback) {
-      return this.internalSubject.subscribe(callback);
+    return this.internalSubject.subscribe(callback);
   }
 
   onOutdatedClientError(callback) {
-      return this.outdatedClientSubject.subscribe(callback);
+    return this.outdatedClientSubject.subscribe(callback);
   }
 
   internalError(data) {
-      return this.internalSubject.next(data);
+    return this.internalSubject.next(data);
   }
 
   outdatedClientError(data) {
-      return this.outdatedClientSubject.next(data);
+    return this.outdatedClientSubject.next(data);
   }
 
   onClearCache(callback) {
-      return this.clearCacheSubject.subscribe(callback);
+    return this.clearCacheSubject.subscribe(callback);
   }
 
   clearCache() {
-      return this.clearCacheSubject.next();
+    return this.clearCacheSubject.next();
   }
 }

@@ -5,9 +5,9 @@ import { map, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
 @Component({
-    selector: 'app-fy-duplicate-detection-modal',
-    templateUrl: './fy-duplicate-detection-modal.component.html',
-    styleUrls: ['./fy-duplicate-detection-modal.component.scss'],
+  selector: 'app-fy-duplicate-detection-modal',
+  templateUrl: './fy-duplicate-detection-modal.component.html',
+  styleUrls: ['./fy-duplicate-detection-modal.component.scss'],
 })
 export class FyDuplicateDetectionModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -23,26 +23,26 @@ export class FyDuplicateDetectionModalComponent implements OnInit, AfterViewInit
   ngOnInit() { }
 
   ngAfterViewInit() {
-      this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-          map((event: any) => event.srcElement.value),
-          startWith(''),
-          distinctUntilChanged(),
-          map((searchText) => [{ label: 'None', value: null }].concat(this.options
-              .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
-              .map(option => {
-                  option.selected = isEqual(option.value, this.currentSelection);
-                  return option;
-              }))
-          )
-      );
-      this.cdr.detectChanges();
+    this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      map((searchText) => [{ label: 'None', value: null }].concat(this.options
+        .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
+        .map(option => {
+          option.selected = isEqual(option.value, this.currentSelection);
+          return option;
+        }))
+      )
+    );
+    this.cdr.detectChanges();
   }
 
   onDoneClick() {
-      this.modalController.dismiss();
+    this.modalController.dismiss();
   }
 
   onElementSelect(option) {
-      this.modalController.dismiss(option);
+    this.modalController.dismiss(option);
   }
 }

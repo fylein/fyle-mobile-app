@@ -15,23 +15,23 @@ import { ApproveReportComponent } from './approve-report/approve-report.componen
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        ViewTeamReportPageRoutingModule,
-        MatIconModule,
-        MatButtonModule,
-        MatRippleModule,
-        SharedModule,
-        MatFormFieldModule
-    ],
-    declarations: [
-        ViewTeamReportPage,
-        ViewTeamReportEtxnCardComponent,
-        ShareReportComponent,
-        SendBackComponent,
-        ApproveReportComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    ViewTeamReportPageRoutingModule,
+    MatIconModule,
+    MatButtonModule,
+    MatRippleModule,
+    SharedModule,
+    MatFormFieldModule
+  ],
+  declarations: [
+    ViewTeamReportPage,
+    ViewTeamReportEtxnCardComponent,
+    ShareReportComponent,
+    SendBackComponent,
+    ApproveReportComponent
+  ]
 })
 export class ViewTeamReportPageModule {}

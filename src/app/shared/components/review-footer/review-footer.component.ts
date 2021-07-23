@@ -2,9 +2,9 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
-    selector: 'app-review-footer',
-    templateUrl: './review-footer.component.html',
-    styleUrls: ['./review-footer.component.scss'],
+  selector: 'app-review-footer',
+  templateUrl: './review-footer.component.html',
+  styleUrls: ['./review-footer.component.scss'],
 })
 export class ReviewFooterComponent implements OnInit {
 
@@ -21,10 +21,10 @@ export class ReviewFooterComponent implements OnInit {
   ngOnInit() {}
 
   onSaveAndGoToNext() {
-      this.saveAndGoToNext.emit();
+    this.saveAndGoToNext.emit();
   }
 
   onSaveAndGoToPrev() {
-      this.saveAndGoToPrev.emit();
+    this.saveAndGoToPrev.emit();
   }
 }

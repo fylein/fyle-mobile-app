@@ -4,14 +4,14 @@ import {RouterModule, Routes} from '@angular/router';
 import {RequestInvitationPage} from './request-invitation.page';
 
 const routes: Routes = [
-    {
-        path: '',
-        component: RequestInvitationPage
-    }
+  {
+    path: '',
+    component: RequestInvitationPage
+  }
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class RequestInvitationPageRoutingModule {}

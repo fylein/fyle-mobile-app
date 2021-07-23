@@ -14,24 +14,24 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        TeamAdvancePageRoutingModule,
-        MatRippleModule,
-        SharedModule,
-        MatSelectModule,
-        MatFormFieldModule,
-        MatInputModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatMenuModule,
-        MatButtonModule
-    ],
-    declarations: [
-        TeamAdvancePage,
-        TeamAdvCardComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    TeamAdvancePageRoutingModule,
+    MatRippleModule,
+    SharedModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatMenuModule,
+    MatButtonModule
+  ],
+  declarations: [
+    TeamAdvancePage,
+    TeamAdvCardComponent
+  ]
 })
 export class TeamAdvancePageModule { }

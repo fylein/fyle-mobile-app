@@ -2,9 +2,9 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 
 @Component({
-    selector: 'app-report-summary',
-    templateUrl: './report-summary.component.html',
-    styleUrls: ['./report-summary.component.scss'],
+  selector: 'app-report-summary',
+  templateUrl: './report-summary.component.html',
+  styleUrls: ['./report-summary.component.scss'],
 })
 export class ReportSummaryComponent implements OnInit {
   @Input() selectedTotalAmount;
@@ -18,13 +18,13 @@ export class ReportSummaryComponent implements OnInit {
   ) { }
 
   createReport() {
-      this.popoverController.dismiss({
-          saveReport: true
-      });
+    this.popoverController.dismiss({
+      saveReport: true
+    });
   }
 
   close() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   ngOnInit() { }

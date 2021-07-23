@@ -3,9 +3,9 @@ import { Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
-    selector: 'app-split-expense-status',
-    templateUrl: './split-expense-status.component.html',
-    styleUrls: ['./split-expense-status.component.scss'],
+  selector: 'app-split-expense-status',
+  templateUrl: './split-expense-status.component.html',
+  styleUrls: ['./split-expense-status.component.scss'],
 })
 export class SplitExpenseStatusComponent implements OnInit {
   isSplitSuccessful = false;
@@ -16,11 +16,11 @@ export class SplitExpenseStatusComponent implements OnInit {
   ) { }
 
   goToMyExpenses() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   retry() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   ngOnInit() {}

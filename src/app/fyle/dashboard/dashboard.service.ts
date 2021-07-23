@@ -6,69 +6,69 @@ import {TransactionService} from '../../core/services/transaction.service';
 
 @Injectable()
 export class DashboardService {
-    constructor(
+  constructor(
       private reportService: ReportService,
       private transactionService: TransactionService
-    ) { }
+  ) { }
 
-    getUnreportedExpensesStats() {
-        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-            scalar: true,
-            tx_state: 'in.(COMPLETE)',
-            or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-            tx_report_id: 'is.null'
-        }).pipe(
-            map(rawStatsResponse => {
-                const countAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'count(tx_id)');
-                const amountAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'sum(tx_amount)');
-                return {
-                    totalCount: countAggregate && countAggregate.function_value,
-                    totalAmount: amountAggregate && amountAggregate.function_value
-                };
-            })
-        );
-    }
-
-    getReportsStats() {
-        return this.reportService.getReportStats({
-            scalar: false,
-            dimension_1_1: 'rp_state',
-            aggregates: 'sum(rp_amount),count(rp_id)'
-        }).pipe(
-            map(statsResponse => this.getReportAggregates(statsResponse))
-        );
-    }
-
-    getReportAggregates(reportsStatsResponse: StatsResponse) {
-        const reportDatum =  reportsStatsResponse.getDatum(0);
-        const reportAggregateValues = reportDatum.value;
-        const stateWiseAggregatesMap = reportAggregateValues.map(reportAggregateValue => {
-            const key = reportAggregateValue.key[0].column_value;
-            const countAggregate = reportAggregateValue.aggregates.find(aggregate => aggregate.function_name === 'count(rp_id)');
-            const sumAggregate = reportAggregateValue.aggregates.find(aggregate => aggregate.function_name === 'sum(rp_amount)');
-            return {
-                key,
-                count: countAggregate && countAggregate.function_value,
-                sum: sumAggregate && sumAggregate.function_value
-            };
-        }).reduce((acc, curr) => {
-            acc[curr.key] = {
-                count: curr.count,
-                sum: curr.sum
-            };
-            return acc;
-        }, {} as { [key: string]: { count: number; sum: number } });
-
-        const draftReportStats = stateWiseAggregatesMap.DRAFT || { sum: 0, count: 0 };
-        const reportedReportStats = stateWiseAggregatesMap.APPROVER_PENDING || { sum: 0, count: 0 };
-        const approvedReportStats = stateWiseAggregatesMap.APPROVED || { sum: 0, count: 0 };
-        const paymentPendingReportStats = stateWiseAggregatesMap.PAYMENT_PENDING || { sum: 0, count: 0 };
-
+  getUnreportedExpensesStats() {
+    return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      scalar: true,
+      tx_state: 'in.(COMPLETE)',
+      or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+      tx_report_id: 'is.null'
+    }).pipe(
+      map(rawStatsResponse => {
+        const countAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'count(tx_id)');
+        const amountAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'sum(tx_amount)');
         return {
-            draft: draftReportStats,
-            report: reportedReportStats,
-            approved: approvedReportStats,
-            paymentPending: paymentPendingReportStats
+          totalCount: countAggregate && countAggregate.function_value,
+          totalAmount: amountAggregate && amountAggregate.function_value
         };
-    }
+      })
+    );
+  }
+
+  getReportsStats() {
+    return this.reportService.getReportStats({
+      scalar: false,
+      dimension_1_1: 'rp_state',
+      aggregates: 'sum(rp_amount),count(rp_id)'
+    }).pipe(
+      map(statsResponse => this.getReportAggregates(statsResponse))
+    );
+  }
+
+  getReportAggregates(reportsStatsResponse: StatsResponse) {
+    const reportDatum =  reportsStatsResponse.getDatum(0);
+    const reportAggregateValues = reportDatum.value;
+    const stateWiseAggregatesMap = reportAggregateValues.map(reportAggregateValue => {
+      const key = reportAggregateValue.key[0].column_value;
+      const countAggregate = reportAggregateValue.aggregates.find(aggregate => aggregate.function_name === 'count(rp_id)');
+      const sumAggregate = reportAggregateValue.aggregates.find(aggregate => aggregate.function_name === 'sum(rp_amount)');
+      return {
+        key,
+        count: countAggregate && countAggregate.function_value,
+        sum: sumAggregate && sumAggregate.function_value
+      };
+    }).reduce((acc, curr) => {
+      acc[curr.key] = {
+        count: curr.count,
+        sum: curr.sum
+      };
+      return acc;
+    }, {} as { [key: string]: { count: number; sum: number } });
+
+    const draftReportStats = stateWiseAggregatesMap.DRAFT || { sum: 0, count: 0 };
+    const reportedReportStats = stateWiseAggregatesMap.APPROVER_PENDING || { sum: 0, count: 0 };
+    const approvedReportStats = stateWiseAggregatesMap.APPROVED || { sum: 0, count: 0 };
+    const paymentPendingReportStats = stateWiseAggregatesMap.PAYMENT_PENDING || { sum: 0, count: 0 };
+
+    return {
+      draft: draftReportStats,
+      report: reportedReportStats,
+      approved: approvedReportStats,
+      paymentPending: paymentPendingReportStats
+    };
+  }
 }

@@ -6,9 +6,9 @@ import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
-    selector: 'app-select-currency',
-    templateUrl: './select-currency.component.html',
-    styleUrls: ['./select-currency.component.scss'],
+  selector: 'app-select-currency',
+  templateUrl: './select-currency.component.html',
+  styleUrls: ['./select-currency.component.scss'],
 })
 export class SelectCurrencyComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -23,43 +23,43 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-      this.currencies$ = from(this.loaderService.showLoader()).pipe(
-          concatMap(() => this.currencyService.getAll()),
-          map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
-          finalize(() => {
-              from(this.loaderService.hideLoader()).subscribe(noop);
-          }),
-          shareReplay(1)
-      );
+    this.currencies$ = from(this.loaderService.showLoader()).pipe(
+      concatMap(() => this.currencyService.getAll()),
+      map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
+      finalize(() => {
+        from(this.loaderService.hideLoader()).subscribe(noop);
+      }),
+      shareReplay(1)
+    );
 
-      this.currencies$.subscribe(noop);
+    this.currencies$.subscribe(noop);
   }
 
   ngAfterViewInit(): void {
-      this.filteredCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-          map((event: any) => event.srcElement.value),
-          startWith(''),
-          distinctUntilChanged(),
-          switchMap((searchText) => this.currencies$.pipe(
-              map(
-                  currencies => currencies
-                      .filter(
-                          currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
+    this.filteredCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchText) => this.currencies$.pipe(
+        map(
+          currencies => currencies
+            .filter(
+              currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
                   || currency.longName.toLowerCase().includes(searchText.toLowerCase())
-                      )
-              )
-          ))
-      );
+            )
+        )
+      ))
+    );
   }
 
   onDoneClick() {
-      this.modalController.dismiss();
+    this.modalController.dismiss();
   }
 
   onCurrencySelect(currency) {
-      this.modalController.dismiss({
-          currency
-      });
+    this.modalController.dismiss({
+      currency
+    });
   }
 
 }

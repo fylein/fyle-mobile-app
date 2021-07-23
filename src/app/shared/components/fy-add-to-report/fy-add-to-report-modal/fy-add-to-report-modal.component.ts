@@ -6,9 +6,9 @@ import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
-    selector: 'app-add-to-report-modal',
-    templateUrl: './fy-add-to-report-modal.component.html',
-    styleUrls: ['./fy-add-to-report-modal.component.scss'],
+  selector: 'app-add-to-report-modal',
+  templateUrl: './fy-add-to-report-modal.component.html',
+  styleUrls: ['./fy-add-to-report-modal.component.scss'],
 })
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -34,49 +34,49 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-      this.states.DRAFT = 'draft';
-      this.states.DRAFT_INQUIRY = 'incomplete';
-      this.states.COMPLETE = 'fyled';
-      this.states.APPROVER_PENDING = 'reported';
-      this.states.SUBMITTED = 'reported';
-      this.states.APPROVER_INQUIRY = 'inquiry';
-      this.states.POLICY_INQUIRY = 'auto_flagged';
-      this.states.REJECTED = 'rejected';
-      this.states.APPROVED = 'approved';
-      this.states.PAYMENT_PENDING = 'payment_pending';
-      this.states.PAYMENT_PROCESSING = 'payment_processing';
-      this.states.PAID = 'paid';
-      this.states.CANCELLED = 'cancelled';
-      this.states.APPROVAL_PENDING = 'reported';
-      this.states.APPROVAL_DONE = 'approved';
-      this.states.APPROVAL_DISABLED = 'disabled';
-      this.states.APPROVAL_REJECTED = 'rejected';
+    this.states.DRAFT = 'draft';
+    this.states.DRAFT_INQUIRY = 'incomplete';
+    this.states.COMPLETE = 'fyled';
+    this.states.APPROVER_PENDING = 'reported';
+    this.states.SUBMITTED = 'reported';
+    this.states.APPROVER_INQUIRY = 'inquiry';
+    this.states.POLICY_INQUIRY = 'auto_flagged';
+    this.states.REJECTED = 'rejected';
+    this.states.APPROVED = 'approved';
+    this.states.PAYMENT_PENDING = 'payment_pending';
+    this.states.PAYMENT_PROCESSING = 'payment_processing';
+    this.states.PAID = 'paid';
+    this.states.CANCELLED = 'cancelled';
+    this.states.APPROVAL_PENDING = 'reported';
+    this.states.APPROVAL_DONE = 'approved';
+    this.states.APPROVAL_DISABLED = 'disabled';
+    this.states.APPROVAL_REJECTED = 'rejected';
   }
 
   ngAfterViewInit() {
 
-      this.filteredOptions = this.options
-          .filter(option => !isEqual(option.value, this.currentSelection));
+    this.filteredOptions = this.options
+      .filter(option => !isEqual(option.value, this.currentSelection));
 
-      this.selectedOption = this.options
-          .find(option => isEqual(option.value, this.currentSelection));
+    this.selectedOption = this.options
+      .find(option => isEqual(option.value, this.currentSelection));
 
-      this.cdr.detectChanges();
+    this.cdr.detectChanges();
   }
 
   onDoneClick() {
-      this.modalController.dismiss();
+    this.modalController.dismiss();
   }
 
   onElementSelect(option) {
-      this.modalController.dismiss(option);
+    this.modalController.dismiss(option);
   }
 
   onNoneSelect() {
-      this.modalController.dismiss({
-          label: 'None',
-          value: null
-      });
+    this.modalController.dismiss({
+      label: 'None',
+      value: null
+    });
   }
 
 }

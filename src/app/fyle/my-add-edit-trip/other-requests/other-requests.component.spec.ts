@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { OtherRequestsComponent } from './other-requests.component';
 
 describe('OtherRequestsComponent', () => {
-    let component: OtherRequestsComponent;
-    let fixture: ComponentFixture<OtherRequestsComponent>;
+  let component: OtherRequestsComponent;
+  let fixture: ComponentFixture<OtherRequestsComponent>;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            declarations: [ OtherRequestsComponent ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ OtherRequestsComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(OtherRequestsComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(OtherRequestsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

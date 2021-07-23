@@ -8,9 +8,9 @@ import { switchMap, concatMap, finalize } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
-    selector: 'app-fy-flag-expense',
-    templateUrl: './fy-flag-expense.component.html',
-    styleUrls: ['./fy-flag-expense.component.scss'],
+  selector: 'app-fy-flag-expense',
+  templateUrl: './fy-flag-expense.component.html',
+  styleUrls: ['./fy-flag-expense.component.scss'],
 })
 export class FyFlagExpenseComponent implements OnInit {
 
@@ -25,35 +25,35 @@ export class FyFlagExpenseComponent implements OnInit {
   ) { }
 
   async flagUnflag() {
-      const confirmationPopup = await this.popoverController.create({
-          component: FlagUnflagConfirmationComponent,
-          componentProps: {
-              title: this.etxn.tx_manual_flag ?  'Unflag' : 'Flag'
-          },
-          cssClass: 'dialog-popover'
-      });
+    const confirmationPopup = await this.popoverController.create({
+      component: FlagUnflagConfirmationComponent,
+      componentProps: {
+        title: this.etxn.tx_manual_flag ?  'Unflag' : 'Flag'
+      },
+      cssClass: 'dialog-popover'
+    });
 
-      confirmationPopup.present();
+    confirmationPopup.present();
 
-      const { data } = await confirmationPopup.onDidDismiss();
-      if (data && data.message) {
-          from(this.loaderService.showLoader('Please wait')).pipe(
-              switchMap(() => {
-                  const comment = {
-                      comment: data.message
-                  };
-                  return this.statusService.post('transactions', this.etxn.tx_id, comment, true);
-              }),
-              concatMap(() =>
-              // eslint-disable-next-line max-len
-                  this.etxn.tx_manual_flag ?  this.transactionService.manualUnflag(this.etxn.tx_id) : this.transactionService.manualFlag(this.etxn.tx_id)
-              ),
-              finalize(() => {
-                  this.notify.emit(true);
-                  this.loaderService.hideLoader();
-              })
-          ).subscribe(noop);
-      }
+    const { data } = await confirmationPopup.onDidDismiss();
+    if (data && data.message) {
+      from(this.loaderService.showLoader('Please wait')).pipe(
+        switchMap(() => {
+          const comment = {
+            comment: data.message
+          };
+          return this.statusService.post('transactions', this.etxn.tx_id, comment, true);
+        }),
+        concatMap(() =>
+        // eslint-disable-next-line max-len
+          this.etxn.tx_manual_flag ?  this.transactionService.manualUnflag(this.etxn.tx_id) : this.transactionService.manualFlag(this.etxn.tx_id)
+        ),
+        finalize(() => {
+          this.notify.emit(true);
+          this.loaderService.hideLoader();
+        })
+      ).subscribe(noop);
+    }
   }
 
   ngOnInit() {

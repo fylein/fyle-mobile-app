@@ -7,9 +7,9 @@ import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum
 import { Observable } from 'rxjs/internal/Observable';
 
 @Component({
-    selector: 'app-fy-footer',
-    templateUrl: './footer.component.html',
-    styleUrls: ['./footer.component.scss'],
+  selector: 'app-fy-footer',
+  templateUrl: './footer.component.html',
+  styleUrls: ['./footer.component.scss'],
 })
 export class FooterComponent implements OnInit {
 
@@ -22,11 +22,11 @@ export class FooterComponent implements OnInit {
   connectionState$: Observable<ConnectionMessageStatus>;
 
   get ConnectionMessageStatus() {
-      return ConnectionMessageStatus;
+    return ConnectionMessageStatus;
   }
 
   get FooterState() {
-      return FooterState;
+    return FooterState;
   }
 
   constructor(
@@ -36,36 +36,36 @@ export class FooterComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      this.connectionState$ = this.networkService.getConnectionStatus();
+    this.connectionState$ = this.networkService.getConnectionStatus();
   }
 
   goToHome() {
-      this.trackingService.footerButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Home',
-          Url: this.router.url
-      });
+    this.trackingService.footerButtonClicked({
+      Asset: 'Mobile',
+      Action: 'Home',
+      Url: this.router.url
+    });
 
-      this.homeClicked.emit();
+    this.homeClicked.emit();
   }
 
   goToCameraMode() {
-      this.trackingService.footerButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Camera',
-          Url: this.router.url
-      });
+    this.trackingService.footerButtonClicked({
+      Asset: 'Mobile',
+      Action: 'Camera',
+      Url: this.router.url
+    });
 
-      this.cameraClicked.emit();
+    this.cameraClicked.emit();
   }
 
   goToTasks() {
-      this.trackingService.footerButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Tasks',
-          Url: this.router.url
-      });
+    this.trackingService.footerButtonClicked({
+      Asset: 'Mobile',
+      Action: 'Tasks',
+      Url: this.router.url
+    });
 
-      this.taskClicked.emit();
+    this.taskClicked.emit();
   }
 }

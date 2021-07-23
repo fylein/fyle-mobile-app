@@ -3,9 +3,9 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 
 
 @Component({
-    selector: 'app-my-reports-card',
-    templateUrl: './my-reports-card.component.html',
-    styleUrls: ['./my-reports-card.component.scss'],
+  selector: 'app-my-reports-card',
+  templateUrl: './my-reports-card.component.html',
+  styleUrls: ['./my-reports-card.component.scss'],
 })
 export class MyReportsCardComponent implements OnInit {
 
@@ -23,19 +23,19 @@ export class MyReportsCardComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-      this.showDate =
+    this.showDate =
       (this.erpt && (new Date(this.erpt.rp_created_at)).toDateString()) !== (this.prevDate && (new Date(this.prevDate)).toDateString());
   }
 
   onDeleteReport() {
-      this.deleteReport.emit(this.erpt);
+    this.deleteReport.emit(this.erpt);
   }
 
   onGoToReport() {
-      this.gotoReport.emit(this.erpt);
+    this.gotoReport.emit(this.erpt);
   }
 
   onViewComments() {
-      this.viewComments.emit(this.erpt);
+    this.viewComments.emit(this.erpt);
   }
 }

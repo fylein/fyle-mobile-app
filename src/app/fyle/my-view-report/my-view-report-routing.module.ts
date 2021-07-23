@@ -4,14 +4,14 @@ import { Routes, RouterModule } from '@angular/router';
 import { MyViewReportPage } from './my-view-report.page';
 
 const routes: Routes = [
-    {
-        path: '',
-        component: MyViewReportPage
-    }
+  {
+    path: '',
+    component: MyViewReportPage
+  }
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class MyViewReportPageRoutingModule {}

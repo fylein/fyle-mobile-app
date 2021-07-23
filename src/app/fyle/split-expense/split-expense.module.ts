@@ -14,20 +14,20 @@ import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        SplitExpensePageRoutingModule,
-        MatIconModule,
-        ReactiveFormsModule,
-        SharedModule,
-        MatFormFieldModule,
-        MatInputModule,
-    ],
-    declarations: [
-        SplitExpensePage,
-        SplitExpenseStatusComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    SplitExpensePageRoutingModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    SharedModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
+  declarations: [
+    SplitExpensePage,
+    SplitExpenseStatusComponent
+  ]
 })
 export class SplitExpensePageModule {}

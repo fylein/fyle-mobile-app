@@ -9,9 +9,9 @@ import {LoaderService} from '../../../core/services/loader.service';
 import {Router} from '@angular/router';
 
 @Component({
-    selector: 'app-match-expense-popover',
-    templateUrl: './match-expense-popover.component.html',
-    styleUrls: ['./match-expense-popover.component.scss'],
+  selector: 'app-match-expense-popover',
+  templateUrl: './match-expense-popover.component.html',
+  styleUrls: ['./match-expense-popover.component.scss'],
 })
 export class MatchExpensePopoverComponent implements OnInit {
 
@@ -30,20 +30,20 @@ export class MatchExpensePopoverComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      this.matchedExpense$ = this.transactionService.getSplitExpenses(this.splitGroupId).pipe(
-          map(res => res && res[0])
-      );
+    this.matchedExpense$ = this.transactionService.getSplitExpenses(this.splitGroupId).pipe(
+      map(res => res && res[0])
+    );
   }
 
   closeMatchExpensePopover() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   async matchExpense() {
-      await this.loaderService.showLoader();
-      await this.transactionService.matchCCCExpense(this.expenseId, this.CCCEId).toPromise();
-      await this.loaderService.hideLoader();
-      await this.popoverController.dismiss();
-      await this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+    await this.loaderService.showLoader();
+    await this.transactionService.matchCCCExpense(this.expenseId, this.CCCEId).toPromise();
+    await this.loaderService.hideLoader();
+    await this.popoverController.dismiss();
+    await this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
   }
 }

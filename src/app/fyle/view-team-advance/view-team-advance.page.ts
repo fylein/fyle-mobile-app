@@ -20,9 +20,9 @@ import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advanc
 import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
-    selector: 'app-view-team-advance',
-    templateUrl: './view-team-advance.page.html',
-    styleUrls: ['./view-team-advance.page.scss'],
+  selector: 'app-view-team-advance',
+  templateUrl: './view-team-advance.page.html',
+  styleUrls: ['./view-team-advance.page.scss'],
 })
 export class ViewTeamAdvancePage implements OnInit {
 
@@ -49,184 +49,184 @@ export class ViewTeamAdvancePage implements OnInit {
   ) { }
 
   ionViewWillEnter() {
-      const id = this.activatedRoute.snapshot.params.id;
-      this.advanceRequest$ = this.refreshApprovers$.pipe(
-          startWith(true),
-          switchMap(() => from(this.loaderService.showLoader()).pipe(
-              switchMap(() => this.advanceRequestService.getAdvanceRequest(id))
-          )),
-          finalize(() => from(this.loaderService.hideLoader())),
-          shareReplay(1)
-      );
+    const id = this.activatedRoute.snapshot.params.id;
+    this.advanceRequest$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(() => from(this.loaderService.showLoader()).pipe(
+        switchMap(() => this.advanceRequestService.getAdvanceRequest(id))
+      )),
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
+    );
 
-      this.actions$ = this.advanceRequestService.getActions(id).pipe(
-          shareReplay(1)
-      );
+    this.actions$ = this.advanceRequestService.getActions(id).pipe(
+      shareReplay(1)
+    );
 
-      this.showAdvanceActions$ = this.actions$.pipe(map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject));
+    this.showAdvanceActions$ = this.actions$.pipe(map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject));
 
-      this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
+    this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
 
-      this.activeApprovals$ = this.refreshApprovers$.pipe(
-          startWith(true),
-          switchMap(() => this.approvals$),
-          map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
-      );
+    this.activeApprovals$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(() => this.approvals$),
+      map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
+    );
 
-      this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
-          switchMap(res => from(res)),
-          concatMap(file => this.fileService.downloadUrl(file.id).pipe(
-              map(url => {
-                  file.file_download_url = url;
-                  return file as File;
-              })
-          )),
-          reduce((acc, curr) => acc.concat(curr), [] as File[])
-      );
+    this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
+      switchMap(res => from(res)),
+      concatMap(file => this.fileService.downloadUrl(file.id).pipe(
+        map(url => {
+          file.file_download_url = url;
+          return file as File;
+        })
+      )),
+      reduce((acc, curr) => acc.concat(curr), [] as File[])
+    );
 
-      this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
+    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
 
-      this.advanceRequestCustomFields$ = forkJoin({
-          advanceRequest: this.advanceRequest$.pipe(take(1)),
-          customFields: this.customFields$,
-          eou: from(this.authService.getEou())
-      }).pipe(
-          map(res => {
-              if (res.eou.ou.org_id === res.advanceRequest.ou_org_id) {
-                  let customFieldValues = [];
-                  if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
-                      customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
-                  }
+    this.advanceRequestCustomFields$ = forkJoin({
+      advanceRequest: this.advanceRequest$.pipe(take(1)),
+      customFields: this.customFields$,
+      eou: from(this.authService.getEou())
+    }).pipe(
+      map(res => {
+        if (res.eou.ou.org_id === res.advanceRequest.ou_org_id) {
+          let customFieldValues = [];
+          if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
+            customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+          }
 
-                  res.customFields.map(customField => {
-                      customFieldValues.filter(customFieldValue => {
-                          if (customField.id === customFieldValue.id) {
-                              customField.value = customFieldValue.value;
-                          }
-                      });
-                  });
-                  return res.customFields;
-
-              } else {
-                  return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+          res.customFields.map(customField => {
+            customFieldValues.filter(customFieldValue => {
+              if (customField.id === customFieldValue.id) {
+                customField.value = customFieldValue.value;
               }
-          })
-      );
+            });
+          });
+          return res.customFields;
+
+        } else {
+          return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+        }
+      })
+    );
   }
 
   edit() {
-      this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id, from: 'TEAM_ADVANCE' }]);
+    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id, from: 'TEAM_ADVANCE' }]);
   }
 
   getApproverEmails(activeApprovals) {
-      return activeApprovals.map(approver => approver.approver_email);
+    return activeApprovals.map(approver => approver.approver_email);
   }
 
   onUpdateApprover(message: boolean) {
-      if (message) {
-          this.refreshApprovers$.next();
-      }
+    if (message) {
+      this.refreshApprovers$.next();
+    }
   }
 
   async delete() {
-      const id = this.activatedRoute.snapshot.params.id;
+    const id = this.activatedRoute.snapshot.params.id;
 
-      const popupResults = await this.popupService.showPopup({
-          header: 'Confirm',
-          message: 'Are you sure you want to delete this Advance Request',
-          primaryCta: {
-              text: 'Delete Advance Request'
-          }
-      });
-
-      if (popupResults === 'primary') {
-          this.advanceRequestService.delete(id).subscribe(() => {
-              this.router.navigate(['/', 'enterprise', 'team_advance']);
-          });
+    const popupResults = await this.popupService.showPopup({
+      header: 'Confirm',
+      message: 'Are you sure you want to delete this Advance Request',
+      primaryCta: {
+        text: 'Delete Advance Request'
       }
+    });
+
+    if (popupResults === 'primary') {
+      this.advanceRequestService.delete(id).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'team_advance']);
+      });
+    }
   }
 
   async openAdvanceActionsPopover() {
-      const actions = await this.actions$.toPromise();
-      const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
+    const actions = await this.actions$.toPromise();
+    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
 
-      const advanceActions = await this.popoverController.create({
-          componentProps: {
-              actions,
-              areq
-          },
-          component: AdvanceActionsComponent,
-          cssClass: 'dialog-popover'
-      });
+    const advanceActions = await this.popoverController.create({
+      componentProps: {
+        actions,
+        areq
+      },
+      component: AdvanceActionsComponent,
+      cssClass: 'dialog-popover'
+    });
 
-      await advanceActions.present();
+    await advanceActions.present();
 
-      const { data } = await advanceActions.onWillDismiss();
+    const { data } = await advanceActions.onWillDismiss();
 
-      if (data && data.command === 'approveAdvance') {
-          await this.showApproveAdvanceSummaryPopover();
-      } else if (data && data.command === 'sendBackAdvance') {
-          await this.showSendBackAdvanceSummaryPopover();
-      } else if (data && data.command === 'rejectAdvance') {
-          await this.showRejectAdvanceSummaryPopup();
-      }
+    if (data && data.command === 'approveAdvance') {
+      await this.showApproveAdvanceSummaryPopover();
+    } else if (data && data.command === 'sendBackAdvance') {
+      await this.showSendBackAdvanceSummaryPopover();
+    } else if (data && data.command === 'rejectAdvance') {
+      await this.showRejectAdvanceSummaryPopup();
+    }
   }
 
   async showApproveAdvanceSummaryPopover() {
-      const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
-      const showApprover = await this.popoverController.create({
-          component: ApproveAdvanceComponent,
-          cssClass: 'dialog-popover',
-          componentProps: {
-              areq
-          }
-      });
-
-      await showApprover.present();
-
-      const { data } = await showApprover.onWillDismiss();
-
-      if (data && data.goBack) {
-          this.router.navigate(['/', 'enterprise', 'team_advance']);
+    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
+    const showApprover = await this.popoverController.create({
+      component: ApproveAdvanceComponent,
+      cssClass: 'dialog-popover',
+      componentProps: {
+        areq
       }
+    });
+
+    await showApprover.present();
+
+    const { data } = await showApprover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    }
   }
 
   async showSendBackAdvanceSummaryPopover() {
-      const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
-      const showApprover = await this.popoverController.create({
-          component: SendBackAdvanceComponent,
-          cssClass: 'dialog-popover',
-          componentProps: {
-              areq
-          }
-      });
-
-      await showApprover.present();
-
-      const { data } = await showApprover.onWillDismiss();
-
-      if (data && data.goBack) {
-          this.router.navigate(['/', 'enterprise', 'team_advance']);
+    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
+    const showApprover = await this.popoverController.create({
+      component: SendBackAdvanceComponent,
+      cssClass: 'dialog-popover',
+      componentProps: {
+        areq
       }
+    });
+
+    await showApprover.present();
+
+    const { data } = await showApprover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    }
   }
 
   async showRejectAdvanceSummaryPopup() {
-      const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
-      const showApprover = await this.popoverController.create({
-          component: RejectAdvanceComponent,
-          cssClass: 'dialog-popover',
-          componentProps: {
-              areq
-          }
-      });
-
-      await showApprover.present();
-
-      const { data } = await showApprover.onWillDismiss();
-
-      if (data && data.goBack) {
-          this.router.navigate(['/', 'enterprise', 'team_advance']);
+    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
+    const showApprover = await this.popoverController.create({
+      component: RejectAdvanceComponent,
+      cssClass: 'dialog-popover',
+      componentProps: {
+        areq
       }
+    });
+
+    await showApprover.present();
+
+    const { data } = await showApprover.onWillDismiss();
+
+    if (data && data.goBack) {
+      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    }
   }
 
   ngOnInit() {

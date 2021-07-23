@@ -15,17 +15,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        InvitedUserPageRoutingModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule
-    ],
-    declarations: [InvitedUserPage]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    InvitedUserPageRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule
+  ],
+  declarations: [InvitedUserPage]
 })
 export class InvitedUserPageModule {}

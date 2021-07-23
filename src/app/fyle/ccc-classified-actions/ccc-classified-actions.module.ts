@@ -10,13 +10,13 @@ import { CccClassifiedActionsPage } from './ccc-classified-actions.page';
 import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        CccClassifiedActionsPageRoutingModule,
-        SharedModule
-    ],
-    declarations: [CccClassifiedActionsPage]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    CccClassifiedActionsPageRoutingModule,
+    SharedModule
+  ],
+  declarations: [CccClassifiedActionsPage]
 })
 export class CccClassifiedActionsPageModule {}

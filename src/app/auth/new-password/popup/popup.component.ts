@@ -4,9 +4,9 @@ import {Router} from '@angular/router';
 import {forkJoin, noop} from 'rxjs';
 
 @Component({
-    selector: 'app-popup',
-    templateUrl: './popup.component.html',
-    styleUrls: ['./popup.component.scss'],
+  selector: 'app-popup',
+  templateUrl: './popup.component.html',
+  styleUrls: ['./popup.component.scss'],
 })
 export class PopupComponent implements OnInit {
 
@@ -21,10 +21,10 @@ export class PopupComponent implements OnInit {
   ngOnInit() { }
 
   closeClicked() {
-      forkJoin([
-          this.popoverController.dismiss(),
-          this.router.navigate(this.route)
-      ]).subscribe(noop);
+    forkJoin([
+      this.popoverController.dismiss(),
+      this.router.navigate(this.route)
+    ]).subscribe(noop);
   }
 
 }

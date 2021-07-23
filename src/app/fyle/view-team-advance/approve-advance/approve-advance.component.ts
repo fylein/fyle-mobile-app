@@ -4,9 +4,9 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { finalize } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-approve-advance',
-    templateUrl: './approve-advance.component.html',
-    styleUrls: ['./approve-advance.component.scss'],
+  selector: 'app-approve-advance',
+  templateUrl: './approve-advance.component.html',
+  styleUrls: ['./approve-advance.component.scss'],
 })
 export class ApproveAdvanceComponent implements OnInit {
 
@@ -21,17 +21,17 @@ export class ApproveAdvanceComponent implements OnInit {
   ngOnInit() { }
 
   cancel() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   approveAdvanceAfterReview(event) {
-      this.approveAdvanceLoading = true;
-      this.advanceRequestService.approve(this.areq.areq_id).pipe(
-          finalize(() => this.approveAdvanceLoading = false)
-      ).subscribe(_ => {
-          this.popoverController.dismiss({
-              goBack: true
-          });
+    this.approveAdvanceLoading = true;
+    this.advanceRequestService.approve(this.areq.areq_id).pipe(
+      finalize(() => this.approveAdvanceLoading = false)
+    ).subscribe(_ => {
+      this.popoverController.dismiss({
+        goBack: true
       });
+    });
   }
 }

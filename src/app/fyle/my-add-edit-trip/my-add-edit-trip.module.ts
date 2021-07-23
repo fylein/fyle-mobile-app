@@ -15,28 +15,28 @@ import {MatInputModule} from '@angular/material/input';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        IonicModule,
-        MyAddEditTripPageRoutingModule,
-        MatIconModule,
-        MatSelectModule,
-        SharedModule,
-        MatCheckboxModule,
-        MatTabsModule,
-        MatInputModule
-    ],
-    declarations: [
-        MyAddEditTripPage,
-        OtherRequestsComponent,
-        SavePopoverComponent,
-        PolicyViolationComponent
-    ],
-    exports: [
-        MatTabsModule
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonicModule,
+    MyAddEditTripPageRoutingModule,
+    MatIconModule,
+    MatSelectModule,
+    SharedModule,
+    MatCheckboxModule,
+    MatTabsModule,
+    MatInputModule
+  ],
+  declarations: [
+    MyAddEditTripPage,
+    OtherRequestsComponent,
+    SavePopoverComponent,
+    PolicyViolationComponent
+  ],
+  exports: [
+    MatTabsModule
+  ]
 })
 export class MyAddEditTripPageModule {
 }

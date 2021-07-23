@@ -17,9 +17,9 @@ import { Router } from '@angular/router';
 import {TrackingService} from '../../core/services/tracking.service';
 
 @Component({
-    selector: 'app-setup-account',
-    templateUrl: './setup-account.page.html',
-    styleUrls: ['./setup-account.page.scss'],
+  selector: 'app-setup-account',
+  templateUrl: './setup-account.page.html',
+  styleUrls: ['./setup-account.page.scss'],
 })
 export class SetupAccountPage implements OnInit {
 
@@ -53,162 +53,162 @@ export class SetupAccountPage implements OnInit {
 
 
   setupNetworkWatcher() {
-      const networkWatcherEmitter = new EventEmitter<boolean>();
-      this.networkService.connectivityWatcher(networkWatcherEmitter);
-      this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
-      this.isConnected$.subscribe(noop);
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$.subscribe(noop);
   }
 
   async openCurrenySelectionModal() {
-      const modal = await this.modalController.create({
-          component: SelectCurrencyComponent
-      });
+    const modal = await this.modalController.create({
+      component: SelectCurrencyComponent
+    });
 
-      await modal.present();
+    await modal.present();
 
-      const { data } = await modal.onWillDismiss();
-      if (data) {
-          this.fg.controls.homeCurrency.setValue(data.currency.shortCode);
-      }
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      this.fg.controls.homeCurrency.setValue(data.currency.shortCode);
+    }
   }
 
   postUser() {
-      return this.eou$.pipe(
-          concatMap(eou => {
-              const us = eou.us;
-              us.password = this.fg.controls.password.value;
-              return this.orgUserService.postUser(us);
-          })
-      );
+    return this.eou$.pipe(
+      concatMap(eou => {
+        const us = eou.us;
+        us.password = this.fg.controls.password.value;
+        return this.orgUserService.postUser(us);
+      })
+    );
   }
 
   postOrg() {
-      return this.org$.pipe(
-          concatMap(org => {
-              org.name = this.fg.controls.companyName.value;
-              org.currency = this.fg.controls.homeCurrency.value;
-              return this.orgService.updateOrg(org);
-          })
-      );
+    return this.org$.pipe(
+      concatMap(org => {
+        org.name = this.fg.controls.companyName.value;
+        org.currency = this.fg.controls.homeCurrency.value;
+        return this.orgService.updateOrg(org);
+      })
+    );
   }
 
   saveGuessedMileage() {
-      return forkJoin({
-          orgSettings: this.offlineService.getOrgSettings(),
-          org: this.org$
-      }).pipe(
-          concatMap(({ orgSettings, org }) => {
-              orgSettings.mileage.enabled = true;
-              if (org.currency === 'USD') {
-                  // Googled these rates for the US
-                  orgSettings.mileage.unit = 'MILES';
-                  orgSettings.mileage.four_wheeler = 0.580;
-                  orgSettings.mileage.two_wheeler = 0.580;
-              } else {
-                  orgSettings.mileage.unit = 'KM';
-                  orgSettings.mileage.four_wheeler = 8.0;
-                  orgSettings.mileage.two_wheeler = 6.0;
-              }
-              return this.orgSettingsService.post(orgSettings);
-          })
-      );
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      org: this.org$
+    }).pipe(
+      concatMap(({ orgSettings, org }) => {
+        orgSettings.mileage.enabled = true;
+        if (org.currency === 'USD') {
+          // Googled these rates for the US
+          orgSettings.mileage.unit = 'MILES';
+          orgSettings.mileage.four_wheeler = 0.580;
+          orgSettings.mileage.two_wheeler = 0.580;
+        } else {
+          orgSettings.mileage.unit = 'KM';
+          orgSettings.mileage.four_wheeler = 8.0;
+          orgSettings.mileage.two_wheeler = 6.0;
+        }
+        return this.orgSettingsService.post(orgSettings);
+      })
+    );
   }
 
   async saveData() {
-      this.fg.markAllAsTouched();
-      if (this.fg.valid) {
+    this.fg.markAllAsTouched();
+    if (this.fg.valid) {
       // do valid shit
-          from(this.loaderService.showLoader()).pipe(
-              concatMap(() => forkJoin([
-                  this.postUser(),
-                  this.postOrg(),
-                  this.saveGuessedMileage()
-              ])),
-              finalize(async () => await this.loaderService.hideLoader()),
-              concatMap(() => this.authService.refreshEou())
-          ).subscribe(() => {
-              this.trackingService.setupHalf({ Asset: 'Mobile' });
-              // // setting up company details in clevertap profile
-              this.trackingService.updateSegmentProfile({
-                  'Company Name': this.fg.controls.companyName.value
-              });
+      from(this.loaderService.showLoader()).pipe(
+        concatMap(() => forkJoin([
+          this.postUser(),
+          this.postOrg(),
+          this.saveGuessedMileage()
+        ])),
+        finalize(async () => await this.loaderService.hideLoader()),
+        concatMap(() => this.authService.refreshEou())
+      ).subscribe(() => {
+        this.trackingService.setupHalf({ Asset: 'Mobile' });
+        // // setting up company details in clevertap profile
+        this.trackingService.updateSegmentProfile({
+          'Company Name': this.fg.controls.companyName.value
+        });
 
-              this.router.navigate(['/', 'post_verification', 'setup_account_preferences']);
-          });
-      } else {
-          const toast = await this.toastController.create({
-              message: 'Please fill all required fields to proceed',
-              color: 'danger',
-              duration: 1200
-          });
+        this.router.navigate(['/', 'post_verification', 'setup_account_preferences']);
+      });
+    } else {
+      const toast = await this.toastController.create({
+        message: 'Please fill all required fields to proceed',
+        color: 'danger',
+        duration: 1200
+      });
 
-          await toast.present();
-      }
+      await toast.present();
+    }
   }
 
   ngOnInit() {
-      this.setupNetworkWatcher();
-      this.eou$ = from(this.authService.getEou());
-      this.fullname$ = this.eou$.pipe(
-          map(
-              eou => eou.us.full_name
-          )
-      );
+    this.setupNetworkWatcher();
+    this.eou$ = from(this.authService.getEou());
+    this.fullname$ = this.eou$.pipe(
+      map(
+        eou => eou.us.full_name
+      )
+    );
 
-      this.fg = this.fb.group({
-          companyName: ['', Validators.required],
-          homeCurrency: ['', Validators.required],
-          password: ['',
-              Validators.compose(
-                  [
-                      Validators.required,
-                      Validators.minLength(12),
-                      Validators.maxLength(32),
-                      Validators.pattern(/[A-Z]/),
-                      Validators.pattern(/[a-z]/),
-                      Validators.pattern(/[0-9]/),
-                      Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
-              )
-          ]
-      });
+    this.fg = this.fb.group({
+      companyName: ['', Validators.required],
+      homeCurrency: ['', Validators.required],
+      password: ['',
+        Validators.compose(
+          [
+            Validators.required,
+            Validators.minLength(12),
+            Validators.maxLength(32),
+            Validators.pattern(/[A-Z]/),
+            Validators.pattern(/[a-z]/),
+            Validators.pattern(/[0-9]/),
+            Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
+        )
+      ]
+    });
 
-      this.org$ = this.orgService.setCurrencyBasedOnIp().pipe(
-          concatMap(() => this.orgService.getCurrentOrg()),
-          shareReplay(1)
-      );
+    this.org$ = this.orgService.setCurrencyBasedOnIp().pipe(
+      concatMap(() => this.orgService.getCurrentOrg()),
+      shareReplay(1)
+    );
 
-      this.org$.subscribe((org) => {
-          this.fg.controls.homeCurrency.setValue(org.currency);
-      });
+    this.org$.subscribe((org) => {
+      this.fg.controls.homeCurrency.setValue(org.currency);
+    });
 
-      this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-          map(
-              password => password && password.length >= 12 && password.length <= 32
-          )
-      );
+    this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+      map(
+        password => password && password.length >= 12 && password.length <= 32
+      )
+    );
 
-      this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-          map(
-              password => (/[A-Z]/.test(password))
-          )
-      );
+    this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+      map(
+        password => (/[A-Z]/.test(password))
+      )
+    );
 
-      this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-          map(
-              password => (/[0-9]/.test(password))
-          )
-      );
+    this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+      map(
+        password => (/[0-9]/.test(password))
+      )
+    );
 
-      this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-          map(
-              password => (/[a-z]/.test(password))
-          )
-      );
-      this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-          map(
-              password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
-          )
-      );
+    this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+      map(
+        password => (/[a-z]/.test(password))
+      )
+    );
+    this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
+      map(
+        password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
+      )
+    );
   }
 
 }

@@ -11,16 +11,16 @@ import { MyAdvancesCardComponent } from './my-advances-card/my-advances-card.com
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        MyAdvancesPageRoutingModule,
-        SharedModule
-    ],
-    declarations: [
-        MyAdvancesPage,
-        MyAdvancesCardComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyAdvancesPageRoutingModule,
+    SharedModule
+  ],
+  declarations: [
+    MyAdvancesPage,
+    MyAdvancesCardComponent
+  ]
 })
 export class MyAdvancesPageModule {}

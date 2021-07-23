@@ -8,9 +8,9 @@ import {TrackingService} from '../../../core/services/tracking.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
-    selector: 'app-comments-history',
-    templateUrl: './comments-history.component.html',
-    styleUrls: ['./comments-history.component.scss'],
+  selector: 'app-comments-history',
+  templateUrl: './comments-history.component.html',
+  styleUrls: ['./comments-history.component.scss'],
 })
 export class CommentsHistoryComponent implements OnInit {
 
@@ -32,36 +32,36 @@ export class CommentsHistoryComponent implements OnInit {
   ) { }
 
   async presentModal() {
-      const modal = await this.modalController.create({
-          component: ViewCommentComponent,
-          componentProps: {
-              objectType: this.objectType,
-              objectId: this.objectId
-          },
-          presentingElement: await this.modalController.getTop(),
-          ...this.modalProperties.getModalDefaultProperties()
-      });
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: this.objectType,
+        objectId: this.objectId
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties()
+    });
 
-      await modal.present();
+    await modal.present();
 
-      const { data } = await modal.onDidDismiss();
+    const { data } = await modal.onDidDismiss();
 
-      if (data && data.updated) {
-          this.trackingService.addComment({Asset: 'Mobile'});
-          this.refreshComments$.next();
-      } else {
-          this.trackingService.viewComment({Asset: 'Mobile'});
-      }
+    if (data && data.updated) {
+      this.trackingService.addComment({Asset: 'Mobile'});
+      this.refreshComments$.next();
+    } else {
+      this.trackingService.viewComment({Asset: 'Mobile'});
+    }
   }
 
   ngOnInit() {
-      this.noOfComments$ = this.refreshComments$.pipe(
-          startWith(0),
-          switchMap(() => this.statusService.find(this.objectType, this.objectId).pipe(
-              map(res => res.filter((estatus) => estatus.us_full_name).length),
-          ))
-      );
-      this.refreshComments$.next();
+    this.noOfComments$ = this.refreshComments$.pipe(
+      startWith(0),
+      switchMap(() => this.statusService.find(this.objectType, this.objectId).pipe(
+        map(res => res.filter((estatus) => estatus.us_full_name).length),
+      ))
+    );
+    this.refreshComments$.next();
   }
 
 }

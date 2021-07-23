@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class MobileEventService {
   cardExpandedSubject = new Subject();
@@ -10,10 +10,10 @@ export class MobileEventService {
   constructor() { }
 
   onDashboardCardExpanded() {
-      return this.cardExpandedSubject.asObservable();
+    return this.cardExpandedSubject.asObservable();
   }
 
   dashboardCardExpanded() {
-      return this.cardExpandedSubject.next();
+    return this.cardExpandedSubject.next();
   }
 }

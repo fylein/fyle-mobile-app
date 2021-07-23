@@ -3,9 +3,9 @@ import { PopoverController } from '@ionic/angular';
 import { PopupConfig } from './popup.model';
 
 @Component({
-    selector: 'app-fy-popup',
-    templateUrl: './fy-popup.component.html',
-    styleUrls: ['./fy-popup.component.scss'],
+  selector: 'app-fy-popup',
+  templateUrl: './fy-popup.component.html',
+  styleUrls: ['./fy-popup.component.scss'],
 })
 export class FyPopupComponent implements OnInit {
   @Input() config: PopupConfig;
@@ -15,33 +15,33 @@ export class FyPopupComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      if (this.config.showCancelButton === undefined) {
-          this.config.showCancelButton = true;
-      }
+    if (this.config.showCancelButton === undefined) {
+      this.config.showCancelButton = true;
+    }
   }
 
   primaryCtaClicked() {
-      if (this.config.primaryCta) {
+    if (this.config.primaryCta) {
       // noinspection JSIgnoredPromiseFromCall
-          this.popoverController.dismiss({
-              action: 'primary'
-          });
-      }
+      this.popoverController.dismiss({
+        action: 'primary'
+      });
+    }
   }
 
   secondaryCtaClicked() {
-      if (this.config.secondaryCta) {
+    if (this.config.secondaryCta) {
       // noinspection JSIgnoredPromiseFromCall
-          this.popoverController.dismiss({
-              action: 'secondary'
-          });
-      }
+      this.popoverController.dismiss({
+        action: 'secondary'
+      });
+    }
   }
 
   cancel() {
-      // noinspection JSIgnoredPromiseFromCall
-      this.popoverController.dismiss({
-          action: 'cancel'
-      });
+    // noinspection JSIgnoredPromiseFromCall
+    this.popoverController.dismiss({
+      action: 'cancel'
+    });
   }
 }

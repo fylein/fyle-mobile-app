@@ -2,9 +2,9 @@ import {Component, Input, OnInit, EventEmitter, Output} from '@angular/core';
 import {HeaderState} from './header-state.enum';
 
 @Component({
-    selector: 'app-fy-header',
-    templateUrl: './fy-header.component.html',
-    styleUrls: ['./fy-header.component.scss'],
+  selector: 'app-fy-header',
+  templateUrl: './fy-header.component.html',
+  styleUrls: ['./fy-header.component.scss'],
 })
 export class FyHeaderComponent implements OnInit {
 
@@ -16,7 +16,7 @@ export class FyHeaderComponent implements OnInit {
   @Output() multiselectBack = new EventEmitter();
 
   get HeaderState() {
-      return HeaderState;
+    return HeaderState;
   }
 
   constructor(
@@ -25,10 +25,10 @@ export class FyHeaderComponent implements OnInit {
   ngOnInit() {}
 
   onSimpleSearchCancel() {
-      this.simpleSearchCancel.emit();
+    this.simpleSearchCancel.emit();
   }
 
   onMultiselectBack() {
-      this.multiselectBack.emit();
+    this.multiselectBack.emit();
   }
 }

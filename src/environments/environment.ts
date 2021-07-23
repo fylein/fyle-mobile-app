@@ -3,16 +3,16 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-    production: false,
-    NAME: '',
-    CLUSTER_DOMAIN: '',
-    ROOT_URL: '',
-    ROUTER_API_ENDPOINT: '',
-    IP_FIND_KEY: '',
-    ANDROID_CLIENT_ID: '',
-    GOOGLE_MAPS_API_KEY: '',
-    FRESHCHAT_TOKEN: '',
-    SENTRY_DSN: ''
+  production: false,
+  NAME: '',
+  CLUSTER_DOMAIN: '',
+  ROOT_URL: '',
+  ROUTER_API_ENDPOINT: '',
+  IP_FIND_KEY: '',
+  ANDROID_CLIENT_ID: '',
+  GOOGLE_MAPS_API_KEY: '',
+  FRESHCHAT_TOKEN: '',
+  SENTRY_DSN: ''
 };
 
 /*

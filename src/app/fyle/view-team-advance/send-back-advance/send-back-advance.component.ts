@@ -5,9 +5,9 @@ import {finalize} from 'rxjs/operators';
 import {NgModel} from '@angular/forms';
 
 @Component({
-    selector: 'app-send-back-advance',
-    templateUrl: './send-back-advance.component.html',
-    styleUrls: ['./send-back-advance.component.scss'],
+  selector: 'app-send-back-advance',
+  templateUrl: './send-back-advance.component.html',
+  styleUrls: ['./send-back-advance.component.scss'],
 })
 export class SendBackAdvanceComponent implements OnInit {
 
@@ -26,30 +26,30 @@ export class SendBackAdvanceComponent implements OnInit {
   }
 
   cancel() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   sendBack(sendBackInput: NgModel) {
-      if (sendBackInput.valid) {
-          this.sendBackLoading = true;
-          const status = {
-              comment: this.sendBackReason
-          };
+    if (sendBackInput.valid) {
+      this.sendBackLoading = true;
+      const status = {
+        comment: this.sendBackReason
+      };
 
-          const statusPayload = {
-              status,
-              notify: false
-          };
+      const statusPayload = {
+        status,
+        notify: false
+      };
 
-          this.advanceRequestService.sendBack(this.areq.areq_id, statusPayload).pipe(
-              finalize(() => this.sendBackLoading = false)
-          ).subscribe(() => {
-              this.popoverController.dismiss({
-                  goBack: true
-              });
-          });
-      } else {
-          sendBackInput.control.markAsTouched();
-      }
+      this.advanceRequestService.sendBack(this.areq.areq_id, statusPayload).pipe(
+        finalize(() => this.sendBackLoading = false)
+      ).subscribe(() => {
+        this.popoverController.dismiss({
+          goBack: true
+        });
+      });
+    } else {
+      sendBackInput.control.markAsTouched();
+    }
   }
 }

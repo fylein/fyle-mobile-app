@@ -4,9 +4,9 @@ import {ModalController} from '@ionic/angular';
 import {PopupService} from '../../../core/services/popup.service';
 
 @Component({
-    selector: 'app-match-transaction',
-    templateUrl: './match-transaction.component.html',
-    styleUrls: ['./match-transaction.component.scss'],
+  selector: 'app-match-transaction',
+  templateUrl: './match-transaction.component.html',
+  styleUrls: ['./match-transaction.component.scss'],
 })
 export class MatchTransactionComponent implements OnInit {
 
@@ -22,24 +22,24 @@ export class MatchTransactionComponent implements OnInit {
   ngOnInit() { }
 
   onDoneClick() {
-      this.modalController.dismiss();
+    this.modalController.dismiss();
   }
 
   selectCCCExpense(cccExpense: CorporateCardExpense) {
-      this.modalController.dismiss({
-          selectedCCCExpense: cccExpense
-      });
+    this.modalController.dismiss({
+      selectedCCCExpense: cccExpense
+    });
   }
 
   selectNotInList() {
-      if (this.mode === 'edit') {
-          this.modalController.dismiss({
-              unMatchedExpense: true
-          });
-      } else{
-          this.modalController.dismiss({
-              selectedCCCExpense: null
-          });
-      }
+    if (this.mode === 'edit') {
+      this.modalController.dismiss({
+        unMatchedExpense: true
+      });
+    } else{
+      this.modalController.dismiss({
+        selectedCCCExpense: null
+      });
+    }
   }
 }

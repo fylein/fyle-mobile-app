@@ -7,9 +7,9 @@ import {TrackingService} from '../../../core/services/tracking.service';
 const { Browser } =  Plugins;
 
 @Component({
-    selector: 'app-support-dialog',
-    templateUrl: './support-dialog.page.html',
-    styleUrls: ['./support-dialog.page.scss'],
+  selector: 'app-support-dialog',
+  templateUrl: './support-dialog.page.html',
+  styleUrls: ['./support-dialog.page.scss'],
 })
 export class SupportDialogPage implements OnInit {
 
@@ -24,24 +24,24 @@ export class SupportDialogPage implements OnInit {
   ) { }
 
   openHelpLink() {
-      this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
-      Browser.open({ toolbarColor: '#280a31', url: 'https://fylehq.com/help/' });
+    this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
+    Browser.open({ toolbarColor: '#280a31', url: 'https://fylehq.com/help/' });
   }
 
   openChromeExtLink() {
-      this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
-      Browser.open({ toolbarColor: '#280a31', url: 'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk' });
+    this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
+    Browser.open({ toolbarColor: '#280a31', url: 'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk' });
   }
 
   openOutlookExtLink() {
-      this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
-      Browser.open({ toolbarColor: '#280a31', url: 'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview' });
+    this.trackingService.engageWithHelpCard({Asset: 'Mobile'});
+    Browser.open({ toolbarColor: '#280a31', url: 'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview' });
   }
 
   closeDialog() {
-      this.modalController.dismiss({
-          dismissed: true
-      });
+    this.modalController.dismiss({
+      dismissed: true
+    });
   }
   ngOnInit() {
   }

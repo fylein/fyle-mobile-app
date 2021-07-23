@@ -3,14 +3,14 @@ import { TestBed } from '@angular/core/testing';
 import { RouterApiService } from './router-api.service';
 
 describe('RouterApiService', () => {
-    let service: RouterApiService;
+  let service: RouterApiService;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({});
-        service = TestBed.inject(RouterApiService);
-    });
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(RouterApiService);
+  });
 
-    it('should be created', () => {
-        expect(service).toBeTruthy();
-    });
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
 });

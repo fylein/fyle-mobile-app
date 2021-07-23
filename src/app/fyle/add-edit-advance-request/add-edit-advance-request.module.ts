@@ -24,28 +24,28 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
 
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        AddEditAdvanceRequestPageRoutingModule,
-        MatIconModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        SharedModule,
-        MatCheckboxModule,
-        PinchZoomModule,
-        PdfViewerModule
-    ],
-    declarations: [
-        AddEditAdvanceRequestPage,
-        FyCurrencyComponent,
-        FyCurrencyChooseCurrencyComponent,
-        FyCurrencyExchangeRateComponent,
-        PolicyViolationDialogComponent,
-        CameraOptionsPopupComponent,
-        DraftAdvanceSummaryComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    AddEditAdvanceRequestPageRoutingModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    SharedModule,
+    MatCheckboxModule,
+    PinchZoomModule,
+    PdfViewerModule
+  ],
+  declarations: [
+    AddEditAdvanceRequestPage,
+    FyCurrencyComponent,
+    FyCurrencyChooseCurrencyComponent,
+    FyCurrencyExchangeRateComponent,
+    PolicyViolationDialogComponent,
+    CameraOptionsPopupComponent,
+    DraftAdvanceSummaryComponent
+  ]
 })
 export class AddEditAdvanceRequestPageModule {}

@@ -17,18 +17,18 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { MatRippleModule } from '@angular/material/core';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        MyTripsPageRoutingModule,
-        MatCardModule,
-        SharedModule,
-        MatRippleModule
-    ],
-    declarations: [
-        MyTripsPage,
-        MyTripsCardComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyTripsPageRoutingModule,
+    MatCardModule,
+    SharedModule,
+    MatRippleModule
+  ],
+  declarations: [
+    MyTripsPage,
+    MyTripsCardComponent
+  ]
 })
 export class MyTripsPageModule { }

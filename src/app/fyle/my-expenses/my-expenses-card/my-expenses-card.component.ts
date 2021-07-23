@@ -5,9 +5,9 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { map } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-my-expenses-card',
-    templateUrl: './my-expenses-card.component.html',
-    styleUrls: ['./my-expenses-card.component.scss'],
+  selector: 'app-my-expenses-card',
+  templateUrl: './my-expenses-card.component.html',
+  styleUrls: ['./my-expenses-card.component.scss'],
 })
 export class MyExpensesCardComponent implements OnInit {
 
@@ -49,89 +49,89 @@ export class MyExpensesCardComponent implements OnInit {
   ) { }
 
   get isSelected() {
-      return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+    return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
   }
 
   getVendorDetails(expense) {
-      const category = expense.tx_org_category && expense.tx_org_category.toLowerCase();
-      let vendorName = expense.tx_vendor || 'Expense';
+    const category = expense.tx_org_category && expense.tx_org_category.toLowerCase();
+    let vendorName = expense.tx_vendor || 'Expense';
 
-      if (category === 'mileage') {
-          vendorName = expense.tx_distance;
-          vendorName += ' ' + expense.tx_distance_unit;
-      } else if (category === 'per diem') {
-          vendorName = expense.tx_num_days;
-          vendorName += ' Days';
-      }
+    if (category === 'mileage') {
+      vendorName = expense.tx_distance;
+      vendorName += ' ' + expense.tx_distance_unit;
+    } else if (category === 'per diem') {
+      vendorName = expense.tx_num_days;
+      vendorName += ' Days';
+    }
 
-      return vendorName;
+    return vendorName;
   }
 
   ngOnInit() {
-      this.amountIsNumber = typeof this.expense.tx_amount === 'number';
-      this.extractedAmountIsNumber = typeof (this.expense && this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount) === 'number';
-      this.isDraft = this.expense.tx_state === 'DRAFT';
-      this.isCCCExpense = this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
-      this.isCCCMatchedExpense = !!this.expense.tx_corporate_credit_card_expense_group_id;
-      this.isReceiptAttached = this.expense.tx_num_files > 0;
-      this.vendorDetails = this.getVendorDetails(this.expense);
-      this.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
-      this.isCriticalPolicyViolated = (typeof this.expense.tx_policy_amount === 'number' && this.expense.tx_policy_amount < 0.0001);
-      if (this.prevExpense && this.dateComparatorProp) {
-          const currentDate = (this.expense && (new Date(this.expense[this.dateComparatorProp])).toDateString());
-          const previousDate = (this.prevExpense && (new Date(this.prevExpense[this.dateComparatorProp])).toDateString());
-          this.showDt = currentDate !== previousDate;
-      }
+    this.amountIsNumber = typeof this.expense.tx_amount === 'number';
+    this.extractedAmountIsNumber = typeof (this.expense && this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount) === 'number';
+    this.isDraft = this.expense.tx_state === 'DRAFT';
+    this.isCCCExpense = this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+    this.isCCCMatchedExpense = !!this.expense.tx_corporate_credit_card_expense_group_id;
+    this.isReceiptAttached = this.expense.tx_num_files > 0;
+    this.vendorDetails = this.getVendorDetails(this.expense);
+    this.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
+    this.isCriticalPolicyViolated = (typeof this.expense.tx_policy_amount === 'number' && this.expense.tx_policy_amount < 0.0001);
+    if (this.prevExpense && this.dateComparatorProp) {
+      const currentDate = (this.expense && (new Date(this.expense[this.dateComparatorProp])).toDateString());
+      const previousDate = (this.prevExpense && (new Date(this.prevExpense[this.dateComparatorProp])).toDateString());
+      this.showDt = currentDate !== previousDate;
+    }
 
-      this.addToReportPossible$ = this.reportService.getAllOpenReportsCount().pipe(
-          map(
-              count => count > 0
-          )
-      );
+    this.addToReportPossible$ = this.reportService.getAllOpenReportsCount().pipe(
+      map(
+        count => count > 0
+      )
+    );
 
-      this.addToReportPossible$.subscribe(noop);
+    this.addToReportPossible$.subscribe(noop);
   }
 
   onGoToTransaction() {
-      if (!this.selectionMode) {
-          this.goToTransaction.emit(this.expense);
-      }
+    if (!this.selectionMode) {
+      this.goToTransaction.emit(this.expense);
+    }
   }
 
   onTapTransaction() {
-      if (this.selectionMode) {
-          this.cardClickedForSelection.emit(this.expense);
-      }
+    if (this.selectionMode) {
+      this.cardClickedForSelection.emit(this.expense);
+    }
   }
 
   onToggleFlashMode() {
-      this.toggleFlashMode.emit(this.expense);
+    this.toggleFlashMode.emit(this.expense);
   }
 
   onAddTransactionToReport() {
-      if (this.isDraft || this.isCriticalPolicyViolated) {
-          return;
+    if (this.isDraft || this.isCriticalPolicyViolated) {
+      return;
+    }
+    this.addToReportPossible$.subscribe(possible => {
+      if (possible) {
+        this.addTransactionToReport.emit(this.expense);
+      } else {
+        this.addTransactionToNewReport.emit(this.expense);
       }
-      this.addToReportPossible$.subscribe(possible => {
-          if (possible) {
-              this.addTransactionToReport.emit(this.expense);
-          } else {
-              this.addTransactionToNewReport.emit(this.expense);
-          }
-      });
+    });
   }
 
   onSelectTransaction() {
-      this.selectTransaction.emit(this.expense);
+    this.selectTransaction.emit(this.expense);
   }
 
   onDeleteTransaction() {
-      this.deleteTransaction.emit(this.expense);
+    this.deleteTransaction.emit(this.expense);
   }
 
   onSetMultiselectMode() {
-      if (!this.selectionMode) {
-          this.setMultiselectMode.emit(this.expense);
-      }
+    if (!this.selectionMode) {
+      this.setMultiselectMode.emit(this.expense);
+    }
   }
 }

@@ -15,9 +15,9 @@ import {NetworkService} from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
-    selector: 'app-my-view-per-diem',
-    templateUrl: './my-view-per-diem.page.html',
-    styleUrls: ['./my-view-per-diem.page.scss'],
+  selector: 'app-my-view-per-diem',
+  templateUrl: './my-view-per-diem.page.html',
+  styleUrls: ['./my-view-per-diem.page.scss'],
 })
 export class MyViewPerDiemPage implements OnInit {
 
@@ -49,91 +49,91 @@ export class MyViewPerDiemPage implements OnInit {
   ) { }
 
   isNumber(val) {
-      return typeof val === 'number';
+    return typeof val === 'number';
   }
 
   goBack() {
-      this.navController.back();
+    this.navController.back();
   }
 
   scrollCommentsIntoView() {
-      if (this.commentsContainer) {
-          const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
-          if (commentsContainer) {
-              commentsContainer.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'nearest',
-                  inline: 'start'
-              });
-          }
+    if (this.commentsContainer) {
+      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
+      if (commentsContainer) {
+        commentsContainer.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
       }
+    }
   }
 
   setupNetworkWatcher() {
-      const networkWatcherEmitter = new EventEmitter<boolean>();
-      this.networkService.connectivityWatcher(networkWatcherEmitter);
-      this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-          takeUntil(this.onPageExit),
-          shareReplay(1)
-      );
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
 
-      this.isConnected$.subscribe((isOnline) => {
-          if (!isOnline) {
-              this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-          }
-      });
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      }
+    });
   }
 
   ionViewWillLeave() {
-      this.onPageExit.next();
+    this.onPageExit.next();
   }
 
   ionViewWillEnter() {
-      const id = this.activatedRoute.snapshot.params.id;
+    const id = this.activatedRoute.snapshot.params.id;
 
-      this.extendedPerDiem$ = from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.transactionService.getExpenseV2(id)),
-          finalize(() => from(this.loaderService.hideLoader())),
-          shareReplay(1)
-      );
+    this.extendedPerDiem$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.transactionService.getExpenseV2(id)),
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
+    );
 
-      this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-          shareReplay(1)
-      );
+    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
+      shareReplay(1)
+    );
 
-      this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(
-          switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
-          map(res => {
-              const customeField = res.filter(customProperties => customProperties.type !== 'USER_LIST');
-              return customeField;
-          }),
-          map(res => res.map(customProperties => {
-              customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-              return customProperties;
-          }))
-      );
+    this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(
+      switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
+      map(res => {
+        const customeField = res.filter(customProperties => customProperties.type !== 'USER_LIST');
+        return customeField;
+      }),
+      map(res => res.map(customProperties => {
+        customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+        return customProperties;
+      }))
+    );
 
-      this.perDiemRate$ = this.extendedPerDiem$.pipe(
-          switchMap(res => {
-              const perDiemRateId = parseInt(res.tx_per_diem_rate_id, 10);
-              return this.perDiemService.getRate(perDiemRateId);
-          })
-      );
+    this.perDiemRate$ = this.extendedPerDiem$.pipe(
+      switchMap(res => {
+        const perDiemRateId = parseInt(res.tx_per_diem_rate_id, 10);
+        return this.perDiemService.getRate(perDiemRateId);
+      })
+    );
 
-      this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
-      this.comments$ = this.statusService.find('transactions', id);
+    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    this.comments$ = this.statusService.find('transactions', id);
 
-      // this.policyViloations$.subscribe(res => {
-      //   debugger;
-      // })
+    // this.policyViloations$.subscribe(res => {
+    //   debugger;
+    // })
 
-      this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
-          map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
-      );
+    this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
+      map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+    );
 
-      this.isAmountCapped$ = this.extendedPerDiem$.pipe(
-          map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
-      );
+    this.isAmountCapped$ = this.extendedPerDiem$.pipe(
+      map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+    );
 
   }
 

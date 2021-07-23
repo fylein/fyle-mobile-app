@@ -9,77 +9,77 @@ import {Cacheable, globalCacheBusterNotifier} from 'ts-cacheable';
 const orgsCacheBuster$ = new Subject<void>();
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class OrgService {
 
-    constructor(
+  constructor(
     private apiService: ApiService,
     private authService: AuthService
-    ) { }
+  ) { }
 
   @Cacheable({
-      cacheBusterObserver: orgsCacheBuster$
+    cacheBusterObserver: orgsCacheBuster$
   })
-    getCurrentOrg() {
-        return this.apiService.get('/orgs', {
-            params: {
-                is_current: true
-            }
-        }).pipe(
-            map(orgs => orgs[0] as Org)
-        );
-    }
+  getCurrentOrg() {
+    return this.apiService.get('/orgs', {
+      params: {
+        is_current: true
+      }
+    }).pipe(
+      map(orgs => orgs[0] as Org)
+    );
+  }
 
   suggestOrgCurrency() {
-      return this.apiService.get('/currency/ip').pipe(
-          map((data) => {
-              data.currency = data.currency || 'USD';
-              return data.currency as string;
-          }),
-          catchError(() => 'USD')
-      );
+    return this.apiService.get('/currency/ip').pipe(
+      map((data) => {
+        data.currency = data.currency || 'USD';
+        return data.currency as string;
+      }),
+      catchError(() => 'USD')
+    );
   }
 
   updateOrg(org) {
-      globalCacheBusterNotifier.next();
-      return this.apiService.post('/orgs', org);
+    globalCacheBusterNotifier.next();
+    return this.apiService.post('/orgs', org);
   }
 
   setCurrencyBasedOnIp() {
-      const currency$ = this.suggestOrgCurrency();
-      const currentOrg$ = this.getCurrentOrg();
+    const currency$ = this.suggestOrgCurrency();
+    const currentOrg$ = this.getCurrentOrg();
 
-      return forkJoin([
-          currency$,
-          currentOrg$
-      ]).pipe(
-          switchMap(
-              (aggregatedResults) => {
-                  const [currency, org] = aggregatedResults;
-                  org.currency = currency;
-                  return this.updateOrg(org);
-              }
-          )
-      );
+    return forkJoin([
+      currency$,
+      currentOrg$
+    ]).pipe(
+      switchMap(
+        (aggregatedResults) => {
+          const [currency, org] = aggregatedResults;
+          org.currency = currency;
+          return this.updateOrg(org);
+        }
+      )
+    );
   }
 
   @Cacheable({
-      cacheBusterObserver: orgsCacheBuster$
+    cacheBusterObserver: orgsCacheBuster$
   })
   getOrgs() {
-      return this.apiService.get('/orgs').pipe(
-          map(res => res as Org[])
-      );
+    return this.apiService.get('/orgs').pipe(
+      map(res => res as Org[])
+    );
   }
 
   switchOrg(orgId: string) {
 
-      // busting global cache
-      globalCacheBusterNotifier.next();
+    // busting global cache
+    globalCacheBusterNotifier.next();
 
-      return this.apiService.post(`/orgs/${orgId}/refresh_token`).pipe(
-          switchMap(data => this.authService.newRefreshToken(data.refresh_token))
-      );
+    return this.apiService.post(`/orgs/${orgId}/refresh_token`).pipe(
+      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
+    );
   }
 }

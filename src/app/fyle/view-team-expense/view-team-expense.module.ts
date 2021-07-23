@@ -11,19 +11,19 @@ import { RemoveExpenseReportComponent } from './remove-expense-report/remove-exp
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        IonicModule,
-        ViewTeamExpensePageRoutingModule,
-        SharedModule,
-        PinchZoomModule,
-        PdfViewerModule,
-        MatButtonModule
-    ],
-    declarations: [
-        ViewTeamExpensePage,
-        RemoveExpenseReportComponent
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    ViewTeamExpensePageRoutingModule,
+    SharedModule,
+    PinchZoomModule,
+    PdfViewerModule,
+    MatButtonModule
+  ],
+  declarations: [
+    ViewTeamExpensePage,
+    RemoveExpenseReportComponent
+  ]
 })
 export class ViewTeamExpensePageModule {}

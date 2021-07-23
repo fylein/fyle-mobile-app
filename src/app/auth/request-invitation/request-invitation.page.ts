@@ -14,16 +14,16 @@ enum RequestInvitationPageState {
 }
 
 @Component({
-    selector: 'app-request-invitation',
-    templateUrl: './request-invitation.page.html',
-    styleUrls: ['./request-invitation.page.scss'],
+  selector: 'app-request-invitation',
+  templateUrl: './request-invitation.page.html',
+  styleUrls: ['./request-invitation.page.scss'],
 })
 export class RequestInvitationPage implements OnInit {
 
   fg: FormGroup;
   currentPageState: RequestInvitationPageState = RequestInvitationPageState.notSent;
   get RequestInvitationStates() {
-      return RequestInvitationPageState;
+    return RequestInvitationPageState;
   }
 
   constructor(
@@ -34,29 +34,29 @@ export class RequestInvitationPage implements OnInit {
   ) { }
 
   ngOnInit() {
-      const emailParam = this.activateRoute.snapshot.params.email;
+    const emailParam = this.activateRoute.snapshot.params.email;
 
-      this.fg = this.fb.group({
-          email: [emailParam || '', Validators.required]
-      });
+    this.fg = this.fb.group({
+      email: [emailParam || '', Validators.required]
+    });
   }
 
   sendRequestInvitation() {
-      from(this.loaderService.showLoader('Sending request to join organization...')).pipe(
-          concatMap(() => this.invitationRequestsService.upsertRouter(this.fg.controls.email.value)),
-          finalize(async () => {
-              await this.loaderService.hideLoader();
-          }),
-          catchError((err) => {
-              if (err.status === 400) {
-                  this.currentPageState = this.RequestInvitationStates.alreadySent;
-              } else {
-                  this.currentPageState = this.RequestInvitationStates.failure;
-              }
-              return throwError(err);
-          })
-      ).subscribe(() => {
-          this.currentPageState = this.RequestInvitationStates.success;
-      });
+    from(this.loaderService.showLoader('Sending request to join organization...')).pipe(
+      concatMap(() => this.invitationRequestsService.upsertRouter(this.fg.controls.email.value)),
+      finalize(async () => {
+        await this.loaderService.hideLoader();
+      }),
+      catchError((err) => {
+        if (err.status === 400) {
+          this.currentPageState = this.RequestInvitationStates.alreadySent;
+        } else {
+          this.currentPageState = this.RequestInvitationStates.failure;
+        }
+        return throwError(err);
+      })
+    ).subscribe(() => {
+      this.currentPageState = this.RequestInvitationStates.success;
+    });
   }
 }

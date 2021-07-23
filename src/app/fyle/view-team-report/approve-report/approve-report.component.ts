@@ -4,9 +4,9 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-approve-report',
-    templateUrl: './approve-report.component.html',
-    styleUrls: ['./approve-report.component.scss'],
+  selector: 'app-approve-report',
+  templateUrl: './approve-report.component.html',
+  styleUrls: ['./approve-report.component.scss'],
 })
 export class ApproveReportComponent implements OnInit {
   sendBackReason = '';
@@ -22,46 +22,46 @@ export class ApproveReportComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      this.numIssues = this.getNumIssues(this.etxns);
+    this.numIssues = this.getNumIssues(this.etxns);
   }
 
   cancel() {
-      this.popoverController.dismiss();
+    this.popoverController.dismiss();
   }
 
   getNumIssues(etxns) {
-      let count = 0;
+    let count = 0;
 
-      for (var i = 0; i < etxns.length; i++) {
-          var etxn = etxns[i];
-          if (etxn.tx_policy_flag) {
-              count = count + 1;
-          }
+    for (var i = 0; i < etxns.length; i++) {
+      var etxn = etxns[i];
+      if (etxn.tx_policy_flag) {
+        count = count + 1;
       }
+    }
 
-      for (var i = 0; i < etxns.length; i++) {
-          var etxn = etxns[i];
-          if (etxn.tx_manual_flag) {
-              count = count + 1;
-          }
+    for (var i = 0; i < etxns.length; i++) {
+      var etxn = etxns[i];
+      if (etxn.tx_manual_flag) {
+        count = count + 1;
       }
+    }
 
-      return count;
+    return count;
   }
 
 
   approve(event) {
-      this.approveReportLoading = true;
-      event.stopPropagation();
-      event.preventDefault();
+    this.approveReportLoading = true;
+    event.stopPropagation();
+    event.preventDefault();
 
-      this.reportService.approve(this.erpt.rp_id)
-          .pipe(
-              finalize(() => this.approveReportLoading = false)
-          ).subscribe(() => {
-              this.popoverController.dismiss({
-                  goBack: true
-              });
-          });
+    this.reportService.approve(this.erpt.rp_id)
+      .pipe(
+        finalize(() => this.approveReportLoading = false)
+      ).subscribe(() => {
+        this.popoverController.dismiss({
+          goBack: true
+        });
+      });
   }
 }

@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
 
 describe('FyCurrencyExchangeRateComponent', () => {
-    let component: FyCurrencyExchangeRateComponent;
-    let fixture: ComponentFixture<FyCurrencyExchangeRateComponent>;
+  let component: FyCurrencyExchangeRateComponent;
+  let fixture: ComponentFixture<FyCurrencyExchangeRateComponent>;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            declarations: [ FyCurrencyExchangeRateComponent ],
-            imports: [IonicModule.forRoot()]
-        }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ FyCurrencyExchangeRateComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    }));
+    fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

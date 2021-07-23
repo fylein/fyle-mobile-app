@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import {
-    HttpInterceptor,
-    HttpRequest,
-    HttpResponse,
-    HttpHandler,
-    HttpEvent,
-    HttpErrorResponse,
-    HttpParams,
-    HttpParameterCodec
+  HttpInterceptor,
+  HttpRequest,
+  HttpResponse,
+  HttpHandler,
+  HttpEvent,
+  HttpErrorResponse,
+  HttpParams,
+  HttpParameterCodec
 } from '@angular/common/http';
 
 import { Observable, throwError, from, forkJoin, of, iif, Subject, BehaviorSubject } from 'rxjs';
@@ -38,51 +38,51 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   ) { }
 
   secureUrl(url) {
-      if (
-          url.indexOf('localhost') >= 0 ||
+    if (
+      url.indexOf('localhost') >= 0 ||
       url.indexOf('.fylehq.com') >= 0 ||
       url.indexOf('.fyle.tech') >= 0) {
-          if (
-              url.indexOf('/api/auth/') >= 0 ||
+      if (
+        url.indexOf('/api/auth/') >= 0 ||
         url.indexOf('routerapi/auth/') >= 0) {
-              if (url.indexOf('api/auth/logout') >= 0) {
-                  return true;
-              }
-              return false;
-          }
+        if (url.indexOf('api/auth/logout') >= 0) {
           return true;
+        }
+        return false;
       }
-      return false;
+      return true;
+    }
+    return false;
   }
 
   expiringSoon(accessToken: string): boolean {
-      try {
-          const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
-          const now = moment(new Date());
-          const differenceSeconds = expiryDate.diff(now, 'second');
-          const maxRefreshDifferenceSeconds = 2 * 60;
-          return differenceSeconds < maxRefreshDifferenceSeconds;
-      } catch (err) {
-          return true;
-      }
+    try {
+      const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
+      const now = moment(new Date());
+      const differenceSeconds = expiryDate.diff(now, 'second');
+      const maxRefreshDifferenceSeconds = 2 * 60;
+      return differenceSeconds < maxRefreshDifferenceSeconds;
+    } catch (err) {
+      return true;
+    }
   }
 
   refreshAccessToken() {
-      return from(this.tokenService.getRefreshToken()).pipe(
-          concatMap(
-              refreshToken => this.routerAuthService.fetchAccessToken(refreshToken)
-          ),
-          catchError(error => {
-              this.userEventService.logout();
-              this.storageService.clearAll();
-              globalCacheBusterNotifier.next();
-              return throwError(error);
-          }),
-          concatMap(
-              authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
-          ),
-          concatMap(() => from(this.tokenService.getAccessToken()))
-      );
+    return from(this.tokenService.getRefreshToken()).pipe(
+      concatMap(
+        refreshToken => this.routerAuthService.fetchAccessToken(refreshToken)
+      ),
+      catchError(error => {
+        this.userEventService.logout();
+        this.storageService.clearAll();
+        globalCacheBusterNotifier.next();
+        return throwError(error);
+      }),
+      concatMap(
+        authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
+      ),
+      concatMap(() => from(this.tokenService.getAccessToken()))
+    );
   }
 
   /**
@@ -92,82 +92,82 @@ export class HttpConfigInterceptor implements HttpInterceptor {
    * Reference: https://stackoverflow.com/a/57638101
    */
   getAccessToken(): Observable<string> {
-      return from(this.tokenService.getAccessToken()).pipe(
-          concatMap(accessToken => {
-              if (this.expiringSoon(accessToken)) {
-                  if (!this.accessTokenCallInProgress) {
-                      this.accessTokenCallInProgress = true;
-                      this.accessTokenSubject.next(null);
-                      return this.refreshAccessToken().pipe(
-                          concatMap((newAccessToken) => {
-                              this.accessTokenCallInProgress = false;
-                              this.accessTokenSubject.next(newAccessToken);
-                              return of(newAccessToken);
-                          })
-                      );
-                  } else {
-                      return this.accessTokenSubject.pipe(
-                          filter(result => result !== null),
-                          take(1),
-                          concatMap(() => from(this.tokenService.getAccessToken()))
-                      );
-                  }
-              } else {
-                  return of(accessToken);
-              }
-          })
-      );
+    return from(this.tokenService.getAccessToken()).pipe(
+      concatMap(accessToken => {
+        if (this.expiringSoon(accessToken)) {
+          if (!this.accessTokenCallInProgress) {
+            this.accessTokenCallInProgress = true;
+            this.accessTokenSubject.next(null);
+            return this.refreshAccessToken().pipe(
+              concatMap((newAccessToken) => {
+                this.accessTokenCallInProgress = false;
+                this.accessTokenSubject.next(newAccessToken);
+                return of(newAccessToken);
+              })
+            );
+          } else {
+            return this.accessTokenSubject.pipe(
+              filter(result => result !== null),
+              take(1),
+              concatMap(() => from(this.tokenService.getAccessToken()))
+            );
+          }
+        } else {
+          return of(accessToken);
+        }
+      })
+    );
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-      return forkJoin({
-          token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
-          deviceInfo: from(this.deviceService.getDeviceInfo())
-      }).pipe(
-          concatMap(({token, deviceInfo}) => {
-              if (token && this.secureUrl(request.url)) {
-                  request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
-                  const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
-                  request = request.clone({params});
-              }
-              const appVersion = deviceInfo.appVersion || '0.0.0';
-              const osVersion = deviceInfo.osVersion;
-              const operatingSystem = deviceInfo.operatingSystem;
-              const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
-              request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
+    return forkJoin({
+      token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
+      deviceInfo: from(this.deviceService.getDeviceInfo())
+    }).pipe(
+      concatMap(({token, deviceInfo}) => {
+        if (token && this.secureUrl(request.url)) {
+          request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
+          const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
+          request = request.clone({params});
+        }
+        const appVersion = deviceInfo.appVersion || '0.0.0';
+        const osVersion = deviceInfo.osVersion;
+        const operatingSystem = deviceInfo.operatingSystem;
+        const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
+        request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
 
-              return next.handle(request).pipe(
-                  catchError((error) => {
-                      if (error instanceof HttpErrorResponse && this.expiringSoon(token)) {
-                          return from(this.refreshAccessToken()).pipe(
-                              mergeMap((newToken) => {
-                                  request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + newToken) });
-                                  return next.handle(request);
-                              })
-                          );
-                      }
-                      return throwError(error);
-                  })
+        return next.handle(request).pipe(
+          catchError((error) => {
+            if (error instanceof HttpErrorResponse && this.expiringSoon(token)) {
+              return from(this.refreshAccessToken()).pipe(
+                mergeMap((newToken) => {
+                  request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + newToken) });
+                  return next.handle(request);
+                })
               );
+            }
+            return throwError(error);
           })
-      );
+        );
+      })
+    );
   }
 }
 
 class CustomEncoder implements HttpParameterCodec {
-    encodeKey(key: string): string {
-        return encodeURIComponent(key);
-    }
+  encodeKey(key: string): string {
+    return encodeURIComponent(key);
+  }
 
-    encodeValue(value: string): string {
-        return encodeURIComponent(value);
-    }
+  encodeValue(value: string): string {
+    return encodeURIComponent(value);
+  }
 
-    decodeKey(key: string): string {
-        return decodeURIComponent(key);
-    }
+  decodeKey(key: string): string {
+    return decodeURIComponent(key);
+  }
 
-    decodeValue(value: string): string {
-        return decodeURIComponent(value);
-    }
+  decodeValue(value: string): string {
+    return decodeURIComponent(value);
+  }
 }
