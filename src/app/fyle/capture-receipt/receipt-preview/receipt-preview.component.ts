@@ -10,6 +10,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 export class ReceiptPreviewComponent implements OnInit {
 
   @Input() base64ImagesWithSource: string[];
+  @Input() mode: string;
   sliderOptions: any;
   @ViewChild('slides') imageSlides: any;
   activeIndex: any;
