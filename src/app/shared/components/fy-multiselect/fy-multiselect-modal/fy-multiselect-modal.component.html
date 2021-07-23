@@ -13,12 +13,19 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
-    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
-      <input #searchBar [(ngModel)]="value" class="selection-modal--search-input" id="election-modal--search-input"
-             matInput placeholder="Search">
-      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
-        <mat-icon>close</mat-icon>
-      </button>
+    <mat-form-field class="example-chip-list" appearance="none">
+      <mat-chip-list #chipList aria-label="Multi select">
+        <mat-chip *ngFor="let item of currentSelections" [selectable]="selectable"
+                 [removable]="removable" (removed)="removeChip(item)">
+          {{item}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input #searchBar [(ngModel)]="value"
+               [matChipInputFor]="chipList"
+               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+               [matChipInputAddOnBlur]="addOnBlur"
+               (matChipInputTokenEnd)="addChip($event)">
+      </mat-chip-list>
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
