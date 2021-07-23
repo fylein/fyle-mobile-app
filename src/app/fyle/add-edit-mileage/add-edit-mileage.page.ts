@@ -586,7 +586,7 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(
         ({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageOptions }) => {
-          const isRecentVehicleTypePresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
+          const isRecentVehicleTypePresent = orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
                                              && recentValue && recentValue.recent_vehicle_types && recentValue.recent_vehicle_types.length > 0;
           if (isRecentVehicleTypePresent) {
             vehicleType = recentValue.recent_vehicle_types[0];
@@ -627,10 +627,11 @@ export class AddEditMileagePage implements OnInit {
       eou: this.authService.getEou(),
       currentLocation: this.locationService.getCurrentLocation(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgSettings: this.offlineService.getOrgSettings(),
       recentValue: this.recentlyUsedValues$
     }).pipe(
-      map(({ eou, currentLocation, orgUserSettings, recentValue }) => {
-        const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
+      map(({ eou, currentLocation, orgUserSettings, orgSettings, recentValue }) => {
+        const isRecentLocationPresent = orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
                                         && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
         if (isRecentLocationPresent) {
           const autocompleteLocationInfo = {
@@ -1225,6 +1226,7 @@ export class AddEditMileagePage implements OnInit {
           this.mileageConfig$,
           defaultPaymentMode$,
           orgUserSettings$,
+          orgSettings$,
           this.recentlyUsedValues$,
           this.recentlyUsedProjects$,
           this.recentlyUsedCostCenters$
@@ -1232,7 +1234,7 @@ export class AddEditMileagePage implements OnInit {
       }),
       take(1),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, recentValue, recentProjects, recentCostCenters]) => {
+    ).subscribe(([etxn, paymentMode, project, subCategory, txnFields, report, costCenter, customInputs, mileageConfig, defaultPaymentMode, orgUserSettings, orgSettings, recentValue, recentProjects, recentCostCenters]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1250,7 +1252,7 @@ export class AddEditMileagePage implements OnInit {
         });
 
       // Check if auto-fills is enabled
-      const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      const isAutofillsEnabled = orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
 
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
@@ -1297,7 +1299,7 @@ export class AddEditMileagePage implements OnInit {
       }
 
       // Check if recent location exists
-      const isRecentLocationPresent = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
+      const isRecentLocationPresent = orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
                                       && recentValue && recentValue.recent_start_locations && recentValue.recent_start_locations.length > 0;
       if (isRecentLocationPresent) {
         this.presetLocation = recentValue.recent_start_locations[0];
