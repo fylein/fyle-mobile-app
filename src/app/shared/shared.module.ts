@@ -86,6 +86,8 @@ import {FyFilterPillsComponent} from './components/fy-filter-pills/fy-filter-pil
 import { DateFormatPipe } from './pipes/date-format.pipe';
 import { AgmCoreModule } from '@agm/core';
 import { AgmDirectionModule } from 'agm-direction';
+import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
+import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 
 @NgModule({
@@ -154,7 +156,9 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyDeleteDialogComponent,
     FyFiltersComponent,
     FyFilterPillsComponent,
-    RouteVisualizerComponent
+    RouteVisualizerComponent,
+    RouteSelectorComponent,
+    RouteSelectorModalComponent
   ],
   imports: [
     CommonModule,
@@ -234,7 +238,8 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyFiltersComponent,
     FyFilterPillsComponent,
     RouteVisualizerComponent,
-    MatChipsModule
+    RouteSelectorComponent,
+    MatChipsModule,
   ],
   providers: [
     DecimalPipe,

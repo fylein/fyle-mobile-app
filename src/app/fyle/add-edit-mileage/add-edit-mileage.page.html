@@ -79,7 +79,7 @@
 
         <ng-container *ngIf="isConnected$|async">
           <div class="add-edit-mileage--map">
-            <app-route-visualizer [mileageLocations]="fg.controls.mileage_locations.value || []"></app-route-visualizer>
+            <app-route-visualizer [mileageLocations]="fg.controls.route.value?.mileageLocations || []" (onMapClick)="onRouteVisualizerClick()"></app-route-visualizer>
           </div>
         </ng-container>
 
@@ -87,7 +87,7 @@
           <ng-container *ngIf="homeCurrency$|async as homeCurrency">
             <div class="add-edit-mileage--amount-box">
               <div class="add-edit-mileage--distance">
-                <div>{{ fg.controls.distance.value ? fg.controls.distance.value : 0 }}</div>
+                <div>{{ fg.controls.route.value?.distance || 0 }}</div>
                 <span class="add-edit-mileage--distance-unit">
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
                     <span>{{ etxn.tx.distance_unit }}</span>
@@ -147,77 +147,17 @@
               </div>
             </ng-container>
 
-            <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-              <ng-container formArrayName="mileage_locations">
-                <ng-container
-                  *ngFor="let control of mileage_locations.controls; index as i; first as isFirst;last as isLast">
-                  <div class="add-edit-mileage--internal-block"
-                    [ngClass]="{'add-edit-mileage--internal-block__invalid': control.touched && !control.valid, 'add-edit-mileage--location-block': i >= 2}">
-                    <app-fy-location class="add-edit-mileage--location" [formControlName]="i"
-                      [label]="mileage_locations.controls.length > 2 ? (isFirst ? (control.value ? 'Start' : 'Start Location' ): (isLast ? (control.value ? 'End' : 'End Location'): (control.value ? 'Stop ' + (i) : 'Stop ' + (i) + ' Location'))): (isFirst ? (control.value ? 'Start' : 'From Location'): (control.value ? 'To' :'To Location'))"
-                      [mandatory]="mileageConfig.location_mandatory">
-                    </app-fy-location>
-                    <span *ngIf="i >= 2">
-                      <mat-icon (click)="removeMileageLocation(i)" class="add-edit-mileage--remove-stop"
-                        svgIcon="fy-delete"></mat-icon>
-                    </span>
-                  </div>
-                  <div *ngIf="control.touched && !control.valid" class="add-edit-mileage--error">
-                    Please select location
-                  </div>
+            <ng-container *ngIf="connectionStatus$|async as connectionStatus">
+              <ng-container *ngIf="etxn$|async as etxn">
+                <ng-container *ngIf="txnFields$|async as txnFields">
+                  <ng-container *ngIf="mileageConfig$|async as mileageConfig">
+                    <ng-container *ngIf="recentlyUsedMileageLocations$|async as recentlyUsedMileageLocations">
+                      <app-route-selector formControlName="route" [isConnected]="connectionStatus.connected" [recentlyUsedMileageLocations]="recentlyUsedMileageLocations" [formInitialized]="formInitializedFlag" [txnFields]="txnFields" [isAmountDisabled]="(isAmountDisabled$|async) || (txnFields?.distance?(!txnFields?.distance?.canEdit):false)" [isDistanceMandatory]="txnFields?.distance?.is_mandatory" [mileageConfig]="mileageConfig" [unit]="etxn.tx.distance_unit || mileageConfig.unit"></app-route-selector>
+                    </ng-container>
+                  </ng-container>
                 </ng-container>
               </ng-container>
-            </ng-container>
-            <div class="add-edit-mileage--internal-block" *ngIf="mileage_locations.controls.length < 10">
-              <div (click)="addMileageLocation()" class="add-edit-mileage--add-stop">
-                <mat-icon>
-                  add
-                </mat-icon>
-                ADD STOP
-              </div>
-            </div>
-            <app-fy-alert *ngIf="mileage_locations.controls.length === 10"
-              [message]="'You can add a maximum of 10 locations'" [type]="'information'">
-            </app-fy-alert>
-
-
-            <ng-container *ngIf="txnFields$|async as txnFields">
-              <ng-container *ngIf="txnFields?.distance">
-                <div class="add-edit-mileage--text add-edit-mileage--internal-block"
-                  [ngClass]="{'add-edit-mileage--text__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}">
-                  <div class="add-edit-mileage--text-label">Distance
-                    <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                      <span class="add-edit-mileage--text-label__unit"> ({{ etxn.tx.distance_unit }})</span>
-                    </ng-container>
-
-                    <ng-template #defaultDistanceUnit>
-                      <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                        <span class="add-edit-mileage--text-label__unit"> ({{ mileageConfig.unit }})</span>
-                      </ng-container>
-                    </ng-template>
-                    <div class="add-edit-mileage--mandatory" *ngIf="txnFields?.distance?.is_mandatory">
-                      *
-                    </div>
-                  </div>
-                  <input [disabled]="(isAmountDisabled$|async) || !txnFields?.distance.canEdit" [min]="0"
-                    class="add-edit-mileage--text-input" formControlName="distance" inputmode="decimal" type="number"
-                    placeholder="Enter Distance">
-                </div>
-                <div *ngIf="fg.controls.distance.touched && !fg.controls.distance.valid"
-                  class="add-edit-mileage--error add-edit-mileage--text-error">
-                  Please enter the distance
-                </div>
-              </ng-container>
-            </ng-container>
-
-            <div class="add-edit-mileage--internal-block" *ngIf="mileage_locations.controls.length < 3">
-              <mat-checkbox [disabled]="(isAmountDisabled$|async) || !fg.controls.distance"
-                formControlName="round_trip">
-                <span class="add-edit-mileage--checkbox">
-                  Round Trip
-                </span>
-              </mat-checkbox>
-            </div>
+          </ng-container>
 
             <ng-container *ngIf="paymentModes$|async as paymentModes">
               <div *ngIf="paymentModes.length > 1"
