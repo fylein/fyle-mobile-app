@@ -54,7 +54,7 @@
           }
         ],
         "dot-notation": "error",
-        "indent": "error",
+        "indent": ["error", 2],
         "no-empty-function": "off",
         "no-shadow": "off",
         "no-use-before-define": "off",
