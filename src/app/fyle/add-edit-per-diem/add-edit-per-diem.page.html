@@ -76,14 +76,17 @@
 
               <div *ngIf="etxn$|async as etxn" class="add-edit-per-diem--currency">
                 <div *ngIf="homeCurrency$|async as homeCurrency">
-                  <app-fy-currency [disabled]="true" [formControl]="fg.controls.currencyObj"
-                                   [homeCurrency]="homeCurrency" [txnDt]="etxn?.tx?.txn_dt">
-                  </app-fy-currency>
+                  <div class="add-edit-per-diem--amount-box">
+                    <div>{{ fg.controls?.num_days?.value ? fg.controls?.num_days?.value : 0 }} Days</div>
+                    <div>{{ (fg.controls.currencyObj?.value?.amount ? fg.controls.currencyObj?.value?.amount : 0.00 ) | currency: homeCurrency: 'symbol-narrow'}}</div>
+                    <div>{{(fg.controls?.per_diem_rate?.value?.rate ? fg.controls?.per_diem_rate?.value?.rate : 0)  | currency: (fg.controls?.per_diem_rate?.value?.currency ? fg.controls?.per_diem_rate?.value?.currency : homeCurrency): 'symbol-narrow'}} / Day</div>
+                  </div>
                 </div>
               </div>
 
-              <ng-container *ngIf="fg.controls.currencyObj?.value?.orig_amount" class="add-edit-per-diem--error">
+              <ng-container *ngIf="fg.controls.currencyObj?.value?.orig_amount">
                 <div class="add-edit-per-diem--conversion">
+                  <mat-icon class="add-edit-per-diem--conversion-icon" svgIcon="information"></mat-icon>
                   <div class="add-edit-per-diem--conversion-amount">
                     {{fg.controls.currencyObj?.value?.currency}} {{fg.controls.currencyObj?.value?.amount | number: '1.0-2'}}
                   </div>

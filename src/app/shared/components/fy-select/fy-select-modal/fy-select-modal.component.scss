@@ -35,11 +35,7 @@ $list-element-color: #333;
   }
 
   &--search-icon {
-    font-size: 14px;
-  }
-
-  &--form-field-container {
-    text-align: center;
+    @extend %fy-select-search-icon;
   }
 
   &--container {
