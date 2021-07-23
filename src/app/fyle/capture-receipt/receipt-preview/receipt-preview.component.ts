@@ -80,7 +80,8 @@ export class ReceiptPreviewComponent implements OnInit {
         message: 'Are you sure you want to remove this receipt?',
         primaryCta: {
           text: 'Remove',
-          action: 'remove'
+          action: 'remove',
+          type: 'alert'
         },
         secondaryCta: {
           text: 'Cancel',
