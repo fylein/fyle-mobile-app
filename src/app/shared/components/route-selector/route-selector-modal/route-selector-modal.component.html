@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar class="route-selector-modal--toolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="route-selector-modal--title" mode="ios">
+      Route
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="fy-primary" class="text-capitalize route-selector-modal--save" (click)="save()">
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div class="route-selector-modal--body" [formGroup]="form">
+    <div class="route-selector-modal--distance-details">
+      Total Distance: {{distance || '-'}} {{unit | titlecase}}
+    </div>
+
+    <div class="timeline--timeline route-selector-modal--timeline">
+      <ng-container formArrayName="mileageLocations">
+        <ng-container *ngFor="let control of mileageLocations.controls; index as i; first as isFirst;last as isLast">
+          <div class="timeline--timeline-item"
+            [ngClass]="{'timeline--timeline-item__invalid': control.touched && !control.valid, 'timeline--timeline-item__internal-item': i > 1 && !isLast, 'timeline--timeline-item__first': isFirst, 'timeline--timeline-item__last': isLast, 'timeline--timeline-item__middle': !(isFirst || isLast)}">
+            <div class="timeline--timeline-item-internal"
+              [ngClass]="{'timeline--timeline-item-internal__first': isFirst, 'timeline--timeline-item-internal__last': isLast}">
+              <app-fy-location class="route-selector-modal--location" [formControlName]="i"
+                [label]="(isFirst ? 'Start' : (isLast ? 'Destination' : (control.value ? 'Stop ' + (i) : 'Stop ' + (i))))"
+                [mandatory]="mileageConfig.location_mandatory" [hideSuffix]="true" [cacheName]="isFirst?'routeFirstElement':'routeOtherElements'" [recentLocations]="isFirst?recentlyUsedMileageLocations?.recent_start_locations:recentlyUsedMileageLocations?.recent_locations">
+              </app-fy-location>
+              <span
+                *ngIf="i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10)">
+                <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop"
+                  svgIcon="fy-delete">
+                </mat-icon>
+              </span>
+              <span *ngIf="i === mileageLocations.controls.length - 1 && mileageLocations.controls.length !== 10">
+                <mat-icon svgIcon="fy-plus" (click)="addMileageLocation()" class="route-selector-modal--add-stop">
+                </mat-icon>
+              </span>
+
+            </div>
+
+            <div *ngIf="control.touched && !control.valid" class="route-selector-modal--error"
+            [ngClass]="{'route-selector-modal--error__first': isFirst, 'route-selector-modal--error__last': isLast}">
+              Please select location
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+
+    <app-fy-alert *ngIf="mileageLocations.controls.length === 10" [message]="'You can add a maximum of 10 locations'"
+      [type]="'information'">
+    </app-fy-alert>
+
+    <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
+      <mat-checkbox [disabled]="isAmountDisabled" formControlName="roundTrip">
+        <span class="route-selector-modal--checkbox">
+          Round Trip
+        </span>
+      </mat-checkbox>
+    </div>
+  </div>
+</ion-content>

@@ -15,7 +15,8 @@ import {
   switchMap,
   take,
   tap,
-  timeout
+  timeout,
+  withLatestFrom
 } from 'rxjs/operators';
 import {AccountsService} from 'src/app/core/services/accounts.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -28,7 +29,7 @@ import * as moment from 'moment';
 import {ReportService} from 'src/app/core/services/report.service';
 import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
 import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
-import {cloneDeep, isEqual, isNumber} from 'lodash';
+import {cloneDeep, isEqual, isNull, isNumber, mergeWith} from 'lodash';
 import {TransactionService} from 'src/app/core/services/transaction.service';
 import {DataTransformService} from 'src/app/core/services/data-transform.service';
 import {PolicyService} from 'src/app/core/services/policy.service';
@@ -1182,6 +1183,13 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
+    const txnReceiptsCount$ = this.etxn$.pipe(
+      switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
+      map(fileObjs => {
+        return (fileObjs && fileObjs.length) || 0;
+      })
+    );
+
     from(this.loaderService.showLoader('Loading expense...', 15000)).pipe(
       switchMap(() => {
         return forkJoin({
@@ -1192,6 +1200,7 @@ export class AddEditExpensePage implements OnInit {
           report: selectedReport$,
           costCenter: selectedCostCenter$,
           customInputs: selectedCustomInputs$,
+          txnReceiptsCount: txnReceiptsCount$,
           homeCurrency: this.offlineService.getHomeCurrency(),
           orgSettings: this.offlineService.getOrgSettings(),
           defaultPaymentMode: defaultPaymentMode$,
@@ -1204,7 +1213,7 @@ export class AddEditExpensePage implements OnInit {
         });
       }),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, orgSettings, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
+    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, txnReceiptsCount, homeCurrency, orgSettings, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1350,7 +1359,7 @@ export class AddEditExpensePage implements OnInit {
         this.fg.controls.custom_inputs.patchValue(customInputValues);
       }, 600);
 
-      this.attachedReceiptsCount = etxn.tx.num_files;
+      this.attachedReceiptsCount = txnReceiptsCount;
       this.canAttachReceipts = this.attachedReceiptsCount === 0;
 
       if (etxn.dataUrls && etxn.dataUrls.length) {
@@ -1732,7 +1741,7 @@ export class AddEditExpensePage implements OnInit {
                 etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
               }
 
-              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && etxn.tx.vendor) {
+              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
                 etxn.tx.vendor = etxn.tx.extracted_data.vendor;
               }
 
@@ -3055,7 +3064,11 @@ export class AddEditExpensePage implements OnInit {
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
 
-      this.inpageExtractedData = imageData.data;
+      if (!this.inpageExtractedData) {
+        this.inpageExtractedData = imageData.data;
+      } else {
+        this.inpageExtractedData = mergeWith({}, this.inpageExtractedData, imageData.data, (currentValue, newValue) => isNull(currentValue) ? newValue : currentValue) 
+      }
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
@@ -3117,13 +3130,12 @@ export class AddEditExpensePage implements OnInit {
     const {data} = await popup.onWillDismiss();
 
     if (data) {
+      const fileInfo = {
+        type: data.type,
+        url: data.dataUrl,
+        thumbnail: data.dataUrl
+      };
       if (this.mode === 'add') {
-        const fileInfo = {
-          type: data.type,
-          url: data.dataUrl,
-          thumbnail: data.dataUrl
-        };
-
         this.newExpenseDataUrls.push(fileInfo);
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(
@@ -3153,13 +3165,22 @@ export class AddEditExpensePage implements OnInit {
             return this.fileService.post(fileObj);
           }),
           switchMap(() => {
-            return editExpenseAttachments$;
+            return editExpenseAttachments$.pipe(
+              withLatestFrom(this.isConnected$),
+              map(([attachments, isConnected]) => ({
+                attachments,
+                isConnected
+              }))
+            );
           }),
           finalize(() => {
             this.attachmentUploadInProgress = false;
           })
-        ).subscribe((attachments) => {
+        ).subscribe(({attachments, isConnected}) => {
           this.attachedReceiptsCount = attachments;
+          if (isConnected && this.attachedReceiptsCount === 1) {
+            this.parseFile(fileInfo);
+          }
         });
       }
     }
