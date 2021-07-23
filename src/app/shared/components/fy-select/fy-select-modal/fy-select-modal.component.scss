@@ -73,4 +73,8 @@ $list-element-color: #333;
     @extend %flex-layout-row;
   }
 
+  &--check {
+    @extend %fy-select-check;
+  }
+
 }

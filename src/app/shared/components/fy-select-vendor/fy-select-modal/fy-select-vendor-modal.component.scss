@@ -90,4 +90,8 @@ $list-element-color: #333;
   &--autocomplete-loader {
     @extend %autocomplete-loader;
   }
+
+  &--check {
+    @extend %fy-select-check;
+  }
 }

@@ -54,7 +54,7 @@
               </app-fy-highlight-text>
             </span>
           </div>
-          <mat-icon *ngIf="selected">
+          <mat-icon *ngIf="selected" class="selection-modal--check">
             check
           </mat-icon>
         </ng-template>
@@ -69,7 +69,7 @@
           [fullText]="filteredListItem.label"
           [queryText]="value">
         </app-fy-highlight-text>
-        <mat-icon *ngIf="filteredListItem.selected">check</mat-icon>
+        <mat-icon *ngIf="filteredListItem.selected" class="selection-modal--check">check</mat-icon>
       </div>
     </div>
 
