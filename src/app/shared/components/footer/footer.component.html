@@ -8,7 +8,7 @@
       <div class="fy-footer--primary-button-container" matRipple (click)="goToCameraMode()">
         <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="fy-camera"></mat-icon>
       </div>
-      <div class="fy-footer--button" [ngClass]="{'fy-footer--button__inactive': activeState !== FooterState.TASKS, 'fy-footer--button__disabled': connectionState === ConnectionMessageStatus.disconnected}" expand="full" (click)="goToTasks(connectionState)">
+      <div class="fy-footer--button" [ngClass]="{'fy-footer--button__inactive': activeState !== FooterState.TASKS, 'fy-footer--button__disabled': connectionState === ConnectionMessageStatus.disconnected}" expand="full" (click)="goToTasks()">
         <mat-icon class="fy-footer--icon" [svgIcon]="activeState === FooterState.TASKS?'fy-notification-solid': 'fy-notification'"></mat-icon>
         Tasks
       </div>

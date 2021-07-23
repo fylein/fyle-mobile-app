@@ -29,9 +29,9 @@ import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep } from 'lodash';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { cloneDeep, indexOf, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExtendedReport } from 'src/app/core/models/report.model';
@@ -356,7 +356,7 @@ export class MyExpensesPage implements OnInit {
       }
     });
 
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    this.homeCurrency$ = this.offlineService.getHomeCurrency();
 
     this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
@@ -1228,9 +1228,19 @@ export class MyExpensesPage implements OnInit {
   }
 
   selectExpense(expense: Expense) {
-    const isSelectedElementsIncludesExpense = this.selectedElements.some(txn => expense.tx_id === txn.tx_id);
+    let isSelectedElementsIncludesExpense = false;
+    if (expense.tx_id) {
+      isSelectedElementsIncludesExpense = this.selectedElements.some(txn => expense.tx_id === txn.tx_id);
+    } else {
+      isSelectedElementsIncludesExpense =  this.selectedElements.some(txn => isEqual(txn, expense));
+    }
+
     if (isSelectedElementsIncludesExpense) {
-      this.selectedElements = this.selectedElements.filter(txn => txn.tx_id !== expense.tx_id);
+      if (expense.tx_id) {
+        this.selectedElements = this.selectedElements.filter(txn => txn.tx_id !== expense.tx_id);
+      } else {
+        this.selectedElements = this.selectedElements.filter(txn => !isEqual(txn, expense));
+      }
     } else {
       this.selectedElements.push(expense);
     }
@@ -1329,6 +1339,8 @@ export class MyExpensesPage implements OnInit {
     this.trackingService.addToReport({Asset: 'Mobile'});
 
     let selectedElements = cloneDeep(this.selectedElements);
+    // Removing offline expenses from the list
+    selectedElements = selectedElements.filter(exp => exp.tx_id);
 
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
     const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
@@ -1573,6 +1585,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async deleteSelectedExpenses() {
+    let offlineExpenses: Expense[]
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -1580,9 +1593,18 @@ export class MyExpensesPage implements OnInit {
         header: 'Delete Expense',
         body: `Are you sure you want to delete the ${this.selectedElements.length} expenses?`,
         deleteMethod: () => {
-          return this.transactionService.deleteBulk(
+          offlineExpenses = this.selectedElements.filter(exp => !exp.tx_id);
+
+          this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+
+          this.selectedElements = this.selectedElements.filter(exp => exp.tx_id);
+          if (this.selectedElements.length > 0) {
+            return this.transactionService.deleteBulk(
               this.selectedElements.map(selectedExpense => selectedExpense.tx_id)
-          );
+            );
+          } else {
+            return of(null);
+          }
         }
       }
     });
@@ -1600,7 +1622,7 @@ export class MyExpensesPage implements OnInit {
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           data: {
             icon: 'tick-square-filled',
-            message: `${this.selectedElements.length} Expenses have been deleted`,
+            message: `${offlineExpenses.length + this.selectedElements.length} Expenses have been deleted`,
             showCloseButton: true
           },
           panelClass: ['mat-snack-bar-success'],
@@ -1618,6 +1640,10 @@ export class MyExpensesPage implements OnInit {
         });
       }
 
+      this.isReportableExpensesSelected = false;
+      this.selectionMode = false;
+      this.headerState = HeaderState.base;
+
       this.doRefresh();
     }
 
@@ -1625,6 +1651,14 @@ export class MyExpensesPage implements OnInit {
 
   onSelectAll(checked: boolean) {
     if (checked) {
+      this.selectedElements = [];
+      if (this.pendingTransactions.length > 0) {
+        this.selectedElements = this.pendingTransactions;
+        this.allExpensesCount = this.selectedElements.length;
+        this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+        this.setExpenseStatsOnSelect();
+      }
+
       this.loadData$.pipe(
           take(1),
           map(params => {
@@ -1637,8 +1671,8 @@ export class MyExpensesPage implements OnInit {
           }),
           switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
       ).subscribe(allExpenses => {
-        this.selectedElements = allExpenses;
-        this.allExpensesCount = allExpenses.length;
+        this.selectedElements = this.selectedElements.concat(allExpenses);
+        this.allExpensesCount = this.selectedElements.length;
         this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       });
