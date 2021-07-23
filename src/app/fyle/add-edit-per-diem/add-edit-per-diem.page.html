@@ -563,7 +563,7 @@
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
   <ion-footer *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0 && !reviewList?.length">
-    <ion-toolbar mode="md">
+    <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
       <ion-buttons *ngIf="!reviewList">
         <ion-button (click)="savePerDiem()" class="btn-primary add-edit-per-diem--primary-cta" appFormButtonValidation
           [loading]="savePerDiemLoader" [loadingText]="'Saving'">
