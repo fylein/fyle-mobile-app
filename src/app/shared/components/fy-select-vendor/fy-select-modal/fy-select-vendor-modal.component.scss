@@ -37,7 +37,7 @@ $list-element-color: #333;
   }
 
   &--search-icon {
-    font-size: 14px;
+    @extend %fy-select-search-icon;
   }
 
   &--form-field-container {
