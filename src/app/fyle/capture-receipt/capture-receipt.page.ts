@@ -12,9 +12,8 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { from, noop } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { map } from 'rxjs/operators';
 
-type Images = Partial<{
+type Image = Partial<{
   source: string,
   base64Image: string
 }>;
@@ -28,7 +27,7 @@ export class CaptureReceiptPage implements OnInit {
   isBulkMode: boolean;
   modeChanged = false;
   captureCount = 0;
-  base64ImagesWithSource: Images[];
+  base64ImagesWithSource: Image[];
   lastImage: string;
   activeFlashMode: string;
   homeCurrency: string;
@@ -48,35 +47,33 @@ export class CaptureReceiptPage implements OnInit {
 
   ngOnInit() {}
 
-  addExpenseToQueue(base64ImagesWithSource: Images) {
+  addExpenseToQueue(base64ImagesWithSource: Image) {
     let source = base64ImagesWithSource.source;
 
-    return this.networkService.isOnline().pipe(
-      map((isConnected) => {
-        if (!isConnected) {
-          source += '_OFFLINE';
-        }
-        const transaction = {
-          billable: false,
-          skip_reimbursement: false,
-          source,
-          txn_dt: new Date(),
-          amount: null,
-          currency: this.homeCurrency
-        };
+    return this.networkService.isOnline().subscribe((isConnected) => {
+      if (!isConnected) {
+        source += '_OFFLINE';
+      }
+      const transaction = {
+        billable: false,
+        skip_reimbursement: false,
+        source,
+        txn_dt: new Date(),
+        amount: null,
+        currency: this.homeCurrency
+      };
 
-        const attachmentUrls = [];
-        const attachment = {
-          thumbnail: base64ImagesWithSource.base64Image,
-          type: 'image',
-          url: base64ImagesWithSource.base64Image
-        };
+      const attachmentUrls = [];
+      const attachment = {
+        thumbnail: base64ImagesWithSource.base64Image,
+        type: 'image',
+        url: base64ImagesWithSource.base64Image
+      };
 
-        attachmentUrls.push(attachment);
+      attachmentUrls.push(attachment);
 
-        this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
-      })
-    ).subscribe(noop);
+      this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
+    });
   }
 
   async stopCamera() {
