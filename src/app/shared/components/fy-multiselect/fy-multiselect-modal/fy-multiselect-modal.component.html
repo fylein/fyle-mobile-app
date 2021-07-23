@@ -17,25 +17,24 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar class="text-center">
-    <mat-form-field appearance="none">
+  <ion-toolbar class="text-center" [ngClass]="{'selection-modal--toolbar': currentSelections?.length > 0}">
+    <mat-form-field class="selection-modal--form-container mat-form-field-no-padding" appearance="none" [ngClass]="{'selection-modal--form-container__chips': currentSelections?.length > 0}">
       <mat-chip-list #chipList aria-label="Multi select">
         <mat-chip *ngFor="let item of currentSelections" [selectable]="selectable"
                  [removable]="removable" (removed)="removeChip(item)">
           {{item}}
           <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
         </mat-chip>
-        <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
-        <input #searchBar [(ngModel)]="value"
+        <mat-icon *ngIf="!(currentSelections?.length > 0)" class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+        <input #searchBar [(ngModel)]="value" class="selection-modal--form-input" [ngClass]="{'selection-modal--form-input__chips': currentSelections?.length > 0}"
                [matChipInputFor]="chipList"
                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                [matChipInputAddOnBlur]="addOnBlur"
-               (matChipInputTokenEnd)="addChip($event)">
-        <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
-          <mat-icon>close</mat-icon>
-        </button>
+               (matChipInputTokenEnd)="addChip($event)"
+               [placeholder]="!(currentSelections?.length > 0) ? 'Search' : ''">
       </mat-chip-list>
     </mat-form-field>
+    <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">{{ currentSelections.length }} selected</div>
   </ion-toolbar>
 </ion-header>
 
