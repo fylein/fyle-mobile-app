@@ -61,6 +61,8 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -205,16 +207,33 @@ export class AddEditExpensePage implements OnInit {
 
   async showClosePopup() {
     if (this.fg.touched) {
-      const closePopup = await this.popupService.showPopup({
-        header: 'Unsaved Changes',
-        message: 'Your changes will be lost if you do not save the expense',
-        primaryCta: {
-          text: this.mode === 'add' ? 'Discard Expense' : 'Discard Changes'
-        }
+      const unsavedChangesPopOver = await this.popoverController.create({
+        component: PopupAlertComponentComponent,
+        componentProps: {
+          title: 'Unsaved Changes',
+          message: 'Your changes will be lost if you do not save the expense.',
+          primaryCta: {
+            text: 'Discard',
+            action: 'continue'
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel'
+          }
+        },
+        cssClass: 'pop-up-in-center'
       });
 
-      if (closePopup === 'primary') {
-        this.goBack();
+      await unsavedChangesPopOver.present();
+
+      const {data} = await unsavedChangesPopOver.onWillDismiss();
+
+      if (data && data.action === 'continue') {
+        if (this.navigateBack) {
+          this.navController.back();
+        } else {
+          this.goBack();
+        }
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
@@ -3266,32 +3285,33 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async deleteExpense() {
-    const id = this.activatedRoute.snapshot.params.id;
+    const txnId = this.activatedRoute.snapshot.params.id;
 
-    const popupResult = await this.popupService.showPopup({
-      header: 'Delete Expense',
-      message: 'Are you sure you want to delete this expense?',
-      primaryCta: {
-        text: 'DELETE'
-      }
-    });
-
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense...')).pipe(
-        switchMap(() => {
-          return this.transactionService.delete(id);
-        }),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-          this.reviewList.splice(+this.activeIndex, 1);
-          this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
-            this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-          });
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      componentProps: {
+        header: 'Delete Expense',
+        body: 'Are you sure you want to delete this expense?',
+        deleteMethod: () => {
+          return this.transactionService.delete(txnId);
         }
-      });
+      }
+    })
+
+    await deletePopover.present();
+
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+        this.reviewList.splice(+this.activeIndex, 1);
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+          this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+        });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     }
   }
 

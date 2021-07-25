@@ -720,6 +720,9 @@ ref - https://stackoverflow.com/a/31162426
 .delete-dialog {
   --width: 296px;
   --height: 204px;
+  .popover-content {
+    border-radius: 16px;
+  }
 }
 
 .route-visualizer--map {
