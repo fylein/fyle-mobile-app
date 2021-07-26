@@ -73,7 +73,9 @@
         "prefer-arrow/prefer-arrow-functions": "off",
         "@typescript-eslint/ban-types": "off",
         "@typescript-eslint/consistent-type-assertions": "off",
-        "@typescript-eslint/camelcase": "off"
+        "@typescript-eslint/camelcase": "off",
+        "@angular-eslint/no-output-on-prefix": "off",
+        "@angular-eslint/no-conflicting-lifecycle": "off"
 
       }
     },
