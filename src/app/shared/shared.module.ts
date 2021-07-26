@@ -2,6 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule, DatePipe, DecimalPipe} from '@angular/common';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatChipsModule} from '@angular/material/chips';
 
 // pipe imports
 import {EllipsisPipe} from './pipes/ellipses.pipe';
@@ -176,7 +177,8 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     MatRadioModule,
     MatDatepickerModule,
     AgmCoreModule,
-    AgmDirectionModule
+    AgmDirectionModule,
+    MatChipsModule
   ],
   exports: [
     EllipsisPipe,
@@ -236,7 +238,8 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyFiltersComponent,
     FyFilterPillsComponent,
     RouteVisualizerComponent,
-    RouteSelectorComponent
+    RouteSelectorComponent,
+    MatChipsModule,
   ],
   providers: [
     DecimalPipe,
