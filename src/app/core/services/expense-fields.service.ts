@@ -82,7 +82,7 @@ export class ExpenseFieldsService {
   filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<Partial<ExpenseFieldsMap>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
-      map(fields => fields.map(field => {
+      map(innerFields => innerFields.map(field => {
         const configurations = tfcMap[field];
         let filteredField;
 
@@ -109,7 +109,7 @@ export class ExpenseFieldsService {
       })
         .filter(filteredField => !!filteredField)
       ),
-      switchMap(fields => from(fields)),
+      switchMap(innerFields => from(innerFields)),
       concatMap(field => forkJoin({
         canEdit: this.canEdit(field.roles_editable)
       }).pipe(

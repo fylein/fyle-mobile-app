@@ -24,18 +24,29 @@ import {TrackingService} from '../../core/services/tracking.service';
 export class MyViewReportPage implements OnInit {
 
   erpt$: Observable<ExtendedReport>;
+
   etxns$: Observable<any[]>;
+
   sharedWith$: Observable<any[]>;
+
   reportApprovals$: Observable<any>;
+
   tripRequest$: Observable<ExtendedTripRequest>;
+
   hideAllExpenses = true;
+
   sharedWithLimit = 3;
 
   canEdit$: Observable<boolean>;
+
   canDelete$: Observable<boolean>;
+
   canResubmitReport$: Observable<boolean>;
+
   navigateBack = false;
+
   isConnected$: Observable<boolean>;
+
   onPageExit = new Subject();
 
   constructor(

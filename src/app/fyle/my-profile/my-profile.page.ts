@@ -32,14 +32,23 @@ const { Browser } = Plugins;
 })
 export class MyProfilePage implements OnInit {
   orgUserSettings: any;
+
   expenses: any;
+
   toggleUsageDetailsTab: boolean;
+
   oneClickActionOptions: any[];
+
   oneClickActionSelectedModuleId: string;
+
   orgSettings: any;
+
   currencies$: Observable<any>;
+
   preferredCurrency$: Observable<any>;
+
   eou$: Observable<ExtendedOrgUser>;
+
   myETxnc$: Observable<{
     total: any;
     mobile: number;
@@ -48,10 +57,15 @@ export class MyProfilePage implements OnInit {
     email: number;
     web: number;
   }>;
+
   isApiCallInProgress = false;
+
   org$: Observable<any>;
+
   clusterDomain: string;
+
   saveProfileLoading = false;
+
   ROUTER_API_ENDPOINT: string;
 
   constructor(

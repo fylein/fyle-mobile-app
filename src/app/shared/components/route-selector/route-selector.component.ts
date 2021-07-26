@@ -24,16 +24,24 @@ import { RouteSelectorModalComponent } from './route-selector-modal/route-select
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
   @Input() unit: 'KM' | 'MILES';
+
   @Input() mileageConfig;
+
   @Input() isDistanceMandatory;
+
   @Input() isAmountDisabled;
+
   @Input() txnFields;
+
   @Input() formInitialized;
+
   @Input() isConnected;
+
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
     recent_locations?: string[];
   };
+
   skipRoundTripUpdate = false;
 
   onChangeSub: Subscription;

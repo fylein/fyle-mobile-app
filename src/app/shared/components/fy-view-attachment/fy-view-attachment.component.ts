@@ -16,11 +16,15 @@ export class FyViewAttachmentComponent implements OnInit {
 
 
   @Input() attachments: any[];
+
   @Input() canEdit = false;
+
   @ViewChild('slides') imageSlides: any;
 
   sliderOptions: any;
+
   activeIndex = 0;
+
   zoomScale: number;
 
   constructor(

@@ -14,10 +14,15 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
+
   @Input() currentSelection: any;
+
   @Input() filteredOptions$: Observable<VendorListItem[]>;
+
   recentrecentlyUsedItems$: Observable<VendorListItem[]>;
+
   value = '';
+
   isLoading = false;
 
   constructor(

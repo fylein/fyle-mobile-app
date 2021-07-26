@@ -25,15 +25,25 @@ export class MyViewExpensePage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   etxn$: Observable<Expense>;
+
   policyViloations$: Observable<any>;
+
   isAmountCapped$: Observable<boolean>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   allExpenseCustomFields$: Observable<any>;
+
   customProperties$: Observable<any>;
+
   etxnWithoutCustomProperties$: Observable<any>;
+
   orgSettings: any;
+
   attachments$: Observable<any>;
+
   isConnected$: Observable<boolean>;
+
   comments$: Observable<any>;
 
   onPageExit = new Subject();

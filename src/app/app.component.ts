@@ -38,16 +38,27 @@ const CapStatusBar = Plugins.StatusBar;
 })
 export class AppComponent implements OnInit {
   eou$: Observable<any>;
+
   activeOrg: any;
+
   sideMenuList: any[];
+
   sideMenuSecondaryList: any[];
+
   appVersion: string;
+
   isSwitchedToDelegator;
+
   isConnected$: Observable<boolean>;
+
   allowedActions$: Observable<any>;
+
   eou;
+
   device;
+
   dividerTitle: string;
+
   previousUrl: string;
 
   constructor(

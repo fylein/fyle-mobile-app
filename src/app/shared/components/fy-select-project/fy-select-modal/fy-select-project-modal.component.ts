@@ -17,16 +17,25 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 })
 export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
+
   @Input() currentSelection: any;
+
   @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+
   @Input() cacheName;
+
   @Input() selectionElement: TemplateRef<ElementRef>;
+
   @Input() categoryIds: string[];
+
   @Input() defaultValue = false;
+
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
   recentrecentlyUsedItems$: Observable<any[]>;
+
   value;
+
   isLoading = false;
 
   constructor(

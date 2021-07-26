@@ -18,17 +18,27 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class CreateNewReportComponent implements OnInit {
 
   @Input() selectedExpensesToReport: Expense[];
+
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
   selectedElements: Expense[];
+
   selectedTotalAmount: number;
+
   reportTitle: string;
+
   submitReportLoader: boolean;
+
   saveDraftReportLoader: boolean;
+
   homeCurrency: string;
+
   homeCurrencySymbol: string;
+
   isSelectedAll: boolean;
+
   showReportNameError: boolean;
 
   constructor(

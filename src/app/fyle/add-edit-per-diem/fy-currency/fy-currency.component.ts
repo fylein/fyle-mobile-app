@@ -21,11 +21,13 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() txnDt: Date;
+
   @Input() homeCurrency: string;
 
   fg: FormGroup;
 
   private ngControl: NgControl;
+
   private innerValue: {
     amount: number;
     currency: string;
@@ -34,6 +36,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   };
 
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
 
   get valid() {
@@ -190,12 +193,12 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
           await exchangeRateModal.present();
 
-          const { data } = await exchangeRateModal.onWillDismiss();
-          if (data) {
+          const res = await exchangeRateModal.onWillDismiss();
+          if (res.data) {
             this.fg.setValue({
               currency: shortCode,
-              amount: data.amount,
-              homeCurrencyAmount: data.homeCurrencyAmount
+              amount: res.data.amount,
+              homeCurrencyAmount: res.data.homeCurrencyAmount
             });
           }
         }

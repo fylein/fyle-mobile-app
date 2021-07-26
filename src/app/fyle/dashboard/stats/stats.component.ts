@@ -20,17 +20,25 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 })
 export class StatsComponent implements OnInit {
   draftStats$: Observable<{ count: number; sum: number }>;
+
   reportedStats$: Observable<{ count: number; sum: number }>;
+
   approvedStats$: Observable<{ count: number; sum: number }>;
+
   paymentPendingStats$: Observable<{ count: number; sum: number }>;
+
   homeCurrency$: Observable<string>;
+
   isConnected$: Observable<boolean>;
+
   currencySymbol$: Observable<string>;
 
   unreportedExpensesCount$: Observable<{ count: number }>;
+
   unreportedExpensesAmount$: Observable<{ amount: number }>;
 
   actionSheetButtons = [];
+
   reportStatsLoading = true;
 
   loadData$ = new Subject();

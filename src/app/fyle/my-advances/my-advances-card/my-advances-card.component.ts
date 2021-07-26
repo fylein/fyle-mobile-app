@@ -10,6 +10,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 export class MyAdvancesCardComponent implements OnInit {
 
   @Input() advanceRequest: any;
+
   @Output() advanceClick: EventEmitter<{advanceRequest: ExtendedAdvanceRequest; internalState: any}> = new EventEmitter();
 
   internalState: { name: string; state: string };

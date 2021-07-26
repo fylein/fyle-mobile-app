@@ -11,6 +11,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 export class RemoveExpenseReportComponent implements OnInit {
 
   @Input() etxn: Expense;
+
   removalReason = '';
 
 

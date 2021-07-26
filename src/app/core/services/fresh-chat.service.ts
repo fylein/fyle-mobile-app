@@ -104,16 +104,16 @@ export class FreshChatService {
           userId: eou.us.id,                                    // user's user id
           device                                        // storing users device
         });
-        (window as any).fcWidget.on('user:created', async (resp) => {    // When that new user tries to initiate a chat Freshchat creates a users with above properties
-          const status = resp && resp.status;
-          const data = resp && resp.data;
-          if (status === 200 && data.restoreId) {               // To preserve chat history across devices and platforms, freshchat creates a unique restoreId for each user
+        (window as any).fcWidget.on('user:created', async (innerResp) => {    // When that new user tries to initiate a chat Freshchat creates a users with above properties
+          const innerStatus = innerResp && innerResp.status;
+          const innerData = innerResp && innerResp.data;
+          if (innerStatus === 200 && innerData.restoreId) {               // To preserve chat history across devices and platforms, freshchat creates a unique restoreId for each user
             const orgUserSettings = await that.getOrgUserSettings();
 
-            orgUserSettings.in_app_chat_settings.restore_id = data.restoreId;   // that restoreId is stored in our db here
+            orgUserSettings.in_app_chat_settings.restore_id = innerData.restoreId;   // that restoreId is stored in our db here
             await that.orgUserSettingsService.post(orgUserSettings);
 
-            await that.storageService.set('inAppChatRestoreId', data.restoreId);  // For easier access storing it in localStorage too
+            await that.storageService.set('inAppChatRestoreId', innerData.restoreId);  // For easier access storing it in localStorage too
           }
         });
       }

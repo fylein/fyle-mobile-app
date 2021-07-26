@@ -10,10 +10,13 @@ import { finalize } from 'rxjs/operators';
 })
 export class ApproveReportComponent implements OnInit {
   @Input() erpt;
+
   @Input() etxns;
 
   sendBackReason = '';
+
   numIssues = 0;
+
   approveReportLoading = false;
 
   constructor(

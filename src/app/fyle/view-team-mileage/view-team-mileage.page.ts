@@ -25,17 +25,29 @@ export class ViewTeamMileagePage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
+
   orgSettings$: Observable<any>;
+
   mileageCustomFields$: Observable<CustomField[]>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   isAmountCapped$: Observable<boolean>;
+
   policyViloations$: Observable<any>;
+
   canFlagOrUnflag$: Observable<boolean>;
+
   canDelete$: Observable<boolean>;
+
   updateFlag$ = new Subject();
+
   reportId;
+
   isConnected$: Observable<boolean>;
+
   onPageExit = new Subject();
+
   comments$: Observable<any>;
 
   constructor(

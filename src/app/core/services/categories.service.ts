@@ -75,6 +75,7 @@ export class CategoriesService {
       return category;
     });
   }
+
   filterRequired(categoryList) {
     return categoryList.filter((category) => {
       if (!category.fyle_category) {

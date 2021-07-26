@@ -29,37 +29,65 @@ import { DateService } from 'src/app/core/services/date.service';
 export class OtherRequestsComponent implements OnInit {
 
   @Input() otherRequests;
+
   @Input() fgValues;
+
   @Input() id;
 
   @ViewChild('formContainer') formContainer: ElementRef;
 
   isTransportationRequested$: Observable<any>;
+
   isHotelRequested$: Observable<any>;
+
   isAdvanceRequested$: Observable<any>;
+
   orgUserSettings$: Observable<any>;
+
   preferredCurrency$: Observable<any>;
+
   homeCurrency$: Observable<any>;
+
   currency: string;
+
   transportationMode$: Observable<any>;
+
   preferredTransportationTiming$: Observable<any>;
+
   transportRequestCustomFields$: Observable<any>;
+
   hotelRequestCustomFields$: Observable<any>;
+
   advanceRequestCustomFields$: Observable<any>;
+
   currencies$: Observable<any>;
+
   hotelRequest$: Observable<any>;
+
   transportationRequest$: Observable<any>;
+
   advanceRequest$: Observable<any>;
+
   actions$: Observable<any>;
+
   minDate;
+
   maxDate;
+
   advanceRequestCustomFieldValues: [];
+
   transportRequestCustomFieldValues: [];
+
   hotelRequestCustomFieldValues: [];
+
   tripActions;
+
   saveDratTripLoading = false;
+
   submitTripLoading = false;
+
   tripDate;
+
   hotelDate;
 
   otherDetailsForm: FormGroup;

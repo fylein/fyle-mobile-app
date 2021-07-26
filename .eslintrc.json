@@ -63,7 +63,9 @@
         "prefer-arrow/prefer-arrow-functions": "off",
         "@typescript-eslint/ban-types": "off",
         "@typescript-eslint/consistent-type-assertions": "off",
-        "@angular-eslint/no-conflicting-lifecycle": "off"
+        "@angular-eslint/no-conflicting-lifecycle": "off",
+        "lines-between-class-members": ["error", "always"],
+        "@typescript-eslint/no-shadow": "off"
       }
     },
     {

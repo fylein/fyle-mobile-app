@@ -11,6 +11,7 @@ import {forkJoin, noop} from 'rxjs';
 export class PopupComponent implements OnInit {
 
   @Input() header = 'Error';
+
   @Input() route: string[] = ['/', 'auth', 'sign_in'];
 
   constructor(

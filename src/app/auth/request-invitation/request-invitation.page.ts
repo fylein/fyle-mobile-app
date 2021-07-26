@@ -21,7 +21,9 @@ enum RequestInvitationPageState {
 export class RequestInvitationPage implements OnInit {
 
   fg: FormGroup;
+
   currentPageState: RequestInvitationPageState = RequestInvitationPageState.notSent;
+
   get RequestInvitationStates() {
     return RequestInvitationPageState;
   }

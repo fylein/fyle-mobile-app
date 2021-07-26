@@ -61,69 +61,127 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 })
 export class AddEditMileagePage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+
   @ViewChild('formContainer') formContainer: ElementRef;
+
   @ViewChild('comments') commentsContainer: ElementRef;
+
   @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
+
   mode = 'add';
+
   title = 'edit';
+
   activeIndex: number;
+
   minDate: string;
+
   maxDate: string;
+
   reviewList: [];
+
   fg: FormGroup;
+
   txnFields$: Observable<any>;
+
   paymentModes$: Observable<any>;
+
   homeCurrency$: Observable<any>;
+
   subCategories$: Observable<any>;
+
   filteredCategories$: Observable<any>;
+
   transactionMandatoyFields$: Observable<any>;
+
   etxn$: Observable<any>;
+
   isIndividualProjectsEnabled$: Observable<boolean>;
+
   individualProjectIds$: Observable<string[]>;
+
   isProjectsEnabled$: Observable<boolean>;
+
   customInputs$: Observable<any>;
+
   costCenters$: Observable<any>;
+
   reports$: Observable<any>;
+
   isAmountCapped$: Observable<boolean>;
+
   isAmountDisabled$: Observable<boolean>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
+
   amount$: Observable<number>;
+
   mileageConfig$: Observable<any>;
+
   rate$: Observable<number>;
+
   projectCategoryIds$: Observable<string[]>;
+
   duplicates$: Observable<any>;
+
   duplicateBoxOpen = false;
+
   isConnected$: Observable<boolean>;
+
   connectionStatus$: Observable<{connected: boolean}>;
+
   pointToDuplicates = false;
+
   isAdvancesEnabled$: Observable<boolean>;
+
   comments$: Observable<any>;
+
   expenseStartTime;
+
   navigateBack = false;
+
   saveMileageLoader = false;
+
   saveAndNewMileageLoader = false;
+
   saveAndNextMileageLoader = false;
+
   saveAndPrevMileageLoader = false;
+
   clusterDomain: string;
+
   recentlyUsedValues$: Observable<RecentlyUsed>;
+
   recentlyUsedMileageLocations$: Observable<{
     recent_start_locations?: string[];
     recent_locations?: string[];
   }>;
+
   recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+
   presetProjectId: number;
+
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+
   recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+
   presetCostCenterId: number;
+
   recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+
   presetVehicleType: string;
+
   presetLocation: string;
+
   initialFetch;
+
   isProjectVisible$: Observable<boolean>;
 
 
   formInitializedFlag = false;
+
   invalidPaymentMode = false;
 
   duplicateDetectionReasons = [

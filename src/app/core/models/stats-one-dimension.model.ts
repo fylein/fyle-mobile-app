@@ -1,7 +1,9 @@
 export class StatsOneDResponse {
 
   dimensions: string[];
+
   name: string;
+
   value: [{
     aggregates?: [{
       function_name?: string;
@@ -25,6 +27,7 @@ export class StatsOneDResponse {
       key: stat.key.length && stat.key[index].column_value
     }));
   }
+
   getStatsTotalCount(index = 0): number {
     const stats = this.getStatAggregatesByIdx<number>(index);
     return stats.reduce((acc, statValue) => acc + statValue.value, 0);

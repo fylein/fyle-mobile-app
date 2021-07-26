@@ -22,15 +22,23 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() approverEmailsList: string[] = [];
+
   @Input() id: string;
+
   @Input() ownerEmail: string;
+
   @Input() from;
+
   value;
 
   approverList$: Observable<any>;
+
   searchedApprovers$: Observable<Employee[]>;
+
   intialSelectedApproverEmails: string[] = [];
+
   searchTerm;
+
   areApproversAdded = true;
 
   constructor(

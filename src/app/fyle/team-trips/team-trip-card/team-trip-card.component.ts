@@ -14,6 +14,7 @@ export class TeamTripCardComponent implements OnInit {
   @Output() tripClick: EventEmitter<ExtendedTripRequest> = new EventEmitter();
 
   internalState: { name: string; state: string };
+
   tripTypesMap = {
     ONE_WAY: 'One Way',
     ROUND: 'Round Trip',

@@ -32,36 +32,66 @@ import { Employee } from 'src/app/core/models/employee.model';
 export class MyAddEditTripPage implements OnInit {
 
   @ViewChild('formContainer') formContainer: ElementRef;
+
   // allowedProjectIds$: Observable<any>;
   eou$: Observable<ExtendedOrgUser>;
+
   tripTypes = [];
+
   tripDate;
+
   hotelDate;
+
   tripActions;
+
   mode;
+
   minDate;
+
   maxDate;
+
   today;
+
   isTripTypeMultiCity$: Observable<boolean>;
+
   isTripTypeOneWay$: Observable<boolean>;
+
   isTransportationRequested$: Observable<boolean>;
+
   isHotelRequested$: Observable<boolean>;
+
   isAdvanceRequested$: Observable<boolean>;
+
   isTransportationEnabled$: Observable<boolean>;
+
   isHotelEnabled$: Observable<boolean>;
+
   isAdvanceEnabled$: Observable<boolean>;
+
   travelAgents$: Observable<Employee[]>;
+
   customFields$: Observable<any>;
+
   isProjectsEnabled$: Observable<boolean>;
+
   projects$: Observable<[]>;
+
   tripRequest$: Observable<any>;
+
   customFieldValues;
+
   refreshTrips$ = new Subject();
+
   isTransportationRequestAlreadyAdded: boolean;
+
   isHotelRequestAlreadyAdded: boolean;
+
   isAdvanceRequestAlreadyAdded: boolean;
+
   saveTripAsDraftLoading = false;
+
   submitTripLoading = false;
+
   fg: FormGroup;
 
   constructor(

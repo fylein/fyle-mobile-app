@@ -21,11 +21,11 @@ export class MileageService {
     const chunks = [];
 
     for (let index = 0, len = locations.length - 1; index < len; index++) {
-      const from = locations[index];
+      const innerFrom = locations[index];
       const to = locations[index + 1];
 
-      if (from && to && from.display && to.display && from.latitude && to.latitude && from.longitude && to.longitude) {
-        chunks.push([from, to]);
+      if (innerFrom && to && innerFrom.display && to.display && innerFrom.latitude && to.latitude && innerFrom.longitude && to.longitude) {
+        chunks.push([innerFrom, to]);
       }
     }
 

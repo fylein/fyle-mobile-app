@@ -16,9 +16,13 @@ import { map } from 'rxjs/operators';
 export class ResubmitReportPopoverComponent implements OnInit {
 
   @Input() erpt;
+
   @Input() etxns;
+
   numIssues = 0;
+
   numCriticalPolicies = 0;
+
   showTripRequestWarning = false;
 
   constructor(

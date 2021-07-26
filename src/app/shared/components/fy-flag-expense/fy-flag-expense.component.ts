@@ -15,6 +15,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 export class FyFlagExpenseComponent implements OnInit {
 
   @Input() etxn;
+
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(

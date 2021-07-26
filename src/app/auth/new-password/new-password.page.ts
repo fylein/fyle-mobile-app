@@ -22,10 +22,15 @@ export class NewPasswordPage implements OnInit {
   fg: FormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
+
   uppercaseValidationDisplay$: Observable<boolean>;
+
   numberValidationDisplay$: Observable<boolean>;
+
   specialCharValidationDisplay$: Observable<boolean>;
+
   lowercaseValidationDisplay$: Observable<boolean>;
+
   hide = false;
 
 

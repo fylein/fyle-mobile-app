@@ -24,15 +24,25 @@ import {TrackingService} from '../../core/services/tracking.service';
 export class SetupAccountPage implements OnInit {
 
   isConnected$: Observable<boolean>;
+
   eou$: Observable<ExtendedOrgUser>;
+
   fullname$: Observable<string>;
+
   fg: FormGroup;
+
   org$: Observable<Org>;
+
   hide = true;
+
   lengthValidationDisplay$: Observable<boolean>;
+
   uppercaseValidationDisplay$: Observable<boolean>;
+
   numberValidationDisplay$: Observable<boolean>;
+
   specialCharValidationDisplay$: Observable<boolean>;
+
   lowercaseValidationDisplay$: Observable<boolean>;
 
 

@@ -9,11 +9,15 @@ import { Expense } from 'src/app/core/models/expense.model';
 export class ReviewFooterComponent implements OnInit {
 
   @Input() activeIndex: number;
+
   @Input() reviewList: Array<Expense>;
+
   @Input() saveAndPrevLoader: boolean;
+
   @Input() saveAndNextLoader: boolean;
 
   @Output() saveAndGoToPrev = new EventEmitter();
+
   @Output() saveAndGoToNext = new EventEmitter();
 
   constructor() { }

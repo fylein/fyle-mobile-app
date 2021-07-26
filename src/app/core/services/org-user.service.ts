@@ -108,6 +108,7 @@ export class OrgUserService {
   exclude(eous: ExtendedOrgUser[], userIds: string[]) {
     return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
   }
+
   // TODO: move to v2
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
@@ -139,6 +140,7 @@ export class OrgUserService {
 
     return filteredEous;
   }
+
   switchToDelegatee() {
     return this.apiService.post('/orgusers/delegatee_refresh_token').pipe(
       switchMap(data => this.authService.newRefreshToken(data.refresh_token))

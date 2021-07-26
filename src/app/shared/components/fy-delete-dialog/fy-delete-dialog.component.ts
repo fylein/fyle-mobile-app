@@ -13,7 +13,9 @@ import {LoaderPosition} from '../../directive/loader-position.enum';
 export class FyDeleteDialogComponent implements OnInit {
 
   @Input() deleteMethod: () => Observable<any>;
+
   @Input() header: string;
+
   @Input() body: string;
 
   deleteCallInProgress = false;

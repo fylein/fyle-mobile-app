@@ -14,6 +14,7 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   currencies$: Observable<{ shortCode: string; longName: string }[]>;
+
   filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
 
   constructor(

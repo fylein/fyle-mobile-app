@@ -21,16 +21,23 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class FySelectProjectComponent implements OnInit, ControlValueAccessor, OnDestroy {
 
   @Input() mandatory = false;
+
   @Input() label = 'Project';
+
   @Input() cacheName;
+
   @Input() selectionElement: TemplateRef<ElementRef>;
+
   @Input() categoryIds: string[];
+
   @Input() defaultValue = false;
+
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
   displayValue;
 
   private ngControl: NgControl;
+
   private innerValue;
 
   get valid() {
@@ -42,6 +49,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   }
 
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(

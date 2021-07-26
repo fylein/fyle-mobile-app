@@ -26,6 +26,7 @@ import { StorageService } from '../services/storage.service';
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
   private accessTokenCallInProgress = false;
+
   private accessTokenSubject = new BehaviorSubject<string>(null);
 
   constructor(

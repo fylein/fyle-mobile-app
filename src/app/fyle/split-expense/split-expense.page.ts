@@ -23,23 +23,41 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 export class SplitExpensePage implements OnInit {
 
   splitExpensesFormArray = new FormArray([]);
+
   fg: FormGroup;
+
   splitType: string;
+
   amount: number;
+
   currency: string;
+
   totalSplitAmount: number;
+
   remainingAmount: number;
+
   categories$: Observable<any>;
+
   costCenters$: Observable<any>;
+
   isCorporateCardsEnabled$: Observable<boolean>;
+
   transaction: any;
+
   fileObjs: any[];
+
   fileUrls: any[];
+
   maxDate: string;
+
   minDate: string;
+
   selectedCCCTransaction: any;
+
   saveSplitExpenseLoading: boolean;
+
   errorMessage: string;
+
   showErrorBlock: boolean;
 
   constructor(

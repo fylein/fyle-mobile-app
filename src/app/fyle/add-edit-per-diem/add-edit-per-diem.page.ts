@@ -58,60 +58,113 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 })
 export class AddEditPerDiemPage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+
   @ViewChild('formContainer') formContainer: ElementRef;
+
   @ViewChild('comments') commentsContainer: ElementRef;
 
   title: string;
+
   activeIndex: number;
+
   reviewList: string[];
+
   mode = 'add';
+
   canCreatePerDiem$: Observable<boolean>;
+
   allowedPerDiemRateOptions$: Observable<any[]>;
+
   paymentModes$: Observable<any[]>;
+
   homeCurrency$: Observable<string>;
+
   fg: FormGroup;
+
   minDate: string;
+
   maxDate: string;
+
   txnFields$: Observable<any>;
+
   subCategories$: Observable<any[]>;
+
   isAmountDisabled = false;
+
   etxn$: Observable<any>;
+
   transactionMandatoyFields$: Observable<any>;
+
   isIndividualProjectsEnabled$: Observable<boolean>;
+
   individualProjectIds$: Observable<[]>;
+
   isProjectsEnabled$: Observable<boolean>;
+
   customInputs$: Observable<any>;
+
   costCenters$: Observable<any>;
+
   reports$: Observable<any[]>;
+
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
+
   paymentModeInvalid$: Observable<boolean>;
+
   isAmountCapped$: Observable<boolean>;
+
   isAmountDisabled$: Observable<boolean>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   projectCategoryIds$: Observable<string[]>;
+
   filteredCategories$: Observable<any>;
+
   isConnected$: Observable<boolean>;
+
   invalidPaymentMode = false;
+
   duplicates$: Observable<any>;
+
   duplicateBoxOpen = false;
+
   pointToDuplicates = false;
+
   isAdvancesEnabled$: Observable<boolean>;
+
   comments$: Observable<any>;
+
   expenseStartTime;
+
   navigateBack = false;
+
   savePerDiemLoader = false;
+
   saveAndNextPerDiemLoader = false;
+
   saveAndPrevPerDiemLoader = false;
+
   clusterDomain: string;
+
   initialFetch;
+
   individualPerDiemRatesEnabled$: Observable<boolean>;
+
   recentlyUsedValues$: Observable<RecentlyUsed>;
+
   recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+
   presetProjectId: number;
+
   recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+
   presetCostCenterId: number;
+
   recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+
   isProjectVisible$: Observable<boolean>;
 
   duplicateDetectionReasons = [
@@ -562,7 +615,7 @@ export class AddEditPerDiemPage implements OnInit {
             return this.etxn$.pipe(switchMap(etxn => iif(() => etxn.tx.org_category_id,
               this.offlineService.getAllEnabledCategories().pipe(
                 map(categories => categories
-                  .find(category => category.id === etxn.tx.org_category_id))), this.getPerDiemCategories().pipe(
+                  .find(innerCategory => innerCategory.id === etxn.tx.org_category_id))), this.getPerDiemCategories().pipe(
                 map(perDiemContainer => perDiemContainer.defaultPerDiemCategory)
               ))));
           }

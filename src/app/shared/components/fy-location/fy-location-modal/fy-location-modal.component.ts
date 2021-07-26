@@ -19,17 +19,23 @@ const { Permissions, Geolocation } = Plugins;
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelection: any;
+
   @Input() header = '';
+
   @Input() recentLocations: string[];
+
   @Input() cacheName;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   loader = false;
+
   value = '';
+
   lookupFailed = false;
 
   filteredList$: Observable<any[]>;
+
   recentItemsFilteredList$: Observable<any[]>;
 
   currentGeolocationPermissionGranted = false;
@@ -194,11 +200,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         switchMap(predictedLocations => {
           if (predictedLocations && predictedLocations.length > 0) {
             return this.locationService.getGeocode(predictedLocations[0].place_id, predictedLocations[0].description).pipe(
-              map((location) => {
-                if (location) {
-                  return location;
+              map((innerLocation) => {
+                if (innerLocation) {
+                  return innerLocation;
                 } else {
-                  return of({ display: location });
+                  return of({ display: innerLocation });
                 }
               })
             );
@@ -208,9 +214,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         }),
         catchError(() => of({ display: location })),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(location => {
+      ).subscribe(innerLocation => {
         this.modalController.dismiss({
-          selection: location
+          selection: innerLocation
         });
       });
   }

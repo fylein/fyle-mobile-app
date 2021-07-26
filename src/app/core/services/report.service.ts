@@ -477,7 +477,7 @@ export class ReportService {
     const count = rptIds.length > 50 ? rptIds.length / 50 : 1;
     return range(0,  count).pipe(
       map(page => rptIds.slice((page) * 50, (page + 1) * 50)),
-      concatMap(rptIds => this.apiService.get('/reports/approvers', { params: {report_ids: rptIds} })),
+      concatMap(innerRptIds => this.apiService.get('/reports/approvers', { params: {report_ids: innerRptIds} })),
       reduce((acc, curr) => acc.concat(curr), [])
     );
   }

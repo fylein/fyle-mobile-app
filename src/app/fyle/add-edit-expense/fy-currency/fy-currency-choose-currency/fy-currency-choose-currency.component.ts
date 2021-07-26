@@ -17,12 +17,17 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() currentSelection: string;
+
   @Input() recentlyUsed: { label: string; value: string }[];
+
   @Input() selectionElement: TemplateRef<ElementRef>;
 
   currencies$: Observable<{ shortCode: string; longName: string }[]>;
+
   filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
+
   recentlyUsedCurrencies$: Observable<Currency[]>;
+
   value;
 
   constructor(
