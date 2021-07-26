@@ -194,10 +194,19 @@ export class CaptureReceiptPage implements OnInit {
         this.lastImage = null;
         this.setUpAndStartCamera();
       } else {
-        this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
-          this.addExpenseToQueue(base64ImageWithSource);
-        })
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        if (data.continueCaptureReceipt) {
+          this.captureCount = 0;
+          this.lastImage = null;
+          this.isBulkMode = false;
+          this.setUpAndStartCamera();
+        } else { 
+          debugger;
+          this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
+            this.addExpenseToQueue(base64ImageWithSource);
+          })
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        }
+        
       }
     }
 

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 @Component({
@@ -17,7 +17,8 @@ export class ReceiptPreviewComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private actionSheetController: ActionSheetController
   ) { }
 
   ngOnInit() {
@@ -69,6 +70,43 @@ export class ReceiptPreviewComponent implements OnInit {
         this.retake();
       }
     }
+  }
+
+  async addMore () {
+    const actionSheetButtons = [
+      {
+        text: 'Capture Receipts',
+        icon: 'assets/svg/fy-camera.svg',
+        cssClass: 'capture-receipt',
+        handler: () => {
+          console.log("-------1--------");
+          this.captureReceipts();
+        }
+      },
+      {
+        text: 'Upload from Gallery',
+        icon: 'assets/svg/gallery.svg', // Todo: Fix gallery icon
+        cssClass: 'capture-receipt',
+        handler: () => {
+          console.log("-------2--------")
+        }
+      }
+    ];
+    const actionSheet = await this.actionSheetController.create({
+      header: 'ADD MORE USING',
+      mode: 'md',
+      cssClass: 'fy-action-sheet',
+      buttons: actionSheetButtons
+    });
+    await actionSheet.present();
+  }
+
+
+  captureReceipts () {
+    this.modalController.dismiss({
+      base64ImagesWithSource: this.base64ImagesWithSource,
+      continueCaptureReceipt: true
+    });
   }
 
   async delete() {
