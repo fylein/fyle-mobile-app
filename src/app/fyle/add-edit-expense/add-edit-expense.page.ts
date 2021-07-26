@@ -1154,9 +1154,7 @@ export class AddEditExpensePage implements OnInit {
 
     const txnReceiptsCount$ = this.etxn$.pipe(
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-      map(fileObjs => {
-        return (fileObjs && fileObjs.length) || 0;
-      })
+      map(fileObjs => (fileObjs && fileObjs.length) || 0)
     );
 
     from(this.loaderService.showLoader('Loading expense...', 15000)).pipe(
@@ -2962,7 +2960,7 @@ export class AddEditExpensePage implements OnInit {
       if (!this.inpageExtractedData) {
         this.inpageExtractedData = imageData.data;
       } else {
-        this.inpageExtractedData = mergeWith({}, this.inpageExtractedData, imageData.data, (currentValue, newValue) => isNull(currentValue) ? newValue : currentValue) 
+        this.inpageExtractedData = mergeWith({}, this.inpageExtractedData, imageData.data, (currentValue, newValue) => isNull(currentValue) ? newValue : currentValue);
       }
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
@@ -3057,15 +3055,13 @@ export class AddEditExpensePage implements OnInit {
             fileObj.transaction_id = this.activatedRoute.snapshot.params.id;
             return this.fileService.post(fileObj);
           }),
-          switchMap(() => {
-            return editExpenseAttachments$.pipe(
-              withLatestFrom(this.isConnected$),
-              map(([attachments, isConnected]) => ({
-                attachments,
-                isConnected
-              }))
-            );
-          }),
+          switchMap(() => editExpenseAttachments$.pipe(
+            withLatestFrom(this.isConnected$),
+            map(([attachments, isConnected]) => ({
+              attachments,
+              isConnected
+            }))
+          )),
           finalize(() => {
             this.attachmentUploadInProgress = false;
           })

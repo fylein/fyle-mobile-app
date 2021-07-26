@@ -99,7 +99,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         swipeToClose: true,
         backdropDismiss: true,
         animated: true,
-      }
+      };
     } else {
       modalProperties = this.modalProperties.getModalDefaultProperties();
     }

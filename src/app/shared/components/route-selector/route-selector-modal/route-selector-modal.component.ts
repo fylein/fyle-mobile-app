@@ -31,7 +31,7 @@ export class RouteSelectorModalComponent implements OnInit {
   form: FormGroup = this.fb.group({
     mileageLocations: new FormArray([]),
     roundTrip: [],
-  })
+  });
 
   constructor(
     private fb: FormBuilder,
@@ -87,9 +87,7 @@ export class RouteSelectorModalComponent implements OnInit {
     });
 
     this.form.controls.mileageLocations.valueChanges.pipe(
-      switchMap((mileageLocations) => {
-        return this.mileageService.getDistance(mileageLocations);
-      })
+      switchMap((mileageLocations) => this.mileageService.getDistance(mileageLocations))
     ).subscribe(distance => {
       if (distance === null) {
         this.distance = null;
