@@ -6,6 +6,6 @@ const secrets = require('./secrets');
 module.exports = function (ctx) {
   
     // Creating environment.prod.ts file
-    fs.writeFileSync(ctx.project.dir + "/src/environments/environment.prod.ts", secrets.prodEnviroinent);
+    fs.writeFileSync(`${ctx.project.dir}`+ "/src/environments/environment.prod.ts", secrets.prodEnviroinent);
 
 };
