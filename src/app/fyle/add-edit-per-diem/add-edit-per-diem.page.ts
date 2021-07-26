@@ -1223,6 +1223,7 @@ export class AddEditPerDiemPage implements OnInit {
           selectedCustomInputs$,
           defaultPaymentMode$,
           orgUserSettings$,
+          orgSettings$,
           this.recentlyUsedValues$,
           this.recentlyUsedProjects$,
           this.recentlyUsedCostCenters$
@@ -1232,7 +1233,7 @@ export class AddEditPerDiemPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(([
                    etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode,
-                   orgUserSettings, recentValue, recentProjects, recentCostCenters]) => {
+                   orgUserSettings, orgSettings, recentValue, recentProjects, recentCostCenters]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1250,7 +1251,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
 
       // Check if auto-fills is enabled
-      const isAutofillsEnabled = orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      const isAutofillsEnabled = orgSettings.org_expense_form_autofills && orgSettings.org_expense_form_autofills.allowed && orgSettings.org_expense_form_autofills.enabled && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
 
       // Check if recent projects exist
       const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;

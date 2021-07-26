@@ -158,6 +158,10 @@ export class OrgSettingsService {
         allowed: incoming.multi_org_settings && incoming.multi_org_settings.allowed,
         enabled: incoming.multi_org_settings && incoming.multi_org_settings.enabled
       },
+      org_expense_form_autofills: {
+        allowed: incoming.org_expense_form_autofills.allowed,
+        enabled: incoming.org_expense_form_autofills.enabled
+      },
       admin_allowed_ip_settings: {
         allowed: incoming.admin_allowed_ip_settings && incoming.admin_allowed_ip_settings.allowed,
         enabled: incoming.admin_allowed_ip_settings && incoming.admin_allowed_ip_settings.enabled,
@@ -378,6 +382,10 @@ export class OrgSettingsService {
         allowed: outgoing.mileage.allowed,
         enabled: outgoing.mileage.enabled,
         mileage_location_enabled: outgoing.mileage.location_mandatory
+      },
+      org_expense_form_autofills: {
+        allowed: outgoing.org_expense_form_autofills.allowed,
+        enabled: outgoing.org_expense_form_autofills.enabled
       },
       multi_org_settings: {
         allowed: outgoing.org_creation.allowed,
