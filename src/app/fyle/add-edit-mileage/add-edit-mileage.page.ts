@@ -122,7 +122,7 @@ export class AddEditMileagePage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
   @ViewChild('formContainer') formContainer: ElementRef;
   @ViewChild('comments') commentsContainer: ElementRef;
-  
+
   @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
 
   formInitializedFlag = false;
@@ -242,7 +242,7 @@ export class AddEditMileagePage implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
-    this.connectionStatus$ = this.isConnected$.pipe(map(isConnected => ({ connected: isConnected })))
+    this.connectionStatus$ = this.isConnected$.pipe(map(isConnected => ({ connected: isConnected })));
   }
 
   getCalculateDistance() {
@@ -778,7 +778,7 @@ export class AddEditMileagePage implements OnInit {
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
 
 
-    
+
 
     this.setupDuplicateDetection();
 
@@ -813,12 +813,10 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
-      map(recentlyUsedValues => {
-        return {
-          recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
-          recent_locations: recentlyUsedValues?.recent_locations || []
-        };
-      }),
+      map(recentlyUsedValues => ({
+        recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
+        recent_locations: recentlyUsedValues?.recent_locations || []
+      })),
     );
 
     this.txnFields$ = this.getTransactionFields();
@@ -845,7 +843,6 @@ export class AddEditMileagePage implements OnInit {
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
-<<<<<<< FYLE-4dbt2z
     this.fg.controls.mileage_locations.valueChanges.pipe(
       switchMap((locations) => this.mileageService.getDistance(locations)),
       switchMap((distance) => this.etxn$.pipe(map(etxn => {
@@ -866,7 +863,7 @@ export class AddEditMileagePage implements OnInit {
         }
       }
     });
-    
+
     this.isAmountDisabled$ = this.etxn$.pipe(
       map(
         etxn => !!etxn.tx.admin_amount
