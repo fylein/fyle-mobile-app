@@ -13,11 +13,9 @@ export class HighlightPipe implements PipeTransform {
           // used to prepend special characters if any with '\'. Wrt example, pattern will be 'Mic T'
           let pattern = search.trim().replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
           // Words separated with space will now be separated with '|'. Wrt example, pattern will be 'Mic|T'
-          pattern = pattern.split(' ').filter((t) => {
-            return t.length > 0;
-          }).join('|');
+          pattern = pattern.split(' ').filter((t) => t.length > 0).join('|');
           // create new regular expression of modifier type gi(g: global, i: case-insensitive ) using the pattern 'Mic|T', which will be /Mic|T/gi
-          let regex = new RegExp(pattern, 'gi');
+          const regex = new RegExp(pattern, 'gi');
           // actual text will be replaced with: matched patterns will be inside <span> with SCSS class highlight, rest will be normal text
           // reference for string replacement with regex in detail: https://www.freecodecamp.org/news/javascript-string-replace-example-with-regex/
           text = text.replace(regex, (match) => `<span class="highlight">${match}</span>`);

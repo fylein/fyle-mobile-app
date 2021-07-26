@@ -81,7 +81,7 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   goBackToReport() {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}])
+    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
   }
 
   isPolicyComment(estatus) {
@@ -125,13 +125,9 @@ export class ViewTeamExpensePage implements OnInit {
     };
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
-      switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getEtxn(txId);
-          })
-        );
-      }),
+      switchMap(() => from(this.loaderService.showLoader()).pipe(
+        switchMap(() => this.transactionService.getEtxn(txId))
+      )),
       finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
@@ -141,9 +137,7 @@ export class ViewTeamExpensePage implements OnInit {
     });
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap(etxn => {
-        return this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true);
-      }),
+      concatMap(etxn => this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)),
       shareReplay(1)
     );
 
@@ -152,39 +146,29 @@ export class ViewTeamExpensePage implements OnInit {
         this.etxnWithoutCustomProperties$,
         this.customProperties$
       ]).pipe(
-        map(res => {
-          res[0].tx_custom_properties = res[1];
-          return res[0];
-        }),
-        finalize(() => this.loaderService.hideLoader()),
-        shareReplay(1)
-      );
+      map(res => {
+        res[0].tx_custom_properties = res[1];
+        return res[0];
+      }),
+      finalize(() => this.loaderService.hideLoader()),
+      shareReplay(1)
+    );
 
     this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap(etxn => {
-        return this.statusService.find('transactions', etxn.tx_id);
-      }),
-      map(comments => {
-        return comments.filter(this.isPolicyComment);
-      })
+      concatMap(etxn => this.statusService.find('transactions', etxn.tx_id)),
+      map(comments => comments.filter(this.isPolicyComment))
     );
 
     this.comments$ = this.statusService.find('transactions', txId);
 
     this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
-      map(etxn => {
-        return ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1;
-      })
+      map(etxn => ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1)
     );
 
     this.canDelete$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap(etxn => {
-        return this.reportService.getTeamReport(etxn.tx_report_id).pipe(
-          map(report => {
-            return {report, etxn}
-          })
-        );
-      }),
+      concatMap(etxn => this.reportService.getTeamReport(etxn.tx_report_id).pipe(
+        map(report => ({report, etxn}))
+      )),
       map(({report, etxn}) => {
         if (report.rp_num_transactions === 1) {
           return false;
@@ -210,20 +194,16 @@ export class ViewTeamExpensePage implements OnInit {
     const editExpenseAttachments = this.etxn$.pipe(
       take(1),
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx_id)),
-      switchMap(fileObjs => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
-          map(downloadUrl => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        );
-      }),
+      switchMap(fileObjs => from(fileObjs)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
+        map(downloadUrl => {
+          fileObj.url = downloadUrl;
+          const details = this.getReceiptDetails(fileObj);
+          fileObj.type = details.type;
+          fileObj.thumbnail = details.thumbnail;
+          return fileObj;
+        })
+      )),
       reduce((acc, curr) => acc.concat(curr), [])
     );
 
@@ -286,9 +266,7 @@ export class ViewTeamExpensePage implements OnInit {
 
   viewAttachments() {
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.attachments$;
-      }),
+      switchMap(() => this.attachments$),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(async (attachments) => {
       const attachmentsModal = await this.modalController.create({

@@ -20,7 +20,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   value;
   eouc$: Observable<Employee[]>;
-  options: { label: string, value: any, selected?: boolean }[] = [];
+  options: { label: string; value: any; selected?: boolean }[] = [];
   selectedUsers: any[] = [];
   intialSelectedEmployees: any[] = [];
   userListCopy$: Observable<Employee[]>;
@@ -60,12 +60,10 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     }
 
     return from(this.orgUserService.getEmployeesBySearch(params)).pipe(
-      map(eouc => {
-        return eouc.map(eou => {
-          eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
-          return eou;
-        });
-      })
+      map(eouc => eouc.map(eou => {
+        eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
+        return eou;
+      }))
     );
   }
 
@@ -80,14 +78,12 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(
-      map(eouc => {
-        return eouc.map(eou => {
-          if (this.currentSelections && this.currentSelections.length > 0) {
-            eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
-          }
-          return eou;
-        });
-      })
+      map(eouc => eouc.map(eou => {
+        if (this.currentSelections && this.currentSelections.length > 0) {
+          eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
+        }
+        return eou;
+      }))
     );
   }
 
@@ -99,25 +95,21 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       return this.getSearchedUsersList(searchText);
     } else {
       return this.getDefaultUsersList().pipe(
-        switchMap(employees => {
-          return this.getSearchedUsersList().pipe(
-            map(searchedEmployees => {
-              searchedEmployees = searchedEmployees.filter(searchedEmployee => {
-                return !employees.find(employee => employee.us_email === searchedEmployee.us_email);
-              });
-              return employees.concat(searchedEmployees);
-            }),
-            finalize(() => {
-              // set isLoading to false
-              this.isLoading = false;
-              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
-              this.cdr.detectChanges();
-              // set focus on input once data is loaded
-              const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
-              searchInput.focus();
-            })
-          );
-        })
+        switchMap(employees => this.getSearchedUsersList().pipe(
+          map(searchedEmployees => {
+            searchedEmployees = searchedEmployees.filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email));
+            return employees.concat(searchedEmployees);
+          }),
+          finalize(() => {
+            // set isLoading to false
+            this.isLoading = false;
+            // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+            this.cdr.detectChanges();
+            // set focus on input once data is loaded
+            const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+            searchInput.focus();
+          })
+        ))
       );
     }
   }
@@ -126,7 +118,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     // make a copy of current selections
     this.currentSelectionsCopy = [];
     this.currentSelections.forEach(val => this.currentSelectionsCopy.push(val));
-    
+
     // remove the ones which are in the filtered list
     // now currentSelectionsCopy will have only those emails which were newly added
     filteredOptions.forEach(item => {
@@ -147,26 +139,22 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   processNewlyAddedItems(searchText) {
     return from(this.filteredOptions$).pipe(
-      switchMap((filteredOptions) => {
-        return this.getNewlyAddedUsers(filteredOptions).pipe(
-          map((newlyAddedItems: Partial<Employee>[] ) => {
-            if (searchText && searchText.length > 0) {
-              var searchTextLowerCase = searchText.toLowerCase();
-              var newItem = {
-                isNew: true,
-                us_email: searchText
-              };
-              var newArr = [];
-              newArr.push(newItem);
-              newlyAddedItems = newArr.concat(newlyAddedItems);
-              return newlyAddedItems.filter(item => {
-                return item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase);
-              });
-            }
-            return newlyAddedItems;
-          })
-        )
-      })
+      switchMap((filteredOptions) => this.getNewlyAddedUsers(filteredOptions).pipe(
+        map((newlyAddedItems: Partial<Employee>[] ) => {
+          if (searchText && searchText.length > 0) {
+            const searchTextLowerCase = searchText.toLowerCase();
+            const newItem = {
+              isNew: true,
+              us_email: searchText
+            };
+            const newArr = [];
+            newArr.push(newItem);
+            newlyAddedItems = newArr.concat(newlyAddedItems);
+            return newlyAddedItems.filter(item => item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase));
+          }
+          return newlyAddedItems;
+        })
+      ))
     );
   }
 
@@ -176,9 +164,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       debounceTime(400),
-      switchMap((searchText) => {
-        return this.getUsersList(searchText);
-      })
+      switchMap((searchText) => this.getUsersList(searchText))
     );
 
     if (this.allowCustomValues) {
@@ -187,9 +173,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         startWith(''),
         distinctUntilChanged(),
         debounceTime(400),
-        switchMap((searchText) => {
-          return this.processNewlyAddedItems(searchText);
-        })
+        switchMap((searchText) => this.processNewlyAddedItems(searchText))
       );
     }
     this.cdr.detectChanges();
@@ -199,7 +183,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onSelect(selectedOption: Partial<Employee>, event: { checked: boolean; }) {
+  onSelect(selectedOption: Partial<Employee>, event: { checked: boolean }) {
     if (event.checked) {
       this.currentSelections.push(selectedOption.us_email);
     } else {

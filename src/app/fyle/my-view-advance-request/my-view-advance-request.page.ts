@@ -78,9 +78,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.advanceRequestService.getAdvanceRequest(id);
-      }),
+      switchMap(() => this.advanceRequestService.getAdvanceRequest(id)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -90,23 +88,17 @@ export class MyViewAdvanceRequestPage implements OnInit {
     );
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap(res => {
-        return from(res);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
-          map(downloadUrl => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        );
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as File[])
+      switchMap(res => from(res)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
+        map(downloadUrl => {
+          fileObj.url = downloadUrl;
+          const details = this.getReceiptDetails(fileObj);
+          fileObj.type = details.type;
+          fileObj.thumbnail = details.thumbnail;
+          return fileObj;
+        })
+      )),
+      reduce((acc, curr) => acc.concat(curr), [] as File[])
     );
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
@@ -126,7 +118,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
             if (customField.id === customFieldValue.id) {
               customField.value = customFieldValue.value;
             }
-          })
+          });
         });
 
         return res.customFields;
@@ -157,9 +149,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
       const id = this.activatedRoute.snapshot.params.id;
 
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload);
-        }),
+        switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload)),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_advances']);

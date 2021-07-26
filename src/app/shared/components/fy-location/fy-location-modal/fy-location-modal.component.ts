@@ -81,9 +81,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   clearValue() {
-    /** 
+    /**
      * this.value is ng-model of search field. On click of clear button, clearValue() method will be called
-     * this.value is set to empty string 
+     * this.value is set to empty string
      */
     this.value = '';
     // get search input element
@@ -277,17 +277,13 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   getCurrentLocation() {
     from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
-      switchMap(() => {
-        return this.locationService.getCurrentLocation({ enableHighAccuracy: true });
-      }),
-      switchMap((coordinates) => {
-        return this.agmGeocode.geocode({
-          location: {
-            lat: coordinates.coords.latitude,
-            lng: coordinates.coords.longitude
-          }
-        });
-      }),
+      switchMap(() => this.locationService.getCurrentLocation({enableHighAccuracy: true})),
+      switchMap((coordinates) => this.agmGeocode.geocode({
+        location: {
+          lat: coordinates.coords.latitude,
+          lng: coordinates.coords.longitude
+        }
+      })),
       map(this.formatGeocodeResponse),
       catchError((err) => {
         this.lookupFailed = true;

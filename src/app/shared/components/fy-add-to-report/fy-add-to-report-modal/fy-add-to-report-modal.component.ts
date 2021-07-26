@@ -13,9 +13,9 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
+  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
   @Input() currentSelection: any;
-  filteredOptions: { label: string, value: any, selected?: boolean }[];
+  filteredOptions: { label: string; value: any; selected?: boolean }[];
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() nullOption = true;
   @Input() cacheName;
@@ -25,7 +25,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   value = '';
   states: any = {};
 
-  selectedOption: { label: string, value: any, selected?: boolean };
+  selectedOption: { label: string; value: any; selected?: boolean };
 
   constructor(
     private modalController: ModalController,

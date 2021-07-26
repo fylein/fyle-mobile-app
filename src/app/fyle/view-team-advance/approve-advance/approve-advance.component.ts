@@ -31,7 +31,7 @@ export class ApproveAdvanceComponent implements OnInit {
     ).subscribe(_ => {
       this.popoverController.dismiss({
         goBack: true
-      })
+      });
     });
   }
 }

@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 export class AdvanceRequestComponent implements OnInit {
 
   @Input() advanceRequests: any[];
-  homeCurrency$: Observable<string>
+  homeCurrency$: Observable<string>;
 
   constructor(
     private modalController: ModalController,

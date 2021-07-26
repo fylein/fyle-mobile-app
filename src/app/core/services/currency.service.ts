@@ -67,13 +67,11 @@ export class CurrencyService {
     return from(this.authService.getEou())
       .pipe(
         switchMap(
-          currentEou => {
-            return this.apiService.get('/currency/all', {
-              params: {
-                org_id: currentEou && currentEou.ou && currentEou.ou.org_id
-              }
-            });
-          }
+          currentEou => this.apiService.get('/currency/all', {
+            params: {
+              org_id: currentEou && currentEou.ou && currentEou.ou.org_id
+            }
+          })
         )
       );
   }
@@ -95,9 +93,7 @@ export class CurrencyService {
   // Todo: Remove this method and change getAll() method to return currency in list format not in object format.
   getAllCurrenciesInList() {
     return from(this.getAll()).pipe(
-      map((res) => {
-        return this.getCurrenyList(res);
-      })
+      map((res) => this.getCurrenyList(res))
     );
   }
 }

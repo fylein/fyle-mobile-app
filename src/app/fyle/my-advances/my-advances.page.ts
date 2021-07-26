@@ -63,17 +63,13 @@ export class MyAdvancesPage implements OnInit {
         count = count > 10 ? count / 10 : 1;
         return range(0, count);
       }),
-      concatMap(count => {
-        return this.advanceRequestService.getMyadvanceRequests({
-          offset: 10 * count,
-          limit: 10,
-          queryParams: { areq_trip_request_id: 'is.null', areq_advance_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
-        });
-      }),
+      concatMap(count => this.advanceRequestService.getMyadvanceRequests({
+        offset: 10 * count,
+        limit: 10,
+        queryParams: { areq_trip_request_id: 'is.null', areq_advance_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
+      })),
       map(res => res.data),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }),
+      reduce((acc, curr) => acc.concat(curr)),
       startWith([])
     );
 
@@ -82,72 +78,54 @@ export class MyAdvancesPage implements OnInit {
         count = count > 10 ? count / 10 : 1;
         return range(0, count);
       }),
-      concatMap(count => {
-        return this.advanceService.getMyadvances({
-          offset: 10 * count,
-          limit: 10,
-          queryParams: {order: 'adv_created_at.desc,adv_id.desc' }
-        });
-      }),
+      concatMap(count => this.advanceService.getMyadvances({
+        offset: 10 * count,
+        limit: 10,
+        queryParams: {order: 'adv_created_at.desc,adv_id.desc' }
+      })),
       map(res => res.data),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }),
+      reduce((acc, curr) => acc.concat(curr)),
       startWith([])
     );
 
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
-      switchMap(() => {
-        return from(this.loaderService.showLoader('Retrieving advance...')).pipe(
-          concatMap(() => {
-            return this.offlineService.getOrgSettings();
-          }),
-          switchMap((orgSettings) => {
-            return combineLatest([
-              iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
-              iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
-            ]).pipe(
-              map(res => {
-                const [myAdvancerequestsRes,  myAdvancesRes] = res;
-                let myAdvancerequests = myAdvancerequestsRes || [];
-                let myAdvances = myAdvancesRes || [];
-                myAdvancerequests = myAdvancerequests.map(data => {
-                  return {
-                    ...data,
-                    type: 'request',
-                    currency: data.areq_currency,
-                    amount: data.areq_amount,
-                    created_at: data.areq_created_at,
-                    purpose: data.areq_purpose,
-                    state: data.areq_state
-                  };
-                });
+      switchMap(() => from(this.loaderService.showLoader('Retrieving advance...')).pipe(
+        concatMap(() => this.offlineService.getOrgSettings()),
+        switchMap((orgSettings) => combineLatest([
+          iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
+          iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
+        ]).pipe(
+          map(res => {
+            const [myAdvancerequestsRes,  myAdvancesRes] = res;
+            let myAdvancerequests = myAdvancerequestsRes || [];
+            let myAdvances = myAdvancesRes || [];
+            myAdvancerequests = myAdvancerequests.map(data => ({
+              ...data,
+              type: 'request',
+              currency: data.areq_currency,
+              amount: data.areq_amount,
+              created_at: data.areq_created_at,
+              purpose: data.areq_purpose,
+              state: data.areq_state
+            }));
 
-                myAdvances = myAdvances.map(data => {
-                  return {
-                    ...data,
-                    type: 'advance',
-                    amount: data.adv_amount,
-                    orig_amount: data.adv_orig_amount,
-                    created_at: data.adv_created_at,
-                    currency: data.adv_currency,
-                    orig_currency: data.adv_orig_currency,
-                    purpose: data.adv_purpose,
-                  };
-                });
-                return myAdvances.concat(myAdvancerequests);
-              }),
-              map(res => {
-                return res.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1);
-              })
-            );
+            myAdvances = myAdvances.map(data => ({
+              ...data,
+              type: 'advance',
+              amount: data.adv_amount,
+              orig_amount: data.adv_orig_amount,
+              created_at: data.adv_created_at,
+              currency: data.adv_currency,
+              orig_currency: data.adv_orig_currency,
+              purpose: data.adv_purpose,
+            }));
+            return myAdvances.concat(myAdvancerequests);
           }),
-          finalize(() => {
-            return from(this.loaderService.hideLoader());
-          })
-        );
-      })
+          map(res => res.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1))
+        )),
+        finalize(() => from(this.loaderService.hideLoader()))
+      ))
 
     );
   }

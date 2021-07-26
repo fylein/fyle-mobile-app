@@ -43,9 +43,7 @@ export class RequestInvitationPage implements OnInit {
 
   sendRequestInvitation() {
     from(this.loaderService.showLoader('Sending request to join organization...')).pipe(
-      concatMap(() => {
-        return this.invitationRequestsService.upsertRouter(this.fg.controls.email.value);
-      }),
+      concatMap(() => this.invitationRequestsService.upsertRouter(this.fg.controls.email.value)),
       finalize(async () => {
         await this.loaderService.hideLoader();
       }),

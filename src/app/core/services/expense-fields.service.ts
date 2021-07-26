@@ -19,16 +19,14 @@ export class ExpenseFieldsService {
 
   getAllEnabled(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiService.get('/expense_fields', {
-          params: {
-            org_id: eou.ou.org_id,
-            is_enabled: true,
-            is_custom: false
-          }
-        });
-      })
-    )
+      switchMap(eou => this.apiService.get('/expense_fields', {
+        params: {
+          org_id: eou.ou.org_id,
+          is_enabled: true,
+          is_custom: false
+        }
+      }))
+    );
   }
 
   /* getAllMap() method returns a mapping of column_names and their respective mapped fields
@@ -71,9 +69,7 @@ export class ExpenseFieldsService {
 
   findCommonRoles(roles): Observable<string[]> {
     return this.getUserRoles().pipe(
-      map(userRoles => roles.filter(role => {
-        return userRoles.indexOf(role) > -1;
-      }))
+      map(userRoles => roles.filter(role => userRoles.indexOf(role) > -1))
     );
   }
 
@@ -87,7 +83,7 @@ export class ExpenseFieldsService {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map(fields => fields.map(field => {
-        let configurations = tfcMap[field];
+        const configurations = tfcMap[field];
         let filteredField;
 
         if (configurations && configurations.length > 0) {
@@ -113,21 +109,17 @@ export class ExpenseFieldsService {
       })
         .filter(filteredField => !!filteredField)
       ),
-      switchMap(fields => {
-        return from(fields);
-      }),
-      concatMap(field => {
-        return forkJoin({
-          canEdit: this.canEdit(field.roles_editable)
-        }).pipe(
-          map(
-            (res) => ({
-              ...field,
-              ...res
-            })
-          )
-        );
-      }),
+      switchMap(fields => from(fields)),
+      concatMap(field => forkJoin({
+        canEdit: this.canEdit(field.roles_editable)
+      }).pipe(
+        map(
+          (res) => ({
+            ...field,
+            ...res
+          })
+        )
+      )),
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;

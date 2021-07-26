@@ -79,21 +79,17 @@ export class FyPreviewAttachmentsComponent implements OnInit {
     };
 
     this.attachments$ = this.fileService.findByTransactionId(this.txnId).pipe(
-      switchMap(fileObjs => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
-          map(downloadUrl => {
-            fileObj.url = downloadUrl;
-            this.sanitizer.bypassSecurityTrustUrl(fileObj.url);
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        );
-      }),
+      switchMap(fileObjs => from(fileObjs)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
+        map(downloadUrl => {
+          fileObj.url = downloadUrl;
+          this.sanitizer.bypassSecurityTrustUrl(fileObj.url);
+          const details = this.getReceiptDetails(fileObj);
+          fileObj.type = details.type;
+          fileObj.thumbnail = details.thumbnail;
+          return fileObj;
+        })
+      )),
       reduce((acc, curr) => acc.concat(curr), [])
     );
   }

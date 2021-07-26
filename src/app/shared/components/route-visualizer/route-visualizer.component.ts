@@ -4,8 +4,8 @@ import { LocationService } from 'src/app/core/services/location.service';
 import { MileageLocation } from './mileage-locations';
 
 type AgmDirectionLocation = {
-  lat: number,
-  lng: number
+  lat: number;
+  lng: number;
 };
 
 @Component({
@@ -28,7 +28,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
   renderOptions = {
     draggable: false,
     suppressInfoWindows: true
-  }
+  };
 
   showEmptyMap = false;
 
@@ -42,7 +42,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
     waypoints: {
       infoWindow: null
     }
-  }
+  };
 
   constructor(
     private locationService: LocationService

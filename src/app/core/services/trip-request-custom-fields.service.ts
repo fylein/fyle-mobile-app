@@ -24,9 +24,7 @@ export class TripRequestCustomFieldsService {
   }
 
   filterByRequestTypeAndTripType(customFields, requestType, tripType) {
-    return customFields.filter((customField) => {
-      return (customField.request_type === requestType && customField.trip_type.indexOf(tripType) > -1);
-    }).sort(this.sortCustomFieldsByType);
+    return customFields.filter((customField) => (customField.request_type === requestType && customField.trip_type.indexOf(tripType) > -1)).sort(this.sortCustomFieldsByType);
   }
 
   // @Cacheable()

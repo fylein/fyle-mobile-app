@@ -26,14 +26,14 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   private ngControl: NgControl;
   @Input() txnDt: Date;
   @Input() homeCurrency: string;
-  @Input() recentlyUsed: { label: string, value: string }[];
+  @Input() recentlyUsed: { label: string; value: string }[];
   exchangeRate = 1;
 
   private innerValue: {
-    amount: number,
-    currency: string,
-    orig_amount: number,
-    orig_currency: string
+    amount: number;
+    currency: string;
+    orig_amount: number;
+    orig_currency: string;
   };
 
   private onTouchedCallback: () => void = noop;

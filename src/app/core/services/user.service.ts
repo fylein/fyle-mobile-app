@@ -46,17 +46,13 @@ export class UserService {
 
   getProperties(): Observable<UserProperty> {
     return this.getCurrent().pipe(
-      switchMap((user) => {
-        return this.apiService.get('/users/' + user.id + '/properties');
-      })
+      switchMap((user) => this.apiService.get('/users/' + user.id + '/properties'))
     );
   }
 
   upsertProperties(userProperties: UserProperty) {
     return this.getCurrent().pipe(
-      switchMap((user) => {
-        return this.apiService.post('/users/' + user.id + '/properties', userProperties);
-      })
+      switchMap((user) => this.apiService.post('/users/' + user.id + '/properties', userProperties))
     );
   }
 }

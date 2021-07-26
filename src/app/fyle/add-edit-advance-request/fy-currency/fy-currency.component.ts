@@ -24,8 +24,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() homeCurrency: string;
 
   private innerValue: {
-    amount: number,
-    currency: string
+    amount: number;
+    currency: string;
   };
 
   private onTouchedCallback: () => void = noop;

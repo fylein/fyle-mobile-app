@@ -21,7 +21,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 })
 export class FyAddToReportComponent implements OnInit, OnDestroy {
   private ngControl: NgControl;
-  @Input() options: { label: string, value: any }[] = [];
+  @Input() options: { label: string; value: any }[] = [];
   @Input() disabled = false;
   @Input() label = '';
   @Input() mandatory = false;

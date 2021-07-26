@@ -37,9 +37,7 @@ export class OrgService {
         data.currency = data.currency || 'USD';
         return data.currency as string;
       }),
-      catchError(() => {
-        return 'USD';
-      })
+      catchError(() => 'USD')
     );
   }
 
@@ -81,9 +79,7 @@ export class OrgService {
     globalCacheBusterNotifier.next();
 
     return this.apiService.post(`/orgs/${orgId}/refresh_token`).pipe(
-      switchMap(data => {
-        return this.authService.newRefreshToken(data.refresh_token);
-      })
+      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
     );
   }
 }

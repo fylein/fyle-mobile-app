@@ -57,15 +57,9 @@ export class CommentsHistoryComponent implements OnInit {
   ngOnInit() {
     this.noOfComments$ = this.refreshComments$.pipe(
       startWith(0),
-      switchMap(() => {
-        return this.statusService.find(this.objectType, this.objectId).pipe(
-          map(res => {
-            return res.filter((estatus) => {
-              return estatus.us_full_name;
-            }).length;
-          }),
-        );
-      })
+      switchMap(() => this.statusService.find(this.objectType, this.objectId).pipe(
+        map(res => res.filter((estatus) => estatus.us_full_name).length),
+      ))
     );
     this.refreshComments$.next();
   }

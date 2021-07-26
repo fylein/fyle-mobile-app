@@ -36,7 +36,7 @@ export class CreateNewReportComponent implements OnInit {
     private reportService: ReportService,
     private trackingService: TrackingService
   ) {
-    
+
   }
 
   getReportTitle() {
@@ -97,7 +97,7 @@ export class CreateNewReportComponent implements OnInit {
       this.showReportNameError = true;
       return;
     }
-    
+
     const report = {
       purpose: this.reportTitle,
       source: 'MOBILE',
@@ -116,7 +116,7 @@ export class CreateNewReportComponent implements OnInit {
           }
         }),
         finalize(() => {
-         this.saveDraftReportLoader = false;
+          this.saveDraftReportLoader = false;
         })
       ).subscribe((report => {
         this.modalController.dismiss({
