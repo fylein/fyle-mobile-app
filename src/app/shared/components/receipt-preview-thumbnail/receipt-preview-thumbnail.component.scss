@@ -66,6 +66,7 @@
         z-index: 99;
         height: 100%;
         width: 100%;
+        pointer-events: none;
     }
 
     &--go-back {
@@ -80,6 +81,7 @@
         height: 40px;
         width: 40px;
         color: white;
+        pointer-events: auto;
     }
 
     &--go-forward {
@@ -94,6 +96,7 @@
         height: 40px;
         width: 40px;
         color: white;
+        pointer-events: auto;
     }
 
     &--spinner-overlay {
