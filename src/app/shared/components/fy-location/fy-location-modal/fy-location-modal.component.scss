@@ -1,4 +1,5 @@
-@import '../../../../../assets/styles/fy_select';
+@import "../../../../../assets/styles/fy_select";
+@import "../../../../../theme/colors.scss";
 
 .selection-modal {
   color: black;
@@ -8,21 +9,50 @@
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
     display: flex;
-    align-items: center;
+    align-items: start;
+    &__current-location {
+      align-items: center;
+    }
+
     &__default {
       border-top: 1px solid #ddd;
     }
   }
 
-  &--error-lookup {
-    color: #4a4a4a;
-    font-size: 16px;
-    line-height: 1.5;
-    padding: 16px;
-    border-bottom: 1px solid #ddd;
+  &--current-location-getter, &--error-lookup {
+    margin: 16px;
+  }
+
+  &--simple-search {
+    width: 100%;
+    font-size: 14px;
+    padding-right: 12px;
+
+    &-icon {
+      font-size: 18px;
+      margin-right: 8px;
+      color: $black-light;
+      height: auto;
+    }
+
+    &-close {
+      margin: -12px;
+      font-size: 18px;
+      height: 12px;
+    }
+  }
+
+  &--simple-search-input {
+    margin-right: 12px;
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
   }
 
   &--list-element-icon {
+    min-width: 24px;
     margin-right: 12px;
   }
 
@@ -45,12 +75,37 @@
     }
   }
 
+  &--location-main-text {
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 500;
+    color: $black;
+    white-space: nowrap;
+    max-width: 288px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  &--location-description {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 400;
+    color: $grey-light;
+  }
+
   &--search-icon {
     font-size: 14px;
   }
 
   &--form-field-container {
     text-align: center;
+    margin-bottom: 0;
+    border-bottom: 1px solid $border-grey;
+    mat-form-field {
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
+      }
+    }
   }
 
   &--spinner {
@@ -74,5 +129,12 @@
 
   &--autocomplete-loader {
     @extend %autocomplete-loader;
+    margin-right: 16px;
+    margin-top: 2px;
+    height: 12px;
+  }
+
+  &--cta-button {
+    color: $primary;
   }
 }
