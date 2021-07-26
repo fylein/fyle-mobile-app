@@ -1,6 +1,8 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 
 @Component({
   selector: 'app-receipt-preview',
@@ -18,7 +20,8 @@ export class ReceiptPreviewComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private popoverController: PopoverController,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private matBottomSheet: MatBottomSheet,
   ) { }
 
   ngOnInit() {
@@ -73,32 +76,56 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   async addMore () {
-    const actionSheetButtons = [
-      {
-        text: 'Capture Receipts',
-        icon: 'assets/svg/fy-camera.svg',
-        cssClass: 'capture-receipt',
-        handler: () => {
-          console.log("-------1--------");
-          this.captureReceipts();
-        }
-      },
-      {
-        text: 'Upload from Gallery',
-        icon: 'assets/svg/gallery.svg', // Todo: Fix gallery icon
-        cssClass: 'capture-receipt',
-        handler: () => {
-          console.log("-------2--------")
-        }
-      }
-    ];
-    const actionSheet = await this.actionSheetController.create({
-      header: 'ADD MORE USING',
-      mode: 'md',
-      cssClass: 'fy-action-sheet',
-      buttons: actionSheetButtons
+
+    const addMoreDialog = this.matBottomSheet.open(AddMorePopupComponent, {
+      data: {  },
+      panelClass: ['mat-bottom-sheet-2']
     });
-    await actionSheet.present();
+
+    const data = await addMoreDialog.afterDismissed().toPromise();
+    if (data) {
+      if (data.mode === 'camera') {
+        this.captureReceipts();
+      } else {
+        this.galleryUplaod();
+      }
+    }
+      
+      
+      
+
+
+    // const actionSheetButtons = [
+    //   {
+    //     text: 'Capture Receipts',
+    //     icon: 'assets/svg/fy-camera.svg',
+    //     cssClass: 'receipt-preview--capture-receipt',
+    //     handler: () => {
+    //       console.log("-------1--------");
+    //       this.captureReceipts();
+    //     }
+    //   },
+    //   {
+    //     text: 'Upload from Gallery',
+    //     icon: 'assets/svg/gallery.svg', // Todo: Fix gallery icon
+    //     cssClass: 'receipt-preview--gallery-upload',
+    //     handler: () => {
+    //       console.log("-------2--------")
+    //     }
+    //   }
+    // ];
+    // const actionSheet = await this.actionSheetController.create({
+    //   header: 'ADD MORE USING',
+    //   mode: 'md',
+    //   cssClass: ['fy-action-sheet', 'receipt-preview--action-sheet'],
+    //   buttons: actionSheetButtons
+    // });
+    // await actionSheet.present();
+  }
+
+
+  galleryUplaod() {
+    //Todo
   }
 
 
@@ -147,7 +174,7 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   retake() {
-    this.base64ImagesWithSource = [];
+    this.base64ImagesWithSource.pop();
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource
     });

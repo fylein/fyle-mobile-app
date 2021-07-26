@@ -79,6 +79,11 @@ input:focus, textarea:focus{
   border-radius: 16px 16px 0px 0px !important;
 }
 
+.mat-bottom-sheet-2 {
+  padding: 24px 24px 6px 24px !important;
+  border-radius: 16px 16px 0px 0px !important;
+}
+
 .mat-snack-bar-success {
   background-color: $green-1;
   color: $pure-white;
@@ -624,6 +629,30 @@ ref - https://stackoverflow.com/a/31162426
   .action-sheet-button-inner {
     border-bottom: 1px solid $translucent-grey;
   }
+}
+
+.receipt-preview {
+  &--action-sheet {
+    .action-sheet-title {
+      font-size: 14px;
+      line-height: 1.28;
+    }
+  }
+
+  &--capture-receipt {
+    stroke: $grey-light;
+    color: $black !important;
+    font-size: 18px !important;
+    line-height: 1.28;
+  }
+
+  &--gallery-upload {
+    stroke: $grey-light;
+    color: $black !important;
+    font-size: 18px !important;
+    line-height: 1.28;
+  }
+
 }
 
 .dashboard {

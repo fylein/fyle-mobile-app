@@ -11,6 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { AddMorePopupComponent } from './add-more-popup/add-more-popup.component';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 @NgModule({
   imports: [
@@ -19,11 +21,13 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
     IonicModule,
     CaptureReceiptPageRoutingModule,
     MatIconModule,
-    PinchZoomModule
+    PinchZoomModule,
+    MatBottomSheetModule
   ],
   declarations: [
     CaptureReceiptPage,
-    ReceiptPreviewComponent
+    ReceiptPreviewComponent,
+    AddMorePopupComponent
   ],
   providers: [
     ImagePicker
