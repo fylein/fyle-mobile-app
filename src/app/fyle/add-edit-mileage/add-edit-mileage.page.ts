@@ -60,7 +60,10 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
   styleUrls: ['./add-edit-mileage.page.scss'],
 })
 export class AddEditMileagePage implements OnInit {
-
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef;
+  @ViewChild('comments') commentsContainer: ElementRef;
+  @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
   mode = 'add';
   title = 'edit';
   activeIndex: number;
@@ -119,11 +122,6 @@ export class AddEditMileagePage implements OnInit {
   initialFetch;
   isProjectVisible$: Observable<boolean>;
 
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
-  @ViewChild('formContainer') formContainer: ElementRef;
-  @ViewChild('comments') commentsContainer: ElementRef;
-
-  @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
 
   formInitializedFlag = false;
   invalidPaymentMode = false;
@@ -1289,21 +1287,6 @@ export class AddEditMileagePage implements OnInit {
         this.formInitializedFlag = true;
       }, 1000);
     });
-  }
-
-  addMileageLocation() {
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.mileageConfig$),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(mileageConfig => {
-      this.mileage_locations.push(
-        new FormControl(null, mileageConfig.location_mandatory && Validators.required)
-      );
-    });
-  }
-
-  removeMileageLocation(index: number) {
-    this.mileage_locations.removeAt(index);
   }
 
   async goBack() {

@@ -23,6 +23,8 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
   styleUrls: ['./my-reports.page.scss']
 })
 export class MyReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   isConnected$: Observable<boolean>;
   myReports$: Observable<ExtendedReport[]>;
   count$: Observable<number>;
@@ -54,7 +56,6 @@ export class MyReportsPage implements OnInit {
 
   onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
     private networkService: NetworkService,

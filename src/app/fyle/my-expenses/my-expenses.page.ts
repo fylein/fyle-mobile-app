@@ -67,6 +67,7 @@ type Filters = Partial<{
   styleUrls: ['./my-expenses.page.scss'],
 })
 export class MyExpensesPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   isConnected$: Observable<boolean>;
   myExpenses$: Observable<Expense[]>;
   count$: Observable<number>;
@@ -105,7 +106,6 @@ export class MyExpensesPage implements OnInit {
   filterPills = [];
   reviewMode = false;
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   ROUTER_API_ENDPOINT: any;
   isReportableExpensesSelected = false;
   openReports$: Observable<ExtendedReport[]>;
@@ -742,97 +742,6 @@ export class MyExpensesPage implements OnInit {
     }
 
     return currentParams;
-  }
-
-  private generateTypeFilters(newQueryParams) {
-    const typeOrFilter = [];
-
-    if (this.filters.type) {
-      if (this.filters.type.includes('Mileage')) {
-        typeOrFilter.push('tx_fyle_category.eq.Mileage');
-      }
-
-      if (this.filters.type.includes('PerDiem')) {
-        // The space encoding is done by angular into %20 so no worries here
-        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
-      }
-
-      if (this.filters.type.includes('RegularExpenses')) {
-        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
-      }
-    }
-
-    if (typeOrFilter.length > 0) {
-      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      newQueryParams.or.push(combinedTypeOrFilter);
-    }
-  }
-
-  private generateStateFilters(newQueryParams) {
-    const stateOrFilter = [];
-
-    if (this.filters.state) {
-      newQueryParams.tx_report_id = 'is.null';
-      if (this.filters.state.includes('READY_TO_REPORT')) {
-        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
-      }
-
-      if (this.filters.state.includes('POLICY_VIOLATED')) {
-        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
-      }
-
-      if (this.filters.state.includes('CANNOT_REPORT')) {
-        stateOrFilter.push('tx_policy_amount.lt.0.0001');
-      }
-
-      if (this.filters.state.includes('DRAFT')) {
-        stateOrFilter.push('tx_state.in.(DRAFT)');
-      }
-    }
-
-    if (stateOrFilter.length > 0) {
-      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParams.or.push(combinedStateOrFilter);
-    }
-  }
-
-  private generateReceiptAttachedParams(newQueryParams) {
-    if (this.filters.receiptsAttached) {
-      if (this.filters.receiptsAttached === 'YES') {
-        newQueryParams.tx_num_files = 'gt.0';
-      }
-
-      if (this.filters.receiptsAttached === 'NO') {
-        newQueryParams.tx_num_files = 'eq.0';
-      }
-    }
-  }
-
-  private generateDateParams(newQueryParams) {
-    if (this.filters.date) {
-      this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
-      this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
-      if (this.filters.date === DateFilters.thisMonth) {
-        newQueryParams.and =
-            `(tx_txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.thisWeek) {
-        newQueryParams.and =
-            `(tx_txn_dt.gte.${this.dateService.getThisWeekRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisWeekRange().to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.lastMonth) {
-        newQueryParams.and =
-            `(tx_txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.custom) {
-        if (this.filters.customDateStart && this.filters.customDateEnd) {
-          newQueryParams.and =`(tx_txn_dt.gte.${this.filters?.customDateStart?.toISOString()},tx_txn_dt.lt.${this.filters?.customDateEnd?.toISOString()})`;
-        } else if (this.filters.customDateStart) {
-          newQueryParams.and =`(tx_txn_dt.gte.${this.filters.customDateStart?.toISOString()})`;
-        } else if (this.filters.customDateEnd) {
-          newQueryParams.and =`(tx_txn_dt.lt.${this.filters.customDateEnd?.toISOString()})`;
-        }
-      }
-    }
   }
 
   generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
@@ -1712,6 +1621,97 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', {
       navigate_back: true
     }]);
+  }
+
+  private generateTypeFilters(newQueryParams) {
+    const typeOrFilter = [];
+
+    if (this.filters.type) {
+      if (this.filters.type.includes('Mileage')) {
+        typeOrFilter.push('tx_fyle_category.eq.Mileage');
+      }
+
+      if (this.filters.type.includes('PerDiem')) {
+        // The space encoding is done by angular into %20 so no worries here
+        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
+      }
+
+      if (this.filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
+      }
+    }
+
+    if (typeOrFilter.length > 0) {
+      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
+      newQueryParams.or.push(combinedTypeOrFilter);
+    }
+  }
+
+  private generateStateFilters(newQueryParams) {
+    const stateOrFilter = [];
+
+    if (this.filters.state) {
+      newQueryParams.tx_report_id = 'is.null';
+      if (this.filters.state.includes('READY_TO_REPORT')) {
+        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (this.filters.state.includes('POLICY_VIOLATED')) {
+        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (this.filters.state.includes('CANNOT_REPORT')) {
+        stateOrFilter.push('tx_policy_amount.lt.0.0001');
+      }
+
+      if (this.filters.state.includes('DRAFT')) {
+        stateOrFilter.push('tx_state.in.(DRAFT)');
+      }
+    }
+
+    if (stateOrFilter.length > 0) {
+      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedStateOrFilter = `(${combinedStateOrFilter})`;
+      newQueryParams.or.push(combinedStateOrFilter);
+    }
+  }
+
+  private generateReceiptAttachedParams(newQueryParams) {
+    if (this.filters.receiptsAttached) {
+      if (this.filters.receiptsAttached === 'YES') {
+        newQueryParams.tx_num_files = 'gt.0';
+      }
+
+      if (this.filters.receiptsAttached === 'NO') {
+        newQueryParams.tx_num_files = 'eq.0';
+      }
+    }
+  }
+
+  private generateDateParams(newQueryParams) {
+    if (this.filters.date) {
+      this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
+      this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
+      if (this.filters.date === DateFilters.thisMonth) {
+        newQueryParams.and =
+            `(tx_txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
+      } else if (this.filters.date === DateFilters.thisWeek) {
+        newQueryParams.and =
+            `(tx_txn_dt.gte.${this.dateService.getThisWeekRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisWeekRange().to.toISOString()})`;
+      } else if (this.filters.date === DateFilters.lastMonth) {
+        newQueryParams.and =
+            `(tx_txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
+      } else if (this.filters.date === DateFilters.custom) {
+        if (this.filters.customDateStart && this.filters.customDateEnd) {
+          newQueryParams.and =`(tx_txn_dt.gte.${this.filters?.customDateStart?.toISOString()},tx_txn_dt.lt.${this.filters?.customDateEnd?.toISOString()})`;
+        } else if (this.filters.customDateStart) {
+          newQueryParams.and =`(tx_txn_dt.gte.${this.filters.customDateStart?.toISOString()})`;
+        } else if (this.filters.customDateEnd) {
+          newQueryParams.and =`(tx_txn_dt.lt.${this.filters.customDateEnd?.toISOString()})`;
+        }
+      }
+    }
   }
 
 }

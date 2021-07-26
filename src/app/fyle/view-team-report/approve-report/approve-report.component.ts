@@ -9,10 +9,10 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./approve-report.component.scss'],
 })
 export class ApproveReportComponent implements OnInit {
-  sendBackReason = '';
-
   @Input() erpt;
   @Input() etxns;
+
+  sendBackReason = '';
   numIssues = 0;
   approveReportLoading = false;
 
@@ -32,15 +32,15 @@ export class ApproveReportComponent implements OnInit {
   getNumIssues(etxns) {
     let count = 0;
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (let i = 0; i < etxns.length; i++) {
+      const etxn = etxns[i];
       if (etxn.tx_policy_flag) {
         count = count + 1;
       }
     }
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (let i = 0; i < etxns.length; i++) {
+      const etxn = etxns[i];
       if (etxn.tx_manual_flag) {
         count = count + 1;
       }

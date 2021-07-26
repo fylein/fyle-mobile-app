@@ -1,11 +1,5 @@
 export class StatsOneDResponse {
 
-  constructor(statObj: any) {
-    this.dimensions = statObj.dimensions;
-    this.name = statObj.name;
-    this.value = statObj.value;
-  }
-
   dimensions: string[];
   name: string;
   value: [{
@@ -18,6 +12,13 @@ export class StatsOneDResponse {
       column_value?: any;
     }];
   }];
+
+  constructor(statObj: any) {
+    this.dimensions = statObj.dimensions;
+    this.name = statObj.name;
+    this.value = statObj.value;
+  }
+
   getStatAggregatesByIdx<T>(index: number): Array<{value: T; key: string}> {
     return this.value.map(stat =>  ({
       value: stat.aggregates.length && stat.aggregates[index].function_value,

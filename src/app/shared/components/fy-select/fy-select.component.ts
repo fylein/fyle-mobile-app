@@ -21,7 +21,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
-  private ngControl: NgControl;
   @Input() options: { label: string; value: any }[] = [];
   @Input() disabled = false;
   @Input() label = '';
@@ -38,8 +37,9 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() defaultLabelProp;
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
-  private innerValue;
   displayValue;
+
+  private innerValue;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -48,6 +48,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       return true;
     }
   }
+
+  private ngControl: NgControl;
 
   private onTouchedCallback: () => void = noop;
   private onChangeCallback: (_: any) => void = noop;

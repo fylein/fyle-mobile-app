@@ -69,6 +69,9 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
   styleUrls: ['./add-edit-expense.page.scss'],
 })
 export class AddEditExpensePage implements OnInit {
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef;
+  @ViewChild('comments') commentsContainer: ElementRef;
   etxn$: Observable<any>;
   paymentModes$: Observable<any[]>;
   recentlyUsedValues$: Observable<RecentlyUsed>;
@@ -161,9 +164,6 @@ export class AddEditExpensePage implements OnInit {
   inpageExtractedData;
   actionSheetButtons = [];
 
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
-  @ViewChild('formContainer') formContainer: ElementRef;
-  @ViewChild('comments') commentsContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,

@@ -18,10 +18,11 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class CreateNewReportComponent implements OnInit {
 
   @Input() selectedExpensesToReport: Expense[];
+  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
+
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
   selectedElements: Expense[];
   selectedTotalAmount: number;
-  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
   reportTitle: string;
   submitReportLoader: boolean;
   saveDraftReportLoader: boolean;

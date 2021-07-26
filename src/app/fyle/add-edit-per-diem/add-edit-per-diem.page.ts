@@ -57,6 +57,10 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
   styleUrls: ['./add-edit-per-diem.page.scss'],
 })
 export class AddEditPerDiemPage implements OnInit {
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef;
+  @ViewChild('comments') commentsContainer: ElementRef;
+
   title: string;
   activeIndex: number;
   reviewList: string[];
@@ -109,10 +113,6 @@ export class AddEditPerDiemPage implements OnInit {
   presetCostCenterId: number;
   recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
   isProjectVisible$: Observable<boolean>;
-
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
-  @ViewChild('formContainer') formContainer: ElementRef;
-  @ViewChild('comments') commentsContainer: ElementRef;
 
   duplicateDetectionReasons = [
     {label: 'Different expense', value: 'Different expense'},

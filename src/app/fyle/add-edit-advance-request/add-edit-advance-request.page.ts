@@ -30,6 +30,8 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   styleUrls: ['./add-edit-advance-request.page.scss'],
 })
 export class AddEditAdvanceRequestPage implements OnInit {
+
+  @ViewChild('formContainer') formContainer: ElementRef;
   isConnected$: Observable<boolean>;
   isProjectsEnabled$: Observable<boolean>;
   extendedAdvanceRequest$: Observable<any>;
@@ -49,7 +51,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   saveDraftAdvanceLoading = false;
   saveAdvanceLoading = false;
 
-  @ViewChild('formContainer') formContainer: ElementRef;
 
   constructor(
     private offlineService: OfflineService,

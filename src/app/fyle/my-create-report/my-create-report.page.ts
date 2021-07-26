@@ -25,6 +25,7 @@ import {NgModel} from '@angular/forms';
 })
 export class MyCreateReportPage implements OnInit {
 
+  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
   readyToReportEtxns: Expense[];
   reportTitle = '';
   homeCurrency$: Observable<string>;
@@ -39,7 +40,6 @@ export class MyCreateReportPage implements OnInit {
   saveDraftReportLoading = false;
   saveReportLoading = false;
   showReportNameError = false;
-  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
 
   constructor(
     private transactionService: TransactionService,

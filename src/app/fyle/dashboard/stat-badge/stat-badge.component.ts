@@ -15,9 +15,10 @@ export class StatBadgeComponent implements OnInit {
   @Input() value = 0;
   @Input() currency: string;
   @Input() loading = false;
+  @Output() badgeClicked = new EventEmitter();
+
   currencySymbol = '';
 
-  @Output() badgeClicked = new EventEmitter();
 
   constructor(
   ) { }

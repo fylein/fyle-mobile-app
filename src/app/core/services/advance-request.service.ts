@@ -41,6 +41,169 @@ export class AdvanceRequestService {
     private transactionsOutboxService: TransactionsOutboxService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$
+  })
+  getMyadvanceRequests(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => this.apiv2Service.get('/advance_requests', {
+        params: {
+          offset: config.offset,
+          limit: config.limit,
+          areq_org_user_id: 'eq.' + eou.ou.id,
+          ...config.queryParams
+        }
+      })),
+      map(res => res as {
+        count: number;
+        data: ExtendedAdvanceRequest[];
+        limit: number;
+        offset: number;
+        url: string;
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.fixDates)
+      }))
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$
+  })
+  getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
+    return this.apiv2Service.get('/advance_requests', {
+      params: {
+        areq_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as ExtendedAdvanceRequest
+      )
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  delete(advanceRequestId: string) {
+    return this.apiService.delete('/advance_requests/' + advanceRequestId);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  addApprover(advanceRequestId, approverEmail, comment) {
+    const data = {
+      advance_request_id: advanceRequestId,
+      approver_email: approverEmail,
+      comment
+    };
+
+    return this.apiService.post('/advance_requests/add_approver', data);
+    // self.deleteCache();
+    // return fixDates(advance_request);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  submit(advanceRequest) {
+    return this.apiService.post('/advance_requests/submit', advanceRequest);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  saveDraft(advanceRequest) {
+    return this.apiService.post('/advance_requests/save', advanceRequest);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  approve(advanceRequestId) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/approve');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  sendBack(advanceRequestId, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/inquire', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  reject(advanceRequestId, addStatusPayload) {
+    return this.apiService.post('/advance_requests/' + advanceRequestId + '/reject', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$
+  })
+  destroyAdvanceRequestsCacheBuster() {
+    return of(null);
+  }
+
+
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$
+  })
+  getTeamadvanceRequests(config: Partial<{ offset: number; limit: number; queryParams: any; filter: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {},
+    filter: 'PENDING'
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => {
+
+        const defaultParams = {};
+        if (config.filter === 'APPROVED') {
+          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_DONE'];
+        } else {
+          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_PENDING'];
+        }
+
+        return this.apiv2Service.get('/advance_requests', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            order: 'areq_created_at.desc',
+            areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
+            ...defaultParams,
+            ...config.queryParams
+          }
+        });
+      }),
+      map(res => res as {
+        count: number;
+        data: ExtendedAdvanceRequest[];
+        limit: number;
+        offset: number;
+        url: string;
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.fixDates)
+      }))
+    );
+  }
+
+
   getEReq(advanceRequestId) {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map(res => {
@@ -109,52 +272,6 @@ export class AdvanceRequestService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: advanceRequestsCacheBuster$
-  })
-  getMyadvanceRequests(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiv2Service.get('/advance_requests', {
-        params: {
-          offset: config.offset,
-          limit: config.limit,
-          areq_org_user_id: 'eq.' + eou.ou.id,
-          ...config.queryParams
-        }
-      })),
-      map(res => res as {
-        count: number;
-        data: ExtendedAdvanceRequest[];
-        limit: number;
-        offset: number;
-        url: string;
-      }),
-      map(res => ({
-        ...res,
-        data: res.data.map(this.fixDates)
-      }))
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: advanceRequestsCacheBuster$
-  })
-  getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
-    return this.apiv2Service.get('/advance_requests', {
-      params: {
-        areq_id: `eq.${id}`
-      }
-    }).pipe(
-      map(
-        res => this.fixDates(res.data[0]) as ExtendedAdvanceRequest
-      )
-    );
-  }
-
   getActions(advanceRequestId: string) {
     return this.apiService.get('/advance_requests/' + advanceRequestId + '/actions');
   }
@@ -164,51 +281,6 @@ export class AdvanceRequestService {
       map(res => res as Approval[])
     );
   }
-
-  @Cacheable({
-    cacheBusterObserver: advanceRequestsCacheBuster$
-  })
-  getTeamadvanceRequests(config: Partial<{ offset: number; limit: number; queryParams: any; filter: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {},
-    filter: 'PENDING'
-  }) {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-
-        const defaultParams = {};
-        if (config.filter === 'APPROVED') {
-          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_DONE'];
-        } else {
-          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_PENDING'];
-        }
-
-        return this.apiv2Service.get('/advance_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: 'areq_created_at.desc',
-            areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
-            ...defaultParams,
-            ...config.queryParams
-          }
-        });
-      }),
-      map(res => res as {
-        count: number;
-        data: ExtendedAdvanceRequest[];
-        limit: number;
-        offset: number;
-        url: string;
-      }),
-      map(res => ({
-        ...res,
-        data: res.data.map(this.fixDates)
-      }))
-    );
-  }
-
   getActiveApproversByAdvanceRequestId(advanceRequestId: string) {
     return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
       map(approvers => {
@@ -314,50 +386,6 @@ export class AdvanceRequestService {
       };
     }
   }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  delete(advanceRequestId: string) {
-    return this.apiService.delete('/advance_requests/' + advanceRequestId);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  addApprover(advanceRequestId, approverEmail, comment) {
-    const data = {
-      advance_request_id: advanceRequestId,
-      approver_email: approverEmail,
-      comment
-    };
-
-    return this.apiService.post('/advance_requests/add_approver', data);
-    // self.deleteCache();
-    // return fixDates(advance_request);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  submit(advanceRequest) {
-    return this.apiService.post('/advance_requests/submit', advanceRequest);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  saveDraft(advanceRequest) {
-    return this.apiService.post('/advance_requests/save', advanceRequest);
-  }
-
   createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
     return forkJoin({
       files: fileObservables,
@@ -406,33 +434,5 @@ export class AdvanceRequestService {
         }
       })
     );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  approve(advanceRequestId) {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/approve');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  sendBack(advanceRequestId, addStatusPayload) {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/inquire', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  reject(advanceRequestId, addStatusPayload) {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/reject', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$
-  })
-  destroyAdvanceRequestsCacheBuster() {
-    return of(null);
   }
 }

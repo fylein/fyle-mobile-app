@@ -9,9 +9,9 @@ import { ReportService } from 'src/app/core/services/report.service';
   styleUrls: ['./remove-expense-report.component.scss'],
 })
 export class RemoveExpenseReportComponent implements OnInit {
-  removalReason = '';
 
   @Input() etxn: Expense;
+  removalReason = '';
 
   constructor(
     private popoverController: PopoverController,

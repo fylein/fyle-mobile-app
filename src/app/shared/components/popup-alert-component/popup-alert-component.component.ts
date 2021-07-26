@@ -8,14 +8,14 @@ import { PopoverController } from '@ionic/angular';
 })
 export class PopupAlertComponentComponent implements OnInit {
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
-
   @Input() title: string;
   @Input() message: string;
   @Input() primaryCta: { text: string; action: string };
   @Input() secondaryCta: { text: string; action: string };
+
+  constructor(
+    private popoverController: PopoverController
+  ) { }
 
   ngOnInit() {}
 

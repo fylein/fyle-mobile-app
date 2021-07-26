@@ -33,6 +33,35 @@ export class OrgUserService {
   ) { }
 
 
+  @Cacheable()
+  getCurrent() {
+    return this.apiService.get('/eous/current').pipe(
+      map(eou => this.dataTransformService.unflatten(eou))
+    );
+  }
+
+  // TODO: move to v2
+  @Cacheable({
+    cacheBusterObserver: orgUsersCacheBuster$
+  })
+  getEmployeesByParams(params): Observable<{
+    count: number;
+    data: Employee[];
+    limit: number;
+    offset: number;
+    url: string;}> {
+    return this.apiV2Service.get('/employees', {params});
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: orgUsersCacheBuster$
+  })
+  switchToDelegator(orgUser) {
+    return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
+      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
+    );
+  }
+
   postUser(user: User) {
     globalCacheBusterNotifier.next();
     return this.apiService.post('/users', user);
@@ -50,18 +79,6 @@ export class OrgUserService {
     );
   }
 
-  // TODO: move to v2
-  @Cacheable({
-    cacheBusterObserver: orgUsersCacheBuster$
-  })
-  getEmployeesByParams(params): Observable<{
-    count: number;
-    data: Employee[];
-    limit: number;
-    offset: number;
-    url: string;}> {
-    return this.apiV2Service.get('/employees', {params});
-  }
 
   getEmployees(params): Observable<Employee[]>{
     return this.getEmployeesByParams({...params, limit: 1}).pipe(
@@ -91,14 +108,6 @@ export class OrgUserService {
   exclude(eous: ExtendedOrgUser[], userIds: string[]) {
     return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
   }
-
-  @Cacheable()
-  getCurrent() {
-    return this.apiService.get('/eous/current').pipe(
-      map(eou => this.dataTransformService.unflatten(eou))
-    );
-  }
-
   // TODO: move to v2
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
@@ -130,16 +139,6 @@ export class OrgUserService {
 
     return filteredEous;
   }
-
-  @CacheBuster({
-    cacheBusterNotifier: orgUsersCacheBuster$
-  })
-  switchToDelegator(orgUser) {
-    return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
-      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
-    );
-  }
-
   switchToDelegatee() {
     return this.apiService.post('/orgusers/delegatee_refresh_token').pipe(
       switchMap(data => this.authService.newRefreshToken(data.refresh_token))

@@ -18,13 +18,14 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
-  private ngControl: NgControl;
   @Input() options: any[];
   @Input() label = '';
   @Input() mandatory = false;
 
-  private innerValue;
   displayValue;
+
+  private innerValue;
+  private ngControl: NgControl;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -102,7 +103,6 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
       }
     }
   }
-
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;
