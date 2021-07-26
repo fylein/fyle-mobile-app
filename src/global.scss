@@ -777,3 +777,9 @@ ref - https://stackoverflow.com/a/31162426
     width: auto;
   }
 }
+
+.selection-modal--form-container__chips {
+  .mat-form-field-infix {
+    border-top: 0;
+  }
+}

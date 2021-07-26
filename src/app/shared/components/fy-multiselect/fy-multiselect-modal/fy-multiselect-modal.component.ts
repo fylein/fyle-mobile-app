@@ -22,7 +22,7 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   selectable = true;
   removable = true;
   addOnBlur = true;
-  readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
   constructor(
     private modalController: ModalController,
@@ -36,8 +36,11 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
+  getSeparatorKeysCodes() {
+    return [ENTER, COMMA];
+  };
+
   addChip(event: MatChipInputEvent): void {
-    const value = (event.value || '').trim();
     event.chipInput!.clear();
   }
 
