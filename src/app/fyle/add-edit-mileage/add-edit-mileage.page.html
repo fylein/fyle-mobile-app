@@ -80,7 +80,8 @@
 
         <ng-container *ngIf="isConnected$|async">
           <div class="add-edit-mileage--map">
-            <app-route-visualizer [mileageLocations]="fg.controls.route.value?.mileageLocations || []" (onMapClick)="onRouteVisualizerClick()"></app-route-visualizer>
+            <app-route-visualizer [mileageLocations]="fg.controls.route.value?.mileageLocations || []"
+              (onMapClick)="onRouteVisualizerClick()"></app-route-visualizer>
           </div>
         </ng-container>
 
@@ -123,6 +124,23 @@
           </ng-container>
 
           <div class="add-edit-mileage--primary-block">
+            <ng-container *ngIf="connectionStatus$|async as connectionStatus">
+              <ng-container *ngIf="etxn$|async as etxn">
+                <ng-container *ngIf="txnFields$|async as txnFields">
+                  <ng-container *ngIf="mileageConfig$|async as mileageConfig">
+                    <ng-container *ngIf="recentlyUsedMileageLocations$|async as recentlyUsedMileageLocations">
+                      <app-route-selector formControlName="route" [isConnected]="connectionStatus.connected"
+                        [recentlyUsedMileageLocations]="recentlyUsedMileageLocations"
+                        [formInitialized]="formInitializedFlag" [txnFields]="txnFields"
+                        [isAmountDisabled]="(isAmountDisabled$|async) || (txnFields?.distance?(!txnFields?.distance?.canEdit):false)"
+                        [isDistanceMandatory]="txnFields?.distance?.is_mandatory" [mileageConfig]="mileageConfig"
+                        [unit]="etxn.tx.distance_unit || mileageConfig.unit"></app-route-selector>
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+
             <ng-container *ngIf="mileageConfig$|async as mileageConfig">
               <div class="add-edit-mileage--internal-block">
                 <app-fy-select-vehicle [isAmountDisabled]="(isAmountDisabled$|async)" [mandatory]="true"
@@ -130,104 +148,76 @@
               </div>
             </ng-container>
 
-            <ng-container *ngIf="txnFields$|async as txnFields">
-              <div *ngIf="txnFields?.txn_dt" class="add-edit-mileage--date add-edit-mileage--internal-block"
-                [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}">
-                <div class="add-edit-mileage--date-label">
-                  {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Start Date'}}
-                  <span class="add-edit-mileage--mandatory" *ngIf="txnFields?.txn_dt?.is_mandatory">*</span>
-                </div>
-                <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
-                  class="add-edit-mileage--date-input date-input__format" [name]="txnFields?.txn_dt?.field_name"
-                  formControlName="dateOfSpend" type="date"
-                  [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Start Date'">
-              </div>
-              <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
-                class="add-edit-mileage--error">
-                Please select a valid date.
-              </div>
-            </ng-container>
-
-            <ng-container *ngIf="connectionStatus$|async as connectionStatus">
-              <ng-container *ngIf="etxn$|async as etxn">
-                <ng-container *ngIf="txnFields$|async as txnFields">
-                  <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                    <ng-container *ngIf="recentlyUsedMileageLocations$|async as recentlyUsedMileageLocations">
-                      <app-route-selector formControlName="route" [isConnected]="connectionStatus.connected" [recentlyUsedMileageLocations]="recentlyUsedMileageLocations" [formInitialized]="formInitializedFlag" [txnFields]="txnFields" [isAmountDisabled]="(isAmountDisabled$|async) || (txnFields?.distance?(!txnFields?.distance?.canEdit):false)" [isDistanceMandatory]="txnFields?.distance?.is_mandatory" [mileageConfig]="mileageConfig" [unit]="etxn.tx.distance_unit || mileageConfig.unit"></app-route-selector>
-                    </ng-container>
-                  </ng-container>
-                </ng-container>
-              </ng-container>
-          </ng-container>
-
-          <ion-grid class="add-edit-mileage--grid">
-            <ion-row>
-              <ion-col size="6">
-                <ng-container *ngIf="txnFields$|async as txnFields">
-                  <div *ngIf="txnFields?.txn_dt" class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
-                    [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}">
-                    <div class="add-edit-mileage--date-label">
-                      {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'}}
-                      <span class="add-edit-mileage--mandatory" *ngIf="txnFields?.txn_dt?.is_mandatory">*</span>
+            <ion-grid class="add-edit-mileage--grid">
+              <ion-row>
+                <ion-col size="6">
+                  <ng-container *ngIf="txnFields$|async as txnFields">
+                    <div *ngIf="txnFields?.txn_dt"
+                      class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
+                      [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}">
+                      <div class="add-edit-mileage--date-label">
+                        {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'}}
+                        <span class="add-edit-mileage--mandatory" *ngIf="txnFields?.txn_dt?.is_mandatory">*</span>
+                      </div>
+                      <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
+                        class="add-edit-mileage--date-input date-input__format" [name]="txnFields?.txn_dt?.field_name"
+                        formControlName="dateOfSpend" type="date"
+                        [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'">
                     </div>
-                    <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
-                      class="add-edit-mileage--date-input date-input__format" [name]="txnFields?.txn_dt?.field_name"
-                      formControlName="dateOfSpend" type="date"
-                      [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'">
-                  </div>
-                  <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
-                    class="add-edit-mileage--error">
-                    Please select a valid date.
-                  </div>
-                </ng-container>
-              </ion-col>
-              <ion-col size="6">
-                <ng-container *ngIf="paymentModes$|async as paymentModes">
-                  <div *ngIf="paymentModes.length > 1"
-                    class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
-                    [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}">
-                    <app-fy-select [enableSearch]="false" [label]="'Payment Mode'" [mandatory]="true"
-                      [nullOption]="false" [options]="paymentModes" [selectModalHeader]="'Select Payment Mode'"
-                      [selectionElement]="paymentMode" formControlName="paymentMode">
-                    </app-fy-select>
-                    <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
-                      <div>
-                        <div class="add-edit-mileage--payment-mode-header">
-                          {{label}}
-                        </div>
-                        <ng-container *ngIf="paymentMode">
-                          <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                            <div class="add-edit-mileage--payment-mode-purpose">
-                              {{paymentMode.advance.purpose}}
+                    <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
+                      class="add-edit-mileage--error">
+                      Please select a valid date.
+                    </div>
+                  </ng-container>
+                </ion-col>
+                <ion-col size="6">
+                  <ng-container *ngIf="paymentModes$|async as paymentModes">
+                    <div *ngIf="paymentModes.length > 1"
+                      class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
+                      [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}">
+                      <app-fy-select [enableSearch]="false" [label]="'Payment Mode'" [mandatory]="true"
+                        [nullOption]="false" [options]="paymentModes" [selectModalHeader]="'Select Payment Mode'"
+                        [selectionElement]="paymentMode" formControlName="paymentMode">
+                      </app-fy-select>
+                      <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
+                        <div>
+                          <div class="add-edit-mileage--payment-mode-header">
+                            {{label}}
+                          </div>
+                          <ng-container *ngIf="paymentMode">
+                            <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
+                              <div class="add-edit-mileage--payment-mode-purpose">
+                                {{paymentMode.advance.purpose}}
+                              </div>
+                            </ng-container>
+                            <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-mileage--payment-mode-type">
+                              (Reimbursable)
+                            </div>
+                            <div *ngIf="!paymentMode.acc.isReimbursable" class="add-edit-mileage--payment-mode-type">
+                              (Non Reimbursable)
                             </div>
                           </ng-container>
-                          <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-mileage--payment-mode-type">
-                            (Reimbursable)
-                          </div>
-                          <div *ngIf="!paymentMode.acc.isReimbursable" class="add-edit-mileage--payment-mode-type">
-                            (Non Reimbursable)
-                          </div>
-                        </ng-container>
-                      </div>
-                      <mat-icon *ngIf="selected">
-                        check
-                      </mat-icon>
-                    </ng-template>
-                  </div>
-                  <div *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
-                    class="add-edit-mileage--error">
-                    Please select payment mode.
-                  </div>
-                </ng-container>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
+                        </div>
+                        <mat-icon *ngIf="selected">
+                          check
+                        </mat-icon>
+                      </ng-template>
+                    </div>
+                    <div *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
+                      class="add-edit-mileage--error">
+                      Please select payment mode.
+                    </div>
+                  </ng-container>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
 
-          <ng-container *ngIf="isAdvancesEnabled$">
-            <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
-              [message]="'You have outstanding balance in your advance account(s)'" [type]="'information'">
-            </app-fy-alert>
-          </ng-container>
+            <ng-container *ngIf="isAdvancesEnabled$">
+              <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
+                [message]="'You have outstanding balance in your advance account(s)'" [type]="'information'">
+              </app-fy-alert>
+            </ng-container>
+          </div>
 
 
           <div class="add-edit-mileage--project-container">
@@ -498,7 +488,8 @@
     [saveAndPrevLoader]="saveAndPrevMileageLoader" [saveAndNextLoader]="saveAndNextMileageLoader"
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()" (saveAndGoToNext)="saveExpenseAndGotoNext()"></app-review-footer>
   <ion-footer *ngIf="!reviewList?.length">
-    <ion-toolbar mode="md" class="add-edit-mileage--footer-toolbar" [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}">
+    <ion-toolbar mode="md" class="add-edit-mileage--footer-toolbar"
+      [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
           <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid"
