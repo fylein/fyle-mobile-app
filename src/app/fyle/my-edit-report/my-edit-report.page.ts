@@ -200,22 +200,18 @@ export class MyEditReportPage implements OnInit {
     // method body is same as update
     // should rename method later
     this.reportService.createDraft(report).pipe(
-      switchMap(res => {
-        return iif(
-          () => (this.addedExpensesIdList.length > 0),
-          this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList).pipe(
-            tap(() => this.trackingService.addToExistingReport({Asset: 'Mobile'}))
-          ),
-          of(false)
-        );
-      }),
-      switchMap(res => {
-        return iif(
-          () => (this.deleteExpensesIdList.length > 0),
-          this.removeTxnFromReport() ,
-          of(false)
-        );
-      }),
+      switchMap(res => iif(
+        () => (this.addedExpensesIdList.length > 0),
+        this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList).pipe(
+          tap(() => this.trackingService.addToExistingReport({Asset: 'Mobile'}))
+        ),
+        of(false)
+      )),
+      switchMap(res => iif(
+        () => (this.deleteExpensesIdList.length > 0),
+        this.removeTxnFromReport() ,
+        of(false)
+      )),
       finalize(() => {
         this.saveReoprtLoading = false;
         this.addedExpensesIdList = [];
@@ -243,9 +239,7 @@ export class MyEditReportPage implements OnInit {
 
     if (popupResult === 'primary') {
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.reportService.delete(this.activatedRoute.snapshot.params.id);
-        }),
+        switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
         finalize(async () => {
           await this.loaderService.hideLoader();
           this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -256,30 +250,20 @@ export class MyEditReportPage implements OnInit {
 
   getTripRequests() {
     return this.tripRequestsService.findMyUnreportedRequests().pipe(
-      map(res => {
-        return res.filter(request => {
-          return request.state === 'APPROVED';
-        });
-      }),
-      map((tripRequests: any) => {
-        return tripRequests.sort((tripA, tripB) =>  {
-          const tripATime = new Date(tripA.created_at).getTime();
-          const tripBTime = new Date(tripB.created_at).getTime();
-          /**
-           * If tripA's time is larger than tripB's time we keep it before tripB
-           * in the array because latest trip has to be shown at the top.
-           * Else we keep it after tripB cause it was fyled earlier.
-           * If both the dates are same (which may not be possible in the real world)
-           * we maintain the order in which tripA and tripB are present in the array.
-           */
-          return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
-        });
-      }),
-      map((tripRequests: any) => {
-        return tripRequests.map(tripRequest => {
-          return {label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest};
-        });
-      })
+      map(res => res.filter(request => request.state === 'APPROVED')),
+      map((tripRequests: any) => tripRequests.sort((tripA, tripB) =>  {
+        const tripATime = new Date(tripA.created_at).getTime();
+        const tripBTime = new Date(tripB.created_at).getTime();
+        /**
+         * If tripA's time is larger than tripB's time we keep it before tripB
+         * in the array because latest trip has to be shown at the top.
+         * Else we keep it after tripB cause it was fyled earlier.
+         * If both the dates are same (which may not be possible in the real world)
+         * we maintain the order in which tripA and tripB are present in the array.
+         */
+        return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
+      })),
+      map((tripRequests: any) => tripRequests.map(tripRequest => ({label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest})))
     );
   }
 
@@ -331,27 +315,19 @@ export class MyEditReportPage implements OnInit {
     });
 
     this.reportedEtxns$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return from(this.authService.getEou()).pipe(
-          switchMap(eou => {
-            return this.transactionService.getAllETxnc({
-              tx_org_user_id: 'eq.' + eou.ou.id,
-              tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
-              order: 'tx_txn_dt.desc,tx_id.desc'
-            });
-          }),
-          map((etxns) => {
-            return cloneDeep(etxns);
-          }),
-          map((etxns: Expense[]) => {
-            return etxns.map(etxn => {
-              etxn.vendorDetails = this.getVendorName(etxn);
-              return etxn as Expense;
-            });
-          }),
-          shareReplay(1)
-        );
-      }),
+      switchMap(() => from(this.authService.getEou()).pipe(
+        switchMap(eou => this.transactionService.getAllETxnc({
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
+          order: 'tx_txn_dt.desc,tx_id.desc'
+        })),
+        map((etxns) => cloneDeep(etxns)),
+        map((etxns: Expense[]) => etxns.map(etxn => {
+          etxn.vendorDetails = this.getVendorName(etxn);
+          return etxn as Expense;
+        })),
+        shareReplay(1)
+      )),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
@@ -363,9 +339,7 @@ export class MyEditReportPage implements OnInit {
     };
 
     this.transactionService.getAllExpenses({ queryParams }).pipe(
-      map((etxns) => {
-        return cloneDeep(etxns);
-      }),
+      map((etxns) => cloneDeep(etxns)),
       map((etxns: Expense[]) => {
         etxns.forEach((etxn, i) => {
           etxn.vendorDetails = this.getVendorName(etxn);

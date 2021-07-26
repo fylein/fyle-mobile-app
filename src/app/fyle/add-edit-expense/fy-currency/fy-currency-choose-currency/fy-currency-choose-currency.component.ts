@@ -17,11 +17,11 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() currentSelection: string;
-  @Input() recentlyUsed: { label: string, value: string }[];
+  @Input() recentlyUsed: { label: string; value: string }[];
   @Input() selectionElement: TemplateRef<ElementRef>;
 
-  currencies$: Observable<{ shortCode: string, longName: string }[]>;
-  filteredCurrencies$: Observable<{ shortCode: string, longName: string }[]>;
+  currencies$: Observable<{ shortCode: string; longName: string }[]>;
+  filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
   recentlyUsedCurrencies$: Observable<Currency[]>;
   value;
 
@@ -42,9 +42,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   ngOnInit() {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
-      concatMap(() => {
-        return this.offlineService.getCurrencies();
-      }),
+      concatMap(() => this.offlineService.getCurrencies()),
       map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
@@ -68,35 +66,31 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.currencies$.pipe(
-          map(
-            currencies => currencies
-              .filter(
-                currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
+      switchMap((searchText) => this.currencies$.pipe(
+        map(
+          currencies => currencies
+            .filter(
+              currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
                   || currency.longName.toLowerCase().includes(searchText.toLowerCase())
-              )
-          )
-        );
-      })
+            )
+        )
+      ))
     );
 
     this.recentlyUsedCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.getRecentlyUsedItems().pipe(
-          // filtering of recently used items wrt searchText is taken care in service method
-          map(
-            currencies => currencies
-              .filter(
-                currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
+      switchMap((searchText) => this.getRecentlyUsedItems().pipe(
+        // filtering of recently used items wrt searchText is taken care in service method
+        map(
+          currencies => currencies
+            .filter(
+              currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
                   || currency.longName.toLowerCase().includes(searchText.toLowerCase())
-              )
-          )
-        );
-      })
+            )
+        )
+      ))
     );
     this.cdr.detectChanges();
   }

@@ -56,12 +56,12 @@ export class ApproveReportComponent implements OnInit {
     event.preventDefault();
 
     this.reportService.approve(this.erpt.rp_id)
-    .pipe(
-      finalize(() => this.approveReportLoading = false)
-    ).subscribe(() => {
-      this.popoverController.dismiss({
-        goBack: true
+      .pipe(
+        finalize(() => this.approveReportLoading = false)
+      ).subscribe(() => {
+        this.popoverController.dismiss({
+          goBack: true
+        });
       });
-    });
   }
 }

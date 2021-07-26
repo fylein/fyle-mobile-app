@@ -19,7 +19,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
   teamTripRequests$: Observable<ExtendedTripRequest[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
-  loadData$: Subject<{pageNumber: number, state: string}> = new Subject();
+  loadData$: Subject<{pageNumber: number; state: string}> = new Subject();
   currentPageNumber = 1;
   state = 'PENDING';
   onPageExit = new Subject();
@@ -52,18 +52,14 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
         };
 
         return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.tripRequestsService.getTeamTrips({
-              offset: (pageNumber - 1) * 10,
-              limit: 10,
-              queryParams: {
-                ...extraParams
-              }
-            });
-          }),
-          finalize(() => {
-            return from(this.loaderService.hideLoader());
-          })
+          switchMap(() => this.tripRequestsService.getTeamTrips({
+            offset: (pageNumber - 1) * 10,
+            limit: 10,
+            queryParams: {
+              ...extraParams
+            }
+          })),
+          finalize(() => from(this.loaderService.hideLoader()))
         );
       }),
       map(res => res.data),
@@ -103,13 +99,9 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
     // );
 
     this.isInfiniteScrollRequired$ = this.teamTripRequests$.pipe(
-      concatMap(teamTrips => {
-        return this.count$.pipe(
-          take(1),
-          map(count => {
-          return count > teamTrips.length;
-        }));
-      })
+      concatMap(teamTrips => this.count$.pipe(
+        take(1),
+        map(count => count > teamTrips.length)))
     );
 
     this.loadData$.subscribe(noop);

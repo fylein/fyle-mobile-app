@@ -13,8 +13,8 @@ export class AddExpensesToReportComponent implements OnInit {
 
   @Input() unReportedEtxns: Expense[];
   homeCurrency$: Observable<string>;
-  selectedTotalAmount: number = 0;
-  selectedTotalTxns: number = 0;
+  selectedTotalAmount = 0;
+  selectedTotalTxns = 0;
   selectedTxnIds: string[];
 
   constructor(
@@ -34,20 +34,20 @@ export class AddExpensesToReportComponent implements OnInit {
     });
   }
 
-  toggleTransaction (etxn) {
+  toggleTransaction(etxn) {
     etxn.isSelected = !etxn.isSelected;
-    let etxns = this.unReportedEtxns.filter(etxn => etxn.isSelected);
+    const etxns = this.unReportedEtxns.filter(etxn => etxn.isSelected);
     this.selectedTxnIds = etxns.map(etxn => etxn.tx_id);
-    this.selectedTotalAmount = etxns.reduce((acc, obj) => 
+    this.selectedTotalAmount = etxns.reduce((acc, obj) =>
     {
       if (!obj.tx_skip_reimbursement) {
-        return acc + obj.tx_amount; 
+        return acc + obj.tx_amount;
       } else {
         return acc;
       }
     }, 0);
     this.selectedTotalTxns = this.selectedTxnIds.length;
-  };
+  }
 
   ionViewWillEnter() {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();

@@ -26,15 +26,13 @@ export class CustomInputsService {
   })
   getAll(active: boolean = false): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiService.get('/expense_fields', {
-          params: {
-            org_id: eou.ou.org_id,
-            is_enabled: active,
-            is_custom: true
-          }
-        })
-      })
+      switchMap(eou => this.apiService.get('/expense_fields', {
+        params: {
+          org_id: eou.ou.org_id,
+          is_enabled: active,
+          is_custom: true
+        }
+      }))
     );
   }
 
@@ -60,16 +58,16 @@ export class CustomInputsService {
   fillCustomProperties(orgCategoryId, customProperties, active) {
     return this.getAll(active).pipe(
       map(allCustomInputs => {
-        let customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
+        const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
 
         // this should be by rank eventually
         customInputs.sort(this.sortByRank);
 
-        let filledCustomProperties = [];
-        // tslint:disable-next-line: prefer-for-of
+        const filledCustomProperties = [];
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < customInputs.length; i++) {
-          let customInput = customInputs[i];
-          let property = {
+          const customInput = customInputs[i];
+          const property = {
             name: customInput.field_name,
             value: null,
             type: customInput.type,
@@ -86,7 +84,7 @@ export class CustomInputsService {
           }
           if (customProperties) {
             // see if value is available
-            // tslint:disable-next-line: prefer-for-of
+            // eslint-disable-next-line @typescript-eslint/prefer-for-of
             for (let j = 0; j < customProperties.length; j++) {
               if (customProperties[j].name === customInput.field_name) {
                 if (property.type === 'DATE' && customProperties[j].value) {
@@ -130,5 +128,5 @@ export class CustomInputsService {
     }
 
     return displayValue;
-  };
+  }
 }

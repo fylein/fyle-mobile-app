@@ -178,9 +178,7 @@ export class SignInPage implements OnInit {
           this.handleError(err);
           return throwError(err);
         }),
-        switchMap((res) => {
-          return this.authService.newRefreshToken(res.refresh_token);
-        }),
+        switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
         tap(async () => {
           await this.trackLoginInfo();
           this.trackingService.onSignin(this.fg.value.email, {
@@ -213,24 +211,20 @@ export class SignInPage implements OnInit {
         from(this.loaderService.showLoader('Signing you in...', 10000));
         return googleAuthResponse;
       }),
-      switchMap((googleAuthResponse) => {
-        return this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
-          catchError(err => {
-            this.handleError(err);
-            return throwError(err);
-          }),
-          switchMap((res) => {
-            return this.authService.newRefreshToken(res.refresh_token);
-          }),
-          tap(async () => {
-            await this.trackLoginInfo();
-            this.trackingService.onSignin(this.fg.value.email, {
-              Asset: 'Mobile',
-              label: 'Email'
-            });
-          })
-        );
-      }),
+      switchMap((googleAuthResponse) => this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
+        catchError(err => {
+          this.handleError(err);
+          return throwError(err);
+        }),
+        switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
+        tap(async () => {
+          await this.trackLoginInfo();
+          this.trackingService.onSignin(this.fg.value.email, {
+            Asset: 'Mobile',
+            label: 'Email'
+          });
+        })
+      )),
       finalize(() => {
         this.loaderService.hideLoader();
         this.googleSignInLoading = false;
@@ -266,6 +260,6 @@ export class SignInPage implements OnInit {
       if (isLoggedIn) {
         this.router.navigate(['/', 'auth', 'switch_org', {choose: false}]);
       }
-    })
+    });
   }
 }

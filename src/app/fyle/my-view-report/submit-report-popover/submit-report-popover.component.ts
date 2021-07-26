@@ -58,14 +58,14 @@ export class SubmitReportPopoverComponent implements OnInit {
     let count = 0;
 
     for (let i = 0; i < etxns.length; i++) {
-      let etxn = etxns[i];
+      const etxn = etxns[i];
       if (etxn.tx_policy_flag) {
         count = count + 1;
       }
     }
 
     for (let i = 0; i < etxns.length; i++) {
-      let etxn = etxns[i];
+      const etxn = etxns[i];
       if (etxn.tx_manual_flag) {
         count = count + 1;
       }
@@ -93,15 +93,11 @@ export class SubmitReportPopoverComponent implements OnInit {
 
     const txnIdsCriticalViolations = this.etxns.filter(
       etxn => this.filterCriticalViolations(etxn)
-    ).map((etxn) => {
-      return etxn.tx_id;
-    });
+    ).map((etxn) => etxn.tx_id);
 
 
     iif(() => txnIdsCriticalViolations.length > 0, this.transactionService.removeTxnsFromRptInBulk(txnIdsCriticalViolations), of(null)).pipe(
-      concatMap(() => {
-        return this.reportService.submit(this.erpt.rp_id);
-      }),
+      concatMap(() => this.reportService.submit(this.erpt.rp_id)),
       finalize(() => {
         this.submitReportLoading = false;
       })

@@ -11,20 +11,18 @@ export class StatsOneDResponse {
   value: [{
     aggregates?: [{
       function_name?: string;
-      function_value?: any
-    }],
+      function_value?: any;
+    }];
     key?: [{
       column_name?: string;
       column_value?: any;
-    }]
+    }];
   }];
   getStatAggregatesByIdx<T>(index: number): Array<{value: T; key: string}> {
-    return this.value.map(stat =>  {
-      return {
-        value: stat.aggregates.length && stat.aggregates[index].function_value,
-        key: stat.key.length && stat.key[index].column_value
-      }
-    });
+    return this.value.map(stat =>  ({
+      value: stat.aggregates.length && stat.aggregates[index].function_value,
+      key: stat.key.length && stat.key[index].column_value
+    }));
   }
   getStatsTotalCount(index = 0): number {
     const stats = this.getStatAggregatesByIdx<number>(index);

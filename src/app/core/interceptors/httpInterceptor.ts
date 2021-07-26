@@ -45,9 +45,9 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       if (
         url.indexOf('/api/auth/') >= 0 ||
         url.indexOf('routerapi/auth/') >= 0) {
-          if (url.indexOf('api/auth/logout') >= 0) {
-            return true;
-          }
+        if (url.indexOf('api/auth/logout') >= 0) {
+          return true;
+        }
         return false;
       }
       return true;
@@ -76,7 +76,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         this.userEventService.logout();
         this.storageService.clearAll();
         globalCacheBusterNotifier.next();
-        return throwError(error); 
+        return throwError(error);
       }),
       concatMap(
         authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
@@ -91,7 +91,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
    * If multiple API call initiated then `this.accessTokenCallInProgress` will block multiple access_token call
    * Reference: https://stackoverflow.com/a/57638101
    */
-   getAccessToken(): Observable<string> {
+  getAccessToken(): Observable<string> {
     return from(this.tokenService.getAccessToken()).pipe(
       concatMap(accessToken => {
         if (this.expiringSoon(accessToken)) {
@@ -109,9 +109,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
             return this.accessTokenSubject.pipe(
               filter(result => result !== null),
               take(1),
-              concatMap(() => {
-                return from(this.tokenService.getAccessToken())
-              })
+              concatMap(() => from(this.tokenService.getAccessToken()))
             );
           }
         } else {
@@ -126,33 +124,33 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
       deviceInfo: from(this.deviceService.getDeviceInfo())
     }).pipe(
-        concatMap(({token, deviceInfo}) => {
-          if (token && this.secureUrl(request.url)) {
-            request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
-            const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
-            request = request.clone({params});
-          }
-          const appVersion = deviceInfo.appVersion || '0.0.0';
-          const osVersion = deviceInfo.osVersion;
-          const operatingSystem = deviceInfo.operatingSystem;
-          const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
-          request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
+      concatMap(({token, deviceInfo}) => {
+        if (token && this.secureUrl(request.url)) {
+          request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
+          const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
+          request = request.clone({params});
+        }
+        const appVersion = deviceInfo.appVersion || '0.0.0';
+        const osVersion = deviceInfo.osVersion;
+        const operatingSystem = deviceInfo.operatingSystem;
+        const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
+        request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
 
-          return next.handle(request).pipe(
-            catchError((error) => {
-              if (error instanceof HttpErrorResponse && this.expiringSoon(token)) {
-                return from(this.refreshAccessToken()).pipe(
-                  mergeMap((newToken) => {
-                    request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + newToken) });
-                    return next.handle(request);
-                  })
-                );
-              }
-              return throwError(error);
-            })
-          );
-        })
-      );
+        return next.handle(request).pipe(
+          catchError((error) => {
+            if (error instanceof HttpErrorResponse && this.expiringSoon(token)) {
+              return from(this.refreshAccessToken()).pipe(
+                mergeMap((newToken) => {
+                  request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + newToken) });
+                  return next.handle(request);
+                })
+              );
+            }
+            return throwError(error);
+          })
+        );
+      })
+    );
   }
 }
 

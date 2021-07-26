@@ -103,12 +103,12 @@ export class LocationService {
     cacheBusterObserver: currentLocationCacheBuster$,
     maxAge: 10 * 60 * 1000 // 10 minutes
   })
-  getCurrentLocation(config: {enableHighAccuracy: boolean} = {enableHighAccuracy: false}) : Observable<GeolocationPosition>{
+  getCurrentLocation(config: {enableHighAccuracy: boolean} = {enableHighAccuracy: false}): Observable<GeolocationPosition>{
     return from(Geolocation.getCurrentPosition({
       timeout: 5000,
       enableHighAccuracy: config.enableHighAccuracy
     })).pipe(
       catchError(() => of(null))
-    )
+    );
   }
 }

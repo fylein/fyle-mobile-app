@@ -24,7 +24,7 @@ export class FyUserlistComponent implements OnInit {
   private ngControl: NgControl;
 
   eouc$: Observable<Employee[]>;
-  @Input() options: { label: string, value: any }[];
+  @Input() options: { label: string; value: any }[];
   @Input() disabled = false;
   @Input() label = '';
   @Input() mandatory = false;

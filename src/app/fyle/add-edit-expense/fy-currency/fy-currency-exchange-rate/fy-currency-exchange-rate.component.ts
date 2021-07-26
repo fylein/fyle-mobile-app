@@ -48,9 +48,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
       });
     } else {
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date());
-        }),
+        switchMap(() => this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date())),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe((exchangeRate) => {
         this.fg.setValue({
@@ -98,8 +96,8 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
       if (this.fg.controls.newCurrencyAmount.value && this.fg.controls.homeCurrencyAmount.value) {
         this.fg.controls.exchangeRate.setValue(
           this.toFixed((+this.fg.controls.homeCurrencyAmount.value) / (+this.fg.controls.newCurrencyAmount.value), 7), {
-          emitEvent: false
-        });
+            emitEvent: false
+          });
       }
     });
   }

@@ -122,13 +122,9 @@ export class ViewTeamMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedMileage$ = this.updateFlag$.pipe(
-      switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getExpenseV2(id);
-          })
-        );
-      }),
+      switchMap(() => from(this.loaderService.showLoader()).pipe(
+        switchMap(() => this.transactionService.getExpenseV2(id))
+      )),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -142,27 +138,19 @@ export class ViewTeamMileagePage implements OnInit {
     );
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap(res => {
-        return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
-      }),
-      map(res => {
-        return res.map(customProperties => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
-        });
-      })
+      switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
+      map(res => res.map(customProperties => {
+        customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+        return customProperties;
+      }))
     );
 
     this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
-      map(etxn => {
-        return ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1;
-      })
+      map(etxn => ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1)
     );
 
     this.canDelete$ = this.extendedMileage$.pipe(
-      concatMap(etxn => {
-        return this.reportService.getTeamReport(etxn.tx_report_id);
-      }),
+      concatMap(etxn => this.reportService.getTeamReport(etxn.tx_report_id)),
       map(report => {
         if (report.rp_num_transactions === 1) {
           return false;
@@ -175,15 +163,11 @@ export class ViewTeamMileagePage implements OnInit {
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001;
-      })
+      map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount);
-      })
+      map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
 
     this.updateFlag$.next();

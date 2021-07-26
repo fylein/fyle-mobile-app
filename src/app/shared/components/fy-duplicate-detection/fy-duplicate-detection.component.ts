@@ -31,7 +31,7 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
 
   private onTouchedCallback: () => void = noop;
   private onChangeCallback: (_: any) => void = noop;
-  options: { label: string, value: any }[];
+  options: { label: string; value: any }[];
 
   constructor(
     private modalController: ModalController,

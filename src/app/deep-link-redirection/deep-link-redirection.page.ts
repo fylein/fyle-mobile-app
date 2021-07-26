@@ -81,16 +81,16 @@ export class DeepLinkRedirectionPage implements OnInit {
     const currentEou = await this.authService.getEou();
 
     this.reportService.getERpt(this.activatedRoute.snapshot.params.id).subscribe((res) => {
-        if (currentEou.ou.id === res.rp.org_user_id) {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', {id: this.activatedRoute.snapshot.params.id}]);
-        } else {
-          this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.activatedRoute.snapshot.params.id}]);
-        }
-      }, () => {
-        this.switchOrg();
-      }, async () => {
-        await this.loaderService.hideLoader();
+      if (currentEou.ou.id === res.rp.org_user_id) {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', {id: this.activatedRoute.snapshot.params.id}]);
+      } else {
+        this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.activatedRoute.snapshot.params.id}]);
       }
+    }, () => {
+      this.switchOrg();
+    }, async () => {
+      await this.loaderService.hideLoader();
+    }
     );
   }
 

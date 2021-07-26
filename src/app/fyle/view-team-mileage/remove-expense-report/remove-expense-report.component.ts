@@ -28,7 +28,7 @@ export class RemoveExpenseReportComponent implements OnInit {
     this.reportService.removeTransaction(this.etxn.tx_report_id, this.etxn.tx_id, this.removalReason).subscribe(_ => {
       this.popoverController.dismiss({
         goBack: true
-      })
+      });
     });
   }
 }

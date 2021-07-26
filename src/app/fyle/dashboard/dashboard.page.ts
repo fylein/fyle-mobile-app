@@ -78,7 +78,7 @@ export class DashboardPage implements OnInit {
     }
 
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
-     shareReplay(1),
+      shareReplay(1),
     );
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay(1),

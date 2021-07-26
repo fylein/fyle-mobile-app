@@ -26,11 +26,11 @@ export class TeamReportsPage implements OnInit {
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
   loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
   }>>;
   currentPageNumber = 1;
   acc = [];
@@ -139,18 +139,12 @@ export class TeamReportsPage implements OnInit {
     );
 
     const paginatedScroll$ = this.teamReports$.pipe(
-      switchMap(erpts => {
-        return this.count$.pipe(
-          map(count => {
-            return count > erpts.length;
-          }));
-      })
+      switchMap(erpts => this.count$.pipe(
+        map(count => count > erpts.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
-      })
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$))
     );
 
     this.loadData$.subscribe(noop);
@@ -346,9 +340,7 @@ export class TeamReportsPage implements OnInit {
 
       if (popupResult === 'primary') {
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.delete(erpt.rp_id);
-          }),
+          switchMap(() => this.reportService.delete(erpt.rp_id)),
           finalize(async () => {
             await this.loaderService.hideLoader();
             this.doRefresh();
