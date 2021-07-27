@@ -66,7 +66,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
     await closePopOver.present();
 
-    const {data} = await closePopOver.onWillDismiss();
+    const { data } = await closePopOver.onWillDismiss();
 
     if (data && data.action) {
       if (data.action === 'discard') {
@@ -97,7 +97,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
     await deletePopOver.present();
 
-    const {data} = await deletePopOver.onWillDismiss();
+    const { data } = await deletePopOver.onWillDismiss();
 
     if (data && data.action) {
       if (data.action === 'remove') {
