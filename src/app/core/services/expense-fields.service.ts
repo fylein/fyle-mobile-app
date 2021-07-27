@@ -29,14 +29,10 @@ export class ExpenseFieldsService {
     );
   }
 
-  formatBillableFields(expenseFields: Array<ExpenseField>) {
-    return expenseFields.map(function (field) {
+  formatBillableFields(expenseFields: ExpenseField[]) {
+    return expenseFields.map(field => {
       if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
-        if (field.default_value === 'true') {
-          field.default_value = true;
-        } else {
-          field.default_value = false;
-        }
+        field.default_value = field.default_value === 'true';
       }
       return field;
     });
@@ -60,7 +56,7 @@ export class ExpenseFieldsService {
         expenseFields => {
           const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
 
-          this.formatBillableFields(expenseFields);
+          expenseFields = this.formatBillableFields(expenseFields);
 
           expenseFields.forEach(expenseField => {
             let expenseFieldsList = [];
@@ -102,7 +98,7 @@ export class ExpenseFieldsService {
         let filteredField;
 
         const fieldsIndependentOfCategory = ['billable'];
-        const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id']; 
+        const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
         if (configurations && configurations.length > 0) {
           configurations.some((configuration) => {
             if (orgCategoryId && fieldsIndependentOfCategory.indexOf(field) < 0) {

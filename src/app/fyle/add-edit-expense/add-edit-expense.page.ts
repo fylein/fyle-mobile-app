@@ -935,8 +935,7 @@ export class AddEditExpensePage implements OnInit {
       instaFyleSettings: instaFyleSettings$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
-      recentValue: this.recentlyUsedValues$,
-      txnFields: this.txnFields$
+      recentValue: this.recentlyUsedValues$
     }).pipe(
       map((dependencies) => {
         const {
@@ -949,8 +948,7 @@ export class AddEditExpensePage implements OnInit {
           instaFyleSettings,
           imageData,
           recentCurrency,
-          recentValue,
-          txnFields
+          recentValue
         } = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         this.isExpenseBankTxn = !!bankTxn;
@@ -959,7 +957,6 @@ export class AddEditExpensePage implements OnInit {
         if (!bankTxn) {
           etxn = {
             tx: {
-              billable: txnFields?.billable?.default_value,
               skip_reimbursement: false,
               source: 'MOBILE',
               txn_dt: new Date(),
@@ -1632,7 +1629,8 @@ export class AddEditExpensePage implements OnInit {
         flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
         flight_return_travel_class: this.fg.controls.flight_return_travel_class,
         train_travel_class: this.fg.controls.train_travel_class,
-        bus_travel_class: this.fg.controls.bus_travel_class
+        bus_travel_class: this.fg.controls.bus_travel_class,
+        billable: this.fg.controls.billable
       };
       for (const control of Object.values(keyToControlMap)) {
         control.clearValidators();
@@ -1706,18 +1704,21 @@ export class AddEditExpensePage implements OnInit {
         flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
         flight_return_travel_class: this.fg.controls.flight_return_travel_class,
         train_travel_class: this.fg.controls.train_travel_class,
-        bus_travel_class: this.fg.controls.bus_travel_class
+        bus_travel_class: this.fg.controls.bus_travel_class,
+        billable: this.fg.controls.billable
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (defaultValueColumn !== 'vendor_id' && !control.value && !control.touched) {
+          if (!(['vendor_id', 'billable'].includes(defaultValueColumn)) && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
             control.patchValue({
               display_name: defaultValues[defaultValueColumn]
             });
+          } else if (defaultValueColumn === 'billable' && (control.value === null || control.value === undefined) && !control.touched) {
+            control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
       }
@@ -1736,6 +1737,11 @@ export class AddEditExpensePage implements OnInit {
       switchMap((initialProject) => this.fg.controls.project.valueChanges.pipe(
         startWith(initialProject),
         concatMap(project => activeCategories$.pipe(
+          tap(project => {
+            if (!project) {
+              this.fg.patchValue({billable: false});
+            }
+          }),
           map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)))),
         map(categories => categories.map(category => ({label: category.displayName, value: category})))
       )),
