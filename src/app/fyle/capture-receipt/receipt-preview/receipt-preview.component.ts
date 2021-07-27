@@ -15,7 +15,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @Input() mode: string;
 
-  sliderOptions: { zoom: { maxRatio: number; }; };
+  sliderOptions: { zoom: { maxRatio: number } };
 
   activeIndex: number;
 
