@@ -1737,11 +1737,6 @@ export class AddEditExpensePage implements OnInit {
       switchMap((initialProject) => this.fg.controls.project.valueChanges.pipe(
         startWith(initialProject),
         concatMap(project => activeCategories$.pipe(
-          tap(project => {
-            if (!project) {
-              this.fg.patchValue({billable: false});
-            }
-          }),
           map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)))),
         map(categories => categories.map(category => ({label: category.displayName, value: category})))
       )),
