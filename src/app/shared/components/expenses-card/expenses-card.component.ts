@@ -16,26 +16,43 @@ import { isEqual } from 'lodash';
 export class ExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
+
   @Input() previousExpenseTxnDate;
+
   @Input() previousExpenseCreatedAt;
+
   @Input() isSelectionModeEnabled: boolean;
+
   @Input() selectedElements: Expense[];
+
   @Input() isFirstOfflineExpense: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
   receipt: string;
+
   showDt = true;
+
   isPolicyViolated: boolean;
+
   isCriticalPolicyViolated: boolean;
+
   homeCurrency: string;
+
   homeCurrencySymbol = '';
+
   foreignCurrencySymbol = '';
+
   paymentModeIcon: string;
+
   isScanInProgress: boolean;
+
   isProjectMandatory$: Observable<boolean>;
 
   constructor(
@@ -70,7 +87,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.expense.isDraft = this.transactionService.getIsDraft(this.expense)
+    this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
@@ -85,11 +102,9 @@ export class ExpensesCardComponent implements OnInit {
     ).subscribe(noop);
     this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-         return orgSettings.transaction_fields_settings && 
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields && 
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields.project;
-      })
+      map((orgSettings) => orgSettings.transaction_fields_settings &&
+                orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
+                orgSettings.transaction_fields_settings.transaction_mandatory_fields.project)
     );
 
     if (!this.expense.tx_id) {
@@ -105,11 +120,11 @@ export class ExpensesCardComponent implements OnInit {
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
     if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-        if (this.expense.tx_corporate_credit_card_expense_group_id) {
-          this.paymentModeIcon = 'fy-matched';
-        } else {
-          this.paymentModeIcon = 'fy-unmatched';
-        }
+      if (this.expense.tx_corporate_credit_card_expense_group_id) {
+        this.paymentModeIcon = 'fy-matched';
+      } else {
+        this.paymentModeIcon = 'fy-unmatched';
+      }
     } else {
       if (!this.expense.tx_skip_reimbursement) {
         this.paymentModeIcon = 'fy-reimbursable';

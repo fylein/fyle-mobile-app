@@ -71,7 +71,7 @@ export class TripDatesService {
     }
 
     return data;
-  };
+  }
 
   convertToDateFormat(data) {
     if (data.start_dt) {

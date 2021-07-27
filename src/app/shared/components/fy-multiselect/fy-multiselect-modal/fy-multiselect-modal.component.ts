@@ -13,15 +13,25 @@ import {MatChipInputEvent} from '@angular/material/chips';
 })
 export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
+
+  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+
   @Input() currentSelections: any[] = [];
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+
+  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+
   @Input() selectModalHeader = 'Select Items';
+
   @Input() subheader = 'All Items';
+
   value;
+
   selectable = true;
+
   removable = true;
+
   addOnBlur = true;
+
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
   constructor(
@@ -40,8 +50,10 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     return [ENTER, COMMA];
   };
 
-  addChip(event: MatChipInputEvent): void {
-    event.chipInput!.clear();
+  addChip(event: MatChipInputEvent) {
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
   }
 
   removeChip(item) {
@@ -49,7 +61,7 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
       label: item,
       selected: false,
       value: item
-    }
+    };
     this.onElementSelected(updatedItem);
   }
 
@@ -86,8 +98,8 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     });
 
     this.currentSelections = this.options
-                                  .filter(option => option.selected)
-                                  .map(option => option.value);
+      .filter(option => option.selected)
+      .map(option => option.value);
   }
 
   useSelected() {

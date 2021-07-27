@@ -16,6 +16,30 @@ export class OrgSettingsService {
     private apiService: ApiService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: orgSettingsCacheBuster$
+  })
+  get() {
+    return this.apiService.get('/org/settings').pipe(
+      map(
+        incoming => this.processIncoming(incoming)
+      )
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: orgSettingsCacheBuster$
+  })
+  post(settings) {
+    const data = this.processOutgoing(settings);
+    return this.apiService.post('/org/settings', data);
+  }
+
+  getDefaultLimitAmount() {
+    const defaultLimitAmount = 75;
+    return defaultLimitAmount;
+  }
+
   getIncomingAccountingObject(incomingAccountExport) {
     // setting allowed to true here as this field will be removed within a month
     // TODO: Remove this hack latest by end of April 2020 - If you find this code after the deadline, @arun will buy you petrol
@@ -470,27 +494,4 @@ export class OrgSettingsService {
     };
   }
 
-  @Cacheable({
-    cacheBusterObserver: orgSettingsCacheBuster$
-  })
-  get() {
-    return this.apiService.get('/org/settings').pipe(
-      map(
-        incoming => this.processIncoming(incoming)
-      )
-    );
-  }
-
-  getDefaultLimitAmount() {
-    const defaultLimitAmount = 75;
-    return defaultLimitAmount;
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: orgSettingsCacheBuster$
-  })
-  post(settings) {
-    const data = this.processOutgoing(settings);
-    return this.apiService.post('/org/settings', data);
-  }
 }

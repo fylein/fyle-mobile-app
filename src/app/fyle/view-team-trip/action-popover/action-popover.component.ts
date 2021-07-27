@@ -45,9 +45,9 @@ export class ActionPopoverComponent implements OnInit {
           const status = {
             comment: data.message
           };
-  
-          var addStatusPayload = {
-            status: status,
+
+          const addStatusPayload = {
+            status,
             notify: false
           };
 
@@ -107,9 +107,7 @@ export class ActionPopoverComponent implements OnInit {
 
     if (popupResult === 'primary') {
       from(this.loaderService.showLoader('Approving trip request')).pipe(
-        switchMap(() => {
-          return this.tripRequestsService.approve(this.actions.id);
-        }),
+        switchMap(() => this.tripRequestsService.approve(this.actions.id)),
         finalize(() => {
           this.loaderService.hideLoader();
           this.reouter.navigate(['/', 'enterprise', 'team_trips']);

@@ -15,8 +15,11 @@ const {Camera} = Plugins;
 export class AddExpensePopoverComponent implements OnInit {
 
   @Input() isInstaFyleEnabled: boolean;
+
   @Input() isMileageEnabled: boolean;
+
   @Input() isPerDiemEnabled: boolean;
+
   @Input() isBulkFyleEnabled: boolean;
 
   constructor(

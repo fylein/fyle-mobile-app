@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Capacitor, Plugins} from '@capacitor/core';
 import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
 import {ActivatedRoute} from '@angular/router';
@@ -25,17 +25,27 @@ import {AuthService} from '../../core/services/auth.service';
   templateUrl: './camera-overlay.page.html',
   styleUrls: ['./camera-overlay.page.scss'],
 })
-export class CameraOverlayPage implements OnInit {
+export class CameraOverlayPage implements OnInit, OnDestroy {
   isCameraShown: boolean;
+
   recentImage: string;
+
   isBulkMode: boolean;
+
   lastImage: string;
+
   captureCount: number;
+
   homeCurrency: string;
+
   activeFlashMode: string;
+
   showInstaFyleIntro: boolean;
+
   modeChanged: boolean;
+
   isInstafyleEnabled: boolean;
+
   navigateBack = false;
 
   constructor(
@@ -86,15 +96,15 @@ export class CameraOverlayPage implements OnInit {
     setTimeout(() => {
       this.modeChanged = false;
     }, 1000);
-    
+
     if (this.isBulkMode) {
       this.trackingService.switchedToInstafyleBulkMode({
-        Asset: 'Mobile' 
+        Asset: 'Mobile'
       });
     } else {
       this.trackingService.switchedToInstafyleSingleMode({
-        Asset: 'Mobile' 
-      }); 
+        Asset: 'Mobile'
+      });
     }
   }
 
@@ -260,7 +270,7 @@ export class CameraOverlayPage implements OnInit {
 
     this.trackingService.flashModeSet({
       Asset: 'Mobile',
-      FlashMode: this.activeFlashMode 
+      FlashMode: this.activeFlashMode
     });
   }
 

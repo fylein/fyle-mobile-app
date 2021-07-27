@@ -15,8 +15,11 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 })
 export class DelegatedAccountsPage implements OnInit {
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef;
+
   delegatedAccList;
+
   currentOrg;
+
   searchInput = '';
 
   constructor(
@@ -53,9 +56,7 @@ export class DelegatedAccountsPage implements OnInit {
 
     if (switchToOwn) {
       from(this.loaderService.showLoader('Switching Account')).pipe(
-        concatMap(() => {
-          return this.orgUserService.switchToDelegatee();
-        }),
+        concatMap(() => this.orgUserService.switchToDelegatee()),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -80,23 +81,21 @@ export class DelegatedAccountsPage implements OnInit {
         map((event: any) => event.srcElement.value),
         startWith(''),
         distinctUntilChanged(),
-        switchMap((searchText) => {
-          return delegatedAccList$.pipe(
-            map(
-              ({delegatedAcc}) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')
-            ),
-            map(delegatees => delegatees
-              .filter(delegatee => Object.values(delegatee.us)
-                .some(delegateeProp =>
-                  delegateeProp &&
+        switchMap((searchText) => delegatedAccList$.pipe(
+          map(
+            ({delegatedAcc}) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')
+          ),
+          map(delegatees => delegatees
+            .filter(delegatee => Object.values(delegatee.us)
+              .some(delegateeProp =>
+                delegateeProp &&
                   delegateeProp.toString() &&
                   delegateeProp.toString()
                     .toLowerCase()
                     .includes(searchText.toLowerCase()))
-              )
             )
-          );
-        })
+          )
+        ))
       ).subscribe(delegatees => {
         this.delegatedAccList = delegatees;
       });

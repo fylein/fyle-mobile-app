@@ -19,19 +19,30 @@ import { NavController } from '@ionic/angular';
 export class NotificationsPage implements OnInit {
 
   isDelegateePresent$: Observable<boolean>;
+
   orgUserSettings$: Observable<OrgUserSettings>;
+
   notificationEvents$: Observable<any>;
+
   orgSettings$: Observable<any>;
+
   features$: Observable<any>;
+
   delegationOptions;
+
   notificationEvents;
+
   orgUserSettings;
+
   orgSettings;
+
   isAllSelected: {
     emailEvents: boolean;
     pushEvents: boolean;
   };
+
   notifEvents = [];
+
   saveNotifLoading = false;
 
   notificationForm: FormGroup;
@@ -107,8 +118,8 @@ export class NotificationsPage implements OnInit {
 
   saveNotificationSettings() {
     this.saveNotifLoading = true;
-    let unsubscribedPushEvents = [];
-    let unsubscribedEmailEvents = [];
+    const unsubscribedPushEvents = [];
+    const unsubscribedEmailEvents = [];
 
     this.notificationEvents.events.forEach((event, index) => {
       event.email.selected = this.emailEvents.value[index];
@@ -144,9 +155,7 @@ export class NotificationsPage implements OnInit {
     this.orgSettings$.pipe(
       map(setting => {
         if (setting.admin_email_settings.unsubscribed_events.length) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => {
-            return this.orgSettings.admin_email_settings.unsubscribed_events.indexOf(notificationEvent.eventType.toUpperCase()) === -1;
-          });
+          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => this.orgSettings.admin_email_settings.unsubscribed_events.indexOf(notificationEvent.eventType.toUpperCase()) === -1);
         }
       })
     );
@@ -156,9 +165,7 @@ export class NotificationsPage implements OnInit {
     this.orgSettings$.pipe(
       map(setting => {
         if (!setting.advance_requests.enabled) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => {
-            return notificationEvent.feature !== 'advances';
-          });
+          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => notificationEvent.feature !== 'advances');
           delete this.notificationEvents.features.advances;
         }
       })
@@ -171,20 +178,14 @@ export class NotificationsPage implements OnInit {
         const isTripRequestsEnabled = setting.trip_requests.enabled;
 
         if (!isTripRequestsEnabled) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => {
-            return notificationEvent.feature !== 'trips';
-          });
+          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => notificationEvent.feature !== 'trips');
           delete this.notificationEvents.features.trips;
         }
         if (isTripRequestsEnabled && !setting.trip_requests.enabled_hotel_requests) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => {
-            return notificationEvent.profile !== 'hotel_requests';
-          });
+          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => notificationEvent.profile !== 'hotel_requests');
         }
         if (isTripRequestsEnabled && !setting.trip_requests.enabled_transportation_requests) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => {
-            return notificationEvent.profile !== 'transport_requests';
-          });
+          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => notificationEvent.profile !== 'transport_requests');
         }
       })
     ).subscribe(noop);
@@ -205,7 +206,7 @@ export class NotificationsPage implements OnInit {
       return accumulator;
     }, []);
 
-    let newFeatures = {};
+    const newFeatures = {};
     activeFeatures.forEach(featureKey => {
       newFeatures[featureKey] = this.notificationEvents.features[featureKey];
     });
@@ -220,24 +221,16 @@ export class NotificationsPage implements OnInit {
   toggleAllSelected(eventType) {
     if (eventType === 'email') {
       if (this.isAllSelected.emailEvents) {
-        this.notificationForm.controls.emailEvents.setValue(this.notificationForm.controls.emailEvents.value.map(() => {
-          return false;
-        }));
+        this.notificationForm.controls.emailEvents.setValue(this.notificationForm.controls.emailEvents.value.map(() => false));
       } else {
-        this.notificationForm.controls.emailEvents.setValue(this.notificationForm.controls.emailEvents.value.map(() => {
-          return true;
-        }));
+        this.notificationForm.controls.emailEvents.setValue(this.notificationForm.controls.emailEvents.value.map(() => true));
       }
     }
     if (eventType === 'push') {
       if (this.isAllSelected.pushEvents) {
-        this.notificationForm.controls.pushEvents.setValue(this.notificationForm.controls.pushEvents.value.map(() => {
-          return false;
-        }));
+        this.notificationForm.controls.pushEvents.setValue(this.notificationForm.controls.pushEvents.value.map(() => false));
       } else {
-        this.notificationForm.controls.pushEvents.setValue(this.notificationForm.controls.pushEvents.value.map(() => {
-          return true;
-        }));
+        this.notificationForm.controls.pushEvents.setValue(this.notificationForm.controls.pushEvents.value.map(() => true));
       }
     }
   }
@@ -268,9 +261,7 @@ export class NotificationsPage implements OnInit {
     });
 
     this.isDelegateePresent$ = from(this.authService.getEou()).pipe(
-      map(eou => {
-        return eou.ou.delegatee_id !== null;
-      })
+      map(eou => eou.ou.delegatee_id !== null)
     );
 
     this.orgSettings$ = this.offlineService.getOrgSettings();

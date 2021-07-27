@@ -15,12 +15,17 @@ import { cloneDeep } from 'lodash';
 export class CurrencyComponent implements OnInit {
 
   @Input() options: any;
+
   @Input() etxn: Expense;
+
   extnInternal: Expense;
 
   showExchangeRate$: Observable<boolean>;
+
   calculatedExchangeRate$: Observable<number>;
+
   amountConvertedToHomeCurrency$: Observable<number>;
+
   homeCurrency$: Observable<string>;
 
   constructor(

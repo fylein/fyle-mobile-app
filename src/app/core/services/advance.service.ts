@@ -18,6 +18,45 @@ export class AdvanceService {
     private authService: AuthService
   ) { }
 
+
+  @Cacheable({
+    cacheBusterObserver: advancesCacheBuster$
+  })
+  getMyadvances(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => this.apiv2Service.get('/advances', {
+        params: {
+          offset: config.offset,
+          limit: config.limit,
+          assignee_ou_id: 'eq.' + eou.ou.id,
+          ...config.queryParams
+        }
+      })),
+      map(res => res as {
+        count: number;
+        data: ExtendedAdvance[];
+        limit: number;
+        offset: number;
+        url: string;
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.fixDates)
+      }))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advancesCacheBuster$
+  })
+  destroyAdvancesCacheBuster() {
+    return of(null);
+  }
+
   getAdvance(id: string): Observable<ExtendedAdvance> {
     return this.apiv2Service.get('/advances', {
       params: {
@@ -27,39 +66,6 @@ export class AdvanceService {
       map(
         res => this.fixDates(res.data[0]) as ExtendedAdvance
       )
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: advancesCacheBuster$
-  })
-  getMyadvances(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/advances', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            assignee_ou_id: 'eq.' + eou.ou.id,
-            ...config.queryParams
-          }
-        });
-      }),
-      map(res => res as {
-        count: number,
-        data: ExtendedAdvance[],
-        limit: number,
-        offset: number,
-        url: string
-      }),
-      map(res => ({
-        ...res,
-        data: res.data.map(this.fixDates)
-      }))
     );
   }
 
@@ -86,12 +92,5 @@ export class AdvanceService {
       data.areq_approved_at = new Date(data.areq_approved_at);
     }
     return data;
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advancesCacheBuster$
-  })
-  destroyAdvancesCacheBuster() {
-    return of(null);
   }
 }

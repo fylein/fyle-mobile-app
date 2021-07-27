@@ -14,8 +14,11 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class FyApporverComponent implements OnInit {
 
   @Input() approverEmailsList;
+
   @Input() id: string;
+
   @Input() ownerEmail: string;
+
   @Input() from;
 
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
