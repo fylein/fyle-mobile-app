@@ -69,19 +69,23 @@
     min-width: 82px;
   }
 
-  &--gallery-icon, &--bulk-mode-icon  {
+  &--gallery-icon, 
+  &--bulk-mode-icon  {
     height: 52px;
     width: 52px;
   }
 
-  &--gallery-icon-text, 
-  &--bulk-icon-text  {
+  &--footer-text {
     color: $pure-white;
-    margin-top: 8px;
     font-size: 15px;
     font-weight: 500;
     line-height: 1.26;
     letter-spacing: -0.3px;
+  }
+
+  &--gallery-icon-text, 
+  &--bulk-icon-text  {
+    margin-top: 8px;
   }
 
   &--capture-icon-block {
@@ -94,12 +98,7 @@
   }
 
   &--capture-icon-text {
-    color: $pure-white;
     margin-top: 22px;
-    font-size: 15px;
-    line-height: 1.26;
-    letter-spacing: -0.3px;
-    font-weight: 500;
   }
 
   &--bulk-mode-icon-block{
