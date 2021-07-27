@@ -11,9 +11,9 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() message: string;
 
-  @Input() primaryCta: { text: string; action: string };
+  @Input() primaryCta: { text: string; action: string; type?: string };
 
-  @Input() secondaryCta: { text: string; action: string };
+  @Input() secondaryCta: { text: string; action: string; type?: string };
 
   constructor(
     private popoverController: PopoverController
