@@ -51,7 +51,9 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   };
 
   addChip(event: MatChipInputEvent) {
-    event.chipInput!.clear();
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
   }
 
   removeChip(item) {
