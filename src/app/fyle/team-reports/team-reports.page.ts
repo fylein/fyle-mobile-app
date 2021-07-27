@@ -20,20 +20,30 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   pageTitle = 'Team Reports';
+
   isConnected$: Observable<boolean>;
+
   teamReports$: Observable<ExtendedReport[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
   }>>;
+
   currentPageNumber = 1;
+
   acc = [];
+
   filters: Partial<{
     state: string;
     date: string;
@@ -42,13 +52,16 @@ export class TeamReportsPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
-  homeCurrency$: Observable<string>;
-  searchText = '';
-  orgSettings$: Observable<string>;
-  orgSettings: any;
-  onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  homeCurrency$: Observable<string>;
+
+  searchText = '';
+
+  orgSettings$: Observable<string>;
+
+  orgSettings: any;
+
+  onPageExit = new Subject();
 
   constructor(
     private networkService: NetworkService,
@@ -139,18 +152,12 @@ export class TeamReportsPage implements OnInit {
     );
 
     const paginatedScroll$ = this.teamReports$.pipe(
-      switchMap(erpts => {
-        return this.count$.pipe(
-          map(count => {
-            return count > erpts.length;
-          }));
-      })
+      switchMap(erpts => this.count$.pipe(
+        map(count => count > erpts.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
-      })
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$))
     );
 
     this.loadData$.subscribe(noop);
@@ -346,9 +353,7 @@ export class TeamReportsPage implements OnInit {
 
       if (popupResult === 'primary') {
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.delete(erpt.rp_id);
-          }),
+          switchMap(() => this.reportService.delete(erpt.rp_id)),
           finalize(async () => {
             await this.loaderService.hideLoader();
             this.doRefresh();

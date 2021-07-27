@@ -14,7 +14,9 @@ const { Browser } =  Plugins;
 export class SupportDialogPage implements OnInit {
 
   @Input() adminEous: [];
+
   dialogType = this.navParams.get('type');
+
   adminList = this.navParams.get('adminEous');
 
   constructor(
@@ -43,6 +45,7 @@ export class SupportDialogPage implements OnInit {
       dismissed: true
     });
   }
+
   ngOnInit() {
   }
 }

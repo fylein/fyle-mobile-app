@@ -1,4 +1,4 @@
-import { UserDetails } from "./user-details.model";
+import { UserDetails } from './user-details.model';
 
 export interface ExpenseField {
   code: string;

@@ -9,14 +9,19 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 export class TeamReportCardComponent implements OnInit {
 
   @Input() erpt: ExtendedReport;
+
   @Input() prevDate: Date;
 
   @Output() deleteReport: EventEmitter<ExtendedReport> = new EventEmitter();
+
   @Output() gotoReport: EventEmitter<ExtendedReport> = new EventEmitter();
+
   @Output() viewComments: EventEmitter<ExtendedReport> = new EventEmitter();
 
   creationFullDate: string;
+
   showDate = true;
+
   actionOpened = false;
 
   constructor() { }

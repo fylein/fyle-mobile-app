@@ -15,13 +15,19 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class CommentsHistoryComponent implements OnInit {
 
   @Input() objectType: string;
+
   @Input() objectId: string;
+
   @Input() hideIcon: boolean;
+
   @Input() text: string;
+
   @Input() showCommentsCount?: boolean;
+
   @Input() dontLoadComments?: boolean;
 
   noOfComments$: Observable<number>;
+
   refreshComments$ = new Subject();
 
   constructor(
@@ -57,15 +63,9 @@ export class CommentsHistoryComponent implements OnInit {
   ngOnInit() {
     this.noOfComments$ = this.refreshComments$.pipe(
       startWith(0),
-      switchMap(() => {
-        return this.statusService.find(this.objectType, this.objectId).pipe(
-          map(res => {
-            return res.filter((estatus) => {
-              return estatus.us_full_name;
-            }).length;
-          }),
-        );
-      })
+      switchMap(() => this.statusService.find(this.objectType, this.objectId).pipe(
+        map(res => res.filter((estatus) => estatus.us_full_name).length),
+      ))
     );
     this.refreshComments$.next();
   }

@@ -1,4 +1,5 @@
 @import "../../../theme/colors.scss";
+@import "../../../theme/forms.scss";
 
 .add-edit-expense {
   &--toolbar {
@@ -234,6 +235,11 @@
     padding: 0;
   }
 
+  &--grid {
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
+  }
+
   &--checkbox {
     font-size: 14px;
     color: $blue-black;
@@ -260,10 +266,12 @@
   }
 
   &--internal-block {
-    padding: 8px 0;
+    padding: 6px 0;
     background: #fff;
     line-height: 1;
-    margin-bottom: 12px;
+    &__margin {
+      margin-right: 12px;    
+    }
   }
 
   &--split-expense-container {

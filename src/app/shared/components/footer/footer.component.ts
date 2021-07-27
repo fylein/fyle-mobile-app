@@ -14,7 +14,9 @@ import { Observable } from 'rxjs/internal/Observable';
 export class FooterComponent implements OnInit {
 
   @Output() homeClicked = new EventEmitter();
+
   @Output() cameraClicked = new EventEmitter();
+
   @Output() taskClicked = new EventEmitter();
 
   @Input() activeState: FooterState;

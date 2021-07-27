@@ -12,36 +12,63 @@ import { map } from 'rxjs/operators';
 export class MyExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
+
   @Input() disabledSelection = false;
+
   @Input() prevExpense;
+
   @Input() dateComparatorProp;
+
   @Input() canDelete = false;
+
   @Input() skipDate = false;
+
   @Input() selectionMode = false;
+
   @Input() selectedElements = [];
+
   @Input() canOpenCard = true;
+
   @Input() isSyncInProgress: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() toggleFlashMode: EventEmitter<Expense> = new EventEmitter();
+
   @Output() addTransactionToReport: EventEmitter<Expense> = new EventEmitter();
+
   @Output() addTransactionToNewReport: EventEmitter<Expense> = new EventEmitter();
+
   @Output() selectTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() deleteTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   showDt = true;
+
   vendorDetails = '';
+
   amountIsNumber;
+
   extractedAmountIsNumber;
+
   isPolicyViolated = false;
+
   isCriticalPolicyViolated = false;
+
   isDraft = false;
+
   isCCCExpense = false;
+
   isCCCMatchedExpense = false;
+
   isReceiptAttached = false;
+
   actionOpened = false;
+
   addToReportPossible$: Observable<boolean>;
 
   constructor(

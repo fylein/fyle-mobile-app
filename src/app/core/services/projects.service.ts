@@ -6,9 +6,6 @@ import {DataTransformService} from './data-transform.service';
 import {Cacheable} from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
-import { AuthService } from './auth.service';
-import { from } from 'rxjs';
-import { OfflineService } from './offline.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,39 +18,13 @@ export class ProjectsService {
     private dataTransformService: DataTransformService
   ) { }
 
-  getAllActive() {
-    const data = {
-      params: {
-        active_only: true
-      }
-    };
-
-    return this.apiService.get('/projects', data);
-  }
-
-  parseRawEProjects(res) {
-    const rawEprojects = (res && res.data) || [];
-    return rawEprojects.map((rawEproject) => {
-      return this.dataTransformService.unflatten(rawEproject);
-    });
-  }
-
-  getbyId(projectId: number) {
-    return this.apiV2Service.get('/projects', {
-      params: {
-        project_id: `eq.${projectId}`
-      }
-    }).pipe(
-      map(res => res.data[0])
-    );
-  }
 
   @Cacheable()
   getByParamsUnformatted(projectParams:
     Partial<{
-      orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds
+      orgId; active; orgCategoryIds; searchNameText; limit; offset; sortOrder; sortDirection; projectIds;
     }>): Observable<ExtendedProject[]> {
-    // tslint:disable-next-line: prefer-const
+    // eslint-disable-next-line prefer-const
     let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds }
       = projectParams;
     sortOrder = sortOrder || 'project_updated_at';
@@ -95,14 +66,14 @@ export class ProjectsService {
 
   @Cacheable()
   getByParams(queryParams: Partial<{
-    orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds 
+    orgId; active; orgCategoryIds; searchNameText; limit; offset; sortOrder; sortDirection; projectIds;
   }>): Observable<ExtendedProject[]> {
     const {
-      orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds 
+      orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds
     } = queryParams;
     return this
       .getByParamsUnformatted({
-        orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds 
+        orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds
       }).pipe(
         map(this.parseRawEProjects)
       );
@@ -124,13 +95,36 @@ export class ProjectsService {
   getAllowedOrgCategoryIds(project, activeCategoryList) {
     let categoryList = [];
     if (project) {
-      categoryList = activeCategoryList.filter((category) => {
-        return project.project_org_category_ids.indexOf(category.id) > -1;
-      });
+      categoryList = activeCategoryList.filter((category) => project.project_org_category_ids.indexOf(category.id) > -1);
     } else {
       categoryList = activeCategoryList;
     }
 
     return categoryList;
+  }
+
+  getAllActive() {
+    const data = {
+      params: {
+        active_only: true
+      }
+    };
+
+    return this.apiService.get('/projects', data);
+  }
+
+  parseRawEProjects(res) {
+    const rawEprojects = (res && res.data) || [];
+    return rawEprojects.map((rawEproject) => this.dataTransformService.unflatten(rawEproject));
+  }
+
+  getbyId(projectId: number) {
+    return this.apiV2Service.get('/projects', {
+      params: {
+        project_id: `eq.${projectId}`
+      }
+    }).pipe(
+      map(res => res.data[0])
+    );
   }
 }

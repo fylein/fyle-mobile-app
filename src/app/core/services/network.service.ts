@@ -36,22 +36,22 @@ export class NetworkService {
 
   getConnectionStatus() {
     return this.isConnected$.pipe(
-        startWith(true),
-        pairwise(),
-        switchMap(([previousConnectionStatus, currentConnectionStatus]) => {
-          if (previousConnectionStatus === false && currentConnectionStatus === true) {
-            return concat(
-                of(ConnectionMessageStatus.onlineMessageShown),
-                of(ConnectionMessageStatus.onlineMessageHidden).pipe(
-                    delay(3000)
-                )
-            );
-          } else if (previousConnectionStatus === true && currentConnectionStatus === true) {
-            return of(ConnectionMessageStatus.onlineMessageHidden);
-          } else {
-            return of(ConnectionMessageStatus.disconnected);
-          }
-        })
+      startWith(true),
+      pairwise(),
+      switchMap(([previousConnectionStatus, currentConnectionStatus]) => {
+        if (previousConnectionStatus === false && currentConnectionStatus === true) {
+          return concat(
+            of(ConnectionMessageStatus.onlineMessageShown),
+            of(ConnectionMessageStatus.onlineMessageHidden).pipe(
+              delay(3000)
+            )
+          );
+        } else if (previousConnectionStatus === true && currentConnectionStatus === true) {
+          return of(ConnectionMessageStatus.onlineMessageHidden);
+        } else {
+          return of(ConnectionMessageStatus.disconnected);
+        }
+      })
     );
   }
 }

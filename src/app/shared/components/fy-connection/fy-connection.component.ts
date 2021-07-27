@@ -12,6 +12,7 @@ import { ConnectionMessageStatus } from './connection-status.enum';
 })
 export class FyConnectionComponent implements OnInit {
   isConnected$: Observable<boolean>;
+
   state$: Observable<ConnectionMessageStatus>;
 
   get ConnectionMessageStatus() {
