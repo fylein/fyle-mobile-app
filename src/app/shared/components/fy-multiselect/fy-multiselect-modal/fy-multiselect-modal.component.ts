@@ -25,9 +25,13 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   @Input() subheader = 'All Items';
 
   value;
+
   selectable = true;
+
   removable = true;
+
   addOnBlur = true;
+
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
   constructor(
@@ -46,7 +50,7 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     return [ENTER, COMMA];
   };
 
-  addChip(event: MatChipInputEvent): void {
+  addChip(event: MatChipInputEvent) {
     event.chipInput!.clear();
   }
 
@@ -55,7 +59,7 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
       label: item,
       selected: false,
       value: item
-    }
+    };
     this.onElementSelected(updatedItem);
   }
 
