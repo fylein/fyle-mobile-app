@@ -1576,16 +1576,15 @@ export class AddEditExpensePage implements OnInit {
   setupTfc() {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue) => {
-        return this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
-          const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable'];
-          return this.expenseFieldsService
+      switchMap((formValue) => this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
+        const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable'];
+        return this.expenseFieldsService
           .filterByOrgCategoryId(
             expenseFieldsMap,
             fields,
             formValue.category
           );
-      }))})
+      })))
     );
 
     this.txnFields$ = txnFieldsMap$.pipe(
