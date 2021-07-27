@@ -266,7 +266,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   getCurrentLocation() {
     from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
-      switchMap(() => this.locationService.getCurrentLocation({enableHighAccuracy: true})),
+      switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
       switchMap((coordinates) => this.agmGeocode.geocode({
         location: {
           lat: coordinates.coords.latitude,

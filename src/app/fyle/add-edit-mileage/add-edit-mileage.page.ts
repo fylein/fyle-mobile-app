@@ -244,7 +244,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getCalculateDistance() {
-    return this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
+    return this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
       switchMap((distance) => this.etxn$.pipe(map(etxn => {
         const distanceInKm = distance / 1000;
         const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
@@ -412,7 +412,7 @@ export class AddEditMileagePage implements OnInit {
         mileageCategoriesContainer: this.getMileageCategories()
       }).pipe(
         switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
-          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
+          const fields = ['purpose', 'txn_dt', 'cost_center_id'];
           return this.expenseFieldsService
             .filterByOrgCategoryId(
               expenseFieldsMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
@@ -841,27 +841,6 @@ export class AddEditMileagePage implements OnInit {
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
-    this.fg.controls.mileage_locations.valueChanges.pipe(
-      switchMap((locations) => this.mileageService.getDistance(locations)),
-      switchMap((distance) => this.etxn$.pipe(map(etxn => {
-        const distanceInKm = distance / 1000;
-        const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
-        return finalDistance;
-      })))
-    ).subscribe(finalDistance => {
-      if (this.formInitializedFlag) {
-        if (finalDistance === 0) {
-          this.fg.controls.distance.setValue(finalDistance);
-        } else {
-          if (this.fg.value.round_trip) {
-            this.fg.controls.distance.setValue((finalDistance * 2).toFixed(2));
-          } else {
-            this.fg.controls.distance.setValue(finalDistance.toFixed(2));
-          }
-        }
-      }
-    });
-
     this.isAmountDisabled$ = this.etxn$.pipe(
       map(
         etxn => !!etxn.tx.admin_amount
@@ -1185,6 +1164,7 @@ export class AddEditMileagePage implements OnInit {
         this.mileageConfig$,
         defaultPaymentMode$,
         orgUserSettings$,
+        orgSettings$,
         this.recentlyUsedValues$,
         this.recentlyUsedProjects$,
         this.recentlyUsedCostCenters$
@@ -1713,13 +1693,12 @@ export class AddEditMileagePage implements OnInit {
 
     this.trackPolicyCorrections();
 
-    const calculatedDistance$ = this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
+    const calculatedDistance$ = this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
       switchMap((distance) => this.etxn$.pipe(map(etxn => {
         const distanceInKm = distance / 1000;
         const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
         return finalDistance;
       }))),
-
       map(finalDistance => {
         if (this.fg.value.route.roundTrip) {
           return (finalDistance * 2).toFixed(2);
