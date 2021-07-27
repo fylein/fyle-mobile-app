@@ -24,14 +24,14 @@ enum DashboardState {
   styleUrls: ['./dashboard.page.scss'],
 })
 export class DashboardPage implements OnInit {
+
+  @ViewChild(StatsComponent) statsComponent: StatsComponent;
   orgUserSettings$: Observable<OrgUserSettings>;
   orgSettings$: Observable<any>;
   homeCurrency$: Observable<any>;
   isConnected$: Observable<boolean>;
   onPageExit$ = new Subject();
   currentStateIndex = 0;
-
-  @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
   constructor(
     private offlineService: OfflineService,

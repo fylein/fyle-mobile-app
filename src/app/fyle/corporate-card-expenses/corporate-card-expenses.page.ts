@@ -21,7 +21,7 @@ import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-exp
   styleUrls: ['./corporate-card-expenses.page.scss'],
 })
 export class CorporateCardExpensesPage implements OnInit {
-
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
   cardTransactions$: Observable<CorporateCardExpense[]>;
   count$: Observable<number>;
   isInfiniteScrollRequired$: Observable<boolean>;
@@ -54,7 +54,6 @@ export class CorporateCardExpensesPage implements OnInit {
 
   onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
     private networkService: NetworkService,

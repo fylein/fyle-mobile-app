@@ -6,7 +6,6 @@ import { ModalController, ToastController, PopoverController } from '@ionic/angu
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { OneClickActionService } from 'src/app/core/services/one-click-action.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 
@@ -59,7 +58,6 @@ export class MyProfilePage implements OnInit {
     private authService: AuthService,
     private offlineService: OfflineService,
     private transactionService: TransactionService,
-    private oneClickActionService: OneClickActionService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
     private modalController: ModalController,
@@ -214,11 +212,6 @@ export class MyProfilePage implements OnInit {
       .subscribe(noop);
   }
 
-  getOneClickActionSelectedModule(id: string) {
-    const oneClickActionSelectedModule = this.oneClickActionService.filterByOneClickActionById(id);
-    this.oneClickActionSelectedModuleId = oneClickActionSelectedModule.value;
-  }
-
   ionViewWillEnter() {
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
@@ -248,17 +241,6 @@ export class MyProfilePage implements OnInit {
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.currencies$ = this.currencyService.getAllCurrenciesInList();
 
-    orgUserSettings$.pipe(
-      map((res) => {
-        const oneClickAction = res.one_click_action_settings.allowed &&
-          res.one_click_action_settings.enabled &&
-          res.one_click_action_settings.module;
-        if (oneClickAction) {
-          this.getOneClickActionSelectedModule(oneClickAction);
-        }
-      })
-    ).subscribe(noop);
-
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => forkJoin({
         eou: this.eou$,
@@ -269,7 +251,6 @@ export class MyProfilePage implements OnInit {
     ).subscribe(async (res) => {
       this.orgUserSettings = res.orgUserSettings;
       this.orgSettings = res.orgSettings;
-      this.oneClickActionOptions = this.oneClickActionService.getAllOneClickActionOptions();
     });
   }
 

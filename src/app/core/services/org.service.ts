@@ -31,6 +31,15 @@ export class OrgService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: orgsCacheBuster$
+  })
+  getOrgs() {
+    return this.apiService.get('/orgs').pipe(
+      map(res => res as Org[])
+    );
+  }
+
   suggestOrgCurrency() {
     return this.apiService.get('/currency/ip').pipe(
       map((data) => {
@@ -61,15 +70,6 @@ export class OrgService {
           return this.updateOrg(org);
         }
       )
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: orgsCacheBuster$
-  })
-  getOrgs() {
-    return this.apiService.get('/orgs').pipe(
-      map(res => res as Org[])
     );
   }
 

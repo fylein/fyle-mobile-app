@@ -5,14 +5,14 @@ import * as moment from 'moment';
   providedIn: 'root'
 })
 export class DateService {
-
-  constructor() { }
   today = new Date();
   year = this.today.getFullYear();
   month = this.today.getMonth();
   // '12:00', '12:30' has been removed since cron dosn't support 24
   timeIntervals = ['1:00', '1:30', '2:00', '2:30', '3:00', '3:30', '4:00', '4:30', '5:00', '5:30', '6:00', '6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30'];
   meridians = ['AM', 'PM'];
+
+  constructor() { }
 
   getDayShortCodeMap() {
     return {

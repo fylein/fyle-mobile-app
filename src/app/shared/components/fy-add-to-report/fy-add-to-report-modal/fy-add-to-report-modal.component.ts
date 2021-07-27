@@ -15,13 +15,14 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() options: { label: string; value: any; selected?: boolean }[] = [];
   @Input() currentSelection: any;
-  filteredOptions: { label: string; value: any; selected?: boolean }[];
   @Input() selectionElement: TemplateRef<ElementRef>;
   @Input() nullOption = true;
   @Input() cacheName;
   @Input() customInput = false;
   @Input() subheader;
   @Input() enableSearch;
+
+  filteredOptions: { label: string; value: any; selected?: boolean }[];
   value = '';
   states: any = {};
 

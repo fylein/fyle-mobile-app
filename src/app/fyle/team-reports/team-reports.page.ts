@@ -20,6 +20,8 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   pageTitle = 'Team Reports';
   isConnected$: Observable<boolean>;
   teamReports$: Observable<ExtendedReport[]>;
@@ -47,8 +49,6 @@ export class TeamReportsPage implements OnInit {
   orgSettings$: Observable<string>;
   orgSettings: any;
   onPageExit = new Subject();
-
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
     private networkService: NetworkService,

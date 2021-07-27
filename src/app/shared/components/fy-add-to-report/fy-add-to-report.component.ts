@@ -20,7 +20,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyAddToReportComponent implements OnInit, OnDestroy {
-  private ngControl: NgControl;
   @Input() options: { label: string; value: any }[] = [];
   @Input() disabled = false;
   @Input() label = '';
@@ -31,9 +30,11 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
   @Input() customInput = false;
   @Input() subheader = 'All';
   @Input() enableSearch = false;
+  displayValue;
+
+  private ngControl: NgControl;
 
   private innerValue;
-  displayValue;
 
   get valid() {
     if (this.ngControl.touched) {

@@ -11,10 +11,10 @@ import {NgModel} from '@angular/forms';
 })
 export class SendBackAdvanceComponent implements OnInit {
 
+  @Input() areq;
+
   sendBackReason = '';
   sendBackLoading = false;
-
-  @Input() areq;
 
   constructor(
     private popoverController: PopoverController,

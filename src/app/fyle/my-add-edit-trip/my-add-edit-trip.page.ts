@@ -31,6 +31,7 @@ import { Employee } from 'src/app/core/models/employee.model';
 })
 export class MyAddEditTripPage implements OnInit {
 
+  @ViewChild('formContainer') formContainer: ElementRef;
   // allowedProjectIds$: Observable<any>;
   eou$: Observable<ExtendedOrgUser>;
   tripTypes = [];
@@ -61,8 +62,7 @@ export class MyAddEditTripPage implements OnInit {
   isAdvanceRequestAlreadyAdded: boolean;
   saveTripAsDraftLoading = false;
   submitTripLoading = false;
-
-  @ViewChild('formContainer') formContainer: ElementRef;
+  fg: FormGroup;
 
   constructor(
     private router: Router,
@@ -83,7 +83,6 @@ export class MyAddEditTripPage implements OnInit {
   ) {
   }
 
-  fg: FormGroup;
 
   async goBack() {
     const addExpensePopover = await this.popoverController.create({

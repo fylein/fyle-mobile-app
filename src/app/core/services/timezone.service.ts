@@ -9,11 +9,6 @@ import { UtilityService } from './utility.service';
 })
 export class TimezoneService {
 
-  constructor(
-    private currencService: CurrencyService,
-    private utilityService: UtilityService
-  ) { }
-
   timezones = [
     {
       timezone: 'America/Louisville',
@@ -2936,6 +2931,11 @@ export class TimezoneService {
       offset: '-06:00:00'
     }
   ];
+
+  constructor(
+    private currencService: CurrencyService,
+    private utilityService: UtilityService
+  ) { }
 
   getTimezones() {
     return this.timezones;

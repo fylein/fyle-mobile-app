@@ -20,13 +20,14 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
-  private ngControl: NgControl;
   @Input() options: { label: string; value: any }[] = [];
   @Input() disabled = false;
   @Input() label = '';
   @Input() mandatory = false;
   @Input() selectModalHeader = 'Select Items';
   @Input() subheader = 'All Items';
+
+  displayValue;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -37,7 +38,8 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   }
 
   private innerValue;
-  displayValue;
+
+  private ngControl: NgControl;
 
   private onTouchedCallback: () => void = noop;
   private onChangeCallback: (_: any) => void = noop;

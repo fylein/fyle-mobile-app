@@ -18,7 +18,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
-  private ngControl: NgControl;
 
   @Input() label = 'location';
   @Input() mandatory = false;
@@ -28,8 +27,10 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() recentLocations: string[] = [];
   @Input() cacheName;
 
-  private innerValue;
   displayValue;
+
+  private ngControl: NgControl;
+  private innerValue;
 
   get valid() {
     if (this.ngControl.touched) {

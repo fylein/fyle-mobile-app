@@ -20,13 +20,14 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelection: any;
   @Input() header = '';
-  loader = false;
-  value = '';
-  lookupFailed = false;
   @Input() recentLocations: string[];
   @Input() cacheName;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
+
+  loader = false;
+  value = '';
+  lookupFailed = false;
 
   filteredList$: Observable<any[]>;
   recentItemsFilteredList$: Observable<any[]>;
