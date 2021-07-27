@@ -106,7 +106,6 @@ export class CaptureReceiptPage implements OnInit {
       this.flashMode = nextActiveFlashMode;
 
       this.trackingService.flashModeSet({
-        Asset: 'Mobile',
         FlashMode: this.flashMode
       });
     }
@@ -148,13 +147,9 @@ export class CaptureReceiptPage implements OnInit {
     }, 1000);
 
     if (this.isBulkMode) {
-      this.trackingService.switchedToInstafyleBulkMode({
-        Asset: 'Mobile'
-      });
+      this.trackingService.switchedToInstafyleBulkMode({});
     } else {
-      this.trackingService.switchedToInstafyleSingleMode({
-        Asset: 'Mobile'
-      });
+      this.trackingService.switchedToInstafyleSingleMode({});
     }
   }
 
@@ -240,9 +235,7 @@ export class CaptureReceiptPage implements OnInit {
   }
 
   galleryUpload() {
-    this.trackingService.instafyleGalleryUploadOpened({
-      Asset: 'Mobile'
-    });
+    this.trackingService.instafyleGalleryUploadOpened({});
 
     this.stopCamera();
     this.imagePicker.hasReadPermission().then((permission) => {
