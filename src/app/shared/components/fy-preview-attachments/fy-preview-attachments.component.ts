@@ -12,11 +12,15 @@ import {DomSanitizer} from '@angular/platform-browser';
 export class FyPreviewAttachmentsComponent implements OnInit {
 
   @Input() txnId: string;
+
   @ViewChild('slides') imageSlides: any;
 
   sliderOptions: any;
+
   attachments$: Observable<any[]>;
+
   activeIndex = 0;
+
   zoomScale: number;
 
 

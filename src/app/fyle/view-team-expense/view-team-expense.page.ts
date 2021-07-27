@@ -25,21 +25,37 @@ export class ViewTeamExpensePage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   etxn$: Observable<Expense>;
+
   policyViloations$: Observable<any>;
+
   isAmountCapped$: Observable<boolean>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   allExpenseCustomFields$: Observable<any>;
+
   customProperties$: Observable<any>;
+
   etxnWithoutCustomProperties$: Observable<any>;
+
   canFlagOrUnflag$: Observable<boolean>;
+
   canDelete$: Observable<boolean>;
+
   orgSettings: any;
+
   reportId;
+
   attachments$: Observable<any>;
+
   currencyOptions;
+
   updateFlag$ = new Subject();
+
   isConnected$: Observable<boolean>;
+
   onPageExit = new Subject();
+
   comments$: Observable<any>;
 
   constructor(

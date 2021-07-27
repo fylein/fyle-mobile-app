@@ -27,15 +27,25 @@ import {AuthService} from '../../core/services/auth.service';
 })
 export class CameraOverlayPage implements OnInit, OnDestroy {
   isCameraShown: boolean;
+
   recentImage: string;
+
   isBulkMode: boolean;
+
   lastImage: string;
+
   captureCount: number;
+
   homeCurrency: string;
+
   activeFlashMode: string;
+
   showInstaFyleIntro: boolean;
+
   modeChanged: boolean;
+
   isInstafyleEnabled: boolean;
+
   navigateBack = false;
 
   constructor(

@@ -13,19 +13,33 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 })
 export class FySelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
+
   @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+
   @Input() currentSelection: any;
+
   @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+
   @Input() selectionElement: TemplateRef<ElementRef>;
+
   @Input() nullOption = true;
+
   @Input() cacheName;
+
   @Input() customInput = false;
+
   @Input() enableSearch;
+
   @Input() selectModalHeader = '';
+
   @Input() showSaveButton = false;
+
   @Input() placeholder = '';
+
   @Input() defaultLabelProp;
+
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
+
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;

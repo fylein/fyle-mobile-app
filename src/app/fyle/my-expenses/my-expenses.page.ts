@@ -68,10 +68,15 @@ type Filters = Partial<{
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   isConnected$: Observable<boolean>;
+
   myExpenses$: Observable<Expense[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: BehaviorSubject<Partial<{
     pageNumber: number;
     queryParams: any;
@@ -79,38 +84,69 @@ export class MyExpensesPage implements OnInit {
     sortDir: string;
     searchString: string;
   }>>;
+
   currentPageNumber = 1;
+
   acc = [];
+
   filters: Filters;
+
   allExpensesStats$: Observable<{ count: number; amount: number }>;
+
   draftExpensesCount$: Observable<number>;
+
   homeCurrency$: Observable<string>;
+
   isInstaFyleEnabled$: Observable<boolean>;
+
   isBulkFyleEnabled$: Observable<boolean>;
+
   isMileageEnabled$: Observable<boolean>;
+
   isPerDiemEnabled$: Observable<boolean>;
+
   pendingTransactions = [];
+
   selectionMode = false;
+
   selectedElements: Expense[];
+
   syncing = false;
+
   simpleSearchText = '';
+
   allExpenseCountHeader$: Observable<number>;
+
   navigateBack = false;
+
   openAddExpenseListLoader = false;
+
   clusterDomain: string;
+
   isNewUser$: Observable<boolean>;
+
   isLoading = false;
+
   headerState: HeaderState = HeaderState.base;
+
   actionSheetButtons = [];
+
   selectAll = false;
+
   filterPills = [];
+
   reviewMode = false;
 
   ROUTER_API_ENDPOINT: any;
+
   isReportableExpensesSelected = false;
+
   openReports$: Observable<ExtendedReport[]>;
+
   homeCurrencySymbol: string;
+
   isLoadingDataInInfiniteScroll: boolean;
+
   allExpensesCount: number;
 
   get HeaderState() {

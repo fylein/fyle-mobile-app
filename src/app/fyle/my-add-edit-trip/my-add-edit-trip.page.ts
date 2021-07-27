@@ -32,36 +32,66 @@ import { Employee } from 'src/app/core/models/employee.model';
 export class MyAddEditTripPage implements OnInit {
 
   @ViewChild('formContainer') formContainer: ElementRef;
+
   // allowedProjectIds$: Observable<any>;
   eou$: Observable<ExtendedOrgUser>;
+
   tripTypes = [];
+
   tripDate;
+
   hotelDate;
+
   tripActions;
+
   mode;
+
   minDate;
+
   maxDate;
+
   today;
+
   isTripTypeMultiCity$: Observable<boolean>;
+
   isTripTypeOneWay$: Observable<boolean>;
+
   isTransportationRequested$: Observable<boolean>;
+
   isHotelRequested$: Observable<boolean>;
+
   isAdvanceRequested$: Observable<boolean>;
+
   isTransportationEnabled$: Observable<boolean>;
+
   isHotelEnabled$: Observable<boolean>;
+
   isAdvanceEnabled$: Observable<boolean>;
+
   travelAgents$: Observable<Employee[]>;
+
   customFields$: Observable<any>;
+
   isProjectsEnabled$: Observable<boolean>;
+
   projects$: Observable<[]>;
+
   tripRequest$: Observable<any>;
+
   customFieldValues;
+
   refreshTrips$ = new Subject();
+
   isTransportationRequestAlreadyAdded: boolean;
+
   isHotelRequestAlreadyAdded: boolean;
+
   isAdvanceRequestAlreadyAdded: boolean;
+
   saveTripAsDraftLoading = false;
+
   submitTripLoading = false;
+
   fg: FormGroup;
 
   constructor(
@@ -190,13 +220,15 @@ export class MyAddEditTripPage implements OnInit {
       return this.cities.value.some((city, index) => {
         if (index === 0) {
           if (!(city.onward_dt >= this.startDate.value)) {
-            this.cities.controls[0].controls.onward_dt.setErrors({incorrect: true});
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            this.cities.controls[0]['controls'].onward_dt.setErrors({incorrect: true});
             return true;
           }
         }
         else if ((index + 1) < this.cities.value.length) {
           if (!(city.onward_dt <= this.cities.value[index + 1].onward_dt)) {
-            this.cities.controls[index + 1].controls.onward_dt.setErrors({incorrect: true});
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            this.cities.controls[index + 1]['controls'].onward_dt.setErrors({incorrect: true});
             return true;
           }
         }
@@ -205,7 +237,8 @@ export class MyAddEditTripPage implements OnInit {
 
     if (this.tripType === 'ROUND') {
       if (!(this.cities.controls[0].value.onward_dt < this.cities.controls[0].value.return_date)) {
-        this.cities.controls[0].controls.return_date.setErrors({incorrect: true});
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        this.cities.controls[0]['controls'].return_date.setErrors({incorrect: true});
         return true;
       }
     }
@@ -902,18 +935,23 @@ export class MyAddEditTripPage implements OnInit {
     this.fg.valueChanges.subscribe(formValue => {
       // removing errors after fields value are touched
       this.cities.value.forEach((city, index) => {
-        const errors = this.cities.controls[index].controls.onward_dt.errors;
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const errors = this.cities.controls[index]['controls'].onward_dt.errors;
         if (errors) {
           delete errors.incorrect;
-          this.cities.controls[index].controls.onward_dt.setErrors(errors);
+          // eslint-disable-next-line @typescript-eslint/dot-notation
+          this.cities.controls[index]['controls'].onward_dt.setErrors(errors);
         }
       });
 
-      if (this.tripType === 'ROUND' && this.cities.controls.length && this.cities.controls[0].controls.return_date) {
-        const errors = this.cities.controls[0].controls.return_date.errors;
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      if (this.tripType === 'ROUND' && this.cities.controls.length && this.cities.controls[0]['controls'].return_date) {
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const errors = this.cities.controls[0]['controls'].return_date.errors;
         if (errors) {
           delete errors.incorrect;
-          this.cities.controls[0].controls.return_date.setErrors(errors);
+          // eslint-disable-next-line @typescript-eslint/dot-notation
+          this.cities.controls[0]['controls'].return_date.setErrors(errors);
         }
       }
 

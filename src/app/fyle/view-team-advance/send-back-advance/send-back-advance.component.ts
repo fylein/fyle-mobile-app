@@ -14,6 +14,7 @@ export class SendBackAdvanceComponent implements OnInit {
   @Input() areq;
 
   sendBackReason = '';
+
   sendBackLoading = false;
 
   constructor(

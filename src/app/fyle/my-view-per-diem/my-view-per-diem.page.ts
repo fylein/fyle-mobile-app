@@ -24,14 +24,23 @@ export class MyViewPerDiemPage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedPerDiem$: Observable<Expense>;
+
   orgSettings$: Observable<any>;
+
   perDiemCustomFields$: Observable<CustomField[]>;
+
   perDiemRate$: Observable<any>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   isAmountCapped$: Observable<boolean>;
+
   policyViloations$: Observable<any>;
+
   isConnected$: Observable<boolean>;
+
   onPageExit = new Subject();
+
   comments$: Observable<any>;
 
   constructor(

@@ -16,13 +16,19 @@ import {NetworkService} from '../../core/services/network.service';
 })
 export class MyAdvancesPage implements OnInit {
   myAdvancerequests$: Observable<any[]>;
+
   myAdvances$: Observable<any>;
+
   loadData$: Subject<number> = new Subject();
+
   navigateBack = false;
+
   refreshAdvances$: Subject<void> = new Subject();
+
   advances$: Observable<any>;
 
   isConnected$: Observable<boolean>;
+
   onPageExit = new Subject();
 
   constructor(

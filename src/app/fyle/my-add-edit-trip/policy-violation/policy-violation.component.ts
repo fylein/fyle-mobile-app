@@ -9,7 +9,9 @@ import { ModalController } from '@ionic/angular';
 export class PolicyViolationComponent implements OnInit {
 
   @Input() policyViolationMessages = [];
+
   @Input() policyActionDescription = '';
+
   @Input() comment = '';
 
   constructor(

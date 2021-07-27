@@ -19,17 +19,23 @@ const { Permissions, Geolocation } = Plugins;
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelection: any;
+
   @Input() header = '';
+
   @Input() recentLocations: string[];
+
   @Input() cacheName;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   loader = false;
+
   value = '';
+
   lookupFailed = false;
 
   filteredList$: Observable<any[]>;
+
   recentItemsFilteredList$: Observable<any[]>;
 
   currentGeolocationPermissionGranted = false;

@@ -8,12 +8,17 @@ import {LoaderPosition} from './loader-position.enum';
 export class FormButtonValidationDirective implements OnInit, OnChanges{
 
   @Input() loadingText: string;
+
   @Input() buttonType: string;
+
   @Input() loading: boolean;
+
   @Input() loaderPosition: LoaderPosition = LoaderPosition.postfix;
 
   defaultText;
+
   loaderAdded = false;
+
   loadingTextMap = {
     Save: 'Saving',
     Confirm: 'Confirming',

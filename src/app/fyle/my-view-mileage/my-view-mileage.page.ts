@@ -22,11 +22,17 @@ export class MyViewMileagePage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
+
   orgSettings$: Observable<any>;
+
   mileageCustomFields$: Observable<CustomField[]>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   isAmountCapped$: Observable<boolean>;
+
   policyViloations$: Observable<any>;
+
   comments$: Observable<any>;
 
   constructor(

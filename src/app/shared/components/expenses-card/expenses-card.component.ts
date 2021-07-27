@@ -16,26 +16,43 @@ import { isEqual } from 'lodash';
 export class ExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
+
   @Input() previousExpenseTxnDate;
+
   @Input() previousExpenseCreatedAt;
+
   @Input() isSelectionModeEnabled: boolean;
+
   @Input() selectedElements: Expense[];
+
   @Input() isFirstOfflineExpense: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
   receipt: string;
+
   showDt = true;
+
   isPolicyViolated: boolean;
+
   isCriticalPolicyViolated: boolean;
+
   homeCurrency: string;
+
   homeCurrencySymbol = '';
+
   foreignCurrencySymbol = '';
+
   paymentModeIcon: string;
+
   isScanInProgress: boolean;
+
   isProjectMandatory$: Observable<boolean>;
 
   constructor(

@@ -16,12 +16,19 @@ import { ViewWillEnter } from '@ionic/angular';
 export class TeamTripsPage implements OnInit, ViewWillEnter {
 
   isConnected$: Observable<boolean>;
+
   teamTripRequests$: Observable<ExtendedTripRequest[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: Subject<{pageNumber: number; state: string}> = new Subject();
+
   currentPageNumber = 1;
+
   state = 'PENDING';
+
   onPageExit = new Subject();
 
   constructor(

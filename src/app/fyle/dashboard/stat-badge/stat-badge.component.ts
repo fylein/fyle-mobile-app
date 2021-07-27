@@ -10,11 +10,17 @@ import {getCurrencySymbol} from '@angular/common';
 export class StatBadgeComponent implements OnInit {
 
   @Input() reportState: ReportStates;
+
   @Input() name: string;
+
   @Input() count = 0;
+
   @Input() value = 0;
+
   @Input() currency: string;
+
   @Input() loading = false;
+
   @Output() badgeClicked = new EventEmitter();
 
   currencySymbol = '';

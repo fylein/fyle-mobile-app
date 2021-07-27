@@ -30,13 +30,21 @@ import { PopupService } from 'src/app/core/services/popup.service';
 })
 export class MyViewTripsPage implements OnInit {
   tripRequest$: Observable<ExtendedTripRequest>;
+
   approvals$: Observable<Approval[]>;
+
   actions$: Observable<any>;
+
   advanceRequests$: Observable<any>;
+
   transportationRequests$: Observable<any>;
+
   hotelRequests$: Observable<any>;
+
   allTripRequestCustomFields$: Observable<any>;
+
   activeApprovals$: Observable<Approval[]>;
+
   tripExtraInfo$: Observable<{
     submittedBy: {
       fullName: string;
@@ -46,15 +54,25 @@ export class MyViewTripsPage implements OnInit {
     tripLocations: (string | string[])[];
     travellers: string;
   }>;
+
   transformedTripRequests$: Observable<any>;
+
   transformedAdvanceRequests$: Observable<any>;
+
   approvers$: Observable<ExtendedOrgUser[]>;
+
   canPullBack$: Observable<boolean>;
+
   canCloseTrip$: Observable<boolean>;
+
   canDelete$: Observable<boolean>;
+
   canEdit$: Observable<boolean>;
+
   pullbackLoading = false;
+
   deleteLoading = false;
+
   closeLoading = false;
 
   constructor(

@@ -9,6 +9,7 @@ import { PopoverController } from '@ionic/angular';
 export class GalleryUploadSuccessPopupComponent implements OnInit {
 
   @Input() uploadedTitle;
+
   constructor(
     private popoverController: PopoverController
   ) { }

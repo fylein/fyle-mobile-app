@@ -11,17 +11,22 @@ import {ModalController} from '@ionic/angular';
 })
 export class FyFiltersComponent implements OnInit {
   @Input() filterOptions: FilterOptions<any>[];
+
   @Input() selectedFilterValues: SelectedFilters<any>[];
+
   @Input() activeFilterInitialName;
 
   currentFilterValueMap: {[key: string]: any| any[]} = {};
+
   customDateMap: {[key: string]: {
     startDate?: Date;
     endDate?: Date;
     };} = {};
+
   activeFilter;
 
   startDate: Date;
+
   endDate: Date;
 
   get FilterOptionType() {

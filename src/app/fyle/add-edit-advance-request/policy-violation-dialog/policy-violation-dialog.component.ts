@@ -9,8 +9,11 @@ import { ModalController } from '@ionic/angular';
 export class PolicyViolationDialogComponent implements OnInit {
 
   @Input() latestComment: string;
+
   @Input() violatedPolicyRules: string[];
+
   @Input() policyViolationActionDescription: string;
+
   newComment: string;
 
   constructor(

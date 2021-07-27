@@ -22,7 +22,9 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
   currentLocation: AgmDirectionLocation;
 
   origin: AgmDirectionLocation;
+
   destination: AgmDirectionLocation;
+
   waypoints: { location: AgmDirectionLocation }[];
 
   renderOptions = {

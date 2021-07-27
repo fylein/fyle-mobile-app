@@ -24,11 +24,17 @@ import {LoginInfoService} from '../../core/services/login-info.service';
 })
 export class SignInPage implements OnInit {
   fg: FormGroup;
+
   emailSet = false;
+
   emailLoading = false;
+
   passwordLoading = false;
+
   googleSignInLoading = false;
+
   hide = true;
+
   checkEmailExists$: Observable<any>;
 
   constructor(

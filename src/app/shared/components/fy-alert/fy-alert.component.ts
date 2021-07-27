@@ -8,6 +8,7 @@ import { Component, OnInit, Input } from '@angular/core';
 export class FyAlertComponent implements OnInit {
 
   @Input() type: string;
+
   @Input() message: string;
 
   constructor() { }

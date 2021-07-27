@@ -20,23 +20,37 @@ import * as moment from 'moment';
 export class ViewCommentComponent implements OnInit {
 
   @Input() objectType: string;
+
   @Input() objectId: any;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
   estatuses$: Observable<ExtendedStatus[]>;
+
   totalCommentsCount$: Observable<number>;
+
   newComment: string;
+
   refreshEstatuses$: Subject<void> = new Subject();
+
   isCommentAdded: boolean;
+
   reversalComment: string;
+
   matchedExpense: Expense;
+
   expenseNumber: string;
+
   isCommentsView = true;
+
   systemComments: ExtendedStatus[];
+
   userComments: any;
+
   type: string;
+
   systemEstatuses: ExtendedStatus[];
+
   showDt: boolean;
 
   constructor(

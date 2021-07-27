@@ -16,10 +16,15 @@ import { ReportService } from 'src/app/core/services/report.service';
 export class SubmitReportPopoverComponent implements OnInit {
 
   @Input() erpt;
+
   @Input() etxns;
+
   numIssues = 0;
+
   numCriticalPolicies = 0;
+
   showTripRequestWarning = false;
+
   submitReportLoading = false;
 
   constructor(

@@ -308,6 +308,7 @@ export class TransactionService {
       reduce((acc, curr) => acc.concat(curr), [] as any[])
     );
   }
+
   parseRaw(etxnsRaw) {
     const etxns = [];
 
@@ -437,6 +438,7 @@ export class TransactionService {
     });
     return total;
   }
+
   getExpenseV2(id: string): Observable<any> {
     return this.apiV2Service.get('/expenses', {
       params: {

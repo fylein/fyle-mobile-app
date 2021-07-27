@@ -17,12 +17,19 @@ import {TransactionService} from '../../core/services/transaction.service';
 export class CccClassifiedActionsPage implements OnInit {
 
   cccExpense$: Observable<CorporateCardExpense>;
+
   matchedExpense$: Observable<TxnDetail[]>;
+
   isCCCMatched$: Observable<boolean>;
+
   canUnmatch$: Observable<boolean>;
+
   canUnmarkPersonal$: Observable<boolean>;
+
   canUndoDismissal$: Observable<boolean>;
+
   collectedBack$: Observable<boolean>;
+
   pageState: string;
 
   constructor(

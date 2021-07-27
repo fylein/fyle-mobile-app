@@ -15,11 +15,17 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class MyTripsPage implements OnInit {
 
   isConnected$: Observable<boolean>;
+
   myTripRequests$: Observable<ExtendedTripRequest[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: Subject<number> = new Subject();
+
   currentPageNumber = 1;
+
   navigateBack = false;
 
   constructor(

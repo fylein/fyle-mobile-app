@@ -25,16 +25,27 @@ export class ViewTeamPerDiemPage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedPerDiem$: Observable<Expense>;
+
   orgSettings$: Observable<any>;
+
   perDiemCustomFields$: Observable<CustomField[]>;
+
   perDiemRate$: Observable<any>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   isAmountCapped$: Observable<boolean>;
+
   policyViloations$: Observable<any>;
+
   canFlagOrUnflag$: Observable<any>;
+
   canDelete$: Observable<any>;
+
   reportId;
+
   updateFlag$ = new Subject();
+
   comments$: Observable<any>;
 
   constructor(
@@ -107,7 +118,7 @@ export class ViewTeamPerDiemPage implements OnInit {
 
     this.perDiemRate$ = this.extendedPerDiem$.pipe(
       switchMap(res => {
-        const perDiemRateId = parseInt(res.tx_per_diem_rate_id);
+        const perDiemRateId = parseInt(res.tx_per_diem_rate_id, 10);
         return this.perDiemService.getRate(perDiemRateId);
       })
     );

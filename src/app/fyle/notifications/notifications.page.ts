@@ -19,19 +19,30 @@ import { NavController } from '@ionic/angular';
 export class NotificationsPage implements OnInit {
 
   isDelegateePresent$: Observable<boolean>;
+
   orgUserSettings$: Observable<OrgUserSettings>;
+
   notificationEvents$: Observable<any>;
+
   orgSettings$: Observable<any>;
+
   features$: Observable<any>;
+
   delegationOptions;
+
   notificationEvents;
+
   orgUserSettings;
+
   orgSettings;
+
   isAllSelected: {
     emailEvents: boolean;
     pushEvents: boolean;
   };
+
   notifEvents = [];
+
   saveNotifLoading = false;
 
   notificationForm: FormGroup;

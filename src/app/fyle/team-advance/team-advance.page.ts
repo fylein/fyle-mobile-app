@@ -15,10 +15,15 @@ import { Router } from '@angular/router';
 export class TeamAdvancePage implements OnInit {
 
   teamAdvancerequests$: Observable<any[]>;
+
   loadData$: Subject<{ pageNumber: number; state: string }> = new Subject();
+
   count$: Observable<number>;
+
   currentPageNumber = 1;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   state = 'PENDING';
 
   constructor(
