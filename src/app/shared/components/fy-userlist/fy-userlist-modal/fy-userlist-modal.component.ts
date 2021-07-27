@@ -34,6 +34,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   removable = true;
   addOnBlur = true;
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
+  selectedItemDict = {};
 
   constructor(
     private modalController: ModalController,
@@ -41,6 +42,14 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     private orgUserService: OrgUserService,
     private loaderService: LoaderService
   ) { }
+
+
+  getSelectedItemDict() {
+    return this.currentSelections.reduce((acc, curr) => {
+      acc[curr] = true;
+      return acc;
+    }, {})
+  }
 
   getSeparatorKeysCodes() {
     return [ENTER, COMMA];
@@ -59,36 +68,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       checked: false
     }
     this.onSelect(updatedItem, event);
-    // this.getSearchedUsersList(item);
-    // this.onSelect(updatedItem, event);
-    // from(this.filteredOptions$).pipe().subscribe(newres => {
-    //   console.log("check newres", newres);
-    //   for (var i = 0; i < newres.length; i++) {
-    //     if (newres[i]['us_email'] === item) {
-    //       newres[i]['is_selected'] = false;
-    //       this.onSelect(newres[i], event);
-    //       this.filteredOptions$ = of(newres);
-    //     }
-    //   }
-    //   // 
-    //   // const updatedItem1 = newres[0];
-    //   // return newres[0];this.onSelect(updatedItem, event);
-    // })
-    
-    console.log("check options", this.options);
-    // const test = this.filteredOptions$.pipe(
-    //   subscribe(res => {
-    //     return console.log("check res", res);
-    //   })
-    // )
-    console.log("check item", item);
-    // const itemnew = this.getSearchedUsersList(item);
-    // const itemnew = getUserToRemove.pipe(
-    //   subscribe(res => {
-
-    //   })
-    // );
-    // console.log("check getUserToRemove", itemnew);
   }
 
   ngOnInit() {
@@ -255,14 +234,13 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   }
 
   onSelect(selectedOption: Partial<Employee>, event: { checked: boolean; }) {
-    console.log("check event", event);
     if (event.checked) {
       this.currentSelections.push(selectedOption.us_email);
-      console.log("check what is the current selection", this.currentSelections);
     } else {
       const index = this.currentSelections.indexOf(selectedOption.us_email);
       this.currentSelections.splice(index, 1);
     }
+    this.selectedItemDict = this.getSelectedItemDict();
   }
 
   useSelected() {
@@ -277,5 +255,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       this.currentSelections.push(this.value);
     }
     this.clearValue();
+    this.selectedItemDict = this.getSelectedItemDict();
   }
 }
