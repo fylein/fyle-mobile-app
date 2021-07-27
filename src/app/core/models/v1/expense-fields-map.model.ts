@@ -1,4 +1,4 @@
-import { ExpenseField } from "./expense-field.model";
+import { ExpenseField } from './expense-field.model';
 
 export interface ExpenseFieldsMap {
   boolean_column1: ExpenseField[];

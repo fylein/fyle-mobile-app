@@ -19,7 +19,7 @@ export class HumanizeCurrencyPipe implements PipeTransform {
       if (fractionSize) {
         fixedResult = result.toFixed(fraction);
       } else {
-         // will implemnt later if no fraction passed
+        // will implemnt later if no fraction passed
       }
       if (!skipSymbol) {
         fixedResult = currency + fixedResult;

@@ -15,5 +15,5 @@ export interface FileObject {
     fyle_sub_url: string;
     url?: string;
     type?: string;
-    thumbnail?: string; 
+    thumbnail?: string;
 }

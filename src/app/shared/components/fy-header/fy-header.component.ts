@@ -9,10 +9,13 @@ import {HeaderState} from './header-state.enum';
 export class FyHeaderComponent implements OnInit {
 
   @Input() currentState: HeaderState;
+
   @Input() navigateBack = false;
+
   @Input() title = 'Fyle';
 
   @Output() simpleSearchCancel = new EventEmitter();
+
   @Output() multiselectBack = new EventEmitter();
 
   get HeaderState() {

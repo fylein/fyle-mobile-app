@@ -32,34 +32,183 @@ export class TripRequestsService {
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getMyTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
+  getAdvanceRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/advance_requests');
+  }
+
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
+  getHotelRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
+      map((reqs) => reqs.map(req => {
+        const hotelRequest = this.dataTransformService.unflatten(req);
+        this.tripDatesService.fixDates(hotelRequest.hr);
+        this.tripDatesService.fixDates(hotelRequest.hb);
+        this.tripDatesService.fixDates(hotelRequest.hc);
+        return hotelRequest;
+      }))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  saveDraft(tripRequest) {
+    return from(this.authService.getEou()).pipe(
+      map(eou => tripRequest.org_user_id = eou.ou.id),
+      concatMap(() => this.apiService.post('/trip_requests/save', tripRequest))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  submit(tripRequest) {
+    return from(this.authService.getEou()).pipe(
+      map(eou => tripRequest.org_user_id = eou.ou.id),
+      concatMap(() => this.apiService.post('/trip_requests/submit', tripRequest))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  addApproverETripRequests(tripRequestId, approverEmail, comment) {
+    const data = {
+      approver_email: approverEmail,
+      comment
+    };
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
+  }
+
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  delete(tripRequestId: string) {
+    return this.apiService.delete('/trip_requests/' + tripRequestId);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  pullBackTrip(tripRequestId: string, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/pull_back', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  closeTrip(tripRequestId: string) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
+  }
+
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
+  getTeamTrips(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
     offset: 0,
     limit: 10,
     queryParams: {}
   }) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/trip_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            trp_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams
-          }
-        });
-      }),
+      switchMap(eou => this.apiv2Service.get('/trip_requests', {
+        params: {
+          offset: config.offset,
+          limit: config.limit,
+          order: 'trp_created_at.desc',
+          approvers: 'cs.{' + eou.ou.id + '}',
+          ...config.queryParams
+        }
+      })),
       map(res => res as {
-        count: number,
-        data: ExtendedTripRequest[],
-        limit: number,
-        offset: number,
-        url: string
+        count: number;
+        data: ExtendedTripRequest[];
+        limit: number;
+        offset: number;
+        url: string;
       }),
       map(res => ({
         ...res,
         data: res.data.map(this.fixDates)
       }))
     );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
+  getTransportationRequests(tripRequestId: string) {
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
+      map((reqs) => reqs.map(req => {
+        const transportationRequest = this.dataTransformService.unflatten(req);
+        this.tripDatesService.fixDates(transportationRequest.tr);
+        this.tripDatesService.fixDates(transportationRequest.tb);
+        this.tripDatesService.fixDates(transportationRequest.tc);
+        return transportationRequest;
+      })
+      )
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: tripRequestsCacheBuster$
+  })
+  getMyTrips(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => this.apiv2Service.get('/trip_requests', {
+        params: {
+          offset: config.offset,
+          limit: config.limit,
+          trp_org_user_id: 'eq.' + eou.ou.id,
+          ...config.queryParams
+        }
+      })),
+      map(res => res as {
+        count: number;
+        data: ExtendedTripRequest[];
+        limit: number;
+        offset: number;
+        url: string;
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(this.fixDates)
+      }))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  action(action, tripRequestId) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/' + action);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  approve(tripRequestId) {
+    return this.action('approve', tripRequestId);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  inquire(tripRequestId, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/inquire', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: tripRequestsCacheBuster$
+  })
+  reject(tripRequestId, addStatusPayload) {
+    return this.apiService.post('/trip_requests/' + tripRequestId + '/reject', addStatusPayload);
   }
 
   getTrip(id: string): Observable<ExtendedTripRequest> {
@@ -92,52 +241,6 @@ export class TripRequestsService {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
   }
 
-  @Cacheable({
-    cacheBusterObserver: tripRequestsCacheBuster$
-  })
-  getAdvanceRequests(tripRequestId: string) {
-    return this.apiService.get('/trip_requests/' + tripRequestId + '/advance_requests');
-  }
-
-  @Cacheable({
-    cacheBusterObserver: tripRequestsCacheBuster$
-  })
-  getHotelRequests(tripRequestId: string) {
-    return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
-      map((reqs) => {
-        return reqs.map(req => {
-          const hotelRequest = this.dataTransformService.unflatten(req);
-          this.tripDatesService.fixDates(hotelRequest.hr);
-          this.tripDatesService.fixDates(hotelRequest.hb);
-          this.tripDatesService.fixDates(hotelRequest.hc);
-          return hotelRequest;
-        });
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  delete(tripRequestId: string) {
-    return this.apiService.delete('/trip_requests/' + tripRequestId);
-  }
-
-  @Cacheable({
-    cacheBusterObserver: tripRequestsCacheBuster$
-  })
-  getTransportationRequests(tripRequestId: string) {
-    return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
-      map((reqs) => reqs.map(req => {
-        const transportationRequest = this.dataTransformService.unflatten(req);
-        this.tripDatesService.fixDates(transportationRequest.tr);
-        this.tripDatesService.fixDates(transportationRequest.tb);
-        this.tripDatesService.fixDates(transportationRequest.tc);
-        return transportationRequest;
-      })
-      )
-    );
-  }
 
   getTeamTripsCount(queryParams = {})  {
     return this.getTeamTrips({
@@ -146,40 +249,6 @@ export class TripRequestsService {
       queryParams
     }).pipe(
       map(trip => trip.count)
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: tripRequestsCacheBuster$
-  })
-  getTeamTrips(config: Partial<{ offset: number, limit: number, queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/trip_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: 'trp_created_at.desc',
-            approvers: 'cs.{' + eou.ou.id + '}',
-            ...config.queryParams
-          }
-        });
-      }),
-      map(res => res as {
-        count: number,
-        data: ExtendedTripRequest[],
-        limit: number,
-        offset: number,
-        url: string
-      }),
-      map(res => ({
-        ...res,
-        data: res.data.map(this.fixDates)
-      }))
     );
   }
 
@@ -263,7 +332,7 @@ export class TripRequestsService {
     );
   }
 
-  getInternalStateAndDisplayName(tripRequest: ExtendedTripRequest): { state: string, name: string } {
+  getInternalStateAndDisplayName(tripRequest: ExtendedTripRequest): { state: string; name: string } {
     if (tripRequest.trp_state === 'DRAFT') {
       if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
         return {
@@ -383,61 +452,9 @@ export class TripRequestsService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  pullBackTrip(tripRequestId: string, addStatusPayload) {
-    return this.apiService.post('/trip_requests/' + tripRequestId + '/pull_back', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  closeTrip(tripRequestId: string) {
-    return this.apiService.post('/trip_requests/' + tripRequestId + '/close');
-  }
 
   triggerPolicyCheck(tripRequestId) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/trigger_policy_check');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  saveDraft(tripRequest) {
-    return from(this.authService.getEou()).pipe(
-      map(eou => {
-        return tripRequest.org_user_id = eou.ou.id;
-      }),
-      concatMap(() => {
-        return this.apiService.post('/trip_requests/save', tripRequest);
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  submit(tripRequest) {
-    return from(this.authService.getEou()).pipe(
-      map(eou => {
-        return tripRequest.org_user_id = eou.ou.id;
-      }),
-      concatMap(() => {
-        return this.apiService.post('/trip_requests/submit', tripRequest);
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  addApproverETripRequests(tripRequestId, approverEmail, comment) {
-    const data = {
-      approver_email: approverEmail,
-      comment: comment
-    };
-    return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
   }
 
   findMyUnreportedRequests() {
@@ -450,31 +467,4 @@ export class TripRequestsService {
     return this.apiService.get('/trip_requests', data);
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  action(action, tripRequestId) {
-    return this.apiService.post('/trip_requests/' + tripRequestId + '/' + action);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  approve(tripRequestId) {
-    return this.action('approve', tripRequestId);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  inquire(tripRequestId, addStatusPayload) {
-    return this.apiService.post('/trip_requests/' + tripRequestId + '/inquire', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: tripRequestsCacheBuster$
-  })
-  reject(tripRequestId, addStatusPayload) {
-    return this.apiService.post('/trip_requests/' + tripRequestId + '/reject', addStatusPayload);
-  }
 }

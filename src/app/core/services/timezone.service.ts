@@ -9,11 +9,6 @@ import { UtilityService } from './utility.service';
 })
 export class TimezoneService {
 
-  constructor(
-    private currencService: CurrencyService,
-    private utilityService: UtilityService
-  ) { }
-
   timezones = [
     {
       timezone: 'America/Louisville',
@@ -2937,6 +2932,11 @@ export class TimezoneService {
     }
   ];
 
+  constructor(
+    private currencService: CurrencyService,
+    private utilityService: UtilityService
+  ) { }
+
   getTimezones() {
     return this.timezones;
   }
@@ -2990,7 +2990,7 @@ export class TimezoneService {
   convertAllDatesToProperLocale(object, offset) {
     const that = this;
     const copiedObject = cloneDeep(object);
-    return that.utilityService.traverse(copiedObject, function (prop) {
+    return that.utilityService.traverse(copiedObject, function(prop) {
       if (prop instanceof Date) {
         prop.setHours(12);
         prop.setMinutes(0);
@@ -3001,7 +3001,7 @@ export class TimezoneService {
         return prop;
       }
     });
-  };
+  }
 
   convertToTimezone(date: Date, offset: string, toUtc: boolean) {
     const correctedDate = cloneDeep(date);
@@ -3032,15 +3032,15 @@ export class TimezoneService {
     // Adding this for year changing when date is Jan 1
     correctedDate.setFullYear(date.getFullYear());
     return correctedDate;
-  };
+  }
 
   convertToUtc(date, offset) {
     return this.convertToTimezone(date, offset, true);
-  };
+  }
 
   convertToLocal(date, offset) {
     return this.convertToTimezone(date, offset, false);
-  };
+  }
 
   getOffsetSign(offset) {
     const hourOffset = +offset.split(':')[0];
