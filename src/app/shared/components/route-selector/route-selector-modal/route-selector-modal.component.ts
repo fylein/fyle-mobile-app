@@ -14,13 +14,21 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 export class RouteSelectorModalComponent implements OnInit {
 
   @Input() unit: 'KM' | 'MILES';
+
   @Input() mileageConfig;
+
   @Input() isDistanceMandatory;
+
   @Input() isAmountDisabled;
+
   @Input() txnFields;
+
   @Input() formInitialized;
+
   @Input() isConnected;
+
   @Input() value;
+
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
     recent_locations?: string[];

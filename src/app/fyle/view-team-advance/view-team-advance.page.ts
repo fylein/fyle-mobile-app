@@ -27,13 +27,21 @@ import { AuthService } from 'src/app/core/services/auth.service';
 export class ViewTeamAdvancePage implements OnInit {
 
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
+
   actions$: Observable<any>;
+
   approvals$: Observable<Approval[]>;
+
   activeApprovals$: Observable<Approval[]>;
+
   attachedFiles$: Observable<File[]>;
+
   advanceRequestCustomFields$: Observable<CustomField[]>;
+
   refreshApprovers$ = new Subject();
+
   showAdvanceActions$: Observable<boolean>;
+
   customFields$: Observable<any>;
 
   constructor(

@@ -48,6 +48,159 @@ export class ReportService {
     return this.transactionService.clearCache();
   }
 
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
+  getMyReportsCount(queryParams = {}) {
+    return this.getMyReports({
+      offset: 0,
+      limit: 1,
+      queryParams
+    }).pipe(
+      map(res => res.count)
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
+  getPaginatedERptc(offset, limit, params) {
+    const data = {
+      params: {
+        offset,
+        limit
+      }
+    };
+
+    Object.keys(params).forEach((param) => {
+      data.params[param] = params[param];
+    });
+
+    return this.apiService.get('/erpts', data).pipe(
+      map((erptcs) => erptcs.map(erptc => this.dataTransformService.unflatten(erptc)))
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$
+  })
+  getERpt(rptId) {
+    return this.apiService.get('/erpts/' + rptId).pipe(
+      map(data => {
+        const erpt = this.dataTransformService.unflatten(data);
+        this.dateService.fixDates(erpt.rp);
+        if (erpt && erpt.rp && erpt.rp.created_at) {
+          erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
+        }
+        return erpt;
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  addTransactions(rptId, txnIds) {
+    return this.apiService.post('/reports/' + rptId + '/txns', {
+      ids: txnIds
+    }).pipe(
+      tap(() => {
+        this.clearTransactionCache();
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  createDraft(report) {
+    return this.apiService.post('/reports', report).pipe(
+      switchMap((res) => this.clearTransactionCache().pipe(
+        map(() => res)
+      ))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  create(report, txnIds) {
+    return this.createDraft(report).pipe(
+      switchMap(newReport => this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe(
+        switchMap(res => this.submit(newReport.id).pipe(
+          map(() => newReport)
+        ))
+      ))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  removeTransaction(rptId, txnId, comment?) {
+    const aspy = {
+      status: {
+        comment
+      }
+    };
+    return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy).pipe(
+      switchMap((res) => this.clearTransactionCache().pipe(
+        map(() => res)
+      ))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  submit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/submit').pipe(
+      switchMap((res) => this.clearTransactionCache().pipe(
+        map(() => res)
+      ))
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  resubmit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/resubmit');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  inquire(rptId, addStatusPayload) {
+    return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  approve(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/approve');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  addApprover(rptId, approverEmail, comment) {
+    const data = {
+      approver_email: approverEmail,
+      comment
+    };
+    return this.apiService.post('/reports/' + rptId + '/approvals', data);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$
+  })
+  removeApprover(rptId, approvalId) {
+    return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
+  }
+
+
   getUserReportParams(state: string) {
     const stateMap = {
       draft: {
@@ -101,18 +254,6 @@ export class ReportService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$
-  })
-  getMyReportsCount(queryParams = {}) {
-    return this.getMyReports({
-      offset: 0,
-      limit: 1,
-      queryParams
-    }).pipe(
-      map(res => res.count)
-    );
-  }
 
   getMyReports(config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
     offset: 0,
@@ -321,25 +462,6 @@ export class ReportService {
     return Object.assign({}, params, searchParams, dateParams);
   }
 
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$
-  })
-  getPaginatedERptc(offset, limit, params) {
-    const data = {
-      params: {
-        offset,
-        limit
-      }
-    };
-
-    Object.keys(params).forEach((param) => {
-      data.params[param] = params[param];
-    });
-
-    return this.apiService.get('/erpts', data).pipe(
-      map((erptcs) => erptcs.map(erptc => this.dataTransformService.unflatten(erptc)))
-    );
-  }
 
   getReportPurpose(reportPurpose) {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(
@@ -347,21 +469,6 @@ export class ReportService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$
-  })
-  getERpt(rptId) {
-    return this.apiService.get('/erpts/' + rptId).pipe(
-      map(data => {
-        const erpt = this.dataTransformService.unflatten(data);
-        this.dateService.fixDates(erpt.rp);
-        if (erpt && erpt.rp && erpt.rp.created_at) {
-          erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
-        }
-        return erpt;
-      })
-    );
-  }
 
   getApproversInBulk(rptIds) {
     if (!rptIds || rptIds.length === 0) {
@@ -408,109 +515,6 @@ export class ReportService {
         );
       }),
     );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  addTransactions(rptId, txnIds) {
-    return this.apiService.post('/reports/' + rptId + '/txns', {
-      ids: txnIds
-    }).pipe(
-      tap(() => {
-        this.clearTransactionCache();
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  createDraft(report) {
-    return this.apiService.post('/reports', report).pipe(
-      switchMap((res) => this.clearTransactionCache().pipe(
-        map(() => res)
-      ))
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  create(report, txnIds) {
-    return this.createDraft(report).pipe(
-      switchMap(newReport => this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe(
-        switchMap(res => this.submit(newReport.id).pipe(
-          map(() => newReport)
-        ))
-      ))
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  removeTransaction(rptId, txnId, comment?) {
-    const aspy = {
-      status: {
-        comment
-      }
-    };
-    return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy).pipe(
-      switchMap((res) => this.clearTransactionCache().pipe(
-        map(() => res)
-      ))
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  submit(rptId) {
-    return this.apiService.post('/reports/' + rptId + '/submit').pipe(
-      switchMap((res) => this.clearTransactionCache().pipe(
-        map(() => res)
-      ))
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  resubmit(rptId) {
-    return this.apiService.post('/reports/' + rptId + '/resubmit');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  inquire(rptId, addStatusPayload) {
-    return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  approve(rptId) {
-    return this.apiService.post('/reports/' + rptId + '/approve');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  addApprover(rptId, approverEmail, comment) {
-    const data = {
-      approver_email: approverEmail,
-      comment
-    };
-    return this.apiService.post('/reports/' + rptId + '/approvals', data);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  removeApprover(rptId, approvalId) {
-    return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
   }
 
   getReportETxnc(rptId, orgUserId) {

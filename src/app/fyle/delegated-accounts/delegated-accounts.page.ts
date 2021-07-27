@@ -15,8 +15,11 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 })
 export class DelegatedAccountsPage implements OnInit {
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef;
+
   delegatedAccList;
+
   currentOrg;
+
   searchInput = '';
 
   constructor(

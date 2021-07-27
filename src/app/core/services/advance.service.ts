@@ -18,17 +18,6 @@ export class AdvanceService {
     private authService: AuthService
   ) { }
 
-  getAdvance(id: string): Observable<ExtendedAdvance> {
-    return this.apiv2Service.get('/advances', {
-      params: {
-        adv_id: `eq.${id}`
-      }
-    }).pipe(
-      map(
-        res => this.fixDates(res.data[0]) as ExtendedAdvance
-      )
-    );
-  }
 
   @Cacheable({
     cacheBusterObserver: advancesCacheBuster$
@@ -61,6 +50,25 @@ export class AdvanceService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advancesCacheBuster$
+  })
+  destroyAdvancesCacheBuster() {
+    return of(null);
+  }
+
+  getAdvance(id: string): Observable<ExtendedAdvance> {
+    return this.apiv2Service.get('/advances', {
+      params: {
+        adv_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as ExtendedAdvance
+      )
+    );
+  }
+
   getMyAdvancesCount(queryParams = {}) {
     return this.getMyadvances({
       offset: 0,
@@ -84,12 +92,5 @@ export class AdvanceService {
       data.areq_approved_at = new Date(data.areq_approved_at);
     }
     return data;
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advancesCacheBuster$
-  })
-  destroyAdvancesCacheBuster() {
-    return of(null);
   }
 }

@@ -23,10 +23,15 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 })
 export class MyViewAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
+
   actions$: Observable<any>;
+
   activeApprovals$: Observable<Approval[]>;
+
   attachedFiles$: Observable<File[]>;
+
   advanceRequestCustomFields$: Observable<CustomField[]>;
+
   customFields$: Observable<any>;
 
   constructor(

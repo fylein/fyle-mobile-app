@@ -19,16 +19,23 @@ const { Permissions, Geolocation } = Plugins;
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelection: any;
+
   @Input() header = '';
-  loader = false;
-  value = '';
-  lookupFailed = false;
+
   @Input() recentLocations: string[];
+
   @Input() cacheName;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
+  loader = false;
+
+  value = '';
+
+  lookupFailed = false;
+
   filteredList$: Observable<any[]>;
+
   recentItemsFilteredList$: Observable<any[]>;
 
   currentGeolocationPermissionGranted = false;
@@ -265,7 +272,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   getCurrentLocation() {
     from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
-      switchMap(() => this.locationService.getCurrentLocation({enableHighAccuracy: true})),
+      switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
       switchMap((coordinates) => this.agmGeocode.geocode({
         location: {
           lat: coordinates.coords.latitude,

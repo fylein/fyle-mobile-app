@@ -28,6 +28,7 @@ export class MyViewAdvancePage implements OnInit {
       shareReplay(1)
     );
   }
+
   ngOnInit() {
 
   }

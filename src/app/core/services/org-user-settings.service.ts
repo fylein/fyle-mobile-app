@@ -27,6 +27,13 @@ export class OrgUserSettingsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: orgUserSettingsCacheBuster$
+  })
+  post(data) {
+    return this.apiService.post('/org_user_settings', data);
+  }
+
   getEmailEvents() {
     const featuresList = {
       features: {
@@ -352,10 +359,4 @@ export class OrgUserSettingsService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: orgUserSettingsCacheBuster$
-  })
-  post(data) {
-    return this.apiService.post('/org_user_settings', data);
-  }
 }

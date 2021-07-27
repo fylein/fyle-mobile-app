@@ -14,9 +14,13 @@ import { from } from 'rxjs';
 export class FyCurrencyExchangeRateComponent implements OnInit {
 
   @Input() amount;
+
   @Input() currentCurrency;
+
   @Input() newCurrency;
+
   @Input() txnDt;
+
   @Input() exchangeRate;
 
   fg: FormGroup;

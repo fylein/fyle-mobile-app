@@ -20,11 +20,18 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   pageTitle = 'Team Reports';
+
   isConnected$: Observable<boolean>;
+
   teamReports$: Observable<ExtendedReport[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: BehaviorSubject<Partial<{
     pageNumber: number;
     queryParams: any;
@@ -32,8 +39,11 @@ export class TeamReportsPage implements OnInit {
     sortDir: string;
     searchString: string;
   }>>;
+
   currentPageNumber = 1;
+
   acc = [];
+
   filters: Partial<{
     state: string;
     date: string;
@@ -42,13 +52,16 @@ export class TeamReportsPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
-  homeCurrency$: Observable<string>;
-  searchText = '';
-  orgSettings$: Observable<string>;
-  orgSettings: any;
-  onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  homeCurrency$: Observable<string>;
+
+  searchText = '';
+
+  orgSettings$: Observable<string>;
+
+  orgSettings: any;
+
+  onPageExit = new Subject();
 
   constructor(
     private networkService: NetworkService,

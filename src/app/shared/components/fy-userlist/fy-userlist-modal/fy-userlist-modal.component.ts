@@ -13,20 +13,33 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
+
   @Input() currentSelections: any[] = [];
+
   @Input() filteredOptions$: Observable<Employee[]>;
+
   @Input() placeholder;
+
   @Input() allowCustomValues: boolean;
 
   value;
+
   eouc$: Observable<Employee[]>;
+
   options: { label: string; value: any; selected?: boolean }[] = [];
+
   selectedUsers: any[] = [];
+
   intialSelectedEmployees: any[] = [];
+
   userListCopy$: Observable<Employee[]>;
+
   newlyAddedItems$: Observable<Partial<Employee>[]>;
+
   invalidEmail = false;
+
   currentSelectionsCopy = [];
+
   isLoading = false;
 
   constructor(

@@ -27,27 +27,47 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 })
 export class MyEditReportPage implements OnInit {
   extendedReport$: Observable<ExtendedReport>;
+
   reportedEtxns$: Observable<Expense[]>;
+
   unReportedEtxns: Expense[];
+
   deleteExpensesIdList = [];
+
   addedExpensesIdList = [];
+
   isReportEdited = false;
+
   reportTitle: string;
+
   isPurposeChanged = false;
+
   isTripRequestsEnabled: boolean;
+
   canAssociateTripRequests: boolean;
+
   tripRequests: any[];
+
   selectedTripRequest: any;
+
   tripRequestId: string;
 
   isConnected$: Observable<boolean>;
+
   onPageExit = new Subject();
+
   reportAmount: number;
+
   noOfTxnsInReport: number;
+
   selectedTotalAmount: number;
+
   selectedTotalTxns: number;
+
   showReportNameError = false;
+
   reportState: string;
+
   saveReoprtLoading = false;
 
   constructor(

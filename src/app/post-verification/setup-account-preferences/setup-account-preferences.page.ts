@@ -21,10 +21,15 @@ import {TrackingService} from '../../core/services/tracking.service';
 export class SetupAccountPreferencesPage implements OnInit {
 
   isConnected$: Observable<boolean>;
+
   eou$: Observable<ExtendedOrgUser>;
+
   companyName$: Observable<string>;
+
   org$: Observable<Org>;
+
   orgSettings$: Observable<any>;
+
   fg: FormGroup;
 
   constructor(

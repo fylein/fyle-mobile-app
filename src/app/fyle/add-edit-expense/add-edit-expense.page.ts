@@ -69,102 +69,195 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
   styleUrls: ['./add-edit-expense.page.scss'],
 })
 export class AddEditExpensePage implements OnInit {
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+
+  @ViewChild('formContainer') formContainer: ElementRef;
+
+  @ViewChild('comments') commentsContainer: ElementRef;
+
   etxn$: Observable<any>;
+
   paymentModes$: Observable<any[]>;
+
   recentlyUsedValues$: Observable<RecentlyUsed>;
+
   isCreatedFromCCC = false;
+
   paymentAccount$: Observable<any>;
+
   isCCCAccountSelected$: Observable<boolean>;
+
   homeCurrency$: Observable<string>;
+
   mode: string;
+
   title: string;
+
   activeIndex: number;
+
   reviewList: string[];
+
   fg: FormGroup;
+
   filteredCategories$: Observable<any[]>;
+
   minDate: string;
+
   maxDate: string;
+
   txnFields$: Observable<any>;
+
   taxSettings$: Observable<any>;
+
   reports$: Observable<any>;
+
   isProjectsEnabled$: Observable<boolean>;
+
   flightJourneyTravelClassOptions$: Observable<any>;
+
   customInputs$: Observable<any>;
+
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
+
   selectedCCCTransaction;
+
   canChangeMatchingCCCTransaction = true;
+
   transactionInReport$: Observable<boolean>;
+
   transactionMandatoyFields$: Observable<any>;
+
   isCriticalPolicyViolated = false;
+
   showSelectedTransaction = false;
+
   isIndividualProjectsEnabled$: Observable<boolean>;
+
   individualProjectIds$: Observable<[]>;
+
   isNotReimbursable$: Observable<boolean>;
+
   costCenters$: Observable<any[]>;
+
   receiptsData: any;
+
   duplicates$: Observable<any>;
+
   duplicateBoxOpen = false;
+
   isAmountCapped$: Observable<boolean>;
+
   isAmountDisabled$: Observable<boolean>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   isSplitExpenseAllowed$: Observable<boolean>;
+
   attachmentUploadInProgress = false;
+
   attachedReceiptsCount = 0;
+
   instaFyleCancelled = false;
+
   newExpenseDataUrls = [];
+
   focusState = false;
+
   isConnected$: Observable<boolean>;
+
   invalidPaymentMode = false;
+
   pointToDuplicates = false;
+
   isAdvancesEnabled$: Observable<boolean>;
+
   comments$: Observable<any>;
+
   isCCCPaymentModeSelected$: Observable<boolean>;
+
   isLoadingSuggestions = false;
+
   matchingCCCTransactions = [];
+
   matchedCCCTransaction;
+
   alreadyApprovedExpenses;
+
   isSplitExpensesPresent: boolean;
+
   canEditCCCMatchedSplitExpense: boolean;
+
   cardEndingDigits: string;
+
   selectedCCCTransactionInSuggestions: boolean;
+
   isCCCTransactionAutoSelected: boolean;
+
   isChangeCCCSuggestionClicked: boolean;
+
   isDraftExpenseEnabled: boolean;
+
   isDraftExpense: boolean;
+
   isProjectsVisible$: Observable<boolean>;
+
   saveExpenseLoader = false;
+
   saveAndNewExpenseLoader = false;
+
   saveAndNextExpenseLoader = false;
+
   saveAndPrevExpenseLoader = false;
+
   canAttachReceipts: boolean;
+
   duplicateDetectionReasons = [];
+
   tfcDefaultValues$: Observable<any>;
+
   expenseStartTime;
+
   navigateBack = false;
+
   isExpenseBankTxn = false;
+
   recentCategories: OrgCategoryListItem[];
+
   // Todo: Rename all `selected` to `isSelected`
   presetCategoryId: number;
+
   recentlyUsedCategories$: Observable<OrgCategoryListItem[]>;
+
   clusterDomain: string;
+
   orgUserSettings$: Observable<OrgUserSettings>;
+
   recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+
   recentCurrencies: Currency[];
+
   presetProjectId: number;
+
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+
   recentlyUsedCurrencies$: Observable<Currency[]>;
+
   recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+
   presetCostCenterId: number;
+
   recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+
   presetCurrency: string;
+
   initialFetch;
+
   inpageExtractedData;
+
   actionSheetButtons = [];
+
   isExpandedView = false;
 
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
-  @ViewChild('formContainer') formContainer: ElementRef;
-  @ViewChild('comments') commentsContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1166,7 +1259,9 @@ export class AddEditExpensePage implements OnInit {
         report: selectedReport$,
         costCenter: selectedCostCenter$,
         customInputs: selectedCustomInputs$,
+        txnReceiptsCount: txnReceiptsCount$,
         homeCurrency: this.offlineService.getHomeCurrency(),
+        orgSettings: this.offlineService.getOrgSettings(),
         defaultPaymentMode: defaultPaymentMode$,
         orgUserSettings: this.orgUserSettings$,
         recentValue: this.recentlyUsedValues$,
@@ -1901,7 +1996,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
-    this.isExpandedView = !(this.mode === 'add');
+    this.isExpandedView = this.mode !== 'add';
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);

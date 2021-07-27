@@ -15,6 +15,7 @@ const { PushNotifications } = Plugins;
 export class PushNotificationService {
 
   ROOT_ENDPOINT: string;
+
   constructor(
     private userService: UserService,
     private deviceService: DeviceService,

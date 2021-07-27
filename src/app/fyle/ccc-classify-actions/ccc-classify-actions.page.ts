@@ -20,7 +20,9 @@ import {LoaderService} from '../../core/services/loader.service';
 export class CccClassifyActionsPage implements OnInit {
 
   cccExpense$: Observable<CorporateCardExpense>;
+
   expenseSuggestions$: Observable<ExpenseSuggestion[]>;
+
   pageState: string;
 
   constructor(

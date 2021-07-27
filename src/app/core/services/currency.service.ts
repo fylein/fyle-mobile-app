@@ -18,29 +18,6 @@ export class CurrencyService {
     private apiService: ApiService
   ) { }
 
-  getHomeCurrency() {
-    return this.orgService.getCurrentOrg()
-      .pipe(
-        map(
-          org => org.currency
-        )
-      );
-  }
-
-  getAmountDecimalsBasedOnValue(amount) {
-    let decimalAmount;
-
-    if (amount < 0.01) {
-      decimalAmount = parseFloat(amount.toFixed(7));
-    } else if (amount >= 0.01 && amount < 1) {
-      decimalAmount = parseFloat(amount.toFixed(4));
-    } else {
-      decimalAmount = parseFloat(amount.toFixed(2));
-    }
-
-    return decimalAmount;
-  }
-
   @Cacheable()
   getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?) {
     const txnDt = moment(dt).format('y-MM-D');
@@ -74,6 +51,30 @@ export class CurrencyService {
           })
         )
       );
+  }
+
+
+  getHomeCurrency() {
+    return this.orgService.getCurrentOrg()
+      .pipe(
+        map(
+          org => org.currency
+        )
+      );
+  }
+
+  getAmountDecimalsBasedOnValue(amount) {
+    let decimalAmount;
+
+    if (amount < 0.01) {
+      decimalAmount = parseFloat(amount.toFixed(7));
+    } else if (amount >= 0.01 && amount < 1) {
+      decimalAmount = parseFloat(amount.toFixed(4));
+    } else {
+      decimalAmount = parseFloat(amount.toFixed(2));
+    }
+
+    return decimalAmount;
   }
 
   getCurrenyList(currencies) {

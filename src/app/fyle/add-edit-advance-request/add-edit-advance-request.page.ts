@@ -30,26 +30,45 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   styleUrls: ['./add-edit-advance-request.page.scss'],
 })
 export class AddEditAdvanceRequestPage implements OnInit {
-  isConnected$: Observable<boolean>;
-  isProjectsEnabled$: Observable<boolean>;
-  extendedAdvanceRequest$: Observable<any>;
-  mode: string;
-  fg: FormGroup;
-  homeCurrency$: Observable<any>;
-  projects$: Observable<[]>;
-  customFields$: Observable<any>;
-  attachmentUploadInProgress: boolean;
-  dataUrls: any[];
-  customFieldValues: any[];
-  actions$: Observable<any>;
-  id: string;
-  from: string;
-  isProjectsVisible$: Observable<boolean>;
-  advanceActions;
-  saveDraftAdvanceLoading = false;
-  saveAdvanceLoading = false;
 
   @ViewChild('formContainer') formContainer: ElementRef;
+
+  isConnected$: Observable<boolean>;
+
+  isProjectsEnabled$: Observable<boolean>;
+
+  extendedAdvanceRequest$: Observable<any>;
+
+  mode: string;
+
+  fg: FormGroup;
+
+  homeCurrency$: Observable<any>;
+
+  projects$: Observable<[]>;
+
+  customFields$: Observable<any>;
+
+  attachmentUploadInProgress: boolean;
+
+  dataUrls: any[];
+
+  customFieldValues: any[];
+
+  actions$: Observable<any>;
+
+  id: string;
+
+  from: string;
+
+  isProjectsVisible$: Observable<boolean>;
+
+  advanceActions;
+
+  saveDraftAdvanceLoading = false;
+
+  saveAdvanceLoading = false;
+
 
   constructor(
     private offlineService: OfflineService,

@@ -21,10 +21,14 @@ import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-exp
   styleUrls: ['./corporate-card-expenses.page.scss'],
 })
 export class CorporateCardExpensesPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   cardTransactions$: Observable<CorporateCardExpense[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: BehaviorSubject<Partial<{
     pageNumber: number;
     queryParams: any;
@@ -32,9 +36,13 @@ export class CorporateCardExpensesPage implements OnInit {
     sortDir: string;
     searchString: string;
   }>>;
+
   currentPageNumber = 1;
+
   acc = [];
+
   homeCurrency$: Observable<string>;
+
   filters: Partial<{
     state: string;
     date: string;
@@ -45,16 +53,19 @@ export class CorporateCardExpensesPage implements OnInit {
   }>;
 
   isConnected$: Observable<boolean>;
+
   unclassifiedExpensesCountHeader$: Observable<number>;
+
   classifiedExpensesCountHeader$: Observable<number>;
 
   navigateBack = false;
+
   baseState = 'unclassified';
+
   simpleSearchText = '';
 
   onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
     private networkService: NetworkService,

@@ -24,8 +24,11 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef;
 
   orgs$: Observable<Org[]>;
+
   filteredOrgs$: Observable<Org[]>;
+
   searchInput = '';
+
   isLoading = false;
 
   constructor(

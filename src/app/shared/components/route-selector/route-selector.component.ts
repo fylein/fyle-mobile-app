@@ -3,8 +3,6 @@ import { AbstractControl, ControlValueAccessor, FormArray, FormBuilder, FormCont
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
 import { Subscription } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { MileageService } from 'src/app/core/services/mileage.service';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 
 @Component({
@@ -25,22 +23,26 @@ import { RouteSelectorModalComponent } from './route-selector-modal/route-select
   ]
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
-  private ngControl: NgControl;
-
   @Input() unit: 'KM' | 'MILES';
+
   @Input() mileageConfig;
+
   @Input() isDistanceMandatory;
+
   @Input() isAmountDisabled;
+
   @Input() txnFields;
+
   @Input() formInitialized;
+
   @Input() isConnected;
+
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
     recent_locations?: string[];
   };
-  skipRoundTripUpdate = false;
 
-  onTouched = () => { };
+  skipRoundTripUpdate = false;
 
   onChangeSub: Subscription;
 
@@ -49,6 +51,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     distance: [, Validators.required],
     roundTrip: [],
   });
+
+  private ngControl: NgControl;
 
   constructor(
     private fb: FormBuilder,
@@ -59,6 +63,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   get mileageLocations() {
     return this.form.controls.mileageLocations as FormArray;
   }
+
+  onTouched = () => { };
 
   ngDoCheck() {
     if (this.ngControl.touched) {

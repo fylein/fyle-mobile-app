@@ -57,63 +57,117 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
   styleUrls: ['./add-edit-per-diem.page.scss'],
 })
 export class AddEditPerDiemPage implements OnInit {
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+
+  @ViewChild('formContainer') formContainer: ElementRef;
+
+  @ViewChild('comments') commentsContainer: ElementRef;
+
   title: string;
+
   activeIndex: number;
+
   reviewList: string[];
+
   mode = 'add';
+
   canCreatePerDiem$: Observable<boolean>;
+
   allowedPerDiemRateOptions$: Observable<any[]>;
+
   paymentModes$: Observable<any[]>;
+
   homeCurrency$: Observable<string>;
+
   fg: FormGroup;
+
   minDate: string;
+
   maxDate: string;
+
   txnFields$: Observable<any>;
+
   subCategories$: Observable<any[]>;
+
   isAmountDisabled = false;
+
   etxn$: Observable<any>;
+
   transactionMandatoyFields$: Observable<any>;
+
   isIndividualProjectsEnabled$: Observable<boolean>;
+
   individualProjectIds$: Observable<[]>;
+
   isProjectsEnabled$: Observable<boolean>;
+
   customInputs$: Observable<any>;
+
   costCenters$: Observable<any>;
+
   reports$: Observable<any[]>;
+
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
+
   paymentModeInvalid$: Observable<boolean>;
+
   isAmountCapped$: Observable<boolean>;
+
   isAmountDisabled$: Observable<boolean>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   projectCategoryIds$: Observable<string[]>;
+
   filteredCategories$: Observable<any>;
+
   isConnected$: Observable<boolean>;
+
   invalidPaymentMode = false;
+
   duplicates$: Observable<any>;
+
   duplicateBoxOpen = false;
+
   pointToDuplicates = false;
+
   isAdvancesEnabled$: Observable<boolean>;
+
   comments$: Observable<any>;
+
   expenseStartTime;
+
   navigateBack = false;
+
   savePerDiemLoader = false;
+
   saveAndNextPerDiemLoader = false;
+
   saveAndPrevPerDiemLoader = false;
+
   clusterDomain: string;
+
   initialFetch;
+
   individualPerDiemRatesEnabled$: Observable<boolean>;
+
   recentlyUsedValues$: Observable<RecentlyUsed>;
+
   recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+
   presetProjectId: number;
+
   recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+
   presetCostCenterId: number;
+
   recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
-  isProjectVisible$: Observable<boolean>;
+
   isExpandedView = false;
 
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
-  @ViewChild('formContainer') formContainer: ElementRef;
-  @ViewChild('comments') commentsContainer: ElementRef;
+  isProjectVisible$: Observable<boolean>;
 
   duplicateDetectionReasons = [
     {label: 'Different expense', value: 'Different expense'},
@@ -667,7 +721,7 @@ export class AddEditPerDiemPage implements OnInit {
       this.mode = 'edit';
     }
 
-    this.isExpandedView = !(this.mode === 'add');
+    this.isExpandedView = this.mode !== 'add';
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const perDiemRates$ = this.offlineService.getPerDiemRates();
@@ -1154,6 +1208,7 @@ export class AddEditPerDiemPage implements OnInit {
         selectedCustomInputs$,
         defaultPaymentMode$,
         orgUserSettings$,
+        orgSettings$,
         this.recentlyUsedValues$,
         this.recentlyUsedProjects$,
         this.recentlyUsedCostCenters$
@@ -1162,7 +1217,7 @@ export class AddEditPerDiemPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(([
       etxn, paymentMode, project, subCategory, perDiemRate, txnFields, report, costCenter, customInputs, defaultPaymentMode,
-      orgUserSettings, recentValue, recentProjects, recentCostCenters]) => {
+      orgUserSettings, orgSettings, recentValue, recentProjects, recentCostCenters]) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 import {Observable, forkJoin, noop, of, from, zip, combineLatest, throwError} from 'rxjs';
 import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -29,37 +30,65 @@ import { DateService } from 'src/app/core/services/date.service';
 export class OtherRequestsComponent implements OnInit {
 
   @Input() otherRequests;
+
   @Input() fgValues;
+
   @Input() id;
 
   @ViewChild('formContainer') formContainer: ElementRef;
 
   isTransportationRequested$: Observable<any>;
+
   isHotelRequested$: Observable<any>;
+
   isAdvanceRequested$: Observable<any>;
+
   orgUserSettings$: Observable<any>;
+
   preferredCurrency$: Observable<any>;
+
   homeCurrency$: Observable<any>;
+
   currency: string;
+
   transportationMode$: Observable<any>;
+
   preferredTransportationTiming$: Observable<any>;
+
   transportRequestCustomFields$: Observable<any>;
+
   hotelRequestCustomFields$: Observable<any>;
+
   advanceRequestCustomFields$: Observable<any>;
+
   currencies$: Observable<any>;
+
   hotelRequest$: Observable<any>;
+
   transportationRequest$: Observable<any>;
+
   advanceRequest$: Observable<any>;
+
   actions$: Observable<any>;
+
   minDate;
+
   maxDate;
+
   advanceRequestCustomFieldValues: [];
+
   transportRequestCustomFieldValues: [];
+
   hotelRequestCustomFieldValues: [];
+
   tripActions;
+
   saveDratTripLoading = false;
+
   submitTripLoading = false;
+
   tripDate;
+
   hotelDate;
 
   otherDetailsForm: FormGroup;
@@ -145,7 +174,7 @@ export class OtherRequestsComponent implements OnInit {
     if (this.otherRequests[2].transportation && requestType === 'transport') {
       this.transportRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
         map((customFields: any[]) => {
-          const customFieldsFormArray = this.transportDetails.controls[index].controls.custom_field_values as FormArray;
+          const customFieldsFormArray = this.transportDetails.controls[index]['controls'].custom_field_values as FormArray;
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
@@ -182,7 +211,7 @@ export class OtherRequestsComponent implements OnInit {
     if (this.otherRequests[0].hotel && requestType === 'hotel') {
       this.hotelRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
         map((customFields: any[]) => {
-          const customFieldsFormArray = this.hotelDetails.controls[index].controls.custom_field_values as FormArray;
+          const customFieldsFormArray = this.hotelDetails.controls[index]['controls'].custom_field_values as FormArray;
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
@@ -219,7 +248,7 @@ export class OtherRequestsComponent implements OnInit {
     if (this.otherRequests[1].advance && requestType === 'advance') {
       this.advanceRequestCustomFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
         map((customFields: any[]) => {
-          const customFieldsFormArray = this.advanceDetails.controls[index].controls.custom_field_values as FormArray;
+          const customFieldsFormArray = this.advanceDetails.controls[index]['controls'].custom_field_values as FormArray;
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 

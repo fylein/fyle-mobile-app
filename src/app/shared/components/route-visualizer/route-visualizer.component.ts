@@ -17,12 +17,14 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   @Input() mileageLocations: MileageLocation[];
 
-  @Output() onMapClick = new EventEmitter<void>();
+  @Output() mapClick = new EventEmitter<void>();
 
   currentLocation: AgmDirectionLocation;
 
   origin: AgmDirectionLocation;
+
   destination: AgmDirectionLocation;
+
   waypoints: { location: AgmDirectionLocation }[];
 
   renderOptions = {
@@ -92,6 +94,6 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
   }
 
   mapClicked(event) {
-    this.onMapClick.emit();
+    this.mapClick.emit();
   }
 }

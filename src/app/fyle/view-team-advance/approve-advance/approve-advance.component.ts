@@ -11,6 +11,7 @@ import { finalize } from 'rxjs/operators';
 export class ApproveAdvanceComponent implements OnInit {
 
   @Input() areq;
+
   approveAdvanceLoading = false;
 
   constructor(

@@ -16,6 +16,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   @Input() currentSelection: string;
 
   currencies$: Observable<{ shortCode: string; longName: string }[]>;
+
   filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
 
   constructor(

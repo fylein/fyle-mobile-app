@@ -23,23 +23,37 @@ import {NetworkService} from '../../core/services/network.service';
 export class ViewTeamReportPage implements OnInit {
 
   erpt$: Observable<ExtendedReport>;
+
   etxns$: Observable<any[]>;
+
   sharedWith$: Observable<any[]>;
+
   reportApprovals$: Observable<any>;
+
   refreshApprovals$ = new Subject();
+
   tripRequest$: Observable<ExtendedTripRequest>;
+
   actions$: Observable<any>;
+
   hideAllExpenses = true;
+
   sharedWithLimit = 3;
 
   canEdit$: Observable<boolean>;
+
   canDelete$: Observable<boolean>;
+
   canResubmitReport$: Observable<boolean>;
+
   isReportReported: boolean;
 
   isConnected$: Observable<boolean>;
+
   onPageExit = new Subject();
+
   navigateBack = false;
+
   etxnAmountSum$: Observable<any>;
 
   constructor(

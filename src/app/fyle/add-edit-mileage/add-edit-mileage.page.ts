@@ -60,73 +60,129 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
   styleUrls: ['./add-edit-mileage.page.scss'],
 })
 export class AddEditMileagePage implements OnInit {
-
-  mode = 'add';
-  title = 'edit';
-  activeIndex: number;
-  minDate: string;
-  maxDate: string;
-  reviewList: [];
-  fg: FormGroup;
-  txnFields$: Observable<any>;
-  paymentModes$: Observable<any>;
-  homeCurrency$: Observable<any>;
-  subCategories$: Observable<any>;
-  filteredCategories$: Observable<any>;
-  transactionMandatoyFields$: Observable<any>;
-  etxn$: Observable<any>;
-  isIndividualProjectsEnabled$: Observable<boolean>;
-  individualProjectIds$: Observable<string[]>;
-  isProjectsEnabled$: Observable<boolean>;
-  customInputs$: Observable<any>;
-  costCenters$: Observable<any>;
-  reports$: Observable<any>;
-  isAmountCapped$: Observable<boolean>;
-  isAmountDisabled$: Observable<boolean>;
-  isCriticalPolicyViolated$: Observable<boolean>;
-  isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
-  amount$: Observable<number>;
-  mileageConfig$: Observable<any>;
-  rate$: Observable<number>;
-  projectCategoryIds$: Observable<string[]>;
-  duplicates$: Observable<any>;
-  duplicateBoxOpen = false;
-  isConnected$: Observable<boolean>;
-  connectionStatus$: Observable<{connected: boolean}>;
-  pointToDuplicates = false;
-  isAdvancesEnabled$: Observable<boolean>;
-  comments$: Observable<any>;
-  expenseStartTime;
-  navigateBack = false;
-  saveMileageLoader = false;
-  saveAndNewMileageLoader = false;
-  saveAndNextMileageLoader = false;
-  saveAndPrevMileageLoader = false;
-  clusterDomain: string;
-  recentlyUsedValues$: Observable<RecentlyUsed>;
-  recentlyUsedMileageLocations$: Observable<{
-    recent_start_locations?: string[];
-    recent_locations?: string[];
-  }>;
-  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
-  presetProjectId: number;
-  recentlyUsedProjects$: Observable<ExtendedProject[]>;
-  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
-  presetCostCenterId: number;
-  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
-  presetVehicleType: string;
-  presetLocation: string;
-  initialFetch;
-  isProjectVisible$: Observable<boolean>;
-  isExpandedView = false;
-
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+
   @ViewChild('formContainer') formContainer: ElementRef;
+
   @ViewChild('comments') commentsContainer: ElementRef;
 
   @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
 
+  mode = 'add';
+
+  title = 'edit';
+
+  activeIndex: number;
+
+  minDate: string;
+
+  maxDate: string;
+
+  reviewList: [];
+
+  fg: FormGroup;
+
+  txnFields$: Observable<any>;
+
+  paymentModes$: Observable<any>;
+
+  homeCurrency$: Observable<any>;
+
+  subCategories$: Observable<any>;
+
+  filteredCategories$: Observable<any>;
+
+  transactionMandatoyFields$: Observable<any>;
+
+  etxn$: Observable<any>;
+
+  isIndividualProjectsEnabled$: Observable<boolean>;
+
+  individualProjectIds$: Observable<string[]>;
+
+  isProjectsEnabled$: Observable<boolean>;
+
+  customInputs$: Observable<any>;
+
+  costCenters$: Observable<any>;
+
+  reports$: Observable<any>;
+
+  isAmountCapped$: Observable<boolean>;
+
+  isAmountDisabled$: Observable<boolean>;
+
+  isCriticalPolicyViolated$: Observable<boolean>;
+
+  isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
+
+  amount$: Observable<number>;
+
+  mileageConfig$: Observable<any>;
+
+  rate$: Observable<number>;
+
+  projectCategoryIds$: Observable<string[]>;
+
+  duplicates$: Observable<any>;
+
+  duplicateBoxOpen = false;
+
+  isConnected$: Observable<boolean>;
+
+  connectionStatus$: Observable<{connected: boolean}>;
+
+  pointToDuplicates = false;
+
+  isAdvancesEnabled$: Observable<boolean>;
+
+  comments$: Observable<any>;
+
+  expenseStartTime;
+
+  navigateBack = false;
+
+  saveMileageLoader = false;
+
+  saveAndNewMileageLoader = false;
+
+  saveAndNextMileageLoader = false;
+
+  saveAndPrevMileageLoader = false;
+
+  clusterDomain: string;
+
+  recentlyUsedValues$: Observable<RecentlyUsed>;
+
+  recentlyUsedMileageLocations$: Observable<{
+    recent_start_locations?: string[];
+    recent_locations?: string[];
+  }>;
+
+  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+
+  presetProjectId: number;
+
+  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+
+  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+
+  presetCostCenterId: number;
+
+  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+
+  presetVehicleType: string;
+
+  presetLocation: string;
+
+  initialFetch;
+
+  isExpandedView = false;
+
+  isProjectVisible$: Observable<boolean>;
+
   formInitializedFlag = false;
+
   invalidPaymentMode = false;
 
   duplicateDetectionReasons = [
@@ -247,7 +303,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getCalculateDistance() {
-    return this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
+    return this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
       switchMap((distance) => this.etxn$.pipe(map(etxn => {
         const distanceInKm = distance / 1000;
         const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
@@ -415,7 +471,7 @@ export class AddEditMileagePage implements OnInit {
         mileageCategoriesContainer: this.getMileageCategories()
       }).pipe(
         switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
-          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
+          const fields = ['purpose', 'txn_dt', 'cost_center_id'];
           return this.expenseFieldsService
             .filterByOrgCategoryId(
               expenseFieldsMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
@@ -793,7 +849,7 @@ export class AddEditMileagePage implements OnInit {
       this.mode = 'edit';
     }
 
-    this.isExpandedView = !(this.mode === 'add');
+    this.isExpandedView = this.mode !== 'add';
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
@@ -844,27 +900,6 @@ export class AddEditMileagePage implements OnInit {
     this.mileageConfig$ = this.getMileageConfig();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
-
-    this.fg.controls.mileage_locations.valueChanges.pipe(
-      switchMap((locations) => this.mileageService.getDistance(locations)),
-      switchMap((distance) => this.etxn$.pipe(map(etxn => {
-        const distanceInKm = distance / 1000;
-        const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
-        return finalDistance;
-      })))
-    ).subscribe(finalDistance => {
-      if (this.formInitializedFlag) {
-        if (finalDistance === 0) {
-          this.fg.controls.distance.setValue(finalDistance);
-        } else {
-          if (this.fg.value.round_trip) {
-            this.fg.controls.distance.setValue((finalDistance * 2).toFixed(2));
-          } else {
-            this.fg.controls.distance.setValue(finalDistance.toFixed(2));
-          }
-        }
-      }
-    });
 
     this.isAmountDisabled$ = this.etxn$.pipe(
       map(
@@ -1189,6 +1224,7 @@ export class AddEditMileagePage implements OnInit {
         this.mileageConfig$,
         defaultPaymentMode$,
         orgUserSettings$,
+        orgSettings$,
         this.recentlyUsedValues$,
         this.recentlyUsedProjects$,
         this.recentlyUsedCostCenters$
@@ -1291,21 +1327,6 @@ export class AddEditMileagePage implements OnInit {
         this.formInitializedFlag = true;
       }, 1000);
     });
-  }
-
-  addMileageLocation() {
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.mileageConfig$),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(mileageConfig => {
-      this.mileage_locations.push(
-        new FormControl(null, mileageConfig.location_mandatory && Validators.required)
-      );
-    });
-  }
-
-  removeMileageLocation(index: number) {
-    this.mileage_locations.removeAt(index);
   }
 
   async goBack() {
@@ -1732,13 +1753,12 @@ export class AddEditMileagePage implements OnInit {
 
     this.trackPolicyCorrections();
 
-    const calculatedDistance$ = this.mileageService.getDistance(this.fg.controls.mileage_locations.value).pipe(
+    const calculatedDistance$ = this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
       switchMap((distance) => this.etxn$.pipe(map(etxn => {
         const distanceInKm = distance / 1000;
         const finalDistance = (etxn.tx.distance_unit === 'MILES') ? (distanceInKm * 0.6213) : distanceInKm;
         return finalDistance;
       }))),
-
       map(finalDistance => {
         if (this.fg.value.route.roundTrip) {
           return (finalDistance * 2).toFixed(2);

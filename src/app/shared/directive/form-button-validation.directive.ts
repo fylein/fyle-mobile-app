@@ -7,15 +7,16 @@ import {LoaderPosition} from './loader-position.enum';
 
 export class FormButtonValidationDirective implements OnInit, OnChanges{
 
-  constructor(
-    private elementRef: ElementRef
-  ) { }
+  @Input() loadingText: string;
+
+  @Input() buttonType: string;
+
+  @Input() loading: boolean;
+
+  @Input() loaderPosition: LoaderPosition = LoaderPosition.postfix;
 
   defaultText;
-  @Input() loadingText: string;
-  @Input() buttonType: string;
-  @Input() loading: boolean;
-  @Input() loaderPosition: LoaderPosition = LoaderPosition.postfix;
+
   loaderAdded = false;
 
   loadingTextMap = {
@@ -39,6 +40,11 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
     'Sign Up': 'Signing Up',
     'Get Started': 'Getting Started'
   };
+
+  constructor(
+    private elementRef: ElementRef
+  ) { }
+
 
   ngOnChanges(changes: SimpleChanges) {
     this.onLoading(this.loading);

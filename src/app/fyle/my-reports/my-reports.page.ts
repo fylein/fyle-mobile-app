@@ -23,10 +23,16 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
   styleUrls: ['./my-reports.page.scss']
 })
 export class MyReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   isConnected$: Observable<boolean>;
+
   myReports$: Observable<ExtendedReport[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: BehaviorSubject<Partial<{
     pageNumber: number;
     queryParams: any;
@@ -34,8 +40,11 @@ export class MyReportsPage implements OnInit {
     sortDir: string;
     searchString: string;
   }>>;
+
   currentPageNumber = 1;
+
   acc = [];
+
   filters: Partial<{
     state: string;
     date: string;
@@ -44,9 +53,13 @@ export class MyReportsPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
+
   homeCurrency$: Observable<string>;
+
   navigateBack = false;
+
   searchText = '';
+
   expensesAmountStats$: Observable<{
     sum: number;
     count: number;
@@ -54,7 +67,6 @@ export class MyReportsPage implements OnInit {
 
   onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
     private networkService: NetworkService,

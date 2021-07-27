@@ -31,14 +31,23 @@ import { ActionPopoverComponent } from './action-popover/action-popover.componen
 export class ViewTeamTripPage implements OnInit {
 
   tripRequest$: Observable<ExtendedTripRequest>;
+
   approvals$: Observable<Approval[]>;
+
   actions$: Observable<any>;
+
   actionsRedefined$: Observable<any>;
+
   advanceRequests$: Observable<any>;
+
   transportationRequests$: Observable<any>;
+
   hotelRequests$: Observable<any>;
+
   allTripRequestCustomFields$: Observable<any>;
+
   activeApprovals$: Observable<Approval[]>;
+
   tripExtraInfo$: Observable<{
     submittedBy: {
       fullName: string;
@@ -48,12 +57,19 @@ export class ViewTeamTripPage implements OnInit {
     tripLocations: (string | string[])[];
     travellers: string;
   }>;
+
   transformedTripRequests$: Observable<any>;
+
   transformedAdvanceRequests$: Observable<any>;
+
   approvers$: Observable<ExtendedOrgUser[]>;
+
   eou$: Observable<any>;
+
   refreshApprovers$ = new Subject();
+
   canDoAction$: Observable<boolean>;
+
   actionsLoading = false;
 
   constructor(

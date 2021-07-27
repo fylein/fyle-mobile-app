@@ -25,21 +25,35 @@ import {NgModel} from '@angular/forms';
 })
 export class MyCreateReportPage implements OnInit {
 
-  readyToReportEtxns: Expense[];
-  reportTitle = '';
-  homeCurrency$: Observable<string>;
-  selectedTotalAmount = 0;
-  selectedTotalTxns = 0;
-  selectedTxnIds: string[];
-  isTripRequestsEnabled: boolean;
-  canAssociateTripRequests: boolean;
-  tripRequests: any[];
-  selectedTripRequest: any;
-  tripRequestId: string;
-  saveDraftReportLoading = false;
-  saveReportLoading = false;
-  showReportNameError = false;
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
+
+  readyToReportEtxns: Expense[];
+
+  reportTitle = '';
+
+  homeCurrency$: Observable<string>;
+
+  selectedTotalAmount = 0;
+
+  selectedTotalTxns = 0;
+
+  selectedTxnIds: string[];
+
+  isTripRequestsEnabled: boolean;
+
+  canAssociateTripRequests: boolean;
+
+  tripRequests: any[];
+
+  selectedTripRequest: any;
+
+  tripRequestId: string;
+
+  saveDraftReportLoading = false;
+
+  saveReportLoading = false;
+
+  showReportNameError = false;
 
   constructor(
     private transactionService: TransactionService,

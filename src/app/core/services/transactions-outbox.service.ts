@@ -21,9 +21,13 @@ import { Expense } from '../models/expense.model';
 })
 export class TransactionsOutboxService {
   queue = [];
+
   syncDeferred: Promise<any> = null;
+
   syncInProgress = false;
+
   dataExtractionQueue = [];
+
   tempQueue;
 
   ROOT_ENDPOINT: string;

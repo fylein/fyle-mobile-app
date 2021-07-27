@@ -12,9 +12,13 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 export class AddExpensesToReportComponent implements OnInit {
 
   @Input() unReportedEtxns: Expense[];
+
   homeCurrency$: Observable<string>;
+
   selectedTotalAmount = 0;
+
   selectedTotalTxns = 0;
+
   selectedTxnIds: string[];
 
   constructor(
