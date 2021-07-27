@@ -6,6 +6,8 @@ import { isEqual, cloneDeep, startsWith} from 'lodash';
 import { Employee } from 'src/app/core/models/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {MatChipInputEvent} from '@angular/material/chips';
 @Component({
   selector: 'app-fy-userlist-modal',
   templateUrl: './fy-userlist-modal.component.html',
@@ -28,6 +30,10 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   invalidEmail = false;
   currentSelectionsCopy = [];
   isLoading = false;
+  selectable = true;
+  removable = true;
+  addOnBlur = true;
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
   constructor(
     private modalController: ModalController,
@@ -35,6 +41,55 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     private orgUserService: OrgUserService,
     private loaderService: LoaderService
   ) { }
+
+  getSeparatorKeysCodes() {
+    return [ENTER, COMMA];
+  };
+
+  addChip(event: MatChipInputEvent): void {
+    event.chipInput!.clear();
+  }
+
+  removeChip(item) {
+    const updatedItem = {
+      us_email: item,
+      is_selected: false
+    }
+    const event = {
+      checked: false
+    }
+    this.onSelect(updatedItem, event);
+    // this.getSearchedUsersList(item);
+    // this.onSelect(updatedItem, event);
+    // from(this.filteredOptions$).pipe().subscribe(newres => {
+    //   console.log("check newres", newres);
+    //   for (var i = 0; i < newres.length; i++) {
+    //     if (newres[i]['us_email'] === item) {
+    //       newres[i]['is_selected'] = false;
+    //       this.onSelect(newres[i], event);
+    //       this.filteredOptions$ = of(newres);
+    //     }
+    //   }
+    //   // 
+    //   // const updatedItem1 = newres[0];
+    //   // return newres[0];this.onSelect(updatedItem, event);
+    // })
+    
+    console.log("check options", this.options);
+    // const test = this.filteredOptions$.pipe(
+    //   subscribe(res => {
+    //     return console.log("check res", res);
+    //   })
+    // )
+    console.log("check item", item);
+    // const itemnew = this.getSearchedUsersList(item);
+    // const itemnew = getUserToRemove.pipe(
+    //   subscribe(res => {
+
+    //   })
+    // );
+    // console.log("check getUserToRemove", itemnew);
+  }
 
   ngOnInit() {
     this.intialSelectedEmployees = cloneDeep(this.currentSelections);
@@ -200,8 +255,10 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   }
 
   onSelect(selectedOption: Partial<Employee>, event: { checked: boolean; }) {
+    console.log("check event", event);
     if (event.checked) {
       this.currentSelections.push(selectedOption.us_email);
+      console.log("check what is the current selection", this.currentSelections);
     } else {
       const index = this.currentSelections.indexOf(selectedOption.us_email);
       this.currentSelections.splice(index, 1);
