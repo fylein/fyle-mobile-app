@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { format } from 'path';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
@@ -31,6 +32,19 @@ export class ExpenseFieldsService {
     )
   }
 
+  formatBillableFields(expenseFields: Array<ExpenseField>) {
+    return expenseFields.map(function (field) {
+      if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
+        if (field.default_value === 'true') {
+          field.default_value = true;
+        } else {
+          field.default_value = false;
+        }
+      }
+      return field;
+    });
+  }
+
   /* getAllMap() method returns a mapping of column_names and their respective mapped fields
    * Object key: Column name
    * Object value: List of fields mapped to that particular column
@@ -48,6 +62,8 @@ export class ExpenseFieldsService {
       map(
         expenseFields => {
           const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
+
+          this.formatBillableFields(expenseFields);
 
           expenseFields.forEach(expenseField => {
             let expenseFieldsList = [];

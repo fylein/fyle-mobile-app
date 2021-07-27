@@ -5,7 +5,7 @@ export interface ExpenseField {
   column_name: string;
   created_at: Date;
   created_by: UserDetails;
-  default_value: string;
+  default_value: any;
   field_name: string;
   id?: number;
   is_custom: boolean;

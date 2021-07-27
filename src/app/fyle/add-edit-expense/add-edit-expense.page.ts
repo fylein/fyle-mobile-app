@@ -859,7 +859,8 @@ export class AddEditExpensePage implements OnInit {
       instaFyleSettings: instaFyleSettings$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
-      recentValue: this.recentlyUsedValues$
+      recentValue: this.recentlyUsedValues$,
+      txnFields: this.txnFields$
     }).pipe(
       map((dependencies) => {
         const {
@@ -872,7 +873,8 @@ export class AddEditExpensePage implements OnInit {
           instaFyleSettings,
           imageData,
           recentCurrency,
-          recentValue
+          recentValue,
+          txnFields
         } = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         this.isExpenseBankTxn = !!bankTxn;
@@ -881,7 +883,7 @@ export class AddEditExpensePage implements OnInit {
         if (!bankTxn) {
           etxn = {
             tx: {
-              billable: false,
+              billable: txnFields?.billable?.default_value,
               skip_reimbursement: false,
               source: 'MOBILE',
               txn_dt: new Date(),
@@ -1526,7 +1528,7 @@ export class AddEditExpensePage implements OnInit {
       startWith({}),
       switchMap((formValue) => {
         return this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
-          const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
+          const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable'];
           return this.expenseFieldsService
           .filterByOrgCategoryId(
               expenseFieldsMap,
