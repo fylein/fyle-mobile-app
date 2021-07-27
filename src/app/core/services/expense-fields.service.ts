@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { format } from 'path';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
@@ -102,15 +101,17 @@ export class ExpenseFieldsService {
         const configurations = tfcMap[field];
         let filteredField;
 
+        const fieldsIndependentOfCategory = ['billable'];
+        const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id']; 
         if (configurations && configurations.length > 0) {
           configurations.some((configuration) => {
-            if (orgCategoryId) {
+            if (orgCategoryId && fieldsIndependentOfCategory.indexOf(field) < 0) {
               if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
                 filteredField = configuration;
 
                 return true;
               }
-            } else if (['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'].indexOf(field) > -1) {
+            } else if (defaultFields.indexOf(field) > -1 || fieldsIndependentOfCategory.indexOf(field) > -1) {
               filteredField = configuration;
 
               return true;

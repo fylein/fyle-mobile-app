@@ -1585,7 +1585,7 @@ export class AddEditExpensePage implements OnInit {
             fields,
             formValue.category
           );
-      })))
+      }))})
     );
 
     this.txnFields$ = txnFieldsMap$.pipe(
