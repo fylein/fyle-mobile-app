@@ -35,13 +35,11 @@ export class SplitExpenseService {
 
   getBase64Content(fileObjs) {
     const fileObservables = [];
-    const newFileObjs: any[] = fileObjs.map((fileObj) => {
-      return {
-        id: fileObj.id,
-        name: fileObj.name,
-        content: ''
-      };
-    });
+    const newFileObjs: any[] = fileObjs.map((fileObj) => ({
+      id: fileObj.id,
+      name: fileObj.name,
+      content: ''
+    }));
 
     newFileObjs.forEach((fileObj) => {
       fileObservables.push(this.fileService.base64Download(fileObj.id));
@@ -73,14 +71,10 @@ export class SplitExpenseService {
           splitExpenses.splice(0, 1);
           return firstTxn;
         }),
-        switchMap((firstTxn: any[]) => {
-          return this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, firstTxn[0].split_group_id, splitExpenses.length).pipe(
-            map(otherTxns => {
-              return firstTxn.concat(otherTxns);
-            })
-          )
-        })
-      )
+        switchMap((firstTxn: any[]) => this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, firstTxn[0].split_group_id, splitExpenses.length).pipe(
+          map(otherTxns => firstTxn.concat(otherTxns))
+        ))
+      );
 
     } else {
       return this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, splitExpenses.length);

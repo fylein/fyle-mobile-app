@@ -27,13 +27,21 @@ import { AuthService } from 'src/app/core/services/auth.service';
 export class ViewTeamAdvancePage implements OnInit {
 
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
+
   actions$: Observable<any>;
+
   approvals$: Observable<Approval[]>;
+
   activeApprovals$: Observable<Approval[]>;
+
   attachedFiles$: Observable<File[]>;
+
   advanceRequestCustomFields$: Observable<CustomField[]>;
+
   refreshApprovers$ = new Subject();
+
   showAdvanceActions$: Observable<boolean>;
+
   customFields$: Observable<any>;
 
   constructor(
@@ -52,13 +60,9 @@ export class ViewTeamAdvancePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.advanceRequestService.getAdvanceRequest(id);
-          })
-        );
-      }),
+      switchMap(() => from(this.loaderService.showLoader()).pipe(
+        switchMap(() => this.advanceRequestService.getAdvanceRequest(id))
+      )),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -67,33 +71,25 @@ export class ViewTeamAdvancePage implements OnInit {
       shareReplay(1)
     );
 
-    this.showAdvanceActions$ = this.actions$.pipe(map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject))
+    this.showAdvanceActions$ = this.actions$.pipe(map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject));
 
     this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
 
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(() => {
-        return this.approvals$;
-      }),
+      switchMap(() => this.approvals$),
       map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
     );
 
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap(res => {
-        return from(res);
-      }),
-      concatMap(file => {
-        return this.fileService.downloadUrl(file.id).pipe(
-          map(url => {
-            file.file_download_url = url;
-            return file as File;
-          })
-        )
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as File[])
+      switchMap(res => from(res)),
+      concatMap(file => this.fileService.downloadUrl(file.id).pipe(
+        map(url => {
+          file.file_download_url = url;
+          return file as File;
+        })
+      )),
+      reduce((acc, curr) => acc.concat(curr), [] as File[])
     );
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
@@ -131,9 +127,7 @@ export class ViewTeamAdvancePage implements OnInit {
   }
 
   getApproverEmails(activeApprovals) {
-    return activeApprovals.map(approver => {
-      return approver.approver_email;
-    });
+    return activeApprovals.map(approver => approver.approver_email);
   }
 
   onUpdateApprover(message: boolean) {
@@ -192,7 +186,7 @@ export class ViewTeamAdvancePage implements OnInit {
       component: ApproveAdvanceComponent,
       cssClass: 'dialog-popover',
       componentProps: {
-        areq: areq
+        areq
       }
     });
 
@@ -211,7 +205,7 @@ export class ViewTeamAdvancePage implements OnInit {
       component: SendBackAdvanceComponent,
       cssClass: 'dialog-popover',
       componentProps: {
-        areq: areq
+        areq
       }
     });
 
@@ -230,7 +224,7 @@ export class ViewTeamAdvancePage implements OnInit {
       component: RejectAdvanceComponent,
       cssClass: 'dialog-popover',
       componentProps: {
-        areq: areq
+        areq
       }
     });
 

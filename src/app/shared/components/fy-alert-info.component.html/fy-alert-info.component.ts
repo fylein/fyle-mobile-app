@@ -8,9 +8,12 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 export class FyAlertInfoComponent implements OnInit {
 
   @Input() message: string;
+
   @Input() type: 'information' | 'warning';
+
   @Input() showActionButton = false;
-  @Input() actionButtonContent = 'Action;'
+
+  @Input() actionButtonContent = 'Action;';
 
   @Output() actionClick = new EventEmitter<void>();
 

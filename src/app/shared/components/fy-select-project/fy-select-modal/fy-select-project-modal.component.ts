@@ -17,16 +17,25 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 })
 export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
+
   @Input() currentSelection: any;
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+
+  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+
   @Input() cacheName;
+
   @Input() selectionElement: TemplateRef<ElementRef>;
+
   @Input() categoryIds: string[];
+
   @Input() defaultValue = false;
-  @Input() recentlyUsed: { label: string, value: ExtendedProject, selected?: boolean }[];
+
+  @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
   recentrecentlyUsedItems$: Observable<any[]>;
+
   value;
+
   isLoading = false;
 
   constructor(
@@ -59,32 +68,26 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     );
 
     return this.offlineService.getOrgSettings().pipe(
-      switchMap((orgSettings) => {
-        return iif(
-          () => orgSettings.advanced_projects.enable_individual_projects,
-          this.offlineService.getOrgUserSettings().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
-          of(null)
-        );
-      }),
-      concatMap((allowedProjectIds) => {
-        return from(this.authService.getEou()).pipe(
-          switchMap((eou => {
-              return this.projectService.getByParamsUnformatted
-              ({
-                orgId: eou.ou.org_id,
-                active: true,
-                sortDirection: 'asc',
-                sortOrder: 'project_name',
-                orgCategoryIds: this.categoryIds,
-                projectIds: allowedProjectIds,
-                searchNameText,
-                offset: 0,
-                limit: 20
-              });
-            }
-          ))
-        );
-      }),
+      switchMap((orgSettings) => iif(
+        () => orgSettings.advanced_projects.enable_individual_projects,
+        this.offlineService.getOrgUserSettings().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+        of(null)
+      )),
+      concatMap((allowedProjectIds) => from(this.authService.getEou()).pipe(
+        switchMap((eou => this.projectService.getByParamsUnformatted
+        ({
+          orgId: eou.ou.org_id,
+          active: true,
+          sortDirection: 'asc',
+          sortOrder: 'project_name',
+          orgCategoryIds: this.categoryIds,
+          projectIds: allowedProjectIds,
+          searchNameText,
+          offset: 0,
+          limit: 20
+        })
+        ))
+      )),
       switchMap(projects => {
         if (this.defaultValue) {
           return defaultProject$.pipe(
@@ -101,19 +104,19 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         }
       }),
       map(projects => {
-          const currentElement = [];
-          if (this.currentSelection && !projects.some(project => project.project_id === this.currentSelection.project_id)) {
-            currentElement.push({
-              label: this.currentSelection.project_name, value: this.currentSelection
-            });
-          }
-
-          return [
-            {label: 'None', value: null}
-          ].concat(currentElement).concat(
-            projects.map(project => ({label: project.project_name, value: project}))
-          );
+        const currentElement = [];
+        if (this.currentSelection && !projects.some(project => project.project_id === this.currentSelection.project_id)) {
+          currentElement.push({
+            label: this.currentSelection.project_name, value: this.currentSelection
+          });
         }
+
+        return [
+          {label: 'None', value: null}
+        ].concat(currentElement).concat(
+          projects.map(project => ({label: project.project_name, value: project}))
+        );
+      }
       ),
       finalize(() => {
         // set isLoading to false
@@ -136,13 +139,11 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => {
-          return options
-            .map(option => {
-              option.selected = isEqual(option.value, this.currentSelection);
-              return option;
-            });
-        })
+        map((options: any) => options
+          .map(option => {
+            option.selected = isEqual(option.value, this.currentSelection);
+            return option;
+          }))
       );
     }
   }
@@ -152,31 +153,25 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.getProjects(searchText);
-      }),
-      map((projects: any[]) => {
-        return projects.map(project => {
-          if (isEqual(project.value, this.currentSelection)) {
-            project.selected = true;
-          }
-          return project;
-        });
-      })
+      switchMap((searchText) => this.getProjects(searchText)),
+      map((projects: any[]) => projects.map(project => {
+        if (isEqual(project.value, this.currentSelection)) {
+          project.selected = true;
+        }
+        return project;
+      }))
     );
 
     this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.getRecentlyUsedItems().pipe(
-          // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
-        );
-      })
+      switchMap((searchText) => this.getRecentlyUsedItems().pipe(
+        // filtering of recently used items wrt searchText is taken care in service method
+        this.utilityService.searchArrayStream(searchText)
+      ))
     );
-    
+
     this.cdr.detectChanges();
   }
 

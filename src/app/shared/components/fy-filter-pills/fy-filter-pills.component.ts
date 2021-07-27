@@ -11,7 +11,9 @@ export class FyFilterPillsComponent implements OnInit {
   @Input() filterPills: FilterPill[];
 
   @Output() clearAll = new EventEmitter();
+
   @Output() filterClicked = new EventEmitter();
+
   @Output() filterClose = new EventEmitter();
 
   constructor() { }

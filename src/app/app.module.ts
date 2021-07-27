@@ -25,10 +25,10 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-br
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
-    'pinch': { enable: false },
-    'rotate': { enable: false }
-  }
-};
+    pinch: { enable: false },
+    rotate: { enable: false }
+  };
+}
 
 @NgModule({
   declarations: [

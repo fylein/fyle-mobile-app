@@ -119,5 +119,5 @@ export class FileService {
 
   delete(fileId: string) {
     return this.apiService.delete('/files/' + fileId);
-  };
+  }
 }

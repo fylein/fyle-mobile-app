@@ -18,16 +18,27 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class CreateNewReportComponent implements OnInit {
 
   @Input() selectedExpensesToReport: Expense[];
-  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
-  selectedElements: Expense[];
-  selectedTotalAmount: number;
+
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
+
+  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
+  selectedElements: Expense[];
+
+  selectedTotalAmount: number;
+
   reportTitle: string;
+
   submitReportLoader: boolean;
+
   saveDraftReportLoader: boolean;
+
   homeCurrency: string;
+
   homeCurrencySymbol: string;
+
   isSelectedAll: boolean;
+
   showReportNameError: boolean;
 
   constructor(
@@ -36,7 +47,7 @@ export class CreateNewReportComponent implements OnInit {
     private reportService: ReportService,
     private trackingService: TrackingService
   ) {
-    
+
   }
 
   getReportTitle() {
@@ -97,7 +108,7 @@ export class CreateNewReportComponent implements OnInit {
       this.showReportNameError = true;
       return;
     }
-    
+
     const report = {
       purpose: this.reportTitle,
       source: 'MOBILE',
@@ -116,7 +127,7 @@ export class CreateNewReportComponent implements OnInit {
           }
         }),
         finalize(() => {
-         this.saveDraftReportLoader = false;
+          this.saveDraftReportLoader = false;
         })
       ).subscribe((report => {
         this.modalController.dismiss({

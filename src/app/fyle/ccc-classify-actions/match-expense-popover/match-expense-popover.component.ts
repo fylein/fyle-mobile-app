@@ -16,7 +16,9 @@ import {Router} from '@angular/router';
 export class MatchExpensePopoverComponent implements OnInit {
 
   @Input() expenseId: string;
+
   @Input() CCCEId: string;
+
   @Input() splitGroupId: string;
 
   matchedExpense$: Observable<Expense>;

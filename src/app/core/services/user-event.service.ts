@@ -6,10 +6,15 @@ import {Subject} from 'rxjs';
 })
 export class UserEventService {
   destroySubject = new Subject();
+
   logoutSubject = new Subject();
+
   internalSubject = new Subject();
+
   outdatedClientSubject = new Subject();
+
   clearCacheSubject = new Subject();
+
   tokenSubject = new Subject();
 
   constructor() { }

@@ -9,7 +9,7 @@ import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar'
 export class ToastMessageComponent implements OnInit {
 
   constructor(
-    @Inject(MAT_SNACK_BAR_DATA) public data: {icon: string, message: string, redirectionText: string, showCloseButton: boolean},
+    @Inject(MAT_SNACK_BAR_DATA) public data: {icon: string; message: string; redirectionText: string; showCloseButton: boolean},
     private snackBarRef: MatSnackBarRef<ToastMessageComponent>
   ) { }
 

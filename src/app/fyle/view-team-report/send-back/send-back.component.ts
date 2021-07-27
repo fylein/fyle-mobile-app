@@ -10,11 +10,16 @@ import {NgModel} from '@angular/forms';
   styleUrls: ['./send-back.component.scss'],
 })
 export class SendBackComponent implements OnInit {
-  sendBackReason = '';
-  showNoReasonError = false;
   @Input() erpt;
+
   @Input() etxns;
+
+  sendBackReason = '';
+
+  showNoReasonError = false;
+
   numIssues = 0;
+
   sendBackLoading = false;
 
   constructor(

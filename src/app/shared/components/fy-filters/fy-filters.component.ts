@@ -11,17 +11,22 @@ import {ModalController} from '@ionic/angular';
 })
 export class FyFiltersComponent implements OnInit {
   @Input() filterOptions: FilterOptions<any>[];
+
   @Input() selectedFilterValues: SelectedFilters<any>[];
+
   @Input() activeFilterInitialName;
 
   currentFilterValueMap: {[key: string]: any| any[]} = {};
+
   customDateMap: {[key: string]: {
-    startDate?: Date,
-    endDate?: Date
-    }} = {};
+    startDate?: Date;
+    endDate?: Date;
+    };} = {};
+
   activeFilter;
 
   startDate: Date;
+
   endDate: Date;
 
   get FilterOptionType() {
@@ -97,7 +102,7 @@ export class FyFiltersComponent implements OnInit {
         const doesValueExistInFilter = filter.some(value => value === option.value);
         if (doesValueExistInFilter) {
           this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name]
-                                                                    .filter(value => value !== option.value);
+            .filter(value => value !== option.value);
         } else {
           this.currentFilterValueMap[currentFilter.name].push(option.value);
         }
@@ -121,13 +126,11 @@ export class FyFiltersComponent implements OnInit {
   }
 
   save() {
-    const filters = Object.keys(this.currentFilterValueMap).reduce((acc, key) => {
-      return acc.concat({
-        name: key,
-        value: this.currentFilterValueMap[key],
-        associatedData: this.customDateMap[key]
-      } as SelectedFilters<any>);
-    }, []);
+    const filters = Object.keys(this.currentFilterValueMap).reduce((acc, key) => acc.concat({
+      name: key,
+      value: this.currentFilterValueMap[key],
+      associatedData: this.customDateMap[key]
+    } as SelectedFilters<any>), []);
     this.modalController.dismiss(filters);
   }
 }

@@ -21,10 +21,15 @@ import {TrackingService} from '../../core/services/tracking.service';
 export class SetupAccountPreferencesPage implements OnInit {
 
   isConnected$: Observable<boolean>;
+
   eou$: Observable<ExtendedOrgUser>;
+
   companyName$: Observable<string>;
+
   org$: Observable<Org>;
+
   orgSettings$: Observable<any>;
+
   fg: FormGroup;
 
   constructor(
@@ -95,9 +100,7 @@ export class SetupAccountPreferencesPage implements OnInit {
       tap(() => {
         this.trackingService.setupComplete({ Asset: 'Mobile' });
       }),
-      switchMap(() => {
-        return this.orgUserService.markActive();
-      }),
+      switchMap(() => this.orgUserService.markActive()),
       tap(() => {
         this.trackingService.activated({ Asset: 'Mobile' });
       }),
