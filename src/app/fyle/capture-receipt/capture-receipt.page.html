@@ -1,7 +1,7 @@
 <ion-content class="capture-receipt--camera-preview">
   <div id="cameraPreview"></div>
 
-  <div *ngIf="modeChanged" class="capture-receipt--switch-mode-info text-center">
+  <div *ngIf="hasModeChanged" class="capture-receipt--switch-mode-info text-center">
     <div class="capture-receipt--switch-mode-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
   </div>
   
@@ -10,7 +10,7 @@
       <mat-icon class="capture-receipt--close-icon" svgIcon="close"></mat-icon>
     </div>
     <div class="capture-receipt--flash-icon-block" (click)="toggleFlashMode()">
-      <mat-icon class="capture-receipt--flash-icon" svgIcon="{{(activeFlashMode === 'on') ? 'flash-on' : 'flash-off'}}"></mat-icon>
+      <mat-icon class="capture-receipt--flash-icon" svgIcon="{{(flashMode === 'on') ? 'flash-on' : 'flash-off'}}"></mat-icon>
     </div>
   </div>
 

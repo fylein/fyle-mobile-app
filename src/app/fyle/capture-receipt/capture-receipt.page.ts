@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
-const {CameraPreview} = Plugins;
+
 import '@capacitor-community/camera-preview';
 import { ModalController, NavController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
@@ -12,6 +12,8 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { from, noop } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
+
+const {CameraPreview} = Plugins;
 
 type Image = Partial<{
   source: string,
@@ -25,11 +27,11 @@ type Image = Partial<{
 export class CaptureReceiptPage implements OnInit {
   isCameraShown: boolean;
   isBulkMode: boolean;
-  modeChanged = false;
+  hasModeChanged = false;
   captureCount = 0;
   base64ImagesWithSource: Image[];
   lastImage: string;
-  activeFlashMode: string;
+  flashMode: string;
   homeCurrency: string;
   isInstafyleEnabled: boolean;
 
@@ -55,22 +57,19 @@ export class CaptureReceiptPage implements OnInit {
         source += '_OFFLINE';
       }
       const transaction = {
-        billable: false,
         skip_reimbursement: false,
         source,
         txn_dt: new Date(),
-        amount: null,
         currency: this.homeCurrency
       };
 
-      const attachmentUrls = [];
-      const attachment = {
-        thumbnail: base64ImagesWithSource.base64Image,
-        type: 'image',
-        url: base64ImagesWithSource.base64Image
-      };
-
-      attachmentUrls.push(attachment);
+      const attachmentUrls = [
+        {
+          thumbnail: base64ImagesWithSource.base64Image,
+          type: 'image',
+          url: base64ImagesWithSource.base64Image
+        }
+      ];
 
       this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
     });
@@ -91,16 +90,16 @@ export class CaptureReceiptPage implements OnInit {
   toggleFlashMode() {
     if (Capacitor.platform !== 'web') {
       let nextActiveFlashMode = 'on';
-      if (this.activeFlashMode === 'on') {
+      if (this.flashMode === 'on') {
         nextActiveFlashMode = 'off';
       }
 
       CameraPreview.setFlashMode({flashMode: nextActiveFlashMode});
-      this.activeFlashMode = nextActiveFlashMode;
+      this.flashMode = nextActiveFlashMode;
 
       this.trackingService.flashModeSet({
         Asset: 'Mobile',
-        FlashMode: this.activeFlashMode 
+        FlashMode: this.flashMode 
       });
     }
   }
@@ -109,8 +108,8 @@ export class CaptureReceiptPage implements OnInit {
     if (Capacitor.platform !== 'web') {
       CameraPreview.getSupportedFlashModes().then(flashModes => {
         if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
-          this.activeFlashMode = this.activeFlashMode || 'off';
-          CameraPreview.setFlashMode({flashMode: this.activeFlashMode});
+          this.flashMode = this.flashMode || 'off';
+          CameraPreview.setFlashMode({flashMode: this.flashMode});
         }
       });
     }
@@ -135,9 +134,9 @@ export class CaptureReceiptPage implements OnInit {
 
   switchMode() {
     this.isBulkMode = !this.isBulkMode;
-    this.modeChanged = true;
+    this.hasModeChanged = true;
     setTimeout(() => {
-      this.modeChanged = false;
+      this.hasModeChanged = false;
     }, 1000);
     
     if (this.isBulkMode) {
@@ -297,7 +296,7 @@ export class CaptureReceiptPage implements OnInit {
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
     this.setUpAndStartCamera();
-    this.activeFlashMode = null;
+    this.flashMode = null;
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
     });
