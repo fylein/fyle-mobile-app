@@ -32,6 +32,4 @@ export class AddMorePopupComponent implements OnInit {
     this.matBottomSheet.dismiss({mode});
   }
 
-
-
 }

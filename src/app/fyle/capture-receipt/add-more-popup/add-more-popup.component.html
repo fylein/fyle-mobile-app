@@ -1,7 +1,7 @@
 <div class="add-more--content">
   <div class="add-more--heading text-uppercase">Add more Using</div>
 
-  <div class="body">
+  <div class="add-more--body">
     <ng-container *ngFor="let actionButton of actionButtons; index as i">
       <div *ngIf="i > 0" class="add-more--divider"></div>
       <div class="add-more--container" (click)="ctaClickedEvent(actionButton.mode)">
@@ -10,11 +10,6 @@
           {{actionButton.title}}
         </div>
       </div>
-
     </ng-container>
-    
-
   </div>
-
-
 </div>
