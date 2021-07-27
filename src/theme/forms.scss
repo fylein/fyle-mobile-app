@@ -1,6 +1,6 @@
 @import './colors.scss';
 
-%expansion-btn {
+.expansion-btn {
   display: flex;
   align-items: center;
   color: $black-light;
@@ -11,7 +11,7 @@
   margin-bottom: 18px;
 }
 
-%expansion-icon {
+.expansion-icon {
   color: $primary;
   font-size: 18px;
 }

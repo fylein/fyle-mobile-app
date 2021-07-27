@@ -274,14 +274,6 @@
     }
   }
 
-  &--expansion-btn {
-    @extend %expansion-btn;
-  }
-
-  &--expansion-icon {
-    @extend %expansion-icon;
-  }
-
   &--split-expense-container {
     display: flex;
     flex-direction: row;

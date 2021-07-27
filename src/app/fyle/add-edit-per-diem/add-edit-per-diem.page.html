@@ -460,15 +460,15 @@
 
                   <div *ngIf="mode === 'add'">
                     <ng-container *ngIf="isExpandedView;else expandViewContent">
-                      <div class="add-edit-per-diem--expansion-btn" fill="clear" (click)="isExpandedView=false">
+                      <div class="expansion-btn" fill="clear" (click)="isExpandedView=false">
                         Hide more fields
-                        <ion-icon class="add-edit-per-diem--expansion-icon" name="chevron-up"></ion-icon>
+                        <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
                       </div>
                     </ng-container>
                     <ng-template #expandViewContent>
-                      <div class="add-edit-per-diem--expansion-btn" fill="clear" (click)="isExpandedView=true">
+                      <div class="expansion-btn" fill="clear" (click)="isExpandedView=true">
                         Show more fields
-                        <ion-icon class="add-edit-per-diem--expansion-icon" name="chevron-down"></ion-icon>
+                        <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
                       </div>
                     </ng-template>
                   </div>

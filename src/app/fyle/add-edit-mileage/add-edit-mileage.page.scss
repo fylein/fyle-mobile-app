@@ -455,12 +455,4 @@
     --ion-grid-padding: 0;
     --ion-grid-column-padding: 0;
   }
-
-  &--expansion-btn {
-    @extend %expansion-btn;
-  }
-
-  &--expansion-icon {
-    @extend %expansion-icon;
-  }
 }

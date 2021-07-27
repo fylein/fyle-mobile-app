@@ -479,12 +479,4 @@
   &--to-date-error {
     margin-left: 12px;
   }
-
-  &--expansion-btn {
-    @extend %expansion-btn; 
-  }
-
-  &--expansion-icon {
-    @extend %expansion-icon; 
-  }
 }
