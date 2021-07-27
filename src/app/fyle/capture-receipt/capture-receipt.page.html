@@ -36,7 +36,7 @@
       <div class="text-center capture-receipt--footer-text capture-receipt--capture-icon-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
     </div>
     <div class="capture-receipt--bulk-mode-icon-block text-center" >
-      <ng-container *ngIf="captureCount == 0">
+      <ng-container *ngIf="captureCount === 0">
         <div (click)="switchMode()">
           <mat-icon class="capture-receipt--bulk-mode-icon" svgIcon="{{isBulkMode ? 'single-mode' : 'bulk-mode'}}"></mat-icon>
           <div class="text-center capture-receipt--footer-text capture-receipt--bulk-icon-text">{{ !isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
