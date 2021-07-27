@@ -83,10 +83,10 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     const updatedItem = {
       us_email: item,
       is_selected: false
-    }
+    };
     const event = {
       checked: false
-    }
+    };
     this.onSelect(updatedItem, event);
   }
 
