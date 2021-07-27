@@ -50,14 +50,7 @@
     width: 100%;
   }
 
-  &--go-back {
-    border-radius: 50%;
-    font-size: 18px;
-    height: 28px;
-    width: 28px;
-    color: $pure-white;
-  }
-
+  &--go-back,
   &--go-forward {
     border-radius: 50%;
     font-size: 18px;
