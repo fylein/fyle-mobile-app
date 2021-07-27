@@ -46,7 +46,7 @@ export class TrackingService {
   eventTrack(action, properties) {
     properties = {
       ...properties,
-      'Asset': 'Mobile'
+      Asset: 'Mobile'
     };
     if (this.tracking) {
       this.tracking.track(action, properties);
