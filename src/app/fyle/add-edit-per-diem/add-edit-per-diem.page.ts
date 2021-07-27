@@ -463,13 +463,16 @@ export class AddEditPerDiemPage implements OnInit {
         cost_center_id: this.fg.controls.costCenter,
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
-        num_days: this.fg.controls.num_days
+        num_days: this.fg.controls.num_days,
+        billable: this.fg.controls.billable
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!control.value) {
+          if (!control.value && defaultValueColumn !== 'billable') {
+            control.patchValue(defaultValues[defaultValueColumn]);
+          } else if ((control.value === null && control.value === undefined) && defaultValueColumn !== 'billable' && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
@@ -550,7 +553,6 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       map(({categoryContainer, homeCurrency, currentEou}) => ({
         tx: {
-          billable: false,
           skip_reimbursement: false,
           source: 'MOBILE',
           org_category_id: categoryContainer.defaultPerDiemCategory && categoryContainer.defaultPerDiemCategory.id,
@@ -918,7 +920,8 @@ export class AddEditPerDiemPage implements OnInit {
         cost_center_id: this.fg.controls.costCenter,
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
-        num_days: this.fg.controls.num_days
+        num_days: this.fg.controls.num_days,
+        billable: this.fg.controls.billable
       };
 
       for (const control of Object.values(keyToControlMap)) {

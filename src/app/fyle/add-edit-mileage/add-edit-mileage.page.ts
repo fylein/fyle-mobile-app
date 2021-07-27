@@ -487,13 +487,16 @@ export class AddEditMileagePage implements OnInit {
       const keyToControlMap: { [id: string]: AbstractControl } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
-        txn_dt: this.fg.controls.dateOfSpend
+        txn_dt: this.fg.controls.dateOfSpend,
+        billable: this.fg.controls.billable
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!control.value && !control.touched) {
+          if (!control.value && !control.touched && defaultValueColumn !== 'billable') {
+            control.patchValue(defaultValues[defaultValueColumn]);
+          } else if (!control.touched && defaultValueColumn == 'billable' && (control.value === null || control.value === undefined)) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
@@ -723,7 +726,6 @@ export class AddEditMileagePage implements OnInit {
         }
         return {
           tx: {
-            billable: false,
             skip_reimbursement: false,
             source: 'MOBILE',
             state: 'COMPLETE',
@@ -1002,7 +1004,8 @@ export class AddEditMileagePage implements OnInit {
       const keyToControlMap: { [id: string]: AbstractControl } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
-        txn_dt: this.fg.controls.dateOfSpend
+        txn_dt: this.fg.controls.dateOfSpend,
+        billable: this.fg.controls.billable
       };
 
       for (const control of Object.values(keyToControlMap)) {
