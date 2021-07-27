@@ -70,8 +70,10 @@
     }
 
     &--go-back {
+        margin: auto;
         position: absolute;
-        top: 39%;
+        top: 0;
+        bottom: 0;
         left: 3%;
         background-color: $translucent-black;
         text-align: center;
@@ -85,8 +87,10 @@
     }
 
     &--go-forward {
+        margin: auto;
         position: absolute;
-        top: 39%;
+        top: 0;
+        bottom: 0;
         right: 3%;
         background-color: $translucent-black;
         text-align: center;
