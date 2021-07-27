@@ -38,7 +38,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() defaultLabelProp;
 
-  @Input() recentlyUsed: { label: string, value: any, selected?: boolean }[];
+  @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
   @Input() label;
 
