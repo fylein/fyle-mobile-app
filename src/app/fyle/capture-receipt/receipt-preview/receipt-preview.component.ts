@@ -15,9 +15,9 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @Input() mode: string;
 
-  sliderOptions: any;
+  sliderOptions: { zoom: { maxRatio: number; }; };
 
-  activeIndex: any;
+  activeIndex: number;
 
   constructor(
     private modalController: ModalController,
@@ -131,7 +131,6 @@ export class ReceiptPreviewComponent implements OnInit {
 
   async ionSlideDidChange() {
     const activeIndex = await this.imageSlides.getActiveIndex();
-    const length = await this.imageSlides.length();
     this.activeIndex = activeIndex;
   }
 
