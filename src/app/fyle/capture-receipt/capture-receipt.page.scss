@@ -20,21 +20,20 @@
   }
 
   &--camera-pointer-container {
-    &__top {
+
+    &__common {
       display: flex;
       justify-content: space-between;
       position: fixed;
       width: 100%;
       padding: 0 18px;
+    }
+
+    &__top {
       top: calc(env(safe-area-inset-top) + 102px);
     }
 
     &__bottom {
-      display: flex;
-      justify-content: space-between;
-      position: fixed;
-      width: 100%;
-      padding: 0 18px;
       bottom: calc(env(safe-area-inset-bottom) + 183px);
     }
   }
