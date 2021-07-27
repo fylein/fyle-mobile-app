@@ -13,11 +13,17 @@ import {MatChipInputEvent} from '@angular/material/chips';
 })
 export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
+
+  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+
   @Input() currentSelections: any[] = [];
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+
+  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+
   @Input() selectModalHeader = 'Select Items';
+
   @Input() subheader = 'All Items';
+
   value;
   selectable = true;
   removable = true;
@@ -86,8 +92,8 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     });
 
     this.currentSelections = this.options
-                                  .filter(option => option.selected)
-                                  .map(option => option.value);
+      .filter(option => option.selected)
+      .map(option => option.value);
   }
 
   useSelected() {

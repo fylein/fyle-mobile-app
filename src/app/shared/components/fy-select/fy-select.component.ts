@@ -21,25 +21,39 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
-  private ngControl: NgControl;
-  @Input() options: { label: string, value: any }[] = [];
+  @Input() options: { label: string; value: any }[] = [];
+
   @Input() disabled = false;
+
   @Input() label = '';
+
   @Input() mandatory = false;
+
   @Input() selectionElement: TemplateRef<any>;
+
   @Input() nullOption = true;
+
   @Input() cacheName = '';
+
   @Input() customInput = false;
+
   @Input() subheader = 'All';
+
   @Input() enableSearch = true;
+
   @Input() selectModalHeader = '';
+
   @Input() showSaveButton = false;
+
   @Input() placeholder = '';
+
   @Input() defaultLabelProp;
-  @Input() recentlyUsed: { label: string, value: any, selected?: boolean }[];
+
+  @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
+
+  displayValue;
 
   private innerValue;
-  displayValue;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -49,7 +63,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
     }
   }
 
+  private ngControl: NgControl;
+
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
@@ -91,6 +108,19 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   async openModal() {
+    let modalProperties;
+    if (this.label === 'Payment Mode') {
+      modalProperties = {
+        cssClass: 'payment-mode-modal',
+        showBackdrop: true,
+        swipeToClose: true,
+        backdropDismiss: true,
+        animated: true,
+      };
+    } else {
+      modalProperties = this.modalProperties.getModalDefaultProperties();
+    }
+
     const selectionModal = await this.modalController.create({
       component: FySelectModalComponent,
       componentProps: {
@@ -110,7 +140,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...modalProperties
     });
 
     await selectionModal.present();

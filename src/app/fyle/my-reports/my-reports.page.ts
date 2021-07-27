@@ -23,19 +23,28 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
   styleUrls: ['./my-reports.page.scss']
 })
 export class MyReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   isConnected$: Observable<boolean>;
+
   myReports$: Observable<ExtendedReport[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
   }>>;
+
   currentPageNumber = 1;
+
   acc = [];
+
   filters: Partial<{
     state: string;
     date: string;
@@ -44,17 +53,20 @@ export class MyReportsPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
+
   homeCurrency$: Observable<string>;
+
   navigateBack = false;
+
   searchText = '';
+
   expensesAmountStats$: Observable<{
-    sum: number,
-    count: number
+    sum: number;
+    count: number;
   }>;
 
   onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
     private networkService: NetworkService,
@@ -162,18 +174,12 @@ export class MyReportsPage implements OnInit {
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
-      switchMap(erpts => {
-        return this.count$.pipe(
-          map(count => {
-            return count > erpts.length;
-          }));
-      })
+      switchMap(erpts => this.count$.pipe(
+        map(count => count > erpts.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(_ => {
-        return paginatedScroll$;
-      })
+      switchMap(_ => paginatedScroll$)
     );
 
     this.loadData$.subscribe(params => {
@@ -186,23 +192,21 @@ export class MyReportsPage implements OnInit {
     });
 
     this.expensesAmountStats$ = this.loadData$.pipe(
-      switchMap(_ => {
-        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
-        }).pipe(
-          map(stats => {
-            const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
-            const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
-            return {
-              sum: sum && sum.function_value || 0,
-              count: count && count.function_value || 0
-            };
-          })
-        );
-      })
+      switchMap(_ => this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+        scalar: true,
+        tx_report_id: 'is.null',
+        tx_state: 'in.(COMPLETE)',
+        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
+      }).pipe(
+        map(stats => {
+          const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
+          const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+          return {
+            sum: sum && sum.function_value || 0,
+            count: count && count.function_value || 0
+          };
+        })
+      ))
     );
 
     this.myReports$.subscribe(noop);
@@ -386,9 +390,7 @@ export class MyReportsPage implements OnInit {
 
       if (popupResults === 'primary') {
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.delete(erpt.rp_id);
-          }),
+          switchMap(() => this.reportService.delete(erpt.rp_id)),
           tap(() => this.trackingService.deleteReport({Asset: 'Mobile'})),
           finalize(async () => {
             await this.loaderService.hideLoader();

@@ -30,13 +30,21 @@ import { PopupService } from 'src/app/core/services/popup.service';
 })
 export class MyViewTripsPage implements OnInit {
   tripRequest$: Observable<ExtendedTripRequest>;
+
   approvals$: Observable<Approval[]>;
+
   actions$: Observable<any>;
+
   advanceRequests$: Observable<any>;
+
   transportationRequests$: Observable<any>;
+
   hotelRequests$: Observable<any>;
+
   allTripRequestCustomFields$: Observable<any>;
+
   activeApprovals$: Observable<Approval[]>;
+
   tripExtraInfo$: Observable<{
     submittedBy: {
       fullName: string;
@@ -46,15 +54,25 @@ export class MyViewTripsPage implements OnInit {
     tripLocations: (string | string[])[];
     travellers: string;
   }>;
+
   transformedTripRequests$: Observable<any>;
+
   transformedAdvanceRequests$: Observable<any>;
+
   approvers$: Observable<ExtendedOrgUser[]>;
+
   canPullBack$: Observable<boolean>;
+
   canCloseTrip$: Observable<boolean>;
+
   canDelete$: Observable<boolean>;
+
   canEdit$: Observable<boolean>;
+
   pullbackLoading = false;
+
   deleteLoading = false;
+
   closeLoading = false;
 
   constructor(
@@ -110,11 +128,7 @@ export class MyViewTripsPage implements OnInit {
   getRestrictedApprovers(approvals, tripRequest: ExtendedTripRequest) {
     const approvalStates = ['APPROVAL_PENDING', 'APPROVAL_DONE'];
 
-    const approversNotAllowed = approvals.filter((approver) => {
-      return approvalStates.indexOf(approver.state) > -1;
-    }).map((approver) => {
-      return approver.approver_id;
-    });
+    const approversNotAllowed = approvals.filter((approver) => approvalStates.indexOf(approver.state) > -1).map((approver) => approver.approver_id);
 
     approversNotAllowed.push(tripRequest.ou_id);
 
@@ -241,12 +255,10 @@ export class MyViewTripsPage implements OnInit {
       const id = this.activatedRoute.snapshot.params.id;
 
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.tripRequestsService.pullBackTrip(id, addStatusPayload);
-        }),
+        switchMap(() => this.tripRequestsService.pullBackTrip(id, addStatusPayload)),
         finalize(() => {
           this.pullbackLoading = false;
-          from(this.loaderService.hideLoader())
+          from(this.loaderService.hideLoader());
         })
       ).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_trips']);
@@ -270,9 +282,7 @@ export class MyViewTripsPage implements OnInit {
 
     if (popupResults === 'primary') {
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.tripRequestsService.closeTrip(id);
-        }),
+        switchMap(() => this.tripRequestsService.closeTrip(id)),
         finalize(() => {
           this.closeLoading = false;
           from(this.loaderService.hideLoader());
@@ -292,9 +302,7 @@ export class MyViewTripsPage implements OnInit {
     this.tripRequest$ = from(
       this.loaderService.showLoader()
     ).pipe(
-      switchMap(() => {
-        return this.tripRequestsService.getTrip(id);
-      }),
+      switchMap(() => this.tripRequestsService.getTrip(id)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -362,12 +370,8 @@ export class MyViewTripsPage implements OnInit {
           });
         }
       ),
-      switchMap(transportationReqs => {
-        return from(transportationReqs);
-      }),
-      concatMap(transportationReq => {
-        return this.setRequiredTripDetails(transportationReq);
-      }),
+      switchMap(transportationReqs => from(transportationReqs)),
+      concatMap(transportationReq => this.setRequiredTripDetails(transportationReq)),
       reduce((acc, curr) => acc.concat(curr), []),
       shareReplay(1)
     );

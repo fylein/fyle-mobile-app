@@ -79,6 +79,11 @@ $sub-title: #ababab;
   padding: 4px;
 }
 
+%fy-select-check {
+  color: $primary;
+  font-size: 20px;
+}
+
 %fy-select-cta {
   --background: #{$pure-white};
   --color: #{$primary};

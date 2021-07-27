@@ -63,8 +63,8 @@ export class TransportationRequestsService {
 
   upsert(transportationRequest) {
     // TripDatesService.convertToDateFormat(transportationRequest);
-    return this.apiService.post('/transportation_requests', transportationRequest)
-      // self.deleteCache();
-      // return fixDates(req);
+    return this.apiService.post('/transportation_requests', transportationRequest);
+    // self.deleteCache();
+    // return fixDates(req);
   }
 }

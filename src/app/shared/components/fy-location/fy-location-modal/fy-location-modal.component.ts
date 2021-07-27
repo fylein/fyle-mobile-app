@@ -19,16 +19,23 @@ const { Permissions, Geolocation } = Plugins;
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelection: any;
+
   @Input() header = '';
-  loader = false;
-  value = '';
-  lookupFailed = false;
+
   @Input() recentLocations: string[];
+
   @Input() cacheName;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
+  loader = false;
+
+  value = '';
+
+  lookupFailed = false;
+
   filteredList$: Observable<any[]>;
+
   recentItemsFilteredList$: Observable<any[]>;
 
   currentGeolocationPermissionGranted = false;
@@ -54,13 +61,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       return of(this.recentLocations.map(recentLocation => ({ display: recentLocation })));
     } else if (this.cacheName) {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: string[]) => {
-          return options.map(option => {
-            return {
-              display: option
-            };
-          });
-        })
+        map((options: string[]) => options.map(option => ({
+          display: option
+        })))
       );
     } else {
       return of([]);
@@ -81,9 +84,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   clearValue() {
-    /** 
+    /**
      * this.value is ng-model of search field. On click of clear button, clearValue() method will be called
-     * this.value is set to empty string 
+     * this.value is set to empty string
      */
     this.value = '';
     // get search input element
@@ -104,20 +107,16 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.getRecentlyUsedItems().pipe(
-          // filtering of recently used items wrt searchText is taken care in service method
-          map((recentrecentlyUsedItems: { display: string }[]) => {
-            if (searchText && searchText.length > 0) {
-              const searchTextLowerCase = searchText.toLowerCase();
-              return recentrecentlyUsedItems.filter(item => {
-                return item.display?.toLocaleLowerCase().includes(searchTextLowerCase);
-              });
-            }
-            return recentrecentlyUsedItems;
-          })
-        );
-      })
+      switchMap((searchText) => this.getRecentlyUsedItems().pipe(
+        // filtering of recently used items wrt searchText is taken care in service method
+        map((recentrecentlyUsedItems: { display: string }[]) => {
+          if (searchText && searchText.length > 0) {
+            const searchTextLowerCase = searchText.toLowerCase();
+            return recentrecentlyUsedItems.filter(item => item.display?.toLocaleLowerCase().includes(searchTextLowerCase));
+          }
+          return recentrecentlyUsedItems;
+        })
+      ))
     );
 
     that.filteredList$ = fromEvent(that.searchBarRef.nativeElement, 'keyup').pipe(
@@ -187,12 +186,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   onRecentItemSelect(location: string) {
     from(this.loaderService.showLoader('Loading location...', 5000))
       .pipe(
-        switchMap(() => {
-          return forkJoin({
-            eou: this.authService.getEou(),
-            currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: false })
-          });
-        }),
+        switchMap(() => forkJoin({
+          eou: this.authService.getEou(),
+          currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: false })
+        })),
         switchMap(({ eou, currentLocation }) => {
           if (currentLocation) {
             return this.locationService.getAutocompletePredictions(location, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
@@ -210,14 +207,12 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                   return of({ display: location });
                 }
               })
-            )
+            );
           } else {
             return of({ display: location });
           }
         }),
-        catchError(() => {
-          return of({ display: location });
-        }),
+        catchError(() => of({ display: location })),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(location => {
         this.modalController.dismiss({
@@ -277,17 +272,13 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   getCurrentLocation() {
     from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
-      switchMap(() => {
-        return this.locationService.getCurrentLocation({ enableHighAccuracy: true });
-      }),
-      switchMap((coordinates) => {
-        return this.agmGeocode.geocode({
-          location: {
-            lat: coordinates.coords.latitude,
-            lng: coordinates.coords.longitude
-          }
-        });
-      }),
+      switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
+      switchMap((coordinates) => this.agmGeocode.geocode({
+        location: {
+          lat: coordinates.coords.latitude,
+          lng: coordinates.coords.longitude
+        }
+      })),
       map(this.formatGeocodeResponse),
       catchError((err) => {
         this.lookupFailed = true;

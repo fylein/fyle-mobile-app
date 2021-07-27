@@ -1,10 +1,8 @@
-import { Component, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, DoCheck, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, FormArray, FormBuilder, FormControl, FormGroup, NgControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
 import { Subscription } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { MileageService } from 'src/app/core/services/mileage.service';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 
 @Component({
@@ -24,23 +22,27 @@ import { RouteSelectorModalComponent } from './route-selector-modal/route-select
     }
   ]
 })
-export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
-  private ngControl: NgControl;
-
+export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
   @Input() unit: 'KM' | 'MILES';
+
   @Input() mileageConfig;
+
   @Input() isDistanceMandatory;
+
   @Input() isAmountDisabled;
+
   @Input() txnFields;
+
   @Input() formInitialized;
+
   @Input() isConnected;
+
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
     recent_locations?: string[];
   };
-  skipRoundTripUpdate = false;
 
-  onTouched = () => { };
+  skipRoundTripUpdate = false;
 
   onChangeSub: Subscription;
 
@@ -48,17 +50,21 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     mileageLocations: new FormArray([]),
     distance: [, Validators.required],
     roundTrip: [],
-  })
+  });
+
+  private ngControl: NgControl;
 
   constructor(
     private fb: FormBuilder,
     private modalController: ModalController,
     private injector: Injector
   ) { }
-  
+
   get mileageLocations() {
     return this.form.controls.mileageLocations as FormArray;
   }
+
+  onTouched = () => { };
 
   ngDoCheck() {
     if (this.ngControl.touched) {
@@ -82,16 +88,16 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.mileageConfig && !isEqual(changes.mileageConfig.previousValue, changes.mileageConfig.currentValue)) {
       this.form.controls.mileageLocations.clearValidators();
-      this.form.controls.mileageLocations.updateValueAndValidity(); 
+      this.form.controls.mileageLocations.updateValueAndValidity();
       if (this.mileageConfig.location_mandatory) {
         this.form.controls.mileageLocations.setValidators(Validators.required);
       }
-      this.form.controls.mileageLocations.updateValueAndValidity(); 
+      this.form.controls.mileageLocations.updateValueAndValidity();
       this.form.updateValueAndValidity();
     }
 
     if (changes.txnFields && !isEqual(changes.txnFields.previousValue, changes.txnFields.currentValue)) {
-      const keyToControlMap: { [id: string]: AbstractControl; } = {
+      const keyToControlMap: { [id: string]: AbstractControl } = {
         distance: this.form.controls.distance
       };
 
@@ -122,7 +128,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
           this.mileageLocations.push(new FormControl(location, this.mileageConfig.location_mandatory && Validators.required));
         });
         if (value.mileageLocations.length === 1) {
-          this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required)); 
+          this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
         }
       }
 
@@ -195,7 +201,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       });
 
       data.mileageLocations.forEach(mileageLocation => {
-        this.mileageLocations.push(new FormControl(mileageLocation, this.mileageConfig.location_mandatory && Validators.required))
+        this.mileageLocations.push(new FormControl(mileageLocation, this.mileageConfig.location_mandatory && Validators.required));
       });
 
       this.form.patchValue({

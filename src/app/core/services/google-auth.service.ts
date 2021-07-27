@@ -20,9 +20,7 @@ export class GoogleAuthService {
     }).then(res => {
       this.googlePlus.logout();
       return res;
-    }).catch(err => {
-      return err;
-    });
+    }).catch(err => err);
 
   }
 }

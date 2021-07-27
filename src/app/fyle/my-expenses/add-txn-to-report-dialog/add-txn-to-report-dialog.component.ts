@@ -14,6 +14,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 export class AddTxnToReportDialogComponent implements OnInit {
 
   @Input() openReports;
+
   reportCurrencySymbol: string;
 
   constructor(
