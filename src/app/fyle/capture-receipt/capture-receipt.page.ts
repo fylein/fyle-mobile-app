@@ -16,8 +16,8 @@ import { NetworkService } from 'src/app/core/services/network.service';
 const {CameraPreview} = Plugins;
 
 type Image = Partial<{
-  source: string,
-  base64Image: string
+  source: string;
+  base64Image: string;
 }>;
 @Component({
   selector: 'app-capture-receipt',
@@ -26,13 +26,21 @@ type Image = Partial<{
 })
 export class CaptureReceiptPage implements OnInit {
   isCameraShown: boolean;
+
   isBulkMode: boolean;
+
   hasModeChanged = false;
+
   captureCount = 0;
+
   base64ImagesWithSource: Image[];
+
   lastImage: string;
+
   flashMode: string;
+
   homeCurrency: string;
+
   isInstafyleEnabled: boolean;
 
 
@@ -99,7 +107,7 @@ export class CaptureReceiptPage implements OnInit {
 
       this.trackingService.flashModeSet({
         Asset: 'Mobile',
-        FlashMode: this.flashMode 
+        FlashMode: this.flashMode
       });
     }
   }
@@ -138,15 +146,15 @@ export class CaptureReceiptPage implements OnInit {
     setTimeout(() => {
       this.hasModeChanged = false;
     }, 1000);
-    
+
     if (this.isBulkMode) {
       this.trackingService.switchedToInstafyleBulkMode({
-        Asset: 'Mobile' 
+        Asset: 'Mobile'
       });
     } else {
       this.trackingService.switchedToInstafyleSingleMode({
-        Asset: 'Mobile' 
-      }); 
+        Asset: 'Mobile'
+      });
     }
   }
 
@@ -195,7 +203,7 @@ export class CaptureReceiptPage implements OnInit {
       } else {
         this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
           this.addExpenseToQueue(base64ImageWithSource);
-        })
+        });
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
@@ -216,17 +224,17 @@ export class CaptureReceiptPage implements OnInit {
     await this.stopCamera();
     const base64PictureData = 'data:image/jpeg;base64,' + result.value;
     this.lastImage = base64PictureData;
-    if (!this.isBulkMode) { 
+    if (!this.isBulkMode) {
       this.base64ImagesWithSource.push({
         source: 'MOBILE_SINGLE',
         base64Image: base64PictureData
-      })
+      });
       this.onSingleCapture();
     } else {
       this.base64ImagesWithSource.push({
         source: 'MOBILE_BULK',
         base64Image: base64PictureData
-      })
+      });
       this.onBulkCapture();
     }
   }
@@ -253,10 +261,10 @@ export class CaptureReceiptPage implements OnInit {
               this.base64ImagesWithSource.push({
                 source: 'MOBILE_GALLERY',
                 base64Image: base64PictureData
-              })
+              });
 
             });
-            
+
             const modal = await this.modalController.create({
               component: ReceiptPreviewComponent,
               componentProps: {
@@ -274,7 +282,7 @@ export class CaptureReceiptPage implements OnInit {
               } else {
                 this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
                   this.addExpenseToQueue(base64ImageWithSource);
-                })
+                });
                 this.router.navigate(['/', 'enterprise', 'my_expenses']);
               }
             }
