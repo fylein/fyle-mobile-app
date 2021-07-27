@@ -412,20 +412,18 @@ export class AddEditPerDiemPage implements OnInit {
   getTransactionFields() {
     return this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue) => {
-        return forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
-          perDiemCategoriesContainer: this.getPerDiemCategories()
-        }).pipe(
-          switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
-            const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
-            return this.expenseFieldsService
-              .filterByOrgCategoryId(
-                expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
-              );
-          })
-        );
-      }),
+      switchMap((formValue) => forkJoin({
+        expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+        perDiemCategoriesContainer: this.getPerDiemCategories()
+      }).pipe(
+        switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
+          const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
+          return this.expenseFieldsService
+            .filterByOrgCategoryId(
+              expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+            );
+        })
+      )),
       map((expenseFieldsMap: any) => {
         if (expenseFieldsMap) {
           for (const tfc of Object.keys(expenseFieldsMap)) {

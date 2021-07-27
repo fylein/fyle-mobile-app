@@ -434,22 +434,20 @@ export class AddEditMileagePage implements OnInit {
   getTransactionFields() {
     return this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue) => {
-        return forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
-          mileageCategoriesContainer: this.getMileageCategories()
-        }).pipe(
-          switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
-            // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
-            const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance', 'billable'];
+      switchMap((formValue) => forkJoin({
+        expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+        mileageCategoriesContainer: this.getMileageCategories()
+      }).pipe(
+        switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
+          // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
+          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
 
-            return this.expenseFieldsService
-              .filterByOrgCategoryId(
-                expenseFieldsMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
-              );
-          })
-        );
-      }),
+          return this.expenseFieldsService
+            .filterByOrgCategoryId(
+              expenseFieldsMap, fields, formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
+            );
+        })
+      )),
       map((expenseFieldsMap: any) => {
         if (expenseFieldsMap) {
           for (const tfc of Object.keys(expenseFieldsMap)) {
