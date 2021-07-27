@@ -43,11 +43,16 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   currentSelectionsCopy = [];
 
   isLoading = false;
+
   selectable = true;
+
   removable = true;
+
   addOnBlur = true;
-  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
+
   selectedItemDict = {};
+
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
   constructor(
     private modalController: ModalController,
@@ -61,15 +66,17 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     return this.currentSelections.reduce((acc, curr) => {
       acc[curr] = true;
       return acc;
-    }, {})
+    }, {});
   }
 
   getSeparatorKeysCodes() {
     return [ENTER, COMMA];
   };
 
-  addChip(event: MatChipInputEvent): void {
-    event.chipInput!.clear();
+  addChip(event: MatChipInputEvent) {
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
   }
 
   removeChip(item) {
