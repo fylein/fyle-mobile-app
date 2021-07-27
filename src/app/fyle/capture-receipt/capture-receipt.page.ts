@@ -201,14 +201,13 @@ export class CaptureReceiptPage implements OnInit {
           this.lastImage = null;
           this.isBulkMode = false;
           this.setUpAndStartCamera();
-        } else { 
-          debugger;
+        } else {
           this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
             this.addExpenseToQueue(base64ImageWithSource);
           });
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
         }
-        
+
 
       }
     }

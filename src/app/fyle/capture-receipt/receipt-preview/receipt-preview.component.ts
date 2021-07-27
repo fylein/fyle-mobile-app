@@ -79,7 +79,7 @@ export class ReceiptPreviewComponent implements OnInit {
     }
   }
 
-  async addMore () {
+  async addMore() {
 
     const addMoreDialog = this.matBottomSheet.open(AddMorePopupComponent, {
       data: {  },
@@ -94,9 +94,9 @@ export class ReceiptPreviewComponent implements OnInit {
         this.galleryUplaod();
       }
     }
-      
-      
-      
+
+
+
 
 
     // const actionSheetButtons = [
@@ -133,7 +133,7 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
 
-  captureReceipts () {
+  captureReceipts() {
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
       continueCaptureReceipt: true
