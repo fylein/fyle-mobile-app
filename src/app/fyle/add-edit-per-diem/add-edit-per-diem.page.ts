@@ -165,6 +165,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
 
+  isExpandedView = false;
+
   isProjectVisible$: Observable<boolean>;
 
   duplicateDetectionReasons = [
@@ -718,6 +720,8 @@ export class AddEditPerDiemPage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       this.mode = 'edit';
     }
+
+    this.isExpandedView = this.mode !== 'add';
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const perDiemRates$ = this.offlineService.getPerDiemRates();

@@ -177,8 +177,9 @@ export class AddEditMileagePage implements OnInit {
 
   initialFetch;
 
-  isProjectVisible$: Observable<boolean>;
+  isExpandedView = false;
 
+  isProjectVisible$: Observable<boolean>;
 
   formInitializedFlag = false;
 
@@ -807,7 +808,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
-
     from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
       this.clusterDomain = clusterDomain;
     });
@@ -848,6 +848,8 @@ export class AddEditMileagePage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       this.mode = 'edit';
     }
+
+    this.isExpandedView = this.mode !== 'add';
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
