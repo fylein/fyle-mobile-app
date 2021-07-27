@@ -86,18 +86,11 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         startWith(''),
         distinctUntilChanged(),
         map((searchText) => {
-<<<<<<< HEAD
-            const initial = [];
-            if (this.nullOption && this.currentSelection) {
-              initial.push({ label: 'None', value: null });
-            }
-=======
           const initial = [];
 
-          if (this.nullOption) {
+          if (this.nullOption && this.currentSelection) {
             initial.push({ label: 'None', value: null });
           }
->>>>>>> master
 
           if (this.customInput) {
             initial.push({ label: searchText, value: searchText, selected: false});
