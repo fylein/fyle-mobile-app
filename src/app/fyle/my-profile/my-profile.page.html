@@ -101,7 +101,7 @@
     </div>
 
     <!-- Expense auto-fill card start -->
-    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.expense_form_autofills?.allowed">
+    <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_expense_form_autofills?.allowed && orgSettings?.org_expense_form_autofills?.enabled && orgUserSettings?.expense_form_autofills?.allowed">
       <div class="my-profile--card-title">Expense auto-fill</div>
       <div class="my-profile--cards-content my-profile--toggle-container">
         <div class="my-profile--toggle-label">

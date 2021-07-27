@@ -7,41 +7,41 @@
 
   &--close-flash-container {
     position: fixed;
-    top: calc(env(safe-area-inset-top) + 9px);
+    top: calc(env(safe-area-inset-top) + 10px);
     padding: 0 16px;
     display: flex;
     justify-content: space-between;
     width: 100%;
   }
 
-  &--close-icon, &--flash-icon {
+  &--close-icon, 
+  &--flash-icon {
     height: 42px;
     width: 42px;
   }
 
   &--camera-pointer-container {
-    &__top {
+
+    &__common {
       display: flex;
       justify-content: space-between;
       position: fixed;
       width: 100%;
       padding: 0 18px;
+    }
+
+    &__top {
       top: calc(env(safe-area-inset-top) + 102px);
     }
 
     &__bottom {
-      display: flex;
-      justify-content: space-between;
-      position: fixed;
-      width: 100%;
-      padding: 0 18px;
-      bottom: calc(env(safe-area-inset-bottom) + 183px);
+      bottom: calc(env(safe-area-inset-bottom) + 184px);
     }
   }
 
   &--switch-mode-info {
     background-color: $black-3;
-    width: 179px;
+    width: 180px;
     position: absolute;
     bottom: 50%;
     left: 30%;
@@ -58,7 +58,7 @@
 
   &--single-bulk-gallery-container {
     position: fixed;
-    bottom: calc(env(safe-area-inset-bottom) + 29px);
+    bottom: calc(env(safe-area-inset-bottom) + 30px);
     padding: 0 16px;
     display: flex;
     justify-content: space-between;
@@ -70,18 +70,23 @@
     min-width: 82px;
   }
 
-  &--gallery-icon, &--bulk-mode-icon  {
+  &--gallery-icon, 
+  &--bulk-mode-icon  {
     height: 52px;
     width: 52px;
   }
 
-  &--gallery-icon-text, &--bulk-icon-text  {
+  &--footer-text {
     color: $pure-white;
-    margin-top: 8px;
     font-size: 15px;
     font-weight: 500;
     line-height: 1.26;
     letter-spacing: -0.3px;
+  }
+
+  &--gallery-icon-text, 
+  &--bulk-icon-text  {
+    margin-top: 8px;
   }
 
   &--capture-icon-block {
@@ -94,12 +99,7 @@
   }
 
   &--capture-icon-text {
-    color: $pure-white;
     margin-top: 22px;
-    font-size: 15px;
-    line-height: 1.26;
-    letter-spacing: -0.3px;
-    font-weight: 500;
   }
 
   &--bulk-mode-icon-block{

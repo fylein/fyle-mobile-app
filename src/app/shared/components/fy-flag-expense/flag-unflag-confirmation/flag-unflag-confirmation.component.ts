@@ -9,6 +9,7 @@ import { PopoverController } from '@ionic/angular';
 export class FlagUnflagConfirmationComponent implements OnInit {
 
   @Input() title;
+
   message = '';
 
   constructor(

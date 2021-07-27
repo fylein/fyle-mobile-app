@@ -10,7 +10,9 @@ export class ConfirmationCommentPopoverComponent implements OnInit {
 
 
   @Input() selectedApprovers;
+
   confirmationMessage = '';
+
   validMessage = true;
 
   constructor(

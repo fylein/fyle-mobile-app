@@ -36,9 +36,7 @@ export class VerifyPage implements OnInit {
   ngOnInit() {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code;
     this.routerAuthService.emailVerify(verificationCode).pipe(
-      switchMap((resp) => {
-        return this.authService.newRefreshToken(resp.refresh_token);
-      }),
+      switchMap((resp) => this.authService.newRefreshToken(resp.refresh_token)),
       tap((eou) => {
         this.trackingService.emailVerified({Asset: 'Mobile'});
         this.trackingService.onSignin(eou.us.email, {Asset: 'Mobile'});

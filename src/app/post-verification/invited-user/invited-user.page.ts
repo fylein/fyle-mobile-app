@@ -19,13 +19,21 @@ import {TrackingService} from '../../core/services/tracking.service';
 export class InvitedUserPage implements OnInit {
 
   isConnected$: Observable<boolean>;
+
   fg: FormGroup;
+
   eou$: Observable<ExtendedOrgUser>;
+
   hide = true;
+
   lengthValidationDisplay$: Observable<boolean>;
+
   uppercaseValidationDisplay$: Observable<boolean>;
+
   numberValidationDisplay$: Observable<boolean>;
+
   specialCharValidationDisplay$: Observable<boolean>;
+
   lowercaseValidationDisplay$: Observable<boolean>;
 
   constructor(
@@ -100,9 +108,7 @@ export class InvitedUserPage implements OnInit {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.eou$;
-        }),
+        switchMap(() => this.eou$),
         switchMap((eou) => {
           const user = eou.us;
           user.full_name = this.fg.controls.fullName.value;
@@ -110,12 +116,8 @@ export class InvitedUserPage implements OnInit {
           return this.orgUserService.postUser(user);
         }),
         tap(() => this.trackingService.setupComplete({Asset: 'Mobile'})),
-        switchMap(() => {
-          return this.authService.refreshEou();
-        }),
-        switchMap(() => {
-          return this.orgUserService.markActive();
-        }),
+        switchMap(() => this.authService.refreshEou()),
+        switchMap(() => this.orgUserService.markActive()),
         tap(() => this.trackingService.activated({Asset: 'Mobile'})),
         finalize(async () => await this.loaderService.hideLoader())
       ).subscribe(() => {

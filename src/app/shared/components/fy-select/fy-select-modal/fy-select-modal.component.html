@@ -12,8 +12,9 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar *ngIf="enableSearch" class="selection-modal--form-field-container">
+  <ion-toolbar *ngIf="enableSearch" class="text-center">
     <mat-form-field appearance="none" class="selection-modal--form-field mat-form-field-no-padding">
+      <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
       <input #searchBar [(ngModel)]="value" class="selection-modal--search-input" id="election-modal--search-input"
              matInput placeholder="{{placeholder || 'Search'}}">
       <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
@@ -37,7 +38,7 @@
                 [queryText]="value">
               </app-fy-highlight-text>
             </div>
-            <mat-icon *ngIf="selected">
+            <mat-icon *ngIf="selected" class="selection-modal--check">
               check
             </mat-icon>
           </ng-template>
@@ -62,7 +63,7 @@
               </app-fy-highlight-text>
             </span>
           </div>
-          <mat-icon *ngIf="selected">
+          <mat-icon *ngIf="selected" class="selection-modal--check">
             check
           </mat-icon>
         </ng-template>
@@ -83,7 +84,7 @@
                 [queryText]="value">
               </app-fy-highlight-text>
             </div>
-            <mat-icon *ngIf="selected">
+            <mat-icon *ngIf="selected" class="selection-modal--check">
               check
             </mat-icon>
           </ng-template>

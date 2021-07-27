@@ -15,7 +15,7 @@
     </ion-buttons>
     <ion-buttons class="receipt-preview--ion-buttons" slot="end">
       <ion-button *ngIf="base64ImagesWithSource.length > 1" (click)="delete()">
-        <mat-icon class="fy-icon-close" svgIcon="fy-delete" ></mat-icon>
+        <mat-icon class="fy-icon-close receipt-preview--delete-icon" svgIcon="fy-delete"></mat-icon>
       </ion-button>
     </ion-buttons>
 
@@ -25,7 +25,7 @@
 <ion-content>
   <div class="receipt-preview--content">
     <ion-slides class="ion-slides" #slides [options]="sliderOptions" zoom (ionSlideDidChange)="ionSlideDidChange()">
-      <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource">
+      <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i">
         <ion-slide>
           <div>
             <pinch-zoom>

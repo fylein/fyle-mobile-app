@@ -778,3 +778,16 @@ ref - https://stackoverflow.com/a/31162426
   box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.5);
   border-radius: 8px;
 }
+
+.payment-mode-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    max-height: 60%;
+    bottom: 0;
+  }
+
+  .modal-shadow{
+    display: none;
+  }
+}

@@ -2,7 +2,6 @@ import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -19,15 +18,26 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
-  private ngControl: NgControl;
 
   @Input() label = 'location';
+
   @Input() mandatory = false;
+
   @Input() disabled = false;
+
   @Input() allowCustom = false;
 
-  private innerValue;
+  @Input() hideSuffix = false;
+
+  @Input() recentLocations: string[] = [];
+
+  @Input() cacheName;
+
   displayValue;
+
+  private ngControl: NgControl;
+
+  private innerValue;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -38,6 +48,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   }
 
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
@@ -48,6 +59,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
+    console.log(this.recentLocations);
   }
 
   get value(): any {
@@ -69,23 +81,24 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   }
 
   async openModal() {
-    const selectionModal = await this.modalController.create({
-      component: FyLocationModalComponent,
-      componentProps: {
-        currentSelection: this.value,
-        allowCustom: this.allowCustom
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
-    });
+    if (!this.disabled) {
+      const selectionModal = await this.modalController.create({
+        component: FyLocationModalComponent,
+        componentProps: {
+          currentSelection: this.value,
+          allowCustom: this.allowCustom,
+          recentLocations: this.recentLocations,
+          cacheName: this.cacheName
+        }
+      });
 
-    await selectionModal.present();
+      await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
+      const { data } = await selectionModal.onWillDismiss();
 
-    if (data) {
-      this.value = data.selection;
+      if (data) {
+        this.value = data.selection;
+      }
     }
   }
 

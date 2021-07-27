@@ -21,6 +21,7 @@ export interface Datum {
 
 export class StatsResponse {
   data: Datum[];
+
   url: string;
 
   constructor({data, url}) {

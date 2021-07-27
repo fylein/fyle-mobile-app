@@ -11,11 +11,15 @@ import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.componen
 })
 export class ReceiptPreviewComponent implements OnInit {
 
-  @Input() base64ImagesWithSource: string[];
-  @Input() mode: string;
-  sliderOptions: any;
   @ViewChild('slides') imageSlides: any;
-  activeIndex: any;
+
+  @Input() base64ImagesWithSource: string[];
+
+  @Input() mode: string;
+
+  sliderOptions: { zoom: { maxRatio: number } };
+
+  activeIndex: number;
 
   constructor(
     private modalController: ModalController,
@@ -36,15 +40,15 @@ export class ReceiptPreviewComponent implements OnInit {
   async finish() {
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource
-    })
+    });
   }
 
   async close() {
     let message;
     if (this.base64ImagesWithSource.length > 1) {
-      message = `Are you sure you want to discard the ${this.base64ImagesWithSource.length} receipts you just captured?`
+      message = `Are you sure you want to discard the ${this.base64ImagesWithSource.length} receipts you just captured?`;
     } else {
-      message = 'Not a good picture? No worries. Discard and click again.'
+      message = 'Not a good picture? No worries. Discard and click again.';
     }
     const closePopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
@@ -66,10 +70,10 @@ export class ReceiptPreviewComponent implements OnInit {
 
     await closePopOver.present();
 
-    const {data} = await closePopOver.onWillDismiss();
+    const { data } = await closePopOver.onWillDismiss();
 
     if (data && data.action) {
-      if (data.action === 'discard') { 
+      if (data.action === 'discard') {
         this.retake();
       }
     }
@@ -158,10 +162,10 @@ export class ReceiptPreviewComponent implements OnInit {
 
     await deletePopOver.present();
 
-    const {data} = await deletePopOver.onWillDismiss();
+    const { data } = await deletePopOver.onWillDismiss();
 
     if (data && data.action) {
-      if (data.action === 'remove') { 
+      if (data.action === 'remove') {
         this.base64ImagesWithSource.splice(activeIndex, 1);
         if (this.base64ImagesWithSource.length === 0) {
           this.retake();
@@ -192,7 +196,6 @@ export class ReceiptPreviewComponent implements OnInit {
 
   async ionSlideDidChange() {
     const activeIndex = await this.imageSlides.getActiveIndex();
-    const length = await this.imageSlides.length();
     this.activeIndex = activeIndex;
   }
 

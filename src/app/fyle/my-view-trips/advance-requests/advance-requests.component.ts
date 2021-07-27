@@ -11,6 +11,7 @@ import { Observable } from 'rxjs';
 export class AdvanceRequestsComponent implements OnInit {
 
   @Input() advanceRequests: any[];
+
   homeCurrency$: Observable<string>;
 
   constructor(
