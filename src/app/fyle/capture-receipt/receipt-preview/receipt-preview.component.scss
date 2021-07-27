@@ -31,6 +31,10 @@
     min-width: 40px;
   }
 
+  &--delete-icon {
+    stroke: $black-light;
+  }
+
   &--content {
     height: 100%;
     padding: 16px;
