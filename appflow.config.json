@@ -1,6 +1,6 @@
 {
     "apps": [{
-        "appId": "4e13c24b",
+        "appId": "32316914",
         "root": "",
         "webBuildCommand": "ionic capacitor sync android --prod"
     }]
