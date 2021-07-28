@@ -1,4 +1,7 @@
 const fs = require('fs');
+const util = require('util');
+const path = require('path');
+const stat = util.promisify(fs.stat);
 const dotenv = require('dotenv');
 dotenv.config();
 const secrets = require('./secrets');
