@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
+import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 
 import '@capacitor-community/camera-preview';
@@ -13,7 +13,7 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { from, noop } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 
-const {CameraPreview} = Plugins;
+const { CameraPreview } = Plugins;
 
 type Image = Partial<{
   source: string;
@@ -44,6 +44,7 @@ export class CaptureReceiptPage implements OnInit {
   isInstafyleEnabled: boolean;
 
 
+  // eslint-disable-next-line max-params
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -55,7 +56,7 @@ export class CaptureReceiptPage implements OnInit {
     private networkService: NetworkService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   addExpenseToQueue(base64ImagesWithSource: Image) {
     let source = base64ImagesWithSource.source;
@@ -102,7 +103,7 @@ export class CaptureReceiptPage implements OnInit {
         nextActiveFlashMode = 'off';
       }
 
-      CameraPreview.setFlashMode({flashMode: nextActiveFlashMode});
+      CameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
       this.flashMode = nextActiveFlashMode;
 
       this.trackingService.flashModeSet({
@@ -116,7 +117,7 @@ export class CaptureReceiptPage implements OnInit {
       CameraPreview.getSupportedFlashModes().then(flashModes => {
         if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
           this.flashMode = this.flashMode || 'off';
-          CameraPreview.setFlashMode({flashMode: this.flashMode});
+          CameraPreview.setFlashMode({ flashMode: this.flashMode });
         }
       });
     }

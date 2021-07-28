@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 import { NgModule } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-=======
-import {NgModule} from '@angular/core';
-import {CommonModule, DatePipe, DecimalPipe} from '@angular/common';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatChipsModule} from '@angular/material/chips';
->>>>>>> e3f98afa0bcc695172f2aa27ac95bf2356444333
+import { MatChipsModule } from '@angular/material/chips';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';

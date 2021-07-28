@@ -117,7 +117,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
         let customFieldValues = [];
         if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
           customFieldValues = this.advanceRequestService
-          .modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+            .modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
         }
 
         res.customFields.map(customField => {
