@@ -258,6 +258,8 @@ export class AddEditExpensePage implements OnInit {
 
   isExpandedView = false;
 
+  billableDefaultValue: boolean;
+
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1688,6 +1690,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() => txnFieldsMap$),
       map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields)),
     ).subscribe((defaultValues) => {
+      this.billableDefaultValue = defaultValues.billable;
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1717,7 +1720,7 @@ export class AddEditExpensePage implements OnInit {
             control.patchValue({
               display_name: defaultValues[defaultValueColumn]
             });
-          } else if (defaultValueColumn === 'billable' && (control.value === null || control.value === undefined) && !control.touched) {
+          } else if (defaultValueColumn === 'billable' && this.fg.controls.project.value && (control.value === null || control.value === undefined) && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
@@ -1735,6 +1738,14 @@ export class AddEditExpensePage implements OnInit {
         }
       }),
       switchMap((initialProject) => this.fg.controls.project.valueChanges.pipe(
+        tap(initialProject => {
+          if (!initialProject) {
+            this.fg.patchValue({billable: false});
+          } else {
+            this.fg.patchValue({billable: this.billableDefaultValue});
+          }
+          console.log({initialProject})
+        }),
         startWith(initialProject),
         concatMap(project => activeCategories$.pipe(
           map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)))),
