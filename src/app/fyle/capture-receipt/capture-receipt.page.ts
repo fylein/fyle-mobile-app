@@ -75,16 +75,16 @@ export class CaptureReceiptPage implements OnInit {
       const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
       const isMultipleAdvanceEnabled = orgSettings && orgSettings.advance_account_settings &&
       orgSettings.advance_account_settings.multiple_accounts;
-      let paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+      const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
 
       let account;
 
       if (orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
-        account = paymentModes.find(res => res.acc.displayName === 'Paid by Company')
+        account = paymentModes.find(res => res.acc.displayName === 'Paid by Company');
       } else if (orgUserSettings?.preferences?.default_payment_mode ==='PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-        account = paymentModes.find(res => res.acc.displayName === 'Paid by Company')
-       } else {
-        account = paymentModes.find(res => res.acc.displayName === 'Paid by Me')
+        account = paymentModes.find(res => res.acc.displayName === 'Paid by Company');
+      } else {
+        account = paymentModes.find(res => res.acc.displayName === 'Paid by Me');
       }
 
       if (!isConnected) {
