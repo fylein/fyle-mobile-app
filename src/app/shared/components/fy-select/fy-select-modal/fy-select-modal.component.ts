@@ -40,6 +40,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
+  @Input() label;
+
   value = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
@@ -86,7 +88,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         map((searchText) => {
           const initial = [];
 
-          if (this.nullOption) {
+          if (this.nullOption && this.currentSelection) {
             initial.push({ label: 'None', value: null });
           }
 
@@ -129,7 +131,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     } else {
       const initial = [];
 
-      if (this.nullOption) {
+      if (this.nullOption && this.currentSelection) {
         initial.push({ label: 'None', value: null });
       }
 

@@ -135,7 +135,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         placeholder: this.placeholder,
         showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,
-        recentlyUsed: this.recentlyUsed
+        recentlyUsed: this.recentlyUsed,
+        label: this.label
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),

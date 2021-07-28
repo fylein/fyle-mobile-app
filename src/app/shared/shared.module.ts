@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import { NgModule } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+=======
+import {NgModule} from '@angular/core';
+import {CommonModule, DatePipe, DecimalPipe} from '@angular/common';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatChipsModule} from '@angular/material/chips';
+>>>>>>> e3f98afa0bcc695172f2aa27ac95bf2356444333
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -93,6 +101,7 @@ import { RouteSelectorComponent } from './components/route-selector/route-select
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 
+
 @NgModule({
   declarations: [
     AdvanceState,
@@ -180,7 +189,8 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     MatRadioModule,
     MatDatepickerModule,
     AgmCoreModule,
-    AgmDirectionModule
+    AgmDirectionModule,
+    MatChipsModule
   ],
   exports: [
     EllipsisPipe,
@@ -240,7 +250,8 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyFiltersComponent,
     FyFilterPillsComponent,
     RouteVisualizerComponent,
-    RouteSelectorComponent
+    RouteSelectorComponent,
+    MatChipsModule,
   ],
   providers: [
     DecimalPipe,
