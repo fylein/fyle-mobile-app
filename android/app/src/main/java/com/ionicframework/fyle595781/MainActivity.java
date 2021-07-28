@@ -1,4 +1,4 @@
-package com.ionicframework.fyle595781.staging;
+package com.ionicframework.fyle595781;
 import com.ahm.capacitor.camera.preview.CameraPreview;
 import android.os.Bundle;
 
