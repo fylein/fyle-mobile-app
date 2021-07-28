@@ -1,9 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
-console.log(process.env.NATIVE_CONFIG);
 const NATIVE_CONFIG  = JSON.parse(process.env.NATIVE_CONFIG);
-const bundle_id  = NATIVE_CONFIG.base.bundle_id;
-console.log(bundle_id);
+
 module.exports = {
     googleCredentials: `
             {
@@ -18,7 +16,7 @@ module.exports = {
                     "client_info": {
                     "mobilesdk_app_id": "` + process.env.FYLE_MOBILE_MOBILESDK_APP_ID + `",
                     "android_client_info": {
-                        "package_name": "` + process.env.NATIVE_CONFIG.base.bundle_id + `"
+                        "package_name": "` + NATIVE_CONFIG.base.bundle_id + `"
                     }
                     },
                     "oauth_client": [
@@ -43,7 +41,7 @@ module.exports = {
                             "client_id": "` + process.env.FYLE_MOBILE_CLIENT_ID_2 + `",
                             "client_type": 2,
                             "ios_info": {
-                            "bundle_id": "` + process.env.NATIVE_CONFIG.base.bundle_id + `"
+                            "bundle_id": "` + NATIVE_CONFIG.base.bundle_id + `"
                             }
                         }
                         ]
