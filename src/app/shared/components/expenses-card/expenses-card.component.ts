@@ -119,6 +119,22 @@ export class ExpensesCardComponent implements OnInit {
     this.getReceipt();
 
     if (this.expense.tx_file_ids) {
+
+      this.fileService.getFilesWithThumbnail(this.expense.tx_id).pipe(
+        map(res => {
+          console.log('thumbs');
+          console.log(res);
+          if (res.length > 0) {
+           this.fileService.downloadUrl(res[0].id).pipe(
+            map(downloadUrl => {
+              console.log(downloadUrl);
+              this.receiptThumbnail = {};
+              this.receiptThumbnail.url = downloadUrl;
+              const details = this.getReceiptDetails(this.receiptThumbnail);
+              this.receiptThumbnail.type = details.type;
+            })
+          ).subscribe(noop);
+        } else {
       this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
         map(downloadUrl => {
           this.receiptThumbnail = {};
@@ -126,7 +142,29 @@ export class ExpensesCardComponent implements OnInit {
           const details = this.getReceiptDetails(this.receiptThumbnail);
           this.receiptThumbnail.type = details.type;
         })
+      ).subscribe(noop);          
+        }
+        })
       ).subscribe(noop);
+      // this.fileService.getFilesWithThumbnail2(this.expense.tx_file_ids[0]).pipe(
+      //   map(res => {
+      //     console.log('thumbs');
+      //     console.log(res);
+      //     // this.receiptThumbnail = {};
+      //     // this.receiptThumbnail.url = downloadUrl;
+      //     // const details = this.getReceiptDetails(this.receiptThumbnail);
+      //     // this.receiptThumbnail.type = details.type;
+      //   })
+      // ).subscribe(noop);
+      
+      // this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
+      //   map(downloadUrl => {
+      //     this.receiptThumbnail = {};
+      //     this.receiptThumbnail.url = downloadUrl;
+      //     const details = this.getReceiptDetails(this.receiptThumbnail);
+      //     this.receiptThumbnail.type = details.type;
+      //   })
+      // ).subscribe(noop);
     }
 
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
@@ -242,7 +280,6 @@ export class ExpensesCardComponent implements OnInit {
 
     return res;
   }
-
 
   getReceiptExtension(url) {
     let res = null;

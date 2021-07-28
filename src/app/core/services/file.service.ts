@@ -20,6 +20,20 @@ export class FileService {
     );
   }
 
+  getFilesWithThumbnail(txnId: string): Observable<any[]> {
+                // [ORIGINAL, SMALL_THUMB, LARGE_THUMB, CROPPED, ENCRYPTED, THUMBNAILx200x200]"
+    return this.apiService.get('/files?skip_html=true&purpose=THUMBNAILx200x200&transaction_id=' + txnId);
+  } 
+
+  getFilesWithThumbnail2(fileId: string): Observable<string> {
+    return this.apiService.post('/files/download_url', {
+      params: {
+        file_id: fileId,
+        purpose: 'THUMBNAIL'
+      }
+    })
+  }
+
   base64Download(fileId) {
     return this.apiService.get('/files/' + fileId + '/download_b64');
   }

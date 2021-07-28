@@ -26,14 +26,16 @@
               Uploading
             </div>
           </div>
-          <ion-img *ngIf="receiptThumbnail" class="expenses-card--receipt-icon" [src]="receiptThumbnail.url"> </ion-img>
         </div>
-        <div class="expenses-card--receipt-thumbnail-container" *ngIf="receiptThumbnail">
-          <pdf-viewer *ngIf="receiptThumbnail.type == 'pdf'" class="expenses-card--receipt-thumbnail" [page]="1"
+        <div class="expenses-card--receipt-thumbnail-container" *ngIf="receiptThumbnail && receiptThumbnail.type == 'image'">
+          <!-- <pdf-viewer *ngIf="receiptThumbnail.type == 'pdf'" class="expenses-card--receipt-thumbnail" [page]="1"
             [src]="receiptThumbnail.url" [original-size]="true" [render-text]='true' [show-all]="false"
-            [fit-to-page]="true"></pdf-viewer>
+            [fit-to-page]="true"></pdf-viewer> -->
           <ion-img *ngIf="receiptThumbnail.type == 'image'" class="expenses-card--receipt-thumbnail"
             [src]="receiptThumbnail.url"> </ion-img>
+        </div>
+        <div class="expenses-card--receipt-container" *ngIf="receiptThumbnail && receiptThumbnail.type == 'pdf'">
+          <ion-img class="expenses-card--receipt-icon" [src]="receipt"></ion-img>
         </div>
         </div>
 
