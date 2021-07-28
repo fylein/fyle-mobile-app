@@ -221,13 +221,13 @@ export class CaptureReceiptPage implements OnInit {
     this.lastImage = base64PictureData;
     if (!this.isBulkMode) {
       this.base64ImagesWithSource.push({
-        source: 'MOBILE_SINGLE',
+        source: 'MOBILE_DASHCAM_SINGLE',
         base64Image: base64PictureData
       });
       this.onSingleCapture();
     } else {
       this.base64ImagesWithSource.push({
-        source: 'MOBILE_BULK',
+        source: 'MOBILE_DASHCAM_BULK',
         base64Image: base64PictureData
       });
       this.onBulkCapture();
@@ -252,7 +252,7 @@ export class CaptureReceiptPage implements OnInit {
             imageBase64Strings.forEach((base64String, key) => {
               const base64PictureData = 'data:image/jpeg;base64,' + base64String;
               this.base64ImagesWithSource.push({
-                source: 'MOBILE_GALLERY',
+                source: 'MOBILE_DASHCAM_GALLERY',
                 base64Image: base64PictureData
               });
 
