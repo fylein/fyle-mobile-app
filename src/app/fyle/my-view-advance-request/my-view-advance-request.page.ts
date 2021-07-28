@@ -34,6 +34,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   customFields$: Observable<any>;
 
+  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -115,7 +116,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
       map(res => {
         let customFieldValues = [];
         if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
-          customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+          customFieldValues = this.advanceRequestService
+          .modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
         }
 
         res.customFields.map(customField => {

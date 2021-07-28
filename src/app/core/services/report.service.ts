@@ -1,19 +1,19 @@
-import {Injectable} from '@angular/core';
-import {ApiService} from './api.service';
-import {NetworkService} from './network.service';
-import {StorageService} from './storage.service';
-import {concatMap, map, reduce, shareReplay, switchMap, tap} from 'rxjs/operators';
-import {from, of, range, Subject} from 'rxjs';
-import {AuthService} from './auth.service';
-import {ApiV2Service} from './api-v2.service';
-import {DateService} from './date.service';
-import {ExtendedReport} from '../models/report.model';
-import {OfflineService} from 'src/app/core/services/offline.service';
-import {isEqual} from 'lodash';
-import {DataTransformService} from './data-transform.service';
-import {Cacheable, CacheBuster} from 'ts-cacheable';
-import {TransactionService} from './transaction.service';
-import {StatsResponse} from '../models/v2/stats-response.model';
+import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
+import { NetworkService } from './network.service';
+import { StorageService } from './storage.service';
+import { concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { from, of, range, Subject } from 'rxjs';
+import { AuthService } from './auth.service';
+import { ApiV2Service } from './api-v2.service';
+import { DateService } from './date.service';
+import { ExtendedReport } from '../models/report.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { isEqual } from 'lodash';
+import { DataTransformService } from './data-transform.service';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { TransactionService } from './transaction.service';
+import { StatsResponse } from '../models/v2/stats-response.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -22,6 +22,7 @@ const reportsCacheBuster$ = new Subject<void>();
 })
 export class ReportService {
 
+  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -225,6 +226,7 @@ export class ReportService {
         state: ['DRAFT', 'APPROVER_PENDING']
       },
       all: {
+        // eslint-disable-next-line max-len
         state: ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVED', 'APPROVER_PENDING', 'APPROVER_INQUIRY', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID', 'REJECTED']
       }
     };
@@ -475,9 +477,9 @@ export class ReportService {
       return of([]);
     }
     const count = rptIds.length > 50 ? rptIds.length / 50 : 1;
-    return range(0,  count).pipe(
+    return range(0, count).pipe(
       map(page => rptIds.slice((page) * 50, (page + 1) * 50)),
-      concatMap(rptIds => this.apiService.get('/reports/approvers', { params: {report_ids: rptIds} })),
+      concatMap(rptIds => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
       reduce((acc, curr) => acc.concat(curr), [])
     );
   }
@@ -504,14 +506,18 @@ export class ReportService {
 
     return this.getPaginatedERptcCount(params).pipe(
       switchMap((results) =>
-      // getting all results -> offset = 0, limit = count
+        // getting all results -> offset = 0, limit = count
         this.getPaginatedERptc(0, results.count, params)
       ),
       switchMap((erpts) => {
         const rptIds = erpts.map((erpt) => erpt.rp.id);
 
         return this.getApproversInBulk(rptIds).pipe(
-          map(approvals => this.addApprovers(erpts, approvals).filter(erpt => !erpt.rp.approvals || (erpt.rp.approvals && !erpt.rp.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))))
+          map(approvals => this.addApprovers(erpts, approvals)
+            .filter(erpt => !erpt.rp.approvals || (erpt.rp.approvals && !erpt.rp.approvals
+              .some((approval) => approval.state === 'APPROVAL_DONE'))
+            )
+          )
         );
       }),
     );

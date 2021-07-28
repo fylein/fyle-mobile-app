@@ -39,6 +39,7 @@ export class DashboardPage implements OnInit {
 
   currentStateIndex = 0;
 
+  // eslint-disable-next-line max-params
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,

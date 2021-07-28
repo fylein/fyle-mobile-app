@@ -22,6 +22,7 @@ export class HelpPage implements OnInit {
 
   contactSupportLoading = false;
 
+  // eslint-disable-next-line max-params
   constructor(
     private modalController: ModalController,
     private orgUserService: OrgUserService,

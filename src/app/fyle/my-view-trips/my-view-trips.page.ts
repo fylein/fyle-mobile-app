@@ -75,6 +75,7 @@ export class MyViewTripsPage implements OnInit {
 
   closeLoading = false;
 
+  // eslint-disable-next-line max-params
   constructor(
     private tripRequestsService: TripRequestsService,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
@@ -120,7 +121,8 @@ export class MyViewTripsPage implements OnInit {
   }
 
   getTripRequestCustomFields(allTripRequestCustomFields, tripRequest: ExtendedTripRequest, requestType, requestObj) {
-    const customFields = this.tripRequestCustomFieldsService.filterByRequestTypeAndTripType(allTripRequestCustomFields, requestType, tripRequest.trp_trip_type);
+    const customFields = this.tripRequestCustomFieldsService
+      .filterByRequestTypeAndTripType(allTripRequestCustomFields, requestType, tripRequest.trp_trip_type);
     requestObj.custom_field_values = this.customFieldsService.standardizeCustomFields(requestObj.custom_field_values, customFields);
     return requestObj;
   }
@@ -128,7 +130,8 @@ export class MyViewTripsPage implements OnInit {
   getRestrictedApprovers(approvals, tripRequest: ExtendedTripRequest) {
     const approvalStates = ['APPROVAL_PENDING', 'APPROVAL_DONE'];
 
-    const approversNotAllowed = approvals.filter((approver) => approvalStates.indexOf(approver.state) > -1).map((approver) => approver.approver_id);
+    const approversNotAllowed = approvals
+      .filter((approver) => approvalStates.indexOf(approver.state) > -1).map((approver) => approver.approver_id);
 
     approversNotAllowed.push(tripRequest.ou_id);
 
@@ -228,7 +231,7 @@ export class MyViewTripsPage implements OnInit {
   }
 
   editTrip() {
-    this.router.navigate(['/', 'enterprise', 'my_add_edit_trip', {id: this.activatedRoute.snapshot.params.id}]);
+    this.router.navigate(['/', 'enterprise', 'my_add_edit_trip', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   async pullBack() {
@@ -325,8 +328,10 @@ export class MyViewTripsPage implements OnInit {
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
-            return [location.from_city.city ? location.from_city.city : location.from_city.display,
-              location.to_city.city ? location.to_city.city : location.to_city.display];
+            return [
+              location.from_city.city ? location.from_city.city : location.from_city.display,
+              location.to_city.city ? location.to_city.city : location.to_city.display
+            ];
           }
 
           return location.from_city.city ? location.from_city.city : location.from_city.display;

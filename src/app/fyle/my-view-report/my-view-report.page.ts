@@ -1,10 +1,10 @@
-import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import {Observable, from, noop, concat, Subject} from 'rxjs';
+import { Observable, from, noop, concat, Subject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import {map, switchMap, finalize, shareReplay, takeUntil, tap} from 'rxjs/operators';
+import { map, switchMap, finalize, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -13,8 +13,8 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
 import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
-import {NetworkService} from '../../core/services/network.service';
-import {TrackingService} from '../../core/services/tracking.service';
+import { NetworkService } from '../../core/services/network.service';
+import { TrackingService } from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-my-view-report',
@@ -49,6 +49,7 @@ export class MyViewReportPage implements OnInit {
 
   onPageExit = new Subject();
 
+  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -118,16 +119,24 @@ export class MyViewReportPage implements OnInit {
     this.sharedWith$ = this.reportService
       .getExports(this.activatedRoute.snapshot.params.id)
       .pipe(
-        map(pdfExports => pdfExports.results.sort((a, b) => (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0)).map((pdfExport) => pdfExport.sent_to).filter((item, index, inputArray) => inputArray.indexOf(item) === index))
+        map(pdfExports => pdfExports.results
+          .sort((a, b) =>
+            (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0)
+          )
+          .map((pdfExport) => pdfExport.sent_to)
+          .filter((item, index, inputArray) => inputArray.indexOf(item) === index))
       );
 
     this.reportApprovals$ = this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id).pipe(
-      map(reportApprovals => reportApprovals.filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1).map((approval) => {
-        if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
-          approval.approved_at = approval.updated_at;
-        }
-        return approval;
-      }))
+      map(reportApprovals => reportApprovals
+        .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1
+        )
+        .map((approval) => {
+          if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
+            approval.approved_at = approval.updated_at;
+          }
+          return approval;
+        }))
     );
 
     this.etxns$ = from(this.authService.getEou()).pipe(
@@ -278,7 +287,7 @@ export class MyViewReportPage implements OnInit {
   }
 
   async shareReport(event) {
-    this.trackingService.clickShareReport({Asset: 'Mobile'});
+    this.trackingService.clickShareReport({ Asset: 'Mobile' });
 
     const popover = await this.popoverController.create({
       component: ShareReportComponent,

@@ -28,6 +28,7 @@ export class MyTripsPage implements OnInit {
 
   navigateBack = false;
 
+  // eslint-disable-next-line max-params
   constructor(
     private tripRequestsService: TripRequestsService,
     private loaderService: LoaderService,

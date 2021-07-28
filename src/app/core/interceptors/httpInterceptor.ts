@@ -29,6 +29,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
   private accessTokenSubject = new BehaviorSubject<string>(null);
 
+  // eslint-disable-next-line max-params
   constructor(
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,

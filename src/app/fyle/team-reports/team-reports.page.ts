@@ -63,6 +63,7 @@ export class TeamReportsPage implements OnInit {
 
   onPageExit = new Subject();
 
+  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -232,6 +233,8 @@ export class TeamReportsPage implements OnInit {
     if (this.filters) {
       if (this.filters.state) {
         if (this.filters.state === 'ALL') {
+          // since this is a string can break it down furthur
+          // eslint-disable-next-line max-len
           newQueryParams.rp_state = 'in.(APPROVER_PENDING,APPROVER_INQUIRY,APPROVAL_DONE,COMPLETE,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
           newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
         } else if (this.filters.state === 'MYQUEUE') {
@@ -247,14 +250,17 @@ export class TeamReportsPage implements OnInit {
 
       if (this.filters.date) {
         if (this.filters.date === 'THISMONTH') {
+          const monthRange = this.dateService.getThisMonthRange();
           newQueryParams.and =
-            `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
+            `(rp_created_at.gte.${monthRange.from.toISOString()},rp_created_at.lt.${monthRange.to.toISOString()})`;
         } else if (this.filters.date === 'LASTMONTH') {
+          const monthRange = this.dateService.getLastMonthRange();
           newQueryParams.and =
-            `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
+            `(rp_created_at.gte.${monthRange.from.toISOString()},rp_created_at.lt.${monthRange.to.toISOString()})`;
         } else if (this.filters.date === 'CUSTOMDATE') {
-          newQueryParams.and =
-            `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
+          const startDate = this.filters.customDateStart.toISOString();
+          const endDate = this.filters.customDateEnd.toISOString();
+          newQueryParams.and = `(rp_created_at.gte.${startDate},rp_created_at.lt.${endDate})`;
         }
       }
 

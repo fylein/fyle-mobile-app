@@ -17,6 +17,7 @@ export class ActionPopoverComponent implements OnInit {
 
   @Input() actions;
 
+  // eslint-disable-next-line max-params
   constructor(
     private popupService: PopupService,
     private popoverController: PopoverController,

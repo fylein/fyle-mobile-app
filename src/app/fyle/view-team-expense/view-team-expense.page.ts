@@ -58,6 +58,7 @@ export class ViewTeamExpensePage implements OnInit {
 
   comments$: Observable<any>;
 
+  // eslint-disable-next-line max-params
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,

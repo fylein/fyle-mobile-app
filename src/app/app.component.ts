@@ -1,34 +1,34 @@
-import {Component, OnInit, EventEmitter, NgZone} from '@angular/core';
-import {Platform, MenuController, AlertController, NavController} from '@ionic/angular';
-import {SplashScreen} from '@ionic-native/splash-screen/ngx';
-import {StatusBar} from '@ionic-native/status-bar/ngx';
-import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
-import {map, switchMap, shareReplay} from 'rxjs/operators';
-import {Router, NavigationEnd, NavigationStart} from '@angular/router';
-import {AuthService} from 'src/app/core/services/auth.service';
-import {OfflineService} from 'src/app/core/services/offline.service';
-import {OrgUserService} from 'src/app/core/services/org-user.service';
-import {UserEventService} from 'src/app/core/services/user-event.service';
-import {PermissionsService} from 'src/app/core/services/permissions.service';
-import {DeviceService} from 'src/app/core/services/device.service';
-import {AppVersionService} from './core/services/app-version.service';
-import {environment} from 'src/environments/environment';
-import {RouterAuthService} from './core/services/router-auth.service';
-import {GlobalCacheConfig, globalCacheBusterNotifier} from 'ts-cacheable';
-import {MatIconRegistry} from '@angular/material/icon';
-import {DomSanitizer} from '@angular/platform-browser';
-import {NetworkService} from './core/services/network.service';
-import {Plugins, StatusBarStyle} from '@capacitor/core';
-import {FreshChatService} from './core/services/fresh-chat.service';
-import {DeepLinkService} from './core/services/deep-link.service';
-import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
+import { Component, OnInit, EventEmitter, NgZone } from '@angular/core';
+import { Platform, MenuController, AlertController, NavController } from '@ionic/angular';
+import { SplashScreen } from '@ionic-native/splash-screen/ngx';
+import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { forkJoin, from, iif, of, concat, Observable } from 'rxjs';
+import { map, switchMap, shareReplay } from 'rxjs/operators';
+import { Router, NavigationEnd, NavigationStart } from '@angular/router';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { UserEventService } from 'src/app/core/services/user-event.service';
+import { PermissionsService } from 'src/app/core/services/permissions.service';
+import { DeviceService } from 'src/app/core/services/device.service';
+import { AppVersionService } from './core/services/app-version.service';
+import { environment } from 'src/environments/environment';
+import { RouterAuthService } from './core/services/router-auth.service';
+import { GlobalCacheConfig, globalCacheBusterNotifier } from 'ts-cacheable';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+import { NetworkService } from './core/services/network.service';
+import { Plugins, StatusBarStyle } from '@capacitor/core';
+import { FreshChatService } from './core/services/fresh-chat.service';
+import { DeepLinkService } from './core/services/deep-link.service';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import * as Sentry from '@sentry/angular';
-import {PushNotificationService} from './core/services/push-notification.service';
-import {TrackingService} from './core/services/tracking.service';
-import {LoginInfoService} from './core/services/login-info.service';
+import { PushNotificationService } from './core/services/push-notification.service';
+import { TrackingService } from './core/services/tracking.service';
+import { LoginInfoService } from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
 
-const {App} = Plugins;
+const { App } = Plugins;
 const CapStatusBar = Plugins.StatusBar;
 
 @Component({
@@ -61,6 +61,7 @@ export class AppComponent implements OnInit {
 
   previousUrl: string;
 
+  // eslint-disable-next-line max-params
   constructor(
     private platform: Platform,
     private statusBar: StatusBar,
@@ -186,7 +187,7 @@ export class AppComponent implements OnInit {
           appVersion: deviceInfo.appVersion
         });
 
-        this.router.navigate(['/', 'auth', 'app_version', {message: res.message}]);
+        this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
       }
     });
   }
@@ -341,7 +342,7 @@ export class AppComponent implements OnInit {
             title: 'Switch Organization',
             isVisible: (orgs.length > 1) && !this.isSwitchedToDelegator,
             icon: 'fy-switch-new',
-            route: ['/', 'auth', 'switch_org', {choose: true}]
+            route: ['/', 'auth', 'switch_org', { choose: true }]
           },
           {
             title: 'Delegated Accounts',
@@ -353,7 +354,7 @@ export class AppComponent implements OnInit {
             title: 'Switch back to my account',
             isVisible: this.isSwitchedToDelegator,
             icon: 'fy-switch',
-            route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}]
+            route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }]
           },
           {
             title: 'Help',
@@ -449,7 +450,7 @@ export class AppComponent implements OnInit {
             title: 'Switch Organization',
             isVisible: (orgs.length > 1),
             icon: 'fy-switch-new',
-            route: ['/', 'auth', 'switch_org', {choose: true}],
+            route: ['/', 'auth', 'switch_org', { choose: true }],
             disabled: true
           },
           {
@@ -463,7 +464,7 @@ export class AppComponent implements OnInit {
             title: 'Switch back to my account',
             isVisible: this.isSwitchedToDelegator,
             icon: 'fy-switch',
-            route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}],
+            route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
             disabled: true
           },
           {
@@ -482,7 +483,9 @@ export class AppComponent implements OnInit {
         - else it will be placed under 'Reports'
       */
       this.dividerTitle = 'Reports';
-      if (orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled))) {
+      if (orgSettings.trip_requests.enabled &&
+        (!orgSettings.trip_requests.enable_for_certain_employee ||
+          (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled))) {
         this.dividerTitle = 'Trips';
       }
       if (orgSettings.advances.enabled || orgSettings.advance_requests.enabled) {
@@ -524,7 +527,7 @@ export class AppComponent implements OnInit {
     });
 
     this.userEventService.onLogout(() => {
-      this.trackingService.onSignOut({Asset: 'Mobile'});
+      this.trackingService.onSignOut({ Asset: 'Mobile' });
       this.freshChatService.destory();
       this.router.navigate(['/', 'auth', 'sign_in']);
     });

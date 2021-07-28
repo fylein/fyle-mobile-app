@@ -1,19 +1,23 @@
-import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import {NetworkService} from '../../core/services/network.service';
-import {LoaderService} from '../../core/services/loader.service';
-import {ModalController, PopoverController} from '@ionic/angular';
-import {DateService} from '../../core/services/date.service';
-import {CurrencyService} from '../../core/services/currency.service';
-import {ActivatedRoute, Params, Router, NavigationEnd} from '@angular/router';
-import {TransactionsOutboxService} from '../../core/services/transactions-outbox.service';
-import {OfflineService} from '../../core/services/offline.service';
-import {PopupService} from '../../core/services/popup.service';
-import {debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, takeUntil, filter} from 'rxjs/operators';
-import {BehaviorSubject, concat, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject} from 'rxjs';
-import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
-import {CorporateCardExpense} from '../../core/models/v2/corporate-card-expense.model';
-import { CorporateCardExpensesSortFilterComponent } from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
-import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-expenses-search-filter/corporate-card-expenses-search-filter.component';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { NetworkService } from '../../core/services/network.service';
+import { LoaderService } from '../../core/services/loader.service';
+import { ModalController, PopoverController } from '@ionic/angular';
+import { DateService } from '../../core/services/date.service';
+import { CurrencyService } from '../../core/services/currency.service';
+import { ActivatedRoute, Params, Router, NavigationEnd } from '@angular/router';
+import { TransactionsOutboxService } from '../../core/services/transactions-outbox.service';
+import { OfflineService } from '../../core/services/offline.service';
+import { PopupService } from '../../core/services/popup.service';
+import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, takeUntil, filter } from 'rxjs/operators';
+import { BehaviorSubject, concat, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject } from 'rxjs';
+import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
+import { CorporateCardExpense } from '../../core/models/v2/corporate-card-expense.model';
+import {
+  CorporateCardExpensesSortFilterComponent
+} from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
+import {
+  CorporateCardExpensesSearchFilterComponent
+} from './corporate-card-expenses-search-filter/corporate-card-expenses-search-filter.component';
 
 @Component({
   selector: 'app-corporate-card-expenses',
@@ -66,7 +70,7 @@ export class CorporateCardExpensesPage implements OnInit {
 
   onPageExit = new Subject();
 
-
+  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -220,11 +224,11 @@ export class CorporateCardExpensesPage implements OnInit {
     );
 
     this.loadData$.subscribe(params => {
-      const queryParams: Params = {filters: JSON.stringify(this.filters)};
+      const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams,
-        replaceUrl : true
+        replaceUrl: true
       });
     });
 
@@ -284,11 +288,13 @@ export class CorporateCardExpensesPage implements OnInit {
 
     if (this.filters.date) {
       if (this.filters.date === 'THISMONTH') {
+        const thisMonth = this.dateService.getThisMonthRange();
         newQueryParams.and =
-          `(txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
+          `(txn_dt.gte.${thisMonth.from.toISOString()},txn_dt.lt.${thisMonth.to.toISOString()})`;
       } else if (this.filters.date === 'LASTMONTH') {
+        const lastMonth = this.dateService.getLastMonthRange();
         newQueryParams.and =
-          `(txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
+          `(txn_dt.gte.${lastMonth.from.toISOString()},txn_dt.lt.${lastMonth.to.toISOString()})`;
       } else if (this.filters.date === 'CUSTOMDATE') {
         newQueryParams.and =
           `(txn_dt.gte.${this.filters.customDateStart.toISOString()},txn_dt.lt.${this.filters.customDateEnd.toISOString()})`;
@@ -332,7 +338,7 @@ export class CorporateCardExpensesPage implements OnInit {
 
     await filterModal.present();
 
-    const {data} = await filterModal.onWillDismiss();
+    const { data } = await filterModal.onWillDismiss();
     if (data) {
       this.filters = Object.assign({}, this.filters, data.filters);
       this.currentPageNumber = 1;
@@ -353,7 +359,7 @@ export class CorporateCardExpensesPage implements OnInit {
 
     await sortModal.present();
 
-    const {data} = await sortModal.onWillDismiss();
+    const { data } = await sortModal.onWillDismiss();
     if (data) {
       this.filters = Object.assign({}, this.filters, data.sortOptions);
       this.currentPageNumber = 1;

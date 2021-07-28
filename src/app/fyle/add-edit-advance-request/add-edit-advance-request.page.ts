@@ -70,6 +70,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   saveAdvanceLoading = false;
 
 
+  // eslint-disable-next-line max-params
   constructor(
     private offlineService: OfflineService,
     private activatedRoute: ActivatedRoute,

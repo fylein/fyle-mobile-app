@@ -3,7 +3,7 @@ import { noop, Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import {getCurrencySymbol} from '@angular/common';
+import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { map } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -103,8 +103,8 @@ export class ExpensesCardComponent implements OnInit {
     this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
       map((orgSettings) => orgSettings.transaction_fields_settings &&
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields.project)
+        orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
+        orgSettings.transaction_fields_settings.transaction_mandatory_fields.project)
     );
 
     if (!this.expense.tx_id) {
@@ -136,7 +136,8 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getScanningReceiptCard(expense: Expense): boolean {
-    if (expense.tx_fyle_category && (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
+    if (expense.tx_fyle_category &&
+      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
       return false;
     } else {
       if (!expense.tx_currency && !expense.tx_amount) {

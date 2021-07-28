@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap} from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -60,6 +60,7 @@ export class SplitExpensePage implements OnInit {
 
   showErrorBlock: boolean;
 
+  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -100,7 +101,7 @@ export class SplitExpensePage implements OnInit {
       }, { emitEvent: false });
     }
 
-    let percentage = (splitExpenseForm.value.amount / this.amount ) * 100;
+    let percentage = (splitExpenseForm.value.amount / this.amount) * 100;
     percentage = parseFloat(percentage.toFixed(3));
 
     splitExpenseForm.patchValue({
@@ -110,7 +111,7 @@ export class SplitExpensePage implements OnInit {
     this.getTotalSplitAmount();
   }
 
-  onChangePercentage(splitExpenseForm, index){
+  onChangePercentage(splitExpenseForm, index) {
     if (!splitExpenseForm.controls.percentage._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.percentage))) {
       return;
     }
@@ -165,7 +166,14 @@ export class SplitExpensePage implements OnInit {
   uploadNewFiles(files) {
     const fileObjs = [];
     files.forEach(file => {
-      if (file.type && (file.type.indexOf('image') > -1 || file.type.indexOf('jpeg') > -1 || file.type.indexOf('jpg') > -1 || file.type.indexOf('png') > -1)) {
+      if (file.type &&
+        (
+          file.type.indexOf('image') > -1 ||
+          file.type.indexOf('jpeg') > -1 ||
+          file.type.indexOf('jpg') > -1 ||
+          file.type.indexOf('png') > -1
+        )
+      ) {
         file.type = 'image';
       } else if (file.type && file.type.indexOf('pdf') > -1) {
         file.type = 'pdf';
@@ -244,7 +252,7 @@ export class SplitExpensePage implements OnInit {
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
-      if (this.amount && this.amount !== this.totalSplitAmount ) {
+      if (this.amount && this.amount !== this.totalSplitAmount) {
         this.showErrorBlock = true;
         this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
         setTimeout(() => {
@@ -406,8 +414,8 @@ export class SplitExpensePage implements OnInit {
     }
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
-      currency: [currency, ],
-      percentage: [percentage, ],
+      currency: [currency,],
+      percentage: [percentage,],
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])]
     });
 

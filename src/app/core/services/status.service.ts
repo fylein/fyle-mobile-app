@@ -1,9 +1,6 @@
 import {Injectable} from '@angular/core';
 import {ApiService} from './api.service';
 import {map} from 'rxjs/operators';
-import {DataTransformService} from './data-transform.service';
-import {DateService} from './date.service';
-import {DatePipe} from '@angular/common';
 import {ExtendedStatus} from '../models/extended_status.model';
 
 @Injectable({
@@ -12,10 +9,7 @@ import {ExtendedStatus} from '../models/extended_status.model';
 export class StatusService {
 
   constructor(
-    private apiService: ApiService,
-    private dataTransformService: DataTransformService,
-    private dateService: DateService,
-    private datePipe: DatePipe
+    private apiService: ApiService
   ) { }
 
   find(objectType, objectId) {

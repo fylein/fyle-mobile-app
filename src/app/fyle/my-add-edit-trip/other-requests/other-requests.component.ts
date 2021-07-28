@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/dot-notation */
-import {Observable, forkJoin, noop, of, from, zip, combineLatest, throwError} from 'rxjs';
+import { Observable, forkJoin, noop, of, from, zip, combineLatest, throwError } from 'rxjs';
 import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
@@ -17,9 +17,9 @@ import { HotelRequestService } from 'src/app/core/services/hotel-request.service
 import { SavePopoverComponent } from '../save-popover/save-popover.component';
 import * as moment from 'moment';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import {TripRequestPolicyService} from '../../../core/services/trip-request-policy.service';
-import {PolicyViolationComponent} from '../policy-violation/policy-violation.component';
-import {StatusService} from '../../../core/services/status.service';
+import { TripRequestPolicyService } from '../../../core/services/trip-request-policy.service';
+import { PolicyViolationComponent } from '../policy-violation/policy-violation.component';
+import { StatusService } from '../../../core/services/status.service';
 import { DateService } from 'src/app/core/services/date.service';
 
 @Component({
@@ -93,6 +93,7 @@ export class OtherRequestsComponent implements OnInit {
 
   otherDetailsForm: FormGroup;
 
+  // eslint-disable-next-line max-params
   constructor(
     private modalController: ModalController,
     private formBuilder: FormBuilder,
@@ -151,7 +152,7 @@ export class OtherRequestsComponent implements OnInit {
       if (customField.type === 'DATE' && customField.value) {
         customField.value = moment(customField.value).format('y-MM-DD');
       }
-      return {id: customField.id, name: customField.name, value: customField.value};
+      return { id: customField.id, name: customField.name, value: customField.value };
     });
 
     if (type === 'ADVANCE') {
@@ -178,7 +179,8 @@ export class OtherRequestsComponent implements OnInit {
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-          customFields = customFields.filter(field => field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
+          customFields = customFields
+            .filter(field => field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
 
           for (const customField of customFields) {
             let value;
@@ -215,7 +217,8 @@ export class OtherRequestsComponent implements OnInit {
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-          customFields = customFields.filter(field => field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
+          customFields = customFields
+            .filter(field => field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
 
           for (const customField of customFields) {
             let value;
@@ -323,7 +326,7 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
-  async showPolicyViolationPopup(policyPopupRules: any [], policyActionDescription: string, tripReq) {
+  async showPolicyViolationPopup(policyPopupRules: any[], policyActionDescription: string, tripReq) {
     const latestComment = await this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).toPromise();
 
     const policyViolationsModal = await this.modalController.create({
@@ -385,7 +388,7 @@ export class OtherRequestsComponent implements OnInit {
                 })
               );
             } else {
-              return of({tripReq});
+              return of({ tripReq });
             }
           }),
           catchError((err) => {
@@ -394,7 +397,7 @@ export class OtherRequestsComponent implements OnInit {
                 status: 'Policy Violated'
               });
             } else {
-              return of({tripReq});
+              return of({ tripReq });
             }
           })
         );
@@ -406,7 +409,7 @@ export class OtherRequestsComponent implements OnInit {
               switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
                 switchMap(result => {
                   if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
+                    return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
                       map(() => res)
                     );
                   } else {
@@ -420,7 +423,7 @@ export class OtherRequestsComponent implements OnInit {
               switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
                 switchMap(result => {
                   if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
+                    return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
                       map(() => res)
                     );
                   } else {
@@ -473,7 +476,7 @@ export class OtherRequestsComponent implements OnInit {
       this.otherDetailsForm.reset();
       this.modalController.dismiss();
       this.router.navigate(['/', 'enterprise', 'my_trips']);
-    }, _ => {});
+    }, _ => { });
   }
 
   makeTripRequestFromForm(fgValues) {
@@ -985,7 +988,7 @@ export class OtherRequestsComponent implements OnInit {
     );
 
     this.transportationMode$ = of(this.transportationRequestsService.getTransportationModes());
-    this.preferredTransportationTiming$ = of (this.transportationRequestsService.getTransportationPreferredTiming());
+    this.preferredTransportationTiming$ = of(this.transportationRequestsService.getTransportationPreferredTiming());
 
     this.initializeOtherRequests();
 

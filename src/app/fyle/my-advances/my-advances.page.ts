@@ -1,13 +1,13 @@
-import {Component, EventEmitter, OnInit} from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import {concat, range, zip, combineLatest, iif, of} from 'rxjs';
+import { concat, range, zip, combineLatest, iif, of } from 'rxjs';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
-import {concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import {NetworkService} from '../../core/services/network.service';
+import { NetworkService } from '../../core/services/network.service';
 
 @Component({
   selector: 'app-my-advances',
@@ -31,6 +31,7 @@ export class MyAdvancesPage implements OnInit {
 
   onPageExit = new Subject();
 
+  // eslint-disable-next-line max-params
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
@@ -64,20 +65,24 @@ export class MyAdvancesPage implements OnInit {
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({ areq_trip_request_id: 'is.null', areq_advance_id: 'is.null' }).pipe(
-      concatMap(count => {
-        count = count > 10 ? count / 10 : 1;
-        return range(0, count);
-      }),
-      concatMap(count => this.advanceRequestService.getMyadvanceRequests({
-        offset: 10 * count,
-        limit: 10,
-        queryParams: { areq_trip_request_id: 'is.null', areq_advance_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
-      })),
-      map(res => res.data),
-      reduce((acc, curr) => acc.concat(curr)),
-      startWith([])
-    );
+    this.myAdvancerequests$ = this.advanceRequestService.getMyAdvanceRequestsCount({
+      areq_trip_request_id: 'is.null',
+      areq_advance_id: 'is.null'
+    })
+      .pipe(
+        concatMap(count => {
+          count = count > 10 ? count / 10 : 1;
+          return range(0, count);
+        }),
+        concatMap(count => this.advanceRequestService.getMyadvanceRequests({
+          offset: 10 * count,
+          limit: 10,
+          queryParams: { areq_trip_request_id: 'is.null', areq_advance_id: 'is.null', order: 'areq_created_at.desc,areq_id.desc' }
+        })),
+        map(res => res.data),
+        reduce((acc, curr) => acc.concat(curr)),
+        startWith([])
+      );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
       concatMap(count => {
@@ -87,7 +92,7 @@ export class MyAdvancesPage implements OnInit {
       concatMap(count => this.advanceService.getMyadvances({
         offset: 10 * count,
         limit: 10,
-        queryParams: {order: 'adv_created_at.desc,adv_id.desc' }
+        queryParams: { order: 'adv_created_at.desc,adv_id.desc' }
       })),
       map(res => res.data),
       reduce((acc, curr) => acc.concat(curr)),
@@ -103,7 +108,7 @@ export class MyAdvancesPage implements OnInit {
           iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
         ]).pipe(
           map(res => {
-            const [myAdvancerequestsRes,  myAdvancesRes] = res;
+            const [myAdvancerequestsRes, myAdvancesRes] = res;
             let myAdvancerequests = myAdvancerequestsRes || [];
             let myAdvances = myAdvancesRes || [];
             myAdvancerequests = myAdvancerequests.map(data => ({

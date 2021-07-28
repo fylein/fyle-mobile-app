@@ -1,5 +1,16 @@
 import { Component, DoCheck, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { AbstractControl, ControlValueAccessor, FormArray, FormBuilder, FormControl, FormGroup, NgControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  NgControl,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  Validators
+} from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
 import { Subscription } from 'rxjs';

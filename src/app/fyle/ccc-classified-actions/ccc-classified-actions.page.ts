@@ -32,6 +32,7 @@ export class CccClassifiedActionsPage implements OnInit {
 
   pageState: string;
 
+  // eslint-disable-next-line max-params
   constructor(
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private activatedRoute: ActivatedRoute,
@@ -69,6 +70,7 @@ export class CccClassifiedActionsPage implements OnInit {
   async unmarkExpense(cccExpense: CorporateCardExpense) {
     const popupResult = await this.popupService.showPopup({
       header: 'Are you sure you want to Unmark',
+      // eslint-disable-next-line max-len
       message: 'This transaction will be moved back to the <strong>Unclassified</strong> tab where you can classify it later. Are you sure you want to proceed?',
       primaryCta: {
         text: 'Yes, Unmark'
@@ -91,6 +93,7 @@ export class CccClassifiedActionsPage implements OnInit {
   async undoDismissal(cccExpense: CorporateCardExpense) {
     const popupResult = await this.popupService.showPopup({
       header: 'Are you sure you want to Undo',
+      // eslint-disable-next-line max-len
       message: 'This transaction will be moved back to the <strong>Unclassified</strong> tab where you can classify it later. Are you sure you want to proceed?',
       primaryCta: {
         text: 'Yes, Undo'
@@ -113,6 +116,7 @@ export class CccClassifiedActionsPage implements OnInit {
   async unmatchExpense(cccExpense: CorporateCardExpense) {
     const popupResult = await this.popupService.showPopup({
       header: 'Are you sure you want to Unmatch ?',
+      // eslint-disable-next-line max-len
       message: 'This transaction will be moved to the Unclassified tab where you can classify it later. Are you sure you want to unmatch this transaction?',
       primaryCta: {
         text: 'Yes, Unmatch'

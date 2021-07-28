@@ -22,6 +22,7 @@ export class DelegatedAccountsPage implements OnInit {
 
   searchInput = '';
 
+  // eslint-disable-next-line max-params
   constructor(
     private orgUserService: OrgUserService,
     private offlineService: OfflineService,

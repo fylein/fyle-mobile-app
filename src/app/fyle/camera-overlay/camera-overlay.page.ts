@@ -48,6 +48,7 @@ export class CameraOverlayPage implements OnInit, OnDestroy {
 
   navigateBack = false;
 
+  // eslint-disable-next-line max-params
   constructor(
       private activatedRoute: ActivatedRoute,
       private transactionsOutboxService: TransactionsOutboxService,

@@ -13,7 +13,7 @@ import { cloneDeep, indexOf } from 'lodash';
 import { ReceiptService } from './receipt.service';
 import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
-import {TrackingService} from './tracking.service';
+import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 
 @Injectable({
@@ -32,6 +32,7 @@ export class TransactionsOutboxService {
 
   ROOT_ENDPOINT: string;
 
+  // eslint-disable-next-line max-params
   constructor(
     private storageService: StorageService,
     private dateService: DateService,
@@ -198,6 +199,8 @@ export class TransactionsOutboxService {
     this.saveQueue();
   }
 
+  // TODO: High impact area. Fix later
+  // eslint-disable-next-line max-params
   addEntry(transaction, dataUrls, comments?, reportId?, applyMagic?, receiptsData?) {
     this.queue.push({
       transaction,
@@ -211,6 +214,8 @@ export class TransactionsOutboxService {
     this.saveQueue();
   }
 
+  // TODO: High impact area. Fix later
+  // eslint-disable-next-line max-params
   addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
     this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData);
     return this.syncEntry(this.queue.pop());
@@ -247,7 +252,9 @@ export class TransactionsOutboxService {
     if (!entry.receiptsData) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
-          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates).then((fileObj) => fileObj, (evt) => {
+          const fileObjPromise = that.fileUpload(
+            dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates
+          ).then((fileObj) => fileObj, (evt) => {
             const progressPercentage = 100.0 * evt.loaded / evt.total;
           });
 

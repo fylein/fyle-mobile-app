@@ -13,6 +13,7 @@ import {ReportService} from '../core/services/report.service';
 })
 export class DeepLinkRedirectionPage implements OnInit {
 
+  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,

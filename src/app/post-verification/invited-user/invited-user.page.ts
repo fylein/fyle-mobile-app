@@ -36,6 +36,7 @@ export class InvitedUserPage implements OnInit {
 
   lowercaseValidationDisplay$: Observable<boolean>;
 
+  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private fb: FormBuilder,

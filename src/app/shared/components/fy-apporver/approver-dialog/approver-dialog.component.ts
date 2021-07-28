@@ -41,6 +41,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
   areApproversAdded = true;
 
+  // eslint-disable-next-line max-params
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
@@ -76,7 +77,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
         concatMap(approver => {
           if (this.from === 'TRIP_REQUEST') {
             return this.tripRequestsService.addApproverETripRequests(this.id, approver, data.message);
-          } else if (this.from === 'ADVANCE_REQUEST')  {
+          } else if (this.from === 'ADVANCE_REQUEST') {
             return this.advanceRequestService.addApprover(this.id, approver, data.message);
           }
           else {
@@ -86,7 +87,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
         reduce((acc, curr) => acc.concat(curr), []),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
-        this.modalController.dismiss({reload: true});
+        this.modalController.dismiss({ reload: true });
       });
     }
   }
@@ -152,7 +153,8 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
           employees = employees.filter(employee => this.intialSelectedApproverEmails.indexOf(employee.us_email) === -1);
           return this.getSearchedUsersList(null).pipe(
             map(searchedEmployees => {
-              searchedEmployees = searchedEmployees.filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email));
+              searchedEmployees = searchedEmployees
+                .filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email));
               return employees.concat(searchedEmployees);
             })
           );

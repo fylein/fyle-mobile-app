@@ -72,8 +72,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   constructor(
     private modalController: ModalController,
     private injector: Injector,
-    private modalProperties: ModalPropertiesService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private modalProperties: ModalPropertiesService
   ) { }
 
   ngOnInit() {

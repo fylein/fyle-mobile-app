@@ -32,6 +32,7 @@ export class SetupAccountPreferencesPage implements OnInit {
 
   fg: FormGroup;
 
+  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private authService: AuthService,

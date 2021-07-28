@@ -71,9 +71,11 @@ export class SplitExpenseService {
           splitExpenses.splice(0, 1);
           return firstTxn;
         }),
-        switchMap((firstTxn: any[]) => this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, firstTxn[0].split_group_id, splitExpenses.length).pipe(
-          map(otherTxns => firstTxn.concat(otherTxns))
-        ))
+        switchMap((firstTxn: any[]) =>
+          this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, firstTxn[0].split_group_id, splitExpenses.length)
+            .pipe(
+              map(otherTxns => firstTxn.concat(otherTxns))
+            ))
       );
 
     } else {
@@ -81,6 +83,8 @@ export class SplitExpenseService {
     }
   }
 
+  // TODO: Fix later. High impact
+  // eslint-disable-next-line max-params
   createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, totalSplitExpensesCount) {
     const txnsObservables = [];
 
@@ -116,7 +120,7 @@ export class SplitExpenseService {
         } else {
           splitIndex = totalSplitExpensesCount;
         }
-        transaction.purpose += ' (' + splitIndex  + ')';
+        transaction.purpose += ' (' + splitIndex + ')';
       }
 
       txnsObservables.push(this.transactionService.upsert(transaction));
