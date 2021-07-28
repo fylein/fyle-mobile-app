@@ -6,6 +6,6 @@
   "type": "angular",
   "hooks": {
     "build:before": "./hooks/prebuild.js",
-    "capacitor:sync:after": "./hooks/build.js"
+    "build:after": "./hooks/build.js"
   } 
 }
