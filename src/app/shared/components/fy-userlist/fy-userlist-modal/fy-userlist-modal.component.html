@@ -26,7 +26,7 @@
           <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
         </mat-chip>
         <mat-icon *ngIf="!(currentSelections?.length > 0)" class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
-        <input #searchBar [(ngModel)]="value" class="selection-modal--form-input" [ngClass]="{'selection-modal--form-input__chips': currentSelections?.length > 0}" id="election-modal--search-input"
+        <input #searchBar [(ngModel)]="value" class="selection-modal--form-input" [ngClass]="{'selection-modal--form-input__chips': currentSelections?.length > 0}"
               matInput [matChipInputFor]="chipList"
               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
               [matChipInputAddOnBlur]="addOnBlur"
