@@ -174,6 +174,7 @@ export class AddEditPerDiemPage implements OnInit {
     {label: 'Other', value: 'Other'}
   ];
 
+  billableDefaultValue: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -458,6 +459,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     tfcValues$.subscribe(defaultValues => {
+      this.billableDefaultValue = defaultValues.billable;
       const keyToControlMap: { [id: string]: AbstractControl } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
@@ -472,7 +474,7 @@ export class AddEditPerDiemPage implements OnInit {
           const control = keyToControlMap[defaultValueColumn];
           if (!control.value && defaultValueColumn !== 'billable') {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if ((control.value === null && this.fg.controls.project.value && control.value === undefined) && defaultValueColumn !== 'billable' && !control.touched) {
+          } else if ((control.value === null && control.value === undefined) && this.fg.controls.project.value && defaultValueColumn !== 'billable' && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
@@ -582,6 +584,13 @@ export class AddEditPerDiemPage implements OnInit {
 
   setupFilteredCategories(activeCategories$: Observable<any>) {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
+      tap(() => {
+        if (!this.fg.controls.project.value) {
+          this.fg.patchValue({billable: false});
+        } else {
+          this.fg.patchValue({billable: this.billableDefaultValue});
+        }
+      }),
       startWith(this.fg.controls.project.value),
       concatMap(project => activeCategories$.pipe(
         map(activeCategories =>

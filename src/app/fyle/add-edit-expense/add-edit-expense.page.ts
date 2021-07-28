@@ -1744,7 +1744,6 @@ export class AddEditExpensePage implements OnInit {
           } else {
             this.fg.patchValue({billable: this.billableDefaultValue});
           }
-          console.log({initialProject})
         }),
         startWith(initialProject),
         concatMap(project => activeCategories$.pipe(

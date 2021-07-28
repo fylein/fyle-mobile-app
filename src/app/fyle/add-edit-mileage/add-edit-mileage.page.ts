@@ -190,6 +190,8 @@ export class AddEditMileagePage implements OnInit {
     { label: 'Other', value: 'Other' }
   ];
 
+  billableDefaultValue: boolean;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -385,6 +387,13 @@ export class AddEditMileagePage implements OnInit {
 
   setupFilteredCategories(activeCategories$: Observable<any>) {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
+      tap(() => {
+        if (!this.fg.controls.project.value) {
+          this.fg.patchValue({billable: false});
+        } else {
+          this.fg.patchValue({billable: this.billableDefaultValue});
+        }
+      }),
       startWith(this.fg.controls.project.value),
       concatMap(project => activeCategories$.pipe(
         map(activeCategories =>
@@ -484,6 +493,7 @@ export class AddEditMileagePage implements OnInit {
     );
 
     tfcValues$.subscribe(defaultValues => {
+      this.billableDefaultValue = defaultValues.billable;
       const keyToControlMap: { [id: string]: AbstractControl } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
