@@ -480,7 +480,7 @@
 
                   <div class="add-edit-expense--internal-block">
                     <app-fy-select
-                      [label]="fg.controls.distance_unit?.value ? txnFields.distance_unit?.field_name : 'Select ' + txnFields.distance_unit?.field_name"
+                      [label]="txnFields.distance_unit?.field_name"
                       [mandatory]="txnFields.distance_unit?.is_mandatory" [options]="txnFields.distance_unit?.options"
                       formControlName="distance_unit" name="taxiDistanceUnit" sub-title="Units" title="Select Unit">
                     </app-fy-select>
@@ -619,7 +619,7 @@
 
                   <div *ngIf="customInput.type === 'SELECT'">
                     <app-fy-select [label]="customInput.name  | ellipsis: 30" [mandatory]="customInput.mandatory"
-                      [options]="customInput.options" [selectModalHeader]="'Select '+customInput.name"
+                      [options]="customInput.options" [selectModalHeader]="'Select '+customInput.name" [label]="customInput.name"
                       formControlName="value">
                     </app-fy-select>
                   </div>
@@ -760,7 +760,7 @@
                 {{duplicate.reason}}
               </div>
               <div class="add-edit-expense--duplicate-reason-select">
-                <app-fy-select [label]="fg.controls.duplicate_detection_reason.value ? 'Reason' : 'Select your Reason'"
+                <app-fy-select [label]="'Reason'"
                   [options]="duplicateDetectionReasons" formControlName="duplicate_detection_reason">
                 </app-fy-select>
               </div>
