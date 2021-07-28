@@ -10,8 +10,8 @@
   </div>
 
   <ion-footer class="popup-alert--footer">
-    <div class="popup-alert--cta-container">
-      <button type="button" class="popup-alert--cta-button popup-alert--secondary-cta text-center" 
+    <div [ngClass]="{'popup-alert--cta-container': secondaryCta, 'text-center': !secondaryCta}">
+      <button *ngIf="secondaryCta" type="button" class="popup-alert--cta-button popup-alert--secondary-cta text-center" 
           (click)="ctaClickedEvent(secondaryCta.action)">{{secondaryCta.text}}
       </button>
       <button type="submit" class="popup-alert--cta-button popup-alert--primary-cta text-center" [ngClass]="'popup-alert--primary-cta__'+primaryCta.type"

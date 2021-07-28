@@ -23,6 +23,7 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -451,20 +452,24 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   async delete() {
-    const id = this.activatedRoute.snapshot.params.id;
-
-    const popupResults = await this.popupService.showPopup({
-      header: 'Delete Advance Request',
-      message: 'Are you sure you want to delete this request ?',
-      primaryCta: {
-        text: 'DELETE'
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      componentProps: {
+        header: 'Delete Advance Request',
+        body: 'Are you sure you want to delete this request?',
+        deleteMethod: () => {
+          return this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id);
+        }
       }
     });
 
-    if (popupResults === 'primary') {
-      this.advanceRequestService.delete(id).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_advances']);
-      });
+    await deletePopover.present();
+
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      this.router.navigate(['/', 'enterprise', 'my_advances']);
     }
   }
 

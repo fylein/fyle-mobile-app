@@ -16,6 +16,8 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import {TrackingService} from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 @Component({
   selector: 'app-my-reports',
@@ -364,33 +366,40 @@ export class MyReportsPage implements OnInit {
   async onDeleteReportClick(erpt: ExtendedReport) {
 
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
-      await this.popupService.showPopup({
-        header: 'Cannot Delete Report',
-        message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted`,
-        primaryCta: {
-          text: 'CLOSE'
+      const cannotDeleteReportPopOver = await this.popoverController.create({
+        component: PopupAlertComponentComponent,
+        componentProps: {
+          title: 'Cannot Delete Report',
+          message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted.`,
+          primaryCta: {
+            text: 'Close',
+            action: 'continue'
+          }
         },
-        showCancelButton: false
+        cssClass: 'pop-up-in-center'
       });
+  
+      await cannotDeleteReportPopOver.present();
     } else {
-      const popupResults = await this.popupService.showPopup({
-        header: 'Delete Report?',
-        message: `
-          <p class="highlight-info">
-            On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-          </p>
-          <p>
-            Are you sure, you want to delete this report?
-          </p>
-        `,
-        primaryCta: {
-          text: 'Delete'
+      const deleteReportPopover = await this.popoverController.create({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        componentProps: {
+          header: 'Delete Report',
+          body: 'Are you sure you want to delete this report?',
+          infoMessage: 'Deleting the report will not delete any of the expenses.',
+          deleteMethod: () => {
+            return this.reportService.delete(erpt.rp_id)
+          }
         }
       });
+  
+      await deleteReportPopover.present();
 
-      if (popupResults === 'primary') {
+      const { data } = await deleteReportPopover.onDidDismiss();
+
+      if (data && data.status === 'success') {
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.reportService.delete(erpt.rp_id)),
           tap(() => this.trackingService.deleteReport({Asset: 'Mobile'})),
           finalize(async () => {
             await this.loaderService.hideLoader();
@@ -398,6 +407,7 @@ export class MyReportsPage implements OnInit {
           })
         ).subscribe(noop);
       }
+
     }
   }
 
