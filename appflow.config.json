@@ -2,6 +2,6 @@
     "apps": [{
         "appId": "32316914",
         "root": "",
-        "webBuildCommand": "NODE_OPTIONS=max_old_space_size=99384 ionic capacitor sync --prod --source-map"
+        "webBuildCommand": "NODE_OPTIONS=max_old_space_size=4384 ionic capacitor sync --prod --source-map"
     }]
 }
