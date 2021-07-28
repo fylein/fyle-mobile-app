@@ -1,9 +1,9 @@
 const dotenv = require('dotenv');
 dotenv.config();
 console.log(process.env.NATIVE_CONFIG);
-console.log(process.env.NATIVE_CONFIG.base);
-console.log(process.env.NATIVE_CONFIG.base.bundle_id);
-
+const NATIVE_CONFIG  = JSON.parse(process.env.NATIVE_CONFIG);
+const bundle_id  = JSON.parse(NATIVE_CONFIG.base.bundle_id);
+console.log(NATIVE_CONFIG.base.bundle_id);
 module.exports = {
     googleCredentials: `
             {
