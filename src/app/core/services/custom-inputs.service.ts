@@ -90,11 +90,7 @@ export class CustomInputsService {
             // eslint-disable-next-line @typescript-eslint/prefer-for-of
             for (let j = 0; j < customProperties.length; j++) {
               if (customProperties[j].name === customInput.field_name) {
-                if (property.type === 'DATE' && customProperties[j].value) {
-                  property.value = new Date(customProperties[j].value);
-                } else {
-                  property.value = customProperties[j].value;
-                }
+                this.setCustomPropertyValue(property, customProperties, j);
                 break;
               }
             }
@@ -106,7 +102,21 @@ export class CustomInputsService {
     );
   }
 
-  setSelectMultiselectValue(customInput: any, property: { name: any; value: any; type: any; mandatory: any; options: any}) {
+  setCustomPropertyValue(property: {
+    name: any;
+    value: any;
+    type: any;
+    mandatory: any;
+    options: any;
+  }, customProperties: any, index: number) {
+    if (property.type === 'DATE' && customProperties[index].value) {
+      property.value = new Date(customProperties[index].value);
+    } else {
+      property.value = customProperties[index].value;
+    }
+  }
+
+  setSelectMultiselectValue(customInput: any, property: { name: any; value: any; type: any; mandatory: any; options: any }) {
     if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT') {
       property.value = '';
     }
