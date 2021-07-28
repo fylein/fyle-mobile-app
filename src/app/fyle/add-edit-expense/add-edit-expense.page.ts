@@ -3265,20 +3265,31 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  async deleteExpense() {
+  async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
 
+    const header = reportId? 'Remove Expense': 'Delete Expense';
+    const message = reportId? 'Are you sure you want to remove this expense from this report?': 'Are you sure you want to delete this expense?';
+    const CTAText = reportId? 'Remove': 'Delete';
+    const loadingMessage = reportId? 'Removing Expense...':'Deleting Expense...';
+
     const popupResult = await this.popupService.showPopup({
-      header: 'Delete Expense',
-      message: 'Are you sure you want to delete this expense?',
+      header,
+      message,
       primaryCta: {
-        text: 'DELETE'
+        text: CTAText
       }
     });
 
     if (popupResult === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense...')).pipe(
-        switchMap(() => this.transactionService.delete(id)),
+      from(this.loaderService.showLoader(loadingMessage)).pipe(
+        switchMap(() => {
+          if (reportId) {
+            return this.reportService.removeTransaction(reportId, id);
+          } else {
+            return this.transactionService.delete(id);
+          }
+        }),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
         if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {

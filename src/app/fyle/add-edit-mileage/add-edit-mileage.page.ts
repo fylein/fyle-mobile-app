@@ -2126,20 +2126,31 @@ export class AddEditMileagePage implements OnInit {
       );
   }
 
-  async deleteExpense() {
+  async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
 
+    const header = reportId? 'Remove Mileage': 'Delete  Mileage';
+    const message = reportId? 'Are you sure you want to remove this mileage expense from this report?': 'Are you sure you want to delete this mileage expense?';
+    const CTAText = reportId? 'Remove': 'Delete';
+    const loadingMessage = reportId? 'Removing Mileage...':'Deleting Mileage...';
+
     const popupResponse = await this.popupService.showPopup({
-      header: 'Delete  Mileage',
-      message: 'Are you sure you want to delete this mileage expense?',
+      header,
+      message,
       primaryCta: {
-        text: 'DELETE'
+        text: CTAText
       }
     });
 
     if (popupResponse === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense...')).pipe(
-        switchMap(() => this.transactionService.delete(id)),
+      from(this.loaderService.showLoader(loadingMessage)).pipe(
+        switchMap(() => {
+          if (reportId) {
+            return this.reportService.removeTransaction(reportId, id);
+          } else {
+            return this.transactionService.delete(id);
+          }
+        }),
         tap(() => this.trackingService.deleteExpense({Asset: 'Mobile', Type: 'Mileage'})),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {

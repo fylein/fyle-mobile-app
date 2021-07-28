@@ -1995,19 +1995,24 @@ export class AddEditPerDiemPage implements OnInit {
   //   });
   // }
 
-  async deleteExpense() {
+  async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
 
+    const header = reportId? 'Remove Per Diem': 'Delete  Per Diem';
+    const message = reportId? 'Are you sure you want to remove this Per Diem expense from this report?': 'Are you sure you want to delete this Per Diem expense?';
+    const CTAText = reportId? 'Remove': 'Delete';
+    const loadingMessage = reportId? 'Removing Per Diem...':'Deleting Per Diem...';
+
     const popupResult = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Expense?',
+      header,
+      message,
       primaryCta: {
-        text: 'Delete Expense'
+        text: CTAText
       }
     });
 
     if (popupResult === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense...')).pipe(
+      from(this.loaderService.showLoader(loadingMessage)).pipe(
         switchMap(() => this.transactionService.delete(id)),
         tap(() => this.trackingService.deleteExpense({Asset: 'Mobile', Type: 'Per Diem'})),
         finalize(() => from(this.loaderService.hideLoader()))
