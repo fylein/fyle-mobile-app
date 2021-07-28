@@ -24,7 +24,7 @@
                 <data android:host="fyle.app.link" android:scheme="https"/>
                 <data android:host="fyle-alternate.app.link" android:scheme="https"/>
             </intent-filter>
-            
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
