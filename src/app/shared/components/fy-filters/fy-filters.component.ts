@@ -95,38 +95,15 @@ export class FyFiltersComponent implements OnInit {
     const filter = this.currentFilterValueMap[currentFilter.name];
 
     if (currentFilter.optionType === FilterOptionType.singleselect) {
-      if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
-        this.currentFilterValueMap[currentFilter.name] = null;
-      } else {
-        this.currentFilterValueMap[currentFilter.name] = option.value;
-      }
+      this.switchSingleSelectFilter(filter, currentFilter, option);
     }
 
     if (currentFilter.optionType === FilterOptionType.multiselect) {
-      if (filter) {
-        const doesValueExistInFilter = filter.some(value => value === option.value);
-        if (doesValueExistInFilter) {
-          this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name]
-            .filter(value => value !== option.value);
-        } else {
-          this.currentFilterValueMap[currentFilter.name].push(option.value);
-        }
-      } else {
-        this.currentFilterValueMap[currentFilter.name] = [option.value];
-      }
+      this.switchMultiselectFilter(filter, option, currentFilter);
     }
 
     if (currentFilter.optionType === FilterOptionType.date) {
-      if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
-        this.currentFilterValueMap[currentFilter.name] = null;
-      } else {
-        this.currentFilterValueMap[currentFilter.name] = option.value;
-        if (option.value !== 'custom') {
-          this.customDateMap[currentFilter.name] = null;
-          this.startDate = null;
-          this.endDate = null;
-        }
-      }
+      this.switchDateFilter(filter, currentFilter, option);
     }
   }
 
@@ -138,4 +115,49 @@ export class FyFiltersComponent implements OnInit {
     } as SelectedFilters<any>), []);
     this.modalController.dismiss(filters);
   }
+
+  private switchDateFilter(filter: any, currentFilter: FilterOptions<any>, option: {
+    label: string;
+    value: any;
+  }) {
+    if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
+      this.currentFilterValueMap[currentFilter.name] = null;
+    } else {
+      this.currentFilterValueMap[currentFilter.name] = option.value;
+      if (option.value !== 'custom') {
+        this.customDateMap[currentFilter.name] = null;
+        this.startDate = null;
+        this.endDate = null;
+      }
+    }
+  }
+
+  private switchMultiselectFilter(filter: any, option: {
+    label: string;
+    value: any;
+  }, currentFilter: FilterOptions<any>) {
+    if (filter) {
+      const doesValueExistInFilter = filter.some(value => value === option.value);
+      if (doesValueExistInFilter) {
+        this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name]
+          .filter(value => value !== option.value);
+      } else {
+        this.currentFilterValueMap[currentFilter.name].push(option.value);
+      }
+    } else {
+      this.currentFilterValueMap[currentFilter.name] = [option.value];
+    }
+  }
+
+  private switchSingleSelectFilter(filter: any, currentFilter: FilterOptions<any>, option: {
+    label: string;
+    value: any;
+  }) {
+    if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
+      this.currentFilterValueMap[currentFilter.name] = null;
+    } else {
+      this.currentFilterValueMap[currentFilter.name] = option.value;
+    }
+  }
+
 }

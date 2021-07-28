@@ -112,20 +112,24 @@ export class SplitExpenseService {
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
 
-      if (transaction.purpose) {
-        let splitIndex = 1;
-
-        if (splitGroupId) {
-          splitIndex = index + 1;
-        } else {
-          splitIndex = totalSplitExpensesCount;
-        }
-        transaction.purpose += ' (' + splitIndex + ')';
-      }
+      this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
       txnsObservables.push(this.transactionService.upsert(transaction));
     });
 
     return forkJoin(txnsObservables);
+  }
+
+  private setupSplitExpensePurpose(transaction: any, splitGroupId: any, index: any, totalSplitExpensesCount: any) {
+    if (transaction.purpose) {
+      let splitIndex = 1;
+
+      if (splitGroupId) {
+        splitIndex = index + 1;
+      } else {
+        splitIndex = totalSplitExpensesCount;
+      }
+      transaction.purpose += ' (' + splitIndex + ')';
+    }
   }
 }

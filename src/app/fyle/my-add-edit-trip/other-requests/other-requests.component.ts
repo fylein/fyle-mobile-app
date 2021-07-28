@@ -406,31 +406,11 @@ export class OtherRequestsComponent implements OnInit {
         if (comment && tripReq.id) {
           if (saveMode === 'SUBMIT') {
             return this.tripRequestsService.submit(tripReq).pipe(
-              switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
-                switchMap(result => {
-                  if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
-                      map(() => res)
-                    );
-                  } else {
-                    return of(res);
-                  }
-                })
-              ))
+              this.updateStatusOnTripReqSubmission(tripReq, comment)
             );
           } else {
             return this.tripRequestsService.saveDraft(tripReq).pipe(
-              switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
-                switchMap(result => {
-                  if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
-                      map(() => res)
-                    );
-                  } else {
-                    return of(res);
-                  }
-                })
-              ))
+              this.updateStatusOnTripReqDraftSubmission(tripReq, comment)
             );
           }
         } else {
@@ -442,6 +422,34 @@ export class OtherRequestsComponent implements OnInit {
         }
       }),
     );
+  }
+
+  updateStatusOnTripReqDraftSubmission(tripReq: any, comment: any) {
+    return switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+      switchMap(result => {
+        if (result !== comment) {
+          return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
+            map(() => res)
+          );
+        } else {
+          return of(res);
+        }
+      })
+    ));
+  }
+
+  updateStatusOnTripReqSubmission(tripReq: any, comment: any) {
+    return switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+      switchMap(result => {
+        if (result !== comment) {
+          return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
+            map(() => res)
+          );
+        } else {
+          return of(res);
+        }
+      })
+    ));
   }
 
   submitOtherRequests(formValue, mode) {
@@ -525,47 +533,11 @@ export class OtherRequestsComponent implements OnInit {
     const hotel = [];
     const transport = [];
 
-    if (formValue.advanceDetails.length > 0) {
-      if (mode === 'POLICY_CHECK') {
-        formValue.advanceDetails.forEach((advanceDetail, index) => {
-          advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
-        });
-      } else {
-        // this case handels submit advance request, makes sequential submit calls
-        of(formValue.advanceDetails).pipe(
-          switchMap(advanceDetails => from(advanceDetails)),
-          concatMap((advanceDetail, index) => this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode))
-        ).subscribe(noop);
-      }
-    }
+    this.handleAdvances(formValue, mode, advance, trpId);
 
-    if (formValue.hotelDetails.length > 0) {
-      if (mode === 'POLICY_CHECK') {
-        formValue.hotelDetails.forEach((hotelDetail, index) => {
-          hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
-        });
-      } else {
-        // this case handels submit hotel request, makes sequential submit calls
-        of(formValue.hotelDetails).pipe(
-          switchMap(hotelDetails => from(hotelDetails)),
-          concatMap((hotelDetail, index) => this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode))
-        ).subscribe(noop);
-      }
-    }
+    this.handleHotelDetails(formValue, mode, hotel, trpId);
 
-    if (formValue.transportDetails.length > 0) {
-      if (mode === 'POLICY_CHECK') {
-        formValue.transportDetails.forEach((transportDetail, index) => {
-          transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
-        });
-      } else {
-        // this case handels submit transport request, makes sequential submit calls
-        of(formValue.transportDetails).pipe(
-          switchMap(transportDetails => from(transportDetails)),
-          concatMap((transportDetail, index) => this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode))
-        ).subscribe(noop);
-      }
-    }
+    this.handleTransportDetails(formValue, mode, transport, trpId);
 
     try {
       if (advance.length === 0 && hotel.length === 0 && transport.length === 0) {
@@ -581,6 +553,54 @@ export class OtherRequestsComponent implements OnInit {
       console.log('e', e);
     }
 
+  }
+
+  handleTransportDetails(formValue: any, mode: any, transport: any[], trpId: any) {
+    if (formValue.transportDetails.length > 0) {
+      if (mode === 'POLICY_CHECK') {
+        formValue.transportDetails.forEach((transportDetail, index) => {
+          transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
+        });
+      } else {
+        // this case handels submit transport request, makes sequential submit calls
+        of(formValue.transportDetails).pipe(
+          switchMap(transportDetails => from(transportDetails)),
+          concatMap((transportDetail, index) => this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode))
+        ).subscribe(noop);
+      }
+    }
+  }
+
+  handleHotelDetails(formValue: any, mode: any, hotel: any[], trpId: any) {
+    if (formValue.hotelDetails.length > 0) {
+      if (mode === 'POLICY_CHECK') {
+        formValue.hotelDetails.forEach((hotelDetail, index) => {
+          hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
+        });
+      } else {
+        // this case handels submit hotel request, makes sequential submit calls
+        of(formValue.hotelDetails).pipe(
+          switchMap(hotelDetails => from(hotelDetails)),
+          concatMap((hotelDetail, index) => this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode))
+        ).subscribe(noop);
+      }
+    }
+  }
+
+  handleAdvances(formValue: any, mode: any, advance: any[], trpId: any) {
+    if (formValue.advanceDetails.length > 0) {
+      if (mode === 'POLICY_CHECK') {
+        formValue.advanceDetails.forEach((advanceDetail, index) => {
+          advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
+        });
+      } else {
+        // this case handels submit advance request, makes sequential submit calls
+        of(formValue.advanceDetails).pipe(
+          switchMap(advanceDetails => from(advanceDetails)),
+          concatMap((advanceDetail, index) => this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode))
+        ).subscribe(noop);
+      }
+    }
   }
 
   // TODO refactor

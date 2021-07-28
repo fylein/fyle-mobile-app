@@ -65,7 +65,9 @@
         "@angular-eslint/no-conflicting-lifecycle": "off",
         "lines-between-class-members": ["error", "always"],
         "@typescript-eslint/no-shadow": "off",
-        "max-params": [2, 4]
+        "max-params": [2, 4],
+        "complexity": [2,10]
+        // "max-nested-callbacks": [2,3]
       }
     },
     {

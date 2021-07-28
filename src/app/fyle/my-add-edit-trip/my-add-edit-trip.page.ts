@@ -159,6 +159,7 @@ export class MyAddEditTripPage implements OnInit {
     return this.fg.get('travellerDetails') as FormArray;
   }
 
+  // eslint-disable-next-line complexity
   async onSubmit() {
     const addExpensePopover = await this.popoverController.create({
       component: SavePopoverComponent,
@@ -572,8 +573,8 @@ export class MyAddEditTripPage implements OnInit {
     this.addDefaultCity();
   }
 
+  // eslint-disable-next-line complexity
   async openModal() {
-
     const modal = await this.modalController.create({
       component: OtherRequestsComponent,
       componentProps: {

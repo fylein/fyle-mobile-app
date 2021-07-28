@@ -15,7 +15,7 @@ import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { CustomField } from '../models/custom_field.model';
 import { FileService } from './file.service';
-import { File} from '../models/file.model';
+import { File } from '../models/file.model';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 
@@ -222,7 +222,7 @@ export class AdvanceRequestService {
         if (advanceRequest.created_at) {
           advanceRequest.created_at = this.timezoneService.convertToUtc(advanceRequest.created_at, orgUserSettings.locale.offset);
         }
-        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, {timeout: 5000});
+        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, { timeout: 5000 });
       })
     );
   }
@@ -252,7 +252,7 @@ export class AdvanceRequestService {
   }
 
   getPaginatedEAdvanceRequestsStats(params) {
-    return this.apiService.get('/eadvance_requests/stats', {params});
+    return this.apiService.get('/eadvance_requests/stats', { params });
   }
 
   getPaginatedMyEAdvanceRequestsCount(params) {
@@ -260,7 +260,7 @@ export class AdvanceRequestService {
       switchMap(
         isOnline => {
           if (isOnline) {
-            return this.apiService.get('/eadvance_requests/count', {params}).pipe(
+            return this.apiService.get('/eadvance_requests/count', { params }).pipe(
               tap((res) => {
                 this.storageService.set('eadvanceRequestsCount' + JSON.stringify(params), res);
               })
@@ -344,49 +344,67 @@ export class AdvanceRequestService {
   }
 
   getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string; name: string } {
-    if (advanceRequest.areq_state === 'DRAFT') {
-      if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
-        return {
-          state: 'draft',
-          name: 'Draft'
-        };
-      } else if (advanceRequest.areq_is_pulled_back) {
-        return {
-          state: 'pulledBack',
-          name: 'Pulled Back'
-        };
-      } else if (advanceRequest.areq_is_sent_back) {
-        return {
-          state: 'inquiry',
-          name: 'Inquiry'
-        };
-      }
-    } else if (advanceRequest.areq_state === 'INQUIRY') {
-      return {
+    let state: { state: string; name: string };
+    state = this.getStateIfDraft(advanceRequest, state);
+
+    if (advanceRequest.areq_state === 'INQUIRY') {
+      state = {
         state: 'inquiry',
         name: 'Inquiry'
       };
-    } else if (advanceRequest.areq_state === 'SUBMITTED' || advanceRequest.areq_state === 'APPROVAL_PENDING') {
-      return {
+    }
+
+    if (advanceRequest.areq_state === 'SUBMITTED' || advanceRequest.areq_state === 'APPROVAL_PENDING') {
+      state = {
         state: 'pendingApproval',
         name: 'Pending Approval'
       };
-    } else if (advanceRequest.areq_state === 'APPROVED') {
-      return {
+    }
+
+    if (advanceRequest.areq_state === 'APPROVED') {
+      state = {
         state: 'approved',
         name: 'Approved'
       };
-    } else if (advanceRequest.areq_state === 'PAID') {
-      return {
+    }
+
+    if (advanceRequest.areq_state === 'PAID') {
+      state = {
         state: 'paid',
         name: 'Paid'
       };
-    } else if (advanceRequest.areq_state === 'REJECTED') {
-      return {
+    }
+
+    if (advanceRequest.areq_state === 'REJECTED') {
+      state = {
         state: 'rejected',
         name: 'Rejected'
       };
     }
+
+    return state;
+  }
+
+  getStateIfDraft(advanceRequest: ExtendedAdvanceRequest, state: { state: string; name: string }) {
+    if (advanceRequest.areq_state === 'DRAFT') {
+      if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
+        state = {
+          state: 'draft',
+          name: 'Draft'
+        };
+      } else if (advanceRequest.areq_is_pulled_back) {
+        state = {
+          state: 'pulledBack',
+          name: 'Pulled Back'
+        };
+      } else if (advanceRequest.areq_is_sent_back) {
+        state = {
+          state: 'inquiry',
+          name: 'Inquiry'
+        };
+      }
+    }
+    return state;
   }
 
   createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
@@ -405,7 +423,7 @@ export class AdvanceRequestService {
           return forkJoin(newFileObjs).pipe(
             map(() => res)
           );
-        } else  {
+        } else {
           return of(null).pipe(
             map(() => res)
           );
@@ -430,7 +448,7 @@ export class AdvanceRequestService {
           return forkJoin(newFileObjs).pipe(
             map(() => res)
           );
-        } else  {
+        } else {
           return of(null).pipe(
             map(() => res)
           );

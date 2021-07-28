@@ -128,6 +128,8 @@ export class DateService {
     return new Date(date.getTime() - userTimezoneOffset);
   }
 
+  // unovoidable right now
+  // eslint-disable-next-line complexity
   fixDates(data) {
     if (data.txn_dt) {
       data.txn_dt = this.getUTCDate(new Date(data.txn_dt));

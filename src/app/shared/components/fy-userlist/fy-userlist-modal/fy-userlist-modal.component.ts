@@ -110,25 +110,32 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       return this.getSearchedUsersList(searchText);
     } else {
       return this.getDefaultUsersList().pipe(
-        switchMap(employees => this.getSearchedUsersList().pipe(
-          map(searchedEmployees => {
-            searchedEmployees = searchedEmployees
-              .filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email));
-            return employees.concat(searchedEmployees);
-          }),
-          finalize(() => {
-            // set isLoading to false
-            this.isLoading = false;
-            // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
-            // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
-            this.cdr.detectChanges();
-            // set focus on input once data is loaded
-            const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
-            searchInput.focus();
-          })
-        ))
+        switchMap(employees => this.getSearchedUsersList()
+          .pipe(
+            map(searchedEmployees => {
+              searchedEmployees = this.filterSearchedEmployees(searchedEmployees, employees);
+              return employees.concat(searchedEmployees);
+            }),
+            finalize(() => {
+              // set isLoading to false
+              this.isLoading = false;
+              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
+              // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+              this.cdr.detectChanges();
+              // set focus on input once data is loaded
+              const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+              searchInput.focus();
+            })
+          ))
       );
     }
+  }
+
+  filterSearchedEmployees(searchedEmployees: Employee[], employees: Employee[]) {
+    searchedEmployees = searchedEmployees
+      .filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email)
+      );
+    return searchedEmployees;
   }
 
   getNewlyAddedUsers(filteredOptions) {

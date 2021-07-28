@@ -1,3 +1,5 @@
+// TODO: Very hard to fix this file without making massive changes
+/* eslint-disable complexity */
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, throwError } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';

@@ -607,142 +607,183 @@ export class MyExpensesPage implements OnInit {
     const filterPills: FilterPill[] = [];
 
     if (filter.state && filter.state.length) {
-      filterPills.push({
-        label: 'Type',
-        type: 'state',
-        value: filter.state.map(state => state.replace(/_/g, ' ').toLowerCase()).reduce((state1, state2) => `${state1}, ${state2}`)
-      });
+      this.generateStateFilterPills(filterPills, filter);
     }
 
     if (filter.receiptsAttached) {
-      filterPills.push({
-        label: 'Receipts Attached',
-        type: 'receiptsAttached',
-        value: filter.receiptsAttached.toLowerCase()
-      });
+      this.generateReceiptsAttachedFilterPills(filterPills, filter);
     }
 
     if (filter.date) {
-      if (filter.date === DateFilters.thisWeek) {
-        filterPills.push({
-          label: 'Date',
-          type: 'date',
-          value: 'this Week'
-        });
-      }
-
-      if (filter.date === DateFilters.thisMonth) {
-        filterPills.push({
-          label: 'Date',
-          type: 'date',
-          value: 'this Month'
-        });
-      }
-
-      if (filter.date === DateFilters.all) {
-        filterPills.push({
-          label: 'Date',
-          type: 'date',
-          value: 'All'
-        });
-      }
-
-      if (filter.date === DateFilters.lastMonth) {
-        filterPills.push({
-          label: 'Date',
-          type: 'date',
-          value: 'Last Month'
-        });
-      }
-
-      if (filter.date === DateFilters.custom) {
-        const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
-        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
-
-        if (startDate && endDate) {
-          filterPills.push({
-            label: 'Date',
-            type: 'date',
-            value: `${startDate} to ${endDate}`
-          });
-        } else if (startDate) {
-          filterPills.push({
-            label: 'Date',
-            type: 'date',
-            value: `>= ${startDate}`
-          });
-        } else if (endDate) {
-          filterPills.push({
-            label: 'Date',
-            type: 'date',
-            value: `<= ${endDate}`
-          });
-        }
-      }
+      this.generateDateFilterPills(filter, filterPills);
     }
 
     if (filter.type && filter.type.length) {
-      const combinedValue = filter.type.map(type => {
-        if (type === 'RegularExpenses') {
-          return 'Regular Expenses';
-        } else if (type === 'PerDiem') {
-          return 'Per Diem';
-        } else if (type === 'Mileage') {
-          return 'Mileage';
-        } else {
-          return type;
-        }
-      }).reduce((type1, type2) => `${type1}, ${type2}`);
-
-      filterPills.push({
-        label: 'Expense Type',
-        type: 'type',
-        value: combinedValue
-      });
+      this.generateTypeFilterPills(filter, filterPills);
     }
 
 
     if (filter.sortParam && filter.sortDir) {
-      if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'date - old to new'
-        });
-      } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'date - new to old'
-        });
-      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'amount - high to low'
-        });
-      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'amount - low to high'
-        });
-      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - a to z'
-        });
-      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - z to a'
-        });
-      }
+      this.generateSortFilterPills(filter, filterPills);
     }
 
     return filterPills;
+  }
+
+  generateSortFilterPills(filter, filterPills: FilterPill[]) {
+    this.generateSortTxnDatePills(filter, filterPills);
+
+    this.generateSortAmountPills(filter, filterPills);
+
+    this.generateSortCategoryPills(filter, filterPills);
+  }
+
+  generateSortCategoryPills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'category - a to z'
+      });
+    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'category - z to a'
+      });
+    }
+  }
+
+  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'amount - high to low'
+      });
+    } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'amount - low to high'
+      });
+    }
+  }
+
+  generateSortTxnDatePills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'date - old to new'
+      });
+    } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'date - new to old'
+      });
+    }
+  }
+
+  generateTypeFilterPills(filter,
+    filterPills: FilterPill[]) {
+    const combinedValue = filter.type.map(type => {
+      if (type === 'RegularExpenses') {
+        return 'Regular Expenses';
+      } else if (type === 'PerDiem') {
+        return 'Per Diem';
+      } else if (type === 'Mileage') {
+        return 'Mileage';
+      } else {
+        return type;
+      }
+    }).reduce((type1, type2) => `${type1}, ${type2}`);
+
+    filterPills.push({
+      label: 'Expense Type',
+      type: 'type',
+      value: combinedValue
+    });
+  }
+
+  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+    if (filter.date === DateFilters.thisWeek) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Week'
+      });
+    }
+
+    if (filter.date === DateFilters.thisMonth) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Month'
+      });
+    }
+
+    if (filter.date === DateFilters.all) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'All'
+      });
+    }
+
+    if (filter.date === DateFilters.lastMonth) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'Last Month'
+      });
+    }
+
+    if (filter.date === DateFilters.custom) {
+      this.generateCustomDatePill(filter, filterPills);
+    }
+  }
+
+  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+    const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
+    const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `${startDate} to ${endDate}`
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `>= ${startDate}`
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `<= ${endDate}`
+      });
+    }
+  }
+
+  generateReceiptsAttachedFilterPills(filterPills: FilterPill[], filter) {
+    filterPills.push({
+      label: 'Receipts Attached',
+      type: 'receiptsAttached',
+      value: filter.receiptsAttached.toLowerCase()
+    });
+  }
+
+  generateStateFilterPills(filterPills: FilterPill[], filter) {
+    filterPills.push({
+      label: 'Type',
+      type: 'state',
+      value: filter.state.map(state => state.replace(/_/g, ' ').toLowerCase()).reduce((state1, state2) => `${state1}, ${state2}`)
+    });
   }
 
   addNewFiltersToParams() {
@@ -760,13 +801,7 @@ export class MyExpensesPage implements OnInit {
 
     this.generateTypeFilters(newQueryParams);
 
-    if (this.filters.sortParam && this.filters.sortDir) {
-      currentParams.sortParam = this.filters.sortParam;
-      currentParams.sortDir = this.filters.sortDir;
-    } else {
-      currentParams.sortParam = 'tx_txn_dt';
-      currentParams.sortDir = 'desc';
-    }
+    this.setSortParams(currentParams);
 
     currentParams.queryParams = newQueryParams;
 
@@ -781,6 +816,18 @@ export class MyExpensesPage implements OnInit {
     }
 
     return currentParams;
+  }
+
+  setSortParams(currentParams: Partial<{
+    pageNumber: number; queryParams: any; sortParam: string; sortDir: string; searchString: string;
+  }>) {
+    if (this.filters.sortParam && this.filters.sortDir) {
+      currentParams.sortParam = this.filters.sortParam;
+      currentParams.sortDir = this.filters.sortDir;
+    } else {
+      currentParams.sortParam = 'tx_txn_dt';
+      currentParams.sortDir = 'desc';
+    }
   }
 
   generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
@@ -819,40 +866,105 @@ export class MyExpensesPage implements OnInit {
     }
 
     if (filter.sortParam && filter.sortDir) {
-      if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'dateOldToNew'
-        });
-      } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'dateNewToOld'
-        });
-      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'amountHighToLow'
-        });
-      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'amountLowToHigh'
-        });
-      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'categoryAToZ'
-        });
-      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'categoryZToA'
-        });
-      }
+      this.addSortToGeneatedFilters(filter, generatedFilters);
     }
 
     return generatedFilters;
+  }
+
+  addSortToGeneatedFilters(filter: Partial<{
+    state: string[];
+    date: string;
+    customDateStart: Date;
+    customDateEnd: Date;
+    receiptsAttached: string;
+    type: string[];
+    sortParam: string;
+    sortDir: string;
+  }>, generatedFilters: SelectedFilters<any>[]) {
+    this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
+
+    this.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+    this.convertCategorySortToSelectedFilters(filter, generatedFilters);
+  }
+
+  convertCategorySortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'categoryAToZ'
+      });
+    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'categoryZToA'
+      });
+    }
+  }
+
+  convertAmountSortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'amountHighToLow'
+      });
+    } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'amountLowToHigh'
+      });
+    }
+  }
+
+  convertTxnDtSortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'dateOldToNew'
+      });
+    } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'dateNewToOld'
+      });
+    }
   }
 
   convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
@@ -884,6 +996,24 @@ export class MyExpensesPage implements OnInit {
 
     const sortBy = selectedFilters.find(filter => filter.name === 'Sort By');
 
+    this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+    return generatedFilters;
+  }
+
+  convertSelectedSortFitlersToFilters(
+    sortBy: SelectedFilters<any>,
+    generatedFilters: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>
+  ) {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
         generatedFilters.sortParam = 'tx_txn_dt';
@@ -905,8 +1035,6 @@ export class MyExpensesPage implements OnInit {
         generatedFilters.sortDir = 'desc';
       }
     }
-
-    return generatedFilters;
   }
 
   async openFilters(activeFilterInitialName?: string) {
@@ -1356,10 +1484,7 @@ export class MyExpensesPage implements OnInit {
         }).pipe(
           map(expenses => expenses.filter(expense => {
             if (params.searchString) {
-              return Object.values(expense)
-                .map(value => value && value.toString().toLowerCase())
-                .filter(value => !!value)
-                .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
+              return this.filterExpensesBySearchString(expense, params.searchString);
             } else {
               return true;
             }
@@ -1413,6 +1538,13 @@ export class MyExpensesPage implements OnInit {
           }]);
         }
       });
+  }
+
+  filterExpensesBySearchString(expense: any, searchString: string) {
+    return Object.values(expense)
+      .map(value => value && value.toString().toLowerCase())
+      .filter(value => !!value)
+      .some(value => value.toLowerCase().includes(searchString.toLowerCase()));
   }
 
   uploadCameraOveralay() {
@@ -1667,7 +1799,7 @@ export class MyExpensesPage implements OnInit {
     }]);
   }
 
-  private generateTypeFilters(newQueryParams) {
+  generateTypeFilters(newQueryParams) {
     const typeOrFilter = [];
 
     if (this.filters.type) {
@@ -1692,7 +1824,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  private generateStateFilters(newQueryParams) {
+  generateStateFilters(newQueryParams) {
     const stateOrFilter = [];
 
     if (this.filters.state) {
@@ -1721,7 +1853,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  private generateReceiptAttachedParams(newQueryParams) {
+  generateReceiptAttachedParams(newQueryParams) {
     if (this.filters.receiptsAttached) {
       if (this.filters.receiptsAttached === 'YES') {
         newQueryParams.tx_num_files = 'gt.0';
@@ -1733,7 +1865,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  private generateDateParams(newQueryParams) {
+  generateDateParams(newQueryParams) {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
@@ -1741,26 +1873,36 @@ export class MyExpensesPage implements OnInit {
         const thisMonth = this.dateService.getThisMonthRange();
         newQueryParams.and =
           `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.thisWeek) {
+      }
+
+      if (this.filters.date === DateFilters.thisWeek) {
         const thisWeek = this.dateService.getThisWeekRange();
         newQueryParams.and =
           `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.lastMonth) {
+      }
+
+      if (this.filters.date === DateFilters.lastMonth) {
         const lastMonth = this.dateService.getLastMonthRange();
         newQueryParams.and =
           `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.custom) {
-        const startDate = this.filters?.customDateStart?.toISOString();
-        const endDate = this.filters?.customDateEnd?.toISOString();
-        if (this.filters.customDateStart && this.filters.customDateEnd) {
-          newQueryParams.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
-        } else if (this.filters.customDateStart) {
-          newQueryParams.and = `(tx_txn_dt.gte.${startDate})`;
-        } else if (this.filters.customDateEnd) {
-          newQueryParams.and = `(tx_txn_dt.lt.${endDate})`;
-        }
       }
+
+      this.generateCustomDateParams(newQueryParams);
     }
   }
 
+
+  generateCustomDateParams(newQueryParams: any) {
+    if (this.filters.date === DateFilters.custom) {
+      const startDate = this.filters?.customDateStart?.toISOString();
+      const endDate = this.filters?.customDateEnd?.toISOString();
+      if (this.filters.customDateStart && this.filters.customDateEnd) {
+        newQueryParams.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
+      } else if (this.filters.customDateStart) {
+        newQueryParams.and = `(tx_txn_dt.gte.${startDate})`;
+      } else if (this.filters.customDateEnd) {
+        newQueryParams.and = `(tx_txn_dt.lt.${endDate})`;
+      }
+    }
+  }
 }

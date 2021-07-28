@@ -369,28 +369,37 @@ export class SplitExpensePage implements OnInit {
       );
 
       this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
-        this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
-        this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
-        let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
-        let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
-
-        const percentage1 = this.amount ? 60 : null;
-        const percentage2 = this.amount ? 40 : null;
-        amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
-        amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
-        this.add(amount1, this.currency, percentage1, null);
-        this.add(amount2, this.currency, percentage2, null);
-        this.getTotalSplitAmount();
-
-        const today = new Date();
-        const minDate = new Date('Jan 1, 2001');
-        const maxDate = this.dateService.addDaysToDate(today, 1);
-
-        this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
-        this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
+        this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       });
     });
 
+  }
+
+  setValuesForCCC(currencyObj: any, homeCurrency: any, isCorporateCardsEnabled: boolean) {
+    this.setAmountAndCurrency(currencyObj, homeCurrency);
+
+    let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
+    let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
+
+    const percentage1 = this.amount ? 60 : null;
+    const percentage2 = this.amount ? 40 : null;
+    amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
+    amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
+    this.add(amount1, this.currency, percentage1, null);
+    this.add(amount2, this.currency, percentage2, null);
+    this.getTotalSplitAmount();
+
+    const today = new Date();
+    const minDate = new Date('Jan 1, 2001');
+    const maxDate = this.dateService.addDaysToDate(today, 1);
+
+    this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
+    this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
+  }
+
+  setAmountAndCurrency(currencyObj: any, homeCurrency: any) {
+    this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
+    this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
   }
 
   customDateValidator(control: AbstractControl) {

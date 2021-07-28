@@ -77,11 +77,14 @@ export class CustomInputsService {
           // defaults for types
           if (customInput.type === 'BOOLEAN') {
             property.value = false;
-          } else if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT'){
-            property.value = '';
-          } else if (customInput.type === 'USER_LIST'){
+          }
+
+          this.setSelectMultiselectValue(customInput, property);
+
+          if (customInput.type === 'USER_LIST') {
             property.value = [];
           }
+
           if (customProperties) {
             // see if value is available
             // eslint-disable-next-line @typescript-eslint/prefer-for-of
@@ -103,30 +106,67 @@ export class CustomInputsService {
     );
   }
 
+  setSelectMultiselectValue(customInput: any, property: { name: any; value: any; type: any; mandatory: any; options: any}) {
+    if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT') {
+      property.value = '';
+    }
+  }
+
   getCustomPropertyDisplayValue(customProperty) {
     let displayValue = '-';
 
     if (customProperty.type === 'TEXT' || customProperty.type === 'SELECT') {
       displayValue = customProperty.value || '-';
-    } else if (customProperty.type === 'NUMBER') {
-      displayValue = customProperty.value ? this.decimalPipe.transform(customProperty.value, '1.2-2') : '-';
-    }  else if (customProperty.type === 'BOOLEAN') {
-      displayValue = customProperty.value ? 'Yes' : 'No';
-    } else if (customProperty.type === 'MULTI_SELECT' || customProperty.type === 'USER_LIST') {
-      displayValue = (customProperty.value && customProperty.value.length > 0) ? customProperty.value.join(', ') : '-';
-    } else if (customProperty.type === 'LOCATION') {
-      displayValue = '-';
-      if (customProperty.value) {
-        if (customProperty.value.hasOwnProperty('display')) {
-          displayValue = customProperty.value.display ? customProperty.value.display || '-' : '-';
-        } else {
-          displayValue = customProperty.value ? customProperty.value || '-' : '-';
-        }
-      }
-    } else if (customProperty.type === 'DATE') {
-      displayValue = customProperty ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
     }
 
+    if (customProperty.type === 'NUMBER') {
+      displayValue = this.formatNumberCustomProperty(customProperty);
+    }
+
+    if (customProperty.type === 'BOOLEAN') {
+      displayValue = this.formatBooleanCustomProperty(customProperty);
+    }
+
+    if (customProperty.type === 'MULTI_SELECT' || customProperty.type === 'USER_LIST') {
+      displayValue = this.formatMultiselectCustomProperty(customProperty);
+    }
+
+    if (customProperty.type === 'LOCATION') {
+      displayValue = this.getLocationDisplayValue(displayValue, customProperty);
+    }
+
+    if (customProperty.type === 'DATE') {
+      displayValue = this.formatDateCustomProperty(customProperty);
+    }
+
+    return displayValue;
+  }
+
+  private formatBooleanCustomProperty(customProperty: any): string {
+    return customProperty.value ? 'Yes' : 'No';
+  }
+
+  private formatDateCustomProperty(customProperty: any): string {
+    return customProperty ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
+  }
+
+  private formatMultiselectCustomProperty(customProperty: any): string {
+    return (customProperty.value && customProperty.value.length > 0) ? customProperty.value.join(', ') : '-';
+  }
+
+  private formatNumberCustomProperty(customProperty: any): string {
+    return customProperty.value ? this.decimalPipe.transform(customProperty.value, '1.2-2') : '-';
+  }
+
+  private getLocationDisplayValue(displayValue: string, customProperty: any) {
+    displayValue = '-';
+    if (customProperty.value) {
+      if (customProperty.value.hasOwnProperty('display')) {
+        displayValue = customProperty.value.display ? customProperty.value.display || '-' : '-';
+      } else {
+        displayValue = customProperty.value ? customProperty.value || '-' : '-';
+      }
+    }
     return displayValue;
   }
 }

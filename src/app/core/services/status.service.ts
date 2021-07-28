@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
-import {ApiService} from './api.service';
-import {map} from 'rxjs/operators';
-import {ExtendedStatus} from '../models/extended_status.model';
+import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
+import { map } from 'rxjs/operators';
+import { ExtendedStatus } from '../models/extended_status.model';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +28,8 @@ export class StatusService {
     });
   }
 
+  // TODO: This needs dedicated effort to be fixed
+  // eslint-disable-next-line complexity
   getStatusCategory(comment, type) {
     let statusCategory = {};
     const lowerCaseComment = comment && comment.toLowerCase();
