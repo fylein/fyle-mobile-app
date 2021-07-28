@@ -6,7 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "NODE_OPTIONS=max_old_space_size=4384 ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
