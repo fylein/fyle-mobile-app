@@ -43,7 +43,7 @@
               <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
             </div>
 
-            <div class="expenses-card--vendor">
+            <div class="expenses-card--vendor" [ngClass]="{'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'}">
               {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
             </div>
 
