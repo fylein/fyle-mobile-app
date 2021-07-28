@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
+console.log(process.env.NATIVE_CONFIG);
 const NATIVE_CONFIG  = JSON.parse(process.env.NATIVE_CONFIG);
 
 module.exports = {
