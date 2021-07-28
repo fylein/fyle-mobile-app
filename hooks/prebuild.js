@@ -4,6 +4,7 @@ dotenv.config();
 const secrets = require('./secrets');
 
 module.exports = function (ctx) {
+  console.log(process.env);
   console.log(ctx);
   console.log(secrets.prodEnviroinent);
     // Creating environment.prod.ts file
