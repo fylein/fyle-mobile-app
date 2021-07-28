@@ -3,6 +3,8 @@ import {fromEvent, Observable} from 'rxjs';
 import {ModalController} from '@ionic/angular';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 import {isEqual} from 'lodash';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 @Component({
   selector: 'app-fy-multiselect-modal',
@@ -24,6 +26,14 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
 
   value;
 
+  selectable = true;
+
+  removable = true;
+
+  addOnBlur = true;
+
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
+
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef
@@ -34,6 +44,25 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+  }
+
+  getSeparatorKeysCodes() {
+    return [ENTER, COMMA];
+  };
+
+  addChip(event: MatChipInputEvent) {
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
+  }
+
+  removeChip(item) {
+    const updatedItem = {
+      label: item,
+      selected: false,
+      value: item
+    };
+    this.onElementSelected(updatedItem);
   }
 
   ngOnInit() { }

@@ -26,6 +26,12 @@
 
 <ion-content>
   <div class="selection-modal--container">
+    <ng-container *ngIf="filteredOptions$|async as filteredOptions">
+      <div *ngIf="filteredOptions.length === 0">
+        <app-fy-zero-state [header]="'No such ' + label + ' found'" [submessage]="'Search for another ' + label + ' or select one from the list.'" 
+          [image]="'../../../../assets/images/zero-states/search-not-found.svg'" [unscaledImage]="true" [useNewStyling]="true"></app-fy-zero-state>
+      </div>
+    </ng-container>
 
     <div *ngIf="customInput && (filteredOptions$|async)?.length > 0" class="selection-modal--single-element-block">
       <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
