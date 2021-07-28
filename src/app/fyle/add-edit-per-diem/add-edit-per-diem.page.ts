@@ -2013,7 +2013,13 @@ export class AddEditPerDiemPage implements OnInit {
 
     if (popupResult === 'primary') {
       from(this.loaderService.showLoader(loadingMessage)).pipe(
-        switchMap(() => this.transactionService.delete(id)),
+        switchMap(() => {
+          if (reportId) {
+            return this.reportService.removeTransaction(reportId, id);
+          } else {
+            return this.transactionService.delete(id);
+          }
+        }),
         tap(() => this.trackingService.deleteExpense({Asset: 'Mobile', Type: 'Per Diem'})),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
