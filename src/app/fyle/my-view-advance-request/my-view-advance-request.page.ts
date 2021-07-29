@@ -174,9 +174,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
-        deleteMethod: () => {
-          return this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id);
-        }
+        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id)
       }
     });
 

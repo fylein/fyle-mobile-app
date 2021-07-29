@@ -18,7 +18,7 @@ export class FyDeleteDialogComponent implements OnInit {
 
   @Input() body: string;
 
-  @Input() infoMessage: string; 
+  @Input() infoMessage: string;
 
   deleteCallInProgress = false;
 

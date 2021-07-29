@@ -168,13 +168,11 @@ export class MyViewReportPage implements OnInit {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: () => {
-          return this.reportService.delete(this.activatedRoute.snapshot.params.id).pipe(
-            tap(() => this.trackingService.deleteReport({
-              Asset: 'Mobile'
-            }))
-          )
-        }
+        deleteMethod: () => this.reportService.delete(this.activatedRoute.snapshot.params.id).pipe(
+          tap(() => this.trackingService.deleteReport({
+            Asset: 'Mobile'
+          }))
+        )
       }
     });
 

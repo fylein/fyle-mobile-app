@@ -378,7 +378,7 @@ export class MyReportsPage implements OnInit {
         },
         cssClass: 'pop-up-in-center'
       });
-  
+
       await cannotDeleteReportPopOver.present();
     } else {
       const deleteReportPopover = await this.popoverController.create({
@@ -388,14 +388,11 @@ export class MyReportsPage implements OnInit {
           header: 'Delete Report',
           body: 'Are you sure you want to delete this report?',
           infoMessage: 'Deleting the report will not delete any of the expenses.',
-          deleteMethod: () => {
-            return this.reportService.delete(erpt.rp_id)
-          }
+          deleteMethod: () => this.reportService.delete(erpt.rp_id)
         }
       });
-  
-      await deleteReportPopover.present();
 
+      await deleteReportPopover.present();
       const { data } = await deleteReportPopover.onDidDismiss();
 
       if (data && data.status === 'success') {
