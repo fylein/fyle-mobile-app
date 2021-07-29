@@ -53,6 +53,17 @@ jobs:
         run: |
           echo "${{toJSON(steps.download.outputs)}}"
 
+
+      - name: Send Message to Slack
+        uses: archive/github-actions-slack@v2.0.1
+        id: notify
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: C02951193PH
+          slack-text: Hello! Deployment happening in "${{ github.repository }}" \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```
+      - name: Result from "Send Message"
+        run: echo "The result was ${{ steps.notify.outputs.slack-result }}"
+
       - name: Upload to slack step
         uses: adrey/slack-file-upload-action@master
         with:
@@ -60,15 +71,6 @@ jobs:
           path: ${{steps.download.outputs.download-path}}
           channel: C02951193PH
 
-      # - name: Send Message to Slack
-      #   uses: archive/github-actions-slack@v2.0.1
-      #   id: notify
-      #   with:
-      #     slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-      #     slack-channel: C02951193PH
-      #     slack-text: Hello! Deployment happening in "${{ github.repository }}" \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```
-      # - name: Result from "Send Message"
-      #   run: echo "The result was ${{ steps.notify.outputs.slack-result }}"
       - name: get github events
         run: |
           echo "${{toJSON(steps.download.outputs)}}"
