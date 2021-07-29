@@ -65,4 +65,8 @@
   &--violation {
     color: orange;
   }
+
+  &--distance-unit {
+    text-transform: lowercase;
+  }
 }

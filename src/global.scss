@@ -311,6 +311,11 @@ input:focus, textarea:focus{
   min-height: calc(360px + env(safe-area-inset-top)) !important;
 }
 
+.ios .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
+.ios .timeline--timeline-item__last > .timeline--timeline-item-internal::before {
+  font-size: inherit !important;
+}
+
 @mixin loader {
   border-radius: 50%;
   width: 14px;
