@@ -181,7 +181,7 @@ export class TransactionsOutboxService {
           fetch(dataUrl).then(res => res.blob()).then(blob => {
             this.uploadData(uploadUrl, blob, contentType)
               .toPromise()
-              .then(resp => this.fileService.uploadComplete(fileObj.id))
+              .then(resp => this.fileService.uploadComplete(fileObj.id).toPromise())
               .then(() => resolve(fileObj))
               .catch(err => {
                 reject(err);
