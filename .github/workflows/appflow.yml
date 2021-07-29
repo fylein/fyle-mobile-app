@@ -10,23 +10,36 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     steps:
-      - name: Build Android with Appflow
-        uses: ionic-team/appflow-build@v1
-        with:
-          token: ${{ secrets.APPFLOW_TOKEN }}
-          app-id: 32316914
-          platform: Android
-          build-type: debug
-          environment: staging
-          native-config: staging
-          upload-artifact: Android
-          web-preview: yes
+      # - name: Build Android with Appflow
+      #   uses: ionic-team/appflow-build@v1
+      #   with:
+      #     token: ${{ secrets.APPFLOW_TOKEN }}
+      #     app-id: 32316914
+      #     platform: Android
+      #     build-type: debug
+      #     environment: staging
+      #     native-config: staging
+      #     upload-artifact: Android
+      #     web-preview: yes
 
-      - uses: actions/download-artifact@v2
+      # - uses: actions/download-artifact@v2
+      #   id: download
+      #   with:
+      #     name: 'Android'
+      #     path: path/to/artifacts
+
+      # - name: 'Echo download path'
+      #   run: echo ${{steps.download.outputs.download-path}}
+
+      - shell: bash
+        run: |
+          expr 3 + 7 > math-homework.txt
+      - name: Upload math result for job 1
+        uses: actions/upload-artifact@v2
         id: download
         with:
-          name: 'Android'
-          path: path/to/artifacts
+          name: homework
+          path: math-homework.txt
 
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
@@ -47,7 +60,7 @@ jobs:
       #     slack-text: Hello! Deployment happening in "${{ github.repository }}" \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```
       # - name: Result from "Send Message"
       #   run: echo "The result was ${{ steps.notify.outputs.slack-result }}"
-      # - name: get github events
-      #   run: |
-      #     echo "${{toJSON(github.event.pull_request)}}"
+      - name: get github events
+        run: |
+          echo "${{toJSON(steps.download.outputs)}}"
 
