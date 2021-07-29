@@ -15,7 +15,7 @@ jobs:
         uses: ionic-team/appflow-build@v1
         with:
           token: ${{ secrets.APPFLOW_TOKEN }}
-          app-id: yourappid
+          app-id: 32316914
           platform: Android
           build-type: debug
           environment: staging
