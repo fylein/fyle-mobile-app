@@ -72,7 +72,6 @@ export class ViewTeamTripPage implements OnInit {
 
   actionsLoading = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private tripRequestsService: TripRequestsService,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,

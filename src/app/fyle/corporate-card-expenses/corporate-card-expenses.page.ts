@@ -70,7 +70,6 @@ export class CorporateCardExpensesPage implements OnInit {
 
   onPageExit = new Subject();
 
-  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,

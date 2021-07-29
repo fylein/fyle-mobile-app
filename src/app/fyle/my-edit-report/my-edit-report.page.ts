@@ -70,7 +70,6 @@ export class MyEditReportPage implements OnInit {
 
   saveReoprtLoading = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,

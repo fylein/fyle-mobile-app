@@ -40,7 +40,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   currentGeolocationPermissionGranted = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private agmGeocode: AgmGeocoder,
     private modalController: ModalController,

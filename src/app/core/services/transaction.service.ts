@@ -22,7 +22,6 @@ const transactionsCacheBuster$ = new Subject<void>();
 })
 export class TransactionService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,

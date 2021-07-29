@@ -56,7 +56,6 @@ export class ViewTeamReportPage implements OnInit {
 
   etxnAmountSum$: Observable<any>;
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,

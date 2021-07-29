@@ -43,7 +43,6 @@ export class MyViewPerDiemPage implements OnInit {
 
   comments$: Observable<any>;
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,

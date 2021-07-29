@@ -17,7 +17,6 @@ const { Device } = Plugins;
 })
 export class FreshChatService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private offlineService: OfflineService,
     private authService: AuthService,

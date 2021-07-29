@@ -44,7 +44,6 @@ export class ViewTeamAdvancePage implements OnInit {
 
   customFields$: Observable<any>;
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private advanceRequestService: AdvanceRequestService,

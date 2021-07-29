@@ -31,7 +31,6 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
 
   isLoading = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private offlineService: OfflineService,
     private loaderService: LoaderService,

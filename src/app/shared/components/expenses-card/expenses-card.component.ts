@@ -100,6 +100,7 @@ export class ExpensesCardComponent implements OnInit {
         this.foreignCurrencySymbol = getCurrencySymbol(this.expense.tx_orig_currency, 'wide');
       })
     ).subscribe(noop);
+
     this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
       map((orgSettings) => orgSettings.transaction_fields_settings &&
@@ -119,6 +120,11 @@ export class ExpensesCardComponent implements OnInit {
 
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
+    this.setOtherData();
+
+  }
+
+  setOtherData() {
     if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
       if (this.expense.tx_corporate_credit_card_expense_group_id) {
         this.paymentModeIcon = 'fy-matched';
@@ -132,7 +138,6 @@ export class ExpensesCardComponent implements OnInit {
         this.paymentModeIcon = 'fy-non-reimbursable';
       }
     }
-
   }
 
   getScanningReceiptCard(expense: Expense): boolean {

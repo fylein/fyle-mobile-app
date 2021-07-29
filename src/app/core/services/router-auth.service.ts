@@ -21,7 +21,6 @@ import { PushNotificationService } from './push-notification.service';
 })
 export class RouterAuthService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private routerApiService: RouterApiService,
     private storageService: StorageService,

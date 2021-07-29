@@ -50,7 +50,6 @@ export class ViewTeamMileagePage implements OnInit {
 
   comments$: Observable<any>;
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,

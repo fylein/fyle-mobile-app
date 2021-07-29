@@ -32,7 +32,6 @@ export class CccClassifiedActionsPage implements OnInit {
 
   pageState: string;
 
-  // eslint-disable-next-line max-params
   constructor(
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private activatedRoute: ActivatedRoute,

@@ -41,7 +41,6 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
   areApproversAdded = true;
 
-  // eslint-disable-next-line max-params
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
@@ -153,14 +152,19 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
           employees = employees.filter(employee => this.intialSelectedApproverEmails.indexOf(employee.us_email) === -1);
           return this.getSearchedUsersList(null).pipe(
             map(searchedEmployees => {
-              searchedEmployees = searchedEmployees
-                .filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email));
+              searchedEmployees = this.getSearchedEmployees(searchedEmployees, employees);
               return employees.concat(searchedEmployees);
             })
           );
         })
       );
     }
+  }
+
+  getSearchedEmployees(searchedEmployees: Employee[], employees: Employee[]) {
+    searchedEmployees = searchedEmployees
+      .filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email));
+    return searchedEmployees;
   }
 
   ngOnInit() {

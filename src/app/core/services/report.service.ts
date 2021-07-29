@@ -22,7 +22,6 @@ const reportsCacheBuster$ = new Subject<void>();
 })
 export class ReportService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,

@@ -27,6 +27,7 @@ import { PushNotificationService } from './core/services/push-notification.servi
 import { TrackingService } from './core/services/tracking.service';
 import { LoginInfoService } from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
+import { OrgUserSettings } from './core/models/org_user_settings.model';
 
 const { App } = Plugins;
 const CapStatusBar = Plugins.StatusBar;
@@ -61,7 +62,6 @@ export class AppComponent implements OnInit {
 
   previousUrl: string;
 
-  // eslint-disable-next-line max-params
   constructor(
     private platform: Platform,
     private statusBar: StatusBar,
@@ -263,235 +263,295 @@ export class AppComponent implements OnInit {
       this.freshChatService.setupNetworkWatcher();
 
       // TODO: remove nested subscribe - mini tech debt
-      if (isConnected) {
-        this.sideMenuList = [
-          {
-            title: 'Dashboard',
-            isVisible: true,
-            icon: 'fy-dashboard-new',
-            route: ['/', 'enterprise', 'my_dashboard']
-          },
-          {
-            title: 'Expenses',
-            isVisible: true,
-            icon: 'fy-expenses-new',
-            route: ['/', 'enterprise', 'my_expenses']
-          },
-          {
-            title: 'Cards',
-            isVisible: orgSettings.corporate_credit_card_settings.enabled,
-            icon: 'fy-cards-new',
-            route: ['/', 'enterprise', 'corporate_card_expenses']
-          },
-          {
-            title: 'Reports',
-            isVisible: true,
-            icon: 'fy-reports-new',
-            route: ['/', 'enterprise', 'my_reports']
-          },
-          {
-            title: 'Trips',
-            // eslint-disable-next-line max-len
-            isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
-            icon: 'fy-trips-new',
-            route: ['/', 'enterprise', 'my_trips']
-          },
-          {
-            title: 'Advances',
-            isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
-            icon: 'fy-advances-new',
-            route: ['/', 'enterprise', 'my_advances']
-          },
-          {
-            title: 'Team Reports',
-            isVisible: allowedReportsActions && allowedReportsActions.approve,
-            icon: 'fy-team-reports-new',
-            route: ['/', 'enterprise', 'team_reports'],
-            cssClass: 'team-trips'
-          },
-          {
-            title: 'Team Trips',
-            isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
-            icon: 'fy-team-trips-new',
-            route: ['/', 'enterprise', 'team_trips']
-          },
-          {
-            title: 'Team Advances',
-            isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
-            icon: 'fy-team-advances-new',
-            route: ['/', 'enterprise', 'team_advance']
-          },
-        ];
-        this.sideMenuSecondaryList = [
-          {
-            title: 'Live Chat',
-            isVisible: orgUserSettings &&
-              orgUserSettings.in_app_chat_settings &&
-              orgUserSettings.in_app_chat_settings.allowed &&
-              orgUserSettings.in_app_chat_settings.enabled,
-            icon: 'fy-chat',
-            openHelp: true
-          },
-          {
-            title: 'Settings',
-            isVisible: true,
-            icon: 'fy-settings',
-            route: ['/', 'enterprise', 'my_profile']
-          },
-          {
-            title: 'Switch Organization',
-            isVisible: (orgs.length > 1) && !this.isSwitchedToDelegator,
-            icon: 'fy-switch-new',
-            route: ['/', 'auth', 'switch_org', { choose: true }]
-          },
-          {
-            title: 'Delegated Accounts',
-            isVisible: isDelegatee && !this.isSwitchedToDelegator,
-            icon: 'fy-delegate-switch',
-            route: ['/', 'enterprise', 'delegated_accounts']
-          },
-          {
-            title: 'Switch back to my account',
-            isVisible: this.isSwitchedToDelegator,
-            icon: 'fy-switch',
-            route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }]
-          },
-          {
-            title: 'Help',
-            isVisible: true,
-            icon: 'fy-help-new',
-            route: ['/', 'enterprise', 'help']
-          }
-        ];
-      } else {
-        this.sideMenuList = [
-          {
-            title: 'Dashboard',
-            isVisible: true,
-            icon: 'fy-dashboard-new',
-            route: ['/', 'enterprise', 'my_dashboard']
-          },
-          {
-            title: 'Expenses',
-            isVisible: true,
-            icon: 'fy-expenses-new',
-            route: ['/', 'enterprise', 'my_expenses']
-          },
-          {
-            title: 'Cards',
-            isVisible: orgSettings.corporate_credit_card_settings.enabled,
-            icon: 'fy-cards-new',
-            route: ['/', 'enterprise', 'corporate_card_expenses'],
-            disabled: true
-          },
-          {
-            title: 'Reports',
-            isVisible: true,
-            icon: 'fy-reports-new',
-            route: ['/', 'enterprise', 'my_reports'],
-            disabled: true
-          },
-          {
-            title: 'Trips',
-            // eslint-disable-next-line max-len
-            isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
-            icon: 'fy-trips-new',
-            route: ['/', 'enterprise', 'my_trips'],
-            disabled: true
-          },
-          {
-            title: 'Advances',
-            isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
-            icon: 'fy-advances-new',
-            route: ['/', 'enterprise', 'my_advances'],
-            disabled: true
-          },
-          {
-            title: 'Team Reports',
-            isVisible: allowedReportsActions && allowedReportsActions.approve,
-            icon: 'fy-team-reports-new',
-            route: ['/', 'enterprise', 'team_reports'],
-            cssClass: 'team-trips',
-            disabled: true
-          },
-          {
-            title: 'Team Trips',
-            isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
-            icon: 'fy-team-trips-new',
-            route: ['/', 'enterprise', 'team_trips'],
-            disabled: true
-          },
-          {
-            title: 'Team Advances',
-            isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
-            icon: 'fy-team-advances-new',
-            route: ['/', 'enterprise', 'team_advance'],
-            disabled: true
-          },
-        ];
-        this.sideMenuSecondaryList = [
-          {
-            title: 'Live Chat',
-            isVisible: orgUserSettings &&
-              orgUserSettings.in_app_chat_settings &&
-              orgUserSettings.in_app_chat_settings.allowed &&
-              orgUserSettings.in_app_chat_settings.enabled,
-            icon: 'fy-chat',
-            openHelp: true,
-            disabled: true
-          },
-          {
-            title: 'Settings',
-            isVisible: true,
-            icon: 'fy-settings',
-            route: ['/', 'enterprise', 'my_profile'],
-          },
-          {
-            title: 'Switch Organization',
-            isVisible: (orgs.length > 1),
-            icon: 'fy-switch-new',
-            route: ['/', 'auth', 'switch_org', { choose: true }],
-            disabled: true
-          },
-          {
-            title: 'Delegated Accounts',
-            isVisible: isDelegatee && !this.isSwitchedToDelegator,
-            icon: 'fy-delegate-switch',
-            route: ['/', 'enterprise', 'delegated_accounts'],
-            disabled: true
-          },
-          {
-            title: 'Switch back to my account',
-            isVisible: this.isSwitchedToDelegator,
-            icon: 'fy-switch',
-            route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
-            disabled: true
-          },
-          {
-            title: 'Help',
-            isVisible: true,
-            icon: 'fy-help-new',
-            route: ['/', 'enterprise', 'help'],
-            disabled: true
-          }
-        ];
-      }
+      this.setupSideMenu(
+        isConnected,
+        orgSettings,
+        orgUserSettings,
+        allowedReportsActions,
+        allowedTripsActions,
+        allowedAdvancesActions,
+        orgs,
+        isDelegatee
+      );
 
       /* These below conditions have been added to place the divider in the sidenav:-
         - if 'Advances' is enabled, the divider will be placed under 'Advances',
         - else if 'Trips' is enabled, the divider will be placed under 'Trips',
         - else it will be placed under 'Reports'
       */
-      this.dividerTitle = 'Reports';
-      if (orgSettings.trip_requests.enabled &&
-        (!orgSettings.trip_requests.enable_for_certain_employee ||
-          (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled))) {
-        this.dividerTitle = 'Trips';
-      }
-      if (orgSettings.advances.enabled || orgSettings.advance_requests.enabled) {
-        this.dividerTitle = 'Advances';
-      }
+      this.setDividerTitle(orgSettings, orgUserSettings);
     });
+  }
+
+  // TODO: Reduce number of params being passed
+  // eslint-disable-next-line max-params
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+  setupSideMenu(
+    isConnected: boolean,
+    orgSettings: any,
+    orgUserSettings: OrgUserSettings,
+    allowedReportsActions: any,
+    allowedTripsActions: any,
+    allowedAdvancesActions: any,
+    orgs,
+    isDelegatee: boolean) {
+    if (isConnected) {
+      this.setSideMenuOnline(
+        orgSettings,
+        orgUserSettings,
+        allowedReportsActions,
+        allowedTripsActions,
+        allowedAdvancesActions,
+        orgs,
+        isDelegatee);
+    } else {
+      this.setSideMenuOffline(
+        orgSettings,
+        orgUserSettings,
+        allowedReportsActions,
+        allowedTripsActions,
+        allowedAdvancesActions,
+        orgs,
+        isDelegatee);
+    }
+  }
+
+  // TODO: Breakdown to make this easier to
+  // eslint-disable-next-line
+  setSideMenuOffline(
+    orgSettings: any,
+    orgUserSettings: OrgUserSettings,
+    allowedReportsActions: any,
+    allowedTripsActions: any,
+    allowedAdvancesActions: any,
+    orgs: any,
+    isDelegatee: boolean) {
+    this.sideMenuList = [
+      {
+        title: 'Dashboard',
+        isVisible: true,
+        icon: 'fy-dashboard-new',
+        route: ['/', 'enterprise', 'my_dashboard']
+      },
+      {
+        title: 'Expenses',
+        isVisible: true,
+        icon: 'fy-expenses-new',
+        route: ['/', 'enterprise', 'my_expenses']
+      },
+      {
+        title: 'Cards',
+        isVisible: orgSettings.corporate_credit_card_settings.enabled,
+        icon: 'fy-cards-new',
+        route: ['/', 'enterprise', 'corporate_card_expenses'],
+        disabled: true
+      },
+      {
+        title: 'Reports',
+        isVisible: true,
+        icon: 'fy-reports-new',
+        route: ['/', 'enterprise', 'my_reports'],
+        disabled: true
+      },
+      {
+        title: 'Trips',
+        // eslint-disable-next-line max-len
+        isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
+        icon: 'fy-trips-new',
+        route: ['/', 'enterprise', 'my_trips'],
+        disabled: true
+      },
+      {
+        title: 'Advances',
+        isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
+        icon: 'fy-advances-new',
+        route: ['/', 'enterprise', 'my_advances'],
+        disabled: true
+      },
+      {
+        title: 'Team Reports',
+        isVisible: allowedReportsActions && allowedReportsActions.approve,
+        icon: 'fy-team-reports-new',
+        route: ['/', 'enterprise', 'team_reports'],
+        cssClass: 'team-trips',
+        disabled: true
+      },
+      {
+        title: 'Team Trips',
+        isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
+        icon: 'fy-team-trips-new',
+        route: ['/', 'enterprise', 'team_trips'],
+        disabled: true
+      },
+      {
+        title: 'Team Advances',
+        isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
+        icon: 'fy-team-advances-new',
+        route: ['/', 'enterprise', 'team_advance'],
+        disabled: true
+      },
+    ];
+    this.sideMenuSecondaryList = [
+      {
+        title: 'Live Chat',
+        isVisible: orgUserSettings &&
+          orgUserSettings.in_app_chat_settings &&
+          orgUserSettings.in_app_chat_settings.allowed &&
+          orgUserSettings.in_app_chat_settings.enabled,
+        icon: 'fy-chat',
+        openHelp: true,
+        disabled: true
+      },
+      {
+        title: 'Settings',
+        isVisible: true,
+        icon: 'fy-settings',
+        route: ['/', 'enterprise', 'my_profile'],
+      },
+      {
+        title: 'Switch Organization',
+        isVisible: (orgs.length > 1),
+        icon: 'fy-switch-new',
+        route: ['/', 'auth', 'switch_org', { choose: true }],
+        disabled: true
+      },
+      {
+        title: 'Delegated Accounts',
+        isVisible: isDelegatee && !this.isSwitchedToDelegator,
+        icon: 'fy-delegate-switch',
+        route: ['/', 'enterprise', 'delegated_accounts'],
+        disabled: true
+      },
+      {
+        title: 'Switch back to my account',
+        isVisible: this.isSwitchedToDelegator,
+        icon: 'fy-switch',
+        route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
+        disabled: true
+      },
+      {
+        title: 'Help',
+        isVisible: true,
+        icon: 'fy-help-new',
+        route: ['/', 'enterprise', 'help'],
+        disabled: true
+      }
+    ];
+  }
+
+  // eslint-disable-next-line
+  setSideMenuOnline(orgSettings: any, orgUserSettings: OrgUserSettings, allowedReportsActions: any, allowedTripsActions: any, allowedAdvancesActions: any, orgs: any, isDelegatee: boolean) {
+    this.sideMenuList = [
+      {
+        title: 'Dashboard',
+        isVisible: true,
+        icon: 'fy-dashboard-new',
+        route: ['/', 'enterprise', 'my_dashboard']
+      },
+      {
+        title: 'Expenses',
+        isVisible: true,
+        icon: 'fy-expenses-new',
+        route: ['/', 'enterprise', 'my_expenses']
+      },
+      {
+        title: 'Cards',
+        isVisible: orgSettings.corporate_credit_card_settings.enabled,
+        icon: 'fy-cards-new',
+        route: ['/', 'enterprise', 'corporate_card_expenses']
+      },
+      {
+        title: 'Reports',
+        isVisible: true,
+        icon: 'fy-reports-new',
+        route: ['/', 'enterprise', 'my_reports']
+      },
+      {
+        title: 'Trips',
+        // eslint-disable-next-line max-len
+        isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
+        icon: 'fy-trips-new',
+        route: ['/', 'enterprise', 'my_trips']
+      },
+      {
+        title: 'Advances',
+        isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
+        icon: 'fy-advances-new',
+        route: ['/', 'enterprise', 'my_advances']
+      },
+      {
+        title: 'Team Reports',
+        isVisible: allowedReportsActions && allowedReportsActions.approve,
+        icon: 'fy-team-reports-new',
+        route: ['/', 'enterprise', 'team_reports'],
+        cssClass: 'team-trips'
+      },
+      {
+        title: 'Team Trips',
+        isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
+        icon: 'fy-team-trips-new',
+        route: ['/', 'enterprise', 'team_trips']
+      },
+      {
+        title: 'Team Advances',
+        isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
+        icon: 'fy-team-advances-new',
+        route: ['/', 'enterprise', 'team_advance']
+      },
+    ];
+    this.sideMenuSecondaryList = [
+      {
+        title: 'Live Chat',
+        isVisible: orgUserSettings &&
+          orgUserSettings.in_app_chat_settings &&
+          orgUserSettings.in_app_chat_settings.allowed &&
+          orgUserSettings.in_app_chat_settings.enabled,
+        icon: 'fy-chat',
+        openHelp: true
+      },
+      {
+        title: 'Settings',
+        isVisible: true,
+        icon: 'fy-settings',
+        route: ['/', 'enterprise', 'my_profile']
+      },
+      {
+        title: 'Switch Organization',
+        isVisible: (orgs.length > 1) && !this.isSwitchedToDelegator,
+        icon: 'fy-switch-new',
+        route: ['/', 'auth', 'switch_org', { choose: true }]
+      },
+      {
+        title: 'Delegated Accounts',
+        isVisible: isDelegatee && !this.isSwitchedToDelegator,
+        icon: 'fy-delegate-switch',
+        route: ['/', 'enterprise', 'delegated_accounts']
+      },
+      {
+        title: 'Switch back to my account',
+        isVisible: this.isSwitchedToDelegator,
+        icon: 'fy-switch',
+        route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }]
+      },
+      {
+        title: 'Help',
+        isVisible: true,
+        icon: 'fy-help-new',
+        route: ['/', 'enterprise', 'help']
+      }
+    ];
+  }
+
+  setDividerTitle(orgSettings: any, orgUserSettings: OrgUserSettings) {
+    this.dividerTitle = 'Reports';
+    if (orgSettings.trip_requests.enabled &&
+      (!orgSettings.trip_requests.enable_for_certain_employee ||
+        (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled))) {
+      this.dividerTitle = 'Trips';
+    }
+    if (orgSettings.advances.enabled || orgSettings.advance_requests.enabled) {
+      this.dividerTitle = 'Advances';
+    }
   }
 
   setupNetworkWatcher() {

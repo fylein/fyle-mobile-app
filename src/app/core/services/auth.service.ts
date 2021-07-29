@@ -14,7 +14,6 @@ import {Cacheable} from 'ts-cacheable';
 })
 export class AuthService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private storageService: StorageService,
     private tokenService: TokenService,

@@ -89,7 +89,7 @@ export class FileService {
   }
 
   // TODO: High impact. To be separately fixed
-  // eslint-disable-next-line max-params
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   base64Upload(name, content, transactionId?, invoiceId?, password?) {
     return this.apiService.post('/files/upload_b64',
       {

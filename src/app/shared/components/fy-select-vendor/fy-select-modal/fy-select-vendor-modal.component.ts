@@ -25,7 +25,6 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
 
   isLoading = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,

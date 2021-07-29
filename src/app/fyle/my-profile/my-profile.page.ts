@@ -68,7 +68,6 @@ export class MyProfilePage implements OnInit {
 
   ROUTER_API_ENDPOINT: string;
 
-  // eslint-disable-next-line max-params
   constructor(
     private authService: AuthService,
     private offlineService: OfflineService,

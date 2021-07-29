@@ -31,7 +31,6 @@ export class MyAdvancesPage implements OnInit {
 
   onPageExit = new Subject();
 
-  // eslint-disable-next-line max-params
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
@@ -99,6 +98,7 @@ export class MyAdvancesPage implements OnInit {
       startWith([])
     );
 
+    const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1));
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
       switchMap(() => from(this.loaderService.showLoader('Retrieving advance...')).pipe(
@@ -111,34 +111,44 @@ export class MyAdvancesPage implements OnInit {
             const [myAdvancerequestsRes, myAdvancesRes] = res;
             let myAdvancerequests = myAdvancerequestsRes || [];
             let myAdvances = myAdvancesRes || [];
-            myAdvancerequests = myAdvancerequests.map(data => ({
-              ...data,
-              type: 'request',
-              currency: data.areq_currency,
-              amount: data.areq_amount,
-              created_at: data.areq_created_at,
-              purpose: data.areq_purpose,
-              state: data.areq_state
-            }));
+            myAdvancerequests = this.updateMyAdvanceRequests(myAdvancerequests);
 
-            myAdvances = myAdvances.map(data => ({
-              ...data,
-              type: 'advance',
-              amount: data.adv_amount,
-              orig_amount: data.adv_orig_amount,
-              created_at: data.adv_created_at,
-              currency: data.adv_currency,
-              orig_currency: data.adv_orig_currency,
-              purpose: data.adv_purpose,
-            }));
+            myAdvances = this.updateMyAdvances(myAdvances);
             return myAdvances.concat(myAdvancerequests);
           }),
-          map(res => res.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1))
+          sortResults
         )),
         finalize(() => from(this.loaderService.hideLoader()))
       ))
 
     );
+  }
+
+  updateMyAdvances(myAdvances: any) {
+    myAdvances = myAdvances.map(data => ({
+      ...data,
+      type: 'advance',
+      amount: data.adv_amount,
+      orig_amount: data.adv_orig_amount,
+      created_at: data.adv_created_at,
+      currency: data.adv_currency,
+      orig_currency: data.adv_orig_currency,
+      purpose: data.adv_purpose,
+    }));
+    return myAdvances;
+  }
+
+  updateMyAdvanceRequests(myAdvancerequests: any) {
+    myAdvancerequests = myAdvancerequests.map(data => ({
+      ...data,
+      type: 'request',
+      currency: data.areq_currency,
+      amount: data.areq_amount,
+      created_at: data.areq_created_at,
+      purpose: data.areq_purpose,
+      state: data.areq_state
+    }));
+    return myAdvancerequests;
   }
 
   doRefresh(event) {

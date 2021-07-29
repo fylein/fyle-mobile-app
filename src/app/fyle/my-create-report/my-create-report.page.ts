@@ -55,7 +55,6 @@ export class MyCreateReportPage implements OnInit {
 
   showReportNameError = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,

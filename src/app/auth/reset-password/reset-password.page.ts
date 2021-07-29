@@ -31,7 +31,6 @@ export class ResetPasswordPage implements OnInit {
     return ResetPasswordPageState;
   }
 
-  // eslint-disable-next-line max-params
   constructor(
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,

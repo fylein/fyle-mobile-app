@@ -98,38 +98,46 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.mileageConfig && !isEqual(changes.mileageConfig.previousValue, changes.mileageConfig.currentValue)) {
-      this.form.controls.mileageLocations.clearValidators();
-      this.form.controls.mileageLocations.updateValueAndValidity();
-      if (this.mileageConfig.location_mandatory) {
-        this.form.controls.mileageLocations.setValidators(Validators.required);
-      }
-      this.form.controls.mileageLocations.updateValueAndValidity();
-      this.form.updateValueAndValidity();
+      this.onMileageConfigChange();
     }
 
     if (changes.txnFields && !isEqual(changes.txnFields.previousValue, changes.txnFields.currentValue)) {
-      const keyToControlMap: { [id: string]: AbstractControl } = {
-        distance: this.form.controls.distance
-      };
-
-      for (const control of Object.values(keyToControlMap)) {
-        control.clearValidators();
-        control.updateValueAndValidity();
-      }
-
-      for (const txnFieldKey of intersection(['distance'], Object.keys(this.txnFields))) {
-        const control = keyToControlMap[txnFieldKey];
-
-        if (this.txnFields[txnFieldKey].is_mandatory) {
-          if (txnFieldKey === 'distance') {
-            control.setValidators(this.isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null);
-          }
-        }
-        control.updateValueAndValidity();
-      }
-
-      this.form.updateValueAndValidity();
+      this.onTxnFieldsChange();
     }
+  }
+
+  onTxnFieldsChange() {
+    const keyToControlMap: { [id: string]: AbstractControl } = {
+      distance: this.form.controls.distance
+    };
+
+    for (const control of Object.values(keyToControlMap)) {
+      control.clearValidators();
+      control.updateValueAndValidity();
+    }
+
+    for (const txnFieldKey of intersection(['distance'], Object.keys(this.txnFields))) {
+      const control = keyToControlMap[txnFieldKey];
+
+      if (this.txnFields[txnFieldKey].is_mandatory) {
+        if (txnFieldKey === 'distance') {
+          control.setValidators(this.isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null);
+        }
+      }
+      control.updateValueAndValidity();
+    }
+
+    this.form.updateValueAndValidity();
+  }
+
+  onMileageConfigChange() {
+    this.form.controls.mileageLocations.clearValidators();
+    this.form.controls.mileageLocations.updateValueAndValidity();
+    if (this.mileageConfig.location_mandatory) {
+      this.form.controls.mileageLocations.setValidators(Validators.required);
+    }
+    this.form.controls.mileageLocations.updateValueAndValidity();
+    this.form.updateValueAndValidity();
   }
 
   writeValue(value): void {

@@ -3,6 +3,9 @@
   "ignorePatterns": [
     "projects/**/*"
   ],
+  "plugins": [
+    "max-params-no-constructor"
+  ],
   "overrides": [
     {
       "files": [
@@ -19,7 +22,6 @@
         "plugin:@angular-eslint/ng-cli-compat",
         "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
         "plugin:@angular-eslint/template/process-inline-templates"
-
       ],
       "rules": {
         "@angular-eslint/component-class-suffix": [
@@ -35,7 +37,9 @@
           "off",
           {
             "selector": "variable",
-            "format": ["camelCase"]
+            "format": [
+              "camelCase"
+            ]
           }
         ],
         "@angular-eslint/component-selector": [
@@ -45,7 +49,7 @@
             "prefix": "app",
             "style": "kebab-case"
           }
-        ], 
+        ],
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -53,8 +57,17 @@
             "prefix": "app"
           }
         ],
-        "indent": ["error", 2],
-        "quotes": [2, "single", { "avoidEscape": true }],
+        "indent": [
+          "error",
+          2
+        ],
+        "quotes": [
+          2,
+          "single",
+          {
+            "avoidEscape": true
+          }
+        ],
         "semi": "error",
         "no-underscore-dangle": "off",
         "@angular-eslint/template/no-negated-async": "off",
@@ -63,9 +76,25 @@
         "@typescript-eslint/ban-types": "off",
         "@typescript-eslint/consistent-type-assertions": "off",
         "@angular-eslint/no-conflicting-lifecycle": "off",
-        "lines-between-class-members": ["error", "always"],
+        "lines-between-class-members": [
+          "error",
+          "always"
+        ],
         "@typescript-eslint/no-shadow": "off",
-        "max-params": [2, 4]
+        "complexity": [
+          2,
+          10
+        ],
+        "max-depth": [
+          "error",
+          4
+        ],
+        // "no-magic-numbers": "error",
+        "max-params-no-constructor/max-params-no-constructor": [
+          "error",
+          4
+        ]
+        // "max-nested-callbacks": [2,3]
       }
     },
     {

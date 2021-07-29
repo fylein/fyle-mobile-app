@@ -27,7 +27,6 @@ export class SubmitReportPopoverComponent implements OnInit {
 
   submitReportLoading = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private popoverController: PopoverController,
     private offlineService: OfflineService,

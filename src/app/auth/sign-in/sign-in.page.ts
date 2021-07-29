@@ -37,7 +37,6 @@ export class SignInPage implements OnInit {
 
   checkEmailExists$: Observable<any>;
 
-  // eslint-disable-next-line max-params
   constructor(
     private formBuilder: FormBuilder,
     private routerAuthService: RouterAuthService,
