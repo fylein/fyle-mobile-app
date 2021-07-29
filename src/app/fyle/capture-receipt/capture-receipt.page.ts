@@ -335,7 +335,6 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     });
   }
 
-
   ngOnDestroy() {
     this.stopCamera();
   }
