@@ -26,13 +26,16 @@ jobs:
         id: download
         with:
           name: 'Android'
-          path: android.apk
+          path: ./
 
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
 
       - name: Display structure of downloaded files
         run: ls -R
+
+      - name: Rename file
+        run: mv *.apk android.apk
 
       # - shell: bash
       #   run: |
