@@ -82,5 +82,5 @@ jobs:
 
       - name: get github events
         run: |
-          echo "${{toJSON(github.event)}}" 
+          echo "${{toJSON(github.event)}}"
 
