@@ -9,7 +9,7 @@
     <div class="capture-receipt--close-icon-block" (click)="close()">
       <mat-icon class="capture-receipt--close-icon" svgIcon="close"></mat-icon>
     </div>
-    <div class="capture-receipt--flash-icon-block" (click)="toggleFlashMode()">
+    <div class="capture-receipt--flash-icon-block" *ngIf="flashMode" (click)="toggleFlashMode()">
       <mat-icon class="capture-receipt--flash-icon" svgIcon="{{(flashMode === 'on') ? 'flash-on' : 'flash-off'}}"></mat-icon>
     </div>
   </div>
@@ -44,7 +44,7 @@
       </ng-container>
       <ng-container *ngIf="captureCount > 0">
         <div class="capture-receipt--thumbnail-container" (click)="review()">
-          <div class="capture-receipt--image-count text-center">{{captureCount}}</div>
+          <div class="capture-receipt--image-count text-center">{{base64ImagesWithSource.length}}</div>
           <div class="capture-receipt--image-thumbnail">
             <ion-img [src]="lastImage"></ion-img>
           </div>

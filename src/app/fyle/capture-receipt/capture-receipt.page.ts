@@ -10,8 +10,9 @@ import { Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { from, noop } from 'rxjs';
+import { forkJoin, from, noop } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { AccountsService } from 'src/app/core/services/accounts.service';
 
 const {CameraPreview} = Plugins;
 
@@ -52,7 +53,8 @@ export class CaptureReceiptPage implements OnInit {
     private offlineService: OfflineService,
     private transactionsOutboxService: TransactionsOutboxService,
     private imagePicker: ImagePicker,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private accountsService: AccountsService
   ) { }
 
   ngOnInit() {}
@@ -60,12 +62,38 @@ export class CaptureReceiptPage implements OnInit {
   addExpenseToQueue(base64ImagesWithSource: Image) {
     let source = base64ImagesWithSource.source;
 
-    return this.networkService.isOnline().subscribe((isConnected) => {
+    return forkJoin({
+      isConnected: this.networkService.isOnline(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings()
+    }).subscribe(({isConnected, orgUserSettings, accounts, orgSettings}) => {
+
+      const isAdvanceEnabled = (orgSettings.advances && orgSettings.advances.enabled) ||
+          (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+
+      const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+      const isMultipleAdvanceEnabled = orgSettings && orgSettings.advance_account_settings &&
+      orgSettings.advance_account_settings.multiple_accounts;
+      const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+      const isCCCEnabled = orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+
+      let account;
+
+      if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+        account = paymentModes.find(res => res.acc.displayName === 'Paid by Company');
+      } else if (isCCCEnabled && orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+        account = paymentModes.find(res => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+      } else {
+        account = paymentModes.find(res => res.acc.displayName === 'Paid by Me');
+      }
+
       if (!isConnected) {
         source += '_OFFLINE';
       }
       const transaction = {
-        skip_reimbursement: false,
+        source_account_id: account.acc.id,
+        skip_reimbursement: !account.acc.isReimbursable || false,
         source,
         txn_dt: new Date(),
         currency: this.homeCurrency
@@ -207,8 +235,6 @@ export class CaptureReceiptPage implements OnInit {
           });
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
         }
-
-
       }
     }
 
@@ -230,13 +256,13 @@ export class CaptureReceiptPage implements OnInit {
     this.lastImage = base64PictureData;
     if (!this.isBulkMode) {
       this.base64ImagesWithSource.push({
-        source: 'MOBILE_SINGLE',
+        source: 'MOBILE_DASHCAM_SINGLE',
         base64Image: base64PictureData
       });
       this.onSingleCapture();
     } else {
       this.base64ImagesWithSource.push({
-        source: 'MOBILE_BULK',
+        source: 'MOBILE_DASHCAM_BULK',
         base64Image: base64PictureData
       });
       this.onBulkCapture();
@@ -261,7 +287,7 @@ export class CaptureReceiptPage implements OnInit {
             imageBase64Strings.forEach((base64String, key) => {
               const base64PictureData = 'data:image/jpeg;base64,' + base64String;
               this.base64ImagesWithSource.push({
-                source: 'MOBILE_GALLERY',
+                source: 'MOBILE_DASHCAM_GALLERY',
                 base64Image: base64PictureData
               });
 

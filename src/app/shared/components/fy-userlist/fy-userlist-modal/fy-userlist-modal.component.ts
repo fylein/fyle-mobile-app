@@ -6,6 +6,8 @@ import { isEqual, cloneDeep, startsWith} from 'lodash';
 import { Employee } from 'src/app/core/models/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {MatChipInputEvent} from '@angular/material/chips';
 @Component({
   selector: 'app-fy-userlist-modal',
   templateUrl: './fy-userlist-modal.component.html',
@@ -42,12 +44,51 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   isLoading = false;
 
+  selectable = true;
+
+  removable = true;
+
+  addOnBlur = true;
+
+  selectedItemDict = {};
+
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
+
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private orgUserService: OrgUserService,
     private loaderService: LoaderService
   ) { }
+
+
+  getSelectedItemDict() {
+    return this.currentSelections.reduce((acc, curr) => {
+      acc[curr] = true;
+      return acc;
+    }, {});
+  }
+
+  getSeparatorKeysCodes() {
+    return [ENTER, COMMA];
+  };
+
+  addChip(event: MatChipInputEvent) {
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
+  }
+
+  removeChip(item) {
+    const updatedItem = {
+      us_email: item,
+      is_selected: false
+    };
+    const event = {
+      checked: false
+    };
+    this.onSelect(updatedItem, event);
+  }
 
   ngOnInit() {
     this.intialSelectedEmployees = cloneDeep(this.currentSelections);
@@ -203,6 +244,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       const index = this.currentSelections.indexOf(selectedOption.us_email);
       this.currentSelections.splice(index, 1);
     }
+    this.selectedItemDict = this.getSelectedItemDict();
   }
 
   useSelected() {
@@ -217,5 +259,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       this.currentSelections.push(this.value);
     }
     this.clearValue();
+    this.selectedItemDict = this.getSelectedItemDict();
   }
 }
