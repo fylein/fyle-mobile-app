@@ -20,6 +20,7 @@ jobs:
           environment: staging
           native-config: staging
           upload-artifact: Android
+          web-preview: yes
 
       - uses: actions/download-artifact@v2
         id: download
