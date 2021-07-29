@@ -22,15 +22,6 @@ jobs:
           upload-artifact: Android
           web-preview: yes
 
-      - name: Build Web with Appflow
-        uses: ionic-team/appflow-build@v1
-        with:
-          token: ${{ secrets.APPFLOW_TOKEN }}
-          app-id: 32316914
-          platform: Web
-          environment: staging
-          web-preview: yes
-
       - uses: actions/download-artifact@v2
         id: download
         with:
@@ -39,4 +30,14 @@ jobs:
 
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
+
+      - name: Send Message to Slack
+        uses: archive/github-actions-slack@v2.0.1
+        id: notify
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: C02951193PH
+          slack-text: Hello! Deployment happening in "${{ github.repository }}" of "${{github.event.commits[0].message}}"
+      - name: Result from "Send Message"
+        run: echo "The result was ${{ steps.notify.outputs.slack-result }}"
 
