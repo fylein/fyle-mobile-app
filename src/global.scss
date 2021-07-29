@@ -312,7 +312,10 @@ input:focus, textarea:focus{
 }
 
 .ios .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
-.ios .timeline--timeline-item__last > .timeline--timeline-item-internal::before {
+.ios .timeline--timeline-item__last > .timeline--timeline-item-internal::before,
+.md .timeline--timeline-item__first > .timeline--timeline-item-internal::before,
+.md .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
+.md .timeline--timeline-item__last > .timeline--timeline-item-internal::before {
   font-size: inherit !important;
 }
 
