@@ -44,6 +44,10 @@ export class ReceiptPreviewComponent implements OnInit {
     this.activeIndex = 0;
   }
 
+  ionViewWillEnter() {
+    this.imageSlides.update();
+  }
+
   async finish() {
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource
