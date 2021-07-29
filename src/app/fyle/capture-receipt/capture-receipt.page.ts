@@ -61,26 +61,31 @@ export class CaptureReceiptPage implements OnInit {
     let source = base64ImagesWithSource.source;
 
     return this.networkService.isOnline().subscribe((isConnected) => {
-      if (!isConnected) {
-        source += '_OFFLINE';
-      }
-      const transaction = {
-        skip_reimbursement: false,
-        source,
-        txn_dt: new Date(),
-        currency: this.homeCurrency
-      };
-
-      const attachmentUrls = [
-        {
-          thumbnail: base64ImagesWithSource.base64Image,
-          type: 'image',
-          url: base64ImagesWithSource.base64Image
-        }
-      ];
-
-      this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
+      source = this.addEntryToOutbox(isConnected, source, base64ImagesWithSource);
     });
+  }
+
+  addEntryToOutbox(isConnected: boolean, source: string, base64ImagesWithSource: Partial<{ source: string; base64Image: string; }>) {
+    if (!isConnected) {
+      source += '_OFFLINE';
+    }
+    const transaction = {
+      skip_reimbursement: false,
+      source,
+      txn_dt: new Date(),
+      currency: this.homeCurrency
+    };
+
+    const attachmentUrls = [
+      {
+        thumbnail: base64ImagesWithSource.base64Image,
+        type: 'image',
+        url: base64ImagesWithSource.base64Image
+      }
+    ];
+
+    this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
+    return source;
   }
 
   async stopCamera() {
