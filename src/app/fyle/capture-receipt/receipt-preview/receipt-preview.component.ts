@@ -15,19 +15,20 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @Input() mode: string;
 
-  sliderOptions: { initialSlide: number; slidesPerView: number; zoom: { maxRatio: number; }; };
+  sliderOptions: { initialSlide: number; slidesPerView: number; zoom: { maxRatio: number } };
 
   activeIndex: number;
+
   constructor(
     private platform: Platform,
     private modalController: ModalController,
     private popoverController: PopoverController,
-  ) { 
+  ) {
     this.registerBackButtonAction();
   }
 
   registerBackButtonAction() {
-    this.platform.backButton.subscribe(async() => {
+    this.platform.backButton.subscribe(async () => {
       this.retake();
     });
   }
