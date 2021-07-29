@@ -28,9 +28,7 @@ jobs:
           token: ${{ secrets.APPFLOW_TOKEN }}
           app-id: 32316914
           platform: Web
-          build-type: debug
           environment: staging
-          native-config: staging
           web-preview: yes
 
       - uses: actions/download-artifact@v2
