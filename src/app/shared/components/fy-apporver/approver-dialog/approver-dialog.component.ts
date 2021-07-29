@@ -41,7 +41,6 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
   areApproversAdded = true;
 
-  // eslint-disable-next-line max-params
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,

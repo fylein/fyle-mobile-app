@@ -30,7 +30,6 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   value;
 
-  // eslint-disable-next-line max-params
   constructor(
     private offlineService: OfflineService,
     private modalController: ModalController,

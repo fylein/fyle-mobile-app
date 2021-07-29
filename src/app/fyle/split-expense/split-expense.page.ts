@@ -60,7 +60,6 @@ export class SplitExpensePage implements OnInit {
 
   showErrorBlock: boolean;
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,

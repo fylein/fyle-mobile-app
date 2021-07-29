@@ -49,7 +49,6 @@ export class MyViewReportPage implements OnInit {
 
   onPageExit = new Subject();
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,

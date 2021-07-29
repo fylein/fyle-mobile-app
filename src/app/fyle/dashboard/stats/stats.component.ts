@@ -47,7 +47,6 @@ export class StatsComponent implements OnInit {
     return ReportStates;
   }
 
-  // eslint-disable-next-line max-params
   constructor(
       private dashboardService: DashboardService,
       private currencyService: CurrencyService,

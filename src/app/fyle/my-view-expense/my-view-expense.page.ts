@@ -50,7 +50,6 @@ export class MyViewExpensePage implements OnInit {
 
   currencyOptions;
 
-  // eslint-disable-next-line max-params
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,

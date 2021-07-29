@@ -93,7 +93,6 @@ export class OtherRequestsComponent implements OnInit {
 
   otherDetailsForm: FormGroup;
 
-  // eslint-disable-next-line max-params
   constructor(
     private modalController: ModalController,
     private formBuilder: FormBuilder,

@@ -53,7 +53,6 @@ export class ViewCommentComponent implements OnInit {
 
   showDt: boolean;
 
-  // eslint-disable-next-line max-params
   constructor(
     private statusService: StatusService,
     private authService: AuthService,

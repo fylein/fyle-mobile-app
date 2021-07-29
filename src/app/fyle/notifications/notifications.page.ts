@@ -47,7 +47,6 @@ export class NotificationsPage implements OnInit {
 
   notificationForm: FormGroup;
 
-  // eslint-disable-next-line max-params
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,

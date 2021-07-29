@@ -62,7 +62,6 @@ export class AppComponent implements OnInit {
 
   previousUrl: string;
 
-  // eslint-disable-next-line max-params
   constructor(
     private platform: Platform,
     private statusBar: StatusBar,
@@ -286,6 +285,7 @@ export class AppComponent implements OnInit {
 
   // TODO: Reduce number of params being passed
   // eslint-disable-next-line max-params
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   setupSideMenu(
     isConnected: boolean,
     orgSettings: any,

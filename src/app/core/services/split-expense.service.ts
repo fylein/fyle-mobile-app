@@ -84,7 +84,7 @@ export class SplitExpenseService {
   }
 
   // TODO: Fix later. High impact
-  // eslint-disable-next-line max-params
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, totalSplitExpensesCount) {
     const txnsObservables = [];
 

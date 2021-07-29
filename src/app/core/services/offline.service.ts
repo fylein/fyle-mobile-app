@@ -30,7 +30,6 @@ import { OrgUserSettings } from '../models/org_user_settings.model';
 })
 export class OfflineService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private appVersionService: AppVersionService,

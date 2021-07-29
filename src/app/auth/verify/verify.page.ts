@@ -24,7 +24,6 @@ export class VerifyPage implements OnInit {
     return VerifyPageState;
   }
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private routerAuthService: RouterAuthService,

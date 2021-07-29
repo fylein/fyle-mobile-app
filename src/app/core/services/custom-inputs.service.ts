@@ -127,25 +127,15 @@ export class CustomInputsService {
 
     if (customProperty.type === 'TEXT' || customProperty.type === 'SELECT') {
       displayValue = customProperty.value || '-';
-    }
-
-    if (customProperty.type === 'NUMBER') {
+    } else if (customProperty.type === 'NUMBER') {
       displayValue = this.formatNumberCustomProperty(customProperty);
-    }
-
-    if (customProperty.type === 'BOOLEAN') {
+    } else if (customProperty.type === 'BOOLEAN') {
       displayValue = this.formatBooleanCustomProperty(customProperty);
-    }
-
-    if (customProperty.type === 'MULTI_SELECT' || customProperty.type === 'USER_LIST') {
+    } else if (customProperty.type === 'MULTI_SELECT' || customProperty.type === 'USER_LIST') {
       displayValue = this.formatMultiselectCustomProperty(customProperty);
-    }
-
-    if (customProperty.type === 'LOCATION') {
+    } else if (customProperty.type === 'LOCATION') {
       displayValue = this.getLocationDisplayValue(displayValue, customProperty);
-    }
-
-    if (customProperty.type === 'DATE') {
+    } else if (customProperty.type === 'DATE') {
       displayValue = this.formatDateCustomProperty(customProperty);
     }
 

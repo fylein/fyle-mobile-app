@@ -28,7 +28,6 @@ export class FyViewAttachmentComponent implements OnInit {
   zoomScale: number;
 
   // max params shouldnt effect constructors
-  // eslint-disable-next-line max-params
   constructor(
     private modalController: ModalController,
     private sanitizer: DomSanitizer,

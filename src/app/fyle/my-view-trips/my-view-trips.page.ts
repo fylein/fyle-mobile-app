@@ -75,7 +75,6 @@ export class MyViewTripsPage implements OnInit {
 
   closeLoading = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private tripRequestsService: TripRequestsService,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,

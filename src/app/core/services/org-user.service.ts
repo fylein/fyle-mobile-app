@@ -21,7 +21,6 @@ const orgUsersCacheBuster$ = new Subject<void>();
 })
 export class OrgUserService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,

@@ -19,7 +19,6 @@ const tripRequestsCacheBuster$ = new Subject<void>();
 })
 export class TripRequestsService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private apiv2Service: ApiV2Service,
     private apiService: ApiService,

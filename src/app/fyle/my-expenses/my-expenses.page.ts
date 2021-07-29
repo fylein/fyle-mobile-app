@@ -153,7 +153,6 @@ export class MyExpensesPage implements OnInit {
     return HeaderState;
   }
 
-  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,

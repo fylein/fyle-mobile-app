@@ -23,7 +23,6 @@ export class MatchExpensePopoverComponent implements OnInit {
 
   matchedExpense$: Observable<Expense>;
 
-  // eslint-disable-next-line max-params
   constructor(
     private transactionService: TransactionService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,

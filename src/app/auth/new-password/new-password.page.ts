@@ -33,7 +33,6 @@ export class NewPasswordPage implements OnInit {
 
   hide = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,

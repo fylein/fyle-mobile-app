@@ -54,7 +54,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  // eslint-disable-next-line max-params
   constructor(
     private fb: FormBuilder,
     private modalController: ModalController,

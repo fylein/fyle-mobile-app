@@ -262,7 +262,6 @@ export class AddEditExpensePage implements OnInit {
 
   isExpandedView = false;
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,

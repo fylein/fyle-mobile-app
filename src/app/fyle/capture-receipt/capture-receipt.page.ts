@@ -44,7 +44,6 @@ export class CaptureReceiptPage implements OnInit {
   isInstafyleEnabled: boolean;
 
 
-  // eslint-disable-next-line max-params
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,

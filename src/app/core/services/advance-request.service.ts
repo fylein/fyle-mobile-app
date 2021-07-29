@@ -26,7 +26,6 @@ const advanceRequestsCacheBuster$ = new Subject<void>();
 })
 export class AdvanceRequestService {
 
-  // eslint-disable-next-line max-params
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,

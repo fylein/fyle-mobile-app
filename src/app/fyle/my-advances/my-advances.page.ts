@@ -31,7 +31,6 @@ export class MyAdvancesPage implements OnInit {
 
   onPageExit = new Subject();
 
-  // eslint-disable-next-line max-params
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,

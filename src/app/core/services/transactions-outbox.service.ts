@@ -32,7 +32,6 @@ export class TransactionsOutboxService {
 
   ROOT_ENDPOINT: string;
 
-  // eslint-disable-next-line max-params
   constructor(
     private storageService: StorageService,
     private dateService: DateService,
@@ -200,7 +199,7 @@ export class TransactionsOutboxService {
   }
 
   // TODO: High impact area. Fix later
-  // eslint-disable-next-line max-params
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   addEntry(transaction, dataUrls, comments?, reportId?, applyMagic?, receiptsData?) {
     this.queue.push({
       transaction,
@@ -215,7 +214,7 @@ export class TransactionsOutboxService {
   }
 
   // TODO: High impact area. Fix later
-  // eslint-disable-next-line max-params
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
     this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData);
     return this.syncEntry(this.queue.pop());

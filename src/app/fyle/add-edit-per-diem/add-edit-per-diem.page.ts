@@ -180,7 +180,6 @@ export class AddEditPerDiemPage implements OnInit {
   ];
 
 
-  // eslint-disable-next-line max-params
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
