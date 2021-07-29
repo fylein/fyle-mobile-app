@@ -7,7 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-  # This will build an APK & Upload the artifact in Android.zip
   build-android:
     runs-on: ubuntu-latest
     steps:
