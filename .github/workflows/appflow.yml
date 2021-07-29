@@ -26,7 +26,7 @@ jobs:
         id: download
         with:
           name: 'Android'
-          path: ./
+          path: android.apk
 
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
@@ -74,7 +74,7 @@ jobs:
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          path: math-homework.txt
+          path: android.apk
           channel: C02951193PH
 
       - name: get github events
