@@ -49,6 +49,10 @@ jobs:
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
 
+      - name: get github events
+        run: |
+          echo "${{toJSON(steps.download.outputs)}}"
+
       - name: Upload to slack step
         uses: adrey/slack-file-upload-action@master
         with:
