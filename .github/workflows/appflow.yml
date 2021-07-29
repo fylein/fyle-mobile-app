@@ -1,8 +1,4 @@
-name: 'Appflow'
-description: 'GitHub Action for triggering Appflow builds.'
-branding:
-  icon: 'smartphone'
-  color: 'red'
+name: Appflow
 
 on:
   push:
