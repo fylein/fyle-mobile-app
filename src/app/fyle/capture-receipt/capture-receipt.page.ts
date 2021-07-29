@@ -194,12 +194,22 @@ export class CaptureReceiptPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
+      debugger;
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
         this.setUpAndStartCamera();
       } else {
-        this.addExpenseToQueue(this.base64ImagesWithSource[0]);
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        if (data.continueCaptureReceipt) {
+          this.captureCount = 0;
+          this.lastImage = null;
+          this.isBulkMode = false;
+          this.setUpAndStartCamera();
+        } else {
+          this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
+            this.addExpenseToQueue(base64ImageWithSource);
+          });
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        }
       }
     }
   }
@@ -218,6 +228,7 @@ export class CaptureReceiptPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
+      debugger;
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
         this.captureCount = 0;
