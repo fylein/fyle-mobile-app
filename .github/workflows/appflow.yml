@@ -20,7 +20,6 @@ jobs:
           environment: staging
           native-config: staging
           upload-artifact: Android
-          web-preview: yes
 
       - uses: actions/download-artifact@v2
         id: download
@@ -28,11 +27,11 @@ jobs:
           name: 'Android'
           path: ./
 
-      - name: 'Echo download path'
-        run: echo ${{steps.download.outputs.download-path}}
+      # - name: 'Echo download path'
+      #   run: echo ${{steps.download.outputs.download-path}}
 
-      - name: Display structure of downloaded files
-        run: ls -R
+      # - name: Display structure of downloaded files
+      #   run: ls -R
 
       - name: Rename file
         run: mv *.apk android.apk
@@ -55,9 +54,9 @@ jobs:
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
 
-      - name: get github events
-        run: |
-          echo "${{toJSON(steps.download.outputs)}}"
+      # - name: get github events
+      #   run: |
+      #     echo "${{toJSON(steps.download.outputs)}}"
 
 
       - name: Send Message to Slack
