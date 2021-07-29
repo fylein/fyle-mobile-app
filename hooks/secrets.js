@@ -1,8 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
-if (process.env.CI_PLATFORM === 'android') {
 const NATIVE_CONFIG  = JSON.parse(process.env.NATIVE_CONFIG);
-}
 
 module.exports = {
     googleCredentials: `
