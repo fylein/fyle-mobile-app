@@ -33,21 +33,21 @@ jobs:
 
       - name: Display structure of downloaded files
         run: ls -R
-        
-      - shell: bash
-        run: |
-          expr 3 + 7 > math-homework.txt
-          
-      - uses: actions/upload-artifact@v2
-        with:
-          name: homework
-          path: math-homework.txt
 
-      - uses: actions/download-artifact@v2
-        id: download
-        with:
-          name: 'homework'
-          path: ./
+      # - shell: bash
+      #   run: |
+      #     expr 3 + 7 > math-homework.txt
+          
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: homework
+      #     path: math-homework.txt
+
+      # - uses: actions/download-artifact@v2
+      #   id: download
+      #   with:
+      #     name: 'homework'
+      #     path: ./
 
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
