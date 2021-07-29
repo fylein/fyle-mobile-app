@@ -36,8 +36,8 @@ jobs:
         id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-channel: C02951193PH
-          slack-text: Hello! Deployment happening in "${{ github.repository }}" of "${{github.event.body}}"
+          slack-channel: C029QPGHSQL
+          slack-text: Hello! Deployment happening in "${{ github.repository }}"
       - name: Result from "Send Message"
         run: echo "The result was ${{ steps.notify.outputs.slack-result }}"
       - name: get github events
