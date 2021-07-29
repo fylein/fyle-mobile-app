@@ -1,9 +1,9 @@
-<agm-map class="route-visualizer--map" [disableDefaultUI]="true" *ngIf="origin && destination">
+<agm-map (click)="mapClicked($event)" class="route-visualizer--map" [disableDefaultUI]="true" *ngIf="origin && destination">
   <agm-direction [markerOptions]="markerOptions" [renderOptions]="renderOptions" [origin]="origin" [destination]="destination" [waypoints]="waypoints"></agm-direction>
 </agm-map>
 <ng-container *ngIf="!(origin && destination) && showEmptyMap">
   <ng-container *ngIf="currentLocation">
-    <agm-map class="route-visualizer--map" [disableDefaultUI]="true" [latitude]="currentLocation?.lat" [longitude]="currentLocation?.lng">
+    <agm-map (click)="mapClicked($event)" class="route-visualizer--map" [disableDefaultUI]="true" [latitude]="currentLocation?.lat" [longitude]="currentLocation?.lng">
     </agm-map>
   </ng-container>
 </ng-container>

@@ -31,15 +31,22 @@ export class OrgService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: orgsCacheBuster$
+  })
+  getOrgs() {
+    return this.apiService.get('/orgs').pipe(
+      map(res => res as Org[])
+    );
+  }
+
   suggestOrgCurrency() {
     return this.apiService.get('/currency/ip').pipe(
       map((data) => {
         data.currency = data.currency || 'USD';
         return data.currency as string;
       }),
-      catchError(() => {
-        return 'USD';
-      })
+      catchError(() => 'USD')
     );
   }
 
@@ -66,24 +73,13 @@ export class OrgService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: orgsCacheBuster$
-  })
-  getOrgs() {
-    return this.apiService.get('/orgs').pipe(
-      map(res => res as Org[])
-    );
-  }
-
   switchOrg(orgId: string) {
 
     // busting global cache
     globalCacheBusterNotifier.next();
 
     return this.apiService.post(`/orgs/${orgId}/refresh_token`).pipe(
-      switchMap(data => {
-        return this.authService.newRefreshToken(data.refresh_token);
-      })
+      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
     );
   }
 }

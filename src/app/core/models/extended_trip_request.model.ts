@@ -7,7 +7,7 @@ export interface ExtendedTripRequest {
       email: string;
       name: string;
       state: string;
-    }
+    };
   };
   approvers: string[];
   custom_properties: any;

@@ -1,5 +1,10 @@
 <div *ngIf="showDt" class="expenses-card--date">
-  {{(expense.tx_txn_dt || expense.tx_created_at) | dateFormat }}
+  <ng-container *ngIf="expense.tx_id">
+    {{(expense.tx_txn_dt || expense.tx_created_at) | dateFormat }}
+  </ng-container>
+  <ng-container *ngIf="!expense.tx_id">
+    Offline Expenses
+  </ng-container>
 </div>
 
 <div class="expenses-card--body" [ngClass]="{'expenses-card--body__with-border': !showDt}" (click)="onGoToTransaction()" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
@@ -38,7 +43,7 @@
               <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated" class="expenses-card--policy-violated-icon">error</mat-icon>
             </div>
 
-            <div class="expenses-card--vendor">
+            <div class="expenses-card--vendor" [ngClass]="{'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'}">
               {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
             </div>
 

@@ -23,22 +23,28 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
-  private ngControl: NgControl;
   @Input() txnDt: Date;
+
   @Input() homeCurrency: string;
-  @Input() recentlyUsed: { label: string, value: string }[];
+
+  @Input() recentlyUsed: { label: string; value: string }[];
+
   exchangeRate = 1;
 
+  fg: FormGroup;
+
+  private ngControl: NgControl;
+
   private innerValue: {
-    amount: number,
-    currency: string,
-    orig_amount: number,
-    orig_currency: string
+    amount: number;
+    currency: string;
+    orig_amount: number;
+    orig_currency: string;
   };
 
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
-  fg: FormGroup;
 
   get valid() {
     if (this.ngControl.touched) {

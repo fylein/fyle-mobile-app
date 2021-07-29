@@ -749,3 +749,50 @@ ref - https://stackoverflow.com/a/31162426
   box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.5);
   border-radius: 8px;
 }
+
+.payment-mode-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    max-height: 60%;
+    bottom: 0;
+  }
+
+  .modal-shadow{
+    display: none;
+  }
+}
+
+.mat-chip.mat-standard-chip {
+  background-color: $pure-white;
+  border: 1px solid $grey-lighter;
+}
+
+.mat-standard-chip {
+  min-height: 20px !important;
+  font-size: 12px;
+  color: $black-light !important;
+}
+
+.mat-chip.mat-standard-chip .mat-chip-remove {
+  color: $grey-lighter !important;
+  font-size: 16px;
+  opacity: 1;
+  margin: 4px 3px 3px 4px;;
+}
+
+.mat-standard-chip .mat-chip-remove.mat-icon {
+  width: 8px !important;
+}
+
+.selection-modal--form-container {
+  .mat-form-field-infix {
+    width: auto;
+  }
+}
+
+.selection-modal--form-container__chips {
+  .mat-form-field-infix {
+    border-top: 0;
+  }
+}

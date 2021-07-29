@@ -1,0 +1,17 @@
+@import './colors.scss';
+
+.expansion-btn {
+  display: flex;
+  align-items: center;
+  color: $black-light;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 500;
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
+
+.expansion-icon {
+  color: $primary;
+  font-size: 18px;
+}

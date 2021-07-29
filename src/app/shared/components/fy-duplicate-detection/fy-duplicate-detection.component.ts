@@ -22,16 +22,22 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccessor {
 
   @Input() duplicates: any;
+
   @Input() transactionId: any;
+
   @Input() label;
+
   @Input() mandatory;
 
-  private innerValue;
+  options: { label: string; value: any }[];
+
   displayValue;
 
+  private innerValue;
+
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
-  options: { label: string, value: any }[];
 
   constructor(
     private modalController: ModalController,

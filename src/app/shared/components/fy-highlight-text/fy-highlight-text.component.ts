@@ -9,6 +9,7 @@ import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
 export class FyHighlightTextComponent implements OnInit{
 
   @Input() fullText: string;
+
   @Input() queryText: string;
 
   constructor() { }

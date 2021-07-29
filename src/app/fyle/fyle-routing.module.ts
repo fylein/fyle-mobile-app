@@ -11,7 +11,7 @@ const routes: Routes = [
     loadChildren: () => import('./my-expenses/my-expenses.module').then(m => m.MyExpensesPageModule)
   },
   {
-    path: 'camera_overlay',
+    path: 'camera_overlay_1',
     loadChildren: () => import('./camera-overlay/camera-overlay.module').then(m => m.CameraOverlayPageModule)
   },
   {
@@ -149,6 +149,10 @@ const routes: Routes = [
   {
     path: 'ccc_classified_actions',
     loadChildren: () => import('./ccc-classified-actions/ccc-classified-actions.module').then( m => m.CccClassifiedActionsPageModule)
+  },
+  {
+    path: 'camera_overlay',
+    loadChildren: () => import('./capture-receipt/capture-receipt.module').then( m => m.CaptureReceiptPageModule)
   }
 ];
 

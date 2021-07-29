@@ -35,6 +35,7 @@ $list-element-color: #333;
 
   &--title {
     @extend %fy-select-title;
+    margin-left: 4%;
   }
 
   &--header {
@@ -53,20 +54,16 @@ $list-element-color: #333;
   }
 
   &--search-icon {
-    font-size: 14px;
-  }
-
-  &--form-field-container {
-    text-align: center;
+    @extend %fy-select-search-icon;
+    margin-top: -8px;
   }
 
   &--container {
     @extend %flex-layout-column;
   }
 
-  &--primary-cta {
-    min-height: 48px;
-    margin: 12px;
+  &--cta {
+    @extend %fy-select-cta;
   }
 
   &--add-item-block {
@@ -93,5 +90,39 @@ $list-element-color: #333;
     align-items: center;
     height: 100%;
     width: 100%;
+  }
+
+  &--form-container {
+    display: flex;
+    border: 1px solid $grey-lighter;
+    border-radius: 4px;
+    margin: 8px 16px;
+    font-size: 12px;
+    padding: 4px;
+
+    &__chips {
+      padding: 3px 4px 3px 8px;
+    }
+  }
+
+  &--form-input {
+    margin-top: -4px !important;
+    font-size: 14px;
+    color: $black-2;
+    margin-left: 6px !important;
+
+    &__chips {
+      margin-top: 4px !important;
+    }
+  }
+
+  &--selected-count {
+    color: $grey-light;
+    text-align: left;
+    margin: 0 16px 10px;
+  }
+
+  &--toolbar {
+    box-shadow: 0px 4px 4px rgba(215, 215, 215, 0.2);
   }
 }

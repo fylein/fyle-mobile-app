@@ -7,11 +7,6 @@ import { throwError, of, iif } from 'rxjs';
   providedIn: 'root'
 })
 export class PermissionsService {
-
-  constructor(
-    private authService: AuthService
-  ) { }
-
   // can check roleActionMap[role]['company']['view'] for whether he is allowed company view.
   // transportation, hotel keys are only for list pages, not for any create and edit page, need to fix later
   roleActionMap = {
@@ -2189,6 +2184,11 @@ export class PermissionsService {
     }
   };
 
+
+  constructor(
+    private authService: AuthService
+  ) { }
+
   allowedActions(resource, actions, orgSettings) {
     const roles$ = this.authService.getRoles();
     const allowedActions: any = {
@@ -2236,9 +2236,7 @@ export class PermissionsService {
     );
 
     return filteredRoles$.pipe(
-      switchMap(filteredRoles => {
-        return iif(() => filteredRoles.length > 0, allowedActions$, of(null));
-      })
+      switchMap(filteredRoles => iif(() => filteredRoles.length > 0, allowedActions$, of(null)))
     );
   }
 

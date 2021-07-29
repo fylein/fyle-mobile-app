@@ -24,14 +24,20 @@ enum DashboardState {
   styleUrls: ['./dashboard.page.scss'],
 })
 export class DashboardPage implements OnInit {
-  orgUserSettings$: Observable<OrgUserSettings>;
-  orgSettings$: Observable<any>;
-  homeCurrency$: Observable<any>;
-  isConnected$: Observable<boolean>;
-  onPageExit$ = new Subject();
-  currentStateIndex = 0;
 
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
+
+  orgUserSettings$: Observable<OrgUserSettings>;
+
+  orgSettings$: Observable<any>;
+
+  homeCurrency$: Observable<any>;
+
+  isConnected$: Observable<boolean>;
+
+  onPageExit$ = new Subject();
+
+  currentStateIndex = 0;
 
   constructor(
     private offlineService: OfflineService,
@@ -78,7 +84,7 @@ export class DashboardPage implements OnInit {
     }
 
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
-     shareReplay(1),
+      shareReplay(1),
     );
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
       shareReplay(1),

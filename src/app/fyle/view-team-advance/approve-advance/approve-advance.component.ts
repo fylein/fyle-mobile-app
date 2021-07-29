@@ -11,6 +11,7 @@ import { finalize } from 'rxjs/operators';
 export class ApproveAdvanceComponent implements OnInit {
 
   @Input() areq;
+
   approveAdvanceLoading = false;
 
   constructor(
@@ -31,7 +32,7 @@ export class ApproveAdvanceComponent implements OnInit {
     ).subscribe(_ => {
       this.popoverController.dismiss({
         goBack: true
-      })
+      });
     });
   }
 }

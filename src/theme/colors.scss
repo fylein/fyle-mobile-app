@@ -30,15 +30,20 @@ $green-1: #24a148 !default;
 $red-1: #da1e2817 !default;
 $red-2: #b8141d;
 $grey-4: #f9f9f9;
+$grey-5: #e5e5e5;
 
 $light-grey: #f2f2f2 !default;
+$border-grey: #dfdfe2d7 !default;
 $lighter-grey: #ececec !default;
 $light-blue: #f7f7fb !default;
 $light-purple: #fbf7f9 !default;
 $outline-grey: #eaeaeb !default;
 $dark-blue: #1c1f36 !default;
+$black-3: #0000004d !default;
+$black-4: rgba(0, 0, 0, 0.3) !default;
 
 
 $pink-gradient: linear-gradient(137.88deg, $brand-primary 14.22%, $brand-primary-light 85.5%);
 $pink-gradient-1: linear-gradient(162.38deg, #FF3366 3.01%, #FE5196 111.5%);
 $pink-gradient-2: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-light 111.5%);
+$pink-gradient-3: linear-gradient(90deg, #FF758C 0%, #FF7EB3 100%);
