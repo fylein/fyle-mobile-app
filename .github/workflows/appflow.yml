@@ -66,12 +66,12 @@ jobs:
 
       - name: Display structure of downloaded files
         run: ls -R
-        
+
       - name: Upload to slack step
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          path: ${{steps.download.outputs.download-path}}
+          path: math-homework.txt
           channel: C02951193PH
 
       - name: get github events
