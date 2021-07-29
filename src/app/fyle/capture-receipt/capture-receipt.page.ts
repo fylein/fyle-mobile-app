@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 
@@ -25,7 +25,7 @@ type Image = Partial<{
   templateUrl: './capture-receipt.page.html',
   styleUrls: ['./capture-receipt.page.scss'],
 })
-export class CaptureReceiptPage implements OnInit {
+export class CaptureReceiptPage implements OnInit, OnDestroy {
   isCameraShown: boolean;
 
   isBulkMode: boolean;
@@ -333,5 +333,10 @@ export class CaptureReceiptPage implements OnInit {
     this.offlineService.getOrgUserSettings().subscribe(orgUserSettings => {
       this.isInstafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
+  }
+
+
+  ngOnDestroy() {
+    this.stopCamera();
   }
 }

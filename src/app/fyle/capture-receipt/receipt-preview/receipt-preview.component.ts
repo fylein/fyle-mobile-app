@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 @Component({
@@ -15,23 +15,41 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @Input() mode: string;
 
-  sliderOptions: { zoom: { maxRatio: number } };
+  sliderOptions: { initialSlide: number; slidesPerView: number; zoom: { maxRatio: number; }; };
 
   activeIndex: number;
-
+  
   constructor(
     private modalController: ModalController,
-    private popoverController: PopoverController
-  ) { }
+    private popoverController: PopoverController,
+    private platform: Platform,
+  ) { 
+    this.registerBackButtonAction();
+  }
+  registerBackButtonAction() {
+    this.platform.backButton.subscribe(async() => {
+      this.retake();
+    });
+  }
 
   ngOnInit() {
     this.sliderOptions = {
+      initialSlide: 0,
+      slidesPerView: 1,
       zoom: {
         maxRatio: 1,
       },
     };
     this.activeIndex = 0;
   }
+
+  // ionViewWillLeave() {
+  //   this.retake();
+  // }
+
+  // ionModalWillDismiss() {
+  //   debugger;
+  // }
 
   async finish() {
     this.modalController.dismiss({
@@ -131,6 +149,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   async ionSlideDidChange() {
     const activeIndex = await this.imageSlides.getActiveIndex();
+
     this.activeIndex = activeIndex;
   }
 
