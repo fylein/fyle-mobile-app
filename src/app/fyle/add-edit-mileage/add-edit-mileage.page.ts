@@ -440,7 +440,7 @@ export class AddEditMileagePage implements OnInit {
       }).pipe(
         switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
           // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
-          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
+          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance', 'distance_unit'];
 
           return this.expenseFieldsService
             .filterByOrgCategoryId(
@@ -711,10 +711,11 @@ export class AddEditMileagePage implements OnInit {
       defaultVehicleType: defaultVehicle$,
       defaultMileageRate: defaultMileage$,
       currentEou: this.authService.getEou(),
-      autofillLocation: autofillLocation$
+      autofillLocation: autofillLocation$,
+      txnFields: this.txnFields$.pipe(take(1))
     }).pipe(
-      map(({ mileageContainer, homeCurrency, orgSettings, defaultVehicleType, defaultMileageRate, currentEou, autofillLocation }) => {
-        const distanceUnit = orgSettings.mileage.unit;
+      map(({ mileageContainer, homeCurrency, orgSettings, defaultVehicleType, defaultMileageRate, currentEou, autofillLocation, txnFields }) => {
+        const distanceUnit = txnFields?.distance_unit?.default_value;
         const locations = [];
         if (autofillLocation) {
           locations.push(autofillLocation);

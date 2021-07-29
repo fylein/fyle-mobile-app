@@ -94,8 +94,8 @@
                     <span>{{ etxn.tx.distance_unit }}</span>
                   </ng-container>
                   <ng-template #defaultDistanceUnit>
-                    <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span>{{ mileageConfig.unit }}</span>
+                    <ng-container *ngIf="txnFields$|async as txnFields">
+                      <span>{{ txnFields?.distance_unit?.default_value }}</span>
                     </ng-container>
                   </ng-template>
                 </span>
@@ -113,8 +113,8 @@
                   </ng-container>
 
                   <ng-template #defaultDistanceUnit>
-                    <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span>{{ mileageConfig.unit }}</span>
+                    <ng-container *ngIf="txnFields$|async as txnFields">
+                      <span>{{ txnFields?.distance_unit?.default_value }}</span>
                     </ng-container>
                   </ng-template>
                 </div>
