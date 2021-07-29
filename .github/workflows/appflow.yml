@@ -1,4 +1,7 @@
 name: Appflow
+branding:
+  icon: 'smartphone'
+  color: 'red'
 
 on:
   push:
