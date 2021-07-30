@@ -13,7 +13,7 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { forkJoin, from, noop } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
-import { finalize, mergeMap, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, reduce, switchMap } from 'rxjs/operators';
 
 const {CameraPreview} = Plugins;
 
@@ -62,7 +62,8 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
     return from(base64ImagesWithSource).pipe(
-      mergeMap((res: Image) => this.addExpenseToQueue(res))
+      concatMap((res: Image) => this.addExpenseToQueue(res)),
+      reduce((acc, curr) => acc.concat(curr), [])
     );
   }
 
