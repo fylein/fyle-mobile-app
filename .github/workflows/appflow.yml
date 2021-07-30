@@ -77,7 +77,7 @@ jobs:
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           path: android.apk
-          channel: C02951193PH
+          channel: C029QPGHSQL
 
       - name: get github events
         run: |
