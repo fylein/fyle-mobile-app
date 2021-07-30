@@ -50,9 +50,7 @@ export class TransactionService {
   get(txnId) {
     // TODO api v2
     return this.apiService.get('/transactions/' + txnId).pipe(
-      map((transaction) => {
-        return this.dateService.fixDates(transaction);
-      })
+      map((transaction) => this.dateService.fixDates(transaction))
     );
   }
 
@@ -72,6 +70,242 @@ export class TransactionService {
 
         return this.dateService.fixDates(transaction);
       })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
+  manualFlag(txnId) {
+    return this.apiService.post('/transactions/' + txnId + '/manual_flag');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
+  manualUnflag(txnId) {
+    return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
+  }
+
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
+  getMyETxnc(params: { offset: number; limit: number; tx_org_user_id: string }) {
+    return this.apiV2Service.get('/expenses', {
+      params
+    }).pipe(
+      map(
+        (etxns) => etxns.data
+      )
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
+  getAllETxnc(params) {
+    return this.getETxnCount(params).pipe(
+      switchMap(res => {
+        const count = res.count > 50 ? res.count / 50 : 1;
+        return range(0, count);
+      }),
+      concatMap(page => this.getETxnc({ offset: 50 * page, limit: 50, params })),
+      reduce((acc, curr) => acc.concat(curr))
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
+  getAllMyETxnc() {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => this.getMyETxncCount('eq.' + eou.ou.id).pipe(
+        switchMap(res => {
+          const count = res.count > 50 ? res.count / 50 : 1;
+          return range(0, count);
+        }),
+        concatMap(page => this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id })),
+        reduce((acc, curr) => acc.concat(curr))
+      ))
+    );
+  }
+
+
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
+  getMyExpenses(config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => this.apiV2Service.get('/expenses', {
+        params: {
+          offset: config.offset,
+          limit: config.limit,
+          order: `${config.order || 'tx_txn_dt.desc'},tx_id.desc`,
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          ...config.queryParams
+        }
+      })),
+      map(res => res as {
+        count: number;
+        data: any[];
+        limit: number;
+        offset: number;
+        url: string;
+      }),
+      map(res => ({
+        ...res,
+        data: res.data.map(datum => this.dateService.fixDatesV2(datum))
+      }))
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
+  getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
+    return this.getMyExpensesCount(config.queryParams).pipe(
+      switchMap(count => {
+        count = count > 50 ? count / 50 : 1;
+        return range(0, count);
+      }),
+      concatMap(page => this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })),
+      map(res => res.data),
+      reduce((acc, curr) => acc.concat(curr), [] as any[])
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: transactionsCacheBuster$
+  })
+  getTransactionStats(aggregates: string, queryParams = {}) {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => this.apiV2Service.get('/expenses/stats', {
+        params: {
+          aggregates,
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          ...queryParams
+        }
+      })),
+      map(res => res.data)
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
+  delete(txnId: string) {
+    return this.apiService.delete('/transactions/' + txnId);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
+  deleteBulk(txnIds: string[]) {
+    const chunkSize = 10;
+    const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
+    return range(0, count).pipe(
+      concatMap(page => {
+        const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
+        return this.apiService.post('/transactions/delete/bulk', {
+          txn_ids: filteredtxnIds
+        });
+      }),
+      reduce((acc, curr) => acc.concat(curr), [] as any[])
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
+  upsert(transaction) {
+    /** Only these fields will be of type text & custom fields */
+    const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
+
+    // Frontend should only send amount
+    transaction.user_amount = null;
+    transaction.admin_amount = null;
+    transaction.policy_amount = null;
+
+    // FYLE-6148. Don't send custom_attributes.
+    transaction.custom_attributes = null;
+
+    return this.orgUserSettingsService.get().pipe(
+      switchMap((orgUserSettings) => {
+        const offset = orgUserSettings.locale.offset;
+
+        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset);
+        // setting txn_dt time to T10:00:00:000 in local time zone
+        if (transaction.txn_dt) {
+          transaction.txn_dt.setHours(12);
+          transaction.txn_dt.setMinutes(0);
+          transaction.txn_dt.setSeconds(0);
+          transaction.txn_dt.setMilliseconds(0);
+          transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+        }
+
+        if (transaction.from_dt) {
+          transaction.from_dt.setHours(12);
+          transaction.from_dt.setMinutes(0);
+          transaction.from_dt.setSeconds(0);
+          transaction.from_dt.setMilliseconds(0);
+          transaction.from_dt = this.timezoneService.convertToUtc(transaction.from_dt, offset);
+        }
+
+        if (transaction.to_dt) {
+          transaction.to_dt.setHours(12);
+          transaction.to_dt.setMinutes(0);
+          transaction.to_dt.setSeconds(0);
+          transaction.to_dt.setMilliseconds(0);
+          transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
+        }
+
+        const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
+
+        return this.apiService.post('/transactions', transactionCopy);
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
+  createTxnWithFiles(txn, fileUploads$: Observable<any>) {
+    return fileUploads$.pipe(
+      switchMap((fileObjs: any[]) => this.upsert(txn).pipe(
+        switchMap(transaction => from(fileObjs.map(fileObj => {
+          fileObj.transaction_id = transaction.id;
+          return fileObj;
+        })).pipe(
+          concatMap(fileObj => this.fileService.post(fileObj)),
+          reduce((acc, curr) => acc.concat([curr]), []),
+          map(() => transaction)
+        ))
+      )),
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: transactionsCacheBuster$
+  })
+  removeTxnsFromRptInBulk(txnIds, comment?) {
+    const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
+    return range(0, count).pipe(
+      concatMap(page => {
+        const data: any = {
+          ids: txnIds.slice((page) * 50, (page + 1) * 50)
+        };
+
+        if (comment) {
+          data.comment = comment;
+        }
+
+        return this.apiService.post('/transactions/remove_report/bulk', data);
+      }),
+      reduce((acc, curr) => acc.concat(curr), [] as any[])
     );
   }
 
@@ -108,19 +342,6 @@ export class TransactionService {
     return count;
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
-  })
-  manualFlag(txnId) {
-    return this.apiService.post('/transactions/' + txnId + '/manual_flag');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
-  })
-  manualUnflag(txnId) {
-    return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
-  }
 
   getUserTransactionParams(state: string) {
     const stateMap = {
@@ -182,29 +403,12 @@ export class TransactionService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
-  })
-  getMyETxnc(params: { offset: number, limit: number, tx_org_user_id: string }) {
-    return this.apiV2Service.get('/expenses', {
-      params
-    }).pipe(
-      map(
-        (etxns) => {
-          return etxns.data;
-        }
-      )
-    );
-  }
-
-  getETxnc(params: { offset: number, limit: number, params: any }) {
+  getETxnc(params: { offset: number; limit: number; params: any }) {
     return this.apiV2Service.get('/expenses', {
       ...params
     }).pipe(
       map(
-        (etxns) => {
-          return etxns.data;
-        }
+        (etxns) => etxns.data
       )
     );
   }
@@ -214,46 +418,6 @@ export class TransactionService {
       map(
         res => res as { count: number }
       )
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
-  })
-  getAllETxnc(params) {
-    return this.getETxnCount(params).pipe(
-      switchMap(res => {
-        const count = res.count > 50 ? res.count / 50 : 1;
-        return range(0, count);
-      }),
-      concatMap(page => {
-        return this.getETxnc({ offset: 50 * page, limit: 50, params });
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      })
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
-  })
-  getAllMyETxnc() {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.getMyETxncCount('eq.' + eou.ou.id).pipe(
-          switchMap(res => {
-            const count = res.count > 50 ? res.count / 50 : 1;
-            return range(0, count);
-          }),
-          concatMap(page => {
-            return this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id });
-          }),
-          reduce((acc, curr) => {
-            return acc.concat(curr);
-          })
-        );
-      })
     );
   }
 
@@ -273,77 +437,6 @@ export class TransactionService {
       total = total + etxn.tx_amount;
     });
     return total;
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
-  })
-  getMyExpenses(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiV2Service.get('/expenses', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'tx_txn_dt.desc'},tx_id.desc`,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams
-          }
-        });
-      }),
-      map(res => res as {
-        count: number,
-        data: any[],
-        limit: number,
-        offset: number,
-        url: string
-      }),
-      map(res => ({
-        ...res,
-        data: res.data.map(datum => this.dateService.fixDatesV2(datum))
-      }))
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
-  })
-  getAllExpenses(config: Partial<{ order: string, queryParams: any }>) {
-    return this.getMyExpensesCount(config.queryParams).pipe(
-      switchMap(count => {
-        count = count > 50 ? count / 50 : 1;
-        return range(0, count);
-      }),
-      concatMap(page => {
-        return this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
-      }),
-      map(res => res.data),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as any[])
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
-  })
-  getTransactionStats(aggregates: string, queryParams = {}) {
-    return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiV2Service.get('/expenses/stats', {
-          params: {
-            aggregates,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...queryParams
-          }
-        });
-      }),
-      map(res => res.data)
-    );
   }
 
   getExpenseV2(id: string): Observable<any> {
@@ -376,109 +469,6 @@ export class TransactionService {
     return data;
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
-  })
-  delete(txnId: string) {
-    return this.apiService.delete('/transactions/' + txnId);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
-  })
-  deleteBulk(txnIds: string[]) {
-    const chunkSize = 10;
-    const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
-    return range(0, count).pipe(
-        concatMap(page => {
-          const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
-          return this.apiService.post('/transactions/delete/bulk', {
-            txn_ids: filteredtxnIds
-          });
-        }),
-        reduce((acc, curr) => {
-          return acc.concat(curr);
-        }, [] as any[])
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
-  })
-  upsert(transaction) {
-    /** Only these fields will be of type text & custom fields */
-    const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
-
-    // Frontend should only send amount
-    transaction.user_amount = null;
-    transaction.admin_amount = null;
-    transaction.policy_amount = null;
-
-    // FYLE-6148. Don't send custom_attributes.
-    transaction.custom_attributes = null;
-
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
-        const offset = orgUserSettings.locale.offset;
-
-        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset);
-        // setting txn_dt time to T10:00:00:000 in local time zone
-        if (transaction.txn_dt) {
-          transaction.txn_dt.setHours(12);
-          transaction.txn_dt.setMinutes(0);
-          transaction.txn_dt.setSeconds(0);
-          transaction.txn_dt.setMilliseconds(0);
-          transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
-        }
-
-        if (transaction.from_dt) {
-          transaction.from_dt.setHours(12);
-          transaction.from_dt.setMinutes(0);
-          transaction.from_dt.setSeconds(0);
-          transaction.from_dt.setMilliseconds(0);
-          transaction.from_dt = this.timezoneService.convertToUtc(transaction.from_dt, offset);
-        }
-
-        if (transaction.to_dt) {
-          transaction.to_dt.setHours(12);
-          transaction.to_dt.setMinutes(0);
-          transaction.to_dt.setSeconds(0);
-          transaction.to_dt.setMilliseconds(0);
-          transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
-        }
-
-        const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
-
-        return this.apiService.post('/transactions', transactionCopy);
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
-  })
-  createTxnWithFiles(txn, fileUploads$: Observable<any>) {
-    return fileUploads$.pipe(
-      switchMap((fileObjs: any[]) => {
-        return this.upsert(txn).pipe(
-          switchMap(transaction => {
-            return from(fileObjs.map(fileObj => {
-              fileObj.transaction_id = transaction.id;
-              return fileObj;
-            })).pipe(
-              concatMap(fileObj => {
-                return this.fileService.post(fileObj);
-              }),
-              reduce((acc, curr) => {
-                return acc.concat([curr]);
-              }, []),
-              map(() => transaction)
-            );
-          })
-        );
-      }),
-    );
-  }
 
 
   testPolicy(etxn) {
@@ -563,29 +553,6 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
-  })
-  removeTxnsFromRptInBulk(txnIds, comment?) {
-    const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
-    return range(0, count).pipe(
-      concatMap(page => {
-        const data: any = {
-          ids: txnIds.slice((page) * 50, (page + 1) * 50)
-        };
-
-        if (comment) {
-          data.comment = comment;
-        }
-
-        return this.apiService.post('/transactions/remove_report/bulk', data);
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as any[])
-    );
-  }
-
   getSplitExpenses(txnSplitGroupId: string) {
     const data = {
       tx_split_group_id: 'eq.' + txnSplitGroupId
@@ -610,5 +577,37 @@ export class TransactionService {
         expense_number: expenseNumber
       }
     });
+  }
+
+  getVendorDetails(expense: Expense): string {
+    const fyleCategory = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
+    let vendorDisplayName = expense.tx_vendor;
+
+    if (fyleCategory === 'mileage') {
+      vendorDisplayName = expense.tx_distance || 0;
+      vendorDisplayName += ' ' + expense.tx_distance_unit;
+    } else if (fyleCategory === 'per diem') {
+      vendorDisplayName = expense.tx_num_days;
+      if (expense.tx_num_days > 1) {
+        vendorDisplayName += ' Days';
+      } else {
+        vendorDisplayName += ' Day';
+      }
+
+    }
+
+    return vendorDisplayName;
+  }
+
+  getReportableExpenses(expenses: Expense[]): Expense[] {
+    return expenses.filter(expense => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id);
+  }
+
+  getIsCriticalPolicyViolated(expense: Expense): boolean{
+    return (typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001);
+  }
+
+  getIsDraft(expense: Expense): boolean {
+    return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 }

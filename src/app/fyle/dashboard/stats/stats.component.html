@@ -1,20 +1,20 @@
 <div class="stats">
+  <ion-header mode="md">
+    <ion-toolbar class="stats--toolbar">
+      <ion-buttons slot="start">
+        <app-fy-menu-icon></app-fy-menu-icon>
+      </ion-buttons>
+      <ion-title class="stats--title" mode="md">
+        Home
+      </ion-title>
+      <ion-buttons slot="end">
+        <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+          <mat-icon svgIcon="fy-plus"></mat-icon>
+        </div>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
   <div class="stats--background">
-    <ion-header mode="md">
-      <ion-toolbar class="stats--toolbar">
-        <ion-buttons slot="start">
-          <app-fy-menu-icon></app-fy-menu-icon>
-        </ion-buttons>
-        <ion-title class="stats--title" mode="md">
-          Home
-        </ion-title>
-        <ion-buttons slot="end">
-          <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-            <mat-icon svgIcon="fy-plus"></mat-icon>
-          </div>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
     <ion-grid class="stats--body">
       <ion-row class="stats--report-stats-row" *ngIf="isConnected$|async">
         <ion-col class="stats--report-stats-col">
@@ -133,28 +133,27 @@
     </ion-grid>
     <ng-container *ngIf="cardTransactionsAndDetails$ | async as cardTransactionsAndDetails; else cccStatsLoading">
       <div class="stats--ccc-card-details">
-        <div class="stats--ccc-bank-name">
+        <div class="stats--ccc-bank-name1">
           <ion-grid>
             <ion-row>
-              <ion-col size="6">
-                <div>
+              <ion-col class="stats--ccc-bank-name" size="8">
+                <div >
                   {{ cardTransactionsAndDetails.ba_bank_name }}
                 </div>
               </ion-col>
-              <ion-col size="6">
+              <ion-col size="4">
                 <div class="stats--ccc-card-info"> Corporate Card </div>
               </ion-col>
             </ion-row>
             <ion-row>
-              <ion-col>
-                <div>
-                  {{ 'xxxx x' + cardTransactionsAndDetails.ba_mask }}
-                </div>
+              <ion-col class="stats--ccc-account-info">
+                <span class="stats--ccc-account-info__type"> CREDIT </span>
+                <span class="stats--ccc-account-info__mask">{{ ' xxxx ' + cardTransactionsAndDetails.ba_mask }}</span>
               </ion-col>
             </ion-row>
           </ion-grid>
         </div>
-        <div class="stats--ccc-sync-detail"> Last synced at {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y, h:mm a' }}
+        <div class="stats--ccc-sync-detail"> Last synced: {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
         </div>
       </div>
       <div class="stats--ccc-stats">

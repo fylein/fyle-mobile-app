@@ -32,22 +32,22 @@ export class CorporateCreditCardExpenseService {
     limit: number;
     offset: number;
     url: string; }> {
-      return this.apiV2Service.get('/corporate_card_transactions', {
-        params: {
-          offset: config.offset,
-          limit: config.limit,
-          order: `${config.order || 'txn_dt.desc'},id.desc`,
-          ...config.queryParams
-        }
-      }).pipe(
-        map(res => res as {
-          count: number,
-          data: any[],
-          limit: number,
-          offset: number,
-          url: string
+    return this.apiV2Service.get('/corporate_card_transactions', {
+      params: {
+        offset: config.offset,
+        limit: config.limit,
+        order: `${config.order || 'txn_dt.desc'},id.desc`,
+        ...config.queryParams
+      }
+    }).pipe(
+      map(res => res as {
+          count: number;
+          data: any[];
+          limit: number;
+          offset: number;
+          url: string;
         })
-      );
+    );
   }
 
   getv2CardTransaction(id: string): Observable<CorporateCardExpense> {
@@ -70,19 +70,15 @@ export class CorporateCreditCardExpenseService {
     );
   }
 
-  getAllv2CardTransactions(config: Partial<{ order: string, queryParams: any }>): Observable<CorporateCardExpense[]> {
+  getAllv2CardTransactions(config: Partial<{ order: string; queryParams: any }>): Observable<CorporateCardExpense[]> {
     return this.getv2CardTransactionsCount(config.queryParams).pipe(
       switchMap(count => {
         count = count > 50 ? count / 50 : 1;
         return range(0, count);
       }),
-      concatMap(page => {
-        return this.getv2CardTransactions({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
-      }),
+      concatMap(page => this.getv2CardTransactions({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })),
       map(res => res.data),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      })
+      reduce((acc, curr) => acc.concat(curr))
     );
   }
 

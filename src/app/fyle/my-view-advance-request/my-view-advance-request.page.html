@@ -132,8 +132,8 @@
 
     <div class="view-advance-request--card">
       <div class="view-advance-request--common-action-block">
-        <app-comments objectType="advance_requests" [objectId]="advanceRequest.areq_id" mode="edit" text="Comments" [showCommentsCount]="true">
-        </app-comments>
+        <app-comments-history objectType="advance_requests" [objectId]="advanceRequest.areq_id" text="Comments" [showCommentsCount]="true">
+        </app-comments-history>
       </div>
     </div>
     <ng-container *ngIf="actions$|async as actions">

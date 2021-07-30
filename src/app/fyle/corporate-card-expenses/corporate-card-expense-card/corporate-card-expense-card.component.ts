@@ -12,9 +12,13 @@ import {CorporateCardExpense} from '../../../core/models/v2/corporate-card-expen
 })
 export class CorporateCardExpenseCardComponent implements OnInit {
   @Input() corporateCardExpense: CorporateCardExpense;
+
   @Input() prevExpense;
+
   @Input() dateComparatorProp;
+
   @Input() skipDate = false;
+
   @Input() baseState;
 
   @Output() goToTransaction: EventEmitter<any> = new EventEmitter<any>();

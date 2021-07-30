@@ -31,9 +31,7 @@ export class AuthService {
       switchMap(data => {
         const extendedOrgUser = this.dataTransformService.unflatten(data);
         return from(this.storageService.set('user', extendedOrgUser)).pipe(
-          map(() =>  {
-            return extendedOrgUser as ExtendedOrgUser;
-          })
+          map(() =>  extendedOrgUser as ExtendedOrgUser)
         );
       }),
     );
@@ -49,18 +47,12 @@ export class AuthService {
         that.tokenService.setRefreshToken(token)
       ]
     ).pipe(
-      switchMap(() => {
-        return that.apiService.post('/auth/access_token', {
-          refresh_token: token
-        }).pipe(
-          switchMap((res) => {
-            return from(that.tokenService.setAccessToken(res.access_token));
-          }),
-          switchMap(() => {
-            return that.refreshEou();
-          })
-        );
-      })
+      switchMap(() => that.apiService.post('/auth/access_token', {
+        refresh_token: token
+      }).pipe(
+        switchMap((res) => from(that.tokenService.setAccessToken(res.access_token))),
+        switchMap(() => that.refreshEou())
+      ))
     );
   }
 
@@ -92,8 +84,8 @@ export class AuthService {
     // CacheService.clearAll();
     return iif(() =>
       logoutPayload,
-      this.apiService.post('/auth/logout', logoutPayload),
-      this.apiService.post('/auth/logout')
+    this.apiService.post('/auth/logout', logoutPayload),
+    this.apiService.post('/auth/logout')
     ).pipe(
       finalize(async () => {
         await this.storageService.delete('recentlyUsedProjects');
@@ -111,6 +103,6 @@ export class AuthService {
         await this.storageService.delete('lastLoggedInOrgQueue');
         await this.storageService.delete('isSidenavCollapsed');
       })
-    )
+    );
   }
 }

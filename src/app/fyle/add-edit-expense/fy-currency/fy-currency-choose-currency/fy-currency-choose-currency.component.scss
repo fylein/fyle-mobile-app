@@ -77,4 +77,8 @@
     height: 48px;
     --border-radius: 4px !important;
   }
+
+  &--check {
+    @extend %fy-select-check;
+  }
 }

@@ -41,6 +41,16 @@ export class FreshChatService {
     });
   }
 
+  openLiveChatSupport() {
+    return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
+  }
+
+  destory() {
+    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
+      (window as any).fcWidget.destory();
+    }
+  }
+
   private getOrgUserSettings() {
     return this.offlineService.getOrgUserSettings().toPromise();
   }
@@ -110,9 +120,11 @@ export class FreshChatService {
     });
   }
 
+
   private initialize(i, t) {
     const that = this;
     let e;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     i.getElementById(t) ? that.initFreshChat.call(that) : ((e = i.createElement('script')).id = t, e.async = !0, e.src = 'https://wchat.in.freshchat.com/js/widget.js', e.onload = that.initFreshChat.bind(that), i.head.appendChild(e));
   }
 
@@ -120,13 +132,4 @@ export class FreshChatService {
     this.initialize(document, 'freshchat-js-sdk');
   }
 
-  openLiveChatSupport() {
-    return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
-  }
-
-  destory() {
-    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
-      (window as any).fcWidget.destory();
-    }
-  }
 }

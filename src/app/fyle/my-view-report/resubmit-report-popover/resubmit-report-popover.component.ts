@@ -16,9 +16,13 @@ import { map } from 'rxjs/operators';
 export class ResubmitReportPopoverComponent implements OnInit {
 
   @Input() erpt;
+
   @Input() etxns;
+
   numIssues = 0;
+
   numCriticalPolicies = 0;
+
   showTripRequestWarning = false;
 
   constructor(
@@ -38,13 +42,13 @@ export class ResubmitReportPopoverComponent implements OnInit {
     }).subscribe(({ orgSettings, orgUserSettings, approvedButUnreportedTripRequests }) => {
       const canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled));
       const isTripRequestsEnabled = orgSettings.trip_requests.enabled;
-      this.showTripRequestWarning = (canAssociateTripRequests || !isTripRequestsEnabled) && !this.erpt.rp_trip_request_id && approvedButUnreportedTripRequests && approvedButUnreportedTripRequests.length > 0
+      this.showTripRequestWarning = (canAssociateTripRequests || !isTripRequestsEnabled) && !this.erpt.rp_trip_request_id && approvedButUnreportedTripRequests && approvedButUnreportedTripRequests.length > 0;
     });
   }
 
   getCriticalPolicyViolations(etxns) {
-    let count = 0
-    etxns.forEach(function (etxn) {
+    let count = 0;
+    etxns.forEach(function(etxn) {
       if (etxn.tx_policy_flag && isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001) {
         count = count + 1;
       }
@@ -55,15 +59,15 @@ export class ResubmitReportPopoverComponent implements OnInit {
   getNumIssues(etxns) {
     let count = 0;
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (let i = 0; i < etxns.length; i++) {
+      const etxn = etxns[i];
       if (etxn.tx_policy_flag) {
         count = count + 1;
       }
     }
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (let i = 0; i < etxns.length; i++) {
+      const etxn = etxns[i];
       if (etxn.tx_manual_flag) {
         count = count + 1;
       }
@@ -78,11 +82,11 @@ export class ResubmitReportPopoverComponent implements OnInit {
 
   filterCriticalViolations(etxn) {
     return etxn.tx_policy_flag && isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-  };
+  }
 
   excludeCriticalViolations(etxn) {
     return !etxn.tx.policy_flag && !(isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001);
-  };
+  }
 
   resubmitReportAfterReview(event) {
     event.preventDefault();
@@ -92,7 +96,7 @@ export class ResubmitReportPopoverComponent implements OnInit {
       this.popoverController.dismiss({
         goBack: true
       });
-    })
-  };
+    });
+  }
 
 }

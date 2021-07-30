@@ -25,16 +25,27 @@ export class ViewTeamPerDiemPage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedPerDiem$: Observable<Expense>;
+
   orgSettings$: Observable<any>;
+
   perDiemCustomFields$: Observable<CustomField[]>;
+
   perDiemRate$: Observable<any>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   isAmountCapped$: Observable<boolean>;
+
   policyViloations$: Observable<any>;
+
   canFlagOrUnflag$: Observable<any>;
+
   canDelete$: Observable<any>;
+
   reportId;
+
   updateFlag$ = new Subject();
+
   comments$: Observable<any>;
 
   constructor(
@@ -82,13 +93,9 @@ export class ViewTeamPerDiemPage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedPerDiem$ = this.updateFlag$.pipe(
-      switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.transactionService.getExpenseV2(id);
-          })
-        );
-      }),
+      switchMap(() => from(this.loaderService.showLoader()).pipe(
+        switchMap(() => this.transactionService.getExpenseV2(id))
+      )),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -102,34 +109,26 @@ export class ViewTeamPerDiemPage implements OnInit {
     );
 
     this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(
-      switchMap(res => {
-        return this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true);
-      }),
-      map(res => {
-        return res.map(customProperties => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
-        });
-      })
+      switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
+      map(res => res.map(customProperties => {
+        customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+        return customProperties;
+      }))
     );
 
     this.perDiemRate$ = this.extendedPerDiem$.pipe(
       switchMap(res => {
-        const perDiemRateId = parseInt(res.tx_per_diem_rate_id);
+        const perDiemRateId = parseInt(res.tx_per_diem_rate_id, 10);
         return this.perDiemService.getRate(perDiemRateId);
       })
     );
 
     this.canFlagOrUnflag$ = this.extendedPerDiem$.pipe(
-      map(etxn => {
-        return ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1;
-      })
+      map(etxn => ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1)
     );
 
     this.canDelete$ = this.extendedPerDiem$.pipe(
-      concatMap(etxn => {
-        return this.reportService.getTeamReport(etxn.tx_report_id);
-      }),
+      concatMap(etxn => this.reportService.getTeamReport(etxn.tx_report_id)),
       map(report => {
         if (report.rp_num_transactions === 1) {
           return false;
@@ -146,15 +145,11 @@ export class ViewTeamPerDiemPage implements OnInit {
     // })
 
     this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001;
-      })
+      map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
 
     this.isAmountCapped$ = this.extendedPerDiem$.pipe(
-      map(res => {
-        return this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount);
-      })
+      map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
 
     this.updateFlag$.next();

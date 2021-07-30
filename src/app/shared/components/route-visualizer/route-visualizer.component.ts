@@ -1,11 +1,11 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { cloneDeep } from 'lodash';
 import { LocationService } from 'src/app/core/services/location.service';
 import { MileageLocation } from './mileage-locations';
 
 type AgmDirectionLocation = {
-  lat: number,
-  lng: number
+  lat: number;
+  lng: number;
 };
 
 @Component({
@@ -17,16 +17,20 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   @Input() mileageLocations: MileageLocation[];
 
+  @Output() mapClick = new EventEmitter<void>();
+
   currentLocation: AgmDirectionLocation;
 
   origin: AgmDirectionLocation;
+
   destination: AgmDirectionLocation;
+
   waypoints: { location: AgmDirectionLocation }[];
 
   renderOptions = {
     draggable: false,
     suppressInfoWindows: true
-  }
+  };
 
   showEmptyMap = false;
 
@@ -40,7 +44,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
     waypoints: {
       infoWindow: null
     }
-  }
+  };
 
   constructor(
     private locationService: LocationService
@@ -64,12 +68,12 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
       lng: mileageLocation?.longitude
     }));
 
-    if (transformedLocations.some(location => !location.lat || !location.lng)) {
+    if (transformedLocations.some(location => !location.lat || !location.lng) || transformedLocations.length === 0) {
       this.origin = null;
       this.destination = null;
       this.waypoints = null;
 
-      if (transformedLocations.every(location => !location.lat || !location.lng)) {
+      if (transformedLocations.every(location => !location.lat || !location.lng) || transformedLocations.length === 0) {
         this.showEmptyMap = true;
       }
 
@@ -89,4 +93,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
     }
   }
 
+  mapClicked(event) {
+    this.mapClick.emit();
+  }
 }

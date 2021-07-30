@@ -21,20 +21,28 @@ import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-exp
   styleUrls: ['./corporate-card-expenses.page.scss'],
 })
 export class CorporateCardExpensesPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   cardTransactions$: Observable<CorporateCardExpense[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
   }>>;
+
   currentPageNumber = 1;
+
   acc = [];
+
   homeCurrency$: Observable<string>;
+
   filters: Partial<{
     state: string;
     date: string;
@@ -45,16 +53,19 @@ export class CorporateCardExpensesPage implements OnInit {
   }>;
 
   isConnected$: Observable<boolean>;
+
   unclassifiedExpensesCountHeader$: Observable<number>;
+
   classifiedExpensesCountHeader$: Observable<number>;
 
   navigateBack = false;
+
   baseState = 'unclassified';
+
   simpleSearchText = '';
 
   onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   constructor(
     private networkService: NetworkService,
@@ -102,12 +113,12 @@ export class CorporateCardExpensesPage implements OnInit {
         distinctUntilChanged(),
         debounceTime(400)
       ).subscribe((searchString) => {
-      const currentParams = this.loadData$.getValue();
-      currentParams.searchString = searchString;
-      this.currentPageNumber = 1;
-      currentParams.pageNumber = this.currentPageNumber;
-      this.loadData$.next(currentParams);
-    });
+        const currentParams = this.loadData$.getValue();
+        currentParams.searchString = searchString;
+        this.currentPageNumber = 1;
+        currentParams.pageNumber = this.currentPageNumber;
+        this.loadData$.next(currentParams);
+      });
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
@@ -153,19 +164,15 @@ export class CorporateCardExpensesPage implements OnInit {
         const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
         return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.corporateCreditCardExpenseService.getAllv2CardTransactions({
-              queryParams,
-              order: orderByParams
-            }).pipe(
-              map(expenses => expenses.filter(expense => {
-                return Object.values(expense)
-                  .map(value => value && value.toString().toLowerCase())
-                  .filter(value => !!value)
-                  .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
-              }))
-            );
-          }),
+          switchMap(() => this.corporateCreditCardExpenseService.getAllv2CardTransactions({
+            queryParams,
+            order: orderByParams
+          }).pipe(
+            map(expenses => expenses.filter(expense => Object.values(expense)
+              .map(value => value && value.toString().toLowerCase())
+              .filter(value => !!value)
+              .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()))))
+          )),
           finalize(() => from(this.loaderService.hideLoader()))
         );
       })
@@ -174,9 +181,7 @@ export class CorporateCardExpensesPage implements OnInit {
     this.baseState = this.activatedRoute.snapshot.params.pageState || 'unclassified';
 
     this.cardTransactions$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe);
-      }),
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe)),
       shareReplay(1)
     );
 
@@ -206,18 +211,12 @@ export class CorporateCardExpensesPage implements OnInit {
     });
 
     const paginatedScroll$ = this.cardTransactions$.pipe(
-      switchMap(cardTxns => {
-        return this.count$.pipe(
-          map(count => {
-            return count > cardTxns.length;
-          }));
-      })
+      switchMap(cardTxns => this.count$.pipe(
+        map(count => count > cardTxns.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
-      })
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$))
     );
 
     this.loadData$.subscribe(params => {
@@ -225,7 +224,7 @@ export class CorporateCardExpensesPage implements OnInit {
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams,
-        replaceUrl : true 
+        replaceUrl : true
       });
     });
 
@@ -253,7 +252,7 @@ export class CorporateCardExpensesPage implements OnInit {
 
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
   }

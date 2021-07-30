@@ -37,7 +37,7 @@ $list-element-color: #333;
   }
 
   &--search-icon {
-    font-size: 14px;
+    @extend %fy-select-search-icon;
   }
 
   &--form-field-container {
@@ -89,5 +89,9 @@ $list-element-color: #333;
 
   &--autocomplete-loader {
     @extend %autocomplete-loader;
+  }
+
+  &--check {
+    @extend %fy-select-check;
   }
 }

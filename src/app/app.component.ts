@@ -38,16 +38,27 @@ const CapStatusBar = Plugins.StatusBar;
 })
 export class AppComponent implements OnInit {
   eou$: Observable<any>;
+
   activeOrg: any;
+
   sideMenuList: any[];
+
   sideMenuSecondaryList: any[];
+
   appVersion: string;
+
   isSwitchedToDelegator;
+
   isConnected$: Observable<boolean>;
+
   allowedActions$: Observable<any>;
+
   eou;
+
   device;
+
   dividerTitle: string;
+
   previousUrl: string;
 
   constructor(
@@ -118,7 +129,7 @@ export class AppComponent implements OnInit {
   }
 
   initializeApp() {
-    // tslint:disable-next-line:max-line-length
+    // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
     App.addListener('appUrlOpen', (data) => {
       this.zone.run(() => {
@@ -130,7 +141,7 @@ export class AppComponent implements OnInit {
       this.statusBar.styleDefault();
       CapStatusBar.setStyle({
         style: StatusBarStyle.Dark
-      })
+      });
       this.splashScreen.hide();
 
       // Global cache config
@@ -163,7 +174,7 @@ export class AppComponent implements OnInit {
 
         return this.appVersionService.isSupported(data);
       })
-    ).subscribe(async (res: { message: string, supported: boolean }) => {
+    ).subscribe(async (res: { message: string; supported: boolean }) => {
       if (!res.supported && environment.production) {
         const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
         const eou = await this.authService.getEou();
@@ -192,9 +203,7 @@ export class AppComponent implements OnInit {
     );
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.offlineService.getDelegatedAccounts().pipe(
-      map(res => {
-        return this.orgUserService.excludeByStatus(res, 'DISABLED');
-      })
+      map(res => this.orgUserService.excludeByStatus(res, 'DISABLED'))
     );
     const deviceInfo$ = this.deviceService.getDeviceInfo();
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
@@ -215,20 +224,18 @@ export class AppComponent implements OnInit {
     );
 
     this.isConnected$.pipe(
-      switchMap(isConnected => {
-        return forkJoin({
-          orgs: orgs$,
-          currentOrg: currentOrg$,
-          orgSettings: orgSettings$,
-          orgUserSettings: orgUserSettings$,
-          delegatedAccounts: delegatedAccounts$,
-          allowedActions: this.allowedActions$,
-          deviceInfo: deviceInfo$,
-          isSwitchedToDelegator: isSwitchedToDelegator$,
-          isConnected: of(isConnected),
-          eou: this.offlineService.getCurrentUser()
-        });
-      })
+      switchMap(isConnected => forkJoin({
+        orgs: orgs$,
+        currentOrg: currentOrg$,
+        orgSettings: orgSettings$,
+        orgUserSettings: orgUserSettings$,
+        delegatedAccounts: delegatedAccounts$,
+        allowedActions: this.allowedActions$,
+        deviceInfo: deviceInfo$,
+        isSwitchedToDelegator: isSwitchedToDelegator$,
+        isConnected: of(isConnected),
+        eou: this.offlineService.getCurrentUser()
+      }))
     ).subscribe((res) => {
       const orgs = res.orgs;
       this.activeOrg = res.currentOrg;
@@ -283,7 +290,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Trips',
-            // tslint:disable-next-line: max-line-length
+            // eslint-disable-next-line max-len
             isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
             icon: 'fy-trips-new',
             route: ['/', 'enterprise', 'my_trips']
@@ -361,8 +368,7 @@ export class AppComponent implements OnInit {
             title: 'Dashboard',
             isVisible: true,
             icon: 'fy-dashboard-new',
-            route: ['/', 'enterprise', 'my_dashboard'],
-            disabled: true
+            route: ['/', 'enterprise', 'my_dashboard']
           },
           {
             title: 'Expenses',
@@ -386,7 +392,7 @@ export class AppComponent implements OnInit {
           },
           {
             title: 'Trips',
-            // tslint:disable-next-line: max-line-length
+            // eslint-disable-next-line max-len
             isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
             icon: 'fy-trips-new',
             route: ['/', 'enterprise', 'my_trips'],
