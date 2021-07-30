@@ -65,7 +65,7 @@ jobs:
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C02951193PH
-          slack-text: H${{github.event.pull_request.user.login}} creted PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```
+          slack-text: H${{github.event.pull_request.user.login}} creted PR on "${{ github.repository }}" \r\n PR link "${{github.event.pull_request.html_url}}" \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```
       - name: Result from "Send Message"
         run: echo "The result was ${{ steps.notify.outputs.slack-result }}"
 
