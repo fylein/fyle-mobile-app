@@ -64,7 +64,7 @@ jobs:
         id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-channel: C029QPGHSQL
+          slack-channel: C02951193PH
           slack-text: Hello! Deployment happening in "${{ github.repository }}" \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```
       - name: Result from "Send Message"
         run: echo "The result was ${{ steps.notify.outputs.slack-result }}"
@@ -77,7 +77,7 @@ jobs:
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           path: android.apk
-          channel: C029QPGHSQL
+          channel: C02951193PH
 
       - name: get github events
         run: |
