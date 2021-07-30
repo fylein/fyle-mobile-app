@@ -1,9 +1,15 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { ActionSheetController, ModalController, Platform, PopoverController } from '@ionic/angular';
+import { from } from 'rxjs';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 
+type Image = Partial<{
+  source: string;
+  base64Image: string;
+}>;
 @Component({
   selector: 'app-receipt-preview',
   templateUrl: './receipt-preview.component.html',
@@ -13,28 +19,44 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @ViewChild('slides') imageSlides: any;
 
-  @Input() base64ImagesWithSource: string[];
+  @Input() base64ImagesWithSource: Image[];
 
   @Input() mode: string;
 
-  sliderOptions: { zoom: { maxRatio: number } };
+  sliderOptions: { initialSlide: number; slidesPerView: number; zoom: { maxRatio: number } };
 
   activeIndex: number;
 
   constructor(
+    private platform: Platform,
     private modalController: ModalController,
     private popoverController: PopoverController,
     private actionSheetController: ActionSheetController,
     private matBottomSheet: MatBottomSheet,
-  ) { }
+    private imagePicker: ImagePicker,
+  ) {
+    this.registerBackButtonAction();
+  }
+
+  registerBackButtonAction() {
+    this.platform.backButton.subscribe(async () => {
+      this.retake();
+    });
+  }
 
   ngOnInit() {
     this.sliderOptions = {
+      initialSlide: 0,
+      slidesPerView: 1,
       zoom: {
         maxRatio: 1,
       },
     };
     this.activeIndex = 0;
+  }
+
+  ionViewWillEnter() {
+    this.imageSlides.update();
   }
 
   async finish() {
@@ -91,7 +113,7 @@ export class ReceiptPreviewComponent implements OnInit {
       if (data.mode === 'camera') {
         this.captureReceipts();
       } else {
-        this.galleryUplaod();
+        this.galleryUpload();
       }
     }
 
@@ -128,8 +150,35 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
 
-  galleryUplaod() {
+  galleryUpload() {
+    //debugger;
     //Todo
+    this.imagePicker.hasReadPermission().then((permission) => {
+      if (permission) {
+        const options = {
+          maximumImagesCount: 10,
+          outputType: 1,
+          quality: 50
+        };
+        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
+        from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
+
+          if (imageBase64Strings.length > 0) {
+            imageBase64Strings.forEach((base64String, key) => {
+              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
+              this.base64ImagesWithSource.push({
+                source: 'MOBILE_DASHCAM_GALLERY',
+                base64Image: base64PictureData
+              });
+
+            });
+          }
+        });
+      } else {
+        this.imagePicker.requestReadPermission();
+        this.galleryUpload();
+      }
+    });
   }
 
 

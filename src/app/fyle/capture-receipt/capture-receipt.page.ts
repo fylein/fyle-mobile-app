@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 
@@ -10,9 +10,10 @@ import { Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { forkJoin, from, noop } from 'rxjs';
+import { forkJoin, from, noop, of } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
+import { mergeMap, switchMap } from 'rxjs/operators';
 
 const {CameraPreview} = Plugins;
 
@@ -25,7 +26,7 @@ type Image = Partial<{
   templateUrl: './capture-receipt.page.html',
   styleUrls: ['./capture-receipt.page.scss'],
 })
-export class CaptureReceiptPage implements OnInit {
+export class CaptureReceiptPage implements OnInit, OnDestroy {
   isCameraShown: boolean;
 
   isBulkMode: boolean;
@@ -194,7 +195,6 @@ export class CaptureReceiptPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      debugger;
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
         this.setUpAndStartCamera();
@@ -228,7 +228,6 @@ export class CaptureReceiptPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      debugger;
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
         this.captureCount = 0;
@@ -241,10 +240,18 @@ export class CaptureReceiptPage implements OnInit {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
-            this.addExpenseToQueue(base64ImageWithSource);
-          });
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          from(this.base64ImagesWithSource).pipe(
+            switchMap((abc: any) => {
+              //debugger;
+              console.log("----", abc);
+              return of(abc);
+            }),
+            // switchMap((res) => res),
+          ).subscribe(d => console.log(d));
+          // this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
+          //   this.addExpenseToQueue(base64ImageWithSource);
+          // });
+          // this.router.navigate(['/', 'enterprise', 'my_expenses']);
         }
       }
     }
@@ -351,5 +358,9 @@ export class CaptureReceiptPage implements OnInit {
     this.offlineService.getOrgUserSettings().subscribe(orgUserSettings => {
       this.isInstafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
+  }
+
+  ngOnDestroy() {
+    this.stopCamera();
   }
 }
