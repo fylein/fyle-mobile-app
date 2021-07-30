@@ -208,7 +208,7 @@ export class TransactionsOutboxService {
       receiptsData
     });
 
-    this.saveQueue();
+    return this.saveQueue();
   }
 
   addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
