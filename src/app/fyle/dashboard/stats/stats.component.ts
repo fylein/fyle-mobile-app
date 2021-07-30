@@ -43,6 +43,7 @@ export class StatsComponent implements OnInit {
   reportStatsLoading = true;
 
   loadData$ = new Subject();
+
   cardTransactionsAndDetails$: Observable<BankAccountsAssigned>;
 
   get ReportStates() {
@@ -112,7 +113,7 @@ export class StatsComponent implements OnInit {
     this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
       map(res => res[0]),
       shareReplay(1)
-    )
+    );
   }
 
   /*
