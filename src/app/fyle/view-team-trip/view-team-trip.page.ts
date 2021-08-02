@@ -126,7 +126,8 @@ export class ViewTeamTripPage implements OnInit {
   getRestrictedApprovers(approvals, tripRequest: ExtendedTripRequest) {
     const approvalStates = ['APPROVAL_PENDING', 'APPROVAL_DONE'];
 
-    const approversNotAllowed = approvals.filter((approver) => approvalStates.indexOf(approver.state) > -1).map((approver) => approver.approver_id);
+    const approversNotAllowed = approvals
+      .filter((approver) => approvalStates.indexOf(approver.state) > -1).map((approver) => approver.approver_id);
 
     approversNotAllowed.push(tripRequest.ou_id);
 
@@ -238,7 +239,7 @@ export class ViewTeamTripPage implements OnInit {
     });
 
     await actionBlock.present();
-    const {data} = await actionBlock.onDidDismiss();
+    const { data } = await actionBlock.onDidDismiss();
     if (data) {
       this.actionsLoading = false;
     } else {
@@ -326,8 +327,10 @@ export class ViewTeamTripPage implements OnInit {
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
-            return [location.from_city.city ? location.from_city.city : location.from_city.display,
-              location.to_city.city ? location.to_city.city : location.to_city.display];
+            return [
+              location.from_city.city ? location.from_city.city : location.from_city.display,
+              location.to_city.city ? location.to_city.city : location.to_city.display
+            ];
           }
 
           return location.from_city.city ? location.from_city.city : location.from_city.display;
@@ -342,7 +345,10 @@ export class ViewTeamTripPage implements OnInit {
         tripRequest: this.tripRequest$,
         allTripRequestCustomFields: this.allTripRequestCustomFields$
       })),
-      map(({ tripRequest, allTripRequestCustomFields }) => this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest))
+      map(({
+        tripRequest,
+        allTripRequestCustomFields
+      }) => this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest))
     );
 
     this.transportationRequests$ = forkJoin([
