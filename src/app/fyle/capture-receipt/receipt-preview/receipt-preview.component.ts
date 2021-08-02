@@ -116,43 +116,10 @@ export class ReceiptPreviewComponent implements OnInit {
         this.galleryUpload();
       }
     }
-
-
-
-
-
-    // const actionSheetButtons = [
-    //   {
-    //     text: 'Capture Receipts',
-    //     icon: 'assets/svg/fy-camera.svg',
-    //     cssClass: 'receipt-preview--capture-receipt',
-    //     handler: () => {
-    //       console.log("-------1--------");
-    //       this.captureReceipts();
-    //     }
-    //   },
-    //   {
-    //     text: 'Upload from Gallery',
-    //     icon: 'assets/svg/gallery.svg', // Todo: Fix gallery icon
-    //     cssClass: 'receipt-preview--gallery-upload',
-    //     handler: () => {
-    //       console.log("-------2--------")
-    //     }
-    //   }
-    // ];
-    // const actionSheet = await this.actionSheetController.create({
-    //   header: 'ADD MORE USING',
-    //   mode: 'md',
-    //   cssClass: ['fy-action-sheet', 'receipt-preview--action-sheet'],
-    //   buttons: actionSheetButtons
-    // });
-    // await actionSheet.present();
   }
 
 
   galleryUpload() {
-    //debugger;
-    //Todo
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
         const options = {
