@@ -41,7 +41,7 @@ jobs:
       
       - name: Send Message to Slack
         uses: archive/github-actions-slack@v2.0.1
-        id: notify
+        id: notify2
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C029QPGHSQL
