@@ -46,6 +46,7 @@ export class ExpensesCardComponent implements OnInit {
   attachmentUploadInProgress = false;
   attachedReceiptsCount = 0;
   receiptThumbnail = null;
+  pdfIcon = 'assets/svg/pdf.svg';
 
   constructor(
     private transactionService: TransactionService,
@@ -102,9 +103,9 @@ export class ExpensesCardComponent implements OnInit {
     this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
       map((orgSettings) => {
-         return orgSettings.transaction_fields_settings && 
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields && 
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields.project;
+        return orgSettings.transaction_fields_settings &&
+          orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
+          orgSettings.transaction_fields_settings.transaction_mandatory_fields.project;
       })
     );
 
@@ -122,49 +123,21 @@ export class ExpensesCardComponent implements OnInit {
 
       this.fileService.getFilesWithThumbnail(this.expense.tx_id).pipe(
         map(res => {
-          console.log('thumbs');
-          console.log(res);
           if (res.length > 0) {
-           this.fileService.downloadUrl(res[0].id).pipe(
-            map(downloadUrl => {
-              console.log(downloadUrl);
-              this.receiptThumbnail = {};
-              this.receiptThumbnail.url = downloadUrl;
-              const details = this.getReceiptDetails(this.receiptThumbnail);
-              this.receiptThumbnail.type = details.type;
-            })
-          ).subscribe(noop);
-        } else {
-      this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
-        map(downloadUrl => {
-          this.receiptThumbnail = {};
-          this.receiptThumbnail.url = downloadUrl;
-          const details = this.getReceiptDetails(this.receiptThumbnail);
-          this.receiptThumbnail.type = details.type;
-        })
-      ).subscribe(noop);          
-        }
+            this.fileService.downloadUrl(res[0].id).pipe(
+              map(downloadUrl => {
+                this.receiptThumbnail = {};
+                this.receiptThumbnail.url = downloadUrl;
+                const details = this.getReceiptDetails(this.receiptThumbnail);
+                this.receiptThumbnail.type = details.type;
+              })
+            ).subscribe(noop);
+          } else {
+            this.receiptThumbnail = {};
+            this.receiptThumbnail.type = 'pdf';
+          }
         })
       ).subscribe(noop);
-      // this.fileService.getFilesWithThumbnail2(this.expense.tx_file_ids[0]).pipe(
-      //   map(res => {
-      //     console.log('thumbs');
-      //     console.log(res);
-      //     // this.receiptThumbnail = {};
-      //     // this.receiptThumbnail.url = downloadUrl;
-      //     // const details = this.getReceiptDetails(this.receiptThumbnail);
-      //     // this.receiptThumbnail.type = details.type;
-      //   })
-      // ).subscribe(noop);
-      
-      // this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
-      //   map(downloadUrl => {
-      //     this.receiptThumbnail = {};
-      //     this.receiptThumbnail.url = downloadUrl;
-      //     const details = this.getReceiptDetails(this.receiptThumbnail);
-      //     this.receiptThumbnail.type = details.type;
-      //   })
-      // ).subscribe(noop);
     }
 
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
