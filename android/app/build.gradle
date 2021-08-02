@@ -6,8 +6,8 @@ android {
         applicationId "com.ionicframework.fyle595781"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 40590
-        versionName "4.59.0"
+        versionCode 40600
+        versionName "4.60.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
