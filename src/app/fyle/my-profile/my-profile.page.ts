@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop, Observable, throwError, of } from 'rxjs';
-import {concatMap, finalize, map, shareReplay, switchMap, take, catchError, tap} from 'rxjs/operators';
+import { concatMap, finalize, map, shareReplay, switchMap, take, catchError, tap } from 'rxjs/operators';
 import { ModalController, ToastController, PopoverController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -19,7 +19,7 @@ import { SelectCurrencyComponent } from './select-currency/select-currency.compo
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { Plugins } from '@capacitor/core';
 import { TokenService } from 'src/app/core/services/token.service';
-import {TrackingService} from '../../core/services/tracking.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { environment } from 'src/environments/environment';
 import { StatsOneDResponse } from 'src/app/core/models/stats-one-dimension.model';
 
@@ -115,7 +115,7 @@ export class MyProfilePage implements OnInit {
       orgUserSettings: this.orgUserService.postOrgUser(eou.ou)
     }).pipe(
       concatMap(() => this.authService.refreshEou().pipe(
-        tap(() => this.trackingService.activated({Asset: 'Mobile'})),
+        tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
         map(() => {
           this.presentToast('Profile saved successfully', 1000);
           this.reset();
@@ -181,9 +181,9 @@ export class MyProfilePage implements OnInit {
       .pipe(
         map((res) => {
           if (this.orgUserSettings.insta_fyle_settings.enabled) {
-            this.trackingService.onEnableInstaFyle({Asset: 'Mobile', persona: 'Enterprise'});
+            this.trackingService.onEnableInstaFyle({ Asset: 'Mobile', persona: 'Enterprise' });
           } else {
-            this.trackingService.onDisableInstaFyle({Asset: 'Mobile', persona: 'Enterprise'});
+            this.trackingService.onDisableInstaFyle({ Asset: 'Mobile', persona: 'Enterprise' });
           }
         })
       )
@@ -195,9 +195,9 @@ export class MyProfilePage implements OnInit {
       .pipe(
         map((res) => {
           if (this.orgUserSettings.bulk_fyle_settings.enabled) {
-            this.trackingService.onEnableBulkFyle({Asset: 'Mobile', persona: 'Enterprise'});
+            this.trackingService.onEnableBulkFyle({ Asset: 'Mobile', persona: 'Enterprise' });
           } else {
-            this.trackingService.onDisableBulkFyle({Asset: 'Mobile', persona: 'Enterprise'});
+            this.trackingService.onDisableBulkFyle({ Asset: 'Mobile', persona: 'Enterprise' });
           }
         })
       )
@@ -276,7 +276,8 @@ export class MyProfilePage implements OnInit {
           map(currencies => currencies
             .find(currency => currency.id === orgUserSettings.currency_settings.preferred_currency)
           ),
-          map(preferedCurrencySettings => preferedCurrencySettings && (preferedCurrencySettings.id + ' - ' + preferedCurrencySettings.value))
+          map(preferedCurrencySettings =>
+            preferedCurrencySettings && (preferedCurrencySettings.id + ' - ' + preferedCurrencySettings.value))
         )
       )
     );

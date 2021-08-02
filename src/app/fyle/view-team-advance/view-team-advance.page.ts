@@ -71,7 +71,10 @@ export class ViewTeamAdvancePage implements OnInit {
       shareReplay(1)
     );
 
-    this.showAdvanceActions$ = this.actions$.pipe(map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject));
+    this.showAdvanceActions$ = this.actions$
+      .pipe(
+        map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)
+      );
 
     this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
 
@@ -103,7 +106,10 @@ export class ViewTeamAdvancePage implements OnInit {
         if (res.eou.ou.org_id === res.advanceRequest.ou_org_id) {
           let customFieldValues = [];
           if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
-            customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+            customFieldValues = this.advanceRequestService
+              .modifyAdvanceRequestCustomFields(
+                JSON.parse(res.advanceRequest.areq_custom_field_values)
+              );
           }
 
           res.customFields.map(customField => {
@@ -123,7 +129,11 @@ export class ViewTeamAdvancePage implements OnInit {
   }
 
   edit() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id, from: 'TEAM_ADVANCE' }]);
+    this.router.navigate([
+      '/', 'enterprise', 'add_edit_advance_request',
+      {
+        id: this.activatedRoute.snapshot.params.id, from: 'TEAM_ADVANCE'
+      }]);
   }
 
   getApproverEmails(activeApprovals) {

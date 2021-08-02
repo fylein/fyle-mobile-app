@@ -81,12 +81,16 @@ export class CustomFieldsService {
   standardizeCustomFields(customProperties, customInputs) {
     let prefix = '';
 
-    const filledCustomPropertiesWithType = customInputs.filter((customInput) => !customInput.input_type).map((customInput) => this.setProperty(prefix, customInput, customProperties));
+    const filledCustomPropertiesWithType = customInputs
+      .filter((customInput) => !customInput.input_type)
+      .map((customInput) => this.setProperty(prefix, customInput, customProperties));
 
-    const filledCustomPropertiesWithInputType = customInputs.filter((customInput) => !customInput.type && customInput.input_type).map((customInput) => {
-      prefix = 'input_';
-      return this.setProperty(prefix, customInput, customProperties);
-    });
+    const filledCustomPropertiesWithInputType = customInputs
+      .filter((customInput) => !customInput.type && customInput.input_type)
+      .map((customInput) => {
+        prefix = 'input_';
+        return this.setProperty(prefix, customInput, customProperties);
+      });
 
     return filledCustomPropertiesWithType.concat(filledCustomPropertiesWithInputType).sort(this.sortcustomFieldsByType);
   }

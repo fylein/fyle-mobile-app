@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/dot-notation */
-import {Observable, forkJoin, noop, of, from, zip, combineLatest, throwError} from 'rxjs';
+import { Observable, forkJoin, noop, of, from, zip, combineLatest, throwError } from 'rxjs';
 import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
@@ -17,9 +17,9 @@ import { HotelRequestService } from 'src/app/core/services/hotel-request.service
 import { SavePopoverComponent } from '../save-popover/save-popover.component';
 import * as moment from 'moment';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import {TripRequestPolicyService} from '../../../core/services/trip-request-policy.service';
-import {PolicyViolationComponent} from '../policy-violation/policy-violation.component';
-import {StatusService} from '../../../core/services/status.service';
+import { TripRequestPolicyService } from '../../../core/services/trip-request-policy.service';
+import { PolicyViolationComponent } from '../policy-violation/policy-violation.component';
+import { StatusService } from '../../../core/services/status.service';
 import { DateService } from 'src/app/core/services/date.service';
 
 @Component({
@@ -151,7 +151,7 @@ export class OtherRequestsComponent implements OnInit {
       if (customField.type === 'DATE' && customField.value) {
         customField.value = moment(customField.value).format('y-MM-DD');
       }
-      return {id: customField.id, name: customField.name, value: customField.value};
+      return { id: customField.id, name: customField.name, value: customField.value };
     });
 
     if (type === 'ADVANCE') {
@@ -178,7 +178,8 @@ export class OtherRequestsComponent implements OnInit {
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-          customFields = customFields.filter(field => field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
+          customFields = customFields
+            .filter(field => field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
 
           for (const customField of customFields) {
             let value;
@@ -215,7 +216,8 @@ export class OtherRequestsComponent implements OnInit {
           customFieldsFormArray.clear();
           customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-          customFields = customFields.filter(field => field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
+          customFields = customFields
+            .filter(field => field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
 
           for (const customField of customFields) {
             let value;
@@ -323,7 +325,7 @@ export class OtherRequestsComponent implements OnInit {
     }
   }
 
-  async showPolicyViolationPopup(policyPopupRules: any [], policyActionDescription: string, tripReq) {
+  async showPolicyViolationPopup(policyPopupRules: any[], policyActionDescription: string, tripReq) {
     const latestComment = await this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).toPromise();
 
     const policyViolationsModal = await this.modalController.create({
@@ -385,7 +387,7 @@ export class OtherRequestsComponent implements OnInit {
                 })
               );
             } else {
-              return of({tripReq});
+              return of({ tripReq });
             }
           }),
           catchError((err) => {
@@ -394,7 +396,7 @@ export class OtherRequestsComponent implements OnInit {
                 status: 'Policy Violated'
               });
             } else {
-              return of({tripReq});
+              return of({ tripReq });
             }
           })
         );
@@ -403,31 +405,11 @@ export class OtherRequestsComponent implements OnInit {
         if (comment && tripReq.id) {
           if (saveMode === 'SUBMIT') {
             return this.tripRequestsService.submit(tripReq).pipe(
-              switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
-                switchMap(result => {
-                  if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
-                      map(() => res)
-                    );
-                  } else {
-                    return of(res);
-                  }
-                })
-              ))
+              this.updateStatusOnTripReqSubmission(tripReq, comment)
             );
           } else {
             return this.tripRequestsService.saveDraft(tripReq).pipe(
-              switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
-                switchMap(result => {
-                  if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.id, {comment}, true).pipe(
-                      map(() => res)
-                    );
-                  } else {
-                    return of(res);
-                  }
-                })
-              ))
+              this.updateStatusOnTripReqDraftSubmission(tripReq, comment)
             );
           }
         } else {
@@ -439,6 +421,34 @@ export class OtherRequestsComponent implements OnInit {
         }
       }),
     );
+  }
+
+  updateStatusOnTripReqDraftSubmission(tripReq: any, comment: any) {
+    return switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+      switchMap(result => {
+        if (result !== comment) {
+          return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
+            map(() => res)
+          );
+        } else {
+          return of(res);
+        }
+      })
+    ));
+  }
+
+  updateStatusOnTripReqSubmission(tripReq: any, comment: any) {
+    return switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+      switchMap(result => {
+        if (result !== comment) {
+          return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
+            map(() => res)
+          );
+        } else {
+          return of(res);
+        }
+      })
+    ));
   }
 
   submitOtherRequests(formValue, mode) {
@@ -473,7 +483,7 @@ export class OtherRequestsComponent implements OnInit {
       this.otherDetailsForm.reset();
       this.modalController.dismiss();
       this.router.navigate(['/', 'enterprise', 'my_trips']);
-    }, _ => {});
+    }, _ => { });
   }
 
   makeTripRequestFromForm(fgValues) {
@@ -522,47 +532,11 @@ export class OtherRequestsComponent implements OnInit {
     const hotel = [];
     const transport = [];
 
-    if (formValue.advanceDetails.length > 0) {
-      if (mode === 'POLICY_CHECK') {
-        formValue.advanceDetails.forEach((advanceDetail, index) => {
-          advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
-        });
-      } else {
-        // this case handels submit advance request, makes sequential submit calls
-        of(formValue.advanceDetails).pipe(
-          switchMap(advanceDetails => from(advanceDetails)),
-          concatMap((advanceDetail, index) => this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode))
-        ).subscribe(noop);
-      }
-    }
+    this.handleAdvances(formValue, mode, advance, trpId);
 
-    if (formValue.hotelDetails.length > 0) {
-      if (mode === 'POLICY_CHECK') {
-        formValue.hotelDetails.forEach((hotelDetail, index) => {
-          hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
-        });
-      } else {
-        // this case handels submit hotel request, makes sequential submit calls
-        of(formValue.hotelDetails).pipe(
-          switchMap(hotelDetails => from(hotelDetails)),
-          concatMap((hotelDetail, index) => this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode))
-        ).subscribe(noop);
-      }
-    }
+    this.handleHotelDetails(formValue, mode, hotel, trpId);
 
-    if (formValue.transportDetails.length > 0) {
-      if (mode === 'POLICY_CHECK') {
-        formValue.transportDetails.forEach((transportDetail, index) => {
-          transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
-        });
-      } else {
-        // this case handels submit transport request, makes sequential submit calls
-        of(formValue.transportDetails).pipe(
-          switchMap(transportDetails => from(transportDetails)),
-          concatMap((transportDetail, index) => this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode))
-        ).subscribe(noop);
-      }
-    }
+    this.handleTransportDetails(formValue, mode, transport, trpId);
 
     try {
       if (advance.length === 0 && hotel.length === 0 && transport.length === 0) {
@@ -578,6 +552,54 @@ export class OtherRequestsComponent implements OnInit {
       console.log('e', e);
     }
 
+  }
+
+  handleTransportDetails(formValue: any, mode: any, transport: any[], trpId: any) {
+    if (formValue.transportDetails.length > 0) {
+      if (mode === 'POLICY_CHECK') {
+        formValue.transportDetails.forEach((transportDetail, index) => {
+          transport.push(this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode));
+        });
+      } else {
+        // this case handels submit transport request, makes sequential submit calls
+        of(formValue.transportDetails).pipe(
+          switchMap(transportDetails => from(transportDetails)),
+          concatMap((transportDetail, index) => this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode))
+        ).subscribe(noop);
+      }
+    }
+  }
+
+  handleHotelDetails(formValue: any, mode: any, hotel: any[], trpId: any) {
+    if (formValue.hotelDetails.length > 0) {
+      if (mode === 'POLICY_CHECK') {
+        formValue.hotelDetails.forEach((hotelDetail, index) => {
+          hotel.push(this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode));
+        });
+      } else {
+        // this case handels submit hotel request, makes sequential submit calls
+        of(formValue.hotelDetails).pipe(
+          switchMap(hotelDetails => from(hotelDetails)),
+          concatMap((hotelDetail, index) => this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode))
+        ).subscribe(noop);
+      }
+    }
+  }
+
+  handleAdvances(formValue: any, mode: any, advance: any[], trpId: any) {
+    if (formValue.advanceDetails.length > 0) {
+      if (mode === 'POLICY_CHECK') {
+        formValue.advanceDetails.forEach((advanceDetail, index) => {
+          advance.push(this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode));
+        });
+      } else {
+        // this case handels submit advance request, makes sequential submit calls
+        of(formValue.advanceDetails).pipe(
+          switchMap(advanceDetails => from(advanceDetails)),
+          concatMap((advanceDetail, index) => this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode))
+        ).subscribe(noop);
+      }
+    }
   }
 
   // TODO refactor
@@ -985,7 +1007,7 @@ export class OtherRequestsComponent implements OnInit {
     );
 
     this.transportationMode$ = of(this.transportationRequestsService.getTransportationModes());
-    this.preferredTransportationTiming$ = of (this.transportationRequestsService.getTransportationPreferredTiming());
+    this.preferredTransportationTiming$ = of(this.transportationRequestsService.getTransportationPreferredTiming());
 
     this.initializeOtherRequests();
 

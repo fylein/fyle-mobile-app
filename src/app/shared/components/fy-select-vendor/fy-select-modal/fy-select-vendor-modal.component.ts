@@ -63,7 +63,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
         if (searchText) {
           // set isLoading to true
           this.isLoading = true;
-          // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+          // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
+          // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
           this.cdr.detectChanges();
           return this.vendorService.get(searchText).pipe(
             map(vendors => vendors.map(vendor => ({
@@ -76,7 +77,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
             finalize(() => {
               // set isLoading to false
               this.isLoading = false;
-              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
+              // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
               this.cdr.detectChanges();
             })
           );
