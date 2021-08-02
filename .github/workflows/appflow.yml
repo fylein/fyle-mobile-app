@@ -10,6 +10,15 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     steps:
+
+      - name: Send Message to Slack
+        uses: archive/github-actions-slack@v2.0.1
+        id: notify
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: C029QPGHSQL
+          slack-text: ${{github.event.pull_request.user.login}} created PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}``` Building Android Build for this branch
+
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
         with:
@@ -29,14 +38,14 @@ jobs:
 
       - name: Rename file
         run: mv *.apk android.apk
-
+      
       - name: Send Message to Slack
         uses: archive/github-actions-slack@v2.0.1
         id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C029QPGHSQL
-          slack-text: ${{github.event.pull_request.user.login}} creted PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```
+          slack-text:  Build is successful for PR link ${{github.event.pull_request.html_url}} 
 
       - name: Upload to slack step
         uses: adrey/slack-file-upload-action@master
