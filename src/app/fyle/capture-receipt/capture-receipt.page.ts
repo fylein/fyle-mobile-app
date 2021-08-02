@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 
@@ -13,6 +13,7 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { forkJoin, from, noop } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
+import { concatMap, finalize, reduce, switchMap } from 'rxjs/operators';
 
 const {CameraPreview} = Plugins;
 
@@ -25,7 +26,7 @@ type Image = Partial<{
   templateUrl: './capture-receipt.page.html',
   styleUrls: ['./capture-receipt.page.scss'],
 })
-export class CaptureReceiptPage implements OnInit {
+export class CaptureReceiptPage implements OnInit, OnDestroy {
   isCameraShown: boolean;
 
   isBulkMode: boolean;
@@ -59,6 +60,13 @@ export class CaptureReceiptPage implements OnInit {
 
   ngOnInit() {}
 
+  addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
+    return from(base64ImagesWithSource).pipe(
+      concatMap((res: Image) => this.addExpenseToQueue(res)),
+      reduce((acc, curr) => acc.concat(curr), [])
+    );
+  }
+
   addExpenseToQueue(base64ImagesWithSource: Image) {
     let source = base64ImagesWithSource.source;
 
@@ -67,48 +75,50 @@ export class CaptureReceiptPage implements OnInit {
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       accounts: this.offlineService.getAccounts(),
       orgSettings: this.offlineService.getOrgSettings()
-    }).subscribe(({isConnected, orgUserSettings, accounts, orgSettings}) => {
+    }).pipe(
+      switchMap(({isConnected, orgUserSettings, accounts, orgSettings}) => {
 
-      const isAdvanceEnabled = (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+        const isAdvanceEnabled = (orgSettings.advances && orgSettings.advances.enabled) ||
+            (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
 
-      const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-      const isMultipleAdvanceEnabled = orgSettings && orgSettings.advance_account_settings &&
-      orgSettings.advance_account_settings.multiple_accounts;
-      const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-      const isCCCEnabled = orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+        const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+        const isMultipleAdvanceEnabled = orgSettings && orgSettings.advance_account_settings &&
+        orgSettings.advance_account_settings.multiple_accounts;
+        const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+        const isCCCEnabled = orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
 
-      let account;
+        let account;
 
-      if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
-        account = paymentModes.find(res => res.acc.displayName === 'Paid by Company');
-      } else if (isCCCEnabled && orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-        account = paymentModes.find(res => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-      } else {
-        account = paymentModes.find(res => res.acc.displayName === 'Paid by Me');
-      }
-
-      if (!isConnected) {
-        source += '_OFFLINE';
-      }
-      const transaction = {
-        source_account_id: account.acc.id,
-        skip_reimbursement: !account.acc.isReimbursable || false,
-        source,
-        txn_dt: new Date(),
-        currency: this.homeCurrency
-      };
-
-      const attachmentUrls = [
-        {
-          thumbnail: base64ImagesWithSource.base64Image,
-          type: 'image',
-          url: base64ImagesWithSource.base64Image
+        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+          account = paymentModes.find(res => res.acc.displayName === 'Paid by Company');
+        } else if (isCCCEnabled && orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+          account = paymentModes.find(res => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+        } else {
+          account = paymentModes.find(res => res.acc.displayName === 'Paid by Me');
         }
-      ];
 
-      this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
-    });
+        if (!isConnected) {
+          source += '_OFFLINE';
+        }
+        const transaction = {
+          source_account_id: account.acc.id,
+          skip_reimbursement: !account.acc.isReimbursable || false,
+          source,
+          txn_dt: new Date(),
+          currency: this.homeCurrency
+        };
+
+        const attachmentUrls = [
+          {
+            thumbnail: base64ImagesWithSource.base64Image,
+            type: 'image',
+            url: base64ImagesWithSource.base64Image
+          }
+        ];
+
+        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
+      })
+    );
   }
 
   async stopCamera() {
@@ -198,8 +208,9 @@ export class CaptureReceiptPage implements OnInit {
         this.base64ImagesWithSource = [];
         this.setUpAndStartCamera();
       } else {
-        this.addExpenseToQueue(this.base64ImagesWithSource[0]);
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.addMultipleExpensesToQueue(this.base64ImagesWithSource).pipe(
+          finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses']))
+        ).subscribe(noop);
       }
     }
   }
@@ -224,13 +235,11 @@ export class CaptureReceiptPage implements OnInit {
         this.lastImage = null;
         this.setUpAndStartCamera();
       } else {
-        this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
-          this.addExpenseToQueue(base64ImageWithSource);
-        });
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.addMultipleExpensesToQueue(this.base64ImagesWithSource).pipe(
+          finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses']))
+        ).subscribe(noop);
       }
     }
-
   }
 
   onBulkCapture() {
@@ -301,10 +310,9 @@ export class CaptureReceiptPage implements OnInit {
                 this.base64ImagesWithSource = [];
                 this.setUpAndStartCamera();
               } else {
-                this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
-                  this.addExpenseToQueue(base64ImageWithSource);
-                });
-                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+                this.addMultipleExpensesToQueue(this.base64ImagesWithSource).pipe(
+                  finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses']))
+                ).subscribe(noop);
               }
             }
           } else {
@@ -333,5 +341,9 @@ export class CaptureReceiptPage implements OnInit {
     this.offlineService.getOrgUserSettings().subscribe(orgUserSettings => {
       this.isInstafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
+  }
+
+  ngOnDestroy() {
+    this.stopCamera();
   }
 }
