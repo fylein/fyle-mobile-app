@@ -440,7 +440,7 @@ export class AddEditMileagePage implements OnInit {
       }).pipe(
         switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
           // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
-          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
+          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'project_id', 'distance'];
 
           return this.expenseFieldsService
             .filterByOrgCategoryId(

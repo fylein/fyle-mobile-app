@@ -1575,14 +1575,14 @@ export class AddEditExpensePage implements OnInit {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) => this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
-        const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
+        const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
         return this.expenseFieldsService
           .filterByOrgCategoryId(
             expenseFieldsMap,
             fields,
             formValue.category
           );
-      })))
+      }))), tap(res => console.log("test txnf---", res))
     );
 
     this.txnFields$ = txnFieldsMap$.pipe(
