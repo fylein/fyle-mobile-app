@@ -27,29 +27,9 @@ jobs:
           name: 'Android'
           path: ./
 
-      # - name: 'Echo download path'
-      #   run: echo ${{steps.download.outputs.download-path}}
-
-      # - name: Display structure of downloaded files
-      #   run: ls -R
-
       - name: Rename file
         run: mv *.apk android.apk
 
-      # - shell: bash
-      #   run: |
-      #     expr 3 + 7 > math-homework.txt
-          
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     name: homework
-      #     path: math-homework.txt
-
-      # - uses: actions/download-artifact@v2
-      #   id: download
-      #   with:
-      #     name: 'homework'
-      #     path: ./
       - name: 'Echo steps'
         run: |
           echo "${{toJSON(steps)}}"
@@ -57,20 +37,13 @@ jobs:
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
 
-      # - name: get github events
-      #   run: |
-      #     echo "${{toJSON(steps.download.outputs)}}"
-
-
       - name: Send Message to Slack
         uses: archive/github-actions-slack@v2.0.1
         id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-channel: C02951193PH
+          slack-channel: C029QPGHSQL
           slack-text: ${{github.event.pull_request.user.login}} creted PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```
-      # - name: Result from "Send Message"
-      #   run: echo "The result was ${{ steps.notify.outputs.slack-result }}"
 
       - name: Display structure of downloaded files
         run: ls -R
@@ -80,9 +53,5 @@ jobs:
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           path: android.apk
-          channel: C02951193PH
-
-      - name: get github events
-        run: |
-          echo "${{toJSON(github.event)}}"
+          channel: C029QPGHSQL
 
