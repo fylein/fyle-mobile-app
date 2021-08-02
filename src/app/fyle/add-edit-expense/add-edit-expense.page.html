@@ -770,7 +770,7 @@
       </ng-container>
 
       <ng-container *ngIf="isConnected$">
-        <ng-container *ngIf="txnFields|async as txnFields">
+        <ng-container *ngIf="txnFields$|async as txnFields">
           <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
             <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
               <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
