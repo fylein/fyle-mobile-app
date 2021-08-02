@@ -31,6 +31,8 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
 
   isLoading = false;
 
+  selectedOrgId;
+
   constructor(
     private offlineService: OfflineService,
     private loaderService: LoaderService,
@@ -64,6 +66,10 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
     that.orgs$.subscribe(() => {
       that.isLoading = false;
       that.cdRef.detectChanges();
+    });
+
+    this.orgService.getCurrentOrg().subscribe((org) => {
+      this.selectedOrgId = org.id;
     });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
@@ -153,6 +159,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   async switchToOrg(org: Org) {
+    this.selectedOrgId = org.id;
     from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.orgService.switchOrg(org.id)),
     ).subscribe(() => {

@@ -72,4 +72,8 @@ $org-thumb-text: #666;
       color: $org-thumb-text;
     }
   }
+
+  &--selected-icon {
+    zoom: 2.5;
+  }
 }

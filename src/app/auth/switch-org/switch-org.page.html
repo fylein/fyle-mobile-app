@@ -23,7 +23,7 @@
                 {{org.name | initials | uppercase}}
               </div>
             </ion-col>
-            <ion-col size="10">
+            <ion-col size="8">
               <div class="switch-org--org-element-name">
                 {{org.name}}
               </div>
@@ -31,7 +31,10 @@
                 {{org.domain}}
               </div>
             </ion-col>
-          </ion-row>
+            <ion-col size="2">
+              <ion-icon *ngIf="org.id === selectedOrgId" name="checkmark-circle" class="switch-org--selected-icon"></ion-icon>
+            </ion-col>
+            </ion-row>
         </ion-grid>
       </div>
     </div>
