@@ -227,7 +227,7 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   retake() {
-    this.base64ImagesWithSource.pop();
+    this.base64ImagesWithSource = [];
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource
     });
