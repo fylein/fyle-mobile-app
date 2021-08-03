@@ -1,47 +1,39 @@
+@import "../../../../theme/colors.scss";
+
 .match-transaction {
-  &--card {
-    border: 1px solid #e5e5e5;
-    margin: 20px;
-    display: block;
-    border-radius: 4px;
-    padding: 10px 16px;
-    min-height: 72px;
-
-    &__selected {
-      border-color: #ff3366 !important;
-    }
-  }
-
-  &--card-zero {
-    border: 1px solid #e5e5e5;
-    margin: 20px;
-    display: block;
-    border-radius: 4px;
-    padding: 10px 16px;
-  }
-
-  &--matched-currency {
-    font-size: 14px;
-    color: black;
-    line-height: 24px;
-  }
-
   &--matched-amount {
     font-weight: 500;
     line-height: 24px;
   }
 
-  &--txn-dt {
-
+  &--currency {
+    color: $black-light;
+    font-size: 14px;
+    font-weight: 400;
   }
 
-  &--vendor {
-
+  &--selected-icon {
+    font-size: 25px;
+    margin: -14px 0 0 0;
   }
+  
+  &--item {
+    padding-right: 20px;
+  }  
 
-  &--card-footer {
+  &--item-header {
     margin-top: 8px;
     display: flex;
     justify-content: space-between;
+    color: $black;
+    font-size: 18px;
+    font-weight: 400;
+  }
+
+  &--item-content {
+    color: $blue-black;
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 5px;
   }
 }
