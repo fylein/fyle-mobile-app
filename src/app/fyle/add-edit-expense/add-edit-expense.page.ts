@@ -262,6 +262,9 @@ export class AddEditExpensePage implements OnInit {
 
   isExpandedView = false;
 
+  billableDefaultValue: boolean;
+
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -960,7 +963,6 @@ export class AddEditExpensePage implements OnInit {
         if (!bankTxn) {
           etxn = {
             tx: {
-              billable: false,
               skip_reimbursement: false,
               source: 'MOBILE',
               txn_dt: new Date(),
@@ -1682,7 +1684,7 @@ export class AddEditExpensePage implements OnInit {
         const fields = [
           'purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'location1',
           'location2', 'distance', 'distance_unit', 'flight_journey_travel_class',
-          'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'
+          'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable'
         ];
         return this.expenseFieldsService
           .filterByOrgCategoryId(
@@ -1749,7 +1751,8 @@ export class AddEditExpensePage implements OnInit {
         flight_return_travel_class: this.fg.controls.flight_return_travel_class,
         train_travel_class: this.fg.controls.train_travel_class,
         bus_travel_class: this.fg.controls.bus_travel_class,
-        project_id: this.fg.controls.project
+        project_id: this.fg.controls.project,
+        billable: this.fg.controls.billable
       };
       for (const control of Object.values(keyToControlMap)) {
         control.clearValidators();
@@ -1807,6 +1810,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() => txnFieldsMap$),
       map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields)),
     ).subscribe((defaultValues) => {
+      this.billableDefaultValue = defaultValues.billable;
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1823,18 +1827,22 @@ export class AddEditExpensePage implements OnInit {
         flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
         flight_return_travel_class: this.fg.controls.flight_return_travel_class,
         train_travel_class: this.fg.controls.train_travel_class,
-        bus_travel_class: this.fg.controls.bus_travel_class
+        bus_travel_class: this.fg.controls.bus_travel_class,
+        billable: this.fg.controls.billable
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (defaultValueColumn !== 'vendor_id' && !control.value && !control.touched) {
+          if (!(['vendor_id', 'billable'].includes(defaultValueColumn)) && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
             control.patchValue({
               display_name: defaultValues[defaultValueColumn]
             });
+          } else if (defaultValueColumn === 'billable' && this.fg.controls.project.value
+            && (control.value === null || control.value === undefined) && !control.touched) {
+            control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
       }
@@ -1851,6 +1859,13 @@ export class AddEditExpensePage implements OnInit {
         }
       }),
       switchMap((initialProject) => this.fg.controls.project.valueChanges.pipe(
+        tap(initialProject => {
+          if (!initialProject) {
+            this.fg.patchValue({billable: false});
+          } else {
+            this.fg.patchValue({billable: this.billableDefaultValue});
+          }
+        }),
         startWith(initialProject),
         concatMap(project => activeCategories$.pipe(
           map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)))),
