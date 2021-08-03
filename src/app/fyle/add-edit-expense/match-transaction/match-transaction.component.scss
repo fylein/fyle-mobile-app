@@ -12,7 +12,13 @@
     font-weight: 400;
   }
 
+  &--amount {
+    margin-right: 10px;
+  }
+
   &--selected-icon {
+    right: 0px;
+    position: absolute;
     font-size: 25px;
     margin: -14px 0 0 0;
   }

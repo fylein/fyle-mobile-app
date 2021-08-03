@@ -457,6 +457,14 @@ export class AddEditExpensePage implements OnInit {
     this.isChangeCCCSuggestionClicked = true;
     this.isCCCTransactionAutoSelected = false;
     this.etxn$.subscribe(async (etxn) => {
+      let modalProperties = {
+          cssClass: 'auto-height',
+          showBackdrop: true,
+          swipeToClose: true,
+          backdropDismiss: true,
+          animated: true,
+        };
+
       const matchExpensesModal = await this.modalController.create({
         component: MatchTransactionComponent,
         componentProps: {
@@ -466,7 +474,7 @@ export class AddEditExpensePage implements OnInit {
         },
         mode: 'ios',
         presentingElement: await this.modalController.getTop(),
-        ...this.modalProperties.getModalDefaultProperties()
+        ...modalProperties
       });
 
       await matchExpensesModal.present();
