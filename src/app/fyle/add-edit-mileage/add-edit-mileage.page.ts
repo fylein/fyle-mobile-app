@@ -511,7 +511,7 @@ export class AddEditMileagePage implements OnInit {
           const control = keyToControlMap[defaultValueColumn];
           if (!control.value && !control.touched && defaultValueColumn !== 'billable') {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (!control.touched && this.fg.controls.project.value 
+          } else if (!control.touched && this.fg.controls.project.value
             && defaultValueColumn === 'billable' && (control.value === null || control.value === undefined)) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
