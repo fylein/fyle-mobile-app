@@ -23,7 +23,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @Input() mode: string;
 
-  sliderOptions: { initialSlide: number; slidesPerView: number; zoom: { maxRatio: number } };
+  sliderOptions: { initialSlide: number; slidesPerView: number; autoHeight: boolean; zoom: { maxRatio: number } };
 
   activeIndex: number;
 
@@ -48,6 +48,7 @@ export class ReceiptPreviewComponent implements OnInit {
     this.sliderOptions = {
       initialSlide: 0,
       slidesPerView: 1,
+      autoHeight: true,
       zoom: {
         maxRatio: 1,
       },
