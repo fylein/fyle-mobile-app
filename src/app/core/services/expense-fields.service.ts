@@ -81,6 +81,8 @@ export class ExpenseFieldsService {
 
   filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<Partial<ExpenseFieldsMap>> {
     const orgCategoryId = orgCategory && orgCategory.id;
+    const fieldsIndependentOfCategory = ['project_id'];
+    const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
     return of(fields).pipe(
       map(fields => fields.map(field => {
         const configurations = tfcMap[field];
@@ -88,13 +90,13 @@ export class ExpenseFieldsService {
 
         if (configurations && configurations.length > 0) {
           configurations.some((configuration) => {
-            if (orgCategoryId) {
+            if (orgCategoryId && fieldsIndependentOfCategory.indexOf(field) === -1) {
               if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
                 filteredField = configuration;
 
                 return true;
               }
-            } else if (['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'].indexOf(field) > -1) {
+            } else if (defaultFields.indexOf(field) > -1 || fieldsIndependentOfCategory.indexOf(field) > -1) {
               filteredField = configuration;
 
               return true;
