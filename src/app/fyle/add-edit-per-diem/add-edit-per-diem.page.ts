@@ -426,7 +426,7 @@ export class AddEditPerDiemPage implements OnInit {
         perDiemCategoriesContainer: this.getPerDiemCategories()
       }).pipe(
         switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
-          const fields = ['purpose', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'num_days'];
+          const fields = ['purpose', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
           return this.expenseFieldsService
             .filterByOrgCategoryId(
               expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
