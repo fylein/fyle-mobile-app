@@ -425,13 +425,8 @@ export class AddEditPerDiemPage implements OnInit {
         expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
         perDiemCategoriesContainer: this.getPerDiemCategories()
       }).pipe(
-<<<<<<< HEAD
         switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
           const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
-=======
-        switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
-          const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
->>>>>>> master
           return this.expenseFieldsService
             .filterByOrgCategoryId(
               expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
@@ -460,13 +455,8 @@ export class AddEditPerDiemPage implements OnInit {
         expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
         perDiemCategoriesContainer: this.getPerDiemCategories()
       }).pipe(
-<<<<<<< HEAD
         switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
           const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
-=======
-        switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
-          const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
->>>>>>> master
           return this.expenseFieldsService
             .filterByOrgCategoryId(
               expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory

@@ -1839,7 +1839,8 @@ export class AddEditExpensePage implements OnInit {
             control.patchValue({
               display_name: defaultValues[defaultValueColumn]
             });
-          } else if (defaultValueColumn === 'billable' && this.fg.controls.project.value && (control.value === null || control.value === undefined) && !control.touched) {
+          } else if (defaultValueColumn === 'billable' && this.fg.controls.project.value 
+            && (control.value === null || control.value === undefined) && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
