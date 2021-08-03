@@ -6,4 +6,5 @@ export interface DefaultTxnFieldValues {
   purpose?: string;
   train_travel_class?: string;
   vendor_id?: string;
+  billable?: boolean;
 }
