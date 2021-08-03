@@ -1,14 +1,15 @@
-import {EventEmitter, Injectable} from '@angular/core';
-import {OfflineService} from './offline.service';
-import {AuthService} from './auth.service';
-import {StorageService} from './storage.service';
-import {Plugins} from '@capacitor/core';
-import {OrgUserSettingsService} from './org-user-settings.service';
-import {NetworkService} from './network.service';
-import {concat} from 'rxjs';
-import {environment} from 'src/environments/environment';
+/* eslint-disable max-len */
+import { EventEmitter, Injectable } from '@angular/core';
+import { OfflineService } from './offline.service';
+import { AuthService } from './auth.service';
+import { StorageService } from './storage.service';
+import { Plugins } from '@capacitor/core';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { NetworkService } from './network.service';
+import { concat } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
-const {Device} = Plugins;
+const { Device } = Plugins;
 
 
 @Injectable({
@@ -33,7 +34,10 @@ export class FreshChatService {
       const eou = await that.authService.getEou();
       if (eou && isOnline) {
         const orgUserSettings = await that.getOrgUserSettings();
-        if (orgUserSettings && orgUserSettings.in_app_chat_settings && orgUserSettings.in_app_chat_settings.allowed && orgUserSettings.in_app_chat_settings.enabled) {
+        if (orgUserSettings &&
+          orgUserSettings.in_app_chat_settings &&
+          orgUserSettings.in_app_chat_settings.allowed &&
+          orgUserSettings.in_app_chat_settings.enabled) {
           await that.storageService.set('inAppChatRestoreId', orgUserSettings.in_app_chat_settings.restore_id);
           that.initiateCall();
         }

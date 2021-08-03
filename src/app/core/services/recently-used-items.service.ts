@@ -24,7 +24,11 @@ export class RecentlyUsedItemsService {
     return this.apiService.get('/recently_used');
   }
 
-  getRecentlyUsedProjects(config: {recentValues: RecentlyUsed; eou: ExtendedOrgUser; categoryIds: string[]}): Observable<ExtendedProject[]> {
+  getRecentlyUsedProjects(config: {
+    recentValues: RecentlyUsed;
+    eou: ExtendedOrgUser;
+    categoryIds: string[];
+  }): Observable<ExtendedProject[]> {
     if (config.recentValues && config.recentValues.recent_project_ids && config.recentValues.recent_project_ids.length > 0 && config.eou) {
 
       return this.projectService.getByParamsUnformatted({
@@ -51,7 +55,11 @@ export class RecentlyUsedItemsService {
   }
 
   getRecentCostCenters(costCenters, recentValue): Observable<{ label: string; value: CostCenter; selected?: boolean }[]> {
-    if (costCenters && costCenters.length > 0 && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0) {
+    if (costCenters &&
+      costCenters.length > 0 &&
+      recentValue &&
+      recentValue.recent_cost_center_ids &&
+      recentValue.recent_cost_center_ids.length > 0) {
       const costCentersMap = {};
       costCenters.forEach(item => {
         costCentersMap[item.value.id] = item;
@@ -68,7 +76,11 @@ export class RecentlyUsedItemsService {
   }
 
   getRecentCategories(filteredCategories: OrgCategoryListItem[], recentValues: RecentlyUsed): Observable<OrgCategoryListItem[]> {
-    if (filteredCategories && filteredCategories.length > 0 && recentValues && recentValues.recent_org_category_ids && recentValues.recent_org_category_ids.length > 0) {
+    if (filteredCategories &&
+      filteredCategories.length > 0 &&
+      recentValues &&
+      recentValues.recent_org_category_ids &&
+      recentValues.recent_org_category_ids.length > 0) {
       const categoriesMap = {};
       filteredCategories.forEach(category => {
         categoriesMap[category.value.id] = category;

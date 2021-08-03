@@ -2,10 +2,12 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeD
 import { Observable, fromEvent, from, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, concatMap, debounceTime, tap } from 'rxjs/operators';
-import { isEqual, cloneDeep, startsWith} from 'lodash';
+import { isEqual, cloneDeep, startsWith } from 'lodash';
 import { Employee } from 'src/app/core/models/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {MatChipInputEvent} from '@angular/material/chips';
 @Component({
   selector: 'app-fy-userlist-modal',
   templateUrl: './fy-userlist-modal.component.html',
@@ -42,12 +44,51 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   isLoading = false;
 
+  selectable = true;
+
+  removable = true;
+
+  addOnBlur = true;
+
+  selectedItemDict = {};
+
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
+
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private orgUserService: OrgUserService,
     private loaderService: LoaderService
   ) { }
+
+
+  getSelectedItemDict() {
+    return this.currentSelections.reduce((acc, curr) => {
+      acc[curr] = true;
+      return acc;
+    }, {});
+  }
+
+  getSeparatorKeysCodes() {
+    return [ENTER, COMMA];
+  };
+
+  addChip(event: MatChipInputEvent) {
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
+  }
+
+  removeChip(item) {
+    const updatedItem = {
+      us_email: item,
+      is_selected: false
+    };
+    const event = {
+      checked: false
+    };
+    this.onSelect(updatedItem, event);
+  }
 
   ngOnInit() {
     this.intialSelectedEmployees = cloneDeep(this.currentSelections);
@@ -102,29 +143,40 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   getUsersList(searchText) {
     this.isLoading = true;
-    // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+    // run ChangeDetectionRef.detectChanges to avoid
+    // 'expression has changed after it was checked error'.
+    // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
     this.cdr.detectChanges();
     if (searchText) {
       return this.getSearchedUsersList(searchText);
     } else {
       return this.getDefaultUsersList().pipe(
-        switchMap(employees => this.getSearchedUsersList().pipe(
-          map(searchedEmployees => {
-            searchedEmployees = searchedEmployees.filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email));
-            return employees.concat(searchedEmployees);
-          }),
-          finalize(() => {
-            // set isLoading to false
-            this.isLoading = false;
-            // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
-            this.cdr.detectChanges();
-            // set focus on input once data is loaded
-            const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
-            searchInput.focus();
-          })
-        ))
+        switchMap(employees => this.getSearchedUsersList()
+          .pipe(
+            map(searchedEmployees => {
+              searchedEmployees = this.filterSearchedEmployees(searchedEmployees, employees);
+              return employees.concat(searchedEmployees);
+            }),
+            finalize(() => {
+              // set isLoading to false
+              this.isLoading = false;
+              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
+              // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+              this.cdr.detectChanges();
+              // set focus on input once data is loaded
+              const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+              searchInput.focus();
+            })
+          ))
       );
     }
+  }
+
+  filterSearchedEmployees(searchedEmployees: Employee[], employees: Employee[]) {
+    searchedEmployees = searchedEmployees
+      .filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email)
+      );
+    return searchedEmployees;
   }
 
   getNewlyAddedUsers(filteredOptions) {
@@ -141,10 +193,11 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // create a temp list of type Partial<Employee>[] and push items in currentSelectionsCopy as partial employee objects and setting the is_selected to true
+    // create a temp list of type Partial<Employee>[] and
+    /// push items in currentSelectionsCopy as partial employee objects and setting the is_selected to true
     const newEmpList: Partial<Employee>[] = [];
     this.currentSelectionsCopy.forEach(item => {
-      newEmpList.push({us_email: item, is_selected: true});
+      newEmpList.push({ us_email: item, is_selected: true });
     });
 
     return of(newEmpList);
@@ -153,7 +206,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   processNewlyAddedItems(searchText) {
     return from(this.filteredOptions$).pipe(
       switchMap((filteredOptions) => this.getNewlyAddedUsers(filteredOptions).pipe(
-        map((newlyAddedItems: Partial<Employee>[] ) => {
+        map((newlyAddedItems: Partial<Employee>[]) => {
           if (searchText && searchText.length > 0) {
             const searchTextLowerCase = searchText.toLowerCase();
             const newItem = {
@@ -163,7 +216,8 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
             const newArr = [];
             newArr.push(newItem);
             newlyAddedItems = newArr.concat(newlyAddedItems);
-            return newlyAddedItems.filter(item => item && item.us_email && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase));
+            return newlyAddedItems.filter(item => item && item.us_email
+              && item.us_email.length > 0 && item.us_email.toLowerCase().includes(searchTextLowerCase));
           }
           return newlyAddedItems;
         })
@@ -203,6 +257,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       const index = this.currentSelections.indexOf(selectedOption.us_email);
       this.currentSelections.splice(index, 1);
     }
+    this.selectedItemDict = this.getSelectedItemDict();
   }
 
   useSelected() {
@@ -217,5 +272,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       this.currentSelections.push(this.value);
     }
     this.clearValue();
+    this.selectedItemDict = this.getSelectedItemDict();
   }
 }

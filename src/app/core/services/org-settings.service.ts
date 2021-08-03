@@ -103,6 +103,8 @@ export class OrgSettingsService {
     return accountingSettings;
   }
 
+  // unavoidable here
+  // eslint-disable-next-line complexity
   processIncoming(incoming) {
     const orgSettings = {
       org_id: incoming.org_id,
