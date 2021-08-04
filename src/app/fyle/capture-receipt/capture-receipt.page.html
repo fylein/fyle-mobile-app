@@ -1,6 +1,7 @@
-<ion-content class="capture-receipt--camera-preview">
+<ion-content [ngClass]="{'capture-receipt--camera-preview': isCameraShown}">
+  
   <div id="cameraPreview"></div>
-
+  <ng-container *ngIf="isCameraShown">
   <div *ngIf="hasModeChanged" class="capture-receipt--switch-mode-info text-center">
     <div class="capture-receipt--switch-mode-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
   </div>
@@ -54,4 +55,5 @@
       </ng-container>
     </div>
   </div>
+</ng-container>
 </ion-content>
