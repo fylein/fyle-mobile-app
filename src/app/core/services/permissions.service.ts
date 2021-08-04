@@ -2211,14 +2211,7 @@ export class PermissionsService {
           if (this.allowedAccess(resource, orgSettings)) {
             for (const currentRole of filteredRoles) {
               const role = currentRole.toLowerCase();
-              for (const action of actions) {
-                if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
-                  allowedActions[action] = this.roleActionMap[role][resource][action];
-                  if (allowedActions[action]) {
-                    allowedActions.allowedRouteAccess = true;
-                  }
-                }
-              }
+              this.setAllowedActions(actions, allowedActions, role, resource);
             }
           }
           return allowedActions;
@@ -2240,6 +2233,17 @@ export class PermissionsService {
     );
   }
 
+
+  setAllowedActions(actions: any, allowedActions: any, role: any, resource: any) {
+    for (const action of actions) {
+      if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
+        allowedActions[action] = this.roleActionMap[role][resource][action];
+        if (allowedActions[action]) {
+          allowedActions.allowedRouteAccess = true;
+        }
+      }
+    }
+  }
 
   allowedAccess(resource, orgSettings) {
     let allowed = true;

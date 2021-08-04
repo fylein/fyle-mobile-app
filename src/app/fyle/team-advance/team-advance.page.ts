@@ -27,7 +27,6 @@ export class TeamAdvancePage implements OnInit {
   state = 'PENDING';
 
   constructor(
-    private offlineService: OfflineService,
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
     private router: Router
