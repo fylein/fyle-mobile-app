@@ -379,19 +379,15 @@ export class MyExpensesPage implements OnInit {
     this.selectedElements = [];
 
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-console.log("---------0----------", this.pendingTransactions);
     this.syncing = true;
     from(this.pendingTransactions).pipe(
-      tap((res) =>  console.log),
       switchMap(() => from(this.transactionOutboxService.sync())),
-      // tap(() => this.sendFirstExpenseCreatedEvent()),
+      tap(() => this.sendFirstExpenseCreatedEvent()),
       finalize(() => this.syncing = false)
     ).subscribe(() => {
-      console.log("----------1---------");
       this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
       if (this.pendingTransactions.length === 0) {
-        console.log("----------2---------");
         this.doRefresh();
       }
     });
