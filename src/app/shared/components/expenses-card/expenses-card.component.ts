@@ -106,7 +106,6 @@ export class ExpensesCardComponent implements OnInit {
       })
     ).subscribe(noop);
 
-    this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
       map((orgSettings) => orgSettings.transaction_fields_settings &&
         orgSettings.transaction_fields_settings.transaction_mandatory_fields &&

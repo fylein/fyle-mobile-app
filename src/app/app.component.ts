@@ -594,6 +594,7 @@ export class AppComponent implements OnInit {
 
     this.setupNetworkWatcher();
 
+
     this.router.events.subscribe((ev) => {
       if (ev instanceof NavigationStart) {
         this.previousUrl = this.router.url;
