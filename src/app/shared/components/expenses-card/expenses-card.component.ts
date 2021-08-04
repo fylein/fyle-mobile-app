@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { noop, Observable } from 'rxjs';
+import { concat, noop, Observable, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -7,6 +7,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { map } from 'rxjs/operators';
 import { isEqual } from 'lodash';
+import { NetworkService } from 'src/app/core/services/network.service';
 
 @Component({
   selector: 'app-expense-card',
@@ -55,9 +56,12 @@ export class ExpensesCardComponent implements OnInit {
 
   isProjectMandatory$: Observable<boolean>;
 
+  isConnected$: Observable<boolean>;
+
   constructor(
     private transactionService: TransactionService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private networkService: NetworkService,
   ) { }
 
 
@@ -87,6 +91,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setupNetworkWatcher();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
@@ -144,6 +149,8 @@ export class ExpensesCardComponent implements OnInit {
     if (expense.tx_fyle_category &&
       (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
       return false;
+    } else if (!expense.tx_id) {
+      return true;
     } else {
       if (!expense.tx_currency && !expense.tx_amount) {
         if (!expense.tx_extracted_data && !expense.tx_transcribed_data) {
@@ -164,6 +171,12 @@ export class ExpensesCardComponent implements OnInit {
     if (this.isSelectionModeEnabled) {
       this.cardClickedForSelection.emit(this.expense);
     }
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
 }
