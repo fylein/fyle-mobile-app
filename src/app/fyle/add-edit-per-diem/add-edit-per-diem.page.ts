@@ -425,8 +425,8 @@ export class AddEditPerDiemPage implements OnInit {
         expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
         perDiemCategoriesContainer: this.getPerDiemCategories()
       }).pipe(
-        switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
-          const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
+        switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
+          const fields = ['purpose', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
           return this.expenseFieldsService
             .filterByOrgCategoryId(
               expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
@@ -943,6 +943,7 @@ export class AddEditPerDiemPage implements OnInit {
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
         num_days: this.fg.controls.num_days,
+        project_id: this.fg.controls.project,
         billable: this.fg.controls.billable
       };
 
