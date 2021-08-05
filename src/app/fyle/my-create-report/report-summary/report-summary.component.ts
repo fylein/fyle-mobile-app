@@ -8,9 +8,13 @@ import { ModalController, PopoverController } from '@ionic/angular';
 })
 export class ReportSummaryComponent implements OnInit {
   @Input() selectedTotalAmount;
+
   @Input() selectedTotalTxns;
+
   @Input() homeCurrency;
+
   @Input() purpose;
+
   @Input() action;
 
   constructor(

@@ -9,11 +9,15 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./reject-advance.component.scss'],
 })
 export class RejectAdvanceComponent implements OnInit {
-  rejectReason = '';
-  showReasonError = false;
-  rejectLoading = false;
 
   @Input() areq;
+
+  rejectReason = '';
+
+  showReasonError = false;
+
+  rejectLoading = false;
+
 
   constructor(
     private popoverController: PopoverController,

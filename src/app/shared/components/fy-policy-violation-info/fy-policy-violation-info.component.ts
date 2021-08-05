@@ -15,8 +15,6 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   ngOnInit() {
     this.policyViolations = [];
-    this.policyViolations = this.estatuses.filter((estatus) => {
-      return estatus.st_org_user_id === 'POLICY';
-    });
+    this.policyViolations = this.estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY');
   }
 }

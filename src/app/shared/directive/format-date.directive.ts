@@ -10,6 +10,10 @@ export class FormatDateDirective implements OnInit {
 
   constructor(private elementRef: ElementRef, private renderer: Renderer2) { }
 
+  @HostListener('ngModelChange', [ '$event'] ) onChange(value: string) {
+    this.modifyDisplayValue(value);
+  }
+
   modifyDisplayValue(value: string) {
     if (this.elementRef && this.elementRef.nativeElement) {
       if (value) {
@@ -31,7 +35,4 @@ export class FormatDateDirective implements OnInit {
     this.modifyDisplayValue(initalValue.value);
   }
 
-  @HostListener('ngModelChange', [ '$event'] ) onChange(value: string) {
-    this.modifyDisplayValue(value);
-  }
 }

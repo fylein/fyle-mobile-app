@@ -7,7 +7,7 @@
 >
   <ng-container base>
     <ion-buttons mode="md" slot="end">
-      <ion-button class="my-expenses--header-btn" (click)="headerState = HeaderState.simpleSearch">
+      <ion-button class="my-expenses--header-btn" (click)="searchClick()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
       </ion-button>
       <ion-button class="my-expenses--header-btn" (click)="openFilters()">
@@ -63,7 +63,7 @@
 </app-fy-header>
 
 <ion-content class="my-expenses--content">
-  <div class="my-expenses--body">
+  <div class="my-expenses--body" [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}">
   <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -76,7 +76,7 @@
 
   <app-fy-loading-screen *ngIf="isLoading" class="my-expenses--shimmers"></app-fy-loading-screen>
 
-  <div *ngIf="((count$ | async) === 0) && isConnected$|async" class="my-expenses--zero-state">
+  <div *ngIf="(pendingTransactions.length === 0) && ((count$ | async) === 0) && isConnected$|async" class="my-expenses--zero-state">
     <img alt="Create First Expenses" class="my-expenses--zero-state-img"
         src="../../../assets/images/zero-states/expenses.png">
     <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
@@ -96,10 +96,6 @@
       </ng-template>
     </div>
 
-    <div *ngIf="!(filters?.state || filters?.date || simpleSearchText) && isNewUser$|async" class="my-expenses--zero-state-action-button-container">
-      <div class="my-expenses--zero-state-action-button">Create your first expense</div>
-    </div>
-
     <div *ngIf="(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-header">
       <div>No Expenses Found</div>
       <div class="my-expenses--zero-state-content">No expenses were found for the selected filter.</div>
@@ -111,12 +107,21 @@
         <app-fy-alert-info [type]="'information'" [message]="'Data will sync once you are connected to internet'"></app-fy-alert-info>
       </div>
     </ng-container>
+
+   <ng-container *ngIf="pendingTransactions.length === 0">
+     <div class="my-expenses--zero-state">
+      <app-fy-zero-state class="stats--zero-state" image="../../../../assets/images/no-internet.svg"
+      header="You're Offline!" message="Fear not, you can still add expenses offline."
+      [unscaledImage]="true" [useNewStyling]="true"></app-fy-zero-state>
+     </div>
+    </ng-container>
   </ng-container>
 
-  <div *ngIf="!isLoading">
+  <div *ngIf="!(filters?.state || filters?.date || simpleSearchText) && !isLoading">
     <div *ngFor="let pendingTransactions of pendingTransactions as list; let i = index">
       <app-expense-card 
           [expense]="pendingTransactions"
+          [isFirstOfflineExpense]="i === 0"
           [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
           [isSelectionModeEnabled]="selectionMode"
@@ -170,7 +175,7 @@
   
         <button type="submit"
           class="my-expenses--cta-button my-expenses--primary-cta text-center" [ngClass]="{'my-expenses--primary-cta__disabled': !isReportableExpensesSelected}"
-          (click)="openCreateReportWithSelectedIds('newReport')">Create New Report</button>
+          (click)="openCreateReportWithSelectedIds('newReport')">Create new report</button>
       </div>
     </ng-container>
     <ng-container *ngIf="selectionMode && reviewMode">

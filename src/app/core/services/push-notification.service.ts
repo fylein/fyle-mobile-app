@@ -15,12 +15,13 @@ const { PushNotifications } = Plugins;
 export class PushNotificationService {
 
   ROOT_ENDPOINT: string;
+
   constructor(
     private userService: UserService,
     private deviceService: DeviceService,
     private httpClient: HttpClient,
     private deepLinkService: DeepLinkService
-  ) { 
+  ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
@@ -35,7 +36,7 @@ export class PushNotificationService {
   }
 
   registerPush() {
-    let that = this;
+    const that = this;
     // If we don't call removeAllListeners() then PushNotifications will start add listeners every time user open the app
     PushNotifications.removeAllListeners();
     PushNotifications.requestPermission().then( result => {
@@ -43,7 +44,7 @@ export class PushNotificationService {
         PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
       }
     });
- 
+
     PushNotifications.addListener('registration',(token: PushNotificationToken) => {
       that.postDeviceInfo(token.value).subscribe(noop);
     });
@@ -76,17 +77,13 @@ export class PushNotificationService {
           id: deviceInfo.uuid,
           fcm_token: token
         };
-        userProperties.devices = userProperties.devices.filter(userDevice => {
-          return userDevice.id !== currenctDevice.id;
-        });
+        userProperties.devices = userProperties.devices.filter(userDevice => userDevice.id !== currenctDevice.id);
 
         userProperties.devices = userProperties.devices.concat(currenctDevice);
         return userProperties;
       }),
-      switchMap(userProperties => {
-        return this.userService.upsertProperties(userProperties);
-      })
-    )
+      switchMap(userProperties => this.userService.upsertProperties(userProperties))
+    );
   }
 
   updateDeliveryStatus(notification_id) {
@@ -99,14 +96,10 @@ export class PushNotificationService {
 
   updateNotificationStatusAndRedirect(notificationData, wasTapped?: boolean) {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
-      concatMap(() => {
-        return iif(() => wasTapped, this.updateReadStatus(notificationData.notification_id), of(null).pipe(
-          map(() => {
-            return notificationData
-          })
-        ))
-      })
-    )
+      concatMap(() => iif(() => wasTapped, this.updateReadStatus(notificationData.notification_id), of(null).pipe(
+        map(() => notificationData)
+      )))
+    );
   }
 
 }

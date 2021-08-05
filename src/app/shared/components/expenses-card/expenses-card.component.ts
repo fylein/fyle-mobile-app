@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { noop, Observable } from 'rxjs';
+import { concat, noop, Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import {getCurrencySymbol} from '@angular/common';
+import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { map } from 'rxjs/operators';
+import { isEqual } from 'lodash';
+import { NetworkService } from 'src/app/core/services/network.service';
 
 @Component({
   selector: 'app-expense-card',
@@ -15,30 +17,51 @@ import { map } from 'rxjs/operators';
 export class ExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
+
   @Input() previousExpenseTxnDate;
+
   @Input() previousExpenseCreatedAt;
+
   @Input() isSelectionModeEnabled: boolean;
+
   @Input() selectedElements: Expense[];
 
+  @Input() isFirstOfflineExpense: boolean;
+
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
   receipt: string;
+
   showDt = true;
+
   isPolicyViolated: boolean;
+
   isCriticalPolicyViolated: boolean;
+
   homeCurrency: string;
+
   homeCurrencySymbol = '';
+
   foreignCurrencySymbol = '';
+
   paymentModeIcon: string;
+
   isScanInProgress: boolean;
+
   isProjectMandatory$: Observable<boolean>;
+
+  isConnected$: Observable<boolean>;
 
   constructor(
     private transactionService: TransactionService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private networkService: NetworkService,
   ) { }
 
 
@@ -49,7 +72,11 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   get isSelected() {
-    return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+    if (this.expense.tx_id) {
+      return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+    } else {
+      return this.selectedElements.some(txn => isEqual(this.expense, txn));
+    }
   }
 
   getReceipt() {
@@ -64,7 +91,8 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.expense.isDraft = this.transactionService.getIsDraft(this.expense)
+    this.setupNetworkWatcher();
+    this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
@@ -77,16 +105,16 @@ export class ExpensesCardComponent implements OnInit {
         this.foreignCurrencySymbol = getCurrencySymbol(this.expense.tx_orig_currency, 'wide');
       })
     ).subscribe(noop);
-    this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
+
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-         return orgSettings.transaction_fields_settings && 
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields && 
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields.project;
-      })
+      map((orgSettings) => orgSettings.transaction_fields_settings &&
+        orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
+        orgSettings.transaction_fields_settings.transaction_mandatory_fields.project)
     );
 
-    if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
+    if (!this.expense.tx_id) {
+      this.showDt = !!this.isFirstOfflineExpense;
+    } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
       this.showDt = currentDate !== previousDate;
@@ -96,12 +124,17 @@ export class ExpensesCardComponent implements OnInit {
 
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
+    this.setOtherData();
+
+  }
+
+  setOtherData() {
     if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-        if (this.expense.tx_corporate_credit_card_expense_group_id) {
-          this.paymentModeIcon = 'fy-matched';
-        } else {
-          this.paymentModeIcon = 'fy-unmatched';
-        }
+      if (this.expense.tx_corporate_credit_card_expense_group_id) {
+        this.paymentModeIcon = 'fy-matched';
+      } else {
+        this.paymentModeIcon = 'fy-unmatched';
+      }
     } else {
       if (!this.expense.tx_skip_reimbursement) {
         this.paymentModeIcon = 'fy-reimbursable';
@@ -109,11 +142,11 @@ export class ExpensesCardComponent implements OnInit {
         this.paymentModeIcon = 'fy-non-reimbursable';
       }
     }
-
   }
 
   getScanningReceiptCard(expense: Expense): boolean {
-    if (expense.tx_fyle_category && (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
+    if (expense.tx_fyle_category &&
+      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
       return false;
     } else {
       if (!expense.tx_currency && !expense.tx_amount) {
@@ -135,6 +168,12 @@ export class ExpensesCardComponent implements OnInit {
     if (this.isSelectionModeEnabled) {
       this.cardClickedForSelection.emit(this.expense);
     }
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
 }

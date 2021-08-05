@@ -9,6 +9,7 @@ import { PopoverController } from '@ionic/angular';
 export class ActionConfirmationPopoverComponent implements OnInit {
 
   @Input() type;
+
   message = '';
 
   constructor(

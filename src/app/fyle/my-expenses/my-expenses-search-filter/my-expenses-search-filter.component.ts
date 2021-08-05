@@ -17,6 +17,7 @@ import { AppDateAdapter, APP_DATE_FORMATS } from 'src/app/shared/format-datepick
 export class MyExpensesSearchFilterComponent implements OnInit {
 
   @Input() draftMode = false;
+
   @Input() filters: Partial<{
     state: string;
     date: string;

@@ -28,15 +28,11 @@ export class ApiV2Service {
       return queryParams;
     }
 
-    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => {
-      return word.trim().length > 0;
-    });
+    const textArray = simpleSearchText.split(/(\s+)/).filter( (word) => word.trim().length > 0);
     const lastElement = textArray[textArray.length - 1];
     const arrayWithoutLastElement = textArray.slice(0, -1);
 
-    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => {
-      return agg + ' & ' + curr;
-    }, '').concat(lastElement).concat(':*');
+    const searchQuery = arrayWithoutLastElement.reduce((curr, agg) => agg + ' & ' + curr, '').concat(lastElement).concat(':*');
 
     return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
   }

@@ -19,7 +19,7 @@
           </span>
         </span>
       </div>
-      <div class="etxn-card--vendor">
+      <div class="etxn-card--vendor" [ngClass]="{'etxn-card--distance-unit': etxn.tx_fyle_category === 'Mileage'}">
         {{etxn.vendor | ellipsis:12}}
       </div>
       <div class="etxn-card--category">

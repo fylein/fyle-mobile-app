@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
-import { from, empty, EMPTY, forkJoin, noop, concat } from 'rxjs';
+import { from, empty, EMPTY, forkJoin, noop, concat, of } from 'rxjs';
 import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { OfflineService } from './offline.service';
@@ -9,20 +9,25 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
 import { StatusService } from './status.service';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, indexOf } from 'lodash';
 import { ReceiptService } from './receipt.service';
 import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
-import {TrackingService} from './tracking.service';
+import { TrackingService } from './tracking.service';
+import { Expense } from '../models/expense.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransactionsOutboxService {
   queue = [];
+
   syncDeferred: Promise<any> = null;
+
   syncInProgress = false;
+
   dataExtractionQueue = [];
+
   tempQueue;
 
   ROOT_ENDPOINT: string;
@@ -78,14 +83,14 @@ export class TransactionsOutboxService {
       this.dataExtractionQueue = [];
     }
 
-    // tslint:disable-next-line: prefer-for-of
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.queue.length; i++) {
       const entry = this.queue[i];
       // In localStorage the date objects are stored as string, have to convert them to date instance
       entry.transaction = this.dateService.fixDates(entry.transaction);
     }
 
-    // tslint:disable-next-line: prefer-for-of
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.dataExtractionQueue.length; i++) {
       const entry = this.dataExtractionQueue[i];
       // In localStorage the date objects are stored as string, have to convert them to date instance
@@ -122,7 +127,7 @@ export class TransactionsOutboxService {
               currency: parsedResponse.currency,
               category: parsedResponse.category,
               date: parsedResponse.date ? new Date(parsedResponse.date) : null,
-              vendor: parsedResponse.vendor
+              vendor: parsedResponse.vendor_name
             };
 
             entry.transaction.extracted_data = extractedData;
@@ -176,9 +181,7 @@ export class TransactionsOutboxService {
           fetch(dataUrl).then(res => res.blob()).then(blob => {
             this.uploadData(uploadUrl, blob, contentType)
               .toPromise()
-              .then(resp => {
-                return this.fileService.uploadComplete(fileObj.id);
-              })
+              .then(resp => this.fileService.uploadComplete(fileObj.id).toPromise())
               .then(() => resolve(fileObj))
               .catch(err => {
                 reject(err);
@@ -195,6 +198,8 @@ export class TransactionsOutboxService {
     this.saveQueue();
   }
 
+  // TODO: High impact area. Fix later
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   addEntry(transaction, dataUrls, comments?, reportId?, applyMagic?, receiptsData?) {
     this.queue.push({
       transaction,
@@ -205,18 +210,18 @@ export class TransactionsOutboxService {
       receiptsData
     });
 
-    this.saveQueue();
+    return this.saveQueue();
   }
 
+  // TODO: High impact area. Fix later
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
     this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData);
     return this.syncEntry(this.queue.pop());
   }
 
   getPendingTransactions() {
-    return this.queue.map((entry) => {
-      return entry.transaction;
-    });
+    return this.queue.map((entry) => entry.transaction);
   }
 
   getPendingDataExtractions() {
@@ -225,8 +230,17 @@ export class TransactionsOutboxService {
 
   deleteOfflineExpense(index: number) {
     this.queue.splice(index, 1);
-    this.saveQueue()
+    this.saveQueue();
     return null;
+  }
+
+  deleteBulkOfflineExpenses(pendingTransactions: Expense[], deleteExpenses: Expense[]) {
+    const indexes = deleteExpenses.map((offlineExpense) => indexOf(pendingTransactions, offlineExpense));
+    // We need to delete last element of this list first
+    indexes.sort((a, b) => b - a);
+    indexes.forEach(index => {
+      this.deleteOfflineExpense(index);
+    });
   }
 
   syncEntry(entry) {
@@ -237,9 +251,9 @@ export class TransactionsOutboxService {
     if (!entry.receiptsData) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
-          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates).then((fileObj) => {
-            return fileObj;
-          }, (evt) => {
+          const fileObjPromise = that.fileUpload(
+            dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates
+          ).then((fileObj) => fileObj, (evt) => {
             const progressPercentage = 100.0 * evt.loaded / evt.total;
           });
 
@@ -349,9 +363,7 @@ export class TransactionsOutboxService {
 
   createTxnAndUploadBase64File(transaction, base64Content) {
     return this.transactionService.upsert(transaction).pipe(
-      switchMap((res) => {
-        return this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null);
-      })
+      switchMap((res) => this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null))
     );
   }
 
@@ -374,23 +386,19 @@ export class TransactionsOutboxService {
         }],
         suggested_currency: suggestedCurrency
       }).toPromise()
-      .then(res => res as ParsedReceipt);
-    }).catch((err) => {
-      return this.httpClient.post(url, {
-        files: [{
-          name: fileName,
-          content: data
-        }],
-        suggested_currency: suggestedCurrency
-      }).toPromise()
-      .then(res => res as ParsedReceipt);
-    });
+        .then(res => res as ParsedReceipt);
+    }).catch((err) => this.httpClient.post(url, {
+      files: [{
+        name: fileName,
+        content: data
+      }],
+      suggested_currency: suggestedCurrency
+    }).toPromise()
+      .then(res => res as ParsedReceipt));
   }
 
   isDataExtractionPending(txnId) {
-    const txnIds = this.dataExtractionQueue.map((entry) => {
-      return entry.transaction.id;
-    });
+    const txnIds = this.dataExtractionQueue.map((entry) => entry.transaction.id);
 
     return txnIds.indexOf(txnId) > -1;
   }

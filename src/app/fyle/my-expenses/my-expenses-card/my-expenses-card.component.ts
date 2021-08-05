@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
-import {noop, Observable} from 'rxjs';
+import { noop, Observable } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { map } from 'rxjs/operators';
 
@@ -12,36 +12,63 @@ import { map } from 'rxjs/operators';
 export class MyExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
+
   @Input() disabledSelection = false;
+
   @Input() prevExpense;
+
   @Input() dateComparatorProp;
+
   @Input() canDelete = false;
+
   @Input() skipDate = false;
+
   @Input() selectionMode = false;
+
   @Input() selectedElements = [];
+
   @Input() canOpenCard = true;
+
   @Input() isSyncInProgress: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() toggleFlashMode: EventEmitter<Expense> = new EventEmitter();
+
   @Output() addTransactionToReport: EventEmitter<Expense> = new EventEmitter();
+
   @Output() addTransactionToNewReport: EventEmitter<Expense> = new EventEmitter();
+
   @Output() selectTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() deleteTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   showDt = true;
+
   vendorDetails = '';
+
   amountIsNumber;
+
   extractedAmountIsNumber;
+
   isPolicyViolated = false;
+
   isCriticalPolicyViolated = false;
+
   isDraft = false;
+
   isCCCExpense = false;
+
   isCCCMatchedExpense = false;
+
   isReceiptAttached = false;
+
   actionOpened = false;
+
   addToReportPossible$: Observable<boolean>;
 
   constructor(
@@ -69,7 +96,9 @@ export class MyExpensesCardComponent implements OnInit {
 
   ngOnInit() {
     this.amountIsNumber = typeof this.expense.tx_amount === 'number';
-    this.extractedAmountIsNumber = typeof (this.expense && this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount) === 'number';
+    this.extractedAmountIsNumber = typeof (this.expense &&
+      this.expense.tx_extracted_data &&
+      this.expense.tx_extracted_data.amount) === 'number';
     this.isDraft = this.expense.tx_state === 'DRAFT';
     this.isCCCExpense = this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
     this.isCCCMatchedExpense = !!this.expense.tx_corporate_credit_card_expense_group_id;
