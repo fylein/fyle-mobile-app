@@ -264,7 +264,6 @@ export class AddEditExpensePage implements OnInit {
 
   billableDefaultValue: boolean;
 
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -460,6 +459,14 @@ export class AddEditExpensePage implements OnInit {
     this.isChangeCCCSuggestionClicked = true;
     this.isCCCTransactionAutoSelected = false;
     this.etxn$.subscribe(async (etxn) => {
+      let modalProperties = {
+          cssClass: 'auto-height',
+          showBackdrop: true,
+          swipeToClose: true,
+          backdropDismiss: true,
+          animated: true,
+        };
+
       const matchExpensesModal = await this.modalController.create({
         component: MatchTransactionComponent,
         componentProps: {
@@ -469,7 +476,7 @@ export class AddEditExpensePage implements OnInit {
         },
         mode: 'ios',
         presentingElement: await this.modalController.getTop(),
-        ...this.modalProperties.getModalDefaultProperties()
+        ...modalProperties
       });
 
       await matchExpensesModal.present();
@@ -1682,7 +1689,7 @@ export class AddEditExpensePage implements OnInit {
       startWith({}),
       switchMap((formValue) => this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
         const fields = [
-          'purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1',
+          'purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'location1',
           'location2', 'distance', 'distance_unit', 'flight_journey_travel_class',
           'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable'
         ];
@@ -1751,6 +1758,7 @@ export class AddEditExpensePage implements OnInit {
         flight_return_travel_class: this.fg.controls.flight_return_travel_class,
         train_travel_class: this.fg.controls.train_travel_class,
         bus_travel_class: this.fg.controls.bus_travel_class,
+        project_id: this.fg.controls.project,
         billable: this.fg.controls.billable
       };
       for (const control of Object.values(keyToControlMap)) {

@@ -762,7 +762,8 @@ ref - https://stackoverflow.com/a/31162426
   .modal-wrapper {
     --border-radius: 16px 16px 0 0 !important;
     position: absolute;
-    max-height: 60%;
+    max-height: 400px;
+    height: auto;
     bottom: 0;
   }
 
@@ -802,5 +803,26 @@ ref - https://stackoverflow.com/a/31162426
 .selection-modal--form-container__chips {
   .mat-form-field-infix {
     border-top: 0;
+  }
+}
+
+ion-modal.auto-height {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    bottom: 0;
+  }
+
+  --height: auto;
+
+  .ion-page {
+      position: relative;
+      display: block;
+      contain: content;
+
+      .inner-content {
+          max-height: 80vh;
+          overflow: auto;
+      }
   }
 }

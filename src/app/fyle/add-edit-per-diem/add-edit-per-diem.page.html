@@ -242,9 +242,9 @@
                     </ng-container>
                   </ng-container>
 
-                  <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+                  <ng-container *ngIf="txnFields$|async as txnFields">
                     <div class="add-edit-per-diem--project-container"
-                      *ngIf="transactionMandatoyFields?.project || isExpandedView">
+                      *ngIf="txnFields?.project_id || isExpandedView">
                       <ng-container *ngIf="isConnected$|async">
                         <ng-container
                           *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
@@ -255,7 +255,7 @@
                                 class="add-edit-per-diem--internal-block add-edit-per-diem--project-block">
                                 <app-fy-select-project [categoryIds]="projectCategoryIds"
                                   [cacheName]="'perDiemProjectCache'" [defaultValue]="true" [label]="'Project'"
-                                  [mandatory]="transactionMandatoyFields?.project" [recentlyUsed]="recentProjects"
+                                  [mandatory]="txnFields?.project_id?.is_mandatory" [recentlyUsed]="recentProjects"
                                   formControlName="project">
                                 </app-fy-select-project>
                               </div>
@@ -442,12 +442,12 @@
                   </ng-container>
 
                   <ng-container *ngIf="isConnected$">
-                    <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+                    <ng-container *ngIf="txnFields$|async as txnFields">
                       <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                         <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                           <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
 
-                            <app-fy-alert *ngIf="transactionMandatoyFields.project && individualProjectIds.length === 0"
+                            <app-fy-alert *ngIf="txnFields?.project_id && individualProjectIds.length === 0"
                               [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
                               [type]="'warning'">
                             </app-fy-alert>

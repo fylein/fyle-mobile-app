@@ -454,7 +454,7 @@ export class AddEditMileagePage implements OnInit {
       }).pipe(
         switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
           // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
-          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance', 'billable'];
+          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'project_id', 'distance', 'billable'];
 
           return this.expenseFieldsService
             .filterByOrgCategoryId(
@@ -1037,6 +1037,7 @@ export class AddEditMileagePage implements OnInit {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
         txn_dt: this.fg.controls.dateOfSpend,
+        project_id: this.fg.controls.project,
         billable: this.fg.controls.billable
       };
 
