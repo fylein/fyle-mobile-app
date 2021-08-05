@@ -59,10 +59,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private accountsService: AccountsService
   ) { }
 
-  ngOnInit() {
-    console.log("-----------2-------");
-    //this.setUpAndStartCamera();
-  }
+  ngOnInit() {}
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
     return from(base64ImagesWithSource).pipe(
@@ -334,11 +331,15 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     });
   }
 
+  ionViewDidEnter() {
+    this.setUpAndStartCamera();
+  }
+
   ionViewWillEnter() {
     this.isCameraShown = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
-    this.setUpAndStartCamera();
+    
     this.flashMode = null;
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
