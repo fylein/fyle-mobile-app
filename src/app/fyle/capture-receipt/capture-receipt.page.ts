@@ -339,7 +339,6 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     this.isCameraShown = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
-    
     this.flashMode = null;
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
