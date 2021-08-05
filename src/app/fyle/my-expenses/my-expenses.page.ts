@@ -1578,7 +1578,7 @@ export class MyExpensesPage implements OnInit {
       data: {
         icon: 'tick-square-filled',
         message: config.message,
-        redirectionText: 'View Report',
+        redirectionText: 'View report',
         showCloseButton: true
       },
       panelClass: ['mat-snack-bar-success'],
@@ -1906,5 +1906,13 @@ export class MyExpensesPage implements OnInit {
         newQueryParams.and = `(tx_txn_dt.lt.${endDate})`;
       }
     }
+  }
+
+  searchClick() {
+    this.headerState = HeaderState.simpleSearch;
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      searchInput.focus();
+    }, 300);
   }
 }
