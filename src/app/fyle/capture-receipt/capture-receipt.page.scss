@@ -2,7 +2,7 @@
 
 .capture-receipt {
   &--camera-preview{
-    --background: #000;
+    --background: #{$pure-black};
 
     &__is-active {
       --background: transparent;
