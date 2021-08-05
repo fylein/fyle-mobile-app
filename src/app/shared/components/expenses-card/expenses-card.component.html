@@ -18,8 +18,8 @@
           <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled></mat-checkbox>
         </div>
         <div class="expenses-card--receipt-container" *ngIf="!receiptThumbnail" (click)="addAttachments($event)">
-          <ion-img *ngIf="!attachmentUploadInProgress && !receiptThumbnail" class="expenses-card--receipt-icon"
-            [src]="receipt"></ion-img>
+          <ion-img *ngIf="!attachmentUploadInProgress" class="expenses-card--receipt-icon" [src]="receiptIcon">
+          </ion-img>
           <div *ngIf="attachmentUploadInProgress" class="expenses-card--spinner-placeholder">
             <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
             <div class="expenses-card--spinner-subheader">
@@ -27,13 +27,8 @@
             </div>
           </div>
         </div>
-        <div class="expenses-card--receipt-thumbnail-container"
-          *ngIf="receiptThumbnail && receiptThumbnail.type == 'image'">
-          <ion-img *ngIf="receiptThumbnail.type == 'image'" class="expenses-card--receipt-thumbnail"
-            [src]="receiptThumbnail.url"> </ion-img>
-        </div>
-        <div class="expenses-card--receipt-container" *ngIf="receiptThumbnail && receiptThumbnail.type == 'pdf'">
-          <ion-icon class="expenses-card--receipt-icon" [src]="pdfIcon"></ion-icon>
+        <div class="expenses-card--receipt-thumbnail-container" *ngIf="receiptThumbnail">
+          <ion-img class="expenses-card--receipt-thumbnail" [src]="receiptThumbnail"> </ion-img>
         </div>
         </div>
 

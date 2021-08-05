@@ -125,6 +125,7 @@
           [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
           [isSelectionModeEnabled]="selectionMode"
+          [selectedElements]="selectedElements"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
       </app-expense-card>

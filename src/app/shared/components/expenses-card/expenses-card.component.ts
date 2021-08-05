@@ -12,6 +12,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PopoverController } from '@ionic/angular';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { FileObject } from 'src/app/core/models/file_obj.model';
+import { File } from 'src/app/core/models/file.model';
 
 @Component({
   selector: 'app-expense-card',
@@ -33,7 +34,7 @@ export class ExpensesCardComponent implements OnInit {
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
-  receipt: string;
+  receiptIcon: string;
   showDt = true;
   isPolicyViolated: boolean;
   isCriticalPolicyViolated: boolean;
@@ -43,10 +44,9 @@ export class ExpensesCardComponent implements OnInit {
   paymentModeIcon: string;
   isScanInProgress: boolean;
   isProjectMandatory$: Observable<boolean>;
-  attachmentUploadInProgress = false;
-  attachedReceiptsCount = 0;
-  receiptThumbnail = null;
-  pdfIcon = 'assets/svg/pdf.svg';
+  attachmentUploadInProgress: boolean = false;
+  attachedReceiptsCount: number = 0;
+  receiptThumbnail: string = null;
 
   constructor(
     private transactionService: TransactionService,
@@ -73,15 +73,34 @@ export class ExpensesCardComponent implements OnInit {
 
   getReceipt() {
     if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
-      this.receipt = 'assets/svg/fy-mileage.svg';
+      this.receiptIcon = 'assets/svg/fy-mileage.svg';
     } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem') {
-      this.receipt = 'assets/svg/fy-calendar.svg';
+      this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
-      // Todo: Get thumbnail of image in V2
       if (!this.expense.tx_file_ids) {
-        this.receipt = 'assets/svg/fy-add-receipt.svg';
+        this.receiptIcon = 'assets/svg/fy-add-receipt.svg';
       } else {
-        this.receipt = 'assets/svg/fy-expense.svg';
+        this.fileService.getFilesWithThumbnail(this.expense.tx_id).pipe(
+          map((ThumbFiles: File[]) => {
+            if (ThumbFiles.length > 0) {
+              this.fileService.downloadUrl(ThumbFiles[0].id).pipe(
+                map((downloadUrl: string) => {
+                  this.receiptThumbnail = downloadUrl;
+                })
+              ).subscribe(noop);
+            } else {
+              this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
+                map((downloadUrl: string) => {
+                  if (this.fileService.getReceiptDetails(downloadUrl) === 'pdf') {
+                    this.receiptIcon = 'assets/svg/pdf.svg';
+                  } else {
+                    this.receiptIcon = 'assets/svg/fy-expense.svg';
+                  }
+                })
+              ).subscribe(noop);
+            }
+          })
+        ).subscribe(noop);
       }
     }
   }
@@ -118,27 +137,6 @@ export class ExpensesCardComponent implements OnInit {
     }
 
     this.getReceipt();
-
-    if (this.expense.tx_file_ids) {
-
-      this.fileService.getFilesWithThumbnail(this.expense.tx_id).pipe(
-        map(res => {
-          if (res.length > 0) {
-            this.fileService.downloadUrl(res[0].id).pipe(
-              map(downloadUrl => {
-                this.receiptThumbnail = {};
-                this.receiptThumbnail.url = downloadUrl;
-                const details = this.getReceiptDetails(this.receiptThumbnail);
-                this.receiptThumbnail.type = details.type;
-              })
-            ).subscribe(noop);
-          } else {
-            this.receiptThumbnail = {};
-            this.receiptThumbnail.type = 'pdf';
-          }
-        })
-      ).subscribe(noop);
-    }
 
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
@@ -182,16 +180,16 @@ export class ExpensesCardComponent implements OnInit {
       this.cardClickedForSelection.emit(this.expense);
     }
   }
-  
+
   async addAttachments(event) {
 
     const isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
     const isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
 
-    if (!(isMileageExpense||isPerDiem)) {
+    if (!(isMileageExpense || isPerDiem || this.expense.tx_file_ids)) {
       event.stopPropagation();
       event.preventDefault();
-  
+
       const popup = await this.popoverController.create({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover'
@@ -202,7 +200,7 @@ export class ExpensesCardComponent implements OnInit {
       const { data } = await popup.onWillDismiss();
       if (data) {
         this.attachmentUploadInProgress = true;
-        let attachmentType = this.getAttachmentType(data);
+        let attachmentType = this.fileService.getAttachmentType(data.type);
 
         from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType)).pipe(
           switchMap((fileObj: FileObject) => {
@@ -212,10 +210,11 @@ export class ExpensesCardComponent implements OnInit {
             if (this.expense.tx_file_ids) {
               this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
                 map(downloadUrl => {
-                  this.receiptThumbnail = {};
-                  this.receiptThumbnail.url = downloadUrl;
-                  const details = this.getReceiptDetails(this.receiptThumbnail);
-                  this.receiptThumbnail.type = details.type;
+                  if (attachmentType === 'pdf') {
+                    this.receiptIcon = 'assets/svg/pdf.svg';
+                  } else {
+                    this.receiptThumbnail = downloadUrl;
+                  }
                 })
               ).subscribe(noop);
             }
@@ -230,43 +229,5 @@ export class ExpensesCardComponent implements OnInit {
       }
     }
   }
-
-  getAttachmentType(data) {
-    let attachmentType = 'image';
-    if (data.type === 'application/pdf' || data.type === 'pdf') {
-      attachmentType = 'pdf';
-    }
-    return attachmentType;
-  }
-
-  getReceiptDetails(file) {
-    const ext = this.getReceiptExtension(file.url);
-    const res = {
-      type: '',
-    };
-
-    if (ext && (['pdf'].indexOf(ext) > -1)) {
-      res.type = 'pdf';
-    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
-      res.type = 'image';
-    }
-
-    return res;
-  }
-
-  getReceiptExtension(url) {
-    let res = null;
-    const name = url.split('?')[0];
-    if (name) {
-      const filename = name.toLowerCase();
-      const idx = filename.lastIndexOf('.');
-
-      if (idx > -1) {
-        res = filename.substring(idx + 1, filename.length);
-      }
-    }
-
-    return res;
-  }
-
+  
 }
