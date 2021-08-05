@@ -73,7 +73,14 @@ $org-thumb-text: #666;
     }
   }
 
-  &--selected-icon {
-    zoom: 2.5;
+  &--active-org {
+    border: 1px solid $org-thumb-text;
   }
+
+  &--org-status {
+    font-size: 13px;
+    font-weight: 500;
+    color: $org-thumb-text;
+  }
+
 }

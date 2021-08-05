@@ -15,7 +15,7 @@
       Select an organization to switch to
     </div>
     <div id="switch-org-list" *ngIf="!isLoading">
-      <div matRipple (click)="switchToOrg(org)" class="switch-org--org-element" [attr.id]="'org-' + org.id" *ngFor="let org of filteredOrgs$ | async as list">
+      <div matRipple (click)="switchToOrg(org)" class="switch-org--org-element" [ngClass]="{'switch-org--active-org': org.id === selectedOrgId}" [attr.id]="'org-' + org.id" *ngFor="let org of filteredOrgs$ | async as list">
         <ion-grid>
           <ion-row>
             <ion-col size="2">
@@ -23,16 +23,22 @@
                 {{org.name | initials | uppercase}}
               </div>
             </ion-col>
-            <ion-col size="8">
+            <ion-col size="10">
               <div class="switch-org--org-element-name">
                 {{org.name}}
               </div>
               <div class="switch-org--org-element-domain">
                 {{org.domain}}
               </div>
-            </ion-col>
-            <ion-col size="2">
-              <ion-icon *ngIf="org.id === selectedOrgId" name="checkmark-circle" class="switch-org--selected-icon"></ion-icon>
+              <div *ngIf="org.id === selectedOrgId && org.id !== primaryOrgId" class="switch-org--org-status">
+                &bull; Active Org
+              </div>
+              <div *ngIf="org.id !== selectedOrgId && org.id === primaryOrgId" class="switch-org--org-status">
+                Primary Org
+              </div>
+              <div *ngIf="org.id === selectedOrgId && org.id === primaryOrgId" class="switch-org--org-status">
+                &bull; Active Org, Primary Org
+              </div>
             </ion-col>
             </ion-row>
         </ion-grid>

@@ -27,11 +27,13 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
 
   filteredOrgs$: Observable<Org[]>;
 
-  searchInput = '';
+  searchInput:string = '';
 
-  isLoading = false;
+  isLoading: boolean = false;
 
-  selectedOrgId;
+  selectedOrgId: string;
+
+  primaryOrgId: string;
 
   constructor(
     private offlineService: OfflineService,
@@ -70,6 +72,10 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
 
     this.orgService.getCurrentOrg().subscribe((org) => {
       this.selectedOrgId = org.id;
+    });
+
+    this.orgService.getPrimaryOrg().subscribe((org) => {
+      this.primaryOrgId = org.id;
     });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
