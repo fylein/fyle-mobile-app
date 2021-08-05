@@ -334,18 +334,11 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     });
   }
 
-  ionViewDidEnter() {
-    console.log("----------3-------");
-    this.setUpAndStartCamera();
-  }
-
-
   ionViewWillEnter() {
-    console.log("------------------1");
     this.isCameraShown = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
-    //this.setUpAndStartCamera();
+    this.setUpAndStartCamera();
     this.flashMode = null;
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;

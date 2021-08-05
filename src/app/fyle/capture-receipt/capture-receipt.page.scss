@@ -2,7 +2,11 @@
 
 .capture-receipt {
   &--camera-preview{
-    --background: transparent;
+    --background: #000;
+
+    &--is-active {
+      --background: transparent;
+    }
   }
 
   &--close-flash-container {
