@@ -762,8 +762,7 @@ ref - https://stackoverflow.com/a/31162426
   .modal-wrapper {
     --border-radius: 16px 16px 0 0 !important;
     position: absolute;
-    max-height: 400px;
-    height: auto;
+    max-height: 60%;
     bottom: 0;
   }
 
