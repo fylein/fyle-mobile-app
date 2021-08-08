@@ -27,6 +27,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() txnDt: Date;
   @Input() homeCurrency: string;
   @Input() recentlyUsed: { label: string, value: string }[];
+  @Input() expanded: boolean;
+
   exchangeRate = 1;
 
   private innerValue: {

@@ -127,7 +127,8 @@
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
                   [recentlyUsed]="recentCurrencies"
-                  [txnDt]="etxn?.tx?.txn_dt">
+                  [txnDt]="etxn?.tx?.txn_dt"
+                  [expanded]="attachedReceiptsCount == 0" >
                 </app-fy-currency>
                 <div *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
                      class="add-edit-expense--amount-error" [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls.currencyObj.value.orig_currency}">
