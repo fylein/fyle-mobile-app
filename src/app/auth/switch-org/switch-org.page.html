@@ -31,13 +31,13 @@
                 {{org.domain}}
               </div>
               <div *ngIf="org.id === selectedOrgId && org.id !== primaryOrgId" class="switch-org--org-status">
-                &bull; Active Org
+                <span class="switch-org--active-indicator">Active Org</span>
               </div>
               <div *ngIf="org.id !== selectedOrgId && org.id === primaryOrgId" class="switch-org--org-status">
                 Primary Org
               </div>
               <div *ngIf="org.id === selectedOrgId && org.id === primaryOrgId" class="switch-org--org-status">
-                &bull; Active Org, Primary Org
+                <span class="switch-org--active-indicator">Active Org</span>, Primary Org
               </div>
             </ion-col>
             </ion-row>

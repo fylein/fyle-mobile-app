@@ -27,9 +27,9 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
 
   filteredOrgs$: Observable<Org[]>;
 
-  searchInput:string = '';
+  searchInput = '';
 
-  isLoading: boolean = false;
+  isLoading = false;
 
   selectedOrgId: string;
 

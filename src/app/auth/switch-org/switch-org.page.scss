@@ -1,3 +1,5 @@
+@import "../../../theme/colors.scss";
+
 $header-background: #f5f5f5;
 $header-border: #ddd;
 $header-input: #f8f8f8;
@@ -74,7 +76,7 @@ $org-thumb-text: #666;
   }
 
   &--active-org {
-    border: 1px solid $org-thumb-text;
+    border: 1px solid $primary;
   }
 
   &--org-status {
@@ -82,5 +84,9 @@ $org-thumb-text: #666;
     font-weight: 500;
     color: $org-thumb-text;
   }
+
+  &--active-indicator:before {
+    content:"• ";
+}
 
 }
