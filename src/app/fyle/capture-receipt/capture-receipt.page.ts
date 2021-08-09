@@ -134,7 +134,6 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
   }
 
   close() {
-    this.stopCamera();
     this.navController.back();
   }
 
@@ -221,7 +220,6 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
   }
 
   async review() {
-    await this.stopCamera();
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
@@ -249,7 +247,6 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
   onBulkCapture() {
     this.captureCount += 1;
-    this.setUpAndStartCamera();
   }
 
   async onCapture() {
@@ -258,7 +255,6 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     };
 
     const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-    await this.stopCamera();
     const base64PictureData = 'data:image/jpeg;base64,' + result.value;
     this.lastImage = base64PictureData;
     if (!this.isBulkMode) {
