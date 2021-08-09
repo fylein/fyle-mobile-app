@@ -45,11 +45,11 @@
           <ng-container *ngIf="isSycing$|async;else expenseCardScanning">
             <div class="expenses-card--scaning-receipt__container">
               <div class="expenses-card--scaning-receipt__header">
-                <ng-container *ngIf="expense.tx_fyle_category.toLowerCase() === 'mileage'; else uploadPerDiem">
+                <ng-container *ngIf="expense?.tx_fyle_category?.toLowerCase() === 'mileage'; else uploadPerDiem">
                   Uploading Mileage
                 </ng-container>
                 <ng-template #uploadPerDiem>
-                  <ng-container *ngIf="expense.tx_fyle_category.toLowerCase() === 'per diem'; else uploadDefault">
+                  <ng-container *ngIf="expense?.tx_fyle_category?.toLowerCase() === 'per diem'; else uploadDefault">
                     Uploading Per Diem
                   </ng-container>
                 </ng-template>
