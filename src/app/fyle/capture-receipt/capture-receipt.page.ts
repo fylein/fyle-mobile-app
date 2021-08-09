@@ -13,6 +13,7 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { forkJoin, from, noop, of } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, finalize, reduce, switchMap } from 'rxjs/operators';
 
 const {CameraPreview} = Plugins;
@@ -77,25 +78,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
       orgSettings: this.offlineService.getOrgSettings()
     }).pipe(
       switchMap(({isConnected, orgUserSettings, accounts, orgSettings}) => {
-
-        const isAdvanceEnabled = (orgSettings.advances && orgSettings.advances.enabled) ||
-            (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-
-        const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-        const isMultipleAdvanceEnabled = orgSettings && orgSettings.advance_account_settings &&
-        orgSettings.advance_account_settings.multiple_accounts;
-        const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-        const isCCCEnabled = orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
-
-        let account;
-
-        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
-          account = paymentModes.find(res => res.acc.displayName === 'Paid by Company');
-        } else if (isCCCEnabled && orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-          account = paymentModes.find(res => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-        } else {
-          account = paymentModes.find(res => res.acc.displayName === 'Paid by Me');
-        }
+        const account = this.getAccount(orgSettings, accounts, orgUserSettings);
 
         if (!isConnected) {
           source += '_OFFLINE';
@@ -119,6 +102,28 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
         return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, this.isInstafyleEnabled);
       })
     );
+  }
+
+  getAccount(orgSettings: any, accounts: any, orgUserSettings: OrgUserSettings) {
+    const isAdvanceEnabled = (orgSettings.advances && orgSettings.advances.enabled) ||
+      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+
+    const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+    const isMultipleAdvanceEnabled = orgSettings && orgSettings.advance_account_settings &&
+      orgSettings.advance_account_settings.multiple_accounts;
+    const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+    const isCCCEnabled = orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+
+    let account;
+
+    if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+      account = paymentModes.find(res => res.acc.displayName === 'Paid by Company');
+    } else if (isCCCEnabled && orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+      account = paymentModes.find(res => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+    } else {
+      account = paymentModes.find(res => res.acc.displayName === 'Paid by Me');
+    }
+    return account;
   }
 
   async stopCamera() {
@@ -341,12 +346,14 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     });
   }
 
+  ionViewDidEnter() {
+    this.setUpAndStartCamera();
+  }
 
   ionViewWillEnter() {
     this.isCameraShown = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
-    this.setUpAndStartCamera();
     this.flashMode = null;
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;

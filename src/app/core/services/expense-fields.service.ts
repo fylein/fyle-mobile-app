@@ -29,6 +29,15 @@ export class ExpenseFieldsService {
     );
   }
 
+  formatBillableFields(expenseFields: ExpenseField[]) {
+    return expenseFields.map(field => {
+      if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
+        field.default_value = field.default_value === 'true';
+      }
+      return field;
+    });
+  }
+
   /* getAllMap() method returns a mapping of column_names and their respective mapped fields
    * Object key: Column name
    * Object value: List of fields mapped to that particular column
@@ -46,6 +55,8 @@ export class ExpenseFieldsService {
       map(
         expenseFields => {
           const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
+
+          expenseFields = this.formatBillableFields(expenseFields);
 
           expenseFields.forEach(expenseField => {
             let expenseFieldsList = [];
@@ -86,15 +97,17 @@ export class ExpenseFieldsService {
         const configurations = tfcMap[field];
         let filteredField;
 
+        const fieldsIndependentOfCategory = ['project_id', 'billable'];
+        const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
         if (configurations && configurations.length > 0) {
           configurations.some((configuration) => {
-            if (orgCategoryId) {
+            if (orgCategoryId && fieldsIndependentOfCategory.indexOf(field) < 0) {
               if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
                 filteredField = configuration;
 
                 return true;
               }
-            } else if (['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'].indexOf(field) > -1) {
+            } else if (defaultFields.indexOf(field) > -1 || fieldsIndependentOfCategory.indexOf(field) > -1) {
               filteredField = configuration;
 
               return true;

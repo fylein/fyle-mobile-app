@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { noop, Observable } from 'rxjs';
+import { concat, noop, Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import {getCurrencySymbol} from '@angular/common';
+import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { map } from 'rxjs/operators';
 import { isEqual } from 'lodash';
+import { NetworkService } from 'src/app/core/services/network.service';
 
 @Component({
   selector: 'app-expense-card',
@@ -55,9 +56,12 @@ export class ExpensesCardComponent implements OnInit {
 
   isProjectMandatory$: Observable<boolean>;
 
+  isConnected$: Observable<boolean>;
+
   constructor(
     private transactionService: TransactionService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private networkService: NetworkService,
   ) { }
 
 
@@ -87,6 +91,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setupNetworkWatcher();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
@@ -100,11 +105,11 @@ export class ExpensesCardComponent implements OnInit {
         this.foreignCurrencySymbol = getCurrencySymbol(this.expense.tx_orig_currency, 'wide');
       })
     ).subscribe(noop);
-    this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
+
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
       map((orgSettings) => orgSettings.transaction_fields_settings &&
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
-                orgSettings.transaction_fields_settings.transaction_mandatory_fields.project)
+        orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
+        orgSettings.transaction_fields_settings.transaction_mandatory_fields.project)
     );
 
     if (!this.expense.tx_id) {
@@ -119,6 +124,11 @@ export class ExpensesCardComponent implements OnInit {
 
     this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
+    this.setOtherData();
+
+  }
+
+  setOtherData() {
     if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
       if (this.expense.tx_corporate_credit_card_expense_group_id) {
         this.paymentModeIcon = 'fy-matched';
@@ -132,11 +142,11 @@ export class ExpensesCardComponent implements OnInit {
         this.paymentModeIcon = 'fy-non-reimbursable';
       }
     }
-
   }
 
   getScanningReceiptCard(expense: Expense): boolean {
-    if (expense.tx_fyle_category && (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
+    if (expense.tx_fyle_category &&
+      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
       return false;
     } else {
       if (!expense.tx_currency && !expense.tx_amount) {
@@ -158,6 +168,12 @@ export class ExpensesCardComponent implements OnInit {
     if (this.isSelectionModeEnabled) {
       this.cardClickedForSelection.emit(this.expense);
     }
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
 }

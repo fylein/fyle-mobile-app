@@ -102,13 +102,30 @@
               <div class="add-edit-per-diem--primary-block">
                 <div>
                   <ng-container *ngIf="allowedPerDiemRateOptions$|async as allowedPerDiemRateOptions">
-                    <div
-                      [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid}"
+                    <div [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid}"
                       class="add-edit-per-diem--internal-block">
                       <app-fy-select [disabled]="isAmountDisabled" [label]="'Per Diem Type'" [mandatory]="true"
                         [nullOption]="false" [options]="allowedPerDiemRateOptions"
-                        [selectModalHeader]="'Select Per Diem Type'" formControlName="per_diem_rate">
+                        [selectModalHeader]="'Select Per Diem Type'" [selectionElement]="perDiemType"
+                        formControlName="per_diem_rate">
                       </app-fy-select>
+                      <ng-template #perDiemType let-label="label" let-perDiemType="value" let-selected="selected">
+                        <div>
+                          <div class="add-edit-per-diem--type-name">
+                            {{label}}
+                          </div>
+                          <ng-container *ngIf="perDiemType">
+                            <ng-container>
+                              <div class="add-edit-per-diem--type-rate">
+                                {{perDiemType.readableRate}}
+                              </div>
+                            </ng-container>
+                          </ng-container>
+                        </div>
+                        <mat-icon *ngIf="selected">
+                          check
+                        </mat-icon>
+                      </ng-template>
                     </div>
                     <div *ngIf="fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid"
                       class="add-edit-per-diem--error">
@@ -242,9 +259,9 @@
                     </ng-container>
                   </ng-container>
 
-                  <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+                  <ng-container *ngIf="txnFields$|async as txnFields">
                     <div class="add-edit-per-diem--project-container"
-                      *ngIf="transactionMandatoyFields?.project || isExpandedView">
+                      *ngIf="txnFields?.project_id || isExpandedView">
                       <ng-container *ngIf="isConnected$|async">
                         <ng-container
                           *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
@@ -255,7 +272,7 @@
                                 class="add-edit-per-diem--internal-block add-edit-per-diem--project-block">
                                 <app-fy-select-project [categoryIds]="projectCategoryIds"
                                   [cacheName]="'perDiemProjectCache'" [defaultValue]="true" [label]="'Project'"
-                                  [mandatory]="transactionMandatoyFields?.project" [recentlyUsed]="recentProjects"
+                                  [mandatory]="txnFields?.project_id?.is_mandatory" [recentlyUsed]="recentProjects"
                                   formControlName="project">
                                 </app-fy-select-project>
                               </div>
@@ -442,12 +459,12 @@
                   </ng-container>
 
                   <ng-container *ngIf="isConnected$">
-                    <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+                    <ng-container *ngIf="txnFields$|async as txnFields">
                       <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                         <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                           <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
 
-                            <app-fy-alert *ngIf="transactionMandatoyFields.project && individualProjectIds.length === 0"
+                            <app-fy-alert *ngIf="txnFields?.project_id && individualProjectIds.length === 0"
                               [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
                               [type]="'warning'">
                             </app-fy-alert>
