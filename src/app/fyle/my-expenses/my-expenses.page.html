@@ -126,6 +126,7 @@
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
+          [isOutboxExpense]="true"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
       </app-expense-card>

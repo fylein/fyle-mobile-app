@@ -377,7 +377,7 @@ export class MyExpensesPage implements OnInit {
 
     this.selectionMode = false;
     this.selectedElements = [];
-
+    console.log('on Initialization');
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
     this.syncing = true;
@@ -386,9 +386,9 @@ export class MyExpensesPage implements OnInit {
       tap(() => this.sendFirstExpenseCreatedEvent()),
       finalize(() => this.syncing = false)
     ).subscribe(() => {
-      this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+      const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
-      if (this.pendingTransactions.length === 0) {
+      if (pendingTransactions.length === 0) {
         this.doRefresh();
       }
     });
@@ -446,6 +446,10 @@ export class MyExpensesPage implements OnInit {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
+      }),
+      tap(()=> {
+        console.log('After Data loaded');
+        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
 
@@ -576,16 +580,20 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?) {
-    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-
-    if (this.pendingTransactions.length) {
+    const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    if (pendingTransactions.length > 0) {
       this.syncing = true;
       from(this.pendingTransactions).pipe(
         switchMap(() => from(this.transactionOutboxService.sync())),
-        finalize(() => this.syncing = false)
-      ).subscribe((a) => {
-        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-      });
+        finalize(() => {
+          this.syncing = false;
+          console.log('Inside Pending Transactions');
+          const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+          if (pendingTransactions.length === 0) {
+            this.doRefresh();
+          }
+        })
+      ).subscribe(noop);
     }
 
     this.currentPageNumber = 1;
@@ -1248,6 +1256,7 @@ export class MyExpensesPage implements OnInit {
       const { data } = await addExpensePopover.onDidDismiss();
 
       if (data && data.reload) {
+        console.log('Inside add new expense');
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
         this.doRefresh();
       }

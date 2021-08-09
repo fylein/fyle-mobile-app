@@ -5,9 +5,10 @@ import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.mode
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-expense-card',
@@ -27,6 +28,8 @@ export class ExpensesCardComponent implements OnInit {
   @Input() selectedElements: Expense[];
 
   @Input() isFirstOfflineExpense: boolean;
+
+  @Input() isOutboxExpense: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
 
@@ -58,10 +61,13 @@ export class ExpensesCardComponent implements OnInit {
 
   isConnected$: Observable<boolean>;
 
+  isSycing$: Observable<boolean>;
+
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,
     private networkService: NetworkService,
+    private transactionOutboxService: TransactionsOutboxService
   ) { }
 
 
@@ -92,6 +98,13 @@ export class ExpensesCardComponent implements OnInit {
 
   ngOnInit() {
     this.setupNetworkWatcher();
+    this.isSycing$ = this.isConnected$.pipe(
+      map(isConnected => isConnected &&
+        this.transactionOutboxService.isSyncInProgress() &&
+        this.isOutboxExpense
+      ),
+      tap(console.log)
+    );
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
@@ -122,7 +135,7 @@ export class ExpensesCardComponent implements OnInit {
 
     this.getReceipt();
 
-    this.isScanInProgress = this.getScanningReceiptCard(this.expense);
+    this.isScanInProgress = this.getScanningReceiptCard(this.expense) || this.isOutboxExpense;
 
     this.setOtherData();
 
