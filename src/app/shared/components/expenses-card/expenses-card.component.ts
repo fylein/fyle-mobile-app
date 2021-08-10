@@ -63,6 +63,8 @@ export class ExpensesCardComponent implements OnInit {
 
   isSycing$: Observable<boolean>;
 
+  category: string;
+
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,
@@ -105,6 +107,8 @@ export class ExpensesCardComponent implements OnInit {
       ),
       tap(console.log)
     );
+
+    this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);

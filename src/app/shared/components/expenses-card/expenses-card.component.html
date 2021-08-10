@@ -45,12 +45,12 @@
           <ng-container *ngIf="isSycing$|async;else expenseCardScanning">
             <div class="expenses-card--scaning-receipt__container">
               <div class="expenses-card--scaning-receipt__header">
-                <ng-container *ngIf="expense.tx_org_category?.toLowerCase() === 'mileage'; else uploadPerDiem">
-                  Uploading Mileage
+                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem">
+                  Adding Mileage
                 </ng-container>
                 <ng-template #uploadPerDiem>
-                  <ng-container *ngIf="expense.tx_org_category?.toLowerCase() === 'per diem'; else uploadDefault">
-                    Uploading Per Diem
+                  <ng-container *ngIf="category === 'per diem'; else uploadDefault">
+                    Adding Per Diem
                   </ng-container>
                 </ng-template>
                 <ng-template #uploadDefault>
@@ -58,7 +58,10 @@
                 </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
-                Your receipt details will be auto-extracted shortly.
+                Your receipt details will be 
+                <ng-container *ngIf="category ==='mileage' || category === 'per diem';else autoExtractContent">added</ng-container>
+                <ng-template #autoExtractContent> auto-extracted</ng-template> 
+                shortly.
               </div>
             </div>
           </ng-container>
@@ -129,7 +132,7 @@
               <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
                 Critical Policy violations
               </div>
-            </div> 
+            </div>
           </div>
         </ng-template>
       </div>

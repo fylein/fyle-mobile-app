@@ -17,7 +17,6 @@ import {
   tap
 } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
@@ -1184,29 +1183,6 @@ export class MyExpensesPage implements OnInit {
         Asset: 'Mobile',
         ...this.filters
       });
-    }
-  }
-
-
-  async openSort() {
-    const sortPopover = await this.popoverController.create({
-      component: MyExpensesSortFilterComponent,
-      componentProps: {
-        filters: this.filters
-      },
-      cssClass: 'dialog-popover'
-    });
-
-    await sortPopover.present();
-
-    const { data } = await sortPopover.onWillDismiss();
-    if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
-      this.filters = Object.assign({}, this.filters, data.sortOptions);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
     }
   }
 
