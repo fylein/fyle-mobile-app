@@ -343,6 +343,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
     });
+    this.captureCount = 0;
 
     this.offlineService.getOrgUserSettings().subscribe(orgUserSettings => {
       this.isInstafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
