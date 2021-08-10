@@ -27,8 +27,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
   declarations: [
     CaptureReceiptPage,
     ReceiptPreviewComponent,
-    AddMorePopupComponent,
-    PinchZoomModule
+    AddMorePopupComponent
   ],
   providers: [
     ImagePicker
