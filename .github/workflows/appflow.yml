@@ -19,16 +19,16 @@ jobs:
           slack-channel: C029QPGHSQL
           slack-text: ${{github.event.pull_request.user.login}} created PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}``` Building Android Build for this branch
 
-      - name: Build Android with Appflow
-        uses: ionic-team/appflow-build@v1
-        with:
-          token: ${{ secrets.APPFLOW_TOKEN }}
-          app-id: 32316914
-          platform: Android
-          build-type: debug
-          environment: staging
-          native-config: staging
-          upload-artifact: Android
+      # - name: Build Android with Appflow
+      #   uses: ionic-team/appflow-build@v1
+      #   with:
+      #     token: ${{ secrets.APPFLOW_TOKEN }}
+      #     app-id: 32316914
+      #     platform: Android
+      #     build-type: debug
+      #     environment: staging
+      #     native-config: staging
+      #     upload-artifact: Android
         
       - name: Build iOS on Appflow
         uses: ionic-team/appflow-build@v1
@@ -39,7 +39,8 @@ jobs:
           build-type: development
           certificate: Fyle signing
           environment: staging
-          upload-artifact: iOS-Build.zip    
+          native-config: staging
+          upload-artifact: ios
 
       - uses: actions/download-artifact@v2
         id: download
@@ -49,6 +50,9 @@ jobs:
 
       - name: Rename file
         run: mv *.apk android.apk
+
+      - name: list files
+        run: ls
       
       - name: Send Message to Slack
         uses: archive/github-actions-slack@v2.0.1
