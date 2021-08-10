@@ -29,6 +29,17 @@ jobs:
           environment: staging
           native-config: staging
           upload-artifact: Android
+        
+      - name: Build iOS on Appflow
+        uses: ionic-team/appflow-build@v1
+        with:
+          token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
+          platform: iOS
+          build-type: development
+          certificate: Fyle signing
+          environment: staging
+          upload-artifact: iOS-Build.zip    
 
       - uses: actions/download-artifact@v2
         id: download
