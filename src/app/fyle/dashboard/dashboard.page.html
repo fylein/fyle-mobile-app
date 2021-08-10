@@ -9,6 +9,22 @@
   </ion-toolbar>
 </ion-header>
 
+<ion-header mode="md">
+  <ion-toolbar class="stats--toolbar">
+    <ion-buttons slot="start">
+      <app-fy-menu-icon></app-fy-menu-icon>
+    </ion-buttons>
+    <ion-title class="stats--title" mode="md">
+      Home
+    </ion-title>
+    <ion-buttons slot="end">
+      <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+        <mat-icon svgIcon="fy-plus"></mat-icon>
+      </div>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">

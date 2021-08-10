@@ -5,11 +5,9 @@ import {shareReplay} from 'rxjs/internal/operators/shareReplay';
 import {delay, map, startWith, tap} from 'rxjs/operators';
 import {CurrencyService} from '../../../core/services/currency.service';
 import {Params, Router} from '@angular/router';
-import {ActionSheetController} from '@ionic/angular';
 import {NetworkService} from '../../../core/services/network.service';
 import {concat, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
-import {OfflineService} from '../../../core/services/offline.service';
 import {getCurrencySymbol} from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
@@ -38,8 +36,6 @@ export class StatsComponent implements OnInit {
 
   unreportedExpensesAmount$: Observable<{ amount: number }>;
 
-  actionSheetButtons = [];
-
   reportStatsLoading = true;
 
   loadData$ = new Subject();
@@ -54,8 +50,6 @@ export class StatsComponent implements OnInit {
       private dashboardService: DashboardService,
       private currencyService: CurrencyService,
       private router: Router,
-      private actionSheetController: ActionSheetController,
-      private offlineService: OfflineService,
       private networkService: NetworkService,
       private trackingService: TrackingService
   ) {
@@ -132,76 +126,6 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
-    that.offlineService.getOrgSettings().subscribe(orgSettings => {
-      this.setupActionSheet(orgSettings);
-      if (orgSettings.corporate_credit_card_settings.enabled) {
-        that.initializeCCCStats();
-      }
-    });
-  }
-
-  setupActionSheet(orgSettings) {
-    const that = this;
-    const mileageEnabled = orgSettings.mileage.enabled;
-    const isPerDiemEnabled = orgSettings.per_diem.enabled;
-    that.actionSheetButtons = [{
-      text: 'Capture Receipt',
-      icon: 'assets/svg/fy-camera.svg',
-      cssClass: 'capture-receipt',
-      handler: () => {
-        that.trackingService.dashboardActionSheetButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Capture Receipt'
-        });
-        that.router.navigate(['/', 'enterprise', 'camera_overlay', {
-          navigate_back: true
-        }]);
-      }
-    }, {
-      text: 'Add Manually',
-      icon: 'assets/svg/fy-expense.svg',
-      handler: () => {
-        that.trackingService.dashboardActionSheetButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Add Manually'
-        });
-        that.router.navigate(['/', 'enterprise', 'add_edit_expense',{
-          navigate_back: true
-        }]);
-      }
-    }];
-
-    if (mileageEnabled) {
-      this.actionSheetButtons.push({
-        text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
-        handler: () => {
-          that.trackingService.dashboardActionSheetButtonClicked({
-            Asset: 'Mobile',
-            Action: 'Add Mileage'
-          });
-          that.router.navigate(['/', 'enterprise', 'add_edit_mileage',{
-            navigate_back: true
-          }]);
-        }
-      });
-    }
-
-    if (isPerDiemEnabled) {
-      that.actionSheetButtons.push({
-        text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
-        handler: () => {
-          that.trackingService.dashboardActionSheetButtonClicked({
-            Asset: 'Mobile',
-            Action: 'Add Per Diem'
-          });
-          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem',{
-            navigate_back: true
-          }]);
-        }
-      });
-    }
   }
 
   ngOnInit() {
@@ -236,19 +160,5 @@ export class StatsComponent implements OnInit {
 
   goToCCCPage(state: string) {
     this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', { pageState: state }]);
-  }
-
-  async openAddExpenseActionSheet() {
-    const that = this;
-    that.trackingService.dashboardActionSheetOpened({
-      Asset: 'Mobile'
-    });
-    const actionSheet = await this.actionSheetController.create({
-      header: 'ADD EXPENSE',
-      mode: 'md',
-      cssClass: 'fy-action-sheet',
-      buttons: that.actionSheetButtons
-    });
-    await actionSheet.present();
   }
 }
