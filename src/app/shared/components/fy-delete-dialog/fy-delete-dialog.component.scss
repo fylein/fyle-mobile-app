@@ -2,7 +2,7 @@
 
 .fy-delete-dialog {
   &--grid {
-    --ion-grid-padding: 32px;
+    --ion-grid-padding: 24px;
     --ion-grid-column-padding: 0;
   }
 
@@ -12,7 +12,7 @@
     text-align: center;
     color: $black;
     padding: 7px;
-    font-width: 500;
+    font-weight: 500;
   }
 
   &--body {
@@ -42,5 +42,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    &__disabled {
+      opacity: .2;
+    }
   }
 }

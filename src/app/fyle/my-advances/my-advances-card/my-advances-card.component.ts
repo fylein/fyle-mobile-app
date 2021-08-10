@@ -11,7 +11,7 @@ export class MyAdvancesCardComponent implements OnInit {
 
   @Input() advanceRequest: any;
 
-  @Output() advanceClick: EventEmitter<{advanceRequest: ExtendedAdvanceRequest; internalState: any}> = new EventEmitter();
+  @Output() advanceClick: EventEmitter<{ advanceRequest: ExtendedAdvanceRequest; internalState: any }> = new EventEmitter();
 
   internalState: { name: string; state: string };
 
@@ -20,11 +20,15 @@ export class MyAdvancesCardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.internalState = (this.advanceRequest.type === 'request') ? this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest) : {state: 'paid', name: 'Paid'};
+    this.internalState = (this.advanceRequest.type === 'request') ?
+      this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest) : {
+        state: 'paid',
+        name: 'Paid'
+      };
   }
 
   onAdvanceClick() {
-    this.advanceClick.emit({advanceRequest: this.advanceRequest, internalState: this.internalState});
+    this.advanceClick.emit({ advanceRequest: this.advanceRequest, internalState: this.internalState });
   }
 
 }

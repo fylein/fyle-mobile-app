@@ -311,6 +311,14 @@ input:focus, textarea:focus{
   min-height: calc(360px + env(safe-area-inset-top)) !important;
 }
 
+.ios .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
+.ios .timeline--timeline-item__last > .timeline--timeline-item-internal::before,
+.md .timeline--timeline-item__first > .timeline--timeline-item-internal::before,
+.md .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
+.md .timeline--timeline-item__last > .timeline--timeline-item-internal::before {
+  font-size: inherit !important;
+}
+
 @mixin loader {
   border-radius: 50%;
   width: 14px;
@@ -794,5 +802,26 @@ ref - https://stackoverflow.com/a/31162426
 .selection-modal--form-container__chips {
   .mat-form-field-infix {
     border-top: 0;
+  }
+}
+
+ion-modal.auto-height {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    bottom: 0;
+  }
+
+  --height: auto;
+
+  .ion-page {
+      position: relative;
+      display: block;
+      contain: content;
+
+      .inner-content {
+          max-height: 80vh;
+          overflow: auto;
+      }
   }
 }

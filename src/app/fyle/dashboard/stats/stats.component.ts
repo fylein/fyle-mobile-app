@@ -160,6 +160,7 @@ export class StatsComponent implements OnInit {
     }, {
       text: 'Add Manually',
       icon: 'assets/svg/fy-expense.svg',
+      cssClass: 'capture-receipt',
       handler: () => {
         that.trackingService.dashboardActionSheetButtonClicked({
           Asset: 'Mobile',
@@ -175,6 +176,7 @@ export class StatsComponent implements OnInit {
       this.actionSheetButtons.push({
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
+        cssClass: 'capture-receipt',
         handler: () => {
           that.trackingService.dashboardActionSheetButtonClicked({
             Asset: 'Mobile',
@@ -191,6 +193,7 @@ export class StatsComponent implements OnInit {
       that.actionSheetButtons.push({
         text: 'Add Per Diem',
         icon: 'assets/svg/fy-calendar.svg',
+        cssClass: 'capture-receipt',
         handler: () => {
           that.trackingService.dashboardActionSheetButtonClicked({
             Asset: 'Mobile',

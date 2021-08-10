@@ -18,52 +18,6 @@ export class ProjectsService {
     private dataTransformService: DataTransformService
   ) { }
 
-
-  @Cacheable()
-  getByParamsUnformatted(projectParams:
-    Partial<{
-      orgId; active; orgCategoryIds; searchNameText; limit; offset; sortOrder; sortDirection; projectIds;
-    }>): Observable<ExtendedProject[]> {
-    // eslint-disable-next-line prefer-const
-    let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds }
-      = projectParams;
-    sortOrder = sortOrder || 'project_updated_at';
-    sortDirection = sortDirection || 'desc';
-
-    const params: any = {
-      project_org_id: 'eq.' + orgId,
-      order: sortOrder + '.' + sortDirection,
-      limit: limit || 200,
-      offset: offset || 0
-    };
-
-    // `active` can be optional
-    if (typeof active !== 'undefined' && active !== null) {
-      params.project_active = 'eq.' + active;
-    }
-
-    // `orgCategoryIds` can be optional
-    if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
-      params.project_org_category_ids = 'cs.{' + orgCategoryIds.join(',') + '}';
-    }
-
-    // `projectIds` can be optional
-    if (typeof projectIds !== 'undefined' && projectIds !== null) {
-      params.project_id = 'in.(' + projectIds.join(',') + ')';
-    }
-
-    // `searchNameText` can be optional
-    if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
-      params.project_name = 'ilike.%' + searchNameText + '%';
-    }
-
-    return this.apiV2Service.get('/projects', {
-      params
-    }).pipe(
-      map(res => res.data)
-    );
-  }
-
   @Cacheable()
   getByParams(queryParams: Partial<{
     orgId; active; orgCategoryIds; searchNameText; limit; offset; sortOrder; sortDirection; projectIds;
@@ -78,6 +32,67 @@ export class ProjectsService {
         map(this.parseRawEProjects)
       );
   }
+
+  @Cacheable()
+  getByParamsUnformatted(projectParams:
+    Partial<{
+      orgId; active; orgCategoryIds; searchNameText; limit; offset; sortOrder; sortDirection; projectIds;
+    }>): Observable<ExtendedProject[]> {
+    // eslint-disable-next-line prefer-const
+    let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } = projectParams;
+    sortOrder = sortOrder || 'project_updated_at';
+    sortDirection = sortDirection || 'desc';
+
+    const params: any = {
+      project_org_id: 'eq.' + orgId,
+      order: sortOrder + '.' + sortDirection,
+      limit: limit || 200,
+      offset: offset || 0
+    };
+
+    // `active` can be optional
+    this.addActiveFilter(active, params);
+
+    // `orgCategoryIds` can be optional
+    this.addOrgCategoryIdsFilter(orgCategoryIds, params);
+
+    // `projectIds` can be optional
+    this.addProjectIdsFilter(projectIds, params);
+
+    // `searchNameText` can be optional
+    this.addNameSearchFilter(searchNameText, params);
+
+    return this.apiV2Service.get('/projects', {
+      params
+    }).pipe(
+      map(res => res.data)
+    );
+  }
+
+  addNameSearchFilter(searchNameText: any, params: any) {
+    if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
+      params.project_name = 'ilike.%' + searchNameText + '%';
+    }
+  }
+
+  addProjectIdsFilter(projectIds: any, params: any) {
+    if (typeof projectIds !== 'undefined' && projectIds !== null) {
+      params.project_id = 'in.(' + projectIds.join(',') + ')';
+    }
+  }
+
+  addOrgCategoryIdsFilter(orgCategoryIds: any, params: any) {
+    if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
+      params.project_org_category_ids = 'cs.{' + orgCategoryIds.join(',') + '}';
+    }
+  }
+
+  addActiveFilter(active: any, params: any) {
+    if (typeof active !== 'undefined' && active !== null) {
+      params.project_active = 'eq.' + active;
+    }
+  }
+
 
   filterById(projectId, projects) {
     let matchingProject;

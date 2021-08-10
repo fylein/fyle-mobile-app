@@ -133,7 +133,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             tap(() => this.checkPermissionStatus()),
             switchMap(({ eou, currentLocation }) => {
               if (currentLocation) {
-                return that.locationService.getAutocompletePredictions(searchText, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
+                return that.locationService.getAutocompletePredictions(
+                  searchText,
+                  eou.us.id,
+                  `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`
+                );
               } else {
                 return that.locationService.getAutocompletePredictions(searchText, eou.us.id);
               }
@@ -192,7 +196,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         })),
         switchMap(({ eou, currentLocation }) => {
           if (currentLocation) {
-            return this.locationService.getAutocompletePredictions(location, eou.us.id, `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`);
+            return this.locationService.getAutocompletePredictions(
+              location,
+              eou.us.id,
+              `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`
+            );
           } else {
             return this.locationService.getAutocompletePredictions(location, eou.us.id);
           }

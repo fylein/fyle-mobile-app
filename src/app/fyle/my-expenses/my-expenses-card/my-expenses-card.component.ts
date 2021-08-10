@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
-import {noop, Observable} from 'rxjs';
+import { noop, Observable } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { map } from 'rxjs/operators';
 
@@ -96,7 +96,9 @@ export class MyExpensesCardComponent implements OnInit {
 
   ngOnInit() {
     this.amountIsNumber = typeof this.expense.tx_amount === 'number';
-    this.extractedAmountIsNumber = typeof (this.expense && this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount) === 'number';
+    this.extractedAmountIsNumber = typeof (this.expense &&
+      this.expense.tx_extracted_data &&
+      this.expense.tx_extracted_data.amount) === 'number';
     this.isDraft = this.expense.tx_state === 'DRAFT';
     this.isCCCExpense = this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
     this.isCCCMatchedExpense = !!this.expense.tx_corporate_credit_card_expense_group_id;

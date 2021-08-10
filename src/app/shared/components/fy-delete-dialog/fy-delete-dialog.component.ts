@@ -33,7 +33,9 @@ export class FyDeleteDialogComponent implements OnInit {
   }
 
   cancel() {
-    this.popoverController.dismiss();
+    if (!this.deleteCallInProgress) {
+      this.popoverController.dismiss();
+    }
   }
 
   delete() {

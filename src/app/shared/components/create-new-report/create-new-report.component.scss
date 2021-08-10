@@ -104,11 +104,14 @@
     font-size: 14px;
   }
 
+  &--footer {
+    height: 80px;
+  }
+
   &--cta-container {
     display: flex;
     justify-content: space-between;
     padding: 14px 35.5px;
-    position: fixed;
     bottom: 0;
     width: 100%;
     background-color: $pure-white;

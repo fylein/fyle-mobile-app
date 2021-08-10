@@ -1,5 +1,5 @@
-import {Component, EventEmitter, OnInit} from '@angular/core';
-import {Observable, from, noop, Subject, concat} from 'rxjs';
+import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Observable, from, noop, Subject, concat } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,12 +8,12 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController } from '@ionic/angular';
-import {switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil} from 'rxjs/operators';
+import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
-import {NetworkService} from '../../core/services/network.service';
+import { NetworkService } from '../../core/services/network.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -144,18 +144,23 @@ export class ViewTeamReportPage implements OnInit {
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
-      map(pdfExports => pdfExports.results.sort((a, b) => (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0)).map((pdfExport) => pdfExport.sent_to).filter((item, index, inputArray) => inputArray.indexOf(item) === index))
+      map(pdfExports => pdfExports.results
+        .sort((a, b) => (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0))
+        .map((pdfExport) => pdfExport.sent_to)
+        .filter((item, index, inputArray) => inputArray.indexOf(item) === index))
     );
 
     this.reportApprovals$ = this.refreshApprovals$.pipe(
       startWith(true),
       switchMap(() => this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)),
-      map(reportApprovals => reportApprovals.filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1).map((approval) => {
-        if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
-          approval.approved_at = approval.updated_at;
-        }
-        return approval;
-      }))
+      map(reportApprovals => reportApprovals
+        .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
+        .map((approval) => {
+          if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
+            approval.approved_at = approval.updated_at;
+          }
+          return approval;
+        }))
     );
 
     this.etxns$ = from(this.authService.getEou()).pipe(
