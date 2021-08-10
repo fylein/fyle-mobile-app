@@ -12,7 +12,6 @@ module.exports = function (ctx) {
   fs.writeFileSync(`${ctx.project.dir}` + "/src/environments/environment.prod.ts", secrets.prodEnviroinent);
 
   const platformRoot = path.join(ctx.project.dir, 'android');
-  console.log(platformRoot);
   FILE_PATHS = {
     "android.cameraPreview": `${ctx.project.dir}` + "/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraPreview.java"
   };
@@ -26,5 +25,8 @@ module.exports = function (ctx) {
   fs.writeFileSync("android/app/google-services.json", secrets.googleCredentialsAndroid);
   
   // Creating GoogleService-Info.plist file
-  fs.writeFileSync("ios/App/App/GoogleService-Info.plist", secrets.googleCredentialsIos);
+  fs.writeFileSync("ios/App/App/GoogleService-Info.plist", secrets.googleCredentialsIos);  
+
+  // Creating Info.plist file
+  fs.writeFileSync("ios/App/App/Info.plist", secrets.iosInfo);
 };
