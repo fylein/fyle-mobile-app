@@ -39,7 +39,7 @@ jobs:
           build-type: development
           certificate: Fyle signing
           environment: staging
-          native-config: staging
+          native-config: prod
           upload-artifact: ios
 
       - uses: actions/download-artifact@v2
