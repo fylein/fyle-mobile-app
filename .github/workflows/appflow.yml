@@ -1,10 +1,6 @@
 name: Appflow
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: push
 
 jobs:
   build-android:
