@@ -11,6 +11,7 @@ import {ReportStates} from '../stat-badge/report-states';
 import {getCurrencySymbol} from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-stats',
@@ -42,6 +43,10 @@ export class StatsComponent implements OnInit {
 
   cardTransactionsAndDetails$: Observable<BankAccountsAssigned>;
 
+  isCCCStatsLoading: boolean;
+
+  cardTransactionsAndDetails: BankAccountsAssigned;
+
   get ReportStates() {
     return ReportStates;
   }
@@ -51,6 +56,7 @@ export class StatsComponent implements OnInit {
       private currencyService: CurrencyService,
       private router: Router,
       private networkService: NetworkService,
+      private offlineService: OfflineService,
       private trackingService: TrackingService
   ) {
   }
@@ -108,6 +114,10 @@ export class StatsComponent implements OnInit {
       map(res => res[0]),
       shareReplay(1)
     );
+    this.cardTransactionsAndDetails$.subscribe(details => {
+      this.cardTransactionsAndDetails = details;
+      this.isCCCStatsLoading = false;
+    });
   }
 
   /*
@@ -126,6 +136,12 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
+    that.offlineService.getOrgSettings().subscribe(orgSettings => {
+      if (orgSettings.corporate_credit_card_settings.enabled) {
+        that.isCCCStatsLoading = true;
+        that.initializeCCCStats();
+      }
+    });
   }
 
   ngOnInit() {
