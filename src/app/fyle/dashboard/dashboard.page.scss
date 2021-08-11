@@ -1,6 +1,10 @@
 @import '../../../theme/colors';
 
 .dashboard {
+  &--header {
+    background-color: $pure-white;
+  }
+
   &--toolbar {
     border-bottom: 1px solid $grey-lightest;
   }

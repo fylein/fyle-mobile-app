@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-header mode="md">
+<ion-header mode="md" class="dashboard--header">
   <ion-toolbar class="stats--toolbar">
     <ion-buttons slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
@@ -34,6 +34,8 @@
       <app-tasks></app-tasks>
     </mat-tab>
   </mat-tab-group>
-  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()" [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"></app-fy-footer>
 </ion-content>
 
+<ion-footer>
+  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()" [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"></app-fy-footer>
+</ion-footer>

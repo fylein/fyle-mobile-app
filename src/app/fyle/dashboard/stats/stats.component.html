@@ -108,8 +108,8 @@
     </ion-grid>
   </div>
 
-  <div *ngIf="(isConnected$|async)" class="stats--ccc-cards-section">
-    <div *ngIf="cardTransactionsAndDetails || (!cardTransactionsAndDetails && isCCCStatsLoading)">
+  <div *ngIf="(isConnected$|async) && cardTransactionsAndDetails" class="stats--ccc-cards-section">
+    <div>
       <ion-grid>
         <ion-row>
           <ion-col>
@@ -117,7 +117,7 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-      <ng-container *ngIf="cardTransactionsAndDetails; else cccStatsLoading">
+      <ng-container>
         <div class="stats--ccc-card-details">
           <div class="stats--ccc-bank-name1">
             <ion-grid>
