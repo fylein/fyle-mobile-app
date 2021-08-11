@@ -15,7 +15,7 @@ jobs:
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C029QPGHSQL
-          slack-text: ${{github.event.pull_request.user.login}} merged to master. Building Android Build for this branch
+          slack-text: ${{github.actor}} merged to master. Building Android Build for this branch
 
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
