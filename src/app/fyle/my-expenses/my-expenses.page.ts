@@ -49,6 +49,7 @@ import { SelectedFilters } from '../../shared/components/fy-filters/selected-fil
 import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
+import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 
 type Filters = Partial<{
   state: string[];
@@ -175,7 +176,7 @@ export class MyExpensesPage implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
-    private toastController: ToastController
+    private snackbarProperties: SnackbarPropertiesService
   ) { }
 
   clearText() {
@@ -1384,14 +1385,9 @@ export class MyExpensesPage implements OnInit {
   }
 
   showNonReportableExpenseSelectedToast(message) {
-    this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      data: {
-        icon: 'warning-white',
-        message,
-        showCloseButton: true
-      },
-      panelClass: ['mat-snack-bar', 'msb-failure', 'msb-with-report-button']
-    });
+    this.matSnackBar.openFromComponent( ToastMessageComponent, this.snackbarProperties
+      .setSnackbarProperties({ icon: 'danger', message, redirectionText: null }, ['msb-with-report-button'], 0));
+
   }
 
   async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
@@ -1587,16 +1583,9 @@ export class MyExpensesPage implements OnInit {
   }
 
   showAddToReportSuccessToast(config: { message: string; report }) {
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      data: {
-        icon: 'tick-square-filled',
-        message: config.message,
-        redirectionText: 'View Report',
-        showCloseButton: true
-      },
-      panelClass: ['mat-snack-bar', 'msb-success', 'msb-with-camera-icon'],
-      duration: 3000,
-    });
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, 
+      this.snackbarProperties.setSnackbarProperties({icon: 'tick-square-filled', message: config.message, redirectionText: 'View Report'},
+        ['msb-with-camera-icon'], 3000));
 
     this.isReportableExpensesSelected = false;
     this.selectionMode = false;
@@ -1697,25 +1686,17 @@ export class MyExpensesPage implements OnInit {
         count: this.selectedElements.length
       });
       if (data.status === 'success') {
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          data: {
-            icon: 'tick-square-filled',
-            message: `${offlineExpenses.length + this.selectedElements.length} Expenses have been deleted`,
-            showCloseButton: true
-          },
-          panelClass: ['mat-snack-bar', 'msb-success', 'msb-with-camera-icon'],
-          duration: 3000,
-        });
+        this.matSnackBar.openFromComponent(ToastMessageComponent, this.snackbarProperties.setSnackbarProperties({
+          icon: 'tick-square-filled',
+          message: `${offlineExpenses.length + this.selectedElements.length} Expenses have been deleted`,
+          redirectionText: null
+        }, ['msb-with-camera-icon'], 3000));
       } else {
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          data: {
-            icon: 'warning-white',
-            message: 'We could not delete the expenses. Please try again ',
-            showCloseButton: true
-          },
-          panelClass: ['mat-snack-bar', 'msb-failure', 'msb-with-camera-icon'],
-          duration: 3000,
-        });
+        this.matSnackBar.openFromComponent(ToastMessageComponent, this.snackbarProperties.setSnackbarProperties({
+          icon: 'danger',
+          message: 'We could not delete the expenses. Please try again ',
+          redirectionText: null
+        }, ['msb-with-camera-icon'], 3000));
       }
 
       this.isReportableExpensesSelected = false;

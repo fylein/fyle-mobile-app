@@ -55,7 +55,7 @@ export class IconModule {
     'software.svg', 'split-expense.svg', 'send.svg', 'success-tick.svg', 'search-not-found.svg', 'single-mode.svg',
     'tax.svg', 'taxi.svg', 'toll-charge.svg', 'train.svg', 'training.svg', 'tick-square-filled.svg',
     'utility.svg',
-    'warning-inverted.svg', 'warning-white.svg', 'warning.svg'
+    'warning-inverted.svg', 'warning.svg'
   ];
 
   constructor(
