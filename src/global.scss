@@ -82,14 +82,12 @@ input:focus, textarea:focus{
 .mat-snack-bar {
   color: $pure-white;
   border-radius: 8px !important;
-  margin-bottom: 30px !important;
-  margin-left: 16px !important;
-  margin-right: 16px !important;
+  margin: 0 16px 30px 16px !important;
   padding: 12px 8px !important;
 }
 
 .msb-success {
-  background-color: #24A148;
+  background-color: $green;
 }
 
 .msb-failure {

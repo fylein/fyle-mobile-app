@@ -120,7 +120,6 @@ export class MyProfilePage implements OnInit {
       concatMap(() => this.authService.refreshEou().pipe(
         tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
         map(() => {
-
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             data: {
               icon: 'tick-square-filled',
