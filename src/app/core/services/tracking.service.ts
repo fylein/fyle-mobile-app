@@ -28,6 +28,12 @@ export class TrackingService {
     }
   }
 
+  async updateIdentityIfNotPresent() {
+    if (!this.identityEmail) {
+      await this.updateIdentity();
+    }
+  }
+
   // deprecated - use updateSegmentProfile
   uploadCtUserProfile(data) {
     this.updateSegmentProfile(data);
