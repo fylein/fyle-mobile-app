@@ -43,9 +43,9 @@ jobs:
           upload-artifact: ios
 
       - uses: actions/download-artifact@v2
-        id: download
+        id: ios
         with: 
-          name: 'Android'
+          name: 'ios'
           path: ./
 
       - name: Rename file
