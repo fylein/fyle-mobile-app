@@ -147,18 +147,18 @@ module.exports = {
             </dict>
         </dict>
     </dict>
-    <key>NSCameraUsageDescription</key>
-    <string>To Take Photos and Video</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Always allow Geolocation?</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Allow Geolocation?</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>To Record Audio With Video</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Store camera photos to camera</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>To Pick Photos from Library</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Fyle needs camera access to capture your receipts and attach them to expenses.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Fyle needs location access to calculate distance in your mileage expenses.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Fyle needs location access to calculate distance in your mileage expenses.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>To Record Audio With Video</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Fyle needs photo library access to save the captured receipts</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Fyle needs photo library access to upload receipts that you choose.</string>
     <key>UILaunchStoryboardName</key>
     <string>LaunchScreen</string>
     <key>UIMainStoryboardFile</key>
