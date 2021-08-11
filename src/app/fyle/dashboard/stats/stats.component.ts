@@ -6,7 +6,7 @@ import {delay, map, startWith, tap} from 'rxjs/operators';
 import {CurrencyService} from '../../../core/services/currency.service';
 import {Params, Router} from '@angular/router';
 import {NetworkService} from '../../../core/services/network.service';
-import {concat, Subject} from 'rxjs';
+import {concat, of, Subject} from 'rxjs';
 import {ReportStates} from '../stat-badge/report-states';
 import {getCurrencySymbol} from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -140,6 +140,8 @@ export class StatsComponent implements OnInit {
       if (orgSettings.corporate_credit_card_settings.enabled) {
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
+      } else {
+        this.cardTransactionsAndDetails$ = of(null);
       }
     });
   }
