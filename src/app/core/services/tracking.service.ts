@@ -65,6 +65,8 @@ export class TrackingService {
       this.tracking.identify(email, {
         $email: email
       });
+
+      this.identityEmail = email;
     }
 
     this.eventTrack('Signin', properties);
