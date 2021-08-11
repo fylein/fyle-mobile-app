@@ -58,9 +58,18 @@
                 </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
-                Your receipt details will be 
-                <ng-container *ngIf="category ==='mileage' || category === 'per diem';else autoExtractContent">added</ng-container>
-                <ng-template #autoExtractContent> auto-extracted</ng-template> 
+                Your
+                <ng-container *ngIf="category ==='mileage' || category === 'per diem';else receiptContent">
+                  {{category}}
+                </ng-container>
+                <ng-template #receiptContent>
+                  receipt
+                </ng-template>
+                details will be
+                <ng-container *ngIf="category ==='mileage' || category === 'per diem';else autoExtractContent">
+                  added
+                </ng-container>
+                <ng-template #autoExtractContent> auto-extracted</ng-template>
                 shortly.
               </div>
             </div>
