@@ -54,7 +54,7 @@ jobs:
           path: android.apk
           channel: C029QPGHSQL
 
-            - name: Build iOS on Appflow
+      - name: Build iOS on Appflow
         uses: ionic-team/appflow-build@v1
         with:
           token: ${{ secrets.APPFLOW_TOKEN }}
