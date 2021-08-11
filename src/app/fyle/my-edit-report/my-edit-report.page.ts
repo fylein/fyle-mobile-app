@@ -1,9 +1,9 @@
-import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import * as moment from 'moment';
-import {concat, forkJoin, from, iif, noop, Observable, of, Subject} from 'rxjs';
-import {finalize, map, shareReplay, switchMap, takeUntil, tap} from 'rxjs/operators';
+import { concat, forkJoin, from, iif, noop, Observable, of, Subject } from 'rxjs';
+import { finalize, map, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -14,10 +14,10 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
-import {NetworkService} from '../../core/services/network.service';
+import { NetworkService } from '../../core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { cloneDeep } from 'lodash';
-import {TrackingService} from '../../core/services/tracking.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
@@ -223,13 +223,13 @@ export class MyEditReportPage implements OnInit {
       switchMap(res => iif(
         () => (this.addedExpensesIdList.length > 0),
         this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList).pipe(
-          tap(() => this.trackingService.addToExistingReport({Asset: 'Mobile'}))
+          tap(() => this.trackingService.addToExistingReport({ Asset: 'Mobile' }))
         ),
         of(false)
       )),
       switchMap(res => iif(
         () => (this.deleteExpensesIdList.length > 0),
-        this.removeTxnFromReport() ,
+        this.removeTxnFromReport(),
         of(false)
       )),
       finalize(() => {
@@ -271,7 +271,7 @@ export class MyEditReportPage implements OnInit {
   getTripRequests() {
     return this.tripRequestsService.findMyUnreportedRequests().pipe(
       map(res => res.filter(request => request.state === 'APPROVED')),
-      map((tripRequests: any) => tripRequests.sort((tripA, tripB) =>  {
+      map((tripRequests: any) => tripRequests.sort((tripA, tripB) => {
         const tripATime = new Date(tripA.created_at).getTime();
         const tripBTime = new Date(tripB.created_at).getTime();
         /**
@@ -283,7 +283,11 @@ export class MyEditReportPage implements OnInit {
          */
         return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
       })),
-      map((tripRequests: any) => tripRequests.map(tripRequest => ({label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose, value: tripRequest})))
+      map((tripRequests: any) => tripRequests
+        .map(tripRequest => ({
+          label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,
+          value: tripRequest
+        })))
     );
   }
 
@@ -319,15 +323,15 @@ export class MyEditReportPage implements OnInit {
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
       tripRequests: this.getTripRequests()
-    }).subscribe(({ extendedReport, orgSettings,  orgUserSettings, tripRequests}) => {
+    }).subscribe(({ extendedReport, orgSettings, orgUserSettings, tripRequests }) => {
       this.reportTitle = extendedReport.rp_purpose;
       this.reportAmount = extendedReport.rp_amount;
       this.reportState = extendedReport.rp_state;
       this.noOfTxnsInReport = extendedReport.rp_num_transactions;
       this.isTripRequestsEnabled = orgSettings.trip_requests.enabled;
       this.canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee ||
-      (orgSettings.trip_requests.enable_for_certain_employee &&
-      orgUserSettings.trip_request_org_user_settings.enabled));
+        (orgSettings.trip_requests.enable_for_certain_employee &&
+          orgUserSettings.trip_request_org_user_settings.enabled));
       this.tripRequests = tripRequests;
       if (extendedReport.rp_trip_request_id) {
         this.getSelectedTripInfo(extendedReport.rp_trip_request_id);
@@ -352,7 +356,7 @@ export class MyEditReportPage implements OnInit {
     );
 
     const queryParams = {
-      tx_report_id : 'is.null',
+      tx_report_id: 'is.null',
       tx_state: 'in.(COMPLETE)',
       order: 'tx_txn_dt.desc',
       or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)']

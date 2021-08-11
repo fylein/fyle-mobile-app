@@ -33,7 +33,6 @@ export class NewPasswordPage implements OnInit {
 
   hide = false;
 
-
   constructor(
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,

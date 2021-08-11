@@ -38,7 +38,7 @@
     &-close {
       margin: -12px;
       font-size: 18px;
-      height: 12px;
+      height: auto;
     }
   }
 
@@ -101,6 +101,7 @@
     text-align: center;
     margin-bottom: 0;
     border-bottom: 1px solid $border-grey;
+    margin-top: calc(env(safe-area-inset-top));
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
         color: $black-light !important;

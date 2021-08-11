@@ -5,10 +5,10 @@ import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import {Expense} from '../../../../core/models/expense.model';
-import {TransactionService} from '../../../../core/services/transaction.service';
-import {Router} from '@angular/router';
-import {TrackingService} from '../../../../core/services/tracking.service';
+import { Expense } from '../../../../core/models/expense.model';
+import { TransactionService } from '../../../../core/services/transaction.service';
+import { Router } from '@angular/router';
+import { TrackingService } from '../../../../core/services/tracking.service';
 import * as moment from 'moment';
 
 
@@ -83,10 +83,10 @@ export class ViewCommentComponent implements OnInit {
 
   closeCommentModal() {
     if (this.isCommentAdded) {
-      this.trackingService.addComment({Asset: 'Mobile'});
-      this.modalController.dismiss({updated: true});
+      this.trackingService.addComment({ Asset: 'Mobile' });
+      this.modalController.dismiss({ updated: true });
     } else {
-      this.trackingService.viewComment({Asset: 'Mobile'});
+      this.trackingService.viewComment({ Asset: 'Mobile' });
       this.modalController.dismiss();
     }
   }
@@ -132,7 +132,8 @@ export class ViewCommentComponent implements OnInit {
     );
 
     this.estatuses$.subscribe(estatuses => {
-      const reversalStatus = estatuses.filter((status) => (status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1));
+      const reversalStatus = estatuses
+        .filter((status) => (status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1));
 
       this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
 
@@ -142,9 +143,9 @@ export class ViewCommentComponent implements OnInit {
 
       this.userComments = estatuses.filter((status) => status.us_full_name);
 
-      for(let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = moment(this.userComments[i-1] && this.userComments[i-1].st_created_at);
-        const currentCommentDt =  moment(this.userComments[i] && this.userComments[i].st_created_at);
+      for (let i = 0; i < this.userComments.length; i++) {
+        const prevCommentDt = moment(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
+        const currentCommentDt = moment(this.userComments[i] && this.userComments[i].st_created_at);
         if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {

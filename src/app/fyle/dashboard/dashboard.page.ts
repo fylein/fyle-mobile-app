@@ -9,7 +9,6 @@ import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
-import { ActionSheetController } from '@ionic/angular';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -48,7 +47,6 @@ export class DashboardPage implements OnInit {
     private storageService: StorageService,
     private popoverController: PopoverController,
     private networkService: NetworkService,
-    private actionSheetController: ActionSheetController,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private trackingService: TrackingService
