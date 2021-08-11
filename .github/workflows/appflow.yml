@@ -48,8 +48,8 @@ jobs:
           name: 'ios'
           path: ./
 
-      # - name: Rename file
-      #   run: mv *.apk android.apk
+      - name: Rename file
+        run: mv *.ipa ios.ipa
 
       - name: list files
         run: ls
@@ -66,6 +66,6 @@ jobs:
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          path: android.apk
+          path: ios.app
           channel: C029QPGHSQL
 
