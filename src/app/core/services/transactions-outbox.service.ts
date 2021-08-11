@@ -173,21 +173,20 @@ export class TransactionsOutboxService {
       this.fileService.post({
         name: '000.' + fileExtension,
         receipt_coordinates: receiptCoordinates
-      }).toPromise().then((fileObj) => {
-        this.fileService.uploadUrl(fileObj.id).toPromise().then((url) => {
-          const uploadUrl = url;
-          const fileName = fileObj.name;
-          // check from here
-          fetch(dataUrl).then(res => res.blob()).then(blob => {
-            this.uploadData(uploadUrl, blob, contentType)
-              .toPromise()
-              .then(resp => this.fileService.uploadComplete(fileObj.id).toPromise())
-              .then(() => resolve(fileObj))
-              .catch(err => {
-                reject(err);
-              });
-          });
+      }).toPromise().then((fileObj) => this.fileService.uploadUrl(fileObj.id).toPromise().then((url) => {
+        const uploadUrl = url;
+        // check from here
+        fetch(dataUrl).then(res => res.blob()).then(blob => {
+          this.uploadData(uploadUrl, blob, contentType)
+            .toPromise()
+            .then(_ => this.fileService.uploadComplete(fileObj.id).toPromise())
+            .then(() => resolve(fileObj))
+            .catch(err => {
+              reject(err);
+            });
         });
+      })).catch(err => {
+        reject(err);
       });
     });
   }
@@ -253,9 +252,7 @@ export class TransactionsOutboxService {
         entry.dataUrls.forEach((dataUrl) => {
           const fileObjPromise = that.fileUpload(
             dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates
-          ).then((fileObj) => fileObj, (evt) => {
-            const progressPercentage = 100.0 * evt.loaded / evt.total;
-          });
+          );
 
           fileObjPromiseArray.push(fileObjPromise);
         });
@@ -263,7 +260,10 @@ export class TransactionsOutboxService {
     }
 
     return new Promise((resolve, reject) => {
-      that.transactionService.createTxnWithFiles(entry.transaction, from(Promise.all(fileObjPromiseArray))).toPromise().then((resp) => {
+      const fileUploadsPromise = Promise.all(fileObjPromiseArray).then(val => val).catch(err => {
+        reject(err);
+      });
+      that.transactionService.createTxnWithFiles(entry.transaction, from(fileUploadsPromise)).toPromise().then((resp) => {
         const comments = entry.comments;
         // adding created transaction id into entry object to get created transaction id when promise is resolved.
         entry.transaction.id = resp.id;
@@ -323,7 +323,7 @@ export class TransactionsOutboxService {
         } else {
           resolve(entry);
         }
-      }, (err) => {
+      }).catch((err) => {
         this.trackingService.syncError({ Asset: 'Mobile', label: err });
 
         reject(err);
@@ -346,19 +346,23 @@ export class TransactionsOutboxService {
         p.push(that.syncEntry(that.queue[i]));
       }
 
-      Promise.all(p).finally(() => {
+      Promise.all(p).then(() => {
         // if (p.length > 0) {
         //   TransactionService.deleteCache();
         // }
         that.processDataExtractionEntry();
-
         resolve(true);
+      }).catch(err=>{
+        reject(err);
+      }).finally(()=>{
         that.syncDeferred = null;
         that.syncInProgress = false;
       });
     });
 
-    return this.syncDeferred;
+    return this.syncDeferred.then(()=> {
+      // console.log('Sync initiatiated');
+    });
   }
 
   createTxnAndUploadBase64File(transaction, base64Content) {
