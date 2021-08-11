@@ -66,6 +66,6 @@ jobs:
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          path: ios.app
+          path: ios.ipa
           channel: C029QPGHSQL
 
