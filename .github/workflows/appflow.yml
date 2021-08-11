@@ -1,8 +1,6 @@
 name: Appflow
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -47,7 +45,7 @@ jobs:
           slack-channel: C029QPGHSQL
           slack-text: Android build is successful for PR link ${{github.event.pull_request.html_url}} 
 
-      - name: Upload to slack step
+      - name: Upload android.apk to slack
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
@@ -83,7 +81,7 @@ jobs:
           slack-channel: C029QPGHSQL
           slack-text: iOS build is successful for PR link ${{github.event.pull_request.html_url}} 
 
-      - name: Upload to slack step
+      - name: Upload ios.app to slack 
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
