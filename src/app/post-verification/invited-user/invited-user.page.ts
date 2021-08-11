@@ -10,6 +10,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import {TrackingService} from '../../core/services/tracking.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-invited-user',
@@ -44,7 +46,8 @@ export class InvitedUserPage implements OnInit {
     private loaderService: LoaderService,
     private authService: AuthService,
     private router: Router,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -125,13 +128,15 @@ export class InvitedUserPage implements OnInit {
         // return $state.go('enterprise.my_dashboard');
       });
     } else {
-      const toast = await this.toastController.create({
-        message: 'Please fill all required fields to proceed',
-        color: 'danger',
-        duration: 1200
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        data: {
+          icon: 'warning-white',
+          message: 'Please fill all required fields to proceed',
+          showCloseButton: true
+        },
+        panelClass: ['mat-snack-bar', 'msb-failure'],
+        duration: 1200,
       });
-
-      await toast.present();
     }
   }
 

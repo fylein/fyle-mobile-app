@@ -1383,19 +1383,18 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
-    if (!this.isReportableExpensesSelected) {
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        data: {
-          message: 'You can not add draft expenses and Critical policy violated expenses to a report',
-          showCloseButton: true
-        },
-        panelClass: ['mat-snack-bar-info']
-      });
-      return;
-    }
+  showNonReportableExpenseSelectedToast(message) {
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      data: {
+        icon: 'warning-white',
+        message,
+        showCloseButton: true
+      },
+      panelClass: ['mat-snack-bar', 'msb-failure', 'msb-with-report-button']
+    });
+  }
 
-    this.trackingService.addToReport({ Asset: 'Mobile' });
+  async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
 
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
@@ -1405,13 +1404,27 @@ export class MyExpensesPage implements OnInit {
       .filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
     const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
 
+    const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
+    const noOfExpensesInDraftState = expensesInDraftState.length;
+
+    if(noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
+      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses and Critical policy violated expenses to a report');
+      return;
+    } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
+      this.showNonReportableExpenseSelectedToast('You cannot add Critical policy violated expenses to a report');
+      return;
+    } else if (noOfExpensesInDraftState > 0) {
+      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
+      return;
+    }
+
+    this.trackingService.addToReport({ Asset: 'Mobile' });
+
     const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
       const amount = current.tx_amount || current.tx_user_amount;
       return prev + amount;
     }, 0);
 
-    const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
-    const noOfExpensesInDraftState = expensesInDraftState.length;
     let title = '';
     let message = '';
 
@@ -1581,7 +1594,7 @@ export class MyExpensesPage implements OnInit {
         redirectionText: 'View Report',
         showCloseButton: true
       },
-      panelClass: ['mat-snack-bar-success'],
+      panelClass: ['mat-snack-bar', 'msb-success', 'msb-with-camera-icon'],
       duration: 3000,
     });
 
@@ -1690,17 +1703,17 @@ export class MyExpensesPage implements OnInit {
             message: `${offlineExpenses.length + this.selectedElements.length} Expenses have been deleted`,
             showCloseButton: true
           },
-          panelClass: ['mat-snack-bar-success'],
+          panelClass: ['mat-snack-bar', 'msb-success', 'msb-with-camera-icon'],
           duration: 3000,
         });
       } else {
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           data: {
-            icon: 'tick-square-filled',
+            icon: 'warning-white',
             message: 'We could not delete the expenses. Please try again ',
             showCloseButton: true
           },
-          panelClass: ['mat-snack-bar-error'],
+          panelClass: ['mat-snack-bar', 'msb-failure', 'msb-with-camera-icon'],
           duration: 3000,
         });
       }

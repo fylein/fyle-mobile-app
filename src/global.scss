@@ -79,34 +79,29 @@ input:focus, textarea:focus{
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.mat-snack-bar-success {
-  background-color: $green-1;
+.mat-snack-bar {
   color: $pure-white;
-  border-radius: 16px !important;
-  margin-bottom: 133px !important;
+  border-radius: 8px !important;
+  margin-bottom: 30px !important;
   margin-left: 16px !important;
   margin-right: 16px !important;
   padding: 12px 8px !important;
 }
 
-.mat-snack-bar-failure {
+.msb-success {
+  background-color: #24A148;
+}
+
+.msb-failure {
   background-color: $red;
-  color: $pure-white;
-  border-radius: 16px !important;
-  margin-bottom: 133px !important;
-  margin-left: 16px !important;
-  margin-right: 16px !important;
-  padding: 12px 8px !important;
 }
 
-.mat-snack-bar-info {
-  background-color: $black;
-  color: $pure-white;
-  border-radius: 16px !important;
+.msb-with-camera-icon {
+  margin-bottom: 133px !important;
+}
+
+.msb-with-report-button {
   margin-bottom: 96px !important;
-  margin-left: 16px !important;
-  margin-right: 16px !important;
-  padding: 12px 16px !important;
 }
 
 .dialog-popover {

@@ -22,6 +22,8 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { environment } from 'src/environments/environment';
 import { StatsOneDResponse } from 'src/app/core/models/stats-one-dimension.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const { Browser } = Plugins;
 
@@ -83,7 +85,8 @@ export class MyProfilePage implements OnInit {
     private orgUserService: OrgUserService,
     private popoverController: PopoverController,
     private tokenService: TokenService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar
   ) { }
 
   logOut() {
@@ -117,22 +120,22 @@ export class MyProfilePage implements OnInit {
       concatMap(() => this.authService.refreshEou().pipe(
         tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
         map(() => {
-          this.presentToast('Profile saved successfully', 1000);
-          this.reset();
+
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            data: {
+              icon: 'tick-square-filled',
+              message: 'Profile saved successfully',
+              showCloseButton: true
+            },
+            panelClass: ['mat-snack-bar', 'msb-success'],
+            duration: 1000,
+          });
         })
       )),
       finalize(() => {
         this.saveProfileLoading = false;
       })
     ).subscribe(noop);
-  }
-
-  async presentToast(message, duration) {
-    const toast = await this.toastController.create({
-      message,
-      duration
-    });
-    toast.present();
   }
 
   setMyExpensesCountBySource(statsRes: StatsOneDResponse) {
