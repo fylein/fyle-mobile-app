@@ -1405,49 +1405,44 @@ export class MyExpensesPage implements OnInit {
 
     if(noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
       this.showNonReportableExpenseSelectedToast('You cannot add draft expenses and Critical policy violated expenses to a report');
-      return;
     } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
       this.showNonReportableExpenseSelectedToast('You cannot add Critical policy violated expenses to a report');
-      return;
     } else if (noOfExpensesInDraftState > 0) {
       this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
-      return;
-    }
-
-    this.trackingService.addToReport({ Asset: 'Mobile' });
-
-    const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
-      const amount = current.tx_amount || current.tx_user_amount;
-      return prev + amount;
-    }, 0);
-
-    let title = '';
-    let message = '';
-
-    if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfExpensesInDraftState > 0)) {
-
-      this.homeCurrency$.subscribe(homeCurrency => {
-        if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
-          // eslint-disable-next-line max-len
-          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          // eslint-disable-next-line max-len
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
-        } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
-          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-          // eslint-disable-next-line max-len
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
-        } else if (noOfExpensesInDraftState > 0) {
-          title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          message = `${noOfExpensesInDraftState} expenses are in draft states.`;
-        }
-        this.openCriticalPolicyViolationPopOver({ title, message, report_type });
-      });
-
     } else {
-      if (report_type === 'oldReport') {
-        this.showOldReportsMatBottomSheet();
+      this.trackingService.addToReport({ Asset: 'Mobile' });
+      const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
+        const amount = current.tx_amount || current.tx_user_amount;
+        return prev + amount;
+      }, 0);
+
+      let title = '';
+      let message = '';
+
+      if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfExpensesInDraftState > 0)) {
+        this.homeCurrency$.subscribe(homeCurrency => {
+          if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
+            // eslint-disable-next-line max-len
+            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+            // eslint-disable-next-line max-len
+            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
+          } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
+            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
+            // eslint-disable-next-line max-len
+            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
+          } else if (noOfExpensesInDraftState > 0) {
+            title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+            message = `${noOfExpensesInDraftState} expenses are in draft states.`;
+          }
+          this.openCriticalPolicyViolationPopOver({ title, message, report_type });
+        });
+
       } else {
-        this.showNewReportModal();
+        if (report_type === 'oldReport') {
+          this.showOldReportsMatBottomSheet();
+        } else {
+          this.showNewReportModal();
+        }
       }
     }
   }
@@ -1583,7 +1578,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   showAddToReportSuccessToast(config: { message: string; report }) {
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, 
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent,
       this.snackbarProperties.setSnackbarProperties({icon: 'tick-square-filled', message: config.message, redirectionText: 'View Report'},
         ['msb-with-camera-icon'], 3000));
 

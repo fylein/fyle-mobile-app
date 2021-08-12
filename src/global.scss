@@ -102,12 +102,12 @@ input:focus, textarea:focus{
   margin-bottom: 96px !important;
 }
 
-.color-white {
+.icon--white {
   color: $white !important;
 }
 
-.color-danger-yellow {
-  color: #E1AF05 !important;
+.icon--dark-yellow {
+  color: $dark-yellow !important;
 }
 
 .dialog-popover {

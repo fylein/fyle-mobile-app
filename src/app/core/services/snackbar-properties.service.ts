@@ -9,10 +9,7 @@ export class SnackbarPropertiesService {
 
   setSnackbarProperties(data: { icon: string; message: string; redirectionText: string },
     panelClass: string[], duration = 1000) {
-    if(data.icon === 'danger') {
-      return { data: {...data,  showCloseButton: true}, panelClass: [ 'mat-snack-bar', 'msb-failure', ...panelClass], duration};
-    } else {
-      return { data: {...data,  showCloseButton: true},  panelClass: [ 'mat-snack-bar', 'msb-success', ...panelClass], duration};
-    }
+    return { data: {...data, showCloseButton: true}, panelClass: [ 'mat-snack-bar', data.icon === 'danger' ? 'msb-failure' : 'msb-success',
+      ...panelClass], duration };
   }
 }
