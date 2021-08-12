@@ -1,27 +1,27 @@
-import {Router, ActivatedRoute} from '@angular/router';
-import {from, Observable, noop, forkJoin, of, concat, combineLatest, iif, Subject, throwError} from 'rxjs';
-import {ExtendedOrgUser} from 'src/app/core/models/extended-org-user.model';
-import {AuthService} from 'src/app/core/services/auth.service';
-import {DateService} from 'src/app/core/services/date.service';
-import {FormGroup, FormControl, FormArray, FormBuilder, Validators} from '@angular/forms';
-import {map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take, concatMapTo, catchError} from 'rxjs/operators';
+import { Router, ActivatedRoute } from '@angular/router';
+import { from, Observable, noop, forkJoin, of, concat, combineLatest, iif, Subject, throwError } from 'rxjs';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { DateService } from 'src/app/core/services/date.service';
+import { FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
+import { map, tap, mergeMap, startWith, concatMap, finalize, shareReplay, switchMap, take, concatMapTo, catchError } from 'rxjs/operators';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import * as moment from 'moment';
-import {OrgUserService} from 'src/app/core/services/org-user.service';
-import {ModalController, PopoverController} from '@ionic/angular';
-import {OtherRequestsComponent} from './other-requests/other-requests.component';
-import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
-import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
-import {TripRequestCustomFieldsService} from 'src/app/core/services/trip-request-custom-fields.service';
-import {OfflineService} from 'src/app/core/services/offline.service';
-import {TripRequestsService} from 'src/app/core/services/trip-requests.service';
-import {LoaderService} from 'src/app/core/services/loader.service';
-import {SavePopoverComponent} from './save-popover/save-popover.component';
-import {CustomField} from 'src/app/core/models/custom_field.model';
-import {ProjectsService} from 'src/app/core/services/projects.service';
-import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
-import {TripRequestPolicyService} from 'src/app/core/services/trip-request-policy.service';
-import {StatusService} from '../../core/services/status.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { ModalController, PopoverController } from '@ionic/angular';
+import { OtherRequestsComponent } from './other-requests/other-requests.component';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { SavePopoverComponent } from './save-popover/save-popover.component';
+import { CustomField } from 'src/app/core/models/custom_field.model';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
+import { TripRequestPolicyService } from 'src/app/core/services/trip-request-policy.service';
+import { StatusService } from '../../core/services/status.service';
 import { Employee } from 'src/app/core/models/employee.model';
 
 @Component({
@@ -31,38 +31,68 @@ import { Employee } from 'src/app/core/models/employee.model';
 })
 export class MyAddEditTripPage implements OnInit {
 
+  @ViewChild('formContainer') formContainer: ElementRef;
+
   // allowedProjectIds$: Observable<any>;
   eou$: Observable<ExtendedOrgUser>;
+
   tripTypes = [];
+
   tripDate;
+
   hotelDate;
+
   tripActions;
+
   mode;
+
   minDate;
+
   maxDate;
+
   today;
+
   isTripTypeMultiCity$: Observable<boolean>;
+
   isTripTypeOneWay$: Observable<boolean>;
+
   isTransportationRequested$: Observable<boolean>;
+
   isHotelRequested$: Observable<boolean>;
+
   isAdvanceRequested$: Observable<boolean>;
+
   isTransportationEnabled$: Observable<boolean>;
+
   isHotelEnabled$: Observable<boolean>;
+
   isAdvanceEnabled$: Observable<boolean>;
+
   travelAgents$: Observable<Employee[]>;
+
   customFields$: Observable<any>;
+
   isProjectsEnabled$: Observable<boolean>;
+
   projects$: Observable<[]>;
+
   tripRequest$: Observable<any>;
+
   customFieldValues;
+
   refreshTrips$ = new Subject();
+
   isTransportationRequestAlreadyAdded: boolean;
+
   isHotelRequestAlreadyAdded: boolean;
+
   isAdvanceRequestAlreadyAdded: boolean;
+
   saveTripAsDraftLoading = false;
+
   submitTripLoading = false;
 
-  @ViewChild('formContainer') formContainer: ElementRef;
+  fg: FormGroup;
 
   constructor(
     private router: Router,
@@ -83,7 +113,6 @@ export class MyAddEditTripPage implements OnInit {
   ) {
   }
 
-  fg: FormGroup;
 
   async goBack() {
     const addExpensePopover = await this.popoverController.create({
@@ -94,7 +123,7 @@ export class MyAddEditTripPage implements OnInit {
       cssClass: 'dialog-popover'
     });
     await addExpensePopover.present();
-    const {data} = await addExpensePopover.onDidDismiss();
+    const { data } = await addExpensePopover.onDidDismiss();
     if (data && data.continue) {
       this.fg.reset();
       this.router.navigate(['/', 'enterprise', 'my_trips']);
@@ -129,14 +158,15 @@ export class MyAddEditTripPage implements OnInit {
     return this.fg.get('travellerDetails') as FormArray;
   }
 
+  // eslint-disable-next-line complexity
   async onSubmit() {
     const addExpensePopover = await this.popoverController.create({
       component: SavePopoverComponent,
       componentProps: {
         saveMode: 'SUBMIT',
         otherRequests: [
-          {hotel: this.fg.get('hotelRequest').value || false},
-          {transportation: this.fg.get('transportationRequest').value || false}
+          { hotel: this.fg.get('hotelRequest').value || false },
+          { transportation: this.fg.get('transportationRequest').value || false }
         ]
       },
       cssClass: 'dialog-popover'
@@ -162,14 +192,12 @@ export class MyAddEditTripPage implements OnInit {
         return;
       } else {
         await addExpensePopover.present();
-        const {data} = await addExpensePopover.onDidDismiss();
+        const { data } = await addExpensePopover.onDidDismiss();
         if (data && data.continue) {
           this.customFields$.pipe(
             take(1)
           ).subscribe(customFields => {
-            this.fg.value.custom_field_values = customFields.map(field => {
-              return field.control.value;
-            });
+            this.fg.value.custom_field_values = customFields.map(field => field.control.value);
             this.submitTripRequest(this.fg.value);
           });
         }
@@ -193,13 +221,15 @@ export class MyAddEditTripPage implements OnInit {
       return this.cities.value.some((city, index) => {
         if (index === 0) {
           if (!(city.onward_dt >= this.startDate.value)) {
-            this.cities.controls[0]['controls'].onward_dt.setErrors({'incorrect': true});
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            this.cities.controls[0]['controls'].onward_dt.setErrors({ incorrect: true });
             return true;
           }
         }
         else if ((index + 1) < this.cities.value.length) {
           if (!(city.onward_dt <= this.cities.value[index + 1].onward_dt)) {
-            this.cities.controls[index + 1]['controls'].onward_dt.setErrors({'incorrect': true});
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            this.cities.controls[index + 1]['controls'].onward_dt.setErrors({ incorrect: true });
             return true;
           }
         }
@@ -208,7 +238,8 @@ export class MyAddEditTripPage implements OnInit {
 
     if (this.tripType === 'ROUND') {
       if (!(this.cities.controls[0].value.onward_dt < this.cities.controls[0].value.return_date)) {
-        this.cities.controls[0]['controls'].return_date.setErrors({'incorrect': true});
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        this.cities.controls[0]['controls'].return_date.setErrors({ incorrect: true });
         return true;
       }
     }
@@ -253,7 +284,7 @@ export class MyAddEditTripPage implements OnInit {
         return;
       } else {
         await savePopover.present();
-        const {data} = await savePopover.onDidDismiss();
+        const { data } = await savePopover.onDidDismiss();
         if (data && data.continue) {
           this.saveAsDraft(this.fg.value);
         }
@@ -264,7 +295,7 @@ export class MyAddEditTripPage implements OnInit {
     }
   }
 
-  async showPolicyViolationPopup(policyPopupRules: any [], policyActionDescription: string, tripReq) {
+  async showPolicyViolationPopup(policyPopupRules: any[], policyActionDescription: string, tripReq) {
     const latestComment = await this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).toPromise();
 
     const policyViolationsModal = await this.modalController.create({
@@ -315,10 +346,10 @@ export class MyAddEditTripPage implements OnInit {
               )).pipe(
                 switchMap(policyModalRes => {
                   if (policyModalRes.status === 'proceed') {
-                   return of({
-                     tripReq,
-                     comment: policyModalRes.comment
-                   });
+                    return of({
+                      tripReq,
+                      comment: policyModalRes.comment
+                    });
                   } else {
                     return throwError({
                       status: 'Policy Violated'
@@ -327,7 +358,7 @@ export class MyAddEditTripPage implements OnInit {
                 })
               );
             } else {
-              return of({tripReq});
+              return of({ tripReq });
             }
           }),
           catchError((err) => {
@@ -336,7 +367,7 @@ export class MyAddEditTripPage implements OnInit {
                 status: 'Policy Violated'
               });
             } else {
-              return of({tripReq});
+              return of({ tripReq });
             }
           })
         );
@@ -344,27 +375,23 @@ export class MyAddEditTripPage implements OnInit {
       switchMap(({ tripReq, comment }: any) => {
         if (comment && tripReq.id) {
           return this.tripRequestsService.saveDraft(tripReq).pipe(
-            switchMap((res) => {
-              return this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
-                switchMap(result => {
-                  if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.trp.id, {comment}, true).pipe(
-                      map(() => res)
-                    );
-                  } else {
-                    return of(res);
-                  }
-                })
-              );
-            })
+            switchMap((res) => this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
+              switchMap(result => {
+                if (result !== comment) {
+                  return this.statusService.post('trip_requests', tripReq.trp.id, { comment }, true).pipe(
+                    map(() => res)
+                  );
+                } else {
+                  return of(res);
+                }
+              })
+            ))
           );
         } else {
           return this.tripRequestsService.saveDraft(tripReq);
         }
       }),
-      switchMap(res => {
-        return this.tripRequestsService.triggerPolicyCheck(res.id);
-      }),
+      switchMap(res => this.tripRequestsService.triggerPolicyCheck(res.id)),
       finalize(() => {
         this.saveTripAsDraftLoading = false;
         this.fg.reset();
@@ -439,10 +466,10 @@ export class MyAddEditTripPage implements OnInit {
               )).pipe(
                 switchMap(policyModalRes => {
                   if (policyModalRes.status === 'proceed') {
-                   return of({
-                     tripReq,
-                     comment: policyModalRes.comment
-                   });
+                    return of({
+                      tripReq,
+                      comment: policyModalRes.comment
+                    });
                   } else {
                     return throwError({
                       status: 'Policy Violated'
@@ -451,7 +478,7 @@ export class MyAddEditTripPage implements OnInit {
                 })
               );
             } else {
-              return of({tripReq});
+              return of({ tripReq });
             }
           }),
           catchError((err) => {
@@ -460,7 +487,7 @@ export class MyAddEditTripPage implements OnInit {
                 status: 'Policy Violated'
               });
             } else {
-              return of({tripReq});
+              return of({ tripReq });
             }
           })
         );
@@ -468,27 +495,23 @@ export class MyAddEditTripPage implements OnInit {
       switchMap(({ tripReq, comment }: any) => {
         if (comment && tripReq.id) {
           return this.tripRequestsService.submit(tripReq).pipe(
-            switchMap((res) => {
-              return this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
-                switchMap(result => {
-                  if (result !== comment) {
-                    return this.statusService.post('trip_requests', tripReq.trp.id, {comment}, true).pipe(
-                      map(() => res)
-                    );
-                  } else {
-                    return of(res);
-                  }
-                })
-              );
-            })
+            switchMap((res) => this.statusService.findLatestComment(tripReq.trp.id, 'trip_requests', tripReq.trp.org_user_id).pipe(
+              switchMap(result => {
+                if (result !== comment) {
+                  return this.statusService.post('trip_requests', tripReq.trp.id, { comment }, true).pipe(
+                    map(() => res)
+                  );
+                } else {
+                  return of(res);
+                }
+              })
+            ))
           );
         } else {
           return this.tripRequestsService.submit(tripReq);
         }
       }),
-      switchMap(res => {
-        return this.tripRequestsService.triggerPolicyCheck(res.id);
-      }),
+      switchMap(res => this.tripRequestsService.triggerPolicyCheck(res.id)),
       finalize(() => {
         this.submitTripLoading = false;
         this.fg.reset();
@@ -549,8 +572,8 @@ export class MyAddEditTripPage implements OnInit {
     this.addDefaultCity();
   }
 
+  // eslint-disable-next-line complexity
   async openModal() {
-
     const modal = await this.modalController.create({
       component: OtherRequestsComponent,
       componentProps: {
@@ -615,7 +638,7 @@ export class MyAddEditTripPage implements OnInit {
         const updatedDate = new Date(customField.value);
         customField.value = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
       }
-      return {id: customField.id, name: customField.name, value: customField.value};
+      return { id: customField.id, name: customField.name, value: customField.value };
     });
     this.customFieldValues = customFields;
     return this.customFieldValues;
@@ -676,18 +699,15 @@ export class MyAddEditTripPage implements OnInit {
 
     this.customFields$ = this.refreshTrips$.pipe(
       startWith(0),
-      concatMap(() => {
-        return this.tripRequestCustomFieldsService.getAll();
-      }),
+      concatMap(() => this.tripRequestCustomFieldsService.getAll()),
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
 
         customFields = customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-        customFields = customFields.filter(field => {
-          return field.request_type === 'TRIP_REQUEST' && field.trip_type.indexOf(this.fg.get('tripType').value) > -1;
-        });
+        customFields = customFields
+          .filter(field => field.request_type === 'TRIP_REQUEST' && field.trip_type.indexOf(this.fg.get('tripType').value) > -1);
 
         for (const customField of customFields) {
           let value;
@@ -709,9 +729,7 @@ export class MyAddEditTripPage implements OnInit {
           customField.control = customFieldsFormArray.at(i);
 
           if (customField.input_options) {
-            customField.options = customField.input_options.map(option => {
-              return {label: option, value: option};
-            });
+            customField.options = customField.input_options.map(option => ({ label: option, value: option }));
           }
           return customField;
         });
@@ -726,22 +744,18 @@ export class MyAddEditTripPage implements OnInit {
 
       this.tripRequest$ = this.tripRequestsService.get(id);
       const selectedProject$ = this.tripRequest$.pipe(
-        switchMap(trip => {
-          return iif(() => trip.project_id, this.projectsService.getbyId(trip.project_id), of(null));
-        })
+        switchMap(trip => iif(() => trip.project_id, this.projectsService.getbyId(trip.project_id), of(null)))
       );
 
       from(this.loaderService.showLoader('Getting trip details')).pipe(
-        switchMap(() => {
-          return combineLatest([
-            this.tripRequest$,
-            selectedProject$,
-            this.tripRequestsService.getHotelRequests(id),
-            this.tripRequestsService.getTransportationRequests(id),
-            this.tripRequestsService.getAdvanceRequests(id),
-            this.tripRequestsService.getActions(id)
-          ]);
-        }),
+        switchMap(() => combineLatest([
+          this.tripRequest$,
+          selectedProject$,
+          this.tripRequestsService.getHotelRequests(id),
+          this.tripRequestsService.getTransportationRequests(id),
+          this.tripRequestsService.getAdvanceRequests(id),
+          this.tripRequestsService.getActions(id)
+        ])),
         take(1),
         map(([tripRequest, selectedProject, hotelRequest, transportRequest, advanceRequest, actions]) => {
 
@@ -865,47 +879,33 @@ export class MyAddEditTripPage implements OnInit {
     });
 
     this.isTransportationRequested$ = this.fg.controls.transportationRequest.valueChanges.pipe(
-      map(res => {
-        return res;
-      })
+      map(res => res)
     );
 
     this.isHotelRequested$ = this.fg.controls.hotelRequest.valueChanges.pipe(
-      map(res => {
-        return res;
-      })
+      map(res => res)
     );
 
     this.isAdvanceRequested$ = this.fg.controls.advanceRequest.valueChanges.pipe(
-      map(res => {
-        return res;
-      })
+      map(res => res)
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
-      map(orgSettings => {
-        return orgSettings.projects && orgSettings.projects.enabled;
-      })
+      map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
     );
     this.projects$ = this.offlineService.getProjects();
 
 
     this.isAdvanceEnabled$ = orgSettings$.pipe(
-      map(orgSettings => {
-        return orgSettings.advance_requests.enabled;
-      })
+      map(orgSettings => orgSettings.advance_requests.enabled)
     );
 
     this.isTransportationEnabled$ = orgSettings$.pipe(
-      map(orgSettings => {
-        return orgSettings.trip_requests.enabled_transportation_requests;
-      })
+      map(orgSettings => orgSettings.trip_requests.enabled_transportation_requests)
     );
 
     this.isHotelEnabled$ = orgSettings$.pipe(
-      map(orgSettings => {
-        return orgSettings.trip_requests.enabled_hotel_requests;
-      })
+      map(orgSettings => orgSettings.trip_requests.enabled_hotel_requests)
     );
 
     this.fg.controls.tripType.valueChanges.subscribe(res => {
@@ -937,17 +937,22 @@ export class MyAddEditTripPage implements OnInit {
     this.fg.valueChanges.subscribe(formValue => {
       // removing errors after fields value are touched
       this.cities.value.forEach((city, index) => {
-        let errors = this.cities.controls[index]['controls'].onward_dt.errors;
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const errors = this.cities.controls[index]['controls'].onward_dt.errors;
         if (errors) {
           delete errors.incorrect;
+          // eslint-disable-next-line @typescript-eslint/dot-notation
           this.cities.controls[index]['controls'].onward_dt.setErrors(errors);
         }
       });
 
+      // eslint-disable-next-line @typescript-eslint/dot-notation
       if (this.tripType === 'ROUND' && this.cities.controls.length && this.cities.controls[0]['controls'].return_date) {
-        let errors = this.cities.controls[0]['controls'].return_date.errors;
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const errors = this.cities.controls[0]['controls'].return_date.errors;
         if (errors) {
           delete errors.incorrect;
+          // eslint-disable-next-line @typescript-eslint/dot-notation
           this.cities.controls[0]['controls'].return_date.setErrors(errors);
         }
       }

@@ -29,6 +29,8 @@ export class TransportationRequestsService {
     ];
   }
 
+  // TODO: Comlpex to break down. Do separately
+  // eslint-disable-next-line complexity
   setInternalStateAndDisplayName(transportationRequest) {
     if (transportationRequest.tr.need_booking) {
       if (!transportationRequest.tb.id) {
@@ -63,8 +65,8 @@ export class TransportationRequestsService {
 
   upsert(transportationRequest) {
     // TripDatesService.convertToDateFormat(transportationRequest);
-    return this.apiService.post('/transportation_requests', transportationRequest)
-      // self.deleteCache();
-      // return fixDates(req);
+    return this.apiService.post('/transportation_requests', transportationRequest);
+    // self.deleteCache();
+    // return fixDates(req);
   }
 }

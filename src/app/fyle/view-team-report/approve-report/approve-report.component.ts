@@ -9,11 +9,14 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./approve-report.component.scss'],
 })
 export class ApproveReportComponent implements OnInit {
+  @Input() erpt;
+
+  @Input() etxns;
+
   sendBackReason = '';
 
-  @Input() erpt;
-  @Input() etxns;
   numIssues = 0;
+
   approveReportLoading = false;
 
   constructor(
@@ -32,15 +35,15 @@ export class ApproveReportComponent implements OnInit {
   getNumIssues(etxns) {
     let count = 0;
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (let i = 0; i < etxns.length; i++) {
+      const etxn = etxns[i];
       if (etxn.tx_policy_flag) {
         count = count + 1;
       }
     }
 
-    for (var i = 0; i < etxns.length; i++) {
-      var etxn = etxns[i];
+    for (let i = 0; i < etxns.length; i++) {
+      const etxn = etxns[i];
       if (etxn.tx_manual_flag) {
         count = count + 1;
       }
@@ -56,12 +59,12 @@ export class ApproveReportComponent implements OnInit {
     event.preventDefault();
 
     this.reportService.approve(this.erpt.rp_id)
-    .pipe(
-      finalize(() => this.approveReportLoading = false)
-    ).subscribe(() => {
-      this.popoverController.dismiss({
-        goBack: true
+      .pipe(
+        finalize(() => this.approveReportLoading = false)
+      ).subscribe(() => {
+        this.popoverController.dismiss({
+          goBack: true
+        });
       });
-    });
   }
 }

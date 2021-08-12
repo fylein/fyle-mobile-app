@@ -1,0 +1,112 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*"
+  ],
+  "plugins": [
+    "max-params-no-constructor"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json",
+          "e2e/tsconfig.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "plugin:@angular-eslint/ng-cli-compat",
+        "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
+        "plugin:@angular-eslint/template/process-inline-templates"
+      ],
+      "rules": {
+        "@angular-eslint/component-class-suffix": [
+          "error",
+          {
+            "suffixes": [
+              "Page",
+              "Component"
+            ]
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "off",
+          {
+            "selector": "variable",
+            "format": [
+              "camelCase"
+            ]
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "app",
+            "style": "kebab-case"
+          }
+        ],
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "app"
+          }
+        ],
+        "indent": [
+          "error",
+          2
+        ],
+        "quotes": [
+          2,
+          "single",
+          {
+            "avoidEscape": true
+          }
+        ],
+        "semi": "error",
+        "no-underscore-dangle": "off",
+        "@angular-eslint/template/no-negated-async": "off",
+        "@typescript-eslint/prefer-for-of": "off",
+        "prefer-arrow/prefer-arrow-functions": "off",
+        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/consistent-type-assertions": "off",
+        "@angular-eslint/no-conflicting-lifecycle": "off",
+        "lines-between-class-members": [
+          "error",
+          "always"
+        ],
+        "@typescript-eslint/no-shadow": "off",
+        "complexity": [
+          2,
+          10
+        ],
+        "max-depth": [
+          "error",
+          4
+        ],
+        // "no-magic-numbers": "error",
+        "max-params-no-constructor/max-params-no-constructor": [
+          "error",
+          4
+        ]
+        // "max-nested-callbacks": [2,3]
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended"
+      ],
+      "rules": {
+        "@angular-eslint/template/no-negated-async": "off"
+      }
+    }
+  ]
+}

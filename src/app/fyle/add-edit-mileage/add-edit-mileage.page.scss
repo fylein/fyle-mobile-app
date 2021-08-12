@@ -1,14 +1,43 @@
 @import "../../../theme/colors.scss";
+@import "../../../theme/forms.scss";
 
 .add-edit-mileage {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    &__review {
+      min-height: 80px;
+    }
+  }
+
+  &--header-button {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+    width: auto !important;
   }
 
   &--sub-header {
     color: #ababab;
     font-size: 14px;
     font-weight: 400;
+  }
+
+  &--title {
+    &__review {
+      text-align: center;
+      padding-inline-end: 0;
+      position: relative;
+      line-height: 26px;
+      color: $black;
+      font-weight: 400;
+      top: 12px;
+      height: 64px;
+    }
+  }
+
+  &--footer-toolbar {
+    &__offline {
+      padding-bottom: 36px;
+    }
   }
 
   &--footer {
@@ -21,7 +50,7 @@
     justify-content: space-between;
   }
 
-  &--primary-cta {
+  &--primary-cta, &--secondary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: inherit;
@@ -49,17 +78,20 @@
     margin: 12px 4px 12px 0;
   }
 
+  &--map {
+    padding-bottom: 12px;
+  }
+
   &--currency {
     margin: 18px 0;
   }
 
-  &--form {
+  &--form, &--violations {
     padding: 0 16px 16px 16px;
   }
 
   &--date {
     border-bottom: 1px solid $grey-lighter;
-    padding: 4px 0 !important;
   }
 
   &--date-label {
@@ -147,10 +179,14 @@
   }
 
   &--internal-block {
-    padding: 8px 0;
+    padding: 6px 0;
     background: #fff;
     line-height: 1;
     margin-bottom: 12px;
+
+    &__margin {
+      margin-right: 12px;
+    }
 
     &__invalid {
       border-color: $red;
@@ -221,31 +257,34 @@
     margin-top: 8px;
   }
 
+  &--distance {
+    display: flex;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 20px;
+    margin-left: 12px;
+  }
+
+  &--distance-unit {
+    margin-left: 2px;
+  }
+
   &--amount-box {
-    background: #f2f2f2;
-    border-radius: 4px;
-    padding: 16px;
+    background: $pure-white;
+    border-radius: 16px;
     margin: 8px 0;
     display: flex;
-    min-height: 45px;
-  }
-
-  &--amount {
-    width: calc(100% - 100px);
-    padding: 0 0 4px;
-    border-right: 1px solid $grey-lighter;
-    color: #ababab;
-  }
-
-  &--rate {
-    text-align: end;
-    width: 100px;
-    padding: 0 0 4px;
-    color: #ababab;
+    height: 52px;
+    border: 1px solid $grey-lighter;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+    text-transform: lowercase;
+    color: $black-2;
   }
 
   &--add-stop {
-    color: #f36;
+    color: $primary;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -253,17 +292,12 @@
   }
 
   &--amount-value {
-    font-size: 24px;
-    color: #4a4a4a;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 22px;
   }
 
   &--rate-value {
     font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 1.5;
+    margin-right: 12px;
   }
 
   &--remove-stop {
@@ -381,19 +415,19 @@
   }
 
   &--payment-mode-header {
-    font-weight: 500;
-    font-size: 16px;
-    color: #4a4a4a;
-  }
-
-  &--payment-mode-purpose {
     font-size: 14px;
-    color: #4a4a4a;
+    color: $blue-black;
   }
 
-  &--payment-mode-type {
-    color: #ababab;
+  &--payment-mode-section {
     font-size: 12px;
+    color: $black-light;
+    margin-top: 4px;
+  }
+
+  &--check {
+    color: $primary;
+    font-size: 20px;
   }
 
   &--mandatory {
@@ -415,5 +449,10 @@
 
   &--location {
     flex-grow: 1;
+  }
+
+  &--grid {
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
   }
 }

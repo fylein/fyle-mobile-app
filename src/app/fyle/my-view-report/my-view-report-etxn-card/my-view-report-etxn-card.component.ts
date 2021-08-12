@@ -8,6 +8,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class MyViewReportEtxnCardComponent implements OnInit {
 
   @Input() etxn: any;
+
   @Input() prevDate: Date;
 
   @Output() goToTransaciton: EventEmitter<any> = new EventEmitter();

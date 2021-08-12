@@ -1,11 +1,11 @@
-import { UserDetails } from "./user-details.model";
+import { UserDetails } from './user-details.model';
 
 export interface ExpenseField {
   code: string;
   column_name: string;
   created_at: Date;
   created_by: UserDetails;
-  default_value: string;
+  default_value: string | boolean;
   field_name: string;
   id?: number;
   is_custom: boolean;

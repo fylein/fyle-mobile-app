@@ -7,11 +7,6 @@ import { throwError, of, iif } from 'rxjs';
   providedIn: 'root'
 })
 export class PermissionsService {
-
-  constructor(
-    private authService: AuthService
-  ) { }
-
   // can check roleActionMap[role]['company']['view'] for whether he is allowed company view.
   // transportation, hotel keys are only for list pages, not for any create and edit page, need to fix later
   roleActionMap = {
@@ -2189,6 +2184,11 @@ export class PermissionsService {
     }
   };
 
+
+  constructor(
+    private authService: AuthService
+  ) { }
+
   allowedActions(resource, actions, orgSettings) {
     const roles$ = this.authService.getRoles();
     const allowedActions: any = {
@@ -2211,14 +2211,7 @@ export class PermissionsService {
           if (this.allowedAccess(resource, orgSettings)) {
             for (const currentRole of filteredRoles) {
               const role = currentRole.toLowerCase();
-              for (const action of actions) {
-                if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
-                  allowedActions[action] = this.roleActionMap[role][resource][action];
-                  if (allowedActions[action]) {
-                    allowedActions.allowedRouteAccess = true;
-                  }
-                }
-              }
+              this.setAllowedActions(actions, allowedActions, role, resource);
             }
           }
           return allowedActions;
@@ -2236,12 +2229,21 @@ export class PermissionsService {
     );
 
     return filteredRoles$.pipe(
-      switchMap(filteredRoles => {
-        return iif(() => filteredRoles.length > 0, allowedActions$, of(null));
-      })
+      switchMap(filteredRoles => iif(() => filteredRoles.length > 0, allowedActions$, of(null)))
     );
   }
 
+
+  setAllowedActions(actions: any, allowedActions: any, role: any, resource: any) {
+    for (const action of actions) {
+      if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
+        allowedActions[action] = this.roleActionMap[role][resource][action];
+        if (allowedActions[action]) {
+          allowedActions.allowedRouteAccess = true;
+        }
+      }
+    }
+  }
 
   allowedAccess(resource, orgSettings) {
     let allowed = true;

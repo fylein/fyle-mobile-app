@@ -27,285 +27,292 @@ export class OrgUserSettingsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: orgUserSettingsCacheBuster$
+  })
+  post(data) {
+    return this.apiService.post('/org_user_settings', data);
+  }
+
   getEmailEvents() {
-      const featuresList = {
-        features: {
-          expensesAndReports: {
-            textLabel: 'Expenses and Reports',
-            selected: true
-          },
-          trips: {
-            textLabel: 'Trips',
-            selected: true
-          },
-          advances: {
-            textLabel: 'Advances',
-            selected: true
-          }
-        },
+    const featuresList = {
+      features: {
         expensesAndReports: {
-          eous_forward_email_to_user: {
-            textLabel: 'When an expense is created via email',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          erpts_submitted: {
-            textLabel: 'On submission of expense report',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          estatuses_created_txn: {
-            textLabel: 'When a comment is left on an expense',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          estatuses_created_rpt: {
-            textLabel: 'When a comment is left on a report',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          etxns_admin_removed: {
-            textLabel: 'When an expense is removed',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          etxns_admin_updated: {
-            textLabel: 'When an expense is edited by someone else',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          erpts_inquiry: {
-            textLabel: 'When a reported expense is sent back',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          erpts_approved: {
-            textLabel: 'When a report is approved',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          ereimbursements_completed: {
-            textLabel: 'When a reimbursement is done',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          }
+          textLabel: 'Expenses and Reports',
+          selected: true
         },
         trips: {
-          trip_requests_created: {
-            textLabel: 'When a trip request is submitted',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          trip_requests_add_approver: {
-            textLabel: 'When an approver is added to the trip request',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          estatuses_trip_request_comments: {
-            textLabel: 'When someone comments on trip request',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          trip_requests_inquiry: {
-            textLabel: 'When a trip request is sent back',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          trip_requests_approved: {
-            textLabel: 'When a trip request is approved',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          trip_requests_rejected: {
-            textLabel: 'When a trip request is rejected',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
-          },
-          transportation_requests_booked: {
-            textLabel: 'When a transport is booked by travel desk/agent',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            },
-            profile: 'transport_requests'
-          },
-          hotel_requests_booked: {
-            textLabel: 'When a hotel is booked by travel desk/agent',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            },
-            profile: 'hotel_requests'
-          },
-          transportation_bookings_cancelled: {
-            textLabel: 'When a transport booking is cancelled',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            },
-            profile: 'transport_requests'
-          },
-          hotel_bookings_cancelled: {
-            textLabel: 'When a hotel booking is cancelled',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            },
-            profile: 'hotel_requests'
-          }
+          textLabel: 'Trips',
+          selected: true
         },
         advances: {
-          eadvance_requests_created: {
-            textLabel: 'When an advance request is submitted',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
+          textLabel: 'Advances',
+          selected: true
+        }
+      },
+      expensesAndReports: {
+        eous_forward_email_to_user: {
+          textLabel: 'When an expense is created via email',
+          selected: true,
+          email: {
+            selected: true
           },
-          eadvance_requests_updated: {
-            textLabel: 'When an advance request is updated',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
+          push: {
+            selected: true
+          }
+        },
+        erpts_submitted: {
+          textLabel: 'On submission of expense report',
+          selected: true,
+          email: {
+            selected: true
           },
-          eadvance_requests_inquiry: {
-            textLabel: 'When an advance request is sent back',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
+          push: {
+            selected: true
+          }
+        },
+        estatuses_created_txn: {
+          textLabel: 'When a comment is left on an expense',
+          selected: true,
+          email: {
+            selected: true
           },
-          eadvance_requests_approved: {
-            textLabel: 'When an advance request is approved',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
+          push: {
+            selected: true
+          }
+        },
+        estatuses_created_rpt: {
+          textLabel: 'When a comment is left on a report',
+          selected: true,
+          email: {
+            selected: true
           },
-          eadvances_created: {
-            textLabel: 'When an advance is assigned',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
+          push: {
+            selected: true
+          }
+        },
+        etxns_admin_removed: {
+          textLabel: 'When an expense is removed',
+          selected: true,
+          email: {
+            selected: true
           },
-          eadvance_requests_rejected: {
-            textLabel: 'When an advance request is rejected',
-            selected: true,
-            email: {
-              selected: true
-            },
-            push: {
-              selected: true
-            }
+          push: {
+            selected: true
+          }
+        },
+        etxns_admin_updated: {
+          textLabel: 'When an expense is edited by someone else',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        erpts_inquiry: {
+          textLabel: 'When a reported expense is sent back',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        erpts_approved: {
+          textLabel: 'When a report is approved',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        ereimbursements_completed: {
+          textLabel: 'When a reimbursement is done',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
           }
         }
-      };
-      return featuresList;
+      },
+      trips: {
+        trip_requests_created: {
+          textLabel: 'When a trip request is submitted',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        trip_requests_add_approver: {
+          textLabel: 'When an approver is added to the trip request',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        estatuses_trip_request_comments: {
+          textLabel: 'When someone comments on trip request',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        trip_requests_inquiry: {
+          textLabel: 'When a trip request is sent back',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        trip_requests_approved: {
+          textLabel: 'When a trip request is approved',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        trip_requests_rejected: {
+          textLabel: 'When a trip request is rejected',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        transportation_requests_booked: {
+          textLabel: 'When a transport is booked by travel desk/agent',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          },
+          profile: 'transport_requests'
+        },
+        hotel_requests_booked: {
+          textLabel: 'When a hotel is booked by travel desk/agent',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          },
+          profile: 'hotel_requests'
+        },
+        transportation_bookings_cancelled: {
+          textLabel: 'When a transport booking is cancelled',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          },
+          profile: 'transport_requests'
+        },
+        hotel_bookings_cancelled: {
+          textLabel: 'When a hotel booking is cancelled',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          },
+          profile: 'hotel_requests'
+        }
+      },
+      advances: {
+        eadvance_requests_created: {
+          textLabel: 'When an advance request is submitted',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        eadvance_requests_updated: {
+          textLabel: 'When an advance request is updated',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        eadvance_requests_inquiry: {
+          textLabel: 'When an advance request is sent back',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        eadvance_requests_approved: {
+          textLabel: 'When an advance request is approved',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        eadvances_created: {
+          textLabel: 'When an advance is assigned',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        },
+        eadvance_requests_rejected: {
+          textLabel: 'When an advance request is rejected',
+          selected: true,
+          email: {
+            selected: true
+          },
+          push: {
+            selected: true
+          }
+        }
+      }
     };
+    return featuresList;
+  }
 
 
   getAllowedCostCenteres(orgUserSettings) {
@@ -314,9 +321,7 @@ export class OrgUserSettingsService {
         (costCenters) => {
           let allowedCostCenters = [];
           if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
-            allowedCostCenters = costCenters.filter((costCenter) => {
-              return orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1;
-            });
+            allowedCostCenters = costCenters.filter((costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1);
           } else {
             allowedCostCenters = costCenters;
           }
@@ -354,10 +359,4 @@ export class OrgUserSettingsService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: orgUserSettingsCacheBuster$
-  })
-  post(data) {
-    return this.apiService.post('/org_user_settings', data);
-  }
 }

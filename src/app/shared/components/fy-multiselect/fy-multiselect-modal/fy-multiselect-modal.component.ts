@@ -3,6 +3,8 @@ import {fromEvent, Observable} from 'rxjs';
 import {ModalController} from '@ionic/angular';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 import {isEqual} from 'lodash';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 @Component({
   selector: 'app-fy-multiselect-modal',
@@ -11,12 +13,26 @@ import {isEqual} from 'lodash';
 })
 export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
+
+  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+
   @Input() currentSelections: any[] = [];
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+
+  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+
   @Input() selectModalHeader = 'Select Items';
+
   @Input() subheader = 'All Items';
+
   value;
+
+  selectable = true;
+
+  removable = true;
+
+  addOnBlur = true;
+
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
   constructor(
     private modalController: ModalController,
@@ -28,6 +44,25 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+  }
+
+  getSeparatorKeysCodes() {
+    return [ENTER, COMMA];
+  };
+
+  addChip(event: MatChipInputEvent) {
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
+  }
+
+  removeChip(item) {
+    const updatedItem = {
+      label: item,
+      selected: false,
+      value: item
+    };
+    this.onElementSelected(updatedItem);
   }
 
   ngOnInit() { }
@@ -63,8 +98,8 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     });
 
     this.currentSelections = this.options
-                                  .filter(option => option.selected)
-                                  .map(option => option.value);
+      .filter(option => option.selected)
+      .map(option => option.value);
   }
 
   useSelected() {

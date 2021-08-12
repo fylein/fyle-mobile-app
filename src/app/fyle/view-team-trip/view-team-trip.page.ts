@@ -31,14 +31,23 @@ import { ActionPopoverComponent } from './action-popover/action-popover.componen
 export class ViewTeamTripPage implements OnInit {
 
   tripRequest$: Observable<ExtendedTripRequest>;
+
   approvals$: Observable<Approval[]>;
+
   actions$: Observable<any>;
+
   actionsRedefined$: Observable<any>;
+
   advanceRequests$: Observable<any>;
+
   transportationRequests$: Observable<any>;
+
   hotelRequests$: Observable<any>;
+
   allTripRequestCustomFields$: Observable<any>;
+
   activeApprovals$: Observable<Approval[]>;
+
   tripExtraInfo$: Observable<{
     submittedBy: {
       fullName: string;
@@ -48,12 +57,19 @@ export class ViewTeamTripPage implements OnInit {
     tripLocations: (string | string[])[];
     travellers: string;
   }>;
+
   transformedTripRequests$: Observable<any>;
+
   transformedAdvanceRequests$: Observable<any>;
+
   approvers$: Observable<ExtendedOrgUser[]>;
+
   eou$: Observable<any>;
+
   refreshApprovers$ = new Subject();
+
   canDoAction$: Observable<boolean>;
+
   actionsLoading = false;
 
   constructor(
@@ -110,11 +126,8 @@ export class ViewTeamTripPage implements OnInit {
   getRestrictedApprovers(approvals, tripRequest: ExtendedTripRequest) {
     const approvalStates = ['APPROVAL_PENDING', 'APPROVAL_DONE'];
 
-    const approversNotAllowed = approvals.filter((approver) => {
-      return approvalStates.indexOf(approver.state) > -1;
-    }).map((approver) => {
-      return approver.approver_id;
-    });
+    const approversNotAllowed = approvals
+      .filter((approver) => approvalStates.indexOf(approver.state) > -1).map((approver) => approver.approver_id);
 
     approversNotAllowed.push(tripRequest.ou_id);
 
@@ -226,7 +239,7 @@ export class ViewTeamTripPage implements OnInit {
     });
 
     await actionBlock.present();
-    const {data} = await actionBlock.onDidDismiss();
+    const { data } = await actionBlock.onDidDismiss();
     if (data) {
       this.actionsLoading = false;
     } else {
@@ -248,18 +261,14 @@ export class ViewTeamTripPage implements OnInit {
 
     if (popupResults === 'primary') {
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.tripRequestsService.closeTrip(id);
-        }),
+        switchMap(() => this.tripRequestsService.closeTrip(id)),
         finalize(() => from(this.loaderService.hideLoader()))
       );
     }
   }
 
   getApproverEmails(activeApprovals) {
-    return activeApprovals.map(approver => {
-      return approver.approver_email;
-    });
+    return activeApprovals.map(approver => approver.approver_email);
   }
 
   ionViewWillEnter() {
@@ -269,9 +278,7 @@ export class ViewTeamTripPage implements OnInit {
     this.tripRequest$ = from(
       this.loaderService.showLoader()
     ).pipe(
-      switchMap(() => {
-        return this.tripRequestsService.getTrip(id);
-      }),
+      switchMap(() => this.tripRequestsService.getTrip(id)),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
@@ -285,9 +292,7 @@ export class ViewTeamTripPage implements OnInit {
     );
 
     const currentApproval$ = forkJoin([this.eou$, this.tripRequest$]).pipe(
-      map(([eou, tripRequest]) => {
-        return tripRequest.approvals[eou.ou.id].state;
-      })
+      map(([eou, tripRequest]) => tripRequest.approvals[eou.ou.id].state)
     );
 
     this.actionsRedefined$ = forkJoin([
@@ -309,9 +314,7 @@ export class ViewTeamTripPage implements OnInit {
 
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(() => {
-        return this.approvals$;
-      }),
+      switchMap(() => this.approvals$),
       map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
     );
 
@@ -324,8 +327,10 @@ export class ViewTeamTripPage implements OnInit {
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
-            return [location.from_city.city ? location.from_city.city : location.from_city.display,
-              location.to_city.city ? location.to_city.city : location.to_city.display];
+            return [
+              location.from_city.city ? location.from_city.city : location.from_city.display,
+              location.to_city.city ? location.to_city.city : location.to_city.display
+            ];
           }
 
           return location.from_city.city ? location.from_city.city : location.from_city.display;
@@ -336,15 +341,14 @@ export class ViewTeamTripPage implements OnInit {
 
     this.transformedTripRequests$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(res => {
-        return forkJoin({
-          tripRequest: this.tripRequest$,
-          allTripRequestCustomFields: this.allTripRequestCustomFields$
-        });
-      }),
-      map(({ tripRequest, allTripRequestCustomFields }) => {
-        return this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest);
-      })
+      switchMap(res => forkJoin({
+        tripRequest: this.tripRequest$,
+        allTripRequestCustomFields: this.allTripRequestCustomFields$
+      })),
+      map(({
+        tripRequest,
+        allTripRequestCustomFields
+      }) => this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest))
     );
 
     this.transportationRequests$ = forkJoin([
@@ -366,12 +370,8 @@ export class ViewTeamTripPage implements OnInit {
           });
         }
       ),
-      switchMap(transportationReqs => {
-        return from(transportationReqs);
-      }),
-      concatMap(transportationReq => {
-        return this.setRequiredTripDetails(transportationReq);
-      }),
+      switchMap(transportationReqs => from(transportationReqs)),
+      concatMap(transportationReq => this.setRequiredTripDetails(transportationReq)),
       reduce((acc, curr) => acc.concat(curr), []),
       shareReplay(1)
     );

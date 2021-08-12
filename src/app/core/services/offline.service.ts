@@ -10,7 +10,6 @@ import {PerDiemService} from './per-diem.service';
 import {CustomInputsService} from './custom-inputs.service';
 import {OrgService} from './org.service';
 import {AccountsService} from './accounts.service';
-import {TransactionFieldConfigurationsService} from './transaction-field-configurations.service';
 import {StorageService} from './storage.service';
 import {CurrencyService} from './currency.service';
 import {catchError, concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
@@ -43,7 +42,6 @@ export class OfflineService {
     private customInputsService: CustomInputsService,
     private orgService: OrgService,
     private accountsService: AccountsService,
-    private transactionFieldConfigurationsService: TransactionFieldConfigurationsService,
     private currencyService: CurrencyService,
     private storageService: StorageService,
     private permissionsService: PermissionsService,
@@ -51,70 +49,6 @@ export class OfflineService {
     private deviceService: DeviceService,
     private expenseFieldsService: ExpenseFieldsService
   ) { }
-
-  load() {
-    globalCacheBusterNotifier.next();
-    const orgSettings$ = this.getOrgSettings();
-    const orgUserSettings$ = this.getOrgUserSettings();
-    const allCategories$ = this.getAllCategories();
-    const allEnabledCategories$ = this.getAllEnabledCategories();
-    const costCenters$ = this.getCostCenters();
-    const projects$ = this.getProjects();
-    const perDiemRates$ = this.getPerDiemRates();
-    const customInputs$ = this.getCustomInputs();
-    const currentOrg$ = this.getCurrentOrg();
-    const orgs$ = this.getOrgs();
-    const accounts$ = this.getAccounts();
-    const expenseFieldsMap$ = this.getExpenseFieldsMap();
-    const transactionFieldConfigurationsMap$ = this.getTransactionFieldConfigurationsMap();
-    const currencies$ = this.getCurrencies();
-    const homeCurrency$ = this.getHomeCurrency();
-    const delegatedAccounts$ = this.getDelegatedAccounts();
-
-    this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
-      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
-        this.appVersionService.load();
-      }
-    });
-
-    return forkJoin([
-      orgSettings$,
-      orgUserSettings$,
-      allCategories$,
-      allEnabledCategories$,
-      costCenters$,
-      projects$,
-      perDiemRates$,
-      customInputs$,
-      currentOrg$,
-      orgs$,
-      accounts$,
-      transactionFieldConfigurationsMap$,
-      expenseFieldsMap$,
-      currencies$,
-      homeCurrency$,
-      delegatedAccounts$
-    ]);
-    
-  }
-
-  getCurrentUser() {
-    return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.orgUserService.getCurrent().pipe(
-              tap((currentUser) => {
-                this.storageService.set('currentUser', currentUser);
-              })
-            );
-          } else {
-            return from(this.storageService.get('currentUser'));
-          }
-        }
-      )
-    );
-  }
 
   @Cacheable()
   getDelegatedAccounts() {
@@ -199,13 +133,6 @@ export class OfflineService {
     );
   }
 
-  getActiveExpenseTab() {
-    return from(this.storageService.get('activeExpenseTab'));
-  }
-
-  setActiveExpenseTab(activeTab) {
-    return from(this.storageService.set('activeExpenseTab', activeTab));
-  }
 
   @Cacheable()
   getAllowedCostCenters(orgUserSettings) {
@@ -347,21 +274,6 @@ export class OfflineService {
     );
   }
 
-  getProjectCount(params: {categoryIds: string[] } = {categoryIds: []}) {
-    return this.getProjects().pipe(
-      map(projects => {
-        const filterdProjects = projects.filter(project => {
-          if (params.categoryIds.length) {
-            return intersection(params.categoryIds, project.org_category_ids).length > 0;
-          } else {
-            return true;
-          }
-        });
-        return filterdProjects.length;
-      })
-    );
-  }
-
   @Cacheable()
   getPerDiemRates() {
     return this.networkService.isOnline().pipe(
@@ -435,55 +347,14 @@ export class OfflineService {
               map(
                 data => data as Org[]
               )
-            )
-          }
-        }
-      )
-    );
-  }
-
-  private getReportPermissions(orgSettings) {
-    return this.permissionsService.allowedActions('reports', ['approve', 'create', 'delete'], orgSettings).pipe(
-      catchError(err => [])
-    );
-  }
-
-  getReportActions(orgSettings) {
-    return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.getReportPermissions(orgSettings).pipe(
-              tap((allowedActions) => {
-                this.storageService.set('cachedReportActions', allowedActions);
-              })
             );
-          } else {
-            return from(this.storageService.get('cachedReportActions'));
           }
         }
       )
     );
   }
 
-  @Cacheable()
-  getTransactionFieldConfigurationsMap() {
-    return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.transactionFieldConfigurationsService.getAllMap().pipe(
-              tap((tfcMap) => {
-                this.storageService.set('cachedTransactionFieldConfigurationsMap', tfcMap);
-              })
-            );
-          } else {
-            return from(this.storageService.get('cachedTransactionFieldConfigurationsMap'));
-          }
-        }
-      )
-    );
-  }
+
 
   @Cacheable()
   getExpenseFieldsMap(): Observable<Partial<ExpenseFieldsMap>> {
@@ -504,13 +375,6 @@ export class OfflineService {
     );
   }
 
-  setActiveCorporateCardExpenseTab(activeTab) {
-    return from(this.storageService.set('activeCorporateCardExpenseTab', activeTab));
-  }
-
-  getActiveCorporateCardExpenseTab() {
-    return from(this.storageService.get('activeCorporateCardExpenseTab'));
-  }
 
   @Cacheable()
   getAllowedPerDiems(allPerDiemRates) {
@@ -523,15 +387,133 @@ export class OfflineService {
             const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids;
 
             if (allPerDiemRates && allPerDiemRates.length > 0) {
-              allowedPerDiems = allPerDiemRates.filter((perDiem) => {
-                return allowedPerDiemIds.indexOf(perDiem.id) > -1;
-              });
+              allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.indexOf(perDiem.id) > -1);
             }
           }
 
           return allowedPerDiems;
         }
       )
+    );
+  }
+
+  getActiveExpenseTab() {
+    return from(this.storageService.get('activeExpenseTab'));
+  }
+
+  setActiveExpenseTab(activeTab) {
+    return from(this.storageService.set('activeExpenseTab', activeTab));
+  }
+
+  setActiveCorporateCardExpenseTab(activeTab) {
+    return from(this.storageService.set('activeCorporateCardExpenseTab', activeTab));
+  }
+
+  getActiveCorporateCardExpenseTab() {
+    return from(this.storageService.get('activeCorporateCardExpenseTab'));
+  }
+
+  getReportActions(orgSettings) {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.getReportPermissions(orgSettings).pipe(
+              tap((allowedActions) => {
+                this.storageService.set('cachedReportActions', allowedActions);
+              })
+            );
+          } else {
+            return from(this.storageService.get('cachedReportActions'));
+          }
+        }
+      )
+    );
+  }
+
+
+  getProjectCount(params: {categoryIds: string[] } = {categoryIds: []}) {
+    return this.getProjects().pipe(
+      map(projects => {
+        const filterdProjects = projects.filter(project => {
+          if (params.categoryIds.length) {
+            return intersection(params.categoryIds, project.org_category_ids).length > 0;
+          } else {
+            return true;
+          }
+        });
+        return filterdProjects.length;
+      })
+    );
+  }
+
+  load() {
+    globalCacheBusterNotifier.next();
+    const orgSettings$ = this.getOrgSettings();
+    const orgUserSettings$ = this.getOrgUserSettings();
+    const allCategories$ = this.getAllCategories();
+    const allEnabledCategories$ = this.getAllEnabledCategories();
+    const costCenters$ = this.getCostCenters();
+    const projects$ = this.getProjects();
+    const perDiemRates$ = this.getPerDiemRates();
+    const customInputs$ = this.getCustomInputs();
+    const currentOrg$ = this.getCurrentOrg();
+    const orgs$ = this.getOrgs();
+    const accounts$ = this.getAccounts();
+    const expenseFieldsMap$ = this.getExpenseFieldsMap();
+    const currencies$ = this.getCurrencies();
+    const homeCurrency$ = this.getHomeCurrency();
+    const delegatedAccounts$ = this.getDelegatedAccounts();
+
+    this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
+      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
+        this.appVersionService.load();
+      }
+    });
+
+    return forkJoin([
+      orgSettings$,
+      orgUserSettings$,
+      allCategories$,
+      allEnabledCategories$,
+      costCenters$,
+      projects$,
+      perDiemRates$,
+      customInputs$,
+      currentOrg$,
+      orgs$,
+      accounts$,
+      expenseFieldsMap$,
+      currencies$,
+      homeCurrency$,
+      delegatedAccounts$
+    ]);
+
+  }
+
+  getCurrentUser() {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.orgUserService.getCurrent().pipe(
+              tap((currentUser) => {
+                this.storageService.set('currentUser', currentUser);
+              })
+            );
+          } else {
+            return from(this.storageService.get('currentUser'));
+          }
+        }
+      )
+    );
+  }
+
+
+
+  private getReportPermissions(orgSettings) {
+    return this.permissionsService.allowedActions('reports', ['approve', 'create', 'delete'], orgSettings).pipe(
+      catchError(err => [])
     );
   }
 }

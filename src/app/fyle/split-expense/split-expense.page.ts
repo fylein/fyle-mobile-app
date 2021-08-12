@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap} from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -23,23 +23,41 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 export class SplitExpensePage implements OnInit {
 
   splitExpensesFormArray = new FormArray([]);
+
   fg: FormGroup;
+
   splitType: string;
+
   amount: number;
+
   currency: string;
+
   totalSplitAmount: number;
+
   remainingAmount: number;
+
   categories$: Observable<any>;
+
   costCenters$: Observable<any>;
+
   isCorporateCardsEnabled$: Observable<boolean>;
+
   transaction: any;
+
   fileObjs: any[];
+
   fileUrls: any[];
+
   maxDate: string;
+
   minDate: string;
+
   selectedCCCTransaction: any;
+
   saveSplitExpenseLoading: boolean;
+
   errorMessage: string;
+
   showErrorBlock: boolean;
 
   constructor(
@@ -82,7 +100,7 @@ export class SplitExpensePage implements OnInit {
       }, { emitEvent: false });
     }
 
-    let percentage = (splitExpenseForm.value.amount / this.amount ) * 100;
+    let percentage = (splitExpenseForm.value.amount / this.amount) * 100;
     percentage = parseFloat(percentage.toFixed(3));
 
     splitExpenseForm.patchValue({
@@ -92,7 +110,7 @@ export class SplitExpensePage implements OnInit {
     this.getTotalSplitAmount();
   }
 
-  onChangePercentage(splitExpenseForm, index){
+  onChangePercentage(splitExpenseForm, index) {
     if (!splitExpenseForm.controls.percentage._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.percentage))) {
       return;
     }
@@ -124,9 +142,7 @@ export class SplitExpensePage implements OnInit {
 
       const amounts = this.splitExpensesFormArray.value.map(obj => obj.amount);
 
-      const totalSplitAmount = amounts.reduce((acc, curr) => {
-        return acc + curr;
-      });
+      const totalSplitAmount = amounts.reduce((acc, curr) => acc + curr);
 
       this.totalSplitAmount = parseFloat(totalSplitAmount.toFixed(3)) || 0;
       const remainingAmount = this.amount - this.totalSplitAmount;
@@ -136,33 +152,40 @@ export class SplitExpensePage implements OnInit {
 
   generateSplitEtxnFromFg(splitExpenseValue) {
     return {
-        ...this.transaction,
-        org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
-        project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
-        cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
-        currency: splitExpenseValue.currency,
-        amount: splitExpenseValue.amount,
-        source: 'MOBILE'
+      ...this.transaction,
+      org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
+      project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
+      cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
+      currency: splitExpenseValue.currency,
+      amount: splitExpenseValue.amount,
+      source: 'MOBILE'
     };
   }
 
-  uploadNewFiles (files) {
+  uploadNewFiles(files) {
     const fileObjs = [];
     files.forEach(file => {
-      if (file.type && (file.type.indexOf('image') > -1 || file.type.indexOf('jpeg') > -1 || file.type.indexOf('jpg') > -1 || file.type.indexOf('png') > -1)) {
+      if (file.type &&
+        (
+          file.type.indexOf('image') > -1 ||
+          file.type.indexOf('jpeg') > -1 ||
+          file.type.indexOf('jpg') > -1 ||
+          file.type.indexOf('png') > -1
+        )
+      ) {
         file.type = 'image';
       } else if (file.type && file.type.indexOf('pdf') > -1) {
         file.type = 'pdf';
       }
       fileObjs.push(from(this.transactionsOutboxService.fileUpload(file.url, file.type)));
-    })
+    });
 
     return iif(
       () => fileObjs.length !== 0,
       forkJoin(fileObjs),
       of(null)
     );
-  };
+  }
 
   uploadFiles(files) {
     if (!this.transaction.id) {
@@ -171,7 +194,7 @@ export class SplitExpensePage implements OnInit {
           this.fileObjs = files;
           return this.fileObjs;
         })
-      )
+      );
     } else {
       return this.getAttachedFiles(this.transaction.id);
     }
@@ -188,13 +211,9 @@ export class SplitExpensePage implements OnInit {
 
     return forkJoin(splitExpense$).pipe(
       switchMap((data: any) => {
-        const txnIds = data.txns.map((txn) => {
-          return txn.id;
-        });
+        const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(
-          map(() => {
-            return txnIds;
-          })
+          map(() => txnIds)
         );
       })
     );
@@ -232,7 +251,7 @@ export class SplitExpensePage implements OnInit {
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
-      if (this.amount && this.amount !== this.totalSplitAmount ) {
+      if (this.amount && this.amount !== this.totalSplitAmount) {
         this.showErrorBlock = true;
         this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
         setTimeout(() => {
@@ -242,7 +261,7 @@ export class SplitExpensePage implements OnInit {
       }
       let canCreateNegativeExpense = true;
       this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
-        
+
         canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
           const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
           if (!isCorporateCardsEnabled && negativeAmountPresent) {
@@ -259,19 +278,17 @@ export class SplitExpensePage implements OnInit {
           }, 2500);
           return;
         }
-  
+
         this.saveSplitExpenseLoading = true;
         const generatedSplitEtxn = [];
         this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
           generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
         });
-  
+
         const uploadFiles$ = this.uploadFiles(this.fileUrls);
-  
+
         uploadFiles$.pipe(
-          concatMap(() => {
-            return this.createAndLinkTxnsWithFiles(generatedSplitEtxn);
-          }),
+          concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
           concatMap((res) => {
             const observables$ = [];
             if (this.transaction.id) {
@@ -280,7 +297,7 @@ export class SplitExpensePage implements OnInit {
             if (this.transaction.corporate_credit_card_expense_group_id) {
               observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
             }
-  
+
             if (observables$.length === 0) {
               observables$.push(of(true));
             }
@@ -308,9 +325,7 @@ export class SplitExpensePage implements OnInit {
     const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
-      map(catogories => {
-        return this.categoriesService.filterRequired(catogories);
-      })
+      map(catogories => this.categoriesService.filterRequired(catogories))
     );
   }
 
@@ -325,11 +340,7 @@ export class SplitExpensePage implements OnInit {
 
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
-          map(categories => {
-            return categories.map(category => {
-              return { label: category.displayName, value: category };
-            });
-          })
+          map(categories => categories.map(category => ({ label: category.displayName, value: category })))
         );
       } else if (this.splitType === 'cost centers') {
         const orgSettings$ = this.offlineService.getOrgSettings();
@@ -345,12 +356,10 @@ export class SplitExpensePage implements OnInit {
               return of([]);
             }
           }),
-          map(costCenters => {
-            return costCenters.map(costCenter => ({
-              label: costCenter.name,
-              value: costCenter
-            }));
-          })
+          map(costCenters => costCenters.map(costCenter => ({
+            label: costCenter.name,
+            value: costCenter
+          })))
         );
       }
 
@@ -359,28 +368,37 @@ export class SplitExpensePage implements OnInit {
       );
 
       this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
-        this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
-        this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
-        let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
-        let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
-
-        const percentage1 = this.amount ? 60 : null;
-        const percentage2 = this.amount ? 40 : null;
-        amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
-        amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
-        this.add(amount1, this.currency, percentage1, null);
-        this.add(amount2, this.currency, percentage2, null);
-        this.getTotalSplitAmount();
-  
-        const today = new Date();
-        const minDate = new Date('Jan 1, 2001');
-        const maxDate = this.dateService.addDaysToDate(today, 1);
-  
-        this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
-        this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
+        this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       });
     });
 
+  }
+
+  setValuesForCCC(currencyObj: any, homeCurrency: any, isCorporateCardsEnabled: boolean) {
+    this.setAmountAndCurrency(currencyObj, homeCurrency);
+
+    let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
+    let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
+
+    const percentage1 = this.amount ? 60 : null;
+    const percentage2 = this.amount ? 40 : null;
+    amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
+    amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
+    this.add(amount1, this.currency, percentage1, null);
+    this.add(amount2, this.currency, percentage2, null);
+    this.getTotalSplitAmount();
+
+    const today = new Date();
+    const minDate = new Date('Jan 1, 2001');
+    const maxDate = this.dateService.addDaysToDate(today, 1);
+
+    this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
+    this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
+  }
+
+  setAmountAndCurrency(currencyObj: any, homeCurrency: any) {
+    this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
+    this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
   }
 
   customDateValidator(control: AbstractControl) {
@@ -404,8 +422,8 @@ export class SplitExpensePage implements OnInit {
     }
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
-      currency: [currency, ],
-      percentage: [percentage, ],
+      currency: [currency,],
+      percentage: [percentage,],
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])]
     });
 

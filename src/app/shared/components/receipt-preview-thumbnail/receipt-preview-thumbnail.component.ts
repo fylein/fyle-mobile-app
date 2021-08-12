@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 
@@ -8,20 +8,23 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
   styleUrls: ['./receipt-preview-thumbnail.component.scss'],
 
 })
-export class ReceiptPreviewThumbnailComponent implements OnInit {
+export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
+
+  @ViewChild('slides') imageSlides;
 
   @Input() attachments: FileObject[];
+
   @Input()  isUploading: boolean;
 
   @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
+
   @Output() viewAttachments: EventEmitter<void> = new EventEmitter();
 
   sliderOptions;
-  activeIndex: number = 0;
+
+  activeIndex = 0;
+
   previousCount: number;
-
-
-  @ViewChild('slides') imageSlides;
 
   constructor() { }
 

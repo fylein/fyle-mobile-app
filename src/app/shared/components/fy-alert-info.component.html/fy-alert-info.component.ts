@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-fy-alert-info',
@@ -8,10 +8,21 @@ import { Component, OnInit, Input } from '@angular/core';
 export class FyAlertInfoComponent implements OnInit {
 
   @Input() message: string;
-  @Input() type: string;
+
+  @Input() type: 'information' | 'warning';
+
+  @Input() showActionButton = false;
+
+  @Input() actionButtonContent = 'Action;';
+
+  @Output() actionClick = new EventEmitter<void>();
 
   constructor() { }
 
   ngOnInit() {}
+
+  onActionClick() {
+    this.actionClick.emit();
+  }
 
 }
