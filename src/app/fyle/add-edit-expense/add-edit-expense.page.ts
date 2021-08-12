@@ -1873,9 +1873,7 @@ export class AddEditExpensePage implements OnInit {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'tax_group' && !control.value && !control.touched && control.value !== '') {
             this.taxGroups$.subscribe(taxGroups => {
-              const tg = taxGroups.filter(tg => {
-              return tg.name = defaultValues[defaultValueColumn];
-              })[0]
+              const tg = taxGroups.filter(tg => tg.name = defaultValues[defaultValueColumn])[0];
               control.patchValue(tg);
             });
           }
