@@ -40,6 +40,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
+  @Input() label;
+
   @Input() isAutoHeight;
 
   value = '';
