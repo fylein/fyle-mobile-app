@@ -1448,9 +1448,7 @@ export class AddEditExpensePage implements OnInit {
 
       if (etxn.tx.tax_group_id) {
         this.taxGroups$.subscribe(taxGroups => {
-          let tg = taxGroups.filter(tg => {
-          return tg.id === etxn.tx.tax_group_id;
-          })[0]
+          const tg = taxGroups.filter(tg => tg.id === etxn.tx.tax_group_id)[0];
           this.fg.patchValue({
             tax_group: tg
           });
