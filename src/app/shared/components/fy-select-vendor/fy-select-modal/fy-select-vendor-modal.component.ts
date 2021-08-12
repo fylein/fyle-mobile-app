@@ -14,10 +14,15 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
+
   @Input() currentSelection: any;
+
   @Input() filteredOptions$: Observable<VendorListItem[]>;
+
   recentrecentlyUsedItems$: Observable<VendorListItem[]>;
+
   value = '';
+
   isLoading = false;
 
   constructor(
@@ -41,13 +46,11 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
 
   getRecentlyUsedVendors() {
     return from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
-      map((options: VendorListItem[]) => {
-        return options
-          .map(option => {
+      map((options: VendorListItem[]) => options
+        .map(option => {
           option.selected = isEqual(option.value, this.currentSelection);
           return option;
-        });
-      })
+        }))
     );
   }
 
@@ -60,7 +63,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
         if (searchText) {
           // set isLoading to true
           this.isLoading = true;
-          // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+          // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
+          // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
           this.cdr.detectChanges();
           return this.vendorService.get(searchText).pipe(
             map(vendors => vendors.map(vendor => ({
@@ -73,7 +77,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
             finalize(() => {
               // set isLoading to false
               this.isLoading = false;
-              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'. More details about CDR: https://angular.io/api/core/ChangeDetectorRef
+              // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
+              // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
               this.cdr.detectChanges();
             })
           );
@@ -85,9 +90,9 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       map((vendors: VendorListItem[]) => {
         if (!vendors.some(vendor => isEqual(vendor.value, this.currentSelection))) {
           vendors = vendors.concat({
-            label: this.currentSelection.display_name, 
+            label: this.currentSelection.display_name,
             value: this.currentSelection
-          })
+          });
         }
 
         return vendors.map(vendor => {
@@ -103,12 +108,10 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.getRecentlyUsedVendors().pipe(
-          // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
-        );
-      }),
+      switchMap((searchText) => this.getRecentlyUsedVendors().pipe(
+        // filtering of recently used items wrt searchText is taken care in service method
+        this.utilityService.searchArrayStream(searchText)
+      )),
     );
 
     this.cdr.detectChanges();

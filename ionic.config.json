@@ -3,5 +3,7 @@
   "integrations": {
     "capacitor": {}
   },
-  "type": "angular"
+  "type": "angular",
+  "hooks": {
+  } 
 }

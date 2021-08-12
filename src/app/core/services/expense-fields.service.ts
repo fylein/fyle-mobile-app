@@ -19,16 +19,23 @@ export class ExpenseFieldsService {
 
   getAllEnabled(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiService.get('/expense_fields', {
-          params: {
-            org_id: eou.ou.org_id,
-            is_enabled: true,
-            is_custom: false
-          }
-        });
-      })
-    )
+      switchMap(eou => this.apiService.get('/expense_fields', {
+        params: {
+          org_id: eou.ou.org_id,
+          is_enabled: true,
+          is_custom: false
+        }
+      }))
+    );
+  }
+
+  formatBillableFields(expenseFields: ExpenseField[]) {
+    return expenseFields.map(field => {
+      if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
+        field.default_value = field.default_value === 'true';
+      }
+      return field;
+    });
   }
 
   /* getAllMap() method returns a mapping of column_names and their respective mapped fields
@@ -48,6 +55,8 @@ export class ExpenseFieldsService {
       map(
         expenseFields => {
           const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
+
+          expenseFields = this.formatBillableFields(expenseFields);
 
           expenseFields.forEach(expenseField => {
             let expenseFieldsList = [];
@@ -71,9 +80,7 @@ export class ExpenseFieldsService {
 
   findCommonRoles(roles): Observable<string[]> {
     return this.getUserRoles().pipe(
-      map(userRoles => roles.filter(role => {
-        return userRoles.indexOf(role) > -1;
-      }))
+      map(userRoles => roles.filter(role => userRoles.indexOf(role) > -1))
     );
   }
 
@@ -87,18 +94,20 @@ export class ExpenseFieldsService {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map(fields => fields.map(field => {
-        let configurations = tfcMap[field];
+        const configurations = tfcMap[field];
         let filteredField;
 
+        const fieldsIndependentOfCategory = ['project_id', 'billable'];
+        const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
         if (configurations && configurations.length > 0) {
           configurations.some((configuration) => {
-            if (orgCategoryId) {
+            if (orgCategoryId && fieldsIndependentOfCategory.indexOf(field) < 0) {
               if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
                 filteredField = configuration;
 
                 return true;
               }
-            } else if (['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'].indexOf(field) > -1) {
+            } else if (defaultFields.indexOf(field) > -1 || fieldsIndependentOfCategory.indexOf(field) > -1) {
               filteredField = configuration;
 
               return true;
@@ -113,21 +122,17 @@ export class ExpenseFieldsService {
       })
         .filter(filteredField => !!filteredField)
       ),
-      switchMap(fields => {
-        return from(fields);
-      }),
-      concatMap(field => {
-        return forkJoin({
-          canEdit: this.canEdit(field.roles_editable)
-        }).pipe(
-          map(
-            (res) => ({
-              ...field,
-              ...res
-            })
-          )
-        );
-      }),
+      switchMap(fields => from(fields)),
+      concatMap(field => forkJoin({
+        canEdit: this.canEdit(field.roles_editable)
+      }).pipe(
+        map(
+          (res) => ({
+            ...field,
+            ...res
+          })
+        )
+      )),
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;

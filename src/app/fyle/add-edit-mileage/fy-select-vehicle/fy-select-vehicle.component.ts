@@ -15,12 +15,16 @@ import { noop } from 'rxjs';
   ]
 })
 export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
-  private ngControl: NgControl;
 
   @Input() mandatory = false;
+
   @Input() label = 'Type';
+
   @Input() isAmountDisabled = false;
+
   @Input() mileageConfig;
+
+  private ngControl: NgControl;
 
   private innerValue;
 
@@ -33,6 +37,7 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
   }
 
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(

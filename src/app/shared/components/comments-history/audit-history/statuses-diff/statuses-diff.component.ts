@@ -7,7 +7,9 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class StatusesDiffComponent implements OnInit {
   @Input() key;
+
   @Input() value;
+
   isValueList: boolean;
 
   constructor() { }

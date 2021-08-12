@@ -9,9 +9,10 @@ import { ReportService } from 'src/app/core/services/report.service';
   styleUrls: ['./remove-expense-report.component.scss'],
 })
 export class RemoveExpenseReportComponent implements OnInit {
-  removalReason = '';
 
   @Input() etxn: Expense;
+
+  removalReason = '';
 
   constructor(
     private popoverController: PopoverController,
@@ -28,7 +29,7 @@ export class RemoveExpenseReportComponent implements OnInit {
     this.reportService.removeTransaction(this.etxn.tx_report_id, this.etxn.tx_id, this.removalReason).subscribe(_ => {
       this.popoverController.dismiss({
         goBack: true
-      })
+      });
     });
   }
 }

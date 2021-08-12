@@ -18,16 +18,27 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class CreateNewReportComponent implements OnInit {
 
   @Input() selectedExpensesToReport: Expense[];
-  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
-  selectedElements: Expense[];
-  selectedTotalAmount: number;
+
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
+
+  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
+  selectedElements: Expense[];
+
+  selectedTotalAmount: number;
+
   reportTitle: string;
+
   submitReportLoader: boolean;
+
   saveDraftReportLoader: boolean;
+
   homeCurrency: string;
+
   homeCurrencySymbol: string;
+
   isSelectedAll: boolean;
+
   showReportNameError: boolean;
 
   constructor(
@@ -36,7 +47,7 @@ export class CreateNewReportComponent implements OnInit {
     private reportService: ReportService,
     private trackingService: TrackingService
   ) {
-    
+
   }
 
   getReportTitle() {
@@ -44,7 +55,7 @@ export class CreateNewReportComponent implements OnInit {
     this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
-      return this.reportService.getReportPurpose({ids: txnIds}).subscribe(res => {
+      return this.reportService.getReportPurpose({ ids: txnIds }).subscribe(res => {
         this.reportTitle = res;
       });
     }
@@ -75,12 +86,12 @@ export class CreateNewReportComponent implements OnInit {
       this.selectedElements.push(expense);
     }
     this.getReportTitle();
-    this.isSelectedAll = this.selectedElements.length ===  this.selectedExpensesToReport.length;
+    this.isSelectedAll = this.selectedElements.length === this.selectedExpensesToReport.length;
   }
 
   toggleSelectAll(value: boolean) {
     if (value) {
-      this.selectedElements =  this.selectedExpensesToReport;
+      this.selectedElements = this.selectedExpensesToReport;
     } else {
       this.selectedElements = [];
     }
@@ -97,7 +108,7 @@ export class CreateNewReportComponent implements OnInit {
       this.showReportNameError = true;
       return;
     }
-    
+
     const report = {
       purpose: this.reportTitle,
       source: 'MOBILE',
@@ -107,7 +118,8 @@ export class CreateNewReportComponent implements OnInit {
     if (reportActionType === 'create_draft_report') {
       this.saveDraftReportLoader = true;
       return this.reportService.createDraft(report).pipe(
-        tap(() => this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount})),
+        tap(() => this.trackingService
+          .createReport({ Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount })),
         switchMap((report) => {
           if (txnIds.length > 0) {
             return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
@@ -116,7 +128,7 @@ export class CreateNewReportComponent implements OnInit {
           }
         }),
         finalize(() => {
-         this.saveDraftReportLoader = false;
+          this.saveDraftReportLoader = false;
         })
       ).subscribe((report => {
         this.modalController.dismiss({
@@ -127,7 +139,8 @@ export class CreateNewReportComponent implements OnInit {
     } else {
       this.submitReportLoader = true;
       this.reportService.create(report, txnIds).pipe(
-        tap(() => this.trackingService.createReport({Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount})),
+        tap(() => this.trackingService
+          .createReport({ Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount })),
         finalize(() => {
           this.submitReportLoader = false;
         })

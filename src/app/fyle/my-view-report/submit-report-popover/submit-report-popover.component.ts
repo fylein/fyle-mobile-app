@@ -16,10 +16,15 @@ import { ReportService } from 'src/app/core/services/report.service';
 export class SubmitReportPopoverComponent implements OnInit {
 
   @Input() erpt;
+
   @Input() etxns;
+
   numIssues = 0;
+
   numCriticalPolicies = 0;
+
   showTripRequestWarning = false;
+
   submitReportLoading = false;
 
   constructor(
@@ -36,11 +41,25 @@ export class SubmitReportPopoverComponent implements OnInit {
     forkJoin({
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      approvedButUnreportedTripRequests: this.tripRequestService.findMyUnreportedRequests().pipe(map(requests => requests.filter(request => request.state === 'APPROVED')))
+      approvedButUnreportedTripRequests: this.tripRequestService
+        .findMyUnreportedRequests()
+        .pipe(
+          map(requests => requests
+            .filter(request => request.state === 'APPROVED')
+          )
+        )
     }).subscribe(({ orgSettings, orgUserSettings, approvedButUnreportedTripRequests }) => {
-      const canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled));
+      const canAssociateTripRequests = orgSettings.trip_requests.enabled &&
+        (
+          !orgSettings.trip_requests.enable_for_certain_employee ||
+          (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)
+        );
       const isTripRequestsEnabled = orgSettings.trip_requests.enabled;
-      this.showTripRequestWarning = (canAssociateTripRequests || !isTripRequestsEnabled) && !this.erpt.rp_trip_request_id && approvedButUnreportedTripRequests && approvedButUnreportedTripRequests.length > 0;
+      this.showTripRequestWarning = (canAssociateTripRequests ||
+        !isTripRequestsEnabled) &&
+        !this.erpt.rp_trip_request_id &&
+        approvedButUnreportedTripRequests &&
+        approvedButUnreportedTripRequests.length > 0;
     });
   }
 
@@ -58,14 +77,14 @@ export class SubmitReportPopoverComponent implements OnInit {
     let count = 0;
 
     for (let i = 0; i < etxns.length; i++) {
-      let etxn = etxns[i];
+      const etxn = etxns[i];
       if (etxn.tx_policy_flag) {
         count = count + 1;
       }
     }
 
     for (let i = 0; i < etxns.length; i++) {
-      let etxn = etxns[i];
+      const etxn = etxns[i];
       if (etxn.tx_manual_flag) {
         count = count + 1;
       }
@@ -93,23 +112,23 @@ export class SubmitReportPopoverComponent implements OnInit {
 
     const txnIdsCriticalViolations = this.etxns.filter(
       etxn => this.filterCriticalViolations(etxn)
-    ).map((etxn) => {
-      return etxn.tx_id;
-    });
+    ).map((etxn) => etxn.tx_id);
 
 
-    iif(() => txnIdsCriticalViolations.length > 0, this.transactionService.removeTxnsFromRptInBulk(txnIdsCriticalViolations), of(null)).pipe(
-      concatMap(() => {
-        return this.reportService.submit(this.erpt.rp_id);
-      }),
-      finalize(() => {
-        this.submitReportLoading = false;
-      })
-    ).subscribe(() => {
-      this.popoverController.dismiss({
-        goBack: true
+    iif(
+      () => txnIdsCriticalViolations.length > 0,
+      this.transactionService.removeTxnsFromRptInBulk(txnIdsCriticalViolations),
+      of(null))
+      .pipe(
+        concatMap(() => this.reportService.submit(this.erpt.rp_id)),
+        finalize(() => {
+          this.submitReportLoading = false;
+        })
+      ).subscribe(() => {
+        this.popoverController.dismiss({
+          goBack: true
+        });
       });
-    });
   }
 
 }

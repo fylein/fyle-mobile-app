@@ -18,29 +18,6 @@ export class CurrencyService {
     private apiService: ApiService
   ) { }
 
-  getHomeCurrency() {
-    return this.orgService.getCurrentOrg()
-      .pipe(
-        map(
-          org => org.currency
-        )
-      );
-  }
-
-  getAmountDecimalsBasedOnValue(amount) {
-    let decimalAmount;
-
-    if (amount < 0.01) {
-      decimalAmount = parseFloat(amount.toFixed(7));
-    } else if (amount >= 0.01 && amount < 1) {
-      decimalAmount = parseFloat(amount.toFixed(4));
-    } else {
-      decimalAmount = parseFloat(amount.toFixed(2));
-    }
-
-    return decimalAmount;
-  }
-
   @Cacheable()
   getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?) {
     const txnDt = moment(dt).format('y-MM-D');
@@ -67,15 +44,37 @@ export class CurrencyService {
     return from(this.authService.getEou())
       .pipe(
         switchMap(
-          currentEou => {
-            return this.apiService.get('/currency/all', {
-              params: {
-                org_id: currentEou && currentEou.ou && currentEou.ou.org_id
-              }
-            });
-          }
+          currentEou => this.apiService.get('/currency/all', {
+            params: {
+              org_id: currentEou && currentEou.ou && currentEou.ou.org_id
+            }
+          })
         )
       );
+  }
+
+
+  getHomeCurrency() {
+    return this.orgService.getCurrentOrg()
+      .pipe(
+        map(
+          org => org.currency
+        )
+      );
+  }
+
+  getAmountDecimalsBasedOnValue(amount) {
+    let decimalAmount;
+
+    if (amount < 0.01) {
+      decimalAmount = parseFloat(amount.toFixed(7));
+    } else if (amount >= 0.01 && amount < 1) {
+      decimalAmount = parseFloat(amount.toFixed(4));
+    } else {
+      decimalAmount = parseFloat(amount.toFixed(2));
+    }
+
+    return decimalAmount;
   }
 
   getCurrenyList(currencies) {
@@ -95,9 +94,7 @@ export class CurrencyService {
   // Todo: Remove this method and change getAll() method to return currency in list format not in object format.
   getAllCurrenciesInList() {
     return from(this.getAll()).pipe(
-      map((res) => {
-        return this.getCurrenyList(res);
-      })
+      map((res) => this.getCurrenyList(res))
     );
   }
 }

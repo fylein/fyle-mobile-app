@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { Injectable } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class ModalPropertiesService {
       swipeToClose: true,
       backdropDismiss: true,
       animated: true,
-    }
+    };
     return properties;
   }
 
@@ -28,8 +28,8 @@ export class ModalPropertiesService {
       swipeToClose: true,
       backdropDismiss: true,
       animated: true,
-    }
+    };
     return properties;
   }
-  
+
 }

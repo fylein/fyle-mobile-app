@@ -16,6 +16,30 @@ export class OrgSettingsService {
     private apiService: ApiService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: orgSettingsCacheBuster$
+  })
+  get() {
+    return this.apiService.get('/org/settings').pipe(
+      map(
+        incoming => this.processIncoming(incoming)
+      )
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: orgSettingsCacheBuster$
+  })
+  post(settings) {
+    const data = this.processOutgoing(settings);
+    return this.apiService.post('/org/settings', data);
+  }
+
+  getDefaultLimitAmount() {
+    const defaultLimitAmount = 75;
+    return defaultLimitAmount;
+  }
+
   getIncomingAccountingObject(incomingAccountExport) {
     // setting allowed to true here as this field will be removed within a month
     // TODO: Remove this hack latest by end of April 2020 - If you find this code after the deadline, @arun will buy you petrol
@@ -79,6 +103,8 @@ export class OrgSettingsService {
     return accountingSettings;
   }
 
+  // unavoidable here
+  // eslint-disable-next-line complexity
   processIncoming(incoming) {
     const orgSettings = {
       org_id: incoming.org_id,
@@ -157,6 +183,10 @@ export class OrgSettingsService {
       org_creation: {
         allowed: incoming.multi_org_settings && incoming.multi_org_settings.allowed,
         enabled: incoming.multi_org_settings && incoming.multi_org_settings.enabled
+      },
+      org_expense_form_autofills: {
+        allowed: incoming.org_expense_form_autofills.allowed,
+        enabled: incoming.org_expense_form_autofills.enabled
       },
       admin_allowed_ip_settings: {
         allowed: incoming.admin_allowed_ip_settings && incoming.admin_allowed_ip_settings.allowed,
@@ -379,6 +409,10 @@ export class OrgSettingsService {
         enabled: outgoing.mileage.enabled,
         mileage_location_enabled: outgoing.mileage.location_mandatory
       },
+      org_expense_form_autofills: {
+        allowed: outgoing.org_expense_form_autofills.allowed,
+        enabled: outgoing.org_expense_form_autofills.enabled
+      },
       multi_org_settings: {
         allowed: outgoing.org_creation.allowed,
         enabled: outgoing.org_creation.enabled
@@ -462,27 +496,4 @@ export class OrgSettingsService {
     };
   }
 
-  @Cacheable({
-    cacheBusterObserver: orgSettingsCacheBuster$
-  })
-  get() {
-    return this.apiService.get('/org/settings').pipe(
-      map(
-        incoming => this.processIncoming(incoming)
-      )
-    );
-  }
-
-  getDefaultLimitAmount() {
-    const defaultLimitAmount = 75;
-    return defaultLimitAmount;
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: orgSettingsCacheBuster$
-  })
-  post(settings) {
-    const data = this.processOutgoing(settings);
-    return this.apiService.post('/org/settings', data);
-  }
 }

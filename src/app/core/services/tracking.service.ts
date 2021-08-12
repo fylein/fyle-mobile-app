@@ -28,6 +28,12 @@ export class TrackingService {
     }
   }
 
+  async updateIdentityIfNotPresent() {
+    if (!this.identityEmail) {
+      await this.updateIdentity();
+    }
+  }
+
   // deprecated - use updateSegmentProfile
   uploadCtUserProfile(data) {
     this.updateSegmentProfile(data);
@@ -44,6 +50,10 @@ export class TrackingService {
   }
 
   eventTrack(action, properties) {
+    properties = {
+      ...properties,
+      Asset: 'Mobile'
+    };
     if (this.tracking) {
       this.tracking.track(action, properties);
     }
@@ -55,6 +65,8 @@ export class TrackingService {
       this.tracking.identify(email, {
         $email: email
       });
+
+      this.identityEmail = email;
     }
 
     this.eventTrack('Signin', properties);
@@ -65,7 +77,7 @@ export class TrackingService {
 
   /*** Events related to expense ***/
 
-    // create expense event
+  // create expense event
   async createExpense(properties) {
     // Temporary hack for already logged in users - we need to know their identity
     await this.updateIdentity();
@@ -196,7 +208,7 @@ export class TrackingService {
 
   /*** Events related to reports ***/
 
-    // click download report
+  // click download report
   clickDownloadReport(properties) {
     this.eventTrack('Click Download Report', properties);
   }
@@ -240,7 +252,7 @@ export class TrackingService {
 
   /*** Events related to Settings ***/
 
-    // update mileage event
+  // update mileage event
   updateMileageSettings(properties) {
     this.eventTrack('Update Mileage Settings', properties);
   }
@@ -308,7 +320,7 @@ export class TrackingService {
 
   /*** Events related to help page ***/
 
-    // view help card event
+  // view help card event
   viewHelpCard(properties) {
     this.eventTrack('View Help Card', properties);
   }
@@ -320,14 +332,14 @@ export class TrackingService {
 
   /*** Events related to system ***/
 
-    // signout event
+  // signout event
   onSignOut(properties) {
     this.eventTrack('Sign Out', properties);
   }
 
   /*** Events related to lifecycle ***/
 
-    // email verified event
+  // email verified event
   emailVerified(properties) {
     this.eventTrack('Email Verified', properties);
   }
@@ -364,7 +376,7 @@ export class TrackingService {
 
   /*** Old events ***/
 
-    // reset password event
+  // reset password event
   resetPassword(properties) {
     this.eventTrack('Reset Password', properties);
   }
@@ -692,15 +704,15 @@ export class TrackingService {
   }
 
   switchedToInstafyleBulkMode(properties) {
-    this.eventTrack('switched to bulk instafyle', properties); 
+    this.eventTrack('switched to bulk instafyle', properties);
   }
 
   switchedToInstafyleSingleMode(properties) {
-    this.eventTrack('switched to single instafyle', properties); 
+    this.eventTrack('switched to single instafyle', properties);
   }
 
   instafyleGalleryUploadOpened(properties) {
-    this.eventTrack('instafyle gallery upload opened', properties);  
+    this.eventTrack('instafyle gallery upload opened', properties);
   }
 
   flashModeSet(properties) {

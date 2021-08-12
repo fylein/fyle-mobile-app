@@ -14,6 +14,7 @@
   </ion-toolbar>
   <ion-toolbar *ngIf="enableSearch" class="selection-modal--form-field-container" [ngClass]="{'selection-modal--bottom-up': showSaveButton}">
     <mat-form-field appearance="none" class="selection-modal--form-field mat-form-field-no-padding">
+      <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
       <input #searchBar [(ngModel)]="value" class="selection-modal--search-input" id="election-modal--search-input"
              matInput placeholder="{{placeholder || 'Search'}}">
       <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
@@ -25,6 +26,12 @@
 
 <div class="inner-content">
   <div class="selection-modal--container">
+    <ng-container *ngIf="filteredOptions$|async as filteredOptions">
+      <div *ngIf="filteredOptions.length === 0">
+        <app-fy-zero-state [header]="'No such ' + label + ' found'" [submessage]="'Search for another ' + label + ' or select one from the list.'" 
+          [image]="'../../../../assets/images/zero-states/search-not-found.svg'" [unscaledImage]="true" [useNewStyling]="true"></app-fy-zero-state>
+      </div>
+    </ng-container>
 
     <div *ngIf="customInput && (filteredOptions$|async)?.length > 0" class="selection-modal--single-element-block">
       <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
@@ -37,7 +44,7 @@
                 [queryText]="value">
               </app-fy-highlight-text>
             </div>
-            <mat-icon *ngIf="selected">
+            <mat-icon *ngIf="selected" class="selection-modal--check">
               check
             </mat-icon>
           </ng-template>
@@ -62,7 +69,7 @@
               </app-fy-highlight-text>
             </span>
           </div>
-          <mat-icon *ngIf="selected">
+          <mat-icon *ngIf="selected" class="selection-modal--check">
             check
           </mat-icon>
         </ng-template>
@@ -83,7 +90,7 @@
                 [queryText]="value">
               </app-fy-highlight-text>
             </div>
-            <mat-icon *ngIf="selected">
+            <mat-icon *ngIf="selected" class="selection-modal--check">
               check
             </mat-icon>
           </ng-template>

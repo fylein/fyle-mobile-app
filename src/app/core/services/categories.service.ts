@@ -17,6 +17,16 @@ export class CategoriesService {
     private apiService: ApiService
   ) { }
 
+  @Cacheable({
+    cacheBusterObserver: categoriesCacheBuster$
+  })
+  getAll() {
+    return this.apiService.get('/org_categories').pipe(
+      map(this.sortCategories),
+      map(this.addDisplayName)
+    );
+  }
+
   sortCategories(categories) {
     return categories.sort((a, b) => {
       const category1 = a.name.toUpperCase();
@@ -64,16 +74,6 @@ export class CategoriesService {
       category.displayName = displayName;
       return category;
     });
-  }
-
-  @Cacheable({
-    cacheBusterObserver: categoriesCacheBuster$
-  })
-  getAll() {
-    return this.apiService.get('/org_categories').pipe(
-      map(this.sortCategories),
-      map(this.addDisplayName)
-    );
   }
 
   filterRequired(categoryList) {

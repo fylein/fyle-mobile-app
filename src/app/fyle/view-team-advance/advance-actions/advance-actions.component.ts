@@ -12,6 +12,7 @@ import { RejectAdvanceComponent } from '../reject-advance/reject-advance.compone
 export class AdvanceActionsComponent implements OnInit {
 
   @Input() actions;
+
   @Input() areq;
 
   constructor(

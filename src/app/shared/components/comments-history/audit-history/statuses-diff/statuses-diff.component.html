@@ -1,7 +1,7 @@
 <div *ngIf="isValueList" class="statuses-diff">
   <div class="statuses-diff--expense-issues">
       <span *ngIf="key === 'Please contact your admin to configure the following'">{{ key | snakeCaseToSpaceCase }} </span>
-      <span *ngIf="key != 'Please contact your admin to configure the following'" class="text-capitalize">{{ key | snakeCaseToSpaceCase }}</span>
+      <span *ngIf="key !== 'Please contact your admin to configure the following'" class="text-capitalize">{{ key | snakeCaseToSpaceCase }}</span>
   </div>
   <div *ngFor="let detail of value">
       <li class="text-capitalize">{{ detail }}</li>

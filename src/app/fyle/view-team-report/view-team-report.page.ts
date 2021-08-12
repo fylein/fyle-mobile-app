@@ -1,5 +1,5 @@
-import {Component, EventEmitter, OnInit} from '@angular/core';
-import {Observable, from, noop, Subject, concat} from 'rxjs';
+import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Observable, from, noop, Subject, concat } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,12 +8,12 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController } from '@ionic/angular';
-import {switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil} from 'rxjs/operators';
+import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
-import {NetworkService} from '../../core/services/network.service';
+import { NetworkService } from '../../core/services/network.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -23,23 +23,37 @@ import {NetworkService} from '../../core/services/network.service';
 export class ViewTeamReportPage implements OnInit {
 
   erpt$: Observable<ExtendedReport>;
+
   etxns$: Observable<any[]>;
+
   sharedWith$: Observable<any[]>;
+
   reportApprovals$: Observable<any>;
+
   refreshApprovals$ = new Subject();
+
   tripRequest$: Observable<ExtendedTripRequest>;
+
   actions$: Observable<any>;
+
   hideAllExpenses = true;
+
   sharedWithLimit = 3;
 
   canEdit$: Observable<boolean>;
+
   canDelete$: Observable<boolean>;
+
   canResubmitReport$: Observable<boolean>;
+
   isReportReported: boolean;
 
   isConnected$: Observable<boolean>;
+
   onPageExit = new Subject();
+
   navigateBack = false;
+
   etxnAmountSum$: Observable<any>;
 
   constructor(
@@ -71,7 +85,7 @@ export class ViewTeamReportPage implements OnInit {
 
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
   }
@@ -92,9 +106,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   getApproverEmails(reportApprovals) {
-    return reportApprovals.map(approver => {
-      return approver.approver_email;
-    });
+    return reportApprovals.map(approver => approver.approver_email);
   }
 
   getShowViolation(etxn) {
@@ -111,13 +123,9 @@ export class ViewTeamReportPage implements OnInit {
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
 
     this.erpt$ = this.refreshApprovals$.pipe(
-      switchMap(() => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id);
-          })
-        );
-      }),
+      switchMap(() => from(this.loaderService.showLoader()).pipe(
+        switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id))
+      )),
       shareReplay(1),
       finalize(() => from(this.loaderService.hideLoader()))
     );
@@ -136,38 +144,27 @@ export class ViewTeamReportPage implements OnInit {
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
-      map(pdfExports => {
-        return pdfExports.results.sort((a, b) => {
-          return (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0);
-        }).map((pdfExport) => {
-          return pdfExport.sent_to;
-        }).filter((item, index, inputArray) => {
-          return inputArray.indexOf(item) === index;
-        });
-      })
+      map(pdfExports => pdfExports.results
+        .sort((a, b) => (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0))
+        .map((pdfExport) => pdfExport.sent_to)
+        .filter((item, index, inputArray) => inputArray.indexOf(item) === index))
     );
 
     this.reportApprovals$ = this.refreshApprovals$.pipe(
       startWith(true),
-      switchMap(() => {
-        return this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id);
-      }),
-      map(reportApprovals => {
-        return reportApprovals.filter((approval) => {
-          return ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1;
-        }).map((approval) => {
+      switchMap(() => this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)),
+      map(reportApprovals => reportApprovals
+        .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
+        .map((approval) => {
           if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
             approval.approved_at = approval.updated_at;
           }
           return approval;
-        });
-      })
+        }))
     );
 
     this.etxns$ = from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id);
-      }),
+      switchMap(eou => this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id)),
       map(
         etxns => etxns.map(etxn => {
           etxn.vendor = this.getVendorName(etxn);
@@ -179,11 +176,7 @@ export class ViewTeamReportPage implements OnInit {
     );
 
     this.etxnAmountSum$ = this.etxns$.pipe(
-      map(etxns => {
-        return etxns.reduce((acc, curr) => {
-          return acc + curr.tx_amount;
-        }, 0);
-      })
+      map(etxns => etxns.reduce((acc, curr) => acc + curr.tx_amount, 0))
     );
 
     this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
@@ -215,9 +208,7 @@ export class ViewTeamReportPage implements OnInit {
 
     if (popupResult === 'primary') {
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.reportService.delete(this.activatedRoute.snapshot.params.id);
-        }),
+        switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'team_reports']);
