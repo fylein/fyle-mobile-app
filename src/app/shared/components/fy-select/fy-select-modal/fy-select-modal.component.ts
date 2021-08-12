@@ -5,7 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-
+import { Gesture, GestureController } from '@ionic/angular';
 @Component({
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-modal.component.html',
@@ -13,6 +13,8 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 })
 export class FySelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
+
+  @ViewChild('innerContent') innerContent: ElementRef;
 
   @Input() options: { label: string; value: any; selected?: boolean }[] = [];
 
@@ -52,11 +54,28 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private gestureCtrl: GestureController
 
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    setTimeout(() => {
+      this.blockSwipeGesture();
+    }, 500);
+  }
+
+  blockSwipeGesture() {
+    const gesture: Gesture = this.gestureCtrl.create({
+      el: this.innerContent.nativeElement,
+      threshold: 15,
+      gestureName: 'my-gesture',
+      disableScroll: true,
+      direction: 'y',
+      gesturePriority: 999,
+    }, true);
+    gesture.enable();
+  }
 
   clearValue() {
     this.value = '';

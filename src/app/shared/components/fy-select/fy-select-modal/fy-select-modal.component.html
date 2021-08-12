@@ -24,7 +24,7 @@
   </ion-toolbar>
 </ion-header>
 
-<div class="inner-content">
+<div class="inner-content" #innerContent>
   <div class="selection-modal--container">
     <ng-container *ngIf="filteredOptions$|async as filteredOptions">
       <div *ngIf="filteredOptions.length === 0">
