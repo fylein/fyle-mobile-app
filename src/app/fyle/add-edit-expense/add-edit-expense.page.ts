@@ -763,7 +763,7 @@ export class AddEditExpensePage implements OnInit {
         isIndividualProjectsEnabled,
         orgSettings
       }))))
-    )
+    );
 
     combineLatest([
       this.isConnected$,
