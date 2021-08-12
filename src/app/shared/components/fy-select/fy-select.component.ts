@@ -134,7 +134,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         isAutoHeight: this.isAutoHeight
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...modelProperties
     });
 
