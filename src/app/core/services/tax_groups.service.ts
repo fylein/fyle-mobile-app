@@ -15,9 +15,8 @@ export class TaxGroupsService {
   ) { }
 
   get(params: any) {
-
-    var data = {
-        params: params
+    let data = {
+      params
     };
 
     return this.apiV2Service.get('/tax_groups', data).pipe(
@@ -27,7 +26,7 @@ export class TaxGroupsService {
 
   post(tax_group: TaxGroups) {
     /** Only these fields will be of type text & custom fields */
-    return this.apiService.post('tax_groups', tax_group)
+    return this.apiService.post('tax_groups', tax_group);
   }
-  
+
 }
