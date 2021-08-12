@@ -46,6 +46,10 @@ $list-element-color: #333;
     @extend %flex-layout-column;
   }
 
+  &--bottom-up {
+    margin-bottom: 90px;
+  }
+
   &--recently-used-block {
     margin-bottom: 20px;
   }
@@ -56,6 +60,11 @@ $list-element-color: #333;
 
   &--cta-container {
     margin: 12px;
+  }
+
+  &--footer {
+    position: absolute;
+    bottom: 0px;
   }
 
   &--primary-cta {

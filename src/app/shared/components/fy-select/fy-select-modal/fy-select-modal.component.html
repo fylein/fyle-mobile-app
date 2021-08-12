@@ -12,7 +12,7 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar *ngIf="enableSearch" class="selection-modal--form-field-container">
+  <ion-toolbar *ngIf="enableSearch" class="selection-modal--form-field-container" [ngClass]="{'selection-modal--bottom-up': showSaveButton}">
     <mat-form-field appearance="none" class="selection-modal--form-field mat-form-field-no-padding">
       <input #searchBar [(ngModel)]="value" class="selection-modal--search-input" id="election-modal--search-input"
              matInput placeholder="{{placeholder || 'Search'}}">
@@ -23,7 +23,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<div class="inner-content">
   <div class="selection-modal--container">
 
     <div *ngIf="customInput && (filteredOptions$|async)?.length > 0" class="selection-modal--single-element-block">
@@ -94,9 +94,9 @@
       </ng-container>
     </div>
   </div>
-</ion-content>
+</div>
 
-<ion-footer *ngIf="showSaveButton">
+<ion-footer class="selection-modal--footer" *ngIf="showSaveButton">
   <ion-toolbar>
     <div class="selection-modal--cta-container">
       <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">

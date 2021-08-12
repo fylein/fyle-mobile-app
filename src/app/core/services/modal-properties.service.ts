@@ -12,7 +12,7 @@ export class ModalPropertiesService {
 
   getModalDefaultProperties() {
     const properties = {
-      cssClass: 'fy-modal',
+      cssClass: 'fixed-height',
       showBackdrop: true,
       swipeToClose: true,
       backdropDismiss: true,
@@ -20,4 +20,16 @@ export class ModalPropertiesService {
     }
     return properties;
   }
+
+  getModalAutoHeightProperties() {
+    const properties = {
+      cssClass: 'auto-height',
+      showBackdrop: true,
+      swipeToClose: true,
+      backdropDismiss: true,
+      animated: true,
+    }
+    return properties;
+  }
+  
 }

@@ -37,6 +37,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() placeholder = '';
   @Input() defaultLabelProp;
   @Input() recentlyUsed: { label: string, value: any, selected?: boolean }[];
+  @Input() isAutoHeight;
 
   private innerValue;
   displayValue;
@@ -91,6 +92,12 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   async openModal() {
+    let modelProperties;
+    if (this.isAutoHeight) {
+      modelProperties = this.modalProperties.getModalAutoHeightProperties();
+    } else {
+      modelProperties = this.modalProperties.getModalDefaultProperties();
+    }
     const selectionModal = await this.modalController.create({
       component: FySelectModalComponent,
       componentProps: {
@@ -106,11 +113,12 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         placeholder: this.placeholder,
         showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,
-        recentlyUsed: this.recentlyUsed
+        recentlyUsed: this.recentlyUsed,
+        isAutoHeight: this.isAutoHeight
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...modelProperties
     });
 
     await selectionModal.present();
