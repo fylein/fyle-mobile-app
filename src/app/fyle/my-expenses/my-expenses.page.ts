@@ -1386,7 +1386,7 @@ export class MyExpensesPage implements OnInit {
 
   showNonReportableExpenseSelectedToast(message) {
     this.matSnackBar.openFromComponent( ToastMessageComponent, this.snackbarProperties
-      .setSnackbarProperties({ icon: 'danger', message, redirectionText: null }, ['msb-with-report-button'], 0));
+      .setSnackbarProperties({ icon: 'danger', message, redirectionText: null }, ['msb-with-report-button'], 3000));
 
   }
 
