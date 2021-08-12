@@ -15,7 +15,7 @@ export class TaxGroupsService {
   ) { }
 
   get(params: any) {
-    let data = {
+    const data = {
       params
     };
 

@@ -1871,9 +1871,9 @@ export class AddEditExpensePage implements OnInit {
           } else if (defaultValueColumn === 'billable' && this.fg.controls.project.value
             && (control.value === null || control.value === undefined) && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (defaultValueColumn === 'tax_group' && !control.value && !control.touched && control.value !== "") {
+          } else if (defaultValueColumn === 'tax_group' && !control.value && !control.touched && control.value !== '') {
             this.taxGroups$.subscribe(taxGroups => {
-              let tg = taxGroups.filter(tg => {
+              const tg = taxGroups.filter(tg => {
               return tg.name = defaultValues[defaultValueColumn];
               })[0]
               control.patchValue(tg);
