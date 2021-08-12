@@ -2120,7 +2120,7 @@ export class AddEditExpensePage implements OnInit {
       this.isDraftExpenseEnabled = orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
         orgSettings.ccc_draft_expense_settings.enabled;
-      
+
       if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
         const params = {
           is_enabled: 'eq.true'
@@ -2128,7 +2128,7 @@ export class AddEditExpensePage implements OnInit {
         this.taxGroups$ = this.taxGroupsService.get(params);
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
           map(taxGroupsOptions =>  taxGroupsOptions.map(tg => ({label: tg.name, value: tg})))
-        )
+        );
       }
     });
 
