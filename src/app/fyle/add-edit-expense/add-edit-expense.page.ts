@@ -763,22 +763,7 @@ export class AddEditExpensePage implements OnInit {
         isIndividualProjectsEnabled,
         orgSettings
       }))))
-    )
-      .subscribe(({ transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => {
-        if (orgSettings.projects.enabled) {
-          if (isIndividualProjectsEnabled) {
-            if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          } else {
-            if (transactionMandatoyFields.project) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          }
-        }
-      });
+    );
 
     combineLatest([
       this.isConnected$,

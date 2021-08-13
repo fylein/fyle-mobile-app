@@ -96,8 +96,6 @@ export class AddEditMileagePage implements OnInit {
 
   filteredCategories$: Observable<any>;
 
-  transactionMandatoyFields$: Observable<any>;
-
   etxn$: Observable<any>;
 
   isIndividualProjectsEnabled$: Observable<boolean>;
@@ -956,42 +954,6 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.customInputs$ = this.getCustomInputs();
-
-    this.transactionMandatoyFields$ = this.isConnected$.pipe(
-      filter(isConnected => !!isConnected),
-      switchMap(() => this.offlineService.getOrgSettings()),
-      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
-    );
-
-    this.transactionMandatoyFields$
-      .pipe(
-        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
-        switchMap((transactionMandatoyFields) => forkJoin({
-          individualProjectIds: this.individualProjectIds$,
-          isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-          orgSettings: this.offlineService.getOrgSettings()
-        }).pipe(map(({ individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => ({
-          transactionMandatoyFields,
-          individualProjectIds,
-          isIndividualProjectsEnabled,
-          orgSettings
-        }))))
-      )
-      .subscribe(({ transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => {
-        if (orgSettings.projects.enabled) {
-          if (isIndividualProjectsEnabled) {
-            if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          } else {
-            if (transactionMandatoyFields.project) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          }
-        }
-      });
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
