@@ -1385,9 +1385,12 @@ export class MyExpensesPage implements OnInit {
   }
 
   showNonReportableExpenseSelectedToast(message) {
-    this.matSnackBar.openFromComponent( ToastMessageComponent, this.snackbarProperties
-      .setSnackbarProperties({ icon: 'danger', message, redirectionText: null }, ['msb-with-report-button'], 3000));
-
+    this.matSnackBar.openFromComponent( ToastMessageComponent,
+      this.snackbarProperties.setSnackbarProperties({
+        icon: 'danger',
+        message,
+        redirectionText: null },
+      ['msb-with-report-button'], 3000));
   }
 
   async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
@@ -1422,14 +1425,15 @@ export class MyExpensesPage implements OnInit {
       if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfExpensesInDraftState > 0)) {
         this.homeCurrency$.subscribe(homeCurrency => {
           if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
-            // eslint-disable-next-line max-len
-            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-            // eslint-disable-next-line max-len
-            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
+            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
+              ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
+              ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. \
+              Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
           } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
             title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-            // eslint-disable-next-line max-len
-            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
+            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
+              ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
           } else if (noOfExpensesInDraftState > 0) {
             title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
             message = `${noOfExpensesInDraftState} expenses are in draft states.`;
