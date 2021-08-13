@@ -93,6 +93,7 @@ import { AgmDirectionModule } from 'agm-direction';
 import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
+import {ReceiptPreviewThumbnailComponent} from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 
 
 @NgModule({
@@ -161,6 +162,7 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyDeleteDialogComponent,
     FyFiltersComponent,
     FyFilterPillsComponent,
+    ReceiptPreviewThumbnailComponent,
     RouteVisualizerComponent,
     RouteSelectorComponent,
     RouteSelectorModalComponent
@@ -242,6 +244,7 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
     FyDeleteDialogComponent,
     FyFiltersComponent,
     FyFilterPillsComponent,
+    ReceiptPreviewThumbnailComponent,
     RouteVisualizerComponent,
     RouteSelectorComponent,
     MatChipsModule,

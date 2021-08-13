@@ -1,8 +1,8 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, throwError } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, Subject, throwError} from 'rxjs';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
   catchError,
   concatMap,
@@ -65,6 +65,8 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
+import { DomSanitizer } from '@angular/platform-browser';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 
 @Component({
@@ -164,6 +166,10 @@ export class AddEditExpensePage implements OnInit {
   instaFyleCancelled = false;
 
   newExpenseDataUrls = [];
+
+  loadAttachments$ = new Subject();
+
+  attachments$: Observable<FileObject[]>;
 
   focusState = false;
 
@@ -299,7 +305,9 @@ export class AddEditExpensePage implements OnInit {
     private tokenService: TokenService,
     private expenseFieldsService: ExpenseFieldsService,
     private modalProperties: ModalPropertiesService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private sanitizer: DomSanitizer
+
   ) {
   }
 
@@ -1460,6 +1468,7 @@ export class AddEditExpensePage implements OnInit {
         });
 
         this.fg.controls.custom_inputs.patchValue(customInputValues);
+        this.loadAttachments$.next();
       }, 600);
 
       this.attachedReceiptsCount = txnReceiptsCount;
@@ -2176,6 +2185,23 @@ export class AddEditExpensePage implements OnInit {
     const newExpensePipe$ = this.getNewExpenseObservable();
 
     const editExpensePipe$ = this.getEditExpenseObservable();
+
+    this.attachments$ = this.loadAttachments$.pipe(
+      switchMap(() => this.etxn$.pipe(
+        switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
+        switchMap(fileObjs => from(fileObjs)),
+        concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
+          map(downloadUrl => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )),
+        reduce((acc, curr) => acc.concat(curr), [])
+      ))
+    );
 
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
@@ -3292,7 +3318,17 @@ export class AddEditExpensePage implements OnInit {
         thumbnail: data.dataUrl
       };
       if (this.mode === 'add') {
+        const fileInfo = {
+          type: data.type,
+          url: data.dataUrl,
+          thumbnail: data.dataUrl
+        };
         this.newExpenseDataUrls.push(fileInfo);
+        this.sanitizer.bypassSecurityTrustUrl(fileInfo.url);
+        this.newExpenseDataUrls.forEach(fileObj => {
+          fileObj.type = (fileObj.type === 'application/pdf' || fileObj.type === 'pdf') ? 'pdf' : 'image';
+          return fileObj;
+        });
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(
           take(1)
@@ -3326,6 +3362,7 @@ export class AddEditExpensePage implements OnInit {
             }))
           )),
           finalize(() => {
+            this.loadAttachments$.next();
             this.attachmentUploadInProgress = false;
           })
         ).subscribe(({ attachments, isConnected }) => {
@@ -3424,6 +3461,7 @@ export class AddEditExpensePage implements OnInit {
             switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
             map(fileObjs => (fileObjs && fileObjs.length) || 0)
           ).subscribe((attachedReceipts) => {
+            this.loadAttachments$.next();
             if (this.attachedReceiptsCount === attachedReceipts) {
               this.trackingService.viewAttachment({ Asset: 'Mobile' });
             }
