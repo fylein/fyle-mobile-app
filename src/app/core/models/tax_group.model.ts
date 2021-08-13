@@ -1,6 +1,6 @@
 import { UserDetails } from './v1/user-details.model';
 
-export interface TaxGroups {
+export interface TaxGroup {
    id?: any;
    name: String;
    percentage: number;

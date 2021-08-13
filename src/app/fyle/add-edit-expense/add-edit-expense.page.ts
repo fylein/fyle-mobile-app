@@ -66,7 +66,8 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import { TaxGroupsService } from 'src/app/core/services/tax_groups.service';
+import { TaxGroupService } from 'src/app/core/services/tax_group.service';
+import { TaxGroup } from 'src/app/core/models/tax_group.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -265,9 +266,9 @@ export class AddEditExpensePage implements OnInit {
 
   billableDefaultValue: boolean;
 
-  taxGroups$: Observable<any>;
+  taxGroups$: Observable<TaxGroup[]>;
 
-  taxGroupsOptions$: Observable<any>;
+  taxGroupsOptions$: Observable<{label: String, value: any}[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -305,7 +306,7 @@ export class AddEditExpensePage implements OnInit {
     private expenseFieldsService: ExpenseFieldsService,
     private modalProperties: ModalPropertiesService,
     private actionSheetController: ActionSheetController,
-    private taxGroupsService: TaxGroupsService
+    private taxGroupsService: TaxGroupService
   ) {
   }
 
@@ -1448,7 +1449,7 @@ export class AddEditExpensePage implements OnInit {
 
       if (etxn.tx.tax_group_id) {
         this.taxGroups$.subscribe(taxGroups => {
-          const tg = taxGroups.filter(tg => tg.id === etxn.tx.tax_group_id)[0];
+          const tg = taxGroups.find(tg => tg.id === etxn.tx.tax_group_id);
           this.fg.patchValue({
             tax_group: tg
           });
@@ -1873,7 +1874,7 @@ export class AddEditExpensePage implements OnInit {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'tax_group' && !control.value && !control.touched && control.value !== '') {
             this.taxGroups$.subscribe(taxGroups => {
-              const tg = taxGroups.filter(tg => tg.name = defaultValues[defaultValueColumn])[0];
+              const tg = taxGroups.find(tg => tg.name = defaultValues[defaultValueColumn]);
               control.patchValue(tg);
             });
           }
@@ -2125,10 +2126,13 @@ export class AddEditExpensePage implements OnInit {
         const params = {
           is_enabled: 'eq.true'
         };
-        this.taxGroups$ = this.taxGroupsService.get(params);
+        this.taxGroups$ = this.taxGroupsService.get(params).pipe(shareReplay(1));
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
           map(taxGroupsOptions =>  taxGroupsOptions.map(tg => ({label: tg.name, value: tg})))
         );
+      } else {
+        this.taxGroups$ = of(null);
+        this.taxGroupsOptions$ = of(null);
       }
     });
 

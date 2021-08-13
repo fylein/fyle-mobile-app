@@ -2,19 +2,19 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
 import { ApiV2Service } from './api-v2.service';
-import { TaxGroups } from '../models/tax_groups.model';
+import { TaxGroup } from '../models/tax_group.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class TaxGroupsService {
+export class TaxGroupService {
 
   constructor(
     private apiService: ApiService,
     private apiV2Service: ApiV2Service
   ) { }
 
-  get(params: any) {
+  get(params) {
     const data = {
       params
     };
@@ -24,9 +24,9 @@ export class TaxGroupsService {
     );
   }
 
-  post(tax_group: TaxGroups) {
+  post(taxGroup: TaxGroup) {
     /** Only these fields will be of type text & custom fields */
-    return this.apiService.post('tax_groups', tax_group);
+    return this.apiService.post('tax_groups', taxGroup);
   }
 
 }

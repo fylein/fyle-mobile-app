@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TaxGroupsService } from './tax_groups.service';
+import { TaxGroupService } from './tax_group.service';
 
-describe('TaxGroupsService', () => {
-  let service: TaxGroupsService;
+describe('TaxGroupService', () => {
+  let service: TaxGroupService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(TaxGroupsService);
+    service = TestBed.inject(TaxGroupService);
   });
 
   it('should be created', () => {
