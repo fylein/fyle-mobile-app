@@ -1398,7 +1398,10 @@ export class MyExpensesPage implements OnInit {
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
     selectedElements = selectedElements.filter(exp => exp.tx_id);
-
+    if(!selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
+      return;
+    }
     const expensesWithCriticalPolicyViolations = selectedElements
       .filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
     const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
@@ -1406,12 +1409,12 @@ export class MyExpensesPage implements OnInit {
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
     const noOfExpensesInDraftState = expensesInDraftState.length;
 
-    if(noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
-      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses and Critical policy violated expenses to a report');
-    } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
-      this.showNonReportableExpenseSelectedToast('You cannot add Critical policy violated expenses to a report');
-    } else if (noOfExpensesInDraftState > 0) {
+    if (noOfExpensesWithCriticalPolicyViolations === selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('You cannot add critical policy violated expenses to a report');
+    } else if (noOfExpensesInDraftState === selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
+    } else if(noOfExpensesWithCriticalPolicyViolations + noOfExpensesInDraftState === selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses and critical policy violated expenses to a report');
     } else {
       this.trackingService.addToReport({ Asset: 'Mobile' });
       const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
@@ -1428,12 +1431,12 @@ export class MyExpensesPage implements OnInit {
             title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
               ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
             message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
-              ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. \
+              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted. \
               Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
           } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
             title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
             message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
-              ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
+              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
           } else if (noOfExpensesInDraftState > 0) {
             title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
             message = `${noOfExpensesInDraftState} expenses are in draft states.`;
