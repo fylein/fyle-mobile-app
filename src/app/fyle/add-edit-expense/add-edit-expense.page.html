@@ -136,12 +136,12 @@
         </div>
         
         <app-receipt-preview-thumbnail *ngIf="newExpenseDataUrls.length > 0" [attachments]="newExpenseDataUrls"
-          (addMoreAttachments)="addAttachments($event)" (viewAttachments)="viewAttachments($event)">
+          (addMoreAttachments)="addAttachments($event)" (viewAttachments)="viewAttachments()">
         </app-receipt-preview-thumbnail>
 
         <ng-container *ngIf="attachments$|async as attachments">
           <app-receipt-preview-thumbnail *ngIf="attachments.length > 0" [attachments]="attachments"
-            (addMoreAttachments)="addAttachments($event)" (viewAttachments)="viewAttachments($event)"
+            (addMoreAttachments)="addAttachments($event)" (viewAttachments)="viewAttachments()"
             [isUploading]="attachmentUploadInProgress">
           </app-receipt-preview-thumbnail>
         </ng-container>
