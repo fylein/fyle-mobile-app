@@ -268,7 +268,7 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroups$: Observable<TaxGroup[]>;
 
-  taxGroupsOptions$: Observable<{label: String, value: any}[]>;
+  taxGroupsOptions$: Observable<{label: String; value: any}[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
