@@ -1,7 +1,7 @@
 import { UserDetails } from './v1/user-details.model';
 
 export interface TaxGroup {
-   id?: any;
+   id?: String;
    name: String;
    percentage: number;
    created_at?: Date;

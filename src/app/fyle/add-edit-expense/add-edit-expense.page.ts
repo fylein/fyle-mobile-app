@@ -1295,7 +1295,8 @@ export class AddEditExpensePage implements OnInit {
         recentProjects: this.recentlyUsedProjects$,
         recentCurrencies: this.recentlyUsedCurrencies$,
         recentCostCenters: this.recentlyUsedCostCenters$,
-        recentCategories: this.recentlyUsedCategories$
+        recentCategories: this.recentlyUsedCategories$,
+        taxGroups: this.taxGroups$
       })),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(({
@@ -1315,7 +1316,8 @@ export class AddEditExpensePage implements OnInit {
       recentCategories,
       recentProjects,
       recentCurrencies,
-      recentCostCenters
+      recentCostCenters,
+      taxGroups
     }) => {
       const customInputValues = customInputs
         .map(customInput => {
@@ -1368,6 +1370,13 @@ export class AddEditExpensePage implements OnInit {
             orig_amount: null,
             orig_currency: null
           }
+        });
+      }
+
+      if (etxn.tx.tax_group_id) {
+        const tg = taxGroups.find(tg => tg.id === etxn.tx.tax_group_id);
+        this.fg.patchValue({
+          tax_group: tg
         });
       }
 
@@ -1438,15 +1447,6 @@ export class AddEditExpensePage implements OnInit {
           costCenter = autoFillCostCenter.value;
           this.presetCostCenterId = autoFillCostCenter.value.id;
         }
-      }
-
-      if (etxn.tx.tax_group_id) {
-        this.taxGroups$.subscribe(taxGroups => {
-          const tg = taxGroups.find(tg => tg.id === etxn.tx.tax_group_id);
-          this.fg.patchValue({
-            tax_group: tg
-          });
-        });
       }
 
       this.fg.patchValue({
