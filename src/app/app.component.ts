@@ -561,6 +561,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    alert(document.cookie);
     if ((window as any) && (window as any).localStorage) {
       const lstorage = (window as any).localStorage;
       Object.keys(lstorage).filter(key => key.match(/^fyle/)).forEach(key => lstorage.removeItem(key));
