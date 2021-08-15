@@ -274,7 +274,7 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroups$: Observable<TaxGroup[]>;
 
-  taxGroupsOptions$: Observable<{label: String; value: any}[]>;
+  taxGroupsOptions$: Observable<{label: string; value: any}[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1743,16 +1743,18 @@ export class AddEditExpensePage implements OnInit {
       switchMap(txnFields => forkJoin({
         isConnected: this.isConnected$.pipe(take(1)),
         orgSettings: this.offlineService.getOrgSettings(),
-        costCenters: this.costCenters$
+        costCenters: this.costCenters$,
+        taxGroups: this.taxGroups$
       }).pipe(
-        map(({ isConnected, orgSettings, costCenters }) => ({
+        map(({ isConnected, orgSettings, costCenters, taxGroups }) => ({
           isConnected,
           txnFields,
           orgSettings,
-          costCenters
+          costCenters,
+          taxGroups
         }))
       ))
-    ).subscribe(({ isConnected, txnFields, orgSettings, costCenters }) => {
+    ).subscribe(({ isConnected, txnFields, orgSettings, costCenters, taxGroups }) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1818,7 +1820,7 @@ export class AddEditExpensePage implements OnInit {
           } else if (txnFieldKey === 'cost_center_id') {
             control.setValidators((isConnected && costCenters && costCenters.length > 0) ? Validators.required : null);
           } else if (txnFieldKey === 'tax_group') {
-            control.setValidators((isConnected) ? Validators.required : null);
+            control.setValidators((isConnected && taxGroups && taxGroups.length > 0) ? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
@@ -2120,7 +2122,7 @@ export class AddEditExpensePage implements OnInit {
         const params = {
           is_enabled: 'eq.true'
         };
-        this.taxGroups$ = this.taxGroupsService.get(params).pipe(shareReplay(1));
+        this.taxGroups$ = this.offlineService.getTaxGroups(params).pipe(shareReplay(1));
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
           map(taxGroupsOptions =>  taxGroupsOptions.map(tg => ({label: tg.name, value: tg})))
         );
