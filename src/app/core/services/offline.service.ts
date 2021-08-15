@@ -136,11 +136,14 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getTaxGroups(params) {
+  getEnabledTaxGroups() {
     return this.networkService.isOnline().pipe(
       switchMap(
         isOnline => {
           if (isOnline) {
+            const params = {
+              is_enabled: 'eq.true'
+            };
             return this.taxGroupService.get(params).pipe(
               tap((taxGroups) => {
                 this.storageService.set('cachedTaxGroups', taxGroups);
@@ -484,6 +487,7 @@ export class OfflineService {
     const currencies$ = this.getCurrencies();
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
+    const taxGroups$ = this.getEnabledTaxGroups();
 
     this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
       if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
@@ -506,7 +510,8 @@ export class OfflineService {
       expenseFieldsMap$,
       currencies$,
       homeCurrency$,
-      delegatedAccounts$
+      delegatedAccounts$,
+      taxGroups$
     ]);
 
   }
