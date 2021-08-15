@@ -1,8 +1,6 @@
 name: Appflow
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -45,12 +43,48 @@ jobs:
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C029QPGHSQL
-          slack-text:  Build is successful for PR link ${{github.event.pull_request.html_url}} 
+          slack-text: Android build is successful for PR link ${{github.event.pull_request.html_url}} 
 
-      - name: Upload to slack step
+      - name: Upload android.apk to slack
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           path: android.apk
           channel: C029QPGHSQL
+
+      - name: Build iOS on Appflow
+        uses: ionic-team/appflow-build@v1
+        with:
+          token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
+          platform: iOS
+          build-type: development
+          certificate: Fyle signing
+          environment: staging
+          native-config: prod
+          upload-artifact: ios
+
+      - uses: actions/download-artifact@v2
+        id: ios
+        with: 
+          name: 'ios'
+          path: ./
+
+      - name: Rename file
+        run: mv *.ipa ios.ipa
+      
+      - name: Send Message to Slack
+        uses: archive/github-actions-slack@v2.0.1
+        id: notify3
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: C029QPGHSQL
+          slack-text: iOS build is successful for PR link ${{github.event.pull_request.html_url}} 
+
+      - name: Upload ios.app to slack 
+        uses: adrey/slack-file-upload-action@master
+        with:
+          token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          path: ios.ipa
+          channel: C029QPGHSQL         
 

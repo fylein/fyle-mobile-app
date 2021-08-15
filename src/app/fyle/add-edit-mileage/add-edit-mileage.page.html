@@ -229,7 +229,7 @@
                       <div class="add-edit-mileage--internal-block add-edit-mileage--project-block"
                         [ngClass]="{'add-edit-mileage--no-project': fg.controls.project.touched && !fg.controls.project.valid}">
                         <app-fy-select-project [cacheName]="'mileageProjectCache'" [categoryIds]="projectCategoryIds"
-                          [label]="'Project'" [mandatory]="txnFields.project_id.is_mandatory" [defaultValue]="true"
+                          [label]="'Project'" [mandatory]="txnFields.project_id?.is_mandatory" [defaultValue]="true"
                           [recentlyUsed]="recentProjects" formControlName="project"></app-fy-select-project>
                       </div>
                     </ng-container>
@@ -464,7 +464,7 @@
                 <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                   <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
 
-                    <app-fy-alert *ngIf="txnFields.project_id && individualProjectIds.length === 0"
+                    <app-fy-alert *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                       [type]="'warning'"
                       [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
                     </app-fy-alert>

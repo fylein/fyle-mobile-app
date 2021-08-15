@@ -29,6 +29,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   @Input() recentlyUsed: { label: string; value: string }[];
 
+  @Input() expanded: boolean;
+
+
   exchangeRate = 1;
 
   fg: FormGroup;
