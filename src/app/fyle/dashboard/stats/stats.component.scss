@@ -146,13 +146,18 @@ $ccc-bank-name: #C4CAE8;
     margin-bottom: 24px;
   }
 
+  &--ccc-cards-header {
+    margin-left: 6px;
+  }
+
   &--ccc-card-details {
     position: relative;
     left: 50%;
     transform: translate(-50%, 0);
     min-height: 85px;
     width: calc(100% - 64px);
-    background: $dark-grey;
+    background: url('../../../../assets/images/card-bg.png') no-repeat bottom;
+    background-size: 100% 100%;
     box-shadow: 0px 2px 8px $transparent-pearl-grey;
     border-radius: 8px;
     z-index: 999;
