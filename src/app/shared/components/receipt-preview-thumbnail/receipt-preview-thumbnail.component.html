@@ -3,7 +3,7 @@
     Receipt <ng-container *ngIf="attachments.length > 1">{{activeIndex + 1}}/{{attachments.length}} </ng-container>
   </div>
   <div (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
-    <mat-icon class="receipt-preview-thumbnail--icon"  [ngStyle]="{'color':'red'}" svgIcon="fy-plus"></mat-icon>
+    <mat-icon class="receipt-preview-thumbnail--icon"  [ngStyle]="{'color':'red'}" svgIcon="plus"></mat-icon>
     <span class="receipt-preview-thumbnail--add-more-text">Add More</span>
   </div>
 </div>
