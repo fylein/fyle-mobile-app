@@ -151,6 +151,10 @@ export class SplitExpensePage implements OnInit {
   }
 
   generateSplitEtxnFromFg(splitExpenseValue) {
+    // Fixing the date format here as the transaction object date is a string
+    this.transaction.from_dt = this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
+    this.transaction.to_dt = this.transaction?.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
+
     return {
       ...this.transaction,
       org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
