@@ -103,7 +103,6 @@ export class MyReportsPage implements OnInit {
 
     this.searchText = '';
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-    console.log(this.navigateBack);
     this.acc = [];
 
     this.currentPageNumber = 1;
@@ -115,7 +114,6 @@ export class MyReportsPage implements OnInit {
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),
-        tap(console.log),
         distinctUntilChanged(),
         debounceTime(1000)
       ).subscribe((searchString) => {
