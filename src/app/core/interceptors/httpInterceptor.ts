@@ -146,8 +146,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                   return next.handle(request);
                 })
               );
-            } else if (error instanceof HttpErrorResponse && error.status === 404) {
-              console.log(error)
+            } else if (error instanceof HttpErrorResponse && error.status === 404 && (error.headers.get('Is-Mobile-App-Blocked') === 'true')) {
               this.userEventService.logout();
               this.storageService.clearAll();
               globalCacheBusterNotifier.next();
