@@ -17,7 +17,6 @@ import {
   tap
 } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { MyExpensesSortFilterComponent } from './my-expenses-sort-filter/my-expenses-sort-filter.component';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
@@ -378,7 +377,6 @@ export class MyExpensesPage implements OnInit {
 
     this.selectionMode = false;
     this.selectedElements = [];
-
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
     this.syncing = true;
@@ -387,9 +385,9 @@ export class MyExpensesPage implements OnInit {
       tap(() => this.sendFirstExpenseCreatedEvent()),
       finalize(() => this.syncing = false)
     ).subscribe(() => {
-      this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+      const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
-      if (this.pendingTransactions.length === 0) {
+      if (pendingTransactions.length === 0) {
         this.doRefresh();
       }
     });
@@ -447,6 +445,9 @@ export class MyExpensesPage implements OnInit {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
+      }),
+      tap(()=> {
+        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
 
@@ -577,16 +578,19 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?) {
-    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-
-    if (this.pendingTransactions.length) {
+    const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    if (pendingTransactions.length > 0) {
       this.syncing = true;
       from(this.pendingTransactions).pipe(
         switchMap(() => from(this.transactionOutboxService.sync())),
-        finalize(() => this.syncing = false)
-      ).subscribe((a) => {
-        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-      });
+        finalize(() => {
+          this.syncing = false;
+          const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+          if (pendingTransactions.length === 0) {
+            this.doRefresh();
+          }
+        })
+      ).subscribe(noop);
     }
 
     this.currentPageNumber = 1;
@@ -1166,8 +1170,6 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      console.log(data);
-      // await this.loaderService.showLoader('Loading Expenses...', 1000);
       this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -1177,29 +1179,6 @@ export class MyExpensesPage implements OnInit {
         Asset: 'Mobile',
         ...this.filters
       });
-    }
-  }
-
-
-  async openSort() {
-    const sortPopover = await this.popoverController.create({
-      component: MyExpensesSortFilterComponent,
-      componentProps: {
-        filters: this.filters
-      },
-      cssClass: 'dialog-popover'
-    });
-
-    await sortPopover.present();
-
-    const { data } = await sortPopover.onWillDismiss();
-    if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
-      this.filters = Object.assign({}, this.filters, data.sortOptions);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
     }
   }
 
@@ -1902,5 +1881,13 @@ export class MyExpensesPage implements OnInit {
         newQueryParams.and = `(tx_txn_dt.lt.${endDate})`;
       }
     }
+  }
+
+  searchClick() {
+    this.headerState = HeaderState.simpleSearch;
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      searchInput.focus();
+    }, 300);
   }
 }

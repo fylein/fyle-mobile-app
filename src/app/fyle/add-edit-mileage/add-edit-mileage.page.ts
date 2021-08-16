@@ -96,8 +96,6 @@ export class AddEditMileagePage implements OnInit {
 
   filteredCategories$: Observable<any>;
 
-  transactionMandatoyFields$: Observable<any>;
-
   etxn$: Observable<any>;
 
   isIndividualProjectsEnabled$: Observable<boolean>;
@@ -454,7 +452,7 @@ export class AddEditMileagePage implements OnInit {
       }).pipe(
         switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
           // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
-          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
+          const fields = ['purpose', 'txn_dt', 'cost_center_id', 'project_id', 'distance', 'billable'];
 
           return this.expenseFieldsService
             .filterByOrgCategoryId(
@@ -957,42 +955,6 @@ export class AddEditMileagePage implements OnInit {
 
     this.customInputs$ = this.getCustomInputs();
 
-    this.transactionMandatoyFields$ = this.isConnected$.pipe(
-      filter(isConnected => !!isConnected),
-      switchMap(() => this.offlineService.getOrgSettings()),
-      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
-    );
-
-    this.transactionMandatoyFields$
-      .pipe(
-        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
-        switchMap((transactionMandatoyFields) => forkJoin({
-          individualProjectIds: this.individualProjectIds$,
-          isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-          orgSettings: this.offlineService.getOrgSettings()
-        }).pipe(map(({ individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => ({
-          transactionMandatoyFields,
-          individualProjectIds,
-          isIndividualProjectsEnabled,
-          orgSettings
-        }))))
-      )
-      .subscribe(({ transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => {
-        if (orgSettings.projects.enabled) {
-          if (isIndividualProjectsEnabled) {
-            if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          } else {
-            if (transactionMandatoyFields.project) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          }
-        }
-      });
-
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$
@@ -1037,6 +999,7 @@ export class AddEditMileagePage implements OnInit {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
         txn_dt: this.fg.controls.dateOfSpend,
+        project_id: this.fg.controls.project,
         billable: this.fg.controls.billable
       };
 

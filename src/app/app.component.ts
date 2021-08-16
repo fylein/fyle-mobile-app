@@ -2,7 +2,7 @@ import { Component, OnInit, EventEmitter, NgZone } from '@angular/core';
 import { Platform, MenuController, AlertController, NavController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { forkJoin, from, iif, of, concat, Observable } from 'rxjs';
+import { forkJoin, from, iif, of, concat, Observable, noop } from 'rxjs';
 import { map, switchMap, shareReplay } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -595,6 +595,15 @@ export class AppComponent implements OnInit {
     this.setupNetworkWatcher();
 
     this.router.events.subscribe((ev) => {
+      // adding try catch because this may fail due to network issues
+      // noop is no op - basically an empty function
+      try {
+        this.trackingService.updateIdentityIfNotPresent()
+          .then(noop)
+          .catch(noop);
+      } catch (error) {
+      }
+
       if (ev instanceof NavigationStart) {
         this.previousUrl = this.router.url;
       }

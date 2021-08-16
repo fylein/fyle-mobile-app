@@ -7,6 +7,8 @@ $grey-lightest: #e6e6e6 !default;
 $pure-white: #fff !default;
 $blue-black: #2c304e !default;
 $translucent-white: #ffffff66 !default;
+$translucent-white-2: #ffffff99 !default;
+$translucent-black: rgba(0, 0, 0, 0.2)!default;
 $grey: #dfdfe2 !default;
 $translucent-grey: #dfdfe280 !default;
 $grey-2: rgba(223, 223, 226, 0.7) !default;
@@ -42,6 +44,7 @@ $outline-grey: #eaeaeb !default;
 $dark-blue: #1c1f36 !default;
 $black-3: #0000004d !default;
 $black-4: rgba(0, 0, 0, 0.3) !default;
+$pure-black: #000 !default;
 
 
 $pink-gradient: linear-gradient(137.88deg, $brand-primary 14.22%, $brand-primary-light 85.5%);

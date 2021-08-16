@@ -142,7 +142,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                 return that.locationService.getAutocompletePredictions(searchText, eou.us.id);
               }
             }),
-            tap(console.log),
             map((res) => {
               that.loader = false;
               return res;
