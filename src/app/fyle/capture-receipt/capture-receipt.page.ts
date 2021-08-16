@@ -255,7 +255,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
   }
 
   async onCapture() {
-    if (this.captureCount === 20) {
+    if (this.captureCount >= 20) {
       await this.popupService.showPopup({
         header: 'Limit Reached',
         message: 'You cannot create more than 20 expenses at a time in bulk mode.',
