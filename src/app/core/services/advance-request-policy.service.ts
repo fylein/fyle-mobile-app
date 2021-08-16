@@ -20,11 +20,9 @@ export class AdvanceRequestPolicyService {
   }
 
   getPolicyRules(result) {
-    return result.advance_request_policy_rule_desired_states.filter((desiredState) =>  {
-      return desiredState.popup === true;
-    }).map((desiredState) => {
-      return desiredState.description;
-    });
+    return result.advance_request_policy_rule_desired_states
+      .filter((desiredState) => desiredState.popup === true)
+      .map((desiredState) => desiredState.description);
   }
 
   servicePost(url, data, config) {

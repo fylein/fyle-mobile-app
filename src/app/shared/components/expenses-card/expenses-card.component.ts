@@ -1,18 +1,22 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { from, noop, Observable } from 'rxjs';
+import { concat } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import {getCurrencySymbol} from '@angular/common';
+import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { concatMap, finalize, map, switchMap } from 'rxjs/operators';
-import { isEqual, reduce } from 'lodash';
+import { concatMap, finalize, switchMap } from 'rxjs/operators';
+import { reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { PopoverController } from '@ionic/angular';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { File } from 'src/app/core/models/file.model';
+import { map, tap } from 'rxjs/operators';
+import { isEqual } from 'lodash';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-expense-card',
@@ -22,38 +26,70 @@ import { File } from 'src/app/core/models/file.model';
 export class ExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
+
   @Input() previousExpenseTxnDate;
+
   @Input() previousExpenseCreatedAt;
+
   @Input() isSelectionModeEnabled: boolean;
+
   @Input() selectedElements: Expense[];
+
   @Input() isFirstOfflineExpense: boolean;
+
   @Input() attachments;
 
+  @Input() isOutboxExpense: boolean;
+
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
   receiptIcon: string;
+
+  receipt: string;
+
   showDt = true;
+
   isPolicyViolated: boolean;
+
   isCriticalPolicyViolated: boolean;
+
   homeCurrency: string;
+
   homeCurrencySymbol = '';
+
   foreignCurrencySymbol = '';
+
   paymentModeIcon: string;
+
   isScanInProgress: boolean;
+
   isProjectMandatory$: Observable<boolean>;
-  attachmentUploadInProgress: boolean = false;
-  attachedReceiptsCount: number = 0;
+
+  attachmentUploadInProgress = false;
+
+  attachedReceiptsCount = 0;
+
   receiptThumbnail: string = null;
+
+  isConnected$: Observable<boolean>;
+
+  isSycing$: Observable<boolean>;
+
+  category: string;
 
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,
     private fileService: FileService,
-    private transactionOutboxService: TransactionsOutboxService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private networkService: NetworkService,
+    private transactionOutboxService: TransactionsOutboxService
   ) { }
 
 
@@ -106,7 +142,16 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.expense.isDraft = this.transactionService.getIsDraft(this.expense)
+    this.setupNetworkWatcher();
+    this.isSycing$ = this.isConnected$.pipe(
+      map(isConnected => isConnected &&
+        this.transactionOutboxService.isSyncInProgress() &&
+        this.isOutboxExpense
+      )
+    );
+
+    this.category = this.expense.tx_org_category?.toLowerCase();
+    this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
@@ -119,13 +164,11 @@ export class ExpensesCardComponent implements OnInit {
         this.foreignCurrencySymbol = getCurrencySymbol(this.expense.tx_orig_currency, 'wide');
       })
     ).subscribe(noop);
-    this.homeCurrencySymbol = getCurrencySymbol(this.expense.tx_currency, 'wide');
+
     this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        return orgSettings.transaction_fields_settings &&
-          orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
-          orgSettings.transaction_fields_settings.transaction_mandatory_fields.project;
-      })
+      map((orgSettings) => orgSettings.transaction_fields_settings &&
+        orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
+        orgSettings.transaction_fields_settings.transaction_mandatory_fields.project)
     );
 
     if (!this.expense.tx_id) {
@@ -138,14 +181,19 @@ export class ExpensesCardComponent implements OnInit {
 
     this.getReceipt();
 
-    this.isScanInProgress = this.getScanningReceiptCard(this.expense);
+    this.isScanInProgress = this.getScanningReceiptCard(this.expense) || this.isOutboxExpense;
 
+    this.setOtherData();
+
+  }
+
+  setOtherData() {
     if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-        if (this.expense.tx_corporate_credit_card_expense_group_id) {
-          this.paymentModeIcon = 'fy-matched';
-        } else {
-          this.paymentModeIcon = 'fy-unmatched';
-        }
+      if (this.expense.tx_corporate_credit_card_expense_group_id) {
+        this.paymentModeIcon = 'fy-matched';
+      } else {
+        this.paymentModeIcon = 'fy-unmatched';
+      }
     } else {
       if (!this.expense.tx_skip_reimbursement) {
         this.paymentModeIcon = 'fy-reimbursable';
@@ -153,11 +201,11 @@ export class ExpensesCardComponent implements OnInit {
         this.paymentModeIcon = 'fy-non-reimbursable';
       }
     }
-
   }
 
   getScanningReceiptCard(expense: Expense): boolean {
-    if (expense.tx_fyle_category && (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
+    if (expense.tx_fyle_category &&
+      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
       return false;
     } else {
       if (!expense.tx_currency && !expense.tx_amount) {
@@ -200,7 +248,7 @@ export class ExpensesCardComponent implements OnInit {
       const { data } = await popup.onWillDismiss();
       if (data) {
         this.attachmentUploadInProgress = true;
-        let attachmentType = this.fileService.getAttachmentType(data.type);
+        const attachmentType = this.fileService.getAttachmentType(data.type);
 
         from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType)).pipe(
           switchMap((fileObj: FileObject) => {
@@ -229,5 +277,11 @@ export class ExpensesCardComponent implements OnInit {
       }
     }
   }
-  
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+  }
+
 }

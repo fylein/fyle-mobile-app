@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import {Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject} from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import {ModalController, PopoverController} from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
-import {ActivatedRoute, Params, Router} from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay } from 'rxjs/operators';
 import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/team-reports-search-filter.component';
@@ -20,20 +20,30 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   pageTitle = 'Team Reports';
+
   isConnected$: Observable<boolean>;
+
   teamReports$: Observable<ExtendedReport[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
   }>>;
+
   currentPageNumber = 1;
+
   acc = [];
+
   filters: Partial<{
     state: string;
     date: string;
@@ -42,13 +52,16 @@ export class TeamReportsPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
-  homeCurrency$: Observable<string>;
-  searchText = '';
-  orgSettings$: Observable<string>;
-  orgSettings: any;
-  onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  homeCurrency$: Observable<string>;
+
+  searchText = '';
+
+  orgSettings$: Observable<string>;
+
+  orgSettings: any;
+
+  onPageExit = new Subject();
 
   constructor(
     private networkService: NetworkService,
@@ -139,18 +152,12 @@ export class TeamReportsPage implements OnInit {
     );
 
     const paginatedScroll$ = this.teamReports$.pipe(
-      switchMap(erpts => {
-        return this.count$.pipe(
-          map(count => {
-            return count > erpts.length;
-          }));
-      })
+      switchMap(erpts => this.count$.pipe(
+        map(count => count > erpts.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
-      })
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$))
     );
 
     this.loadData$.subscribe(noop);
@@ -163,7 +170,7 @@ export class TeamReportsPage implements OnInit {
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams,
-        replaceUrl : true
+        replaceUrl: true
       });
     });
 
@@ -175,7 +182,8 @@ export class TeamReportsPage implements OnInit {
     } else if (this.activatedRoute.snapshot.params.state) {
       const filters = {
         rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
-        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
+        state: this.activatedRoute.snapshot.params.state.toUpperCase()
+      };
 
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
@@ -224,48 +232,79 @@ export class TeamReportsPage implements OnInit {
 
     if (this.filters) {
       if (this.filters.state) {
-        if (this.filters.state === 'ALL') {
-          newQueryParams.rp_state = 'in.(APPROVER_PENDING,APPROVER_INQUIRY,APPROVAL_DONE,COMPLETE,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
-          newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
-        } else if (this.filters.state === 'MYQUEUE') {
-          newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
-          newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-          newQueryParams.sequential_approval_turn = 'in.(true)';
-        }
+        this.setStateFilters(newQueryParams);
       } else {
-        newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
-        newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-        newQueryParams.sequential_approval_turn = 'in.(true)';
+        this.setDefaultStateFilters(newQueryParams);
       }
 
       if (this.filters.date) {
-        if (this.filters.date === 'THISMONTH') {
-          newQueryParams.and =
-            `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
-        } else if (this.filters.date === 'LASTMONTH') {
-          newQueryParams.and =
-            `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
-        } else if (this.filters.date === 'CUSTOMDATE') {
-          newQueryParams.and =
-            `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
-        }
+        this.setDateFilters(newQueryParams);
       }
 
-      if (this.filters.sortParam && this.filters.sortDir) {
-        currentParams.sortParam = this.filters.sortParam;
-        currentParams.sortDir = this.filters.sortDir;
-      } else {
-        currentParams.sortParam = 'rp_created_at';
-        currentParams.sortDir = 'desc';
-      }
+      this.setSortFilters(currentParams);
     } else {
-      newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
-      newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-      newQueryParams.sequential_approval_turn = 'in.(true)';
+      this.setNewFiltersDefault(newQueryParams);
     }
 
     currentParams.queryParams = newQueryParams;
     return currentParams;
+  }
+
+  setSortFilters(currentParams: Partial<{
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }>) {
+    if (this.filters.sortParam && this.filters.sortDir) {
+      currentParams.sortParam = this.filters.sortParam;
+      currentParams.sortDir = this.filters.sortDir;
+    } else {
+      currentParams.sortParam = 'rp_created_at';
+      currentParams.sortDir = 'desc';
+    }
+  }
+
+  setDateFilters(newQueryParams: any) {
+    if (this.filters.date === 'THISMONTH') {
+      const monthRange = this.dateService.getThisMonthRange();
+      newQueryParams.and =
+        `(rp_created_at.gte.${monthRange.from.toISOString()},rp_created_at.lt.${monthRange.to.toISOString()})`;
+    } else if (this.filters.date === 'LASTMONTH') {
+      const monthRange = this.dateService.getLastMonthRange();
+      newQueryParams.and =
+        `(rp_created_at.gte.${monthRange.from.toISOString()},rp_created_at.lt.${monthRange.to.toISOString()})`;
+    } else if (this.filters.date === 'CUSTOMDATE') {
+      const startDate = this.filters.customDateStart.toISOString();
+      const endDate = this.filters.customDateEnd.toISOString();
+      newQueryParams.and = `(rp_created_at.gte.${startDate},rp_created_at.lt.${endDate})`;
+    }
+  }
+
+  setDefaultStateFilters(newQueryParams: any) {
+    newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+    newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+    newQueryParams.sequential_approval_turn = 'in.(true)';
+  }
+
+  setStateFilters(newQueryParams: any) {
+    if (this.filters.state === 'ALL') {
+      // since this is a string can break it down furthur
+      // eslint-disable-next-line max-len
+      newQueryParams.rp_state = 'in.(APPROVER_PENDING,APPROVER_INQUIRY,APPROVAL_DONE,COMPLETE,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
+      newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
+    } else if (this.filters.state === 'MYQUEUE') {
+      newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+      newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+      newQueryParams.sequential_approval_turn = 'in.(true)';
+    }
+  }
+
+  setNewFiltersDefault(newQueryParams: any) {
+    newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+    newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+    newQueryParams.sequential_approval_turn = 'in.(true)';
   }
 
   async openFilters() {
@@ -346,9 +385,7 @@ export class TeamReportsPage implements OnInit {
 
       if (popupResult === 'primary') {
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.delete(erpt.rp_id);
-          }),
+          switchMap(() => this.reportService.delete(erpt.rp_id)),
           finalize(async () => {
             await this.loaderService.hideLoader();
             this.doRefresh();

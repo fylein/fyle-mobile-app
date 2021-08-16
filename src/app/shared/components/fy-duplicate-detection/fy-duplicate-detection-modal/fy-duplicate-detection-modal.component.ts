@@ -11,9 +11,12 @@ import { isEqual } from 'lodash';
 })
 export class FyDuplicateDetectionModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
+
+  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+
   @Input() currentSelection: any;
-  @Input() filteredOptions$: Observable<{ label: string, value: any , selected?: boolean}[]>;
+
+  @Input() filteredOptions$: Observable<{ label: string; value: any ; selected?: boolean}[]>;
 
   constructor(
     private modalController: ModalController,

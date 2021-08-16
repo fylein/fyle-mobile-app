@@ -1,4 +1,4 @@
-import { ExpenseField } from "./expense-field.model";
+import { ExpenseField } from './expense-field.model';
 
 export interface ExpenseFieldsMap {
   boolean_column1: ExpenseField[];
@@ -77,4 +77,5 @@ export interface ExpenseFieldsMap {
   train_travel_class: ExpenseField[];
   txn_dt: ExpenseField[];
   vendor_id: ExpenseField[];
+  billable: ExpenseField[];
 }

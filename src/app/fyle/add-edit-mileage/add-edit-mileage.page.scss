@@ -1,4 +1,5 @@
 @import "../../../theme/colors.scss";
+@import "../../../theme/forms.scss";
 
 .add-edit-mileage {
   &--toolbar {
@@ -30,6 +31,12 @@
       font-weight: 400;
       top: 12px;
       height: 64px;
+    }
+  }
+
+  &--footer-toolbar {
+    &__offline {
+      padding-bottom: 36px;
     }
   }
 
@@ -85,7 +92,6 @@
 
   &--date {
     border-bottom: 1px solid $grey-lighter;
-    padding: 4px 0 !important;
   }
 
   &--date-label {
@@ -173,10 +179,14 @@
   }
 
   &--internal-block {
-    padding: 8px 0;
+    padding: 6px 0;
     background: #fff;
     line-height: 1;
     margin-bottom: 12px;
+
+    &__margin {
+      margin-right: 12px;
+    }
 
     &__invalid {
       border-color: $red;
@@ -405,19 +415,19 @@
   }
 
   &--payment-mode-header {
-    font-weight: 500;
-    font-size: 16px;
-    color: #4a4a4a;
-  }
-
-  &--payment-mode-purpose {
     font-size: 14px;
-    color: #4a4a4a;
+    color: $blue-black;
   }
 
-  &--payment-mode-type {
-    color: #ababab;
+  &--payment-mode-section {
     font-size: 12px;
+    color: $black-light;
+    margin-top: 4px;
+  }
+
+  &--check {
+    color: $primary;
+    font-size: 20px;
   }
 
   &--mandatory {
@@ -439,5 +449,10 @@
 
   &--location {
     flex-grow: 1;
+  }
+
+  &--grid {
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
   }
 }

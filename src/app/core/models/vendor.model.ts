@@ -8,7 +8,7 @@ export interface Vendor {
   created_at: Date;
   updated_at: Date;
   default_category: string;
-  verified: boolean; 
+  verified: boolean;
 }
 
 export interface VendorListItem {

@@ -22,6 +22,19 @@ export class LocationService {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
+  @Cacheable({
+    cacheBusterObserver: currentLocationCacheBuster$,
+    maxAge: 10 * 60 * 1000 // 10 minutes
+  })
+  getCurrentLocation(config: {enableHighAccuracy: boolean} = {enableHighAccuracy: false}): Observable<GeolocationPosition>{
+    return from(Geolocation.getCurrentPosition({
+      timeout: 5000,
+      enableHighAccuracy: config.enableHighAccuracy
+    })).pipe(
+      catchError(() => of(null))
+    );
+  }
+
   setRoot(rootUrl: string) {
     this.ROOT_ENDPOINT = rootUrl;
   }
@@ -97,18 +110,5 @@ export class LocationService {
         return locationDetails;
       })
     );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: currentLocationCacheBuster$,
-    maxAge: 10 * 60 * 1000 // 10 minutes
-  })
-  getCurrentLocation(config: {enableHighAccuracy: boolean} = {enableHighAccuracy: false}) : Observable<GeolocationPosition>{
-    return from(Geolocation.getCurrentPosition({
-      timeout: 5000,
-      enableHighAccuracy: config.enableHighAccuracy
-    })).pipe(
-      catchError(() => of(null))
-    )
   }
 }

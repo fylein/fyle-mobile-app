@@ -21,17 +21,24 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyUserlistComponent implements OnInit {
-  private ngControl: NgControl;
 
-  eouc$: Observable<Employee[]>;
-  @Input() options: { label: string, value: any }[];
+  @Input() options: { label: string; value: any }[];
+
   @Input() disabled = false;
+
   @Input() label = '';
+
   @Input() mandatory = false;
+
   @Input() allowCustomValues: boolean;
 
-  private innerValue;
+  eouc$: Observable<Employee[]>;
+
   displayValue;
+
+  private innerValue;
+
+  private ngControl: NgControl;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -42,6 +49,7 @@ export class FyUserlistComponent implements OnInit {
   }
 
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(

@@ -33,6 +33,35 @@ export class OrgUserService {
   ) { }
 
 
+  @Cacheable()
+  getCurrent() {
+    return this.apiService.get('/eous/current').pipe(
+      map(eou => this.dataTransformService.unflatten(eou))
+    );
+  }
+
+  // TODO: move to v2
+  @Cacheable({
+    cacheBusterObserver: orgUsersCacheBuster$
+  })
+  getEmployeesByParams(params): Observable<{
+    count: number;
+    data: Employee[];
+    limit: number;
+    offset: number;
+    url: string;}> {
+    return this.apiV2Service.get('/employees', {params});
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: orgUsersCacheBuster$
+  })
+  switchToDelegator(orgUser) {
+    return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
+      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
+    );
+  }
+
   postUser(user: User) {
     globalCacheBusterNotifier.next();
     return this.apiService.post('/users', user);
@@ -45,25 +74,11 @@ export class OrgUserService {
 
   markActive() {
     return this.apiService.post('/orgusers/current/mark_active').pipe(
-      switchMap(() => {
-        return this.authService.refreshEou();
-      }),
+      switchMap(() => this.authService.refreshEou()),
       tap(() => this.trackingService.activated({Asset: 'Mobile'}))
     );
   }
 
-  // TODO: move to v2
-  @Cacheable({
-    cacheBusterObserver: orgUsersCacheBuster$
-  })
-  getEmployeesByParams(params): Observable<{
-    count: number,
-    data: Employee[],
-    limit: number,
-    offset: number,
-    url: string}> {
-    return this.apiV2Service.get('/employees', {params});
-  }
 
   getEmployees(params): Observable<Employee[]>{
     return this.getEmployeesByParams({...params, limit: 1}).pipe(
@@ -71,12 +86,8 @@ export class OrgUserService {
         const count = res.count > 200 ? res.count / 200 : 1;
         return range(0, count);
       }),
-      concatMap(page => {
-        return this.getEmployeesByParams({ ...params, offset: 200 * page, limit: 200 });
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr.data);
-      }, [] as Employee[])
+      concatMap(page => this.getEmployeesByParams({ ...params, offset: 200 * page, limit: 200 })),
+      reduce((acc, curr) => acc.concat(curr.data), [] as Employee[])
     );
   }
 
@@ -95,27 +106,14 @@ export class OrgUserService {
 
 
   exclude(eous: ExtendedOrgUser[], userIds: string[]) {
-    return eous.filter((eou) => {
-      return userIds.indexOf(eou.ou.id) === -1;
-    });
-  }
-
-  @Cacheable()
-  getCurrent() {
-    return this.apiService.get('/eous/current').pipe(
-      map(eou => {
-        return this.dataTransformService.unflatten(eou);
-      })
-    );
+    return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
   }
 
   // TODO: move to v2
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map(delegatedAccounts => {
-        delegatedAccounts = delegatedAccounts.map((delegatedAccount) => {
-          return this.dataTransformService.unflatten(delegatedAccount);
-        });
+        delegatedAccounts = delegatedAccounts.map((delegatedAccount) => this.dataTransformService.unflatten(delegatedAccount));
 
         return delegatedAccounts;
       })
@@ -123,48 +121,29 @@ export class OrgUserService {
   }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string) {
-    const eousFiltered = eous.filter((eou) => {
-      return status.indexOf(eou.ou.status) === -1;
-    });
+    const eousFiltered = eous.filter((eou) => status.indexOf(eou.ou.status) === -1);
     return eousFiltered;
   }
 
   filterByRole(eous: ExtendedOrgUser[], role: string) {
-    const eousFiltered = eous.filter((eou) => {
-      return eou.ou.roles.indexOf(role);
-    });
+    const eousFiltered = eous.filter((eou) => eou.ou.roles.indexOf(role));
 
     return eousFiltered;
   }
 
   filterByRoles(eous: ExtendedOrgUser[], role) {
-    const filteredEous = eous.filter(eou => {
-      return role.some(userRole => {
-        if (eou.ou.roles.indexOf(userRole) > -1) {
-          return true;
-        }
-      });
-    });
+    const filteredEous = eous.filter(eou => role.some(userRole => {
+      if (eou.ou.roles.indexOf(userRole) > -1) {
+        return true;
+      }
+    }));
 
     return filteredEous;
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: orgUsersCacheBuster$
-  })
-  switchToDelegator(orgUser) {
-    return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
-      switchMap(data => {
-        return this.authService.newRefreshToken(data.refresh_token);
-      })
-    );
-  }
-
   switchToDelegatee() {
     return this.apiService.post('/orgusers/delegatee_refresh_token').pipe(
-      switchMap(data => {
-        return this.authService.newRefreshToken(data.refresh_token);
-      })
+      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
     );
   }
 

@@ -13,7 +13,7 @@ const routes: Routes = [
   {
     path: 'setup_account_preferences',
     loadChildren: () =>
-    import('./setup-account-preferences/setup-account-preferences.module').then(m => m.SetupAccountPreferencesPageModule)
+      import('./setup-account-preferences/setup-account-preferences.module').then(m => m.SetupAccountPreferencesPageModule)
   }
 ];
 

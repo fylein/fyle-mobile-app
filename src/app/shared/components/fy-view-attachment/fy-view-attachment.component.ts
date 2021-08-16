@@ -14,14 +14,20 @@ import { switchMap, finalize } from 'rxjs/operators';
 })
 export class FyViewAttachmentComponent implements OnInit {
 
-  sliderOptions: any;
+
   @Input() attachments: any[];
+
   @Input() canEdit = false;
-  activeIndex = 0;
 
   @ViewChild('slides') imageSlides: any;
+
+  sliderOptions: any;
+
+  activeIndex = 0;
+
   zoomScale: number;
 
+  // max params shouldnt effect constructors
   constructor(
     private modalController: ModalController,
     private sanitizer: DomSanitizer,

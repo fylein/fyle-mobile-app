@@ -81,32 +81,28 @@ export class CustomFieldsService {
   standardizeCustomFields(customProperties, customInputs) {
     let prefix = '';
 
-    const filledCustomPropertiesWithType = customInputs.filter((customInput) => {
-      return !customInput.input_type;
-    }).map((customInput) => {
-      return this.setProperty(prefix, customInput, customProperties);
-    });
+    const filledCustomPropertiesWithType = customInputs
+      .filter((customInput) => !customInput.input_type)
+      .map((customInput) => this.setProperty(prefix, customInput, customProperties));
 
-    const filledCustomPropertiesWithInputType = customInputs.filter((customInput) => {
-      return !customInput.type && customInput.input_type;
-    }).map((customInput) => {
-      prefix = 'input_';
-      return this.setProperty(prefix, customInput, customProperties);
-    });
+    const filledCustomPropertiesWithInputType = customInputs
+      .filter((customInput) => !customInput.type && customInput.input_type)
+      .map((customInput) => {
+        prefix = 'input_';
+        return this.setProperty(prefix, customInput, customProperties);
+      });
 
     return filledCustomPropertiesWithType.concat(filledCustomPropertiesWithInputType).sort(this.sortcustomFieldsByType);
   }
 
   standardizeProperties(customProperties) {
-    const changedCustomProperties = customProperties.map((customProperty) => {
-      return {
-        id: customProperty.id,
-        name: customProperty.name,
-        value: customProperty.value,
-        type: customProperty.type
-      };
-    });
+    const changedCustomProperties = customProperties.map((customProperty) => ({
+      id: customProperty.id,
+      name: customProperty.name,
+      value: customProperty.value,
+      type: customProperty.type
+    }));
 
     return changedCustomProperties;
-  };
+  }
 }

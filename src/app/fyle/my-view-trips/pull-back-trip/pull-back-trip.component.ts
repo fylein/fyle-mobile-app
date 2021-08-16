@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 })
 export class PullBackTripComponent implements OnInit {
   reason = '';
+
   showError = false;
 
   constructor(

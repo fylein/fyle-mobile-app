@@ -9,8 +9,8 @@ export interface Employee {
   custom_properties: any;
   dwolla_bank_account_added: boolean;
   dwolla_customer_id: string;
-  ou_allowed_cost_centers: [{code: string, id: number, name: string}];
-  ou_allowed_projects: [{id: string, name: string}];
+  ou_allowed_cost_centers: [{code: string; id: number; name: string}];
+  ou_allowed_projects: [{id: string; name: string}];
   ou_approver1_id: string;
   ou_approver2_id: string;
   ou_approver3_id: string;
