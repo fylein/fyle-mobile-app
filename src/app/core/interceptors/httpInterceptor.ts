@@ -131,7 +131,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
           request = request.clone({params});
         }
-        const appVersion = deviceInfo.appVersion || '4.0.0';
+        const appVersion = deviceInfo.appVersion || '0.0.0';
         const osVersion = deviceInfo.osVersion;
         const operatingSystem = deviceInfo.operatingSystem;
         const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
@@ -146,7 +146,9 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                   return next.handle(request);
                 })
               );
-            } else if (error instanceof HttpErrorResponse && error.status === 404 && (error.headers.get('Is-Mobile-App-Blocked') === 'true')) {
+            } else if (error instanceof HttpErrorResponse &&
+                error.status === 404 &&
+                (error.headers.get('Is-Mobile-App-Blocked') === 'true')) {
               this.userEventService.logout();
               this.storageService.clearAll();
               globalCacheBusterNotifier.next();
