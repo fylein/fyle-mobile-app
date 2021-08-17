@@ -90,6 +90,10 @@ jobs:
         run: |
           printf "Hello\nWorld\n" > android.apk
 
+      - name: Create file
+        run: |
+          ls
+
       - uses: rnkdsh/action-upload-diawi@v1.2.0
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
