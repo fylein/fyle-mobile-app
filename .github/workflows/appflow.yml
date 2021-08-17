@@ -87,11 +87,12 @@ jobs:
       #     channel: C029QPGHSQL       
 
       - uses: rnkdsh/action-upload-diawi@v1.2.0
+        id: diwaiAndroid
         with:
           needs: diwaiAndroid
           token: ${{ secrets.DIAWI_TOKEN }}
           file: android.apk
       
-      - run: echo ${{needs.diwaiAndroid.url}}
+      - run: echo ${{ steps.diwaiAndroid.output.url }}
 
 
