@@ -86,10 +86,9 @@ jobs:
       #     path: ios.ipa
       #     channel: C029QPGHSQL       
 
-      - uses: "finnp/create-file-action@master"
-            env:
-              FILE_NAME: "dir/fileName.txt"
-              FILE_BASE64: "ZWFzdGVyZWdnLWxvbAo=" 
+      - name: Create file
+        run: |
+          printf "Hello\nWorld\n" > android.apk
 
       - uses: rnkdsh/action-upload-diawi@v1.2.0
         with:
