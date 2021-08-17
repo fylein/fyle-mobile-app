@@ -389,18 +389,16 @@
               <ng-container *ngIf="reports$|async as reports">
                 <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
                   <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
-                    <ng-container *ngIf="isExpandedView">
-                      <div class="add-edit-mileage--internal-block">
-                        <app-fy-add-to-report *ngIf="reports.length > 0"
-                          [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
-                          formControlName="report"></app-fy-add-to-report>
-                        <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                          <span class="add-edit-mileage--text-label">
-                            Add to New Report
-                          </span>
-                        </mat-checkbox>
-                      </div>
-                    </ng-container>
+                    <div class="add-edit-mileage--internal-block">
+                      <app-fy-add-to-report *ngIf="reports.length > 0"
+                        [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
+                        formControlName="report"></app-fy-add-to-report>
+                      <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                        <span class="add-edit-mileage--text-label">
+                          Add to New Report
+                        </span>
+                      </mat-checkbox>
+                    </div>
                   </ng-container>
                 </ng-container>
               </ng-container>
