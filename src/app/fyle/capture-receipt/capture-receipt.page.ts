@@ -260,7 +260,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
       component: PopupAlertComponentComponent,
       componentProps: {
         title: 'Limit Reached',
-        message: 'You cannot create more than 20 expenses at a time in bulk mode.',
+        message: 'You’ve added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.',
         primaryCta: {
           text: 'Ok',
         }
