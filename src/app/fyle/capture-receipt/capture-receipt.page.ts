@@ -3,7 +3,7 @@ import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-co
 import { Capacitor, Plugins } from '@capacitor/core';
 
 import '@capacitor-community/camera-preview';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -16,6 +16,7 @@ import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, finalize, reduce, switchMap } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 const { CameraPreview } = Plugins;
 
@@ -58,7 +59,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private imagePicker: ImagePicker,
     private networkService: NetworkService,
     private accountsService: AccountsService,
-    private popupService: PopupService
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() { }
@@ -254,16 +255,25 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     this.setUpAndStartCamera();
   }
 
-  async onCapture() {
-    if (this.captureCount >= 20) {
-      await this.popupService.showPopup({
-        header: 'Limit Reached',
+  async showLimitMessage() {
+    const limitPopover = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title: 'Limit Reached',
         message: 'You cannot create more than 20 expenses at a time in bulk mode.',
         primaryCta: {
-          text: 'OK'
-        },
-        showCancelButton: false
-      });
+          text: 'Ok',
+        }
+      },
+      cssClass: 'pop-up-in-center'
+    });
+
+    await limitPopover.present();
+  }
+
+  async onCapture() {
+    if (this.captureCount >= 20) {
+      await this.showLimitMessage();
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
         quality: 85,
