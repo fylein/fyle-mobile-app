@@ -92,6 +92,10 @@ jobs:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: android.apk
       
+      - run: echo ${{ steps.diwaiAndroid }}
       - run: echo ${{ steps.diwaiAndroid.output.url }}
+      - run: echo ${{ steps.diwaiAndroid.url }}
       - run: echo ${{ steps.diwaiAndroid.output.qrcode }}
+      - run: echo ${{ steps.diwaiAndroid.qrcode }}
+      - run: echo ${{ steps.diwaiAndroid.output }}
 
