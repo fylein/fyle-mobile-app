@@ -86,7 +86,7 @@ jobs:
       #     path: ios.ipa
       #     channel: C029QPGHSQL       
 
-      - uses: "finnp/create-file-action@master"
+      - uses: finnp/create-file-action@master
           env:
             FILE_NAME: "android.apk"
             FILE_DATA: "file content"  
