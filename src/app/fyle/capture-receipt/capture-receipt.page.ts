@@ -331,17 +331,19 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     });
   }
 
-
+  ionViewDidEnter() {
+    this.setUpAndStartCamera();
+  }
 
   ionViewWillEnter() {
     this.isCameraShown = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
-    this.setUpAndStartCamera();
     this.flashMode = null;
     this.offlineService.getHomeCurrency().subscribe(res => {
       this.homeCurrency = res;
     });
+    this.captureCount = 0;
 
     this.offlineService.getOrgUserSettings().subscribe(orgUserSettings => {
       this.isInstafyleEnabled = orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;

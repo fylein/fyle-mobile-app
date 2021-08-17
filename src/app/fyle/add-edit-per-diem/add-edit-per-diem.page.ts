@@ -98,8 +98,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   etxn$: Observable<any>;
 
-  transactionMandatoyFields$: Observable<any>;
-
   isIndividualProjectsEnabled$: Observable<boolean>;
 
   individualProjectIds$: Observable<[]>;
@@ -425,8 +423,8 @@ export class AddEditPerDiemPage implements OnInit {
         expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
         perDiemCategoriesContainer: this.getPerDiemCategories()
       }).pipe(
-        switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
-          const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
+        switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
+          const fields = ['purpose', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
           return this.expenseFieldsService
             .filterByOrgCategoryId(
               expenseFieldsMap, fields, formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
@@ -838,16 +836,10 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
       map(allowedPerDiemRates => allowedPerDiemRates.map(rate => {
-        const rateName = rate.name + ' (' + this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + 'per day )';
-        return ({ label: rateName, value: rate });
+        rate.readableRate = this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + ' per day';
+        return ({label: rate.name, value: rate});
       })
       )
-    );
-
-    this.transactionMandatoyFields$ = this.isConnected$.pipe(
-      filter(isConnected => !!isConnected),
-      switchMap(() => this.offlineService.getOrgSettings()),
-      map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
@@ -857,37 +849,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.individualProjectIds$ = orgUserSettings$.pipe(
       map((orgUserSettings: any) => orgUserSettings.project_ids || [])
     );
-
-    this.transactionMandatoyFields$
-      .pipe(
-        filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
-        switchMap((transactionMandatoyFields) => forkJoin({
-          individualProjectIds: this.individualProjectIds$,
-          isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-          orgSettings: this.offlineService.getOrgSettings()
-        }).pipe(map(({ individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => ({
-          transactionMandatoyFields,
-          individualProjectIds,
-          isIndividualProjectsEnabled,
-          orgSettings
-        }))))
-      )
-      .subscribe(({ transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => {
-        if (orgSettings.projects.enabled) {
-          if (isIndividualProjectsEnabled) {
-            if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          } else {
-            if (transactionMandatoyFields.project) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          }
-        }
-      });
-
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
@@ -943,6 +904,7 @@ export class AddEditPerDiemPage implements OnInit {
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
         num_days: this.fg.controls.num_days,
+        project_id: this.fg.controls.project,
         billable: this.fg.controls.billable
       };
 

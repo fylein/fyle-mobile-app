@@ -28,6 +28,12 @@ export class TrackingService {
     }
   }
 
+  async updateIdentityIfNotPresent() {
+    if (!this.identityEmail) {
+      await this.updateIdentity();
+    }
+  }
+
   // deprecated - use updateSegmentProfile
   uploadCtUserProfile(data) {
     this.updateSegmentProfile(data);
@@ -59,6 +65,8 @@ export class TrackingService {
       this.tracking.identify(email, {
         $email: email
       });
+
+      this.identityEmail = email;
     }
 
     this.eventTrack('Signin', properties);
