@@ -723,13 +723,15 @@
         </ng-template>
       </div>
 
-      <div class="add-edit-expense--split-expense-block" *ngIf="(isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
-        <button class="add-edit-expense--split-expense-container" (click)="splitExpense()">
-          <div class="add-edit-expense--split-expense-title">Split Expense</div>
-        </button>
-        <div class="add-edit-expense--split-info-container">
-          <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
-          <div class="add-edit-expense--split-info-message">Fill all the required fields before splitting an expense.</div>
+      <div *ngIf="etxn$|async as etxn">
+        <div class="add-edit-expense--split-expense-block" *ngIf="(isConnected$|async) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)">
+          <button class="add-edit-expense--split-expense-container" (click)="splitExpense()">
+            <div class="add-edit-expense--split-expense-title">Split Expense</div>
+          </button>
+          <div class="add-edit-expense--split-info-container">
+            <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
+            <div class="add-edit-expense--split-info-message">Fill all the required fields before splitting an expense.</div>
+          </div>
         </div>
       </div>
 

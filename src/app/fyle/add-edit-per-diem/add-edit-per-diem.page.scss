@@ -265,6 +265,10 @@
     padding: 10px;
   }
 
+  &--amount-value {
+    font-size: 22px;
+  }
+
   &--error {
     color: $red;
     line-height: 16px;
