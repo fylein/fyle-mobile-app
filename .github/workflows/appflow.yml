@@ -87,7 +87,8 @@ jobs:
       #     path: ios.ipa
       #     channel: C029QPGHSQL       
 
-      - uses: rnkdsh/action-upload-diawi@v1.2.0
+      - name: Upload to diawi Slack
+        uses: rnkdsh/action-upload-diawi@v1.2.0
         id: diwaiAndroid
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
