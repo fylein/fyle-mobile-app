@@ -87,9 +87,9 @@ jobs:
       #     channel: C029QPGHSQL       
 
       - uses: finnp/create-file-action@master
-          env:
-            FILE_NAME: "android.apk"
-            FILE_DATA: "file content"  
+            env:
+              FILE_NAME: "android.apk"
+              FILE_DATA: "file content"  
 
       - uses: rnkdsh/action-upload-diawi@v1.2.0
         with:
