@@ -93,6 +93,7 @@ jobs:
           file: android.apk
       
       - run: echo ${{ steps.diwaiAndroid }}
+      - run: echo ${{ steps }}
       - run: echo ${{ steps.diwaiAndroid.output.url }}
       - run: echo ${{ steps.diwaiAndroid.url }}
       - run: echo ${{ steps.diwaiAndroid.output.qrcode }}
