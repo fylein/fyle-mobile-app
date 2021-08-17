@@ -78,8 +78,10 @@
                 <div *ngIf="homeCurrency$|async as homeCurrency">
                   <div class="add-edit-per-diem--amount-box">
                     <div>{{ fg.controls?.num_days?.value ? fg.controls?.num_days?.value : 0 }} Days</div>
-                    <div>{{ (fg.controls.currencyObj?.value?.amount ? fg.controls.currencyObj?.value?.amount : 0.00 ) | currency: homeCurrency: 'symbol-narrow'}}</div>
                     <div>{{(fg.controls?.per_diem_rate?.value?.rate ? fg.controls?.per_diem_rate?.value?.rate : 0)  | currency: (fg.controls?.per_diem_rate?.value?.currency ? fg.controls?.per_diem_rate?.value?.currency : homeCurrency): 'symbol-narrow'}} / Day</div>
+                    <div class="add-edit-per-diem--amount-value">
+                      {{ (fg.controls.currencyObj?.value?.amount ? fg.controls.currencyObj?.value?.amount : 0.00 ) | currency: homeCurrency: 'symbol-narrow'}}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -464,7 +466,7 @@
                         <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                           <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
 
-                            <app-fy-alert *ngIf="txnFields?.project_id && individualProjectIds.length === 0"
+                            <app-fy-alert *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                               [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
                               [type]="'warning'">
                             </app-fy-alert>
