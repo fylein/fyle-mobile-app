@@ -114,7 +114,7 @@ export class ExpensesCardComponent implements OnInit {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.tx_file_ids) {
-        this.receiptIcon = 'assets/svg/fy-add-receipt.svg';
+        this.receiptIcon = 'assets/svg/add-receipt.svg';
       } else {
         this.fileService.getFilesWithThumbnail(this.expense.tx_id).pipe(
           map((ThumbFiles: File[]) => {
