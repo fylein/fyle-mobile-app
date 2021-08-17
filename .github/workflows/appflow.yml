@@ -96,6 +96,6 @@ jobs:
 
       - uses: rnkdsh/action-upload-diawi@v1.2.0
         with:
-          token: ${{ secrets.DIAWI_TOKEN }}
+          token: YVmBbLoxAYiudqBY7FfTTdGLCa9iIMLTpZWa5Sf90S
           file: android.apk
 
