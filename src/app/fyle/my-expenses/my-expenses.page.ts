@@ -1351,7 +1351,7 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
-  async openCriticalPolicyViolationPopOver(config: { title: string; message: string; report_type: string }) {
+  async openCriticalPolicyViolationPopOver(config: { title: string; message: string; reportType: string }) {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
@@ -1375,7 +1375,7 @@ export class MyExpensesPage implements OnInit {
 
     if (data && data.action) {
       if (data.action === 'continue') {
-        if (config.report_type === 'oldReport') {
+        if (config.reportType === 'oldReport') {
           this.showOldReportsMatBottomSheet();
         } else {
           this.showNewReportModal();
@@ -1385,15 +1385,14 @@ export class MyExpensesPage implements OnInit {
   }
 
   showNonReportableExpenseSelectedToast(message) {
-    this.matSnackBar.openFromComponent( ToastMessageComponent,
-      this.snackbarProperties.setSnackbarProperties({
-        icon: 'danger',
-        message,
-        redirectionText: null },
-      ['msb-with-report-button'], 3000));
+    this.matSnackBar.openFromComponent( ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+      panelClass: ['msb-failure-with-report-btn']
+    });
+    this.trackingService.onDisplayToastMessage({ToastContent: message});
   }
 
-  async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
+  async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
 
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
@@ -1425,7 +1424,7 @@ export class MyExpensesPage implements OnInit {
       let title = '';
       let message = '';
 
-      if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfExpensesInDraftState > 0)) {
+      if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
         this.homeCurrency$.subscribe(homeCurrency => {
           if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
             title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
@@ -1441,11 +1440,11 @@ export class MyExpensesPage implements OnInit {
             title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
             message = `${noOfExpensesInDraftState} expenses are in draft states.`;
           }
-          this.openCriticalPolicyViolationPopOver({ title, message, report_type });
+          this.openCriticalPolicyViolationPopOver({ title, message, reportType });
         });
 
       } else {
-        if (report_type === 'oldReport') {
+        if (reportType === 'oldReport') {
           this.showOldReportsMatBottomSheet();
         } else {
           this.showNewReportModal();
@@ -1585,9 +1584,15 @@ export class MyExpensesPage implements OnInit {
   }
 
   showAddToReportSuccessToast(config: { message: string; report }) {
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent,
-      this.snackbarProperties.setSnackbarProperties({icon: 'tick-square-filled', message: config.message, redirectionText: 'View Report'},
-        ['msb-with-camera-icon'], 3000));
+    const toastMessageData = {
+      message: config.message,
+      redirectionText: 'View Report'
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent( ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon']
+    });
+    this.trackingService.onDisplayToastMessage({ToastContent: config.message});
 
     this.isReportableExpensesSelected = false;
     this.selectionMode = false;
@@ -1688,17 +1693,21 @@ export class MyExpensesPage implements OnInit {
         count: this.selectedElements.length
       });
       if (data.status === 'success') {
-        this.matSnackBar.openFromComponent(ToastMessageComponent, this.snackbarProperties.setSnackbarProperties({
-          icon: 'tick-square-filled',
-          message: `${offlineExpenses.length + this.selectedElements.length} Expenses have been deleted`,
-          redirectionText: null
-        }, ['msb-with-camera-icon'], 3000));
+        const totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
+        const message = totalNoOfSelectedExpenses === 1 ? '1 expense has been deleted'
+          :`${totalNoOfSelectedExpenses} expenses have been deleted`;
+        this.matSnackBar.openFromComponent( ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon']
+        });
+        this.trackingService.onDisplayToastMessage({ToastContent: message});
       } else {
-        this.matSnackBar.openFromComponent(ToastMessageComponent, this.snackbarProperties.setSnackbarProperties({
-          icon: 'danger',
-          message: 'We could not delete the expenses. Please try again ',
-          redirectionText: null
-        }, ['msb-with-camera-icon'], 3000));
+        const message = 'We could not delete the expenses. Please try again';
+        this.matSnackBar.openFromComponent( ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+          panelClass: ['msb-failure-with-camera-icon']
+        });
+        this.trackingService.onDisplayToastMessage({ToastContent: message});
       }
 
       this.isReportableExpensesSelected = false;

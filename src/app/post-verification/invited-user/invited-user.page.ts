@@ -131,11 +131,12 @@ export class InvitedUserPage implements OnInit {
         // return $state.go('enterprise.my_dashboard');
       });
     } else {
-      this.matSnackBar.openFromComponent(ToastMessageComponent, this.snackbarProperties.setSnackbarProperties({
-        icon: 'danger',
-        message: 'Please fill all required fields to proceed',
-        redirectionText: null
-      }, [], 1200));
+      const message = `Please enter a valid ${!this.fg.value.fullName.length ? 'name' : 'password'}`;
+      this.matSnackBar.openFromComponent( ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+        panelClass: ['msb-failure']
+      });
+      this.trackingService.onDisplayToastMessage({ToastContent: message});
     }
   }
 

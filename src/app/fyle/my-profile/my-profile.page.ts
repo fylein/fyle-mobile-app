@@ -122,11 +122,12 @@ export class MyProfilePage implements OnInit {
       concatMap(() => this.authService.refreshEou().pipe(
         tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
         map(() => {
-          this.matSnackBar.openFromComponent(ToastMessageComponent, this.snackbarProperties.setSnackbarProperties({
-            icon: 'tick-square-filled',
-            message: 'Profile saved successfully',
-            redirectionText: null
-          }, [], 1000));
+          const message = 'Profile saved successfully';
+          this.matSnackBar.openFromComponent( ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success']
+          });
+          this.trackingService.onDisplayToastMessage({ToastContent: message});
         })
       )),
       finalize(() => {

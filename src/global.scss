@@ -79,27 +79,44 @@ input:focus, textarea:focus{
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.mat-snack-bar {
+.msb-success {
   color: $pure-white;
+  background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 30px 16px !important;
   padding: 12px 8px !important;
 }
 
-.msb-success {
-  background-color: $green;
-}
-
 .msb-failure {
+  color: $pure-white;
   background-color: $red;
+  border-radius: 8px !important;
+  margin: 0 16px 30px 16px !important;
+  padding: 12px 8px !important;
 }
 
-.msb-with-camera-icon {
-  margin-bottom: 133px !important;
+.msb-success-with-camera-icon {
+  color: $pure-white;
+  background-color: $green;
+  border-radius: 8px !important;
+  margin: 0 16px 133px 16px !important;
+  padding: 12px 8px !important;
 }
 
-.msb-with-report-button {
-  margin-bottom: 96px !important;
+.msb-failure-with-camera-icon {
+  color: $pure-white;
+  background-color: $red;
+  border-radius: 8px !important;
+  margin: 0 16px 133px 16px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-failure-with-report-btn {
+  color: $pure-white;
+  background-color: $red;
+  border-radius: 8px !important;
+  margin: 0 16px 96px 16px !important;
+  padding: 12px 8px !important;
 }
 
 .icon--white {

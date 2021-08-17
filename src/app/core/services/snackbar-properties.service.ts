@@ -7,12 +7,21 @@ export class SnackbarPropertiesService {
 
   constructor() { }
 
-  setSnackbarProperties(data: { icon: string; message: string; redirectionText: string },
-    panelClass: string[], duration = 1000) {
-    return { data: {...data, showCloseButton: true},
-      panelClass: [ 'mat-snack-bar',
-        data.icon === 'danger' ? 'msb-failure' : 'msb-success',
-        ...panelClass ],
-      duration };
+  /*
+    Set snackbar properties to be displayed
+    - toastMessageType - success or failure
+    - toastMessageData - Object containing the toast message and recdirectionText(if any)
+  */
+
+  setSnackbarProperties(toastMessageType: string, toastMessageData: {message: string; redirectiontext?: string}) {
+    const snackbarIcon = toastMessageType === 'success' ? 'tick-square-filled' : 'danger';
+    return {
+      data: {
+        icon: snackbarIcon,
+        showCloseButton: true,
+        ...toastMessageData
+      },
+      duration: 3000
+    };
   }
 }
