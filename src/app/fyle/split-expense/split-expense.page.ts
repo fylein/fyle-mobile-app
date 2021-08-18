@@ -165,8 +165,10 @@ export class SplitExpensePage implements OnInit {
       currency: splitExpenseValue.currency,
       amount: splitExpenseValue.amount,
       source: 'MOBILE',
-      billable: splitExpenseValue.project ? this.txnFields && this.txnFields.billable && this.txnFields.billable.default_value : this.transaction.billable,
-      tax: this.transaction.tax && this.transaction.amount ? ((this.transaction.tax * splitExpenseValue.percentage)/100) : this.transaction.tax
+      billable: splitExpenseValue.project ? this.txnFields && this.txnFields.billable && this.txnFields.billable.default_value 
+                                            : this.transaction.billable,
+      tax: this.transaction.tax && this.transaction.amount ? ((this.transaction.tax * splitExpenseValue.percentage)/100) 
+                                                             : this.transaction.tax
     };
   }
 
