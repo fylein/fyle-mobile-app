@@ -752,4 +752,12 @@ export class TrackingService {
   myExpensesFilterApplied(properties) {
     this.eventTrack('my expenses filters applied', properties);
   }
+
+  showMoreClicked(properties) {
+    this.eventTrack('show more clicked', properties);
+  }
+
+  hideMoreClicked(properties) {
+    this.eventTrack('hide more clicked', properties);
+  }
 }

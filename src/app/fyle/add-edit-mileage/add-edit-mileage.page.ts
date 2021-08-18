@@ -2243,4 +2243,22 @@ export class AddEditMileagePage implements OnInit {
       this.trackingService.viewComment({ Asset: 'Mobile' });
     }
   }
+
+  hideFields() {
+    this.trackingService.hideMoreClicked({
+      Asset: 'Mobile',
+      source: 'Add Mileage page',
+    });
+
+    this.isExpandedView = false;
+  }
+
+  showFields() {
+    this.trackingService.showMoreClicked({
+      Asset: 'Mobile',
+      source: 'Add Mileage page',
+    });
+
+    this.isExpandedView = true;
+  }
 }
