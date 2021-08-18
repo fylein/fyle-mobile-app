@@ -233,8 +233,6 @@ export class TransactionService {
     // FYLE-6148. Don't send custom_attributes.
     transaction.custom_attributes = null;
 
-    transaction.tax_amount = transaction.tax;
-
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         const offset = orgUserSettings.locale.offset;
