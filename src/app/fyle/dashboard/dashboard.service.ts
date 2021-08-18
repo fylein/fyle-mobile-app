@@ -3,12 +3,16 @@ import {ReportService} from '../../core/services/report.service';
 import { map } from 'rxjs/operators';
 import {StatsResponse} from '../../core/models/v2/stats-response.model';
 import {TransactionService} from '../../core/services/transaction.service';
+import { Observable } from 'rxjs';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 
 @Injectable()
 export class DashboardService {
   constructor(
       private reportService: ReportService,
-      private transactionService: TransactionService
+      private transactionService: TransactionService,
+      private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
   ) { }
 
   getUnreportedExpensesStats() {
@@ -70,5 +74,9 @@ export class DashboardService {
       approved: approvedReportStats,
       paymentPending: paymentPendingReportStats
     };
+  }
+
+  getCCCDetails():  Observable<BankAccountsAssigned[]> {
+    return this.corporateCreditCardExpenseService.getAssignedCards();
   }
 }

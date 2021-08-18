@@ -736,6 +736,10 @@ export class TrackingService {
     this.eventTrack('dashboard report pill clicked', properties);
   }
 
+  dashboardOnCorporateCardClick(properties) {
+    this.eventTrack('dashboard corporate card clicked', properties);
+  }
+
   // Footer
   footerButtonClicked(properties) {
     this.eventTrack('footer button clicked', properties);
