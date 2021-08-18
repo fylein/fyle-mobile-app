@@ -658,7 +658,7 @@ export class AddEditExpensePage implements OnInit {
           fileObjs: JSON.stringify(generatedEtxnFromFg.dataUrls),
           selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
         }]);
-      })
+      });
   }
 
   async splitExpense() {
