@@ -308,7 +308,6 @@ input:focus, textarea:focus{
 
 .ios .stats--background {
   min-height: calc(360px + constant(safe-area-inset-top)) !important;
-  min-height: calc(300px + env(safe-area-inset-top)) !important;
 }
 
 .ios .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
