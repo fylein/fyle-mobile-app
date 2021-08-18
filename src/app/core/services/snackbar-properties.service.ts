@@ -4,9 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class SnackbarPropertiesService {
-
   constructor() { }
-
   /**
    * Factory function for properties of toast message component
    *
