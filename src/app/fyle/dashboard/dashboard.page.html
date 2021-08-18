@@ -9,7 +9,23 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content scrollY="false" class="dashboard--body">
+<ion-header mode="md" class="dashboard--header" *ngIf="!(currentStateIndex === 1)">
+  <ion-toolbar class="stats--toolbar">
+    <ion-buttons slot="start">
+      <app-fy-menu-icon></app-fy-menu-icon>
+    </ion-buttons>
+    <ion-title class="stats--title" mode="md">
+      Home
+    </ion-title>
+    <ion-buttons slot="end">
+      <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+        <mat-icon svgIcon="fy-plus"></mat-icon>
+      </div>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
       <app-stats #stats></app-stats>
@@ -18,6 +34,8 @@
       <app-tasks></app-tasks>
     </mat-tab>
   </mat-tab-group>
-  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()" [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"></app-fy-footer>
 </ion-content>
 
+<ion-footer>
+  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()" [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"></app-fy-footer>
+</ion-footer>
