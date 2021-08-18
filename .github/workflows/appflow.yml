@@ -1,6 +1,8 @@
 name: Appflow
 
-on: workflow_dispatch
+on:
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build-android:
