@@ -7,11 +7,13 @@ export class SnackbarPropertiesService {
 
   constructor() { }
 
-  /*
-    Set snackbar properties to be displayed
-    - toastMessageType - success or failure
-    - toastMessageData - Object containing the toast message and recdirectionText(if any)
-  */
+  /**
+   * Factory function for properties of toast message component
+   *
+   * @param toastMessageType - Type of toast message: success or failure
+   * @param toastMessageData - Object containing the toast message and redirectionText
+   * @returns Object to be used for displaying toast message component
+   */
 
   setSnackbarProperties(toastMessageType: string, toastMessageData: {message: string; redirectiontext?: string}) {
     const snackbarIcon = toastMessageType === 'success' ? 'tick-square-filled' : 'danger';

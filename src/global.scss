@@ -83,7 +83,7 @@ input:focus, textarea:focus{
   color: $pure-white;
   background-color: $green;
   border-radius: 8px !important;
-  margin: 0 16px 30px 16px !important;
+  margin: 0 16px 30px !important;
   padding: 12px 8px !important;
 }
 
@@ -91,7 +91,7 @@ input:focus, textarea:focus{
   color: $pure-white;
   background-color: $red;
   border-radius: 8px !important;
-  margin: 0 16px 30px 16px !important;
+  margin: 0 16px 30px !important;
   padding: 12px 8px !important;
 }
 
@@ -99,7 +99,7 @@ input:focus, textarea:focus{
   color: $pure-white;
   background-color: $green;
   border-radius: 8px !important;
-  margin: 0 16px 133px 16px !important;
+  margin: 0 16px 133px !important;
   padding: 12px 8px !important;
 }
 
@@ -107,7 +107,7 @@ input:focus, textarea:focus{
   color: $pure-white;
   background-color: $red;
   border-radius: 8px !important;
-  margin: 0 16px 133px 16px !important;
+  margin: 0 16px 133px !important;
   padding: 12px 8px !important;
 }
 
@@ -115,15 +115,15 @@ input:focus, textarea:focus{
   color: $pure-white;
   background-color: $red;
   border-radius: 8px !important;
-  margin: 0 16px 96px 16px !important;
+  margin: 0 16px 96px !important;
   padding: 12px 8px !important;
 }
 
-.icon--white {
+.icon--toast-danger {
   color: $white !important;
 }
 
-.icon--dark-yellow {
+.icon--alert-warning {
   color: $dark-yellow !important;
 }
 

@@ -375,7 +375,7 @@ export class TrackingService {
   }
 
   // When toast message is displayed
-  onDisplayToastMessage(properties) {
+  showToastMessage(properties) {
     this.eventTrack('Toast message displayed', properties);
   }
 

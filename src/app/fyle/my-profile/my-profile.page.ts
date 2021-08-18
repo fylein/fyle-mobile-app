@@ -127,7 +127,7 @@ export class MyProfilePage implements OnInit {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
             panelClass: ['msb-success']
           });
-          this.trackingService.onDisplayToastMessage({ToastContent: message});
+          this.trackingService.showToastMessage({ToastContent: message});
         })
       )),
       finalize(() => {

@@ -1368,7 +1368,7 @@ export class MyExpensesPage implements OnInit {
       ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
       panelClass: ['msb-failure-with-report-btn']
     });
-    this.trackingService.onDisplayToastMessage({ToastContent: message});
+    this.trackingService.showToastMessage({ToastContent: message});
   }
 
   async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
@@ -1571,7 +1571,7 @@ export class MyExpensesPage implements OnInit {
       ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
       panelClass: ['msb-success-with-camera-icon']
     });
-    this.trackingService.onDisplayToastMessage({ToastContent: config.message});
+    this.trackingService.showToastMessage({ToastContent: config.message});
 
     this.isReportableExpensesSelected = false;
     this.selectionMode = false;
@@ -1679,14 +1679,14 @@ export class MyExpensesPage implements OnInit {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
           panelClass: ['msb-success-with-camera-icon']
         });
-        this.trackingService.onDisplayToastMessage({ToastContent: message});
+        this.trackingService.showToastMessage({ToastContent: message});
       } else {
         const message = 'We could not delete the expenses. Please try again';
         this.matSnackBar.openFromComponent( ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
           panelClass: ['msb-failure-with-camera-icon']
         });
-        this.trackingService.onDisplayToastMessage({ToastContent: message});
+        this.trackingService.showToastMessage({ToastContent: message});
       }
 
       this.isReportableExpensesSelected = false;

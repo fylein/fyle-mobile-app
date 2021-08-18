@@ -136,7 +136,7 @@ export class InvitedUserPage implements OnInit {
         ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
         panelClass: ['msb-failure']
       });
-      this.trackingService.onDisplayToastMessage({ToastContent: message});
+      this.trackingService.showToastMessage({ToastContent: message});
     }
   }
 
