@@ -254,7 +254,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
   async onCapture() {
     const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-      quality: 85,
+      quality: 50,
     };
 
     const result = await CameraPreview.capture(cameraPreviewPictureOptions);
