@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { IonContent, ModalController } from '@ionic/angular';
+import { IonContent, ModalController, Platform } from '@ionic/angular';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -60,7 +60,8 @@ export class ViewCommentComponent implements OnInit {
     private transactionService: TransactionService,
     private router: Router,
     private trackingService: TrackingService,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    public platform: Platform
   ) { }
 
   addComment() {
