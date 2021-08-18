@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { forkJoin, from, noop, of } from 'rxjs';
+import { forkJoin, from, noop } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';

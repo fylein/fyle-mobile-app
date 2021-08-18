@@ -639,30 +639,6 @@ ref - https://stackoverflow.com/a/31162426
   }
 }
 
-.receipt-preview {
-  &--action-sheet {
-    .action-sheet-title {
-      font-size: 14px;
-      line-height: 1.28;
-    }
-  }
-
-  &--capture-receipt {
-    stroke: $grey-light;
-    color: $black !important;
-    font-size: 18px !important;
-    line-height: 1.28;
-  }
-
-  &--gallery-upload {
-    stroke: $grey-light;
-    color: $black !important;
-    font-size: 18px !important;
-    line-height: 1.28;
-  }
-
-}
-
 .dashboard {
   &--tabs {
     .mat-tab-header {
