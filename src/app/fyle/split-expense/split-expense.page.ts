@@ -28,6 +28,8 @@ export class SplitExpensePage implements OnInit {
 
   splitType: string;
 
+  txnFields: any;
+
   amount: number;
 
   currency: string;
@@ -162,7 +164,9 @@ export class SplitExpensePage implements OnInit {
       cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
       currency: splitExpenseValue.currency,
       amount: splitExpenseValue.amount,
-      source: 'MOBILE'
+      source: 'MOBILE',
+      billable: splitExpenseValue.project ? this.txnFields && this.txnFields.billable && this.txnFields.billable.default_value : this.transaction.billable,
+      tax: this.transaction.tax && this.transaction.amount ? ((this.transaction.tax * splitExpenseValue.percentage)/100) : this.transaction.tax
     };
   }
 
@@ -338,6 +342,7 @@ export class SplitExpensePage implements OnInit {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
       const orgSettings$ = this.offlineService.getOrgSettings();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
+      this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields);
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);

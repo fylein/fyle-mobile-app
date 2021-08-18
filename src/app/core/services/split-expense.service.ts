@@ -112,6 +112,13 @@ export class SplitExpenseService {
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
 
+      if (splitExpense.project_id) {
+        transaction.billable = splitExpense.billable;
+      }
+      if (splitExpense.tax) {
+        transaction.tax = splitExpense.tax;
+      }
+
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
       txnsObservables.push(this.transactionService.upsert(transaction));
