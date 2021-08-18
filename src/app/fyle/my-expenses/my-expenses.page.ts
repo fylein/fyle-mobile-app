@@ -1374,7 +1374,7 @@ export class MyExpensesPage implements OnInit {
       return;
     }
 
-    this.trackingService.addToReport({ Asset: 'Mobile' });
+    this.trackingService.addToReport({ Asset: 'Mobile', count: this.selectedElements.length });
 
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
